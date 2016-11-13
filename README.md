@@ -2,6 +2,12 @@ Slate Tile Editor
 
 A simple pixel tile editor for 2D tilesheets.
 
+![Slate Screenshot](https://github.com/mitchcurtis/slate/blob/master/slate.png "Slate")
+
+The tileset in the screenhot was taken from the following page:
+
+http://opengameart.org/content/lpc-tile-atlas
+
 ### Dependencies ###
 
 * Qt >= 5.8
