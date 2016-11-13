@@ -1,6 +1,8 @@
 # Slate Tileset Editor
 
-A simple pixel tileset editor for 2D tilesheets, written with [Qt Quick Controls 2](http://doc.qt.io/qt-5/qtquickcontrols2-index.html).
+A simple bitmap editor for 2D tilesets, written with [Qt Quick Controls 2](http://doc.qt.io/qt-5/qtquickcontrols2-index.html).
+
+Slate's goal is to simplify the creation of seamless tilesets.
 
 ![Slate Screenshot](https://github.com/mitchcurtis/slate/blob/master/slate.png "Slate")
 
