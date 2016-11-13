@@ -1,0 +1,40 @@
+<RCC>
+    <qresource prefix="/qml">
+        <file>main.qml</file>
+        <file>ui/CanvasColours.qml</file>
+        <file>ui/CanvasSizePopup.qml</file>
+        <file>ui/ColourButton.qml</file>
+        <file>ui/ColourPanel.qml</file>
+        <file>ui/CrosshairCursor.qml</file>
+        <file>ui/DialogButton.qml</file>
+        <file>ui/ErrorPopup.qml</file>
+        <file>ui/HexColourRowLayout.qml</file>
+        <file>ui/HueSlider.qml</file>
+        <file>ui/IconRectangle.qml</file>
+        <file>ui/IconToolBar.qml</file>
+        <file>ui/IconToolButton.qml</file>
+        <file>ui/MenuBar.qml</file>
+        <file>ui/NewProjectPopup.qml</file>
+        <file>ui/RecentProjectsPopup.qml</file>
+        <file>ui/Shortcuts.qml</file>
+        <file>ui/SwatchFocusRectangle.qml</file>
+        <file>ui/TilesetSwatch.qml</file>
+        <file>ui/ToolBar.qml</file>
+        <file>ui/ToolSizePopup.qml</file>
+        <file>ui/ZoomIndicator.qml</file>
+        <file>ui/+material/CanvasColours.qml</file>
+        <file>ui/+material/DialogButton.qml</file>
+        <file>ui/+material/IconRectangle.qml</file>
+        <file>ui/+material/SwatchFocusRectangle.qml</file>
+        <file>ui/+material/ToolBar.qml</file>
+        <file>ui/+universal/CanvasColours.qml</file>
+        <file>ui/+universal/IconRectangle.qml</file>
+        <file>ui/+universal/SwatchFocusRectangle.qml</file>
+        <file>ui/ColourSelector.qml</file>
+        <file>ui/HslSimplePicker.qml</file>
+        <file>ui/OptionsDialog.qml</file>
+        <file>ui/ShortcutRow.qml</file>
+        <file>ui/qmldir</file>
+        <file>ui/ErrorLabel.qml</file>
+    </qresource>
+</RCC>
