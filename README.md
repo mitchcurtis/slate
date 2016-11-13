@@ -1,4 +1,4 @@
-Tile Editor
+Slate Tile Editor
 
 A simple pixel tile editor for 2D tilesheets.
 
