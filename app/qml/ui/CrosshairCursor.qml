@@ -5,14 +5,13 @@ Item {
     height: 13
 
     property int size: 1
-    property color mainColour: "white"
-    property color shadowColour: "#22000000"
+    property color colour: "#aa000000"
 
     Rectangle {
         x: 6
         width: 1
         height: 4
-        color: mainColour
+        color: colour
     }
 
     Rectangle {
@@ -20,22 +19,14 @@ Item {
         y: parent.height - height
         width: 1
         height: 4
-        color: mainColour
+        color: colour
     }
 
     Rectangle {
         y: parent.height / 2 - height / 2
         width: 4
         height: 1
-        color: mainColour
-    }
-
-    Rectangle {
-        x: parent.width - width
-        y: parent.height / 2 - height / 2
-        width: 4
-        height: 1
-        color: mainColour
+        color: colour
     }
 
     Rectangle {
@@ -43,7 +34,15 @@ Item {
         y: parent.height / 2 - height / 2
         width: 4
         height: 1
-        color: mainColour
+        color: colour
+    }
+
+    Rectangle {
+        x: parent.width - width
+        y: parent.height / 2 - height / 2
+        width: 4
+        height: 1
+        color: colour
     }
 
     Rectangle {
@@ -51,6 +50,6 @@ Item {
         y: parent.height / 2 - height / 2
         width: 1
         height: 1
-        color: mainColour
+        color: "#aaffffff"
     }
 }
