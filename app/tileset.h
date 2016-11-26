@@ -34,6 +34,7 @@ public:
     Tileset(const QString &fileName, int tilesWide, int tilesHigh, QObject *parent);
 
     QString fileName() const;
+    void setFileName(const QString &fileName);
     const QImage *image() const;
     void setPixelColor(int x, int y, const QColor &colour);
     void copy(const QPoint &sourceTopLeft, const QPoint &targetTopLeft);
@@ -54,7 +55,7 @@ private:
 
     void rotate(const QPoint &tileTopLeft, int angle);
 
-    QString mFilename;
+    QString mFileName;
     QImage mImage;
     int mTilesWide;
     int mTilesHigh;

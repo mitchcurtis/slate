@@ -168,6 +168,7 @@ private:
     QHash<int, Tile*> mTileDatabase;
     Tileset* mTileset;
     QTemporaryDir mTempDir;
+    bool mUsingTempTilesetImage;
 
     UndoStack mUndoStack;
     bool mComposingMacro;

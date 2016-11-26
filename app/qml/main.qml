@@ -240,6 +240,7 @@ ApplicationWindow {
     FileDialog {
         id: openProjectDialog
         nameFilters: ["JSON files (*.json)"]
+        defaultSuffix: "json"
         onAccepted: project.load(file)
     }
 
@@ -247,6 +248,7 @@ ApplicationWindow {
         id: saveAsDialog
         fileMode: FileDialog.SaveFile
         nameFilters: ["JSON files (*.json)"]
+        defaultSuffix: "json"
         onAccepted: project.saveAs(file)
     }
 

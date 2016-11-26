@@ -26,7 +26,7 @@
 
 Tileset::Tileset(const QString &fileName, int tilesWide, int tilesHigh, QObject *parent) :
     QObject(parent),
-    mFilename(fileName),
+    mFileName(fileName),
     mImage(fileName),
     mTilesWide(tilesWide),
     mTilesHigh(tilesHigh)
@@ -36,7 +36,15 @@ Tileset::Tileset(const QString &fileName, int tilesWide, int tilesHigh, QObject 
 
 QString Tileset::fileName() const
 {
-    return mFilename;
+    return mFileName;
+}
+
+void Tileset::setFileName(const QString &fileName)
+{
+    if (fileName == mFileName)
+        return;
+
+    mFileName = fileName;
 }
 
 const QImage *Tileset::image() const

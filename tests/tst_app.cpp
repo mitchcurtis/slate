@@ -79,14 +79,38 @@ void tst_App::newProjectWithNewTileset()
 {
     createNewProject(32, 32, 5, 5);
 
-    // Should just be a white PNG.
+    // Make sure that any changes are reflected in the image after it's saved.
+    // First, establish what we expect the image to look like in the end.
     const int expectedWidth = 32 * 5;
     const int expectedHeight = 32 * 5;
     QCOMPARE(project->tileset()->image()->width(), expectedWidth);
     QCOMPARE(project->tileset()->image()->height(), expectedHeight);
     QImage expectedTilesetImage(expectedWidth, expectedHeight, project->tileset()->image()->format());
     expectedTilesetImage.fill(Qt::white);
-    QCOMPARE(expectedTilesetImage, *project->tileset()->image());
+    expectedTilesetImage.setPixelColor(10, 10, canvas->penForegroundColour());
+
+    // Draw a tile on.
+    switchMode(TileCanvas::TileMode);
+    setCursorPosInTiles(0, 0);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(project->tileAt(QPoint(0, 0)));
+    QVERIFY(project->hasUnsavedChanges());
+
+    // Draw a pixel on that tile.
+    switchMode(TileCanvas::PixelMode);
+    setCursorPosInPixels(10, 10);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(*project->tileset()->image(), expectedTilesetImage);
+
+    // Save the project.
+    const QUrl saveFileName = QUrl::fromLocalFile(tempProjectDir->path() + "/mytileset.json");
+    project->saveAs(saveFileName);
+    VERIFY_NO_ERRORS_OCCURRED();
+    // Should save the image at the same location as the project.
+    const QString tilesetPath = tempProjectDir->path() + "/mytileset.png";
+    QCOMPARE(project->tilesetUrl(), QUrl::fromLocalFile(tilesetPath));
+    QVERIFY(QFile::exists(tilesetPath));
+    QCOMPARE(*project->tileset()->image(), expectedTilesetImage);
 }
 
 void tst_App::openClose()

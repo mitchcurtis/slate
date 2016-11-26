@@ -22,6 +22,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
+#include <QImage>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -38,6 +39,7 @@ Project::Project() :
     mTileWidth(0),
     mTileHeight(0),
     mTileset(nullptr),
+    mUsingTempTilesetImage(false),
     mComposingMacro(false),
     mHadUnsavedChangesBeforeMacroBegan(false)
 {
@@ -139,6 +141,7 @@ QUrl Project::createTemporaryTilesetImage(int tileWidth, int tileHeight,
     }
 
     qCDebug(lcProject) << "Successfully created temporary tileset image:" << fileName;
+    mUsingTempTilesetImage = true;
     return QUrl::fromLocalFile(fileName);
 }
 
@@ -237,6 +240,7 @@ void Project::load(const QUrl &url)
     setTileWidth(strictValue(projectObject, "tileWidth").toInt());
     setTileHeight(strictValue(projectObject, "tileHeight").toInt());
     setTilesetUrl(QUrl::fromLocalFile(strictValue(projectObject, "tilesetPath").toString()));
+    mUsingTempTilesetImage = false;
 
     Q_ASSERT(!mTileset);
     const QString tilesetPath = mTilesetUrl.toLocalFile();
@@ -271,6 +275,7 @@ void Project::close()
 
     setNewProject(false);
     setUrl(QUrl());
+    mUsingTempTilesetImage = false;
     clearTiles();
     mTileDatabase.clear();
     setTileset(nullptr);
@@ -294,11 +299,23 @@ void Project::saveAs(const QUrl &url)
     if (!hasLoaded())
         return;
 
-    if (url.isEmpty()) {
+    if (url.isEmpty())
+        return;
+
+    const QString filePath = url.toLocalFile();
+    const QFileInfo projectSaveFileInfo(filePath);
+    if (mTempDir.isValid()) {
+        if (projectSaveFileInfo.dir().path() == mTempDir.path()) {
+            error(QLatin1String("Cannot save project in internal temporary directory"));
+            return;
+        }
+    }
+
+    if (mTileset->image()->isNull()) {
+        error(QString::fromLatin1("Failed to save project: tileset image is null"));
         return;
     }
 
-    const QString filePath = url.toLocalFile();
     QFile jsonFile;
     if (QFile::exists(filePath)) {
         jsonFile.setFileName(filePath);
@@ -310,6 +327,31 @@ void Project::saveAs(const QUrl &url)
         jsonFile.setFileName(filePath);
         if (!jsonFile.open(QIODevice::WriteOnly)) {
             error(QString::fromLatin1("Failed to create project's JSON file at %1").arg(filePath));
+            return;
+        }
+    }
+
+    const QFileInfo tileFileInfo(mTileset->fileName());
+    if (!tileFileInfo.exists()) {
+        error(QString::fromLatin1("Failed to save project: tileset path %1 doesn't exist").arg(mTileset->fileName()));
+        return;
+    }
+
+    if (mUsingTempTilesetImage) {
+        // Save the image in the same directory as the project, using the same base name as the project url.
+        const QString path = projectSaveFileInfo.path() + "/" + projectSaveFileInfo.completeBaseName() + ".png";
+        qCDebug(lcProject) << "saving temporary tileset image to" << path;
+        if (!mTileset->image()->save(path)) {
+            error(QString::fromLatin1("Failed to save project: failed to save tileset image %1").arg(path));
+            return;
+        }
+
+        mTileset->setFileName(path);
+        mTilesetUrl = QUrl::fromLocalFile(path);
+        mUsingTempTilesetImage = false;
+    } else {
+        if (!mTileset->image()->save(mTileset->fileName())) {
+            error(QString::fromLatin1("Failed to save project: failed to save tileset image %1").arg(mTileset->fileName()));
             return;
         }
     }
@@ -327,16 +369,6 @@ void Project::saveAs(const QUrl &url)
     tilesetObject["tilesWide"] = mTileset->tilesWide();
     tilesetObject["tilesHigh"] = mTileset->tilesHigh();
     projectObject.insert("tileset", tilesetObject);
-
-    const QFileInfo tileFileInfo(mTileset->fileName());
-    if (!tileFileInfo.exists()) {
-        error(QString::fromLatin1("Failed to save project: tileset path %1 doesn't exist").arg(mTileset->fileName()));
-        return;
-    }
-
-    if (!mTileset->image()->save(mTileset->fileName())) {
-        error(QString::fromLatin1("Failed to save individual tile: coudn't save tile image %1").arg(mTileset->fileName()));
-    }
 
     QJsonArray tileArray;
     foreach (int tile, mTiles) {
