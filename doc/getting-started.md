@@ -22,7 +22,7 @@ Now we've got an empty canvas.
 
 In Slate, the editing process is: draw tiles, draw pixels on those tiles. By default, the tool mode is set to tiles ( ![](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-tool-mode-tile.png) ), so that all tools operate on tiles, rather than pixels.
 
-Let's use the Pen tool ( [](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-tool-pen.png) ) to draw a tile onto the canvas.
+Let's use the Pen tool ( ![](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-tool-pen.png) ) to draw a tile onto the canvas.
   
 ![Pen tool](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-getting-started-4.png)
 
