@@ -54,6 +54,6 @@ Notice that the tileset swatch in the lower right side of the screen contains th
 
 Most actions in Slate can be undone and redone, using either the tool buttons shown below, or the standard keyboard shortcuts for your operating system.
 
-![Drawing pixels](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-getting-started-9.png)
+![Undo, Redo](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-getting-started-9.png)
 
 *WIP*
