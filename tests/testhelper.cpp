@@ -322,28 +322,44 @@ void TestHelper::changeToolSize(int size)
     QQuickItem *toolSizeSlider = toolSizePopup->findChild<QQuickItem*>("toolSizeSlider");
     QVERIFY(toolSizeSlider);
 
-    // Slide the slider until we find the value we want.
-    const QPoint sliderLeftEdge = toolSizeSlider->mapToScene(QPointF(0, toolSizeSlider->height() / 2)).toPoint();
-    const QPoint sliderRightEdge = toolSizeSlider->mapToScene(QPointF(toolSizeSlider->width(), toolSizeSlider->height() / 2)).toPoint();
-    QPoint sliderHandlePos = sliderLeftEdge;
+    QQuickItem *toolSizeSliderHandle = toolSizeSlider->property("handle").value<QQuickItem*>();
+    QVERIFY(toolSizeSliderHandle);
+
+    // Move the slider to the right to find the max pos.
+    QVERIFY(toolSizeSlider->setProperty("value", toolSizeSlider->property("to").toReal()));
+    QCOMPARE(toolSizeSlider->property("value"), toolSizeSlider->property("to"));
+    const QPoint handleMaxPos = toolSizeSliderHandle->mapToScene(
+        QPointF(toolSizeSliderHandle->width() / 2, toolSizeSliderHandle->height() / 2)).toPoint();
+
+    // Move/reset the slider to the left since we move from left to right.
+    QVERIFY(toolSizeSlider->setProperty("value", toolSizeSlider->property("from").toReal()));
+    QCOMPARE(toolSizeSlider->property("value"), toolSizeSlider->property("from"));
+    const QPoint handleMinPos = toolSizeSliderHandle->mapToScene(
+        QPointF(toolSizeSliderHandle->width() / 2, toolSizeSlider->height() / 2)).toPoint();
+
+    QPoint sliderHandlePos = handleMinPos;
     QTest::mousePress(toolSizeSlider->window(), Qt::LeftButton, Qt::NoModifier, sliderHandlePos);
     QCOMPARE(toolSizeSlider->property("pressed").toBool(), true);
     QCOMPARE(window->mouseGrabberItem(), toolSizeSlider);
+
+    QTest::mouseMove(toolSizeSlider->window(), sliderHandlePos, 5);
+
+    // Move the slider's handle until we find the value we want.
     for (;
-         int(sliderValue(toolSizeSlider)) != size && sliderHandlePos.x() < sliderRightEdge.x();
+         sliderValue(toolSizeSlider) != size && sliderHandlePos.x() < handleMaxPos.x();
          ++sliderHandlePos.rx()) {
         QTest::mouseMove(toolSizeSlider->window(), sliderHandlePos, 5);
     }
     QTest::mouseRelease(toolSizeSlider->window(), Qt::LeftButton, Qt::NoModifier, sliderHandlePos);
     QCOMPARE(toolSizeSlider->property("pressed").toBool(), false);
-    QCOMPARE(int(sliderValue(toolSizeSlider)), size);
+    QCOMPARE(sliderValue(toolSizeSlider), size);
 
     // Close the popup.
     QTest::keyClick(window, Qt::Key_Escape);
     QCOMPARE(toolSizePopup->property("visible").toBool(), false);
 }
 
-qreal TestHelper::sliderValue(QQuickItem *slider) const
+int TestHelper::sliderValue(QQuickItem *slider) const
 {
     const qreal position = slider->property("position").toReal();
     qreal value = 0;

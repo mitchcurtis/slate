@@ -110,7 +110,7 @@ protected:
     void panBy(int xDistance, int yDistance);
     void changeCanvasSize(int width, int height);
     void changeToolSize(int size);
-    qreal sliderValue(QQuickItem *slider) const;
+    int sliderValue(QQuickItem *slider) const;
     void drawPixelAtCursorPos();
     void drawTileAtCursorPos();
     void fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
