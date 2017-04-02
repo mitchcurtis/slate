@@ -1,5 +1,7 @@
 TEMPLATE = subdirs
-SUBDIRS = \
+CONFIG += ordered
+SUBDIRS += \
+    3rdparty \
     app \
     tests
 
