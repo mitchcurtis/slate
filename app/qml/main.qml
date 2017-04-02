@@ -39,6 +39,7 @@ import "ui" as Ui
     - add "lighten/darken current colour" feature with convenient keyboard shortcuts.
       it could display a fading indicator like the zoom level does, comparing the
       proposed colour next to the old one. could be a mouse wheel shortcut.
+    - add support for selection marquees (within individual tile bounds)
 */
 
 ApplicationWindow {
