@@ -31,7 +31,11 @@ Tileset::Tileset(const QString &fileName, int tilesWide, int tilesHigh, QObject 
     mTilesWide(tilesWide),
     mTilesHigh(tilesHigh)
 {
-    Q_ASSERT(!mImage.isNull());
+}
+
+bool Tileset::isValid() const
+{
+    return !mImage.isNull();
 }
 
 QString Tileset::fileName() const

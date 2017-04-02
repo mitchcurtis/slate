@@ -33,6 +33,7 @@ class Tileset : public QObject
 public:
     Tileset(const QString &fileName, int tilesWide, int tilesHigh, QObject *parent);
 
+    bool isValid() const;
     QString fileName() const;
     void setFileName(const QString &fileName);
     const QImage *image() const;

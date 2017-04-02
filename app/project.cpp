@@ -247,7 +247,13 @@ void Project::load(const QUrl &url)
     QJsonObject tilesetObject = strictValue(projectObject, "tileset").toObject();
     const int tilesetTilesWide = strictValue(tilesetObject, "tilesWide").toInt();
     const int tilesetTilesHigh = strictValue(tilesetObject, "tilesHigh").toInt();
-    setTileset(new Tileset(tilesetPath, tilesetTilesWide, tilesetTilesHigh, this));
+    QScopedPointer<Tileset> tempTileset(new Tileset(tilesetPath, tilesetTilesWide, tilesetTilesHigh, this));
+    if (tempTileset->isValid()) {
+        setTileset(tempTileset.take());
+    } else {
+        error(QString::fromLatin1("Failed to open project's tileset at %1").arg(tilesetPath));
+        return;
+    }
 
     mTileDatabase.clear();
     createTilesetTiles(tilesetTilesWide, tilesetTilesHigh);
