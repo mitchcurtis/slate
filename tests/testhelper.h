@@ -88,6 +88,7 @@ protected:
     void wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees);
 
     QObject *findPopupFromTypeName(const QString &typeName) const;
+    QQuickItem *findDialogButton(const QObject *dialog, const QString &text);
     // Returns the position of the cursor in a tile's local coordinates.
     QPoint mapToTile(const QPoint &cursorPos) const;
     QPoint tileSceneCentre(int xPosInTiles, int yPosInTiles) const;

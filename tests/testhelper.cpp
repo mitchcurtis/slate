@@ -454,6 +454,29 @@ QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
     return popup;
 }
 
+static QQuickItem *findChildWithText(QQuickItem *item, const QString &text)
+{
+    foreach (QQuickItem *child, item->childItems()) {
+        if (child->property("text").toString() == text)
+            return child;
+        else {
+            QQuickItem *match = findChildWithText(child, text);
+            if (match)
+                return match;
+        }
+    }
+    return nullptr;
+}
+
+QQuickItem *TestHelper::findDialogButton(const QObject *dialog, const QString &text)
+{
+    QQuickItem *footer = dialog->property("footer").value<QQuickItem*>();
+    if (!footer)
+        return nullptr;
+
+    return findChildWithText(footer, text);
+}
+
 QPoint TestHelper::mapToTile(const QPoint &cursorPos) const
 {
     return cursorPos - canvas->mapToScene(QPointF(0, 0)).toPoint();
@@ -547,6 +570,18 @@ void TestHelper::createNewProject(int tileWidth, int tileHeight, int tilesetTile
     // Click the new project button.
     mouseEventOnCentre(fileToolButton, MouseClick);
     mouseEventOnCentre(newMenuButton, MouseClick);
+
+    // Test that we get prompted to potentially discard changes.
+    const QObject *discardChangesDialog = window->contentItem()->findChild<QObject*>("discardChangesDialog");
+    QVERIFY(discardChangesDialog);
+    if (project->hasUnsavedChanges()) {
+        QVERIFY(discardChangesDialog->property("visible").toBool());
+
+        QQuickItem *yesButton = findDialogButton(discardChangesDialog, "Yes");
+        QVERIFY(yesButton);
+        mouseEventOnCentre(yesButton, MouseClick);
+        QVERIFY(!discardChangesDialog->property("visible").toBool());
+    }
 
     // Ensure that the new project popup is visible.
     const QObject *newProjectPopup = findPopupFromTypeName("NewProjectPopup");
