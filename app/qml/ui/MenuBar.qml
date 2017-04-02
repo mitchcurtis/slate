@@ -8,6 +8,33 @@ RowLayout {
     property TileCanvas canvas
     property Project project: canvas.project
 
+    function doIfChangesDiscarded(actionFunction, discardChangesBeforeAction) {
+        if (!project.unsavedChanges) {
+            actionFunction();
+            return;
+        }
+
+        function disconnectSignals() {
+            saveChangesDialog.accepted.disconnect(discardChanges);
+            saveChangesDialog.rejected.disconnect(dontDiscardChanges);
+        }
+
+        function discardChanges() {
+            if (!!discardChangesBeforeAction)
+                project.close()
+            actionFunction();
+            disconnectSignals();
+        }
+
+        function dontDiscardChanges() {
+            disconnectSignals();
+        }
+
+        saveChangesDialog.accepted.connect(discardChanges);
+        saveChangesDialog.rejected.connect(dontDiscardChanges);
+        saveChangesDialog.open();
+    }
+
     ToolButton {
         id: fileToolButton
         objectName: "fileToolButton"
@@ -28,14 +55,14 @@ RowLayout {
                 objectName: "newMenuButton"
                 text: qsTr("New")
                 hoverEnabled: true
-                onClicked: newProjectPopup.open()
+                onClicked: doIfChangesDiscarded(function() { newProjectPopup.open() })
             }
 
             MenuItem {
                 objectName: "openMenuButton"
                 text: qsTr("Open")
                 hoverEnabled: true
-                onClicked: openProjectDialog.open()
+                onClicked: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
             }
 
             MenuItem {
@@ -59,7 +86,7 @@ RowLayout {
                 text: qsTr("Close")
                 enabled: project.loaded
                 hoverEnabled: true
-                onClicked: project.close()
+                onClicked: doIfChangesDiscarded(function() { project.close() })
             }
 
             MenuItem {

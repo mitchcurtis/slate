@@ -17,12 +17,12 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.6
-import QtQuick.Layouts 1.2
+import QtQuick 2.9
+import QtQuick.Layouts 1.3
 import QtQuick.Window 2.2
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.2
 
-import Qt.labs.platform 1.0
+import Qt.labs.platform 1.0 as Platform
 
 import App 1.0
 
@@ -57,6 +57,7 @@ ApplicationWindow {
 
     property alias newProjectPopup: newProjectPopup
     property alias openProjectDialog: openProjectDialog
+    property alias saveChangesDialog: discardChangesMessageBox
 
     FontMetrics {
         id: fontMetrics
@@ -237,16 +238,16 @@ ApplicationWindow {
         }
     }
 
-    FileDialog {
+    Platform.FileDialog {
         id: openProjectDialog
         nameFilters: ["JSON files (*.json)"]
         defaultSuffix: "json"
         onAccepted: project.load(file)
     }
 
-    FileDialog {
+    Platform.FileDialog {
         id: saveAsDialog
-        fileMode: FileDialog.SaveFile
+        fileMode: Platform.FileDialog.SaveFile
         nameFilters: ["JSON files (*.json)"]
         defaultSuffix: "json"
         onAccepted: project.saveAs(file)
@@ -286,5 +287,17 @@ ApplicationWindow {
         x: parent.width / 2 - width / 2
         y: parent.height / 2 - implicitHeight / 2
         onVisibleChanged: canvas.focus = true
+    }
+
+    Dialog {
+        id: discardChangesMessageBox
+        x: parent.width / 2 - width / 2
+        y: parent.height / 2 - height / 2
+        title: qsTr("Unsaved changes")
+        standardButtons: Dialog.Yes | Dialog.No
+
+        Label {
+            text: qsTr("The action you're about to perform could discard changes.\n\nContinue anyway?")
+        }
     }
 }
