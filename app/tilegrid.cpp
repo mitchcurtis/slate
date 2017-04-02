@@ -48,19 +48,17 @@ void TileGrid::paint(QPainter *painter)
             const QRectF rect(x * mTileWidth + halfPenWidth, y * mTileHeight + halfPenWidth, mTileWidth, mTileHeight);
             painter->drawLine(QPointF(rect.x(), rect.y()), QPointF(rect.x(), rect.y() + rect.height()));
 
-            // This is not visible in our case (tile swatch), so leave it out for performance's sake.
-            // However, it might be useful in other situations, so I've left it here just in case.
-//            if (x == mTilesWide - 1) {
-//                // If this is the right-most edge tile, draw a line on the outside of it.
-//                painter->drawLine(QPointF(rect.x() + mTileWidth, rect.y()), QPointF(rect.x() + mTileWidth, rect.y() + rect.height()));
-//            }
+            if (x == mTilesWide - 1) {
+                // If this is the right-most edge tile, draw a line on the outside of it.
+                painter->drawLine(QPointF(rect.x() + rect.width(), rect.y()), QPointF(rect.x() + rect.width(), rect.y() + rect.height()));
+            }
 
             painter->drawLine(QPointF(rect.x(), rect.y()), QPointF(rect.x() + rect.width(), rect.y()));
 
-//            if (y == mTilesHigh - 1) {
-//                // If this is the bottom-most edge tile, draw a line on the outside of it.
-//                painter->drawLine(QPointF(rect.x(), rect.y() + mTileHeight), QPointF(rect.x() + rect.width(), rect.y() + mTileWidth));
-//            }
+            if (y == mTilesHigh - 1) {
+                // If this is the bottom-most edge tile, draw a line on the outside of it.
+                painter->drawLine(QPointF(rect.x(), rect.y() + rect.height()), QPointF(rect.x() + rect.width(), rect.y() + rect.height()));
+            }
         }
     }
 
