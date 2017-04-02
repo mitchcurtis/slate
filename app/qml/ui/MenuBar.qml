@@ -10,6 +10,8 @@ RowLayout {
 
     function doIfChangesDiscarded(actionFunction, discardChangesBeforeAction) {
         if (!project.unsavedChanges) {
+            if (!!discardChangesBeforeAction)
+                project.close();
             actionFunction();
             return;
         }
