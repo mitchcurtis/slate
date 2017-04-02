@@ -50,14 +50,18 @@ void TileGrid::paint(QPainter *painter)
 
             if (x == mTilesWide - 1) {
                 // If this is the right-most edge tile, draw a line on the outside of it.
-                painter->drawLine(QPointF(rect.x() + rect.width(), rect.y()), QPointF(rect.x() + rect.width(), rect.y() + rect.height()));
+                // Note that we have to subtract the width of the pen so that the line is
+                // drawn within our bounds.
+                painter->drawLine(QPointF(rect.x() + rect.width() - pen.width(), rect.y()),
+                    QPointF(rect.x() + rect.width() - pen.width(), rect.y() + rect.height()));
             }
 
             painter->drawLine(QPointF(rect.x(), rect.y()), QPointF(rect.x() + rect.width(), rect.y()));
 
             if (y == mTilesHigh - 1) {
                 // If this is the bottom-most edge tile, draw a line on the outside of it.
-                painter->drawLine(QPointF(rect.x(), rect.y() + rect.height()), QPointF(rect.x() + rect.width(), rect.y() + rect.height()));
+                painter->drawLine(QPointF(rect.x(), rect.y() + rect.height() - pen.width()),
+                    QPointF(rect.x() + rect.width() - pen.width(), rect.y() + rect.height() - pen.width()));
             }
         }
     }
@@ -65,8 +69,10 @@ void TileGrid::paint(QPainter *painter)
     if (mHighlightedIndex != -1) {
         const int x = mHighlightedIndex % mTilesWide;
         const int y = mHighlightedIndex / mTilesWide;
+        const int widthReduction = x == mTilesWide - 1 ? pen.width() : 0;
+        const int heightReduction = y == mTilesHigh - 1 ? pen.width() : 0;
         const QRectF rect(x * mTileWidth + halfPenWidth, y * mTileHeight + halfPenWidth,
-            mTileWidth, mTileHeight);
+            mTileWidth - widthReduction, mTileHeight - heightReduction);
         QPainterPath path;
         path.addRect(rect);
 
