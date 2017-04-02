@@ -93,7 +93,7 @@ ApplicationWindow {
         }
 
         function saveOrSaveAs() {
-            if (project.url.length > 0) {
+            if (project.url.toString().length > 0) {
                 project.save();
             } else {
                 saveAsDialog.open();
