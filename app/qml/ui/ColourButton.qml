@@ -6,6 +6,7 @@ Button {
     id: control
     checkable: true
     hoverEnabled: true
+    focusPolicy: Qt.NoFocus
 
     property alias color: rect.color
 
