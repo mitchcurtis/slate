@@ -11,8 +11,8 @@ ToolButton {
     Layout.preferredHeight: implicitHeight
     Layout.maximumHeight: Layout.preferredHeight
 
-    property string icon
+    property string iconText
 
-    text: icon
+    text: iconText
     font.family: "FontAwesome"
 }

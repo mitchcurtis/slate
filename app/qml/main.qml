@@ -174,7 +174,7 @@ ApplicationWindow {
                 x: canvas.cursorX
                 y: canvas.cursorY - height + 3
                 visible: canvas.hasBlankCursor && canvas.useIconCursor
-                text: iconToolBar.toolButtonGroup.checkedButton.icon
+                text: iconToolBar.toolButtonGroup.checkedButton.iconText
                 z: header.z + 1
             }
 

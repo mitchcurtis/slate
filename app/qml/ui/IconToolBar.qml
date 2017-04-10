@@ -86,7 +86,7 @@ Item {
 
             Ui.IconToolButton {
                 objectName: "undoButton"
-                icon: "\uf0e2"
+                iconText: "\uf0e2"
                 enabled: project.undoStack.canUndo
                 hoverEnabled: true
 
@@ -98,7 +98,7 @@ Item {
 
             Ui.IconToolButton {
                 objectName: "redoButton"
-                icon: "\uf01e"
+                iconText: "\uf01e"
                 enabled: project.undoStack.canRedo
                 hoverEnabled: true
 
@@ -114,7 +114,7 @@ Item {
         Ui.IconToolButton {
             id: modeToolButton
             objectName: "modeToolButton"
-            icon: "\uf044"
+            iconText: "\uf044"
             checked: canvas.mode === TileCanvas.TileMode
             checkable: true
             hoverEnabled: true
@@ -143,7 +143,7 @@ Item {
             Ui.IconToolButton {
                 id: penToolButton
                 objectName: "penToolButton"
-                icon: "\uf040"
+                iconText: "\uf040"
                 checked: true
                 hoverEnabled: true
 
@@ -156,7 +156,7 @@ Item {
             Ui.IconToolButton {
                 id: eyeDropperToolButton
                 objectName: "eyeDropperToolButton"
-                icon: "\uf1fb"
+                iconText: "\uf1fb"
                 checkable: true
                 hoverEnabled: true
 
@@ -169,7 +169,7 @@ Item {
             Ui.IconToolButton {
                 id: eraserToolButton
                 objectName: "eraserToolButton"
-                icon: "\uf12d"
+                iconText: "\uf12d"
                 checkable: true
                 hoverEnabled: true
 
@@ -182,7 +182,7 @@ Item {
             Ui.IconToolButton {
                 id: fillToolButton
                 objectName: "fillToolButton"
-                icon: "\uf0c3"
+                iconText: "\uf0c3"
                 checkable: true
                 hoverEnabled: true
 
