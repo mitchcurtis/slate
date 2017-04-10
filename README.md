@@ -23,9 +23,9 @@ Slate's goal is to simplify the creation of seamless tilesets.
 qt-undo and pickawinner can be cloned and built separately, but they are also available as submodules of Slate's repo, and can therefore be built automatically when
 Slate is built, by first running the following commands:
 
-cd <slate-source-dir>
-git submodule init
-git submodule update
+    cd <slate-source-dir>
+    git submodule init
+    git submodule update
 
 ---
 
