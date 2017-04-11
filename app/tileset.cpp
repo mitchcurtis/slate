@@ -24,9 +24,13 @@
 
 #include "utils.h"
 
-Tileset::Tileset(const QString &fileName, int tilesWide, int tilesHigh, QObject *parent) :
+Tileset::Tileset(const QString &fileName, bool isometric,
+    int isometricTileXOffset, int isometricTileYOffset, int tilesWide, int tilesHigh, QObject *parent) :
     QObject(parent),
     mFileName(fileName),
+    mIsometric(isometric),
+    mIsometricTileXOffset(isometricTileXOffset),
+    mIsometricTileYOffset(isometricTileYOffset),
     mImage(fileName),
     mTilesWide(tilesWide),
     mTilesHigh(tilesHigh)
@@ -49,6 +53,21 @@ void Tileset::setFileName(const QString &fileName)
         return;
 
     mFileName = fileName;
+}
+
+bool Tileset::isIsometric() const
+{
+    return mIsometric;
+}
+
+int Tileset::isometricTileXOffset() const
+{
+    return mIsometricTileXOffset;
+}
+
+int Tileset::isometricTileYOffset() const
+{
+    return mIsometricTileYOffset;
 }
 
 const QImage *Tileset::image() const

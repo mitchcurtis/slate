@@ -12,7 +12,7 @@ Dialog {
     focus: true
     padding: 20
     bottomPadding: 0
-    contentWidth: 400
+//    contentWidth: 400
 
     readonly property bool validExistingFile: useExistingTilesetCheckBox.checked && validator.fileValid
     readonly property bool validExistingFileOrNew: !useExistingTilesetCheckBox.checked || (useExistingTilesetCheckBox.checked && validator.fileValid)
@@ -21,10 +21,15 @@ Dialog {
     readonly property bool allValid: useExistingTilesetCheckBox.checked ? validExistingFile && validator.tileWidthValid && validator.tileHeightValid : true
 
     readonly property url tilesetPath: tilesetPathTextField.text
-    readonly property int tileWidth: tileWidthSpinBox.value
-    readonly property int tileHeight: tileHeightSpinBox.value
+    readonly property bool isometric: isometricCheckBox.checked
+    readonly property int isometricTileXOffset: isometricTileXOffsetSpinBox.value
+    readonly property int isometricTileYOffset: isometricTileYOffsetSpinBox.value
+    readonly property int tilesetTileWidth: tileWidthSpinBox.value
+    readonly property int tilesetTileHeight: tileHeightSpinBox.value
     readonly property int tilesetTilesWide: tilesWide
     readonly property int tilesetTilesHigh: tilesHigh
+    readonly property int canvasTileWidth: 32
+    readonly property int canvasTileHeight: 32
     readonly property int canvasTilesWide: 10
     readonly property int canvasTilesHigh: 10
 
@@ -54,226 +59,304 @@ Dialog {
         useExistingTilesetCheckBox.forceActiveFocus();
         useExistingTilesetCheckBox.checked = false;
         tilesetPathTextField.text = "";
+        isometricCheckBox.checked = false;
         tileWidthSpinBox.value = tileWidthSpinBox.defaultValue;
         tileHeightSpinBox.value = tileHeightSpinBox.defaultValue;
         tilesWideSpinBox.value = tilesWideSpinBox.defaultValue;
         tilesHighSpinBox.value = tilesHighSpinBox.defaultValue;
     }
 
-    contentItem: ColumnLayout {
-        spacing: 14
+    header: Label {
+        text: qsTr("New Project")
+        font.pixelSize: fontMetrics.font.pixelSize * 1.5
+        horizontalAlignment: Label.AlignHCenter
+        verticalAlignment: Label.AlignVCenter
+        padding: 14
+        bottomPadding: 0
+    }
 
-        Label {
-            text: qsTr("New Project")
-            font.pixelSize: fontMetrics.font.pixelSize * 1.5
-            anchors.horizontalCenter: parent.horizontalCenter
+    contentItem: Flickable {
+        id: flickable
+        implicitWidth: columnLayoutContainer.implicitWidth
+        implicitHeight: 400
+        contentWidth: columnLayoutContainer.implicitWidth
+        contentHeight: columnLayoutContainer.implicitHeight
+        flickableDirection: Flickable.VerticalFlick
+        boundsBehavior: Flickable.StopAtBounds
+        clip: true
+
+        ScrollBar.vertical: ScrollBar {
+            policy: ScrollBar.AlwaysOn
         }
 
-        GridLayout {
-            columns: 2
-            columnSpacing: 14
-            rowSpacing: 0
+        Item {
+            id: columnLayoutContainer
+            implicitWidth: columnLayout.implicitWidth + 100
+            implicitHeight: columnLayout.implicitHeight + 50
 
-            CheckBox {
-                id: useExistingTilesetCheckBox
-                objectName: "useExistingTilesetCheckBox"
-                text: qsTr("Use existing tileset")
-                padding: 0
+            ColumnLayout {
+                id: columnLayout
+                spacing: 14
+                anchors.centerIn: parent
 
-                Layout.columnSpan: 2
-            }
+                GridLayout {
+                    columns: 2
+                    columnSpacing: 14
+                    rowSpacing: 0
 
-            RowLayout {
-                enabled: useExistingTilesetCheckBox.checked
+                    CheckBox {
+                        id: useExistingTilesetCheckBox
+                        objectName: "useExistingTilesetCheckBox"
+                        text: qsTr("Use existing tileset")
+                        padding: 0
 
-                Layout.leftMargin: 14
+                        Layout.columnSpan: 2
+                    }
 
-                Label {
-                    text: qsTr("Tileset")
-                }
+                    RowLayout {
+                        enabled: useExistingTilesetCheckBox.checked
 
-                ErrorLabel {
-                    objectName: "invalidFileIcon"
-                    opacity: !valid
-                    anchors.verticalCenter: parent.verticalCenter
+                        Layout.leftMargin: 14
 
-                    valid: validator.fileValid
-                    errorMessage: validator.fileErrorMessage
-                }
-            }
+                        Label {
+                            text: qsTr("Tileset")
+                        }
 
-            RowLayout {
-                enabled: useExistingTilesetCheckBox.checked
+                        ErrorLabel {
+                            objectName: "invalidFileIcon"
+                            opacity: !valid
+                            anchors.verticalCenter: parent.verticalCenter
 
-                TextField {
-                    id: tilesetPathTextField
-                    objectName: "tilesetPathTextField"
+                            valid: validator.fileValid
+                            errorMessage: validator.fileErrorMessage
+                        }
+                    }
 
-                    Layout.fillWidth: true
-                }
+                    RowLayout {
+                        enabled: useExistingTilesetCheckBox.checked
 
-                Button {
-                    text: qsTr("...")
-                    onClicked: openTilesetDialog.open()
-                    hoverEnabled: true
+                        TextField {
+                            id: tilesetPathTextField
+                            objectName: "tilesetPathTextField"
 
-                    ToolTip.text: qsTr("Click to choose the path to a tileset image")
-                    ToolTip.visible: hovered
-                }
-            }
+                            Layout.fillWidth: true
+                        }
 
-            RowLayout {
-                Label {
-                    text: qsTr("Tile Width")
-                    enabled: validExistingFileOrNew
-                }
-                ErrorLabel {
-                    objectName: "invalidTileWidthIcon"
-                    opacity: validator.fileValid && !validator.tileWidthValid
-                    anchors.verticalCenter: parent.verticalCenter
+                        Button {
+                            text: qsTr("...")
+                            onClicked: openTilesetDialog.open()
+                            hoverEnabled: true
 
-                    errorMessage: validator.tileWidthErrorMessage
-                }
-            }
-            SpinBox {
-                id: tileWidthSpinBox
-                objectName: "tileWidthSpinBox"
-                from: 1
-                value: defaultValue
-                editable: true
-                hoverEnabled: true
-                enabled: validExistingFileOrNew
+                            ToolTip.text: qsTr("Click to choose the path to a tileset image")
+                            ToolTip.visible: hovered
+                        }
+                    }
 
-                ToolTip.text: qsTr("How wide each tile is in pixels")
-                ToolTip.visible: hovered
+                    CheckBox {
+                        id: isometricCheckBox
+                        objectName: "isometricCheckBox"
+                        text: qsTr("Isometric")
+                        padding: 0
 
-                readonly property int defaultValue: 32
-            }
+                        Layout.columnSpan: 2
+                    }
 
-            RowLayout {
-                Label {
-                    text: qsTr("Tile Height")
-                    enabled: validExistingFileOrNew
-                }
-                ErrorLabel {
-                    objectName: "invalidTileHeightIcon"
-                    opacity: validator.fileValid && !validator.tileHeightValid
-                    anchors.verticalCenter: parent.verticalCenter
+                    Label {
+                        text: qsTr("Tile X Offset")
+                        enabled: isometric
 
-                    errorMessage: validator.tileHeightErrorMessage
-                }
-            }
-            SpinBox {
-                id: tileHeightSpinBox
-                objectName: "tileHeightSpinBox"
-                from: 1
-                value: defaultValue
-                editable: true
-                hoverEnabled: true
-                enabled: validExistingFileOrNew
+                        Layout.leftMargin: 14
+                    }
+                    SpinBox {
+                        id: isometricTileXOffsetSpinBox
+                        objectName: "isometricTileXOffsetSpinBox"
+                        from: 0
+                        value: defaultValue
+                        editable: true
+                        hoverEnabled: true
+                        enabled: isometric
 
-                ToolTip.text: qsTr("How high each tile is in pixels")
-                ToolTip.visible: hovered
+                        ToolTip.text: qsTr("The X offset of isometric tiles")
+                        ToolTip.visible: hovered
 
-                readonly property int defaultValue: 32
-            }
+                        readonly property int defaultValue: 0
+                    }
 
-            Label {
-                text: qsTr("Tiles Wide")
-                enabled: !useExistingTilesetCheckBox.checked
-            }
-            SpinBox {
-                id: tilesWideSpinBox
-                objectName: "tilesWideSpinBox"
-                from: 1
-                value: defaultValue
-                to: 10000
-                editable: true
-                hoverEnabled: true
-                enabled: !useExistingTilesetCheckBox.checked
+                    Label {
+                        text: qsTr("Tile Y Offset")
+                        enabled: isometric
 
-                ToolTip.text: qsTr("How many tiles should be displayed horizontally")
-                ToolTip.visible: hovered
+                        Layout.leftMargin: 14
+                    }
+                    SpinBox {
+                        id: isometricTileYOffsetSpinBox
+                        objectName: "isometricTileYOffsetSpinBox"
+                        from: 0
+                        value: defaultValue
+                        editable: true
+                        hoverEnabled: true
+                        enabled: isometric
 
-                readonly property int defaultValue: 10
-            }
+                        ToolTip.text: qsTr("The Y offset of isometric tiles")
+                        ToolTip.visible: hovered
 
-            Label {
-                text: qsTr("Tiles High")
-                enabled: !useExistingTilesetCheckBox.checked
-            }
-            SpinBox {
-                id: tilesHighSpinBox
-                objectName: "tilesHighSpinBox"
-                from: 1
-                value: defaultValue
-                to: 10000
-                editable: true
-                hoverEnabled: true
-                enabled: !useExistingTilesetCheckBox.checked
+                        readonly property int defaultValue: 0
+                    }
 
-                ToolTip.text: qsTr("How many tiles should be displayed vertically")
-                ToolTip.visible: hovered
+                    RowLayout {
+                        Label {
+                            text: qsTr("Tile Width")
+                            enabled: validExistingFileOrNew
+                        }
+                        ErrorLabel {
+                            objectName: "invalidTileWidthIcon"
+                            opacity: validator.fileValid && !validator.tileWidthValid
+                            anchors.verticalCenter: parent.verticalCenter
 
-                readonly property int defaultValue: 10
-            }
+                            errorMessage: validator.tileWidthErrorMessage
+                        }
+                    }
+                    SpinBox {
+                        id: tileWidthSpinBox
+                        objectName: "tileWidthSpinBox"
+                        from: 1
+                        value: defaultValue
+                        editable: true
+                        hoverEnabled: true
+                        enabled: validExistingFileOrNew
 
-            Label {
-                text: qsTr("Preview")
-                enabled: validator.fileValid
+                        ToolTip.text: qsTr("How wide each tileset tile is in pixels")
+                        ToolTip.visible: hovered
 
-                Layout.columnSpan: 2
-                Layout.topMargin: 10
-            }
+                        readonly property int defaultValue: 32
+                    }
 
-            Frame {
-                id: previewFrame
-                Layout.columnSpan: 2
-                Layout.fillWidth: true
-                Layout.preferredHeight: 128
+                    RowLayout {
+                        Label {
+                            text: qsTr("Tile Height")
+                            enabled: validExistingFileOrNew
+                        }
+                        ErrorLabel {
+                            objectName: "invalidTileHeightIcon"
+                            opacity: validator.fileValid && !validator.tileHeightValid
+                            anchors.verticalCenter: parent.verticalCenter
 
-                enabled: validExistingFileOrNew
+                            errorMessage: validator.tileHeightErrorMessage
+                        }
+                    }
+                    SpinBox {
+                        id: tileHeightSpinBox
+                        objectName: "tileHeightSpinBox"
+                        from: 1
+                        value: defaultValue
+                        editable: true
+                        hoverEnabled: true
+                        enabled: validExistingFileOrNew
 
-                Item {
-                    clip: true
-                    anchors.fill: parent
+                        ToolTip.text: qsTr("How high each tileset tile is in pixels")
+                        ToolTip.visible: hovered
 
-                    Flickable {
-                        anchors.fill: parent
-                        contentWidth: previewContents.width
-                        contentHeight: previewContents.height
-                        boundsBehavior: Flickable.StopAtBounds
+                        readonly property int defaultValue: 32
+                    }
 
-                        ScrollBar.horizontal: ScrollBar {}
-                        ScrollBar.vertical: ScrollBar {}
+                    Label {
+                        text: qsTr("Tiles Wide")
+                        enabled: !useExistingTilesetCheckBox.checked
+                    }
+                    SpinBox {
+                        id: tilesWideSpinBox
+                        objectName: "tilesWideSpinBox"
+                        from: 1
+                        value: defaultValue
+                        to: 10000
+                        editable: true
+                        hoverEnabled: true
+                        enabled: !useExistingTilesetCheckBox.checked
+
+                        ToolTip.text: qsTr("How many horizontal tiles there are in the tileset")
+                        ToolTip.visible: hovered
+
+                        readonly property int defaultValue: 10
+                    }
+
+                    Label {
+                        text: qsTr("Tiles High")
+                        enabled: !useExistingTilesetCheckBox.checked
+                    }
+                    SpinBox {
+                        id: tilesHighSpinBox
+                        objectName: "tilesHighSpinBox"
+                        from: 1
+                        value: defaultValue
+                        to: 10000
+                        editable: true
+                        hoverEnabled: true
+                        enabled: !useExistingTilesetCheckBox.checked
+
+                        ToolTip.text: qsTr("How many vertical tiles there are in the tileset")
+                        ToolTip.visible: hovered
+
+                        readonly property int defaultValue: 10
+                    }
+
+                    Label {
+                        text: qsTr("Preview")
+                        enabled: validator.fileValid
+
+                        Layout.columnSpan: 2
+                        Layout.topMargin: 10
+                    }
+
+                    Frame {
+                        id: previewFrame
+                        Layout.columnSpan: 2
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 128
+
+                        enabled: validExistingFileOrNew
 
                         Item {
-                            id: previewContents
-                            width: previewRect.visible ? previewRect.width : previewImage.width
-                            height: previewRect.visible ? previewRect.height : previewImage.height
+                            clip: true
+                            anchors.fill: parent
 
-                            Rectangle {
-                                id: previewRect
-                                width: tilesWide * tileWidthSpinBox.value
-                                height: tilesHigh * tileHeightSpinBox.value
-                                visible: !useExistingTilesetCheckBox.checked
-                            }
-
-                            Image {
-                                id: previewImage
-                                source: enabled ? validator.url : ""
-                                sourceSize: Qt.size(width, height)
-                            }
-
-                            TileGrid {
-                                tileWidth: tileWidthSpinBox.value
-                                tileHeight: tileHeightSpinBox.value
-                                tilesWide: popup.tilesWide
-                                tilesHigh: popup.tilesHigh
+                            Flickable {
                                 anchors.fill: parent
-                                anchors.margins: -0.5
-                                visible: !useExistingTilesetCheckBox.checked
-                                    || (validator.tileWidthValid && validator.tileHeightValid)
+                                contentWidth: previewContents.width
+                                contentHeight: previewContents.height
+                                boundsBehavior: Flickable.StopAtBounds
+
+                                ScrollBar.horizontal: ScrollBar {}
+                                ScrollBar.vertical: ScrollBar {}
+
+                                Item {
+                                    id: previewContents
+                                    width: previewRect.visible ? previewRect.width : previewImage.width
+                                    height: previewRect.visible ? previewRect.height : previewImage.height
+
+                                    Rectangle {
+                                        id: previewRect
+                                        width: tilesWide * tileWidthSpinBox.value
+                                        height: tilesHigh * tileHeightSpinBox.value
+                                        visible: !useExistingTilesetCheckBox.checked
+                                    }
+
+                                    Image {
+                                        id: previewImage
+                                        source: enabled ? validator.url : ""
+                                        sourceSize: Qt.size(width, height)
+                                    }
+
+                                    TileGrid {
+                                        tileWidth: tileWidthSpinBox.value
+                                        tileHeight: tileHeightSpinBox.value
+                                        tilesWide: popup.tilesWide
+                                        tilesHigh: popup.tilesHigh
+                                        anchors.fill: parent
+                                        anchors.margins: -0.5
+                                        visible: !useExistingTilesetCheckBox.checked
+                                            || (validator.tileWidthValid && validator.tileHeightValid)
+                                    }
+                                }
                             }
                         }
                     }

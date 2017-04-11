@@ -270,8 +270,8 @@ ApplicationWindow {
         y: parent.height / 2 - implicitHeight / 2
         onVisibleChanged: canvas.focus = true
 
-        onAccepted: project.createNew(tilesetPath, tileWidth, tileHeight,
-            tilesetTilesWide, tilesetTilesHigh, canvasTilesWide, canvasTilesHigh)
+        onAccepted: project.createNew(tilesetPath, isometric, isometricTileXOffset, isometricTileYOffset,
+            tilesetTileWidth, tilesetTileHeight, tilesetTilesWide, tilesetTilesHigh, canvasTilesWide, canvasTilesHigh)
     }
 
     Ui.RecentProjectsPopup {

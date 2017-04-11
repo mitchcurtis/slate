@@ -245,6 +245,8 @@ private:
     void setCurrentPane(TileCanvasPane *pane);
     TileCanvasPane *hoveredPane(const QPoint &pos);
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
+//    QPoint isoToMap(const QPoint &isoPos) const;
+//    QPoint isoPosToScreenPos(const QPoint &mapPos) const;
     void drawPane(QPainter *painter, const TileCanvasPane &pane, int paneIndex);
     int paneWidth(int index) const;
     void centrePanes(bool respectSceneCentred = true);

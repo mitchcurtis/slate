@@ -145,7 +145,8 @@ QUrl Project::createTemporaryTilesetImage(int tileWidth, int tileHeight,
     return QUrl::fromLocalFile(fileName);
 }
 
-void Project::createNew(QUrl tilesetUrl, int tileWidth, int tileHeight,
+void Project::createNew(QUrl tilesetUrl, bool isometric, int isometricTileXOffset, int isometricTileYOffset,
+    int tileWidth, int tileHeight,
     int tilesetTilesWide, int tilesetTilesHigh,
     int canvasTilesWide, int canvasTilesHigh)
 {
@@ -193,7 +194,8 @@ void Project::createNew(QUrl tilesetUrl, int tileWidth, int tileHeight,
     setTilesWide(canvasTilesWide);
     setTilesHigh(canvasTilesHigh);
     setTilesetUrl(tilesetUrl);
-    setTileset(new Tileset(tilesetUrl.toLocalFile(), tilesetTilesWide, tilesetTilesHigh, this));
+    setTileset(new Tileset(tilesetUrl.toLocalFile(), isometric,
+        isometricTileXOffset, isometricTileYOffset, tilesetTilesWide, tilesetTilesHigh, this));
 
     createTilesetTiles(tilesetTilesWide, tilesetTilesHigh);
 
@@ -247,7 +249,11 @@ void Project::load(const QUrl &url)
     QJsonObject tilesetObject = strictValue(projectObject, "tileset").toObject();
     const int tilesetTilesWide = strictValue(tilesetObject, "tilesWide").toInt();
     const int tilesetTilesHigh = strictValue(tilesetObject, "tilesHigh").toInt();
-    QScopedPointer<Tileset> tempTileset(new Tileset(tilesetPath, tilesetTilesWide, tilesetTilesHigh, this));
+    const bool tilesetIsometric = strictValue(tilesetObject, "isometric").toBool();
+    const int tilesetIsometricTileXOffset = strictValue(tilesetObject, "tileXOffset").toInt();
+    const int tilesetIsometricTileYOffset = strictValue(tilesetObject, "tileYOffset").toInt();
+    QScopedPointer<Tileset> tempTileset(new Tileset(tilesetPath, tilesetIsometric,
+        tilesetIsometricTileXOffset, tilesetIsometricTileYOffset, tilesetTilesWide, tilesetTilesHigh, this));
     if (tempTileset->isValid()) {
         setTileset(tempTileset.take());
     } else {
@@ -374,6 +380,9 @@ void Project::saveAs(const QUrl &url)
     QJsonObject tilesetObject;
     tilesetObject["tilesWide"] = mTileset->tilesWide();
     tilesetObject["tilesHigh"] = mTileset->tilesHigh();
+    tilesetObject["isometric"] = mTileset->isIsometric();
+    tilesetObject["tileXOffset"] = mTileset->isometricTileXOffset();
+    tilesetObject["tileYOffset"] = mTileset->isometricTileYOffset();
     projectObject.insert("tileset", tilesetObject);
 
     QJsonArray tileArray;

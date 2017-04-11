@@ -520,47 +520,107 @@ void TileCanvas::drawPane(QPainter *painter, const TileCanvasPane &pane, int pan
     const int zoomedMapHeight = qMin(tilesDown * zoomedTileSize.height(), qFloor(height()));
     painter->fillRect(0, 0, zoomedMapWidth, zoomedMapHeight, mapBackgroundColour());
 
-    for (int y = 0; y < tilesDown; ++y) {
-        for (int x = 0; x < tilesAcross; ++x) {
-            const QPoint topLeftInScene(x * mProject->tileWidth(), y * mProject->tileHeight());
-            const QRect rect(x * zoomedTileSize.width(), y * zoomedTileSize.height(),
-                zoomedTileSize.width(), zoomedTileSize.height());
+    if (!mProject->tileset()->isIsometric()) {
+        for (int y = 0; y < tilesDown; ++y) {
+            for (int x = 0; x < tilesAcross; ++x) {
+                const QPoint topLeftInScene(x * mProject->tileWidth(), y * mProject->tileHeight());
+                const QRect rect(x * zoomedTileSize.width(), y * zoomedTileSize.height(),
+                    zoomedTileSize.width(), zoomedTileSize.height());
 
-            // If the tile pen is in use and it's over this tile, draw it, otherwise draw the current tile
-            // at that location as usual.
-            bool previewTile = false;
-            if (mTilePenPreview) {
-                QRect tileSceneRect(topLeftInScene.x(), topLeftInScene.y(), mProject->tileWidth(), mProject->tileHeight());
-                previewTile = tileSceneRect.contains(mCursorSceneX, mCursorSceneY);
-            }
-
-            if (previewTile) {
-                painter->drawImage(rect, *mPenTile->tileset()->image(), mPenTile->sourceRect());
-            } else {
-                const Tile *tile = mProject->tileAt(topLeftInScene);
-                if (tile) {
-                    painter->drawImage(rect, *tile->tileset()->image(), tile->sourceRect());
-                }
-            }
-
-            if (mGridVisible) {
-                QPen pen(mGridColour);
-                painter->setPen(pen);
-
-                painter->drawLine(rect.x(), rect.y(), rect.x(), rect.y() + rect.height() - 1);
-
-                if (x == tilesAcross - 1) {
-                    // If this is the right-most edge tile, draw a line on the outside of it.
-                    painter->drawLine(rect.x() + zoomedTileSize.width(), rect.y(),
-                        rect.x() + zoomedTileSize.width(), rect.y() + rect.height() - 1);
+                // If the tile pen is in use and it's over this tile, draw it, otherwise draw the current tile
+                // at that location as usual.
+                bool previewTile = false;
+                if (mTilePenPreview) {
+                    QRect tileSceneRect(topLeftInScene.x(), topLeftInScene.y(), mProject->tileWidth(), mProject->tileHeight());
+                    previewTile = tileSceneRect.contains(mCursorSceneX, mCursorSceneY);
                 }
 
-                painter->drawLine(rect.x() + 1, rect.y(), rect.x() + rect.width() - 1, rect.y());
+                if (previewTile) {
+                    painter->drawImage(rect, *mPenTile->tileset()->image(), mPenTile->sourceRect());
+                } else {
+                    const Tile *tile = mProject->tileAt(topLeftInScene);
+                    if (tile) {
+                        painter->drawImage(rect, *tile->tileset()->image(), tile->sourceRect());
+                    }
+                }
 
-                if (y == tilesDown - 1) {
-                    // If this is the bottom-most edge tile, draw a line on the outside of it.
-                    painter->drawLine(rect.x(), rect.y() + zoomedTileSize.height(),
-                        rect.x() + rect.width(), rect.y() + zoomedTileSize.width());
+                if (mGridVisible) {
+                    QPen pen(mGridColour);
+                    painter->setPen(pen);
+
+                    painter->drawLine(rect.x(), rect.y(), rect.x(), rect.y() + rect.height() - 1);
+
+                    if (x == tilesAcross - 1) {
+                        // If this is the right-most edge tile, draw a line on the outside of it.
+                        painter->drawLine(rect.x() + zoomedTileSize.width(), rect.y(),
+                            rect.x() + zoomedTileSize.width(), rect.y() + rect.height() - 1);
+                    }
+
+                    painter->drawLine(rect.x() + 1, rect.y(), rect.x() + rect.width() - 1, rect.y());
+
+                    if (y == tilesDown - 1) {
+                        // If this is the bottom-most edge tile, draw a line on the outside of it.
+                        painter->drawLine(rect.x(), rect.y() + zoomedTileSize.height(),
+                            rect.x() + rect.width(), rect.y() + zoomedTileSize.width());
+                    }
+                }
+            }
+        }
+    } else { // isometric
+        const int startX = (tilesAcross * mProject->tileWidth()) / 2;
+        const int startY = 0;
+        for (int y = 0; y < tilesDown; ++y) {
+            for (int x = 0; x < tilesAcross; ++x) {
+                const QPoint topLeftInScene(startX + (-y * (mProject->tileWidth() / 2)) + (x * (mProject->tileWidth() / 2)),
+                                            startY + (y * (mProject->tileHeight() / 2)) + (x * (mProject->tileHeight() / 2)));
+                const QRect rect((x - y) * zoomedTileSize.width(), (x + y) * zoomedTileSize.height(),
+                                 zoomedTileSize.width(), zoomedTileSize.height());
+
+                // If the tile pen is in use and it's over this tile, draw it, otherwise draw the current tile
+                // at that location as usual.
+                bool previewTile = false;
+                if (mTilePenPreview) {
+                    QRect tileSceneRect(topLeftInScene.x(), topLeftInScene.y(), mProject->tileWidth(), mProject->tileHeight());
+                    previewTile = tileSceneRect.contains(mCursorSceneX, mCursorSceneY);
+                }
+
+                if (previewTile) {
+                    const QRect offsetRect = rect.translated(
+                                mPenTile->tileset()->isometricTileXOffset(),
+                                mPenTile->tileset()->isometricTileYOffset());
+                    painter->drawImage(offsetRect, *mPenTile->tileset()->image(), mPenTile->sourceRect());
+                } else {
+                    const Tile *tile = mProject->tileAt(topLeftInScene);
+                    if (tile) {
+                        const QRect offsetRect = rect.translated(
+                                    tile->tileset()->isometricTileXOffset(),
+                                    tile->tileset()->isometricTileYOffset());
+                        painter->drawImage(offsetRect, *tile->tileset()->image(), tile->sourceRect());
+                    }
+                }
+
+                if (mGridVisible) {
+                    QPen pen(mGridColour);
+                    painter->setPen(pen);
+
+                    painter->drawRect(rect);
+
+                    // /
+                    painter->drawLine(rect.x(), rect.y() + rect.height() / 2, rect.x() + rect.width() / 2, rect.y() + rect.height() / 2 - rect.height() / 4);
+
+                    // ^
+                    painter->drawLine(rect.x() + rect.width() / 2, rect.y() + rect.height() / 2 - rect.height() / 4,
+                                      rect.x() + rect.width(), rect.y() + rect.height() / 2);
+
+                    // ^
+                    // /
+                    painter->drawLine(rect.x() + rect.width(), rect.y() + rect.height() / 2,
+                                      rect.x() + rect.width() / 2, rect.y() + rect.height() / 2 + rect.height() / 4);
+
+                    // ^
+                    // v
+                    painter->drawLine(rect.x() + rect.width() / 2, rect.y() + rect.height() / 2 + rect.height() / 4,
+                                      rect.x(), rect.y() + rect.height() / 2);
                 }
             }
         }

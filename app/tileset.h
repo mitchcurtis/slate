@@ -31,11 +31,15 @@ class Tileset : public QObject
     Q_PROPERTY(int tilesHigh READ tilesHigh CONSTANT)
 
 public:
-    Tileset(const QString &fileName, int tilesWide, int tilesHigh, QObject *parent);
+    Tileset(const QString &fileName, bool isometric,
+        int isometricTileXOffset, int isometricTileYOffset, int tilesWide, int tilesHigh, QObject *parent);
 
     bool isValid() const;
     QString fileName() const;
     void setFileName(const QString &fileName);
+    bool isIsometric() const;
+    int isometricTileXOffset() const;
+    int isometricTileYOffset() const;
     const QImage *image() const;
     void setPixelColor(int x, int y, const QColor &colour);
     void copy(const QPoint &sourceTopLeft, const QPoint &targetTopLeft);
@@ -57,6 +61,9 @@ private:
     void rotate(const QPoint &tileTopLeft, int angle);
 
     QString mFileName;
+    bool mIsometric;
+    int mIsometricTileXOffset;
+    int mIsometricTileYOffset;
     QImage mImage;
     int mTilesWide;
     int mTilesHigh;

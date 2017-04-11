@@ -128,7 +128,9 @@ signals:
     void errorOccurred(const QString &errorMessage);
 
 public slots:
-    void createNew(QUrl tilesetUrl, int tileWidth, int tileHeight,
+    void createNew(QUrl tilesetUrl, bool isometric,
+        int isometricTileXOffset, int isometricTileYOffset,
+        int tileWidth, int tileHeight,
         int tilesetTilesWide, int tilesetTilesHigh,
         int canvasTilesWide, int canvasTilesHigh);
     void load(const QUrl &url);
