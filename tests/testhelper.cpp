@@ -611,13 +611,13 @@ void TestHelper::createNewProject(int tileWidth, int tileHeight, int tilesetTile
     QVERIFY(tileHeightSpinBox);
     QCOMPARE(tileHeightSpinBox->property("value").toInt(), 32);
 
-    QQuickItem *tilesWideSpinBox = newProjectPopup->findChild<QQuickItem*>("tilesWideSpinBox");
-    QVERIFY(tilesWideSpinBox);
-    QCOMPARE(tilesWideSpinBox->property("value").toInt(), 10);
+    QQuickItem *tilesetTilesWideSpinBox = newProjectPopup->findChild<QQuickItem*>("tilesetTilesWideSpinBox");
+    QVERIFY(tilesetTilesWideSpinBox);
+    QCOMPARE(tilesetTilesWideSpinBox->property("value").toInt(), 10);
 
-    QQuickItem *tilesHighSpinBox = newProjectPopup->findChild<QQuickItem*>("tilesHighSpinBox");
-    QVERIFY(tilesHighSpinBox);
-    QCOMPARE(tilesHighSpinBox->property("value").toInt(), 10);
+    QQuickItem *tilesetTilesHighSpinBox = newProjectPopup->findChild<QQuickItem*>("tilesetTilesHighSpinBox");
+    QVERIFY(tilesetTilesHighSpinBox);
+    QCOMPARE(tilesetTilesHighSpinBox->property("value").toInt(), 10);
 
     QVERIFY(tileWidthSpinBox->setProperty("value", tileWidth));
     QCOMPARE(tileWidthSpinBox->property("value").toInt(), tileWidth);
@@ -653,11 +653,11 @@ void TestHelper::createNewProject(int tileWidth, int tileHeight, int tilesetTile
         // Using a new tileset image.
         QVERIFY(tilesetTilesWide > 0 && tilesetTilesHigh > 0);
 
-        QVERIFY(tilesWideSpinBox->setProperty("value", tilesetTilesWide));
-        QCOMPARE(tilesWideSpinBox->property("value").toInt(), tilesetTilesWide);
+        QVERIFY(tilesetTilesWideSpinBox->setProperty("value", tilesetTilesWide));
+        QCOMPARE(tilesetTilesWideSpinBox->property("value").toInt(), tilesetTilesWide);
 
-        QVERIFY(tilesHighSpinBox->setProperty("value", tilesetTilesHigh));
-        QCOMPARE(tilesHighSpinBox->property("value").toInt(), tilesetTilesHigh);
+        QVERIFY(tilesetTilesHighSpinBox->setProperty("value", tilesetTilesHigh));
+        QCOMPARE(tilesetTilesHighSpinBox->property("value").toInt(), tilesetTilesHigh);
     }
 
     // Confirm creation of the project.

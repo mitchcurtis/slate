@@ -12,12 +12,13 @@ Dialog {
     focus: true
     padding: 20
     bottomPadding: 0
-//    contentWidth: 400
+    contentWidth: tilesetPage.implicitWidth
+    contentHeight: 480
 
     readonly property bool validExistingFile: useExistingTilesetCheckBox.checked && validator.fileValid
     readonly property bool validExistingFileOrNew: !useExistingTilesetCheckBox.checked || (useExistingTilesetCheckBox.checked && validator.fileValid)
-    readonly property int tilesWide: useExistingTilesetCheckBox.checked ? validator.calculatedTilesWide : tilesWideSpinBox.value
-    readonly property int tilesHigh: useExistingTilesetCheckBox.checked ? validator.calculatedTilesHigh : tilesHighSpinBox.value
+    readonly property int tilesWide: useExistingTilesetCheckBox.checked ? validator.calculatedTilesWide : tilesetTilesWideSpinBox.value
+    readonly property int tilesHigh: useExistingTilesetCheckBox.checked ? validator.calculatedTilesHigh : tilesetTilesHighSpinBox.value
     readonly property bool allValid: useExistingTilesetCheckBox.checked ? validExistingFile && validator.tileWidthValid && validator.tileHeightValid : true
 
     readonly property url tilesetPath: tilesetPathTextField.text
@@ -54,6 +55,8 @@ Dialog {
         font: tilesetPathTextField.font
     }
 
+    onAboutToShow: stackView.pop(null, StackView.Immediate)
+
     onOpened: {
         // Reset input controls to default values.
         useExistingTilesetCheckBox.forceActiveFocus();
@@ -62,44 +65,50 @@ Dialog {
         isometricCheckBox.checked = false;
         tileWidthSpinBox.value = tileWidthSpinBox.defaultValue;
         tileHeightSpinBox.value = tileHeightSpinBox.defaultValue;
-        tilesWideSpinBox.value = tilesWideSpinBox.defaultValue;
-        tilesHighSpinBox.value = tilesHighSpinBox.defaultValue;
+        tilesetTilesWideSpinBox.value = tilesetTilesWideSpinBox.defaultValue;
+        tilesetTilesHighSpinBox.value = tilesetTilesHighSpinBox.defaultValue;
     }
 
     header: Label {
         text: qsTr("New Project")
         font.pixelSize: fontMetrics.font.pixelSize * 1.5
-        horizontalAlignment: Label.AlignHCenter
+//        horizontalAlignment: Label.AlignHCenter
         verticalAlignment: Label.AlignVCenter
         padding: 14
+        topPadding: 20
         bottomPadding: 0
     }
 
-    contentItem: Flickable {
-        id: flickable
-        implicitWidth: columnLayoutContainer.implicitWidth
-        implicitHeight: 400
-        contentWidth: columnLayoutContainer.implicitWidth
-        contentHeight: columnLayoutContainer.implicitHeight
-        flickableDirection: Flickable.VerticalFlick
-        boundsBehavior: Flickable.StopAtBounds
+    contentItem: StackView {
+        id: stackView
+        initialItem: tilesetPage
         clip: true
 
-        ScrollBar.vertical: ScrollBar {
-            policy: ScrollBar.AlwaysOn
-        }
+        Page {
+            id: tilesetPage
+            objectName: "tilesetPage"
 
-        Item {
-            id: columnLayoutContainer
-            implicitWidth: columnLayout.implicitWidth + 100
-            implicitHeight: columnLayout.implicitHeight + 50
+            Flickable {
+                id: flickable
+                implicitWidth: tilesetPageGridLayout.implicitWidth + leftMargin + rightMargin
+                implicitHeight: 400
+                contentWidth: contentWidth
+                contentHeight: tilesetPageGridLayout.implicitHeight
+                flickableDirection: Flickable.VerticalFlick
+                boundsBehavior: Flickable.StopAtBounds
+                clip: true
+                // Put some distance between the scroll bar and the content.
+                leftMargin: 30
+                rightMargin: 30
+                // Make room for the hover effects.
+                topMargin: 20
 
-            ColumnLayout {
-                id: columnLayout
-                spacing: 14
-                anchors.centerIn: parent
+                ScrollBar.vertical: ScrollBar {
+                    policy: ScrollBar.AlwaysOn
+                }
 
                 GridLayout {
+                    id: tilesetPageGridLayout
                     columns: 2
                     columnSpacing: 14
                     rowSpacing: 0
@@ -203,9 +212,49 @@ Dialog {
                         readonly property int defaultValue: 0
                     }
 
+                    Label {
+                        text: qsTr("Tileset Width")
+                        enabled: !useExistingTilesetCheckBox.checked
+                    }
+                    SpinBox {
+                        id: tilesetTilesWideSpinBox
+                        objectName: "tilesetTilesWideSpinBox"
+                        from: 1
+                        value: defaultValue
+                        to: 10000
+                        editable: true
+                        hoverEnabled: true
+                        enabled: !useExistingTilesetCheckBox.checked
+
+                        ToolTip.text: qsTr("How many horizontal tiles there are in the tileset")
+                        ToolTip.visible: hovered
+
+                        readonly property int defaultValue: 10
+                    }
+
+                    Label {
+                        text: qsTr("Tileset Height")
+                        enabled: !useExistingTilesetCheckBox.checked
+                    }
+                    SpinBox {
+                        id: tilesetTilesHighSpinBox
+                        objectName: "tilesetTilesHighSpinBox"
+                        from: 1
+                        value: defaultValue
+                        to: 10000
+                        editable: true
+                        hoverEnabled: true
+                        enabled: !useExistingTilesetCheckBox.checked
+
+                        ToolTip.text: qsTr("How many vertical tiles there are in the tileset")
+                        ToolTip.visible: hovered
+
+                        readonly property int defaultValue: 10
+                    }
+
                     RowLayout {
                         Label {
-                            text: qsTr("Tile Width")
+                            text: qsTr("Tileset Tile Width")
                             enabled: validExistingFileOrNew
                         }
                         ErrorLabel {
@@ -233,7 +282,7 @@ Dialog {
 
                     RowLayout {
                         Label {
-                            text: qsTr("Tile Height")
+                            text: qsTr("Tileset Tile Height")
                             enabled: validExistingFileOrNew
                         }
                         ErrorLabel {
@@ -257,46 +306,6 @@ Dialog {
                         ToolTip.visible: hovered
 
                         readonly property int defaultValue: 32
-                    }
-
-                    Label {
-                        text: qsTr("Tiles Wide")
-                        enabled: !useExistingTilesetCheckBox.checked
-                    }
-                    SpinBox {
-                        id: tilesWideSpinBox
-                        objectName: "tilesWideSpinBox"
-                        from: 1
-                        value: defaultValue
-                        to: 10000
-                        editable: true
-                        hoverEnabled: true
-                        enabled: !useExistingTilesetCheckBox.checked
-
-                        ToolTip.text: qsTr("How many horizontal tiles there are in the tileset")
-                        ToolTip.visible: hovered
-
-                        readonly property int defaultValue: 10
-                    }
-
-                    Label {
-                        text: qsTr("Tiles High")
-                        enabled: !useExistingTilesetCheckBox.checked
-                    }
-                    SpinBox {
-                        id: tilesHighSpinBox
-                        objectName: "tilesHighSpinBox"
-                        from: 1
-                        value: defaultValue
-                        to: 10000
-                        editable: true
-                        hoverEnabled: true
-                        enabled: !useExistingTilesetCheckBox.checked
-
-                        ToolTip.text: qsTr("How many vertical tiles there are in the tileset")
-                        ToolTip.visible: hovered
-
-                        readonly property int defaultValue: 10
                     }
 
                     Label {
@@ -354,7 +363,7 @@ Dialog {
                                         anchors.fill: parent
                                         anchors.margins: -0.5
                                         visible: !useExistingTilesetCheckBox.checked
-                                            || (validator.tileWidthValid && validator.tileHeightValid)
+                                                 || (validator.tileWidthValid && validator.tileHeightValid)
                                     }
                                 }
                             }
@@ -362,33 +371,126 @@ Dialog {
                     }
                 }
             }
+
+            background: null
+
+            footer: Item {
+                implicitWidth: rowLayout.implicitWidth + rowLayout.anchors.leftMargin + rowLayout.anchors.rightMargin
+                implicitHeight: rowLayout.implicitHeight + rowLayout.anchors.topMargin + rowLayout.anchors.bottomMargin
+
+                RowLayout {
+                    id: rowLayout
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    anchors.topMargin: 8
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    Button {
+                        id: nextButton
+                        objectName: "newProjectNextButton"
+                        text: "Next"
+                        enabled: allValid
+                        onClicked: stackView.push(canvasPage, StackView.Immediate)
+                    }
+                    Button {
+                        text: "Cancel"
+                        onClicked: popup.reject()
+                    }
+                }
+            }
         }
-    }
 
-    footer: Item {
-        implicitWidth: footerLayout.implicitWidth + footerLayout.anchors.leftMargin + footerLayout.anchors.rightMargin
-        implicitHeight: footerLayout.implicitHeight + footerLayout.anchors.topMargin + footerLayout.anchors.bottomMargin
+        Page {
+            id: canvasPage
+            objectName: "canvasPage"
+            leftPadding: 30
+            rightPadding: 30
+            visible: false
 
-        RowLayout {
-            id: footerLayout
-            anchors.fill: parent
-            anchors.margins: 20
-            anchors.topMargin: 8
+            GridLayout {
+                columns: 2
+                columnSpacing: 14
+                rowSpacing: 0
 
-            Item {
-                Layout.fillWidth: true
+                Label {
+                    text: qsTr("Canvas Width")
+                    enabled: !useExistingTilesetCheckBox.checked
+                }
+                SpinBox {
+                    id: canvasTilesWideSpinBox
+                    objectName: "canvasTilesWideSpinBox"
+                    from: 1
+                    value: defaultValue
+                    to: 100
+                    editable: true
+                    hoverEnabled: true
+                    enabled: !useExistingTilesetCheckBox.checked
+
+                    ToolTip.text: qsTr("How many horizontal tiles there should be in the canvas")
+                    ToolTip.visible: hovered
+
+                    readonly property int defaultValue: 10
+                }
+
+                Label {
+                    text: qsTr("Canvas Height")
+                    enabled: !useExistingTilesetCheckBox.checked
+                }
+                SpinBox {
+                    id: canvasTilesHighSpinBox
+                    objectName: "canvasTilesHighSpinBox"
+                    from: 1
+                    value: defaultValue
+                    to: 100
+                    editable: true
+                    hoverEnabled: true
+                    enabled: !useExistingTilesetCheckBox.checked
+
+                    ToolTip.text: qsTr("How many vertical tiles there should be in the canvas")
+                    ToolTip.visible: hovered
+
+                    readonly property int defaultValue: 10
+                }
             }
 
-            Button {
-                id: okButton
-                objectName: "newProjectOkButton"
-                text: "OK"
-                enabled: allValid
-                onClicked: popup.accept()
-            }
-            Button {
-                text: "Cancel"
-                onClicked: popup.reject()
+            background: null
+
+            footer: Item {
+                implicitWidth: canvasFooterLayout.implicitWidth + canvasFooterLayout.anchors.leftMargin + canvasFooterLayout.anchors.rightMargin
+                implicitHeight: canvasFooterLayout.implicitHeight + canvasFooterLayout.anchors.topMargin + canvasFooterLayout.anchors.bottomMargin
+
+                RowLayout {
+                    id: canvasFooterLayout
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    anchors.topMargin: 8
+
+                    Button {
+                        id: backButton
+                        objectName: "newProjectBackButton"
+                        text: "Back"
+                        onClicked: stackView.pop(StackView.Immediate)
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    Button {
+                        id: okButton
+                        objectName: "newProjectOkButton"
+                        text: "OK"
+                        enabled: allValid
+                        onClicked: popup.accept()
+                    }
+                    Button {
+                        text: "Cancel"
+                        onClicked: popup.reject()
+                    }
+                }
             }
         }
     }
