@@ -24,8 +24,8 @@
 Q_LOGGING_CATEGORY(lcApplyPixelFillCommand, "app.applyPixelFillCommand")
 
 ApplyPixelFillCommand::ApplyPixelFillCommand(TileCanvas *canvas, const QVector<QPoint> &scenePositions,
-    const QColor &previousColour, const QColor &colour, UndoCommand *parent) :
-    UndoCommand(parent),
+    const QColor &previousColour, const QColor &colour, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mCanvas(canvas),
     mColour(colour)
 {
@@ -54,9 +54,9 @@ int ApplyPixelFillCommand::id() const
     return TileCanvas::PixelMode;
 }
 
-bool ApplyPixelFillCommand::mergeWith(const UndoCommand *other)
+bool ApplyPixelFillCommand::mergeWith(const QUndoCommand *other)
 {
-    const ApplyPixelFillCommand *otherCommand = qobject_cast<const ApplyPixelFillCommand*>(other);
+    const ApplyPixelFillCommand *otherCommand = dynamic_cast<const ApplyPixelFillCommand*>(other);
     if (!otherCommand) {
         return false;
     }

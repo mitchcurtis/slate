@@ -24,8 +24,8 @@
 Q_LOGGING_CATEGORY(lcApplyTileFillCommand, "app.applyTileFillCommand")
 
 ApplyTileFillCommand::ApplyTileFillCommand(TileCanvas *canvas, const QVector<QPoint> &tilePositions,
-    int previousTile, int tile, UndoCommand *parent) :
-    UndoCommand(parent),
+    int previousTile, int tile, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mCanvas(canvas),
     mPreviousTile(previousTile),
     mTile(tile)
@@ -55,7 +55,7 @@ int ApplyTileFillCommand::id() const
     return TileCanvas::TileMode;
 }
 
-bool ApplyTileFillCommand::mergeWith(const UndoCommand *)
+bool ApplyTileFillCommand::mergeWith(const QUndoCommand *)
 {
     return false;
 }

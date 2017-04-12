@@ -21,6 +21,7 @@
 
 #include <QFontDatabase>
 #include <QLoggingCategory>
+#include <QUndoStack>
 
 #include "tilecanvas.h"
 #include "tilecanvaspane.h"
@@ -68,9 +69,9 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterType<TileGrid>("App", 1, 0, "TileGrid");
 
     // For some reason, only when debugging, I get
-    // QMetaProperty::read: Unable to handle unregistered datatype 'UndoStack*' for property 'Project_QML_108::undoStack'
+    // QMetaProperty::read: Unable to handle unregistered datatype 'QUndoStack*' for property 'Project_QML_108::undoStack'
     // if I don't do this.
-    qRegisterMetaType<UndoStack*>();
+    qRegisterMetaType<QUndoStack*>();
     qRegisterMetaType<Tile*>();
     qRegisterMetaType<Tileset*>();
 

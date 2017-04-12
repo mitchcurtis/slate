@@ -26,7 +26,7 @@
 #include <QStack>
 #include <QWheelEvent>
 
-#include <QtUndo/undostack.h>
+#include <QUndoStack>
 
 #include "splitter.h"
 #include "tilecanvaspane.h"
