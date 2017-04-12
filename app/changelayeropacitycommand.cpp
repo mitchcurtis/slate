@@ -27,8 +27,8 @@
 Q_LOGGING_CATEGORY(lcChangeLayerOpacityCommand, "app.undo.changeLayerOpacityCommand")
 
 ChangeLayerOpacityCommand::ChangeLayerOpacityCommand(LayeredImageProject *project, int layerIndex, qreal previousOpacity,
-    qreal newOpacity, UndoCommand *parent) :
-    UndoCommand(parent),
+    qreal newOpacity, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mProject(project),
     mLayerIndex(layerIndex),
     mPreviousOpacity(previousOpacity),

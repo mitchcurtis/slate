@@ -27,8 +27,8 @@
 Q_LOGGING_CATEGORY(lcApplyGreedyPixelFillCommand, "app.undo.applyGreedyPixelFillCommand")
 
 ApplyGreedyPixelFillCommand::ApplyGreedyPixelFillCommand(ImageCanvas *canvas, int layerIndex, const QImage &previousImage,
-    const QImage &newImage, UndoCommand *parent) :
-    UndoCommand(parent),
+    const QImage &newImage, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex),
     mPreviousImage(previousImage),

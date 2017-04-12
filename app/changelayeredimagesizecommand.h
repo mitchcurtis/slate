@@ -22,18 +22,16 @@
 
 #include <QDebug>
 #include <QImage>
-#include <QtUndo/undocommand.h>
+#include <QUndoCommand>
 #include <QVector>
 
 class LayeredImageProject;
 
-class ChangeLayeredImageSizeCommand : public UndoCommand
+class ChangeLayeredImageSizeCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     ChangeLayeredImageSizeCommand(LayeredImageProject *project, const QVector<QImage> &previousImages,
-        const QVector<QImage> &newImages, UndoCommand *parent = nullptr);
+        const QVector<QImage> &newImages, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

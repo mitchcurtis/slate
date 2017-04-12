@@ -26,11 +26,12 @@
 
 Q_LOGGING_CATEGORY(lcAddLayerCommand, "app.undo.addLayerCommand")
 
-AddLayerCommand::AddLayerCommand(LayeredImageProject *project, ImageLayer *layer, int index, UndoCommand *parent) :
-    UndoCommand(parent),
+AddLayerCommand::AddLayerCommand(LayeredImageProject *project, ImageLayer *layer, int index, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mProject(project),
     mIndex(index),
-    mLayer(layer)
+    mLayer(layer),
+    mLayerGuard(layer)
 {
     qCDebug(lcAddLayerCommand) << "constructed" << this;
 }
@@ -39,14 +40,16 @@ void AddLayerCommand::undo()
 {
     qCDebug(lcAddLayerCommand) << "undoing" << this;
     mProject->takeLayer(mIndex);
+
     // Prevent leaks.
-    mLayer->setParent(this);
+    Q_ASSERT(mLayerGuard.isNull());
+    mLayerGuard.reset(mLayer);
 }
 
 void AddLayerCommand::redo()
 {
     qCDebug(lcAddLayerCommand) << "redoing" << this;
-    mProject->addLayer(mLayer, mIndex);
+    mProject->addLayer(mLayerGuard.take(), mIndex);
 }
 
 int AddLayerCommand::id() const

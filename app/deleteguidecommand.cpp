@@ -25,8 +25,8 @@
 
 Q_LOGGING_CATEGORY(lcDeleteGuideCommand, "app.undo.deleteGuideCommand")
 
-DeleteGuideCommand::DeleteGuideCommand(Project *project, const Guide &guide, UndoCommand *parent) :
-    UndoCommand(parent),
+DeleteGuideCommand::DeleteGuideCommand(Project *project, const Guide &guide, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mProject(project),
     mGuide(guide)
 {

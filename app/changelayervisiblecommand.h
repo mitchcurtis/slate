@@ -21,17 +21,15 @@
 #define CHANGELAYERVISIBLECOMMAND_H
 
 #include <QDebug>
-#include <QtUndo/undocommand.h>
+#include <QUndoCommand>
 
 class LayeredImageProject;
 
-class ChangeLayerVisibleCommand : public UndoCommand
+class ChangeLayerVisibleCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     ChangeLayerVisibleCommand(LayeredImageProject *project, int layerIndex, bool previousVisible,
-        bool newVisible, UndoCommand *parent = nullptr);
+        bool newVisible, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

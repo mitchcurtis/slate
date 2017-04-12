@@ -313,7 +313,7 @@ QSize Project::size() const
     return QSize(0, 0);
 }
 
-UndoStack *Project::undoStack()
+QUndoStack *Project::undoStack()
 {
     return &mUndoStack;
 }
@@ -356,13 +356,13 @@ void Project::endMacro()
     }
 }
 
-QDebug operator<<(QDebug debug, const UndoCommand &command)
+QDebug operator<<(QDebug debug, const QUndoCommand &command)
 {
     debug << &command;
     return debug;
 }
 
-void Project::addChange(UndoCommand *undoCommand)
+void Project::addChange(QUndoCommand *undoCommand)
 {
     qCDebug(lcProject) << "adding change" << *undoCommand;
     mUndoStack.push(undoCommand);

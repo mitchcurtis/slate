@@ -22,17 +22,15 @@
 
 #include <QDebug>
 #include <QImage>
-#include <QtUndo/undocommand.h>
+#include <QUndoCommand>
 
 class ImageCanvas;
 
-class ApplyPixelFillCommand : public UndoCommand
+class ApplyPixelFillCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     ApplyPixelFillCommand(ImageCanvas *canvas, int layerIndex, const QImage &previousImage,
-        const QImage &newImage, UndoCommand *parent = nullptr);
+        const QImage &newImage, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

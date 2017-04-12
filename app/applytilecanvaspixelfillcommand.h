@@ -23,18 +23,16 @@
 #include <QColor>
 #include <QDebug>
 #include <QPoint>
+#include <QUndoCommand>
 #include <QVector>
-#include <QtUndo/undocommand.h>
 
 class TileCanvas;
 
-class ApplyTileCanvasPixelFillCommand : public UndoCommand
+class ApplyTileCanvasPixelFillCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     ApplyTileCanvasPixelFillCommand(TileCanvas *canvas, const QVector<QPoint> &scenePositions, const QColor &previousColour,
-        const QColor &colour, UndoCommand *parent = nullptr);
+        const QColor &colour, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

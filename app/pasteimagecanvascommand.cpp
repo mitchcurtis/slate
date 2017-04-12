@@ -25,8 +25,8 @@
 Q_LOGGING_CATEGORY(lcPasteImageCanvasCommand, "app.undo.pasteImageCanvasCommand")
 
 PasteImageCanvasCommand::PasteImageCanvasCommand(ImageCanvas *canvas, const QImage &image,
-    const QPoint &position, UndoCommand *parent) :
-    UndoCommand(parent),
+    const QPoint &position, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mCanvas(canvas),
     mNewImage(image),
     mPreviousImage(canvas->currentProjectImage()->copy(QRect(position, image.size()))),

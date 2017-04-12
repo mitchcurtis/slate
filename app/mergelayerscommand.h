@@ -22,19 +22,18 @@
 
 #include <QDebug>
 #include <QImage>
-#include <QtUndo/undocommand.h>
+#include <QScopedPointer>
+#include <QUndoCommand>
 
 class ImageLayer;
 class LayeredImageProject;
 
-class MergeLayersCommand : public UndoCommand
+class MergeLayersCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     MergeLayersCommand(LayeredImageProject *project,
         int sourceIndex, ImageLayer *sourceLayer,
-        int targetIndex, ImageLayer *targetLayer, UndoCommand *parent = nullptr);
+        int targetIndex, ImageLayer *targetLayer, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
@@ -47,6 +46,7 @@ private:
     LayeredImageProject *mProject;
     int mSourceIndex;
     ImageLayer *mSourceLayer;
+    QScopedPointer<ImageLayer> mSourceLayerGuard;
     int mTargetIndex;
     ImageLayer *mTargetLayer;
     QImage mPreviousTargetLayerImage;

@@ -26,8 +26,8 @@ Q_LOGGING_CATEGORY(lcMoveImageCanvasSelectionCommand, "app.undo.moveImageCanvasS
 
 MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *canvas,
         const QRect &previousArea, const QImage &previousAreaImagePortion,
-        const QRect &newArea, bool fromPaste, const QImage &pasteContents, UndoCommand *parent) :
-    UndoCommand(parent),
+        const QRect &newArea, bool fromPaste, const QImage &pasteContents, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mCanvas(canvas),
     mPreviousArea(previousArea),
     mPreviousAreaImagePortion(previousAreaImagePortion),

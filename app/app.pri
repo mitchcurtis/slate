@@ -1,4 +1,4 @@
-QT += widgets qml quick undo
+QT += widgets qml quick
 CONFIG += c++11
 
 INCLUDEPATH += $$PWD

@@ -27,8 +27,8 @@
 Q_LOGGING_CATEGORY(lcChangeLayerVisibleCommand, "app.undo.changeLayerVisibleCommand")
 
 ChangeLayerVisibleCommand::ChangeLayerVisibleCommand(LayeredImageProject *project, int layerIndex, bool previousVisible,
-    bool newVisible, UndoCommand *parent) :
-    UndoCommand(parent),
+    bool newVisible, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mProject(project),
     mLayerIndex(layerIndex),
     mPreviousVisible(previousVisible),

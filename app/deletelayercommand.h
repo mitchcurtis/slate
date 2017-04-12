@@ -21,17 +21,16 @@
 #define DELETELAYERCOMMAND_H
 
 #include <QDebug>
-#include <QtUndo/undocommand.h>
+#include <QScopedPointer>
+#include <QUndoCommand>
 
 class ImageLayer;
 class LayeredImageProject;
 
-class DeleteLayerCommand : public UndoCommand
+class DeleteLayerCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
-    DeleteLayerCommand(LayeredImageProject *project, int index, UndoCommand *parent = nullptr);
+    DeleteLayerCommand(LayeredImageProject *project, int index, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
@@ -44,6 +43,7 @@ private:
     LayeredImageProject *mProject;
     int mIndex;
     ImageLayer *mLayer;
+    QScopedPointer<ImageLayer> mLayerGuard;
 };
 
 

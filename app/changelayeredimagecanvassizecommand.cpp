@@ -26,8 +26,8 @@
 Q_LOGGING_CATEGORY(lcChangeLayeredImageCanvasSizeCommand, "app.undo.changeLayeredImageCanvasSizeCommand")
 
 ChangeLayeredImageCanvasSizeCommand::ChangeLayeredImageCanvasSizeCommand(LayeredImageProject *project,
-    const QVector<QImage> &previousImages, const QVector<QImage> &newImages, UndoCommand *parent) :
-    UndoCommand(parent),
+    const QVector<QImage> &previousImages, const QVector<QImage> &newImages, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mProject(project),
     mPreviousImages(previousImages),
     mNewImages(newImages)

@@ -26,8 +26,8 @@
 Q_LOGGING_CATEGORY(lcApplyPixelFillCommand, "app.undo.applyPixelFillCommand")
 
 ApplyPixelFillCommand::ApplyPixelFillCommand(ImageCanvas *canvas, int layerIndex,
-    const QImage &previousImage, const QImage &newImage, UndoCommand *parent) :
-    UndoCommand(parent),
+    const QImage &previousImage, const QImage &newImage, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex),
     mPreviousImage(previousImage),

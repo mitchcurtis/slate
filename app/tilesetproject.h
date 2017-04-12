@@ -27,8 +27,6 @@
 #include <QUrl>
 #include <QVector>
 
-#include <QtUndo/undostack.h>
-
 #include "project.h"
 #include "tile.h"
 #include "tileset.h"

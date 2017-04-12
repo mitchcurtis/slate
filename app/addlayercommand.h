@@ -21,17 +21,16 @@
 #define ADDLAYERCOMMAND_H
 
 #include <QDebug>
-#include <QtUndo/undocommand.h>
+#include <QScopedPointer>
+#include <QUndoCommand>
 
 class ImageLayer;
 class LayeredImageProject;
 
-class AddLayerCommand : public UndoCommand
+class AddLayerCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
-    AddLayerCommand(LayeredImageProject *project, ImageLayer *layer, int index, UndoCommand *parent = nullptr);
+    AddLayerCommand(LayeredImageProject *project, ImageLayer *layer, int index, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
@@ -44,6 +43,7 @@ private:
     LayeredImageProject *mProject;
     int mIndex;
     ImageLayer *mLayer;
+    QScopedPointer<ImageLayer> mLayerGuard;
 };
 
 
