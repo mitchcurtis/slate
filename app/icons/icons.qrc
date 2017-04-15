@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>opacity.png</file>
+        <file>opacity@2x.png</file>
+        <file>opacity@3x.png</file>
+        <file>opacity@4x.png</file>
+    </qresource>
+</RCC>
