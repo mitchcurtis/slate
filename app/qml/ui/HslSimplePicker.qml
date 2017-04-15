@@ -99,6 +99,40 @@ GridLayout {
 
     property real changeAmount: 0.01
 
+//    Image {
+//        id: opacityLabel
+//        source: "qrc:/icons/opacity.png"
+
+//        Layout.alignment: Qt.AlignHCenter
+
+//        MouseArea {
+//            anchors.fill: parent
+//            hoverEnabled: true
+
+//            ToolTip.visible: containsMouse
+//            ToolTip.text: qsTr("Opacity")
+//        }
+//    }
+
+//    Slider {
+//        id: transparencySlider
+//        objectName: "transparencySlider"
+//        from: 0
+//        to: 100
+//        focusPolicy: Qt.NoFocus
+
+//        Layout.fillWidth: true
+//        Layout.preferredWidth: lightnessRowLayout.implicitWidth
+//    }
+
+//    MenuSeparator {
+//        topPadding: 0
+//        bottomPadding: 0
+
+//        Layout.columnSpan: 2
+//        Layout.fillWidth: true
+//    }
+
     Label {
         id: lightnessLabel
         text: "\uf185"
@@ -117,6 +151,8 @@ GridLayout {
     }
 
     RowLayout {
+        id: lightnessRowLayout
+
         Button {
             objectName: "lighterButton"
             text: qsTr("-")
