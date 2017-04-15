@@ -130,7 +130,8 @@ signals:
 public slots:
     void createNew(QUrl tilesetUrl, int tileWidth, int tileHeight,
         int tilesetTilesWide, int tilesetTilesHigh,
-        int canvasTilesWide, int canvasTilesHigh);
+        int canvasTilesWide, int canvasTilesHigh,
+        bool transparentBackground);
     void load(const QUrl &url);
     void close();
     void save();

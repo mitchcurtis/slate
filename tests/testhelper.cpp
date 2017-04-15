@@ -565,7 +565,8 @@ int TestHelper::digitAt(int number, int index)
     return index < digits.size() ? digits.at(index) : 0;
 }
 
-void TestHelper::createNewProject(int tileWidth, int tileHeight, int tilesetTilesWide, int tilesetTilesHigh)
+void TestHelper::createNewProject(int tileWidth, int tileHeight, int tilesetTilesWide, int tilesetTilesHigh,
+    bool transparentBackground)
 {
     // Click the new project button.
     mouseEventOnCentre(fileToolButton, MouseClick);
@@ -658,6 +659,12 @@ void TestHelper::createNewProject(int tileWidth, int tileHeight, int tilesetTile
 
         QVERIFY(tilesHighSpinBox->setProperty("value", tilesetTilesHigh));
         QCOMPARE(tilesHighSpinBox->property("value").toInt(), tilesetTilesHigh);
+
+        QQuickItem *transparentBackgroundCheckBox = newProjectPopup->findChild<QQuickItem*>("transparentBackgroundCheckBox");
+        QVERIFY(transparentBackgroundCheckBox);
+        QCOMPARE(transparentBackgroundCheckBox->property("checked").toBool(), true);
+        mouseEventOnCentre(transparentBackgroundCheckBox, MouseClick);
+        QCOMPARE(transparentBackgroundCheckBox->property("checked").toBool(), false);
     }
 
     // Confirm creation of the project.

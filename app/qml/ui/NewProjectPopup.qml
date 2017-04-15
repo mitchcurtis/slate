@@ -27,6 +27,7 @@ Dialog {
     readonly property int tilesetTilesHigh: tilesHigh
     readonly property int canvasTilesWide: 10
     readonly property int canvasTilesHigh: 10
+    readonly property bool transparentBackground: transparentBackgroundCheckBox.checked
 
     Platform.FileDialog {
         id: openTilesetDialog
@@ -49,7 +50,7 @@ Dialog {
         font: tilesetPathTextField.font
     }
 
-    onOpened: {
+    onAboutToShow: {
         // Reset input controls to default values.
         useExistingTilesetCheckBox.forceActiveFocus();
         useExistingTilesetCheckBox.checked = false;
@@ -58,6 +59,7 @@ Dialog {
         tileHeightSpinBox.value = tileHeightSpinBox.defaultValue;
         tilesWideSpinBox.value = tilesWideSpinBox.defaultValue;
         tilesHighSpinBox.value = tilesHighSpinBox.defaultValue;
+        transparentBackgroundCheckBox.checked = transparentBackgroundCheckBox.defaultValue;
     }
 
     contentItem: ColumnLayout {
@@ -218,6 +220,16 @@ Dialog {
                 readonly property int defaultValue: 10
             }
 
+            CheckBox {
+                id: transparentBackgroundCheckBox
+                objectName: "transparentBackgroundCheckBox"
+                text: qsTr("Transparent Background")
+                padding: 0
+                enabled: !useExistingTilesetCheckBox.checked
+
+                readonly property bool defaultValue: true
+            }
+
             Label {
                 text: qsTr("Preview")
                 enabled: validator.fileValid
@@ -256,6 +268,7 @@ Dialog {
                                 id: previewRect
                                 width: tilesWide * tileWidthSpinBox.value
                                 height: tilesHigh * tileHeightSpinBox.value
+                                color: transparentBackground ? "transparent" : "white"
                                 visible: !useExistingTilesetCheckBox.checked
                             }
 

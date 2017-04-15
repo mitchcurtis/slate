@@ -271,7 +271,8 @@ ApplicationWindow {
         onVisibleChanged: canvas.focus = true
 
         onAccepted: project.createNew(tilesetPath, tileWidth, tileHeight,
-            tilesetTilesWide, tilesetTilesHigh, canvasTilesWide, canvasTilesHigh)
+            tilesetTilesWide, tilesetTilesHigh, canvasTilesWide, canvasTilesHigh,
+            transparentBackground)
     }
 
     Ui.RecentProjectsPopup {

@@ -147,7 +147,7 @@ QUrl Project::createTemporaryTilesetImage(int tileWidth, int tileHeight,
 
 void Project::createNew(QUrl tilesetUrl, int tileWidth, int tileHeight,
     int tilesetTilesWide, int tilesetTilesHigh,
-    int canvasTilesWide, int canvasTilesHigh)
+    int canvasTilesWide, int canvasTilesHigh, bool transparentBackground)
 {
     if (hasLoaded()) {
         close();
@@ -155,7 +155,8 @@ void Project::createNew(QUrl tilesetUrl, int tileWidth, int tileHeight,
 
     if (tilesetUrl.isEmpty()) {
         // Not using an existing tileset image, so we must create one.
-        tilesetUrl = createTemporaryTilesetImage(tileWidth, tileHeight, tilesetTilesWide, tilesetTilesHigh, Qt::white);
+        tilesetUrl = createTemporaryTilesetImage(tileWidth, tileHeight, tilesetTilesWide, tilesetTilesHigh,
+            transparentBackground ? Qt::transparent : Qt::white);
         if (!tilesetUrl.isValid()) {
             return;
         }

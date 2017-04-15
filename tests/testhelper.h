@@ -103,7 +103,7 @@ protected:
     int digits(int number);
     int digitAt(int number, int index);
     void createNewProject(int tileWidth = 25, int tileHeight = 25,
-        int tilesetTilesWide = -1, int tilesetTilesHigh = -1);
+        int tilesetTilesWide = -1, int tilesetTilesHigh = -1, bool transparentBackground = false);
     void setupTempProjectDir();
     void switchMode(TileCanvas::Mode mode);
     void switchTool(TileCanvas::Tool tool);
