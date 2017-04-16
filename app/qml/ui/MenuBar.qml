@@ -8,35 +8,6 @@ RowLayout {
     property TileCanvas canvas
     property Project project: canvas.project
 
-    function doIfChangesDiscarded(actionFunction, discardChangesBeforeAction) {
-        if (!project.unsavedChanges) {
-            if (!!discardChangesBeforeAction)
-                project.close();
-            actionFunction();
-            return;
-        }
-
-        function disconnectSignals() {
-            saveChangesDialog.accepted.disconnect(discardChanges);
-            saveChangesDialog.rejected.disconnect(dontDiscardChanges);
-        }
-
-        function discardChanges() {
-            if (!!discardChangesBeforeAction)
-                project.close()
-            actionFunction();
-            disconnectSignals();
-        }
-
-        function dontDiscardChanges() {
-            disconnectSignals();
-        }
-
-        saveChangesDialog.accepted.connect(discardChanges);
-        saveChangesDialog.rejected.connect(dontDiscardChanges);
-        saveChangesDialog.open();
-    }
-
     ToolButton {
         id: fileToolButton
         objectName: "fileToolButton"

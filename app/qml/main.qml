@@ -81,6 +81,40 @@ ApplicationWindow {
         window.y = Screen.desktopAvailableHeight / 2 - height / 2
     }
 
+    function doIfChangesDiscarded(actionFunction, discardChangesBeforeAction) {
+        if (!project.unsavedChanges) {
+            if (!!discardChangesBeforeAction)
+                project.close();
+            actionFunction();
+            return;
+        }
+
+        function disconnectSignals() {
+            saveChangesDialog.accepted.disconnect(discardChanges);
+            saveChangesDialog.rejected.disconnect(dontDiscardChanges);
+        }
+
+        function discardChanges() {
+            if (!!discardChangesBeforeAction)
+                project.close()
+            actionFunction();
+            disconnectSignals();
+        }
+
+        function dontDiscardChanges() {
+            disconnectSignals();
+        }
+
+        saveChangesDialog.accepted.connect(discardChanges);
+        saveChangesDialog.rejected.connect(dontDiscardChanges);
+        saveChangesDialog.open();
+    }
+
+    onClosing: {
+        close.accepted = false;
+        doIfChangesDiscarded(function() { Qt.quit() })
+    }
+
     Project {
         id: project
         objectName: "project"
