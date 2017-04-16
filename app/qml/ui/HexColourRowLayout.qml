@@ -27,7 +27,7 @@ RowLayout {
         objectName: "hexTextField"
         text: canvas[selector.currentPenName].toString().substr(1)
         readOnly: true // see tst_app::colourPickerHexField
-        inputMask: "HHHHHH"
+        inputMask: "HHHHHHHH"
         selectByMouse: true
         onAccepted: canvas[selector.currentPenName] = inputColour
 

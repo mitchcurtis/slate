@@ -663,8 +663,11 @@ void TestHelper::createNewProject(int tileWidth, int tileHeight, int tilesetTile
         QQuickItem *transparentBackgroundCheckBox = newProjectPopup->findChild<QQuickItem*>("transparentBackgroundCheckBox");
         QVERIFY(transparentBackgroundCheckBox);
         QCOMPARE(transparentBackgroundCheckBox->property("checked").toBool(), true);
-        mouseEventOnCentre(transparentBackgroundCheckBox, MouseClick);
-        QCOMPARE(transparentBackgroundCheckBox->property("checked").toBool(), false);
+
+        if (!transparentBackground) {
+            mouseEventOnCentre(transparentBackgroundCheckBox, MouseClick);
+            QCOMPARE(transparentBackgroundCheckBox->property("checked").toBool(), false);
+        }
     }
 
     // Confirm creation of the project.

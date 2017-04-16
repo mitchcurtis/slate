@@ -67,6 +67,7 @@ GridLayout {
             implicitHeight: 134
             focusPolicy: Qt.NoFocus
             hue: hueSlider.hue
+            alpha: transparencySlider.value
 
             function updateOurColour() {
                 if (saturationLightnessPicker.ignoreChanges) {
@@ -99,39 +100,68 @@ GridLayout {
 
     property real changeAmount: 0.01
 
-//    Image {
-//        id: opacityLabel
-//        source: "qrc:/icons/opacity.png"
+    Image {
+        id: opacityLabel
+        source: "qrc:/icons/opacity.png"
 
-//        Layout.alignment: Qt.AlignHCenter
+        Layout.alignment: Qt.AlignHCenter
 
-//        MouseArea {
-//            anchors.fill: parent
-//            hoverEnabled: true
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
 
-//            ToolTip.visible: containsMouse
-//            ToolTip.text: qsTr("Opacity")
-//        }
-//    }
+            ToolTip.visible: containsMouse
+            ToolTip.text: qsTr("Opacity")
+        }
+    }
 
-//    Slider {
-//        id: transparencySlider
-//        objectName: "transparencySlider"
-//        from: 0
-//        to: 100
-//        focusPolicy: Qt.NoFocus
+    Slider {
+        id: transparencySlider
+        objectName: "transparencySlider"
+        value: canvas[hexColourRowLayout.colourSelector.currentPenName].a
+        focusPolicy: Qt.NoFocus
 
-//        Layout.fillWidth: true
-//        Layout.preferredWidth: lightnessRowLayout.implicitWidth
-//    }
+        Layout.fillWidth: true
+        Layout.preferredWidth: lightnessRowLayout.implicitWidth
 
-//    MenuSeparator {
-//        topPadding: 0
-//        bottomPadding: 0
+        property bool ignoreChanges: false
 
-//        Layout.columnSpan: 2
-//        Layout.fillWidth: true
-//    }
+        onValueChanged: {
+            ignoreChanges = true;
+            canvas[hexColourRowLayout.colourSelector.currentPenName].a = transparencySlider.value;
+            ignoreChanges = false;
+        }
+
+        function updateOurValue() {
+            if (ignoreChanges)
+                return;
+
+            transparencySlider.value = canvas[hexColourRowLayout.colourSelector.currentPenName].a;
+        }
+
+        Connections {
+            target: hexColourRowLayout.colourSelector
+            onCurrentPenNameChanged: {
+                transparencySlider.ignoreChanges = true;
+                transparencySlider.updateOurValue()
+                transparencySlider.ignoreChanges = false;
+            }
+        }
+
+        Connections {
+            target: canvas
+            onPenForegroundColourChanged: transparencySlider.updateOurValue()
+            onPenBackgroundColourChanged: transparencySlider.updateOurValue()
+        }
+    }
+
+    MenuSeparator {
+        topPadding: 0
+        bottomPadding: 0
+
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
+    }
 
     Label {
         id: lightnessLabel
