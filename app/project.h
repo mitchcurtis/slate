@@ -142,7 +142,6 @@ private:
     friend class ChangeCanvasSizeCommand;
 
     void error(const QString &message);
-    bool projectKeysMissing(const QJsonObject &object, const QStringList &keys);
 
     int tileIdFromPosInTileset(int x, int y) const;
     int tileIdFromTilePosInTileset(int column, int row) const;
