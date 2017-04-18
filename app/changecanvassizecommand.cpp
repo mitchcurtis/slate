@@ -26,8 +26,8 @@
 Q_LOGGING_CATEGORY(lcChangeCanvasSizeCommand, "app.changeCanvasSizeCommand")
 
 ChangeCanvasSizeCommand::ChangeCanvasSizeCommand(Project *project, const QSize &previousSize,
-    const QSize &size, UndoCommand *parent) :
-    UndoCommand(parent),
+    const QSize &size, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mProject(project),
     mPreviousSize(previousSize),
     mSize(size)

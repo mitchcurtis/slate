@@ -24,8 +24,8 @@
 Q_LOGGING_CATEGORY(lcApplyTilePenCommand, "app.applyTilePenCommand")
 
 ApplyTilePenCommand::ApplyTilePenCommand(TileCanvas *canvas, const QPoint &tilePos,
-    int previousId, int id, UndoCommand *parent) :
-    UndoCommand(parent),
+    int previousId, int id, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mCanvas(canvas),
     mId(id)
 {
@@ -54,9 +54,9 @@ int ApplyTilePenCommand::id() const
     return TileCanvas::TileMode;
 }
 
-bool ApplyTilePenCommand::mergeWith(const UndoCommand *other)
+bool ApplyTilePenCommand::mergeWith(const QUndoCommand *other)
 {
-    const ApplyTilePenCommand *otherCommand = qobject_cast<const ApplyTilePenCommand*>(other);
+    const ApplyTilePenCommand *otherCommand = dynamic_cast<const ApplyTilePenCommand*>(other);
     if (!otherCommand) {
         return false;
     }

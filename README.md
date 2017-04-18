@@ -17,10 +17,9 @@ Slate's goal is to simplify the creation of seamless tilesets.
 ### Dependencies ###
 
 * Qt >= 5.8
-* https://github.com/mitchcurtis/qt-undo
 * https://github.com/mitchcurtis/pickawinner
 
-qt-undo and pickawinner can be cloned and built separately, but they are also available as submodules of Slate's repo, and can therefore be built automatically when
+pickawinner can be cloned and built separately, but is also available as submodules of Slate's repo, and can therefore be built automatically when
 Slate is built, by first running the following commands:
 
     cd <slate-source-dir>

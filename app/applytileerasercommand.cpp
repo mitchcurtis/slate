@@ -26,8 +26,8 @@
 Q_LOGGING_CATEGORY(lcApplyTileEraserCommand, "app.applyTileEraserCommand")
 
 ApplyTileEraserCommand::ApplyTileEraserCommand(TileCanvas *canvas, const QPoint &tilePos,
-    int previousId, UndoCommand *parent) :
-    UndoCommand(parent),
+    int previousId, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mCanvas(canvas)
 {
     mTilePositions.append(tilePos);
@@ -55,9 +55,9 @@ int ApplyTileEraserCommand::id() const
     return TileCanvas::TileMode;
 }
 
-bool ApplyTileEraserCommand::mergeWith(const UndoCommand *other)
+bool ApplyTileEraserCommand::mergeWith(const QUndoCommand *other)
 {
-    const ApplyTileEraserCommand *otherCommand = qobject_cast<const ApplyTileEraserCommand*>(other);
+    const ApplyTileEraserCommand *otherCommand = dynamic_cast<const ApplyTileEraserCommand*>(other);
     if (!otherCommand) {
         return false;
     }

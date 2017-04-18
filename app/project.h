@@ -27,7 +27,7 @@
 #include <QUrl>
 #include <QVector>
 
-#include <QtUndo/undostack.h>
+#include <QUndoStack>
 
 #include "tile.h"
 #include "tileset.h"
@@ -47,7 +47,7 @@ class Project : public QObject
     Q_PROPERTY(int tileHeight READ tileHeight NOTIFY tileHeightChanged)
     Q_PROPERTY(QUrl tilesetUrl READ tilesetUrl NOTIFY tilesetUrlChanged)
     Q_PROPERTY(Tileset *tileset READ tileset NOTIFY tilesetChanged)
-    Q_PROPERTY(UndoStack *undoStack READ undoStack CONSTANT)
+    Q_PROPERTY(QUndoStack *undoStack READ undoStack CONSTANT)
 
 public:
     Project();
@@ -100,12 +100,12 @@ public:
     // Sets all tiles to -1.
     void clearTiles();
 
-    UndoStack *undoStack();
+    QUndoStack *undoStack();
 
     bool isComposingMacro() const;
     void beginMacro(const QString &text);
     void endMacro();
-    void addChange(UndoCommand *undoCommand);
+    void addChange(QUndoCommand *undoCommand);
     void clearChanges();
 
 signals:
@@ -170,7 +170,7 @@ private:
     QTemporaryDir mTempDir;
     bool mUsingTempTilesetImage;
 
-    UndoStack mUndoStack;
+    QUndoStack mUndoStack;
     bool mComposingMacro;
     bool mHadUnsavedChangesBeforeMacroBegan;
 };

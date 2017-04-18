@@ -23,17 +23,15 @@
 #include <QDebug>
 #include <QSize>
 #include <QVector>
-#include <QtUndo/undocommand.h>
+#include <QUndoCommand>
 
 class Project;
 
-class ChangeCanvasSizeCommand : public UndoCommand
+class ChangeCanvasSizeCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     ChangeCanvasSizeCommand(Project *project, const QSize &previousSize, const QSize &size,
-        UndoCommand *parent = nullptr);
+        QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
