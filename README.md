@@ -6,13 +6,16 @@ Slate's goal is to simplify the creation of seamless tilesets.
 
 ![Slate Screenshot](https://github.com/mitchcurtis/slate/blob/master/slate.png "Slate")
 
+### Downloads ###
+
+See the [releases](https://github.com/mitchcurtis/slate/releases) page for the available downloads. Currently only Windows binaries are available, but other platforms (Linux, Mac) will show up eventually.
+
 ### Documentation ###
 - [Getting Started](https://github.com/mitchcurtis/slate/blob/master/doc/getting-started.md)
 
 ### Notes ###
 - This is a work in progress, but should already be usable. Feel free to report any bugs you find. :)
 - The UI is currently designed for the [Material style](http://doc.qt.io/qt-5/qtquickcontrols2-material.html), and will probably look bad when run with others.
-- Windows Binaries are available via the [releases](https://github.com/mitchcurtis/slate/releases) page. Other platforms (Linux, Mac) will follow once I've tested on them.
 
 ### Dependencies ###
 
