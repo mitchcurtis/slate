@@ -21,6 +21,8 @@
 
 #include <QLoggingCategory>
 
+#include "commands.h"
+
 Q_LOGGING_CATEGORY(lcApplyTileFillCommand, "app.applyTileFillCommand")
 
 ApplyTileFillCommand::ApplyTileFillCommand(TileCanvas *canvas, const QVector<QPoint> &tilePositions,
@@ -52,7 +54,7 @@ void ApplyTileFillCommand::redo()
 
 int ApplyTileFillCommand::id() const
 {
-    return TileCanvas::TileMode;
+    return ApplyTileFillCommandId;
 }
 
 bool ApplyTileFillCommand::mergeWith(const UndoCommand *)

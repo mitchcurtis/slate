@@ -28,6 +28,7 @@ class Settings : public QSettings
     Q_OBJECT
     Q_PROPERTY(bool loadLastOnStartup READ loadLastOnStartup WRITE setLoadLastOnStartup NOTIFY loadLastOnStartupChanged)
     Q_PROPERTY(QUrl lastProjectUrl READ lastProjectUrl WRITE setLastProjectUrl NOTIFY lastProjectUrlChanged)
+    Q_PROPERTY(QString lastProjectType READ lastProjectType WRITE setLastProjectType NOTIFY lastProjectTypeChanged)
     Q_PROPERTY(bool gridVisible READ isGridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
     Q_PROPERTY(bool splitScreen READ isSplitScreen WRITE setSplitScreen NOTIFY splitScreenChanged)
     Q_PROPERTY(bool splitterLocked READ isSplitterLocked WRITE setSplitterLocked NOTIFY splitterLockedChanged)
@@ -57,6 +58,9 @@ public:
 
     QUrl lastProjectUrl() const;
     void setLastProjectUrl(const QUrl &url);
+
+    QString lastProjectType() const;
+    void setLastProjectType(const QString &type);
 
     bool loadLastOnStartup() const;
     void setLoadLastOnStartup(bool loadLastOnStartup);
@@ -155,6 +159,7 @@ public:
 signals:
     void loadLastOnStartupChanged();
     void lastProjectUrlChanged();
+    void lastProjectTypeChanged();
     void gridVisibleChanged();
     void splitScreenChanged();
     void splitterLockedChanged();

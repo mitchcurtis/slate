@@ -5,8 +5,8 @@ import QtQuick.Controls 2.1
 import App 1.0
 
 RowLayout {
-    property TileCanvas canvas
-    property Project project: canvas.project
+    property ImageCanvas canvas
+    property Project project
 
     ToolButton {
         id: fileToolButton
@@ -41,7 +41,7 @@ RowLayout {
             MenuItem {
                 objectName: "saveMenuButton"
                 text: qsTr("Save")
-                enabled: project.canSave
+                enabled: project ? project.canSave : false
                 hoverEnabled: true
                 onClicked: project.saveOrSaveAs()
             }
@@ -49,7 +49,7 @@ RowLayout {
             MenuItem {
                 objectName: "saveAsMenuButton"
                 text: qsTr("Save As")
-                enabled: project.loaded
+                enabled: project ? project.loaded : false
                 hoverEnabled: true
                 onClicked: saveAsDialog.open()
             }
@@ -57,7 +57,7 @@ RowLayout {
             MenuItem {
                 objectName: "closeMenuButton"
                 text: qsTr("Close")
-                enabled: project.loaded
+                enabled: project ? project.loaded : false
                 hoverEnabled: true
                 onClicked: doIfChangesDiscarded(function() { project.close() })
             }
@@ -65,7 +65,7 @@ RowLayout {
             MenuItem {
                 objectName: "revertMenuButton"
                 text: qsTr("Revert")
-                enabled: project.loaded && project.unsavedChanges
+                enabled: project ? project.loaded && project.unsavedChanges : false
                 hoverEnabled: true
                 onClicked: project.revert()
             }
@@ -92,14 +92,14 @@ RowLayout {
                 objectName: "undoMenuButton"
                 text: qsTr("Undo")
                 onClicked: project.undoStack.undo()
-                enabled: project.undoStack.canUndo
+                enabled: project ? project.undoStack.canUndo : false
             }
 
             MenuItem {
                 objectName: "redoMenuButton"
                 text: qsTr("Redo")
                 onClicked: project.undoStack.redo()
-                enabled: project.undoStack.canRedo
+                enabled: project ? project.undoStack.canRedo : false
             }
         }
     }
@@ -120,6 +120,7 @@ RowLayout {
             MenuItem {
                 objectName: "centreMenuButton"
                 text: qsTr("Centre")
+                enabled: canvas
                 onClicked: canvas.centreView()
             }
 
@@ -128,6 +129,7 @@ RowLayout {
             MenuItem {
                 objectName: "showGridMenuButton"
                 text: qsTr("Show Grid")
+                enabled: canvas
                 checkable: true
                 checked: settings.gridVisible
                 onClicked: settings.gridVisible = checked
@@ -136,6 +138,7 @@ RowLayout {
             MenuItem {
                 objectName: "splitScreenMenuButton"
                 text: qsTr("Split Screen")
+                enabled: canvas
                 checkable: true
                 checked: settings.splitScreen
                 onClicked: settings.splitScreen = checked
@@ -144,9 +147,9 @@ RowLayout {
             MenuItem {
                 objectName: "splitterLockedMenuButton"
                 text: qsTr("Lock Splitter")
+                enabled: canvas && settings.splitScreen
                 checkable: true
                 checked: settings.splitterLocked
-                enabled: settings.splitScreen
                 onClicked: settings.splitterLocked = checked
             }
         }

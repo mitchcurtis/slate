@@ -20,17 +20,16 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
-#include <QHash>
+#include <QLoggingCategory>
 #include <QObject>
-#include <QPoint>
+#include <QSize>
 #include <QTemporaryDir>
 #include <QUrl>
-#include <QVector>
 
 #include <QtUndo/undostack.h>
 
-#include "tile.h"
-#include "tileset.h"
+Q_DECLARE_LOGGING_CATEGORY(lcProject)
+Q_DECLARE_LOGGING_CATEGORY(lcProjectLifecycle)
 
 class Project : public QObject
 {
@@ -40,13 +39,7 @@ class Project : public QObject
     Q_PROPERTY(bool unsavedChanges READ hasUnsavedChanges NOTIFY unsavedChangesChanged)
     Q_PROPERTY(bool canSave READ canSave NOTIFY canSaveChanged)
     Q_PROPERTY(QUrl url READ url NOTIFY urlChanged)
-    Q_PROPERTY(int tilesWide READ tilesWide NOTIFY tilesWideChanged)
-    Q_PROPERTY(int tilesHigh READ tilesHigh NOTIFY tilesHighChanged)
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
-    Q_PROPERTY(int tileWidth READ tileWidth NOTIFY tileWidthChanged)
-    Q_PROPERTY(int tileHeight READ tileHeight NOTIFY tileHeightChanged)
-    Q_PROPERTY(QUrl tilesetUrl READ tilesetUrl NOTIFY tilesetUrlChanged)
-    Q_PROPERTY(Tileset *tileset READ tileset NOTIFY tilesetChanged)
     Q_PROPERTY(UndoStack *undoStack READ undoStack CONSTANT)
 
 public:
@@ -61,44 +54,11 @@ public:
     QUrl url() const;
     void setUrl(const QUrl &url);
 
-    int tilesWide() const;
-    void setTilesWide(int tilesWide);
-    int tilesHigh() const;
-    void setTilesHigh(int tilesHigh);
-    int tileWidth() const;
-    int tileHeight() const;
-    QSize size() const;
-    void setSize(const QSize &size);
+    virtual QSize size() const;
+    virtual void setSize(const QSize &size);
 
-    QSize tileSize() const;
-
-    int widthInPixels() const;
-    int heightInPixels() const;
-
-    QUrl tilesetUrl() const;
-    Tileset *tileset() const;
-
-    Tile *tileAt(const QPoint &scenePos);
-    const Tile *tileAt(const QPoint &scenePos) const;
-    // TODO: tileChanged signal that canvas connnects to repaint
-    void setTileAtPixelPos(const QPoint &tilePos, int id);
-    QVector<int> tiles() const;
-
-    bool isTilePosWithinBounds(const QPoint &tilePos) const;
-    const Tile *tileAtTilePos(const QPoint &tilePos) const;
-    int tileIdAtTilePos(const QPoint &tilePos) const;
-
-    Q_INVOKABLE Tile *tilesetTileAt(int xInPixels, int yInPixels);
-    Q_INVOKABLE void duplicateTile(Tile *sourceTile, int xInPixels, int yInPixels);
-    Q_INVOKABLE void rotateTileCounterClockwise(Tile *tile);
-    Q_INVOKABLE void rotateTileClockwise(Tile *tile);
-
-    QPoint tileIdToTilePos(int tileId) const;
-    Tile *tilesetTileAtTilePos(const QPoint &tilePos) const;
-    Tile *tilesetTileAtId(int id);
-
-    // Sets all tiles to -1.
-    void clearTiles();
+    virtual int widthInPixels() const;
+    virtual int heightInPixels() const;
 
     UndoStack *undoStack();
 
@@ -117,58 +77,27 @@ signals:
     void unsavedChangesChanged();
     void canSaveChanged();
     void urlChanged();
-    void tilesWideChanged();
-    void tilesHighChanged();
     void sizeChanged();
-    void tileWidthChanged();
-    void tileHeightChanged();
-    void tilesetUrlChanged();
-    void tilesetChanged(Tileset *oldTileset, Tileset *newTileset);
-    void tilesCleared();
     void errorOccurred(const QString &errorMessage);
 
 public slots:
-    void createNew(QUrl tilesetUrl, int tileWidth, int tileHeight,
-        int tilesetTilesWide, int tilesetTilesHigh,
-        int canvasTilesWide, int canvasTilesHigh,
-        bool transparentBackground);
-    void load(const QUrl &url);
-    void close();
-    void save();
-    void saveAs(const QUrl &url);
-    void revert();
+    virtual void load(const QUrl &url);
+    virtual void close();
+    virtual void save();
+    virtual void saveAs(const QUrl &url);
+    virtual void revert();
 
-private:
-    friend class ChangeCanvasSizeCommand;
-
+protected:
     void error(const QString &message);
 
-    int tileIdFromPosInTileset(int x, int y) const;
-    int tileIdFromTilePosInTileset(int column, int row) const;
-
-    bool warnIfTilePosInvalid(const QPoint &tilePos) const;
-
-    void createTilesetTiles(int tilesetTilesWide, int tilesetTilesHigh);
-    QUrl createTemporaryTilesetImage(int tileWidth, int tileHeight, int tilesetTilesWide, int tilesetTilesHigh, const QColor &colour);
-    void setTileWidth(int tileWidth);
-    void setTileHeight(int tileHeight);
-    void setTilesetUrl(const QUrl &tilesetUrl);
-    void setTileset(Tileset *tileset);
     void setComposingMacro(bool composingMacro);
-    void changeSize(const QSize &size, const QVector<int> &tiles = QVector<int>());
+
+    QUrl createTemporaryImage(int width, int height, const QColor &colour);
 
     bool mFromNew;
     QUrl mUrl;
-    int mTilesWide;
-    int mTilesHigh;
-    int mTileWidth;
-    int mTileHeight;
-    QUrl mTilesetUrl;
-    QVector<int> mTiles;
-    QHash<int, Tile*> mTileDatabase;
-    Tileset* mTileset;
     QTemporaryDir mTempDir;
-    bool mUsingTempTilesetImage;
+    bool mUsingTempImage;
 
     UndoStack mUndoStack;
     bool mComposingMacro;

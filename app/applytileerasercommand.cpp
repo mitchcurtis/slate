@@ -21,6 +21,7 @@
 
 #include <QLoggingCategory>
 
+#include "commands.h"
 #include "tile.h"
 
 Q_LOGGING_CATEGORY(lcApplyTileEraserCommand, "app.applyTileEraserCommand")
@@ -52,7 +53,7 @@ void ApplyTileEraserCommand::redo()
 
 int ApplyTileEraserCommand::id() const
 {
-    return TileCanvas::TileMode;
+    return ApplyTileEraserCommandId;
 }
 
 bool ApplyTileEraserCommand::mergeWith(const UndoCommand *other)

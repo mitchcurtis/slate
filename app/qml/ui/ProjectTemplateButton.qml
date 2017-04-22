@@ -1,0 +1,58 @@
+import QtQuick 2.6
+import QtQuick.Layouts 1.1
+import QtQuick.Controls 2.1
+import QtQuick.Templates 2.1 as T
+
+T.AbstractButton {
+    id: root
+    implicitWidth: 300
+    implicitHeight: 160
+    spacing: 20
+    checkable: true
+
+    property string titleText
+    property string descriptionText
+    property real radius
+    property color iconBackgroundColour
+    default property alias contents: contentRowLayout.children
+
+    contentItem: RowLayout {
+        spacing: root.spacing
+
+        Rectangle {
+            color: Qt.darker(root.iconBackgroundColour, root.down || root.checked ? 1.3 : 1.0)
+            radius: root.radius
+
+            Layout.preferredWidth: root.implicitHeight
+            Layout.fillHeight: true
+
+            RowLayout {
+                id: contentRowLayout
+                anchors.fill: parent
+                anchors.margins: 20
+                spacing: 30
+            }
+        }
+
+        ColumnLayout {
+            Label {
+                text: titleText
+                font.pixelSize: fontMetrics.font.pixelSize * 2
+                Layout.topMargin: 20
+            }
+
+            Label {
+                text: descriptionText
+                wrapMode: Label.Wrap
+                font.pixelSize: fontMetrics.font.pixelSize * 1.25
+                Layout.fillWidth: true
+            }
+        }
+    }
+
+//    background: Rectangle {
+//        anchors.fill: parent
+//        radius: root.radius
+//        color: root.down || root.checked ? root.iconBackgroundColour : "transparent"
+//    }
+}

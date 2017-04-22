@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2017, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,22 +17,22 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CHANGECANVASSIZECOMMAND_H
-#define CHANGECANVASSIZECOMMAND_H
+#ifndef CHANGEIMAGECANVASSIZECOMMAND_H
+#define CHANGEIMAGECANVASSIZECOMMAND_H
 
 #include <QDebug>
 #include <QSize>
 #include <QVector>
 #include <QtUndo/undocommand.h>
 
-class Project;
+class ImageProject;
 
-class ChangeCanvasSizeCommand : public UndoCommand
+class ChangeImageCanvasSizeCommand : public UndoCommand
 {
     Q_OBJECT
 
 public:
-    ChangeCanvasSizeCommand(Project *project, const QSize &previousSize, const QSize &size,
+    ChangeImageCanvasSizeCommand(ImageProject *project, const QSize &previousSize, const QSize &size,
         UndoCommand *parent = nullptr);
 
     void undo() override;
@@ -41,13 +41,12 @@ public:
     int id() const override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const ChangeCanvasSizeCommand &command);
+    friend QDebug operator<<(QDebug debug, const ChangeImageCanvasSizeCommand &command);
 
-    Project *mProject;
-    QVector<int> mPreviousTiles;
+    ImageProject *mProject;
     QSize mPreviousSize;
     QSize mSize;
 };
 
 
-#endif // CHANGECANVASSIZECOMMAND_H
+#endif // CHANGEIMAGECANVASSIZECOMMAND_H

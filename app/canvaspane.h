@@ -17,14 +17,14 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TILECANVASPANE_H
-#define TILECANVASPANE_H
+#ifndef CANVASPANE_H
+#define CANVASPANE_H
 
 #include <QObject>
 #include <QPoint>
 #include <QSize>
 
-class TileCanvasPane : public QObject
+class CanvasPane : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(qreal size READ size WRITE setSize NOTIFY sizeChanged)
@@ -33,7 +33,7 @@ class TileCanvasPane : public QObject
     Q_PROPERTY(QPoint offset READ offset WRITE setOffset NOTIFY offsetChanged)
 
 public:
-    explicit TileCanvasPane(QObject *parent = 0);
+    explicit CanvasPane(QObject *parent = 0);
 
     qreal size() const;
     void setSize(const qreal &size);
@@ -70,4 +70,4 @@ private:
 
 };
 
-#endif // TILECANVASPANE_H
+#endif // CANVASPANE_H

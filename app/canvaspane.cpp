@@ -17,9 +17,9 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "tilecanvaspane.h"
+#include "canvaspane.h"
 
-TileCanvasPane::TileCanvasPane(QObject *parent) :
+CanvasPane::CanvasPane(QObject *parent) :
     QObject(parent),
     mSize(0.5),
     mZoomLevel(1),
@@ -28,12 +28,12 @@ TileCanvasPane::TileCanvasPane(QObject *parent) :
 {
 }
 
-qreal TileCanvasPane::size() const
+qreal CanvasPane::size() const
 {
     return mSize;
 }
 
-void TileCanvasPane::setSize(const qreal &size)
+void CanvasPane::setSize(const qreal &size)
 {
     if (size == mSize) {
         return;
@@ -43,12 +43,12 @@ void TileCanvasPane::setSize(const qreal &size)
     emit sizeChanged();
 }
 
-int TileCanvasPane::zoomLevel() const
+int CanvasPane::zoomLevel() const
 {
     return mZoomLevel;
 }
 
-void TileCanvasPane::setZoomLevel(int zoomLevel)
+void CanvasPane::setZoomLevel(int zoomLevel)
 {
     const int adjustedLevel = qBound(1, zoomLevel, mMaxZoomLevel);
     if (adjustedLevel == mZoomLevel)
@@ -58,22 +58,22 @@ void TileCanvasPane::setZoomLevel(int zoomLevel)
     emit zoomLevelChanged();
 }
 
-int TileCanvasPane::maxZoomLevel() const
+int CanvasPane::maxZoomLevel() const
 {
     return mMaxZoomLevel;
 }
 
-QSize TileCanvasPane::zoomedSize(const QSize &size) const
+QSize CanvasPane::zoomedSize(const QSize &size) const
 {
     return size * mZoomLevel;
 }
 
-QPoint TileCanvasPane::offset() const
+QPoint CanvasPane::offset() const
 {
     return mOffset;
 }
 
-void TileCanvasPane::setOffset(const QPoint &offset)
+void CanvasPane::setOffset(const QPoint &offset)
 {
     if (offset == mOffset)
         return;
@@ -82,22 +82,22 @@ void TileCanvasPane::setOffset(const QPoint &offset)
     emit offsetChanged();
 }
 
-QPoint TileCanvasPane::zoomedOffset() const
+QPoint CanvasPane::zoomedOffset() const
 {
     return mOffset * zoomLevel();
 }
 
-bool TileCanvasPane::isSceneCentered() const
+bool CanvasPane::isSceneCentered() const
 {
     return mSceneCentered;
 }
 
-void TileCanvasPane::setSceneCentered(bool centreScene)
+void CanvasPane::setSceneCentered(bool centreScene)
 {
     mSceneCentered = centreScene;
 }
 
-void TileCanvasPane::reset()
+void CanvasPane::reset()
 {
     setSize(0.5);
     setZoomLevel(1);

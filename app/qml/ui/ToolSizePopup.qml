@@ -9,21 +9,22 @@ Popup {
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnReleaseOutside
 
-    property TileCanvas canvas
+    property ImageCanvas canvas
 
     contentItem: Slider {
         id: toolSizeSlider
         objectName: "toolSizeSlider"
         from: 1
-        to: canvas.maxToolSize
+        to: canvas ? canvas.maxToolSize : 100
         stepSize: 1
 
-        onValueChanged: canvas.toolSize = value
+        onValueChanged: if (canvas) canvas.toolSize = value
 
         Binding {
             target: toolSizeSlider
             property: "value"
-            value: canvas.toolSize
+            value: canvas ? canvas.toolSize : 1
+            when: canvas
         }
 
         ToolTip {

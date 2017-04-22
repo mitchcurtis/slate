@@ -16,7 +16,7 @@ RowLayout {
     TextMetrics {
         id: maxZoomTextMetrics
         font.pixelSize: pixelSize
-        text: pane.maxZoomLevel
+        text: zoomLevelText.text
     }
 
     Label {
@@ -39,7 +39,8 @@ RowLayout {
         Layout.minimumWidth: maxZoomTextMetrics.width
 
         Label {
-            text: pane.zoomLevel
+            id: zoomLevelText
+            text: pane ? pane.zoomLevel : ""
             color: "#ffffff"
             font.pixelSize: pixelSize
             anchors.verticalCenter: parent.verticalCenter

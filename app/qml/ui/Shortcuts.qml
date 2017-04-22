@@ -5,7 +5,9 @@ import App 1.0
 Item {
     property var window
     property Project project
-    property TileCanvas canvas
+    property ImageCanvas canvas
+
+    readonly property bool modalPopupsOpen: canvas ? canvas.modalPopupsOpen : false
 
     Shortcut {
         sequence: settings.quitShortcut
@@ -16,37 +18,37 @@ Item {
         id: s
         sequence: settings.newShortcut
         onActivated: window.newProjectPopup.open()
-        enabled: !canvas.modalPopupsOpen
+        enabled: !modalPopupsOpen
     }
 
     Shortcut {
         sequence: settings.openShortcut
         onActivated: window.openProjectDialog.open()
-        enabled: !canvas.modalPopupsOpen
+        enabled: !modalPopupsOpen
     }
 
     Shortcut {
         sequence: settings.saveShortcut
         onActivated: project.saveOrSaveAs()
-        enabled: !canvas.modalPopupsOpen && project.canSave
+        enabled: !modalPopupsOpen && (project ? project.canSave : false)
     }
 
     Shortcut {
         sequence: settings.closeShortcut
         onActivated: project.close()
-        enabled: !canvas.modalPopupsOpen
+        enabled: !modalPopupsOpen
     }
 
     Shortcut {
         sequence: settings.undoShortcut
         onActivated: project.undoStack.undo()
-        enabled: !canvas.modalPopupsOpen
+        enabled: !modalPopupsOpen
     }
 
     Shortcut {
         sequence: settings.redoShortcut
         onActivated: project.undoStack.redo()
-        enabled: !canvas.modalPopupsOpen
+        enabled: !modalPopupsOpen
     }
 
     Shortcut {

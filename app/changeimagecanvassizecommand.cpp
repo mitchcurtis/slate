@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2017, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,42 +17,41 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "changecanvassizecommand.h"
+#include "changeimagecanvassizecommand.h"
 
 #include <QLoggingCategory>
 
-#include "project.h"
+#include "imageproject.h"
 
-Q_LOGGING_CATEGORY(lcChangeCanvasSizeCommand, "app.changeCanvasSizeCommand")
+Q_LOGGING_CATEGORY(lcChangeImageCanvasSizeCommand, "app.changeImageCanvasSizeCommand")
 
-ChangeCanvasSizeCommand::ChangeCanvasSizeCommand(Project *project, const QSize &previousSize,
+ChangeImageCanvasSizeCommand::ChangeImageCanvasSizeCommand(ImageProject *project, const QSize &previousSize,
     const QSize &size, UndoCommand *parent) :
     UndoCommand(parent),
     mProject(project),
     mPreviousSize(previousSize),
     mSize(size)
 {
-    mPreviousTiles = project->tiles();
 }
 
-void ChangeCanvasSizeCommand::undo()
+void ChangeImageCanvasSizeCommand::undo()
 {
-    qCDebug(lcChangeCanvasSizeCommand) << "undoing change canvas size command:" << mPreviousSize;
-    mProject->changeSize(mPreviousSize, mPreviousTiles);
+    qCDebug(lcChangeImageCanvasSizeCommand) << "undoing change canvas size command:" << mPreviousSize;
+    mProject->changeSize(mPreviousSize);
 }
 
-void ChangeCanvasSizeCommand::redo()
+void ChangeImageCanvasSizeCommand::redo()
 {
-    qCDebug(lcChangeCanvasSizeCommand) << "redoing change canvas size command:" << mSize;
+    qCDebug(lcChangeImageCanvasSizeCommand) << "redoing change canvas size command:" << mSize;
     mProject->changeSize(mSize);
 }
 
-int ChangeCanvasSizeCommand::id() const
+int ChangeImageCanvasSizeCommand::id() const
 {
     return -1;
 }
 
-QDebug operator<<(QDebug debug, const ChangeCanvasSizeCommand &command)
+QDebug operator<<(QDebug debug, const ChangeImageCanvasSizeCommand &command)
 {
     debug.nospace() << "(ChangeCanvasSizeCommand size=" << command.mSize
         << "previousSize=" << command.mPreviousSize

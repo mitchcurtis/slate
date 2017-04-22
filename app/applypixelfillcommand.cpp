@@ -21,9 +21,12 @@
 
 #include <QLoggingCategory>
 
+#include "commands.h"
+#include "imagecanvas.h"
+
 Q_LOGGING_CATEGORY(lcApplyPixelFillCommand, "app.applyPixelFillCommand")
 
-ApplyPixelFillCommand::ApplyPixelFillCommand(TileCanvas *canvas, const QVector<QPoint> &scenePositions,
+ApplyPixelFillCommand::ApplyPixelFillCommand(ImageCanvas *canvas, const QVector<QPoint> &scenePositions,
     const QColor &previousColour, const QColor &colour, UndoCommand *parent) :
     UndoCommand(parent),
     mCanvas(canvas),
@@ -51,7 +54,7 @@ void ApplyPixelFillCommand::redo()
 
 int ApplyPixelFillCommand::id() const
 {
-    return TileCanvas::PixelMode;
+    return ApplyPixelFillCommandId;
 }
 
 bool ApplyPixelFillCommand::mergeWith(const UndoCommand *other)

@@ -21,9 +21,11 @@
 
 #include <QLoggingCategory>
 
+#include "commands.h"
+
 Q_LOGGING_CATEGORY(lcApplyPixelEraserCommand, "app.applyPixelEraserCommand")
 
-ApplyPixelEraserCommand::ApplyPixelEraserCommand(TileCanvas *canvas, const QVector<QPoint> &scenePositions,
+ApplyPixelEraserCommand::ApplyPixelEraserCommand(ImageCanvas *canvas, const QVector<QPoint> &scenePositions,
     const QVector<QColor> &previousColours, UndoCommand *parent) :
     UndoCommand(parent),
     mCanvas(canvas)
@@ -50,7 +52,7 @@ void ApplyPixelEraserCommand::redo()
 
 int ApplyPixelEraserCommand::id() const
 {
-    return TileCanvas::PixelMode;
+    return ApplyPixelEraserCommandId;
 }
 
 bool ApplyPixelEraserCommand::mergeWith(const UndoCommand *other)

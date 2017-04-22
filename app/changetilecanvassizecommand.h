@@ -17,39 +17,37 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef APPLYPENPIXELCOMMAND_H
-#define APPLYPENPIXELCOMMAND_H
+#ifndef CHANGETILECANVASSIZECOMMAND_H
+#define CHANGETILECANVASSIZECOMMAND_H
 
-#include <QColor>
 #include <QDebug>
-#include <QPoint>
+#include <QSize>
 #include <QVector>
 #include <QtUndo/undocommand.h>
 
-#include "imagecanvas.h"
+class TilesetProject;
 
-class ApplyPixelPenCommand : public UndoCommand
+class ChangeTileCanvasSizeCommand : public UndoCommand
 {
     Q_OBJECT
 
 public:
-    ApplyPixelPenCommand(ImageCanvas *canvas, const QVector<QPoint> &scenePositions, const QVector<QColor> &previousColours,
-        const QColor &colour, UndoCommand *parent = nullptr);
+    ChangeTileCanvasSizeCommand(TilesetProject *project, const QSize &previousSize, const QSize &size,
+        UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
 
     int id() const override;
-    bool mergeWith(const UndoCommand *other) override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const ApplyPixelPenCommand &command);
+    friend QDebug operator<<(QDebug debug, const ChangeTileCanvasSizeCommand &command);
 
-    ImageCanvas *mCanvas;
-    QVector<QPoint> mScenePositions;
-    QVector<QColor> mPreviousColours;
-    QColor mColour;
+    TilesetProject *mProject;
+    QVector<int> mPreviousTiles;
+    QSize mPreviousSize;
+    QSize mSize;
 };
 
 
-#endif // APPLYPENPIXELCOMMAND_H
+#endif // CHANGETILECANVASSIZECOMMAND_H

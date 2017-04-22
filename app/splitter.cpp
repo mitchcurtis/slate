@@ -23,9 +23,9 @@
 
 #include "tilecanvas.h"
 
-Splitter::Splitter(TileCanvas *tileCanvas) :
-    QObject(tileCanvas),
-    mTileCanvas(tileCanvas),
+Splitter::Splitter(ImageCanvas *canvas) :
+    QObject(canvas),
+    mCanvas(canvas),
     mEnabled(false),
     mPosition(0),
     mWidth(0),

@@ -8,7 +8,7 @@ Item {
     implicitWidth: penForegroundColourToolButton.width * 1.5
     implicitHeight: penForegroundColourToolButton.height * 1.5
 
-    property TileCanvas canvas
+    property ImageCanvas canvas
 
     property string currentPenName: penBackgroundColourButton.checked ? "penBackgroundColour" : "penForegroundColour"
 
@@ -22,7 +22,7 @@ Item {
         objectName: "penBackgroundColourButton"
         x: penForegroundColourToolButton.width / 2
         y: penForegroundColourToolButton.height / 2
-        color: canvas.penBackgroundColour
+        color: canvas ? canvas.penBackgroundColour : "white"
         width: parent.width / 2
         height: width
 
@@ -33,7 +33,7 @@ Item {
     ColourButton {
         id: penForegroundColourToolButton
         objectName: "penForegroundColourButton"
-        color: canvas.penForegroundColour
+        color: canvas ? canvas.penForegroundColour : "black"
         width: parent.width / 2
         height: width
         checked: true

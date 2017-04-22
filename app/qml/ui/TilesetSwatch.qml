@@ -17,10 +17,10 @@ Pane {
     padding: 0
 
     property TileCanvas tileCanvas
-    property Project project: tileCanvas.project
+    property Project project
     property alias tilesetImage: tilesetImage
 
-    readonly property int penTileId: tileCanvas.penTile ? tileCanvas.penTile.id : -1
+    readonly property int penTileId: tileCanvas && tileCanvas.penTile ? tileCanvas.penTile.id : -1
 
     Keys.onEscapePressed: contextMenu.cancelCurrentAction()
 
@@ -30,7 +30,7 @@ Pane {
         contentWidth: tilesetImage.implicitWidth
         contentHeight: tilesetImage.implicitHeight
         boundsBehavior: Flickable.StopAtBounds
-        visible: project.loaded
+        visible: project && project.loaded
         clip: true
 
         ScrollBar.vertical: ScrollBar {
@@ -81,15 +81,15 @@ Pane {
         // so we can't update it when the tileset's image changes.
         TilesetSwatchImage {
             id: tilesetImage
-            tileset: project.tileset
+            tileset: project ? project.tileset : null
 
             TileGrid {
                 highlightedIndex: penTileId - 1
-                tileWidth: project.tileWidth
-                tileHeight: project.tileHeight
-                tilesWide: project.tileset ? project.tileset.tilesWide : 1
-                tilesHigh: project.tileset ? project.tileset.tilesHigh : 1
-                colour: tileCanvas.gridColour
+                tileWidth: project ? project.tileWidth : 1
+                tileHeight: project ? project.tileHeight : 1
+                tilesWide: project && project.tileset ? project.tileset.tilesWide : 1
+                tilesHigh: project && project.tileset ? project.tileset.tilesHigh : 1
+                colour: tileCanvas ? tileCanvas.gridColour : "black"
                 highlightColour: Ui.CanvasColours.focusColor
                 anchors.fill: parent
             }
@@ -146,9 +146,9 @@ Pane {
         id: duplicatePreviewImage
         x: mouseArea.hoveredTile ? mouseArea.hoveredTilePos.x : 0
         y: mouseArea.hoveredTile ? mouseArea.hoveredTilePos.y : 0
-        width: project.tileWidth
-        height: project.tileHeight
-        tileset: project.tileset
+        width: project ? project.tileWidth : 1
+        height: project ? project.tileHeight : 1
+        tileset: project ? project.tileset : null
         sourceRect: mouseArea.hoveredTile
             ? Qt.rect(mouseArea.hoveredTile.sourceRect.x, mouseArea.hoveredTile.sourceRect.y, width, height)
             : Qt.rect(0, 0, 0, 0)

@@ -8,12 +8,13 @@ import "." as Ui
 
 Rectangle {
     id: panel
+    objectName: "colourPanel"
     implicitWidth: picker.implicitWidth
     implicitHeight: picker.implicitHeight + picker.anchors.topMargin + picker.anchors.bottomMargin
     color: Ui.CanvasColours.panelColour
     clip: true
 
-    property TileCanvas canvas
+    property ImageCanvas canvas
 
     HslSimplePicker {
         id: picker

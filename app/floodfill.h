@@ -20,18 +20,22 @@
 #ifndef FLOODFILL_H
 #define FLOODFILL_H
 
-class QPoint;
 class QColor;
+class QImage;
+class QPoint;
 template <typename T>
 class QVector;
 
-class Project;
+class TilesetProject;
 class Tile;
 
-void pixelFloodFill(const Tile *tile, const QPoint &pos, const QColor &targetColour,
+void imagePixelFloodFill(const QImage *image, const QPoint &pos, const QColor &targetColour,
     const QColor &replacementColour, QVector<QPoint> &filledPositions);
 
-void tileFloodFill(const Project *project, const Tile *tile, const QPoint &tilePos, int targetTile,
+void tilesetPixelFloodFill(const Tile *tile, const QPoint &pos, const QColor &targetColour,
+    const QColor &replacementColour, QVector<QPoint> &filledPositions);
+
+void tilesetTileFloodFill(const TilesetProject *project, const Tile *tile, const QPoint &tilePos, int targetTile,
     int replacementTile, QVector<QPoint> &filledTilePositions);
 
 #endif // FLOODFILL_H

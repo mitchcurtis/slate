@@ -20,20 +20,28 @@
 #ifndef TESTHELPER_H
 #define TESTHELPER_H
 
-#include <QSharedPointer>
 #include <QQuickItemGrabResult>
 #include <QQuickWindow>
+#include <QPointer>
+#include <QScopedPointer>
+#include <QSharedPointer>
 #include <QSignalSpy>
 #include <QtTest>
 
 #include "application.h"
-#include "project.h"
+#include "imagecanvas.h"
+#include "imageproject.h"
 #include "tilecanvas.h"
+#include "tilesetproject.h"
+#include "project.h"
+#include "tilesetproject.h"
 
-#define VERIFY_NO_ERRORS_OCCURRED() \
-QVERIFY2(errorOccurredSpy.isEmpty(), \
+class ProjectManager;
+
+#define VERIFY_NO_CREATION_ERRORS_OCCURRED() \
+QVERIFY2(creationErrorOccurredSpy->isEmpty(), \
     qPrintable(QString::fromLatin1("Unexpected error occurred: ") + \
-    (!errorOccurredSpy.isEmpty() ? errorOccurredSpy.first().first().toString() : "")));
+    (!creationErrorOccurredSpy->isEmpty() ? creationErrorOccurredSpy->first().first().toString() : "")));
 
 class QQuickItem;
 class QQuickWindow;
@@ -73,8 +81,8 @@ public:
 
 private Q_SLOTS:
     void initTestCase();
-    void init();
-    void cleanup();
+
+    void resetCreationErrorSpy();
 
 protected:
     enum TestMouseEventType
@@ -102,14 +110,19 @@ protected:
     void keySequence(QWindow *window, QKeySequence sequence);
     int digits(int number);
     int digitAt(int number, int index);
-    void createNewProject(int tileWidth = 25, int tileHeight = 25,
-        int tilesetTilesWide = -1, int tilesetTilesHigh = -1, bool transparentBackground = false);
-    void setupTempProjectDir();
+
+    void addAllProjectTypes();
+    void createNewProject(const QString &projectType, const QVariantMap &args = QVariantMap());
+    void createNewTilesetProject(int tileWidth = 25, int tileHeight = 25,
+        int tilesetTilesWide = -1, int tilesetTilesHigh = -1, bool transparentTilesetBackground = false);
+    void createNewImageProject(int imageWidth = 256, int imageHeight = 256,
+        bool transparentImageBackground = false);
+    void setupTempTilesetProjectDir();
     void switchMode(TileCanvas::Mode mode);
-    void switchTool(TileCanvas::Tool tool);
+    void switchTool(ImageCanvas::Tool tool);
     void panTopLeftTo(int x, int y);
     void panBy(int xDistance, int yDistance);
-    void changeCanvasSize(int width, int height);
+    void changeTilesetCanvasSize(int width, int height);
     void changeToolSize(int size);
     int sliderValue(QQuickItem *slider) const;
     void drawPixelAtCursorPos();
@@ -120,8 +133,15 @@ protected:
     Application app;
     QQuickWindow *window;
     QQuickItem *overlay;
-    Project *project;
-    TileCanvas *canvas;
+    static const QString imageProjectType;
+    static const QString tilesetProjectType;
+    QPointer<ProjectManager> projectManager;
+    QPointer<Project> project;
+    QPointer<ImageProject> imageProject;
+    QPointer<TilesetProject> tilesetProject;
+    QPointer<ImageCanvas> canvas;
+    QPointer<ImageCanvas> imageCanvas;
+    QPointer<TileCanvas> tileCanvas;
     QQuickItem *fileToolButton;
     QQuickItem *optionsToolButton;
     QQuickItem *viewToolButton;
@@ -130,6 +150,7 @@ protected:
     QQuickItem *penToolButton;
     QQuickItem *eyeDropperToolButton;
     QQuickItem *fillToolButton;
+    QQuickItem *eraserToolButton;
     QQuickItem *toolSizeButton;
     QQuickItem *newMenuButton;
     QQuickItem *closeMenuButton;
@@ -150,7 +171,7 @@ protected:
     QQuickItem *rotateTileLeftMenuButton;
     QQuickItem *rotateTileRightMenuButton;
 
-    QSignalSpy errorOccurredSpy;
+    QScopedPointer<QSignalSpy> creationErrorOccurredSpy;
 
     QString tilesetBasename;
     QUrl tempTilesetUrl;

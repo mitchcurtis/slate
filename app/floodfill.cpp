@@ -21,15 +21,54 @@
 
 #include <QDebug>
 #include <QColor>
+#include <QImage>
 #include <QLoggingCategory>
 
-#include "project.h"
 #include "tile.h"
+#include "tilesetproject.h"
 
 Q_LOGGING_CATEGORY(lcPixelFloodFill, "app.pixelFloodFill")
 Q_LOGGING_CATEGORY(lcTileFloodFill, "app.tileFloodFill")
 
-void pixelFloodFill(const Tile *tile, const QPoint &pos, const QColor &targetColour,
+void imagePixelFloodFill(const QImage *image, const QPoint &pos, const QColor &targetColour,
+    const QColor &replacementColour, QVector<QPoint> &filledPositions)
+{
+    if (filledPositions.contains(pos)) {
+        // This tile has already been filled (would this ever happen?)
+        return;
+    }
+
+    if (image->pixelColor(pos) == replacementColour) {
+        return;
+    }
+
+    if (image->pixelColor(pos) != targetColour) {
+        return;
+    }
+
+    filledPositions.append(pos);
+
+    const QRect tileBounds(0, 0, image->width(), image->height());
+    const QPoint north = pos - QPoint(0, 1);
+    const QPoint south = pos + QPoint(0, 1);
+    const QPoint east = pos + QPoint(1, 0);
+    const QPoint west = pos - QPoint(1, 0);
+
+    if (tileBounds.contains(north)) {
+        imagePixelFloodFill(image, north, targetColour, replacementColour, filledPositions);
+    }
+    if (tileBounds.contains(south)) {
+        imagePixelFloodFill(image, south, targetColour, replacementColour, filledPositions);
+    }
+    if (tileBounds.contains(east)) {
+        imagePixelFloodFill(image, east, targetColour, replacementColour, filledPositions);
+    }
+    if (tileBounds.contains(west)) {
+        imagePixelFloodFill(image, west, targetColour, replacementColour, filledPositions);
+    }
+}
+
+void tilesetPixelFloodFill(const Tile *tile, const QPoint &pos, const QColor &targetColour,
     const QColor &replacementColour, QVector<QPoint> &filledPositions)
 {
     qCDebug(lcPixelFloodFill) << "attempting to fill pixel at" << pos << "...";
@@ -60,28 +99,28 @@ void pixelFloodFill(const Tile *tile, const QPoint &pos, const QColor &targetCol
     const QPoint west = pos - QPoint(1, 0);
 
     if (tileBounds.contains(north)) {
-        pixelFloodFill(tile, north, targetColour, replacementColour, filledPositions);
+        tilesetPixelFloodFill(tile, north, targetColour, replacementColour, filledPositions);
     } else {
         qCDebug(lcPixelFloodFill) << north << "is out of bounds" << "( tileBounds =" << tileBounds << ")";
     }
     if (tileBounds.contains(south)) {
-        pixelFloodFill(tile, south, targetColour, replacementColour, filledPositions);
+        tilesetPixelFloodFill(tile, south, targetColour, replacementColour, filledPositions);
     } else {
         qCDebug(lcPixelFloodFill) << south << "is out of bounds" << "( tileBounds =" << tileBounds << ")";
     }
     if (tileBounds.contains(east)) {
-        pixelFloodFill(tile, east, targetColour, replacementColour, filledPositions);
+        tilesetPixelFloodFill(tile, east, targetColour, replacementColour, filledPositions);
     } else {
         qCDebug(lcPixelFloodFill) << east << "is out of bounds" << "( tileBounds =" << tileBounds << ")";
     }
     if (tileBounds.contains(west)) {
-        pixelFloodFill(tile, west, targetColour, replacementColour, filledPositions);
+        tilesetPixelFloodFill(tile, west, targetColour, replacementColour, filledPositions);
     } else {
         qCDebug(lcPixelFloodFill) << west << "is out of bounds" << "( tileBounds =" << tileBounds << ")";
     }
 }
 
-void tileFloodFill(const Project *project, const Tile *tile, const QPoint &tilePos,
+void tilesetTileFloodFill(const TilesetProject *project, const Tile *tile, const QPoint &tilePos,
     int targetTile, int replacementTile, QVector<QPoint> &filledTilePositions)
 {
     qCDebug(lcTileFloodFill) << "attempting to fill pixel at" << tilePos << "...";
@@ -112,22 +151,22 @@ void tileFloodFill(const Project *project, const Tile *tile, const QPoint &tileP
     const QPoint west = tilePos - QPoint(1, 0);
 
     if (project->isTilePosWithinBounds(north)) {
-        tileFloodFill(project, tile, north, targetTile, replacementTile, filledTilePositions);
+        tilesetTileFloodFill(project, tile, north, targetTile, replacementTile, filledTilePositions);
     } else {
         qCDebug(lcTileFloodFill) << north << "is out of bounds";
     }
     if (project->isTilePosWithinBounds(south)) {
-        tileFloodFill(project, tile, south, targetTile, replacementTile, filledTilePositions);
+        tilesetTileFloodFill(project, tile, south, targetTile, replacementTile, filledTilePositions);
     } else {
         qCDebug(lcTileFloodFill) << south << "is out of bounds";
     }
     if (project->isTilePosWithinBounds(east)) {
-        tileFloodFill(project, tile, east, targetTile, replacementTile, filledTilePositions);
+        tilesetTileFloodFill(project, tile, east, targetTile, replacementTile, filledTilePositions);
     } else {
         qCDebug(lcTileFloodFill) << east << "is out of bounds";
     }
     if (project->isTilePosWithinBounds(west)) {
-        tileFloodFill(project, tile, west, targetTile, replacementTile, filledTilePositions);
+        tilesetTileFloodFill(project, tile, west, targetTile, replacementTile, filledTilePositions);
     } else {
         qCDebug(lcTileFloodFill) << west << "is out of bounds";
     }

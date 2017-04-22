@@ -7,7 +7,7 @@ import App 1.0
 RowLayout {
     id: root
 
-    property TileCanvas canvas
+    property ImageCanvas canvas
     property alias colourSelector: selector
 
     ColourSelector {
@@ -25,13 +25,14 @@ RowLayout {
     TextField {
         id: hexTextField
         objectName: "hexTextField"
-        text: canvas[selector.currentPenName].toString().substr(1)
+        text: currentColour.toString().substr(1)
         readOnly: true // see tst_app::colourPickerHexField
         inputMask: "HHHHHHHH"
         selectByMouse: true
         onAccepted: canvas[selector.currentPenName] = inputColour
 
         property color inputColour: "#" + text
+        property color currentColour: canvas ? canvas[selector.currentPenName] : Qt.rgba(0, 0, 0, 1)
 
         Layout.fillWidth: true
     }

@@ -22,7 +22,7 @@
 
 #include <QObject>
 
-class TileCanvas;
+class ImageCanvas;
 
 class Splitter : public QObject
 {
@@ -34,7 +34,7 @@ class Splitter : public QObject
     Q_PROPERTY(bool hovered READ isHovered WRITE setHovered NOTIFY hoveredChanged FINAL REVISION 1)
 
 public:
-    explicit Splitter(TileCanvas *tileCanvas);
+    explicit Splitter(ImageCanvas *canvas);
     ~Splitter();
 
     bool isEnabled() const;
@@ -60,7 +60,7 @@ signals:
     void hoveredChanged();
 
 private:
-    TileCanvas *mTileCanvas;
+    ImageCanvas *mCanvas;
     bool mEnabled;
     qreal mPosition;
     int mWidth;

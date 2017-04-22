@@ -22,17 +22,22 @@
 #include <QFontDatabase>
 #include <QLoggingCategory>
 
-#include "tilecanvas.h"
-#include "tilecanvaspane.h"
+#include "canvaspane.h"
 #include "filevalidator.h"
+#include "imagecanvas.h"
+#include "imageproject.h"
 #include "keysequenceeditor.h"
 #include "newprojectvalidator.h"
 #include "project.h"
+#include "projectmanager.h"
 #include "rectangularcursor.h"
+#include "simpleloader.h"
 #include "splitter.h"
 #include "tile.h"
+#include "tilecanvas.h"
 #include "tilegrid.h"
 #include "tileset.h"
+#include "tilesetproject.h"
 #include "tilesetswatchimage.h"
 
 Q_LOGGING_CATEGORY(lcApplication, "app.application")
@@ -55,17 +60,24 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     mSettings(new Settings),
     mEngine(new QQmlApplicationEngine)
 {
-    qmlRegisterType<Project>("App", 1, 0, "Project");
+    qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");
+    qmlRegisterUncreatableType<Project>("App", 1, 0, "Project", QLatin1String("Cannot create objects of type Project"));
+    // TODO: do we need these exposed to QML?
+//    qmlRegisterType<ImageProject>("App", 1, 0, "ImageProject");
+//    qmlRegisterType<TilesetProject>("App", 1, 0, "TilesetProject");
+    qmlRegisterType<ImageCanvas>("App", 1, 0, "ImageCanvas");
+    qmlRegisterType<ImageCanvas>();
     qmlRegisterType<TileCanvas>("App", 1, 0, "TileCanvas");
     qmlRegisterType<TileCanvas>();
     qmlRegisterType<Splitter>();
-    qmlRegisterUncreatableType<TileCanvasPane>("App", 1, 0, "CanvasPane", "Can't create instances of CanvasPane");
+    qmlRegisterUncreatableType<CanvasPane>("App", 1, 0, "CanvasPane", "Can't create instances of CanvasPane");
     qmlRegisterType<FileValidator>("App", 1, 0, "FileValidator");
     qmlRegisterType<NewProjectValidator>("App", 1, 0, "NewProjectValidator");
     qmlRegisterType<RectangularCursor>("App", 1, 0, "RectangularCursor");
     qmlRegisterType<TilesetSwatchImage>("App", 1, 0, "TilesetSwatchImage");
     qmlRegisterType<KeySequenceEditor>("App", 1, 0, "KeySequenceEditor");
     qmlRegisterType<TileGrid>("App", 1, 0, "TileGrid");
+    qmlRegisterType<SimpleLoader>("App", 1, 0, "SimpleLoader");
 
     // For some reason, only when debugging, I get
     // QMetaProperty::read: Unable to handle unregistered datatype 'UndoStack*' for property 'Project_QML_108::undoStack'
@@ -73,6 +85,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qRegisterMetaType<UndoStack*>();
     qRegisterMetaType<Tile*>();
     qRegisterMetaType<Tileset*>();
+    qRegisterMetaType<Settings*>();
 
     if (QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf") == -1) {
         qWarning() << "Failed to load FontAwesome font";

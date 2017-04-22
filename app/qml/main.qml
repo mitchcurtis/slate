@@ -52,36 +52,43 @@ ApplicationWindow {
     title: qtbug53394Title
     visible: true
 
-    property string qtbug53394Title: project.loaded ? ((project.url.length > 0 ? project.url.toString() : "Untitled") + (project.unsavedChanges ? "*" : "")) : ""
+    property string qtbug53394Title: project && project.loaded ? ((project.url.length > 0 ? project.url.toString() : "Untitled") + (project.unsavedChanges ? "*" : "")) : ""
 
     readonly property int controlSpacing: 10
 
+    property var project: projectManager.project
+    property var canvas: canvasContainer.canvas
     property alias newProjectPopup: newProjectPopup
     property alias openProjectDialog: openProjectDialog
     property alias saveChangesDialog: discardChangesDialog
 
-    FontMetrics {
-        id: fontMetrics
-    }
-
-    Ui.Shortcuts {
-        window: window
-        project: project
-        canvas: canvas
+    onClosing: {
+        close.accepted = false;
+        doIfChangesDiscarded(function() { Qt.quit() })
     }
 
     // If we set the image URL immediately, it can happen before
     // the error popup is ready.
     Component.onCompleted: {
+        contentItem.objectName = "applicationWindowContentItem";
+
         if (settings.loadLastOnStartup && settings.lastProjectUrl.toString().length > 0) {
             project.load(settings.lastProjectUrl);
+        } else {
+            createNewProject("image")
         }
+
         window.title = Qt.binding(function(){ return qtbug53394Title });
         window.x = Screen.desktopAvailableWidth / 2 - width / 2
         window.y = Screen.desktopAvailableHeight / 2 - height / 2
     }
 
     function doIfChangesDiscarded(actionFunction, discardChangesBeforeAction) {
+        if (!project) {
+            // Auto tests can skip this function.
+            return;
+        }
+
         if (!project.unsavedChanges) {
             if (!!discardChangesBeforeAction)
                 project.close();
@@ -110,22 +117,14 @@ ApplicationWindow {
         saveChangesDialog.open();
     }
 
-    onClosing: {
-        close.accepted = false;
-        doIfChangesDiscarded(function() { Qt.quit() })
+    Connections {
+        target: projectManager.project ? projectManager.project : null
+        onErrorOccurred: errorPopup.showError(errorMessage)
     }
 
-    Project {
-        id: project
-        objectName: "project"
-
-        onErrorOccurred: errorPopup.showError(errorMessage)
-
-        onUrlChanged: {
-            if (loaded) {
-                settings.lastProjectUrl = url;
-            }
-        }
+    ProjectManager {
+        id: projectManager
+        applicationSettings: settings
 
         function saveOrSaveAs() {
             if (project.url.toString().length > 0) {
@@ -136,113 +135,54 @@ ApplicationWindow {
         }
     }
 
+    FontMetrics {
+        id: fontMetrics
+    }
+
+    Ui.Shortcuts {
+        window: window
+        project: window.project
+        canvas: window.canvas
+    }
+
     RowLayout {
         anchors.fill: parent
         spacing: 0
 
-        TileCanvas {
-            id: canvas
-            objectName: "tileCanvas"
+        Ui.CanvasContainer {
+            id: canvasContainer
             focus: true
-            project: project
-            backgroundColour: Ui.CanvasColours.backgroundColour
-            gridVisible: settings.gridVisible
-            gridColour: "#55000000"
-            splitScreen: settings.splitScreen
-            splitter.enabled: settings.splitScreen && !settings.splitterLocked
-            splitter.width: 32
 
-            readonly property int currentPaneZoomLevel: canvas.currentPane ? canvas.currentPane.zoomLevel : 1
-            readonly property point currentPaneOffset: canvas.currentPane ? canvas.currentPane.offset : Qt.point(0, 0)
-            readonly property bool useCrosshairCursor: canvas.mode === TileCanvas.TileMode || (canvas.toolSize < 4 && canvas.currentPaneZoomLevel <= 3)
-            readonly property bool useIconCursor: canvas.tool === TileCanvas.EyeDropperTool
-
-            // TODO: figure out a nicer solution than this.
-            property bool ignoreToolChanges: false
+            project: projectManager.project
+            projectType: projectManager.type
+            checkedToolButton: iconToolBar.toolButtonGroup.checkedButton
 
             Layout.preferredWidth: window.width / 3
             Layout.fillWidth: true
             Layout.fillHeight: true
-
-            onErrorOccurred: errorPopup.showError(errorMessage)
-
-            // TODO: tile pen preview shouldn't be visible with colour picker open
-
-            onToolChanged: {
-                if (ignoreToolChanges)
-                    return;
-
-                switch (canvas.tool) {
-                case TileCanvas.PenTool:
-                    iconToolBar.toolButtonGroup.checkedButton = iconToolBar.penToolButton;
-                    break;
-                case TileCanvas.EyeDropperTool:
-                    iconToolBar.toolButtonGroup.checkedButton = iconToolBar.eyeDropperToolButton;
-                    break;
-                case TileCanvas.EraserTool:
-                    iconToolBar.toolButtonGroup.checkedButton = iconToolBar.eraserToolButton;
-                    break;
-                }
-            }
-
-            Ui.CrosshairCursor {
-                id: crosshairCursor
-                x: canvas.cursorX - width / 2
-                y: canvas.cursorY - height / 2
-                visible: canvas.hasBlankCursor && !canvas.useIconCursor && canvas.useCrosshairCursor
-                z: header.z + 1
-            }
-
-            RectangularCursor {
-                id: rectangleCursor
-                x: Math.floor(canvas.cursorX - width / 2)
-                y: Math.floor(canvas.cursorY - height / 2)
-                width: canvas.toolSize * canvas.currentPaneZoomLevel
-                height: canvas.toolSize * canvas.currentPaneZoomLevel
-                visible: canvas.hasBlankCursor && !canvas.useIconCursor && !canvas.useCrosshairCursor
-                z: header.z + 1
-            }
-
-            Label {
-                id: iconCursor
-                x: canvas.cursorX
-                y: canvas.cursorY - height + 3
-                visible: canvas.hasBlankCursor && canvas.useIconCursor
-                text: iconToolBar.toolButtonGroup.checkedButton.iconText
-                z: header.z + 1
-            }
-
-            Ui.ZoomIndicator {
-                x: canvas.firstPane.size * canvas.width - width - 16
-                anchors.bottom: canvas.bottom
-                anchors.bottomMargin: 16
-                visible: project.loaded && canvas.splitScreen
-                pane: canvas.firstPane
-                fontMetrics: fontMetrics
-            }
-
-            Ui.ZoomIndicator {
-                anchors.right: canvas.right
-                anchors.bottom: canvas.bottom
-                anchors.margins: 16
-                visible: project.loaded
-                pane: canvas.secondPane
-                fontMetrics: fontMetrics
-            }
         }
 
         ColumnLayout {
             Ui.ColourPanel {
                 id: colourPanel
-                canvas: canvas
+                canvas: window.canvas
             }
 
-            Ui.TilesetSwatch {
-                id: tilesetSwatch
-                objectName: "tilesetSwatch"
-                tileCanvas: canvas
-                // Don't let e.g. the pencil icon go under us.
-                z: canvas.z - 1
+            SimpleLoader {
+                // TODO: this loader receives the typeChanged signal before CanvasContainer
+                // has had a chance to load the new canvas, so there's an error on
+                // "tileCanvas: window.canvas". Find a better way of ensuring this
+                // loader is only active when a TileCanvas is loaded.
+                objectName: "tilesetSwatchLoader"
+                active: projectManager.type === "tileset" && window.canvas && window.canvas.hasOwnProperty("penTile")
+                sourceComponent: Ui.TilesetSwatch {
+                    id: tilesetSwatch
+                    objectName: "tilesetSwatch"
+                    tileCanvas: window.canvas
+                    project: window.project
+                    // Don't let e.g. the pencil icon go under us.
+                    z: canvasContainer.z - 1
+                }
 
                 Layout.preferredWidth: colourPanel.implicitWidth
                 Layout.preferredHeight: window.contentItem.height / 2
@@ -252,6 +192,8 @@ ApplicationWindow {
     }
 
     header: Ui.ToolBar {
+        objectName: "toolBar"
+
         ColumnLayout {
             anchors.fill: parent
             spacing: 0
@@ -259,13 +201,14 @@ ApplicationWindow {
             Ui.MenuBar {
                 id: menuBar
                 spacing: controlSpacing
-                canvas: canvas
+                project: window.project
+                canvas: window.canvas
             }
 
             Ui.IconToolBar {
                 id: iconToolBar
-                project: project
-                canvas: canvas
+                project: window.project
+                canvas: window.canvas
                 fontMetrics: fontMetrics
 
                 Layout.fillWidth: true
@@ -302,11 +245,44 @@ ApplicationWindow {
         // Avoid binding loop that results from using height.
         // TODO: https://codereview.qt-project.org/#/c/175024/ fixes this
         y: parent.height / 2 - implicitHeight / 2
+
+        onChoseTilesetProject: newTilesetProjectPopup.open()
+        onChoseImageProject: newImageProjectPopup.open()
+        onRejected: canvas.focus = true
+    }
+
+    function createNewProject(type) {
+        projectManager.beginCreation(type);
+
+        if (type === "tileset") {
+            var p = newTilesetProjectPopup;
+            projectManager.temporaryProject.createNew(p.tilesetPath, p.tileWidth, p.tileHeight,
+                p.tilesetTilesWide, p.tilesetTilesHigh, p.canvasTilesWide, p.canvasTilesHigh,
+                p.transparentBackground);
+        } else {
+            var p = newImageProjectPopup;
+            projectManager.temporaryProject.createNew(p.imageWidth, p.imageHeight, p.transparentBackground);
+        }
+
+        projectManager.completeCreation();
+    }
+
+    Ui.NewTilesetProjectPopup {
+        id: newTilesetProjectPopup
+        x: parent.width / 2 - width / 2
+        y: parent.height / 2 - height / 2
         onVisibleChanged: canvas.focus = true
 
-        onAccepted: project.createNew(tilesetPath, tileWidth, tileHeight,
-            tilesetTilesWide, tilesetTilesHigh, canvasTilesWide, canvasTilesHigh,
-            transparentBackground)
+        onAccepted: createNewProject("tileset")
+    }
+
+    Ui.NewImageProjectPopup {
+        id: newImageProjectPopup
+        x: parent.width / 2 - width / 2
+        y: parent.height / 2 - height / 2
+        onVisibleChanged: window.canvas.focus = true
+
+        onAccepted: createNewProject("image")
     }
 
     Ui.RecentProjectsPopup {

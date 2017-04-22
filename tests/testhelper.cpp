@@ -19,12 +19,20 @@
 
 #include "testhelper.h"
 
+#include "projectmanager.h"
+
+const QString TestHelper::imageProjectType = QStringLiteral("image");
+const QString TestHelper::tilesetProjectType = QStringLiteral("tileset");
+
 TestHelper::TestHelper(int &argc, char **argv) :
     app(argc, argv, QStringLiteral("Tile Editor Test Suite")),
     window(qobject_cast<QQuickWindow*>(app.qmlEngine()->rootObjects().first())),
     overlay(nullptr),
-    project(window->contentItem()->findChild<Project*>()),
-    canvas(window->findChild<TileCanvas*>()),
+    projectManager(nullptr),
+    imageProject(nullptr),
+    tilesetProject(nullptr),
+    imageCanvas(nullptr),
+    tileCanvas(nullptr),
     fileToolButton(nullptr),
     optionsToolButton(nullptr),
     viewToolButton(nullptr),
@@ -33,6 +41,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     penToolButton(nullptr),
     eyeDropperToolButton(nullptr),
     fillToolButton(nullptr),
+    eraserToolButton(nullptr),
     toolSizeButton(nullptr),
     newMenuButton(nullptr),
     closeMenuButton(nullptr),
@@ -52,7 +61,6 @@ TestHelper::TestHelper(int &argc, char **argv) :
     duplicateTileMenuButton(nullptr),
     rotateTileLeftMenuButton(nullptr),
     rotateTileRightMenuButton(nullptr),
-    errorOccurredSpy(project, SIGNAL(errorOccurred(QString))),
     tilesetBasename("test-tileset.png")
 {
 }
@@ -76,8 +84,24 @@ void TestHelper::initTestCase()
     overlay = window->property("overlay").value<QQuickItem*>();
     QVERIFY(overlay);
 
+    projectManager = window->contentItem()->findChild<ProjectManager*>();
+    QVERIFY(projectManager);
+
+    // Whenever the project manager's project changes, it means we should
+    // reset our errorOccurred spy, as createNewProject() is about to be called on it.
+    connect(projectManager.data(), &ProjectManager::temporaryProjectChanged, this, &TestHelper::resetCreationErrorSpy);
+    // The project would have already been created by now, as an image project is always
+    // loaded by default, so we have to manually created the spy now.
+    resetCreationErrorSpy();
+
+    imageCanvas = window->findChild<ImageCanvas*>("imageCanvas");
+    QVERIFY(imageCanvas);
+
+    project = projectManager->project();
     QVERIFY(project);
-    QVERIFY(canvas);
+
+    imageProject = qobject_cast<ImageProject*>(project.data());
+    QVERIFY(imageProject);
 
     fileToolButton = window->findChild<QQuickItem*>("fileToolButton");
     QVERIFY(fileToolButton);
@@ -102,6 +126,9 @@ void TestHelper::initTestCase()
 
     fillToolButton = window->findChild<QQuickItem*>("fillToolButton");
     QVERIFY(fillToolButton);
+
+    eraserToolButton = window->findChild<QQuickItem*>("eraserToolButton");
+    QVERIFY(eraserToolButton);
 
     toolSizeButton = window->findChild<QQuickItem*>("toolSizeButton");
     QVERIFY(toolSizeButton);
@@ -147,69 +174,12 @@ void TestHelper::initTestCase()
 
     penBackgroundColourButton = window->findChild<QQuickItem*>("penBackgroundColourButton");
     QVERIFY(penBackgroundColourButton);
-
-    tilesetSwatch = window->findChild<QQuickItem*>("tilesetSwatch");
-    QVERIFY(tilesetSwatch);
-
-    duplicateTileMenuButton = window->findChild<QQuickItem*>("duplicateTileMenuButton");
-    QVERIFY(duplicateTileMenuButton);
-
-    rotateTileLeftMenuButton = window->findChild<QQuickItem*>("rotateTileLeftMenuButton");
-    QVERIFY(rotateTileLeftMenuButton);
-
-    rotateTileRightMenuButton = window->findChild<QQuickItem*>("rotateTileRightMenuButton");
-    QVERIFY(rotateTileRightMenuButton);
 }
 
-void TestHelper::init()
+void TestHelper::resetCreationErrorSpy()
 {
-    VERIFY_NO_ERRORS_OCCURRED();
-    const QObject *errorPopup = findPopupFromTypeName("ErrorPopup");
-    if (errorPopup) {
-        QVERIFY2(!errorPopup->property("visible").toBool(),
-            qPrintable(QString::fromLatin1("Shouldn't be any errors on startup. Error is: %1")
-                 .arg(errorPopup->property("text").toString())));
-    }
-
-    // There is no "defaults" test, because it's hard/hacky to predict what the lastProjectUrl will be.
-    if (project->hasLoaded()) {
-        project->close();
-        VERIFY_NO_ERRORS_OCCURRED();
-        QVERIFY(!project->hasLoaded());
-    }
-
-    canvas->forceActiveFocus();
-    QTRY_VERIFY(canvas->hasActiveFocus());
-
-    // Sanity check.
-    QCOMPARE(canvas->window(), fileToolButton->window());
-    QCOMPARE(canvas->splitter()->position(), 0.5);
-    QVERIFY(!canvas->splitter()->isPressed());
-    QVERIFY(!canvas->splitter()->isHovered());
-
-    setupTempProjectDir();
-}
-
-void TestHelper::cleanup()
-{
-    switchMode(TileCanvas::PixelMode);
-    switchTool(TileCanvas::PenTool);
-    changeToolSize(1);
-
-    canvas->setPenForegroundColour(QColor(Qt::black));
-    canvas->setPenBackgroundColour(QColor(Qt::white));
-
-    QVariant settingsAsVariant = qmlEngine(canvas)->rootContext()->contextProperty("settings");
-    QVERIFY(settingsAsVariant.isValid());
-    Settings *settings = settingsAsVariant.value<Settings*>();
-    QVERIFY(settings);
-    settings->resetShortcutsToDefaults();
-
-    errorOccurredSpy.clear();
-    tempProjectDir.reset();
-    tempTilesetUrl.clear();
-    cursorPos = QPoint();
-    cursorWindowPos = QPoint();
+    if (projectManager->temporaryProject())
+        creationErrorOccurredSpy.reset(new QSignalSpy(projectManager->temporaryProject(), SIGNAL(errorOccurred(QString))));
 }
 
 void TestHelper::mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType)
@@ -260,10 +230,10 @@ void TestHelper::wheelEvent(QQuickItem *item, const QPoint &localPos, const int 
         QTest::qWarn("Wheel event not accepted by receiving window");
 }
 
-void TestHelper::changeCanvasSize(int width, int height)
+void TestHelper::changeTilesetCanvasSize(int width, int height)
 {
-    QCOMPARE(project->tilesWide(), 10);
-    QCOMPARE(project->tilesHigh(), 10);
+    QCOMPARE(tilesetProject->tilesWide(), 10);
+    QCOMPARE(tilesetProject->tilesHigh(), 10);
 
     // Open the canvas size popup.
     mouseEventOnCentre(canvasSizeButton, MouseClick);
@@ -285,8 +255,8 @@ void TestHelper::changeCanvasSize(int width, int height)
     QVERIFY(cancelButton);
     mouseEventOnCentre(cancelButton, MouseClick);
     QVERIFY(!canvasSizePopup->property("visible").toBool());
-    QCOMPARE(project->tilesWide(), 10);
-    QCOMPARE(project->tilesHigh(), 10);
+    QCOMPARE(tilesetProject->tilesWide(), 10);
+    QCOMPARE(tilesetProject->tilesHigh(), 10);
 
     // Open the popup again.
     mouseEventOnCentre(canvasSizeButton, MouseClick);
@@ -306,8 +276,8 @@ void TestHelper::changeCanvasSize(int width, int height)
     QVERIFY(okButton);
     mouseEventOnCentre(okButton, MouseClick);
     QVERIFY(!canvasSizePopup->property("visible").toBool());
-    QCOMPARE(project->tilesWide(), width);
-    QCOMPARE(project->tilesHigh(), height);
+    QCOMPARE(tilesetProject->tilesWide(), width);
+    QCOMPARE(tilesetProject->tilesHigh(), height);
     QCOMPARE(widthSpinBox->property("value").toInt(), width);
     QCOMPARE(heightSpinBox->property("value").toInt(), height);
 }
@@ -369,7 +339,7 @@ int TestHelper::sliderValue(QQuickItem *slider) const
 
 void TestHelper::drawPixelAtCursorPos()
 {
-    const Tile *targetTile = project->tileAt(cursorPos);
+    const Tile *targetTile = tilesetProject->tileAt(cursorPos);
     QVERIFY(targetTile);
 
     switchTool(TileCanvas::PenTool);
@@ -378,7 +348,7 @@ void TestHelper::drawPixelAtCursorPos()
     // Draw on some pixels of the current tile.
     const QImage originalTileImage = targetTile->tileset()->image()->copy(targetTile->sourceRect());
     QImage expectedImage = originalTileImage;
-    expectedImage.setPixelColor(canvas->scenePosToTilePixelPos(cursorPos), canvas->penForegroundColour());
+    expectedImage.setPixelColor(tileCanvas->scenePosToTilePixelPos(cursorPos), tileCanvas->penForegroundColour());
 
     QTest::mouseMove(window, cursorPos);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -386,12 +356,12 @@ void TestHelper::drawPixelAtCursorPos()
     targetTile->tileset()->image()->copy(targetTile->sourceRect()).save("C:/Users/Mitch/AppData/Local/Temp/_actual.png");
     expectedImage.save("C:/Users/Mitch/AppData/Local/Temp/_expected.png");
     QCOMPARE(targetTile->tileset()->image()->copy(targetTile->sourceRect()), expectedImage);
-    QVERIFY(project->hasUnsavedChanges());
+    QVERIFY(tilesetProject->hasUnsavedChanges());
     QVERIFY(window->title().contains("*"));
 
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(targetTile->tileset()->image()->copy(targetTile->sourceRect()), expectedImage);
-    QVERIFY(project->hasUnsavedChanges());
+    QVERIFY(tilesetProject->hasUnsavedChanges());
     QVERIFY(window->title().contains("*"));
 }
 
@@ -403,8 +373,8 @@ void TestHelper::drawTileAtCursorPos()
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    const int penId = canvas->penTile()->id();
-    QCOMPARE(project->tileAt(cursorPos)->id(), penId);
+    const int penId = tileCanvas->penTile()->id();
+    QCOMPARE(tilesetProject->tileAt(cursorPos)->id(), penId);
 }
 
 static QString fuzzyColourCompareFailMsg(const QColor &colour1, const QColor &colour2,
@@ -479,22 +449,22 @@ QQuickItem *TestHelper::findDialogButton(const QObject *dialog, const QString &t
 
 QPoint TestHelper::mapToTile(const QPoint &cursorPos) const
 {
-    return cursorPos - canvas->mapToScene(QPointF(0, 0)).toPoint();
+    return cursorPos - tileCanvas->mapToScene(QPointF(0, 0)).toPoint();
 }
 
 QPoint TestHelper::tileSceneCentre(int xPosInTiles, int yPosInTiles) const
 {
-    return canvas->mapToScene(QPointF(
-        xPosInTiles * project->tileWidth() + project->tileWidth() / 2,
-        yPosInTiles * project->tileHeight() + project->tileHeight() / 2)).toPoint()
-            + canvas->firstPane()->offset();
+    return tileCanvas->mapToScene(QPointF(
+        xPosInTiles * tilesetProject->tileWidth() + tilesetProject->tileWidth() / 2,
+        yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2)).toPoint()
+            + tileCanvas->firstPane()->offset();
 }
 
 QPoint TestHelper::tileCanvasCentre(int xPosInTiles, int yPosInTiles) const
 {
     return QPoint(
-        xPosInTiles * project->tileWidth() + project->tileWidth() / 2,
-        yPosInTiles * project->tileHeight() + project->tileHeight() / 2);
+        xPosInTiles * tilesetProject->tileWidth() + tilesetProject->tileWidth() / 2,
+        yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2);
 }
 
 void TestHelper::setCursorPosInTiles(int xPosInTiles, int yPosInTiles)
@@ -521,15 +491,15 @@ void TestHelper::setCursorPosInPixels(const QPoint &posInPixels)
 QPoint TestHelper::tilesetTileCentre(int xPosInTiles, int yPosInTiles) const
 {
     return QPoint(
-                xPosInTiles * project->tileWidth() + project->tileWidth() / 2,
-                yPosInTiles * project->tileHeight() + project->tileHeight() / 2);
+                xPosInTiles * tilesetProject->tileWidth() + tilesetProject->tileWidth() / 2,
+                yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2);
 }
 
 QPoint TestHelper::tilesetTileSceneCentre(int xPosInTiles, int yPosInTiles) const
 {
     return tilesetSwatch->mapToScene(QPointF(
-                                         xPosInTiles * project->tileWidth() + project->tileWidth() / 2,
-                                         yPosInTiles * project->tileHeight() + project->tileHeight() / 2)).toPoint();
+                                         xPosInTiles * tilesetProject->tileWidth() + tilesetProject->tileWidth() / 2,
+                                         yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2)).toPoint();
 }
 
 void TestHelper::keySequence(QWindow *window, QKeySequence sequence)
@@ -565,17 +535,48 @@ int TestHelper::digitAt(int number, int index)
     return index < digits.size() ? digits.at(index) : 0;
 }
 
-void TestHelper::createNewProject(int tileWidth, int tileHeight, int tilesetTilesWide, int tilesetTilesHigh,
-    bool transparentBackground)
+void TestHelper::addAllProjectTypes()
 {
+    QTest::addColumn<QString>("projectType");
+
+    QTest::newRow(qPrintable(tilesetProjectType)) << tilesetProjectType;
+    QTest::newRow(qPrintable(imageProjectType)) << imageProjectType;
+}
+
+void TestHelper::createNewProject(const QString &projectType, const QVariantMap &args)
+{
+    const bool wasTilesetProject = tilesetProject;
+    const bool isTilesetProject = projectType == tilesetProjectType;
+
+    // tileset args
+    const int tileWidth = isTilesetProject ? args.value("tileWidth", 25).toInt() : 0;
+    const int tileHeight = isTilesetProject ? args.value("tileHeight", 25).toInt() : 0;
+    const int tilesetTilesWide = isTilesetProject ? args.value("tilesetTilesWide", -1).toInt() : 0;
+    const int tilesetTilesHigh = isTilesetProject ? args.value("tilesetTilesHigh", -1).toInt() : 0;
+    const bool transparentTilesetBackground = isTilesetProject ? args.value("transparentTilesetBackground", false).toBool() : 0;
+
+    // image args
+    const int imageWidth = !isTilesetProject ? args.value("imageWidth", 256).toInt() : 0;
+    const int imageHeight = !isTilesetProject ? args.value("imageHeight", 256).toInt() : 0;
+    const bool transparentImageBackground = !isTilesetProject ? args.value("transparentImageBackground", false).toBool() : 0;
+
+    if (!project) {
+        // Hovering over the canvas with no project open should result in the default cursor being displayed.
+        QTest::mouseMove(window, QPointF(window->width() / 2, window->height() / 2).toPoint());
+        QCOMPARE(window->cursor().shape(), Qt::ArrowCursor);
+    }
+
+    if (creationErrorOccurredSpy)
+        creationErrorOccurredSpy->clear();
+
     // Click the new project button.
     mouseEventOnCentre(fileToolButton, MouseClick);
     mouseEventOnCentre(newMenuButton, MouseClick);
 
-    // Test that we get prompted to potentially discard changes.
-    const QObject *discardChangesDialog = window->contentItem()->findChild<QObject*>("discardChangesDialog");
-    QVERIFY(discardChangesDialog);
-    if (project->hasUnsavedChanges()) {
+    // Check that we get prompted to discard any changes.
+    if (project && project->hasUnsavedChanges()) {
+        const QObject *discardChangesDialog = window->contentItem()->findChild<QObject*>("discardChangesDialog");
+        QVERIFY(discardChangesDialog);
         QVERIFY(discardChangesDialog->property("visible").toBool());
 
         QQuickItem *yesButton = findDialogButton(discardChangesDialog, "Yes");
@@ -593,93 +594,211 @@ void TestHelper::createNewProject(int tileWidth, int tileHeight, int tilesetTile
     QVERIFY2(newProjectPopup->property("activeFocus").toBool(),
         qPrintable(QString::fromLatin1("NewProjectPopup doesn't have active focus (%1 does)").arg(window->activeFocusItem()->objectName())));
 
-    // Ensure that the popup gets reset each time it's opened.
-    QQuickItem *useExistingTilesetCheckBox = newProjectPopup->findChild<QQuickItem*>("useExistingTilesetCheckBox");
-    QVERIFY(useExistingTilesetCheckBox);
-    QVERIFY(useExistingTilesetCheckBox->property("checked").isValid());
-    QVERIFY(!useExistingTilesetCheckBox->property("checked").toBool());
+    if (isTilesetProject) {
+        // Choose the tileset project type.
+        QQuickItem *tilesetProjectButton = newProjectPopup->findChild<QQuickItem*>("tilesetProjectButton");
+        QVERIFY(tilesetProjectButton);
 
-    QQuickItem *tilesetField = newProjectPopup->findChild<QQuickItem*>("tilesetPathTextField");
-    QVERIFY(tilesetField);
-    QVERIFY(tilesetField->property("text").isValid());
-    QVERIFY(tilesetField->property("text").toString().isEmpty());
-
-    QQuickItem *tileWidthSpinBox = newProjectPopup->findChild<QQuickItem*>("tileWidthSpinBox");
-    QVERIFY(tileWidthSpinBox);
-    QCOMPARE(tileWidthSpinBox->property("value").toInt(), 32);
-
-    QQuickItem *tileHeightSpinBox = newProjectPopup->findChild<QQuickItem*>("tileHeightSpinBox");
-    QVERIFY(tileHeightSpinBox);
-    QCOMPARE(tileHeightSpinBox->property("value").toInt(), 32);
-
-    QQuickItem *tilesWideSpinBox = newProjectPopup->findChild<QQuickItem*>("tilesWideSpinBox");
-    QVERIFY(tilesWideSpinBox);
-    QCOMPARE(tilesWideSpinBox->property("value").toInt(), 10);
-
-    QQuickItem *tilesHighSpinBox = newProjectPopup->findChild<QQuickItem*>("tilesHighSpinBox");
-    QVERIFY(tilesHighSpinBox);
-    QCOMPARE(tilesHighSpinBox->property("value").toInt(), 10);
-
-    QVERIFY(tileWidthSpinBox->setProperty("value", tileWidth));
-    QCOMPARE(tileWidthSpinBox->property("value").toInt(), tileWidth);
-
-    QVERIFY(tileHeightSpinBox->setProperty("value", tileHeight));
-    QCOMPARE(tileHeightSpinBox->property("value").toInt(), tileHeight);
-
-    if (tilesetTilesWide == -1 || tilesetTilesHigh == -1) {
-        // Using an existing tileset image.
-
-        // Check the "use existing tileset" checkbox.
-        // Hack: it has focus in the app, but not in the test => meh
-        useExistingTilesetCheckBox->forceActiveFocus();
-        QVERIFY(useExistingTilesetCheckBox->hasActiveFocus());
-        QTest::keyClick(window, Qt::Key_Space);
-        QVERIFY(useExistingTilesetCheckBox->property("checked").toBool());
-
-        // Input the filename.
-        QTest::keyClick(window, Qt::Key_Tab);
-        QVERIFY(tilesetField->hasActiveFocus());
-        // TODO: input path using events
-        QVERIFY(tilesetField->property("text").isValid());
-        QVERIFY(tilesetField->setProperty("text", tempTilesetUrl.toString()));
-
-        QQuickItem *invalidFileIcon = newProjectPopup->findChild<QQuickItem*>("invalidFileIcon");
-        QVERIFY(invalidFileIcon);
-        QObject *fileValidator = newProjectPopup->findChild<QObject*>("validator");
-        QVERIFY2(qFuzzyCompare(invalidFileIcon->property("opacity").toReal(), 0),
-            qPrintable(QString::fromLatin1("File should be valid, but got error message \"%1\"; file path: %2")
-                .arg(fileValidator->property("errorMessage").toString())
-                .arg(tilesetField->property("text").toString())));
+        mouseEventOnCentre(tilesetProjectButton, MouseClick);
+        QCOMPARE(tilesetProjectButton->property("checked").toBool(), true);
     } else {
-        // Using a new tileset image.
-        QVERIFY(tilesetTilesWide > 0 && tilesetTilesHigh > 0);
+        // Choose the image project type.
+        QQuickItem *imageProjectButton = newProjectPopup->findChild<QQuickItem*>("imageProjectButton");
+        QVERIFY(imageProjectButton);
 
-        QVERIFY(tilesWideSpinBox->setProperty("value", tilesetTilesWide));
-        QCOMPARE(tilesWideSpinBox->property("value").toInt(), tilesetTilesWide);
-
-        QVERIFY(tilesHighSpinBox->setProperty("value", tilesetTilesHigh));
-        QCOMPARE(tilesHighSpinBox->property("value").toInt(), tilesetTilesHigh);
-
-        QQuickItem *transparentBackgroundCheckBox = newProjectPopup->findChild<QQuickItem*>("transparentBackgroundCheckBox");
-        QVERIFY(transparentBackgroundCheckBox);
-        QCOMPARE(transparentBackgroundCheckBox->property("checked").toBool(), true);
-
-        if (!transparentBackground) {
-            mouseEventOnCentre(transparentBackgroundCheckBox, MouseClick);
-            QCOMPARE(transparentBackgroundCheckBox->property("checked").toBool(), false);
-        }
+        mouseEventOnCentre(imageProjectButton, MouseClick);
+        QCOMPARE(imageProjectButton->property("checked").toBool(), true);
     }
 
-    // Confirm creation of the project.
-    QQuickItem *okButton = newProjectPopup->findChild<QQuickItem*>("newProjectOkButton");
-    QVERIFY(okButton);
-    mouseEventOnCentre(okButton, MouseClick);
-    QVERIFY(!newProjectPopup->property("visible").toBool());
+    // Hit OK.
+    QQuickItem *newProjectOkButton = newProjectPopup->findChild<QQuickItem*>("newProjectOkButton");
+    QVERIFY(newProjectOkButton);
+    mouseEventOnCentre(newProjectOkButton, MouseClick);
+    QTRY_COMPARE(newProjectPopup->property("visible").toBool(), false);
 
-    VERIFY_NO_ERRORS_OCCURRED();
+    if (isTilesetProject) {
+        // Create a temporary directory containing a tileset image for us to use.
+        setupTempTilesetProjectDir();
+
+        // Now the New Tileset Project popup should be visible.
+        QTRY_VERIFY(findPopupFromTypeName("NewTilesetProjectPopup"));
+        const QObject *newTilesetProjectPopup = findPopupFromTypeName("NewTilesetProjectPopup");
+        QVERIFY(newTilesetProjectPopup->property("visible").toBool());
+
+        // Ensure that the popup gets reset each time it's opened.
+        QQuickItem *useExistingTilesetCheckBox = newTilesetProjectPopup->findChild<QQuickItem*>("useExistingTilesetCheckBox");
+        QVERIFY(useExistingTilesetCheckBox);
+        QVERIFY(useExistingTilesetCheckBox->property("checked").isValid());
+        QVERIFY(!useExistingTilesetCheckBox->property("checked").toBool());
+
+        QQuickItem *tilesetField = newTilesetProjectPopup->findChild<QQuickItem*>("tilesetPathTextField");
+        QVERIFY(tilesetField);
+        QVERIFY(tilesetField->property("text").isValid());
+        QVERIFY(tilesetField->property("text").toString().isEmpty());
+
+        QQuickItem *tileWidthSpinBox = newTilesetProjectPopup->findChild<QQuickItem*>("tileWidthSpinBox");
+        QVERIFY(tileWidthSpinBox);
+        QCOMPARE(tileWidthSpinBox->property("value").toInt(), 32);
+
+        QQuickItem *tileHeightSpinBox = newTilesetProjectPopup->findChild<QQuickItem*>("tileHeightSpinBox");
+        QVERIFY(tileHeightSpinBox);
+        QCOMPARE(tileHeightSpinBox->property("value").toInt(), 32);
+
+        QQuickItem *tilesWideSpinBox = newTilesetProjectPopup->findChild<QQuickItem*>("tilesWideSpinBox");
+        QVERIFY(tilesWideSpinBox);
+        QCOMPARE(tilesWideSpinBox->property("value").toInt(), 10);
+
+        QQuickItem *tilesHighSpinBox = newTilesetProjectPopup->findChild<QQuickItem*>("tilesHighSpinBox");
+        QVERIFY(tilesHighSpinBox);
+        QCOMPARE(tilesHighSpinBox->property("value").toInt(), 10);
+
+        QVERIFY(tileWidthSpinBox->setProperty("value", tileWidth));
+        QCOMPARE(tileWidthSpinBox->property("value").toInt(), tileWidth);
+
+        QVERIFY(tileHeightSpinBox->setProperty("value", tileHeight));
+        QCOMPARE(tileHeightSpinBox->property("value").toInt(), tileHeight);
+
+        if (tilesetTilesWide == -1 || tilesetTilesHigh == -1) {
+            // Using an existing tileset image.
+
+            // Check the "use existing tileset" checkbox.
+            // Hack: it has focus in the app, but not in the test => meh
+            useExistingTilesetCheckBox->forceActiveFocus();
+            QVERIFY(useExistingTilesetCheckBox->hasActiveFocus());
+            QTest::keyClick(window, Qt::Key_Space);
+            QVERIFY(useExistingTilesetCheckBox->property("checked").toBool());
+
+            // Input the filename.
+            QTest::keyClick(window, Qt::Key_Tab);
+            QVERIFY(tilesetField->hasActiveFocus());
+            // TODO: input path using events
+            QVERIFY(tilesetField->property("text").isValid());
+            QVERIFY(tilesetField->setProperty("text", tempTilesetUrl.toString()));
+
+            QQuickItem *invalidFileIcon = newTilesetProjectPopup->findChild<QQuickItem*>("invalidFileIcon");
+            QVERIFY(invalidFileIcon);
+            QObject *fileValidator = newTilesetProjectPopup->findChild<QObject*>("validator");
+            QVERIFY2(qFuzzyCompare(invalidFileIcon->property("opacity").toReal(), 0),
+                qPrintable(QString::fromLatin1("File should be valid, but got error message \"%1\"; file path: %2")
+                    .arg(fileValidator->property("errorMessage").toString())
+                    .arg(tilesetField->property("text").toString())));
+        } else {
+            // Using a new tileset image.
+            QVERIFY(tilesetTilesWide > 0 && tilesetTilesHigh > 0);
+
+            QVERIFY(tilesWideSpinBox->setProperty("value", tilesetTilesWide));
+            QCOMPARE(tilesWideSpinBox->property("value").toInt(), tilesetTilesWide);
+
+            QVERIFY(tilesHighSpinBox->setProperty("value", tilesetTilesHigh));
+            QCOMPARE(tilesHighSpinBox->property("value").toInt(), tilesetTilesHigh);
+
+            QQuickItem *transparentBackgroundCheckBox = newTilesetProjectPopup->findChild<QQuickItem*>("transparentBackgroundCheckBox");
+            QVERIFY(transparentBackgroundCheckBox);
+            QCOMPARE(transparentBackgroundCheckBox->property("checked").toBool(), true);
+
+            if (!transparentTilesetBackground) {
+                mouseEventOnCentre(transparentBackgroundCheckBox, MouseClick);
+                QCOMPARE(transparentBackgroundCheckBox->property("checked").toBool(), false);
+            }
+        }
+
+        // Confirm creation of the project.
+        QQuickItem *okButton = newTilesetProjectPopup->findChild<QQuickItem*>("newTilesetProjectOkButton");
+        QVERIFY(okButton);
+        mouseEventOnCentre(okButton, MouseClick);
+        QVERIFY(!newTilesetProjectPopup->property("visible").toBool());
+    } else {
+        // Now the New Image Project popup should be visible.
+        QTRY_VERIFY(findPopupFromTypeName("NewImageProjectPopup"));
+        const QObject *newImageProjectPopup = findPopupFromTypeName("NewImageProjectPopup");
+        QVERIFY(newImageProjectPopup->property("visible").toBool());
+
+        // Ensure that the popup gets reset each time it's opened.
+        QQuickItem *imageWidthSpinBox = newImageProjectPopup->findChild<QQuickItem*>("imageWidthSpinBox");
+        QVERIFY(imageWidthSpinBox);
+        QCOMPARE(imageWidthSpinBox->property("value").toInt(), 256);
+
+        QQuickItem *imageHeightSpinBox = newImageProjectPopup->findChild<QQuickItem*>("imageHeightSpinBox");
+        QVERIFY(imageHeightSpinBox);
+        QCOMPARE(imageHeightSpinBox->property("value").toInt(), 256);
+
+        QVERIFY(imageWidthSpinBox->setProperty("value", imageWidth));
+        QCOMPARE(imageWidthSpinBox->property("value").toInt(), imageWidth);
+
+        QVERIFY(imageHeightSpinBox->setProperty("value", imageHeight));
+        QCOMPARE(imageHeightSpinBox->property("value").toInt(), imageHeight);
+
+        QQuickItem *transparentImageBackgroundCheckBox = newImageProjectPopup->findChild<QQuickItem*>("transparentImageBackgroundCheckBox");
+        QVERIFY(transparentImageBackgroundCheckBox);
+        QVERIFY(transparentImageBackgroundCheckBox->property("checked").isValid());
+        QCOMPARE(transparentImageBackgroundCheckBox->property("checked").toBool(), false);
+
+        if (transparentImageBackground) {
+            mouseEventOnCentre(transparentImageBackgroundCheckBox, MouseClick);
+            QCOMPARE(transparentImageBackgroundCheckBox->property("checked").toBool(), false);
+        }
+
+        // Confirm creation of the project.
+        QQuickItem *okButton = newImageProjectPopup->findChild<QQuickItem*>("newImageProjectOkButton");
+        QVERIFY(okButton);
+        mouseEventOnCentre(okButton, MouseClick);
+        QVERIFY(!newImageProjectPopup->property("visible").toBool());
+    }
+
+    if (wasTilesetProject != isTilesetProject) {
+        // The projects and canvases that we had references to should have
+        // been destroyed by now.
+        QTRY_VERIFY(!project);
+        QVERIFY(!imageProject);
+        QVERIFY(!tilesetProject);
+
+        QVERIFY(!canvas);
+        QVERIFY(!imageCanvas);
+        QVERIFY(!tileCanvas);
+    }
+
+    project = window->contentItem()->findChild<Project*>();
+    QVERIFY(project);
+
+    canvas = window->findChild<ImageCanvas*>();
+    QVERIFY(canvas);
+
+    if (isTilesetProject) {
+        tilesetProject = qobject_cast<TilesetProject*>(project);
+        QVERIFY(tilesetProject);
+
+        tileCanvas = qobject_cast<TileCanvas*>(canvas);
+        QVERIFY(tileCanvas);
+    } else {
+        imageProject = qobject_cast<ImageProject*>(project);
+        QVERIFY(imageProject);
+
+        imageCanvas = canvas;
+    }
+
+    canvas->forceActiveFocus();
+//    QTRY_VERIFY(canvas->hasActiveFocus());
+
     QCOMPARE(project->url(), QUrl());
     QVERIFY(project->hasLoaded());
     QVERIFY(project->isNewProject());
+
+    // Reset any settings that have changed back to their defaults.
+    QVariant settingsAsVariant = qmlEngine(canvas)->rootContext()->contextProperty("settings");
+    QVERIFY(settingsAsVariant.isValid());
+    Settings *settings = settingsAsVariant.value<Settings*>();
+    QVERIFY(settings);
+    settings->resetShortcutsToDefaults();
+
+    cursorPos = QPoint();
+    cursorWindowPos = QPoint();
+
+    // Sanity check.
+    QCOMPARE(canvas->window(), fileToolButton->window());
+    QCOMPARE(canvas->splitter()->position(), 0.5);
+    QVERIFY(!canvas->splitter()->isPressed());
+    QVERIFY(!canvas->splitter()->isHovered());
+
     QVERIFY(newMenuButton->isEnabled());
     QVERIFY(saveMenuButton->isEnabled());
     QVERIFY(saveAsMenuButton->isEnabled());
@@ -687,12 +806,51 @@ void TestHelper::createNewProject(int tileWidth, int tileHeight, int tilesetTile
     QVERIFY(closeMenuButton->isEnabled());
     QVERIFY(settingsMenuButton->isEnabled());
 
-    QVERIFY(imageGrabber.requestImage(canvas));
-    QTRY_VERIFY(imageGrabber.isReady());
-    QCOMPARE(imageGrabber.takeImage().pixelColor(16, 16), canvas->mapBackgroundColour());
+    if (isTilesetProject) {
+        // Establish references to TilesetProject-specific properties.
+        tilesetSwatch = window->findChild<QQuickItem*>("tilesetSwatch");
+        QVERIFY(tilesetSwatch);
+        QCOMPARE(tilesetSwatch->isVisible(), true);
+        QVERIFY(!qFuzzyIsNull(tilesetSwatch->width()));
+        QVERIFY(!qFuzzyIsNull(tilesetSwatch->height()));
+
+        duplicateTileMenuButton = window->findChild<QQuickItem*>("duplicateTileMenuButton");
+        QVERIFY(duplicateTileMenuButton);
+
+        rotateTileLeftMenuButton = window->findChild<QQuickItem*>("rotateTileLeftMenuButton");
+        QVERIFY(rotateTileLeftMenuButton);
+
+        rotateTileRightMenuButton = window->findChild<QQuickItem*>("rotateTileRightMenuButton");
+        QVERIFY(rotateTileRightMenuButton);
+
+        QVERIFY(imageGrabber.requestImage(tileCanvas));
+        QTRY_VERIFY(imageGrabber.isReady());
+        QCOMPARE(imageGrabber.takeImage().pixelColor(16, 16), tileCanvas->mapBackgroundColour());
+    }
 }
 
-void TestHelper::setupTempProjectDir()
+void TestHelper::createNewTilesetProject(int tileWidth, int tileHeight, int tilesetTilesWide, int tilesetTilesHigh,
+    bool transparentTilesetBackground)
+{
+    QVariantMap args;
+    args.insert("tileWidth", tileWidth);
+    args.insert("tileHeight", tileHeight);
+    args.insert("tilesetTilesWide", tilesetTilesWide);
+    args.insert("tilesetTilesHigh", tilesetTilesHigh);
+    args.insert("transparentTilesetBackground", transparentTilesetBackground);
+    createNewProject(tilesetProjectType, args);
+}
+
+void TestHelper::createNewImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)
+{
+    QVariantMap args;
+    args.insert("imageWidth", imageWidth);
+    args.insert("imageHeight", imageHeight);
+    args.insert("transparentImageBackground", transparentImageBackground);
+    createNewProject(imageProjectType, args);
+}
+
+void TestHelper::setupTempTilesetProjectDir()
 {
     tempProjectDir.reset(new QTemporaryDir);
     QVERIFY2(tempProjectDir->isValid(), qPrintable(tempProjectDir->errorString()));
@@ -731,7 +889,7 @@ void TestHelper::setupTempProjectDir()
 
 void TestHelper::switchMode(TileCanvas::Mode mode)
 {
-    if (canvas->mode() == mode)
+    if (tileCanvas->mode() == mode)
         return;
 
     mouseEventOnCentre(modeToolButton, MouseClick);
@@ -739,27 +897,29 @@ void TestHelper::switchMode(TileCanvas::Mode mode)
     QVERIFY2(modeToolButton->property("checked").toBool() == expectChecked, qPrintable(QString::fromLatin1(
         "modeToolButton.checked should be %1, but it's %2 (trying to set mode %3)")
             .arg(expectChecked).arg(modeToolButton->property("checked").toBool()).arg(mode)));
-    QCOMPARE(canvas->mode(), mode);
+    QCOMPARE(tileCanvas->mode(), mode);
 }
 
-void TestHelper::switchTool(TileCanvas::Tool tool)
+void TestHelper::switchTool(ImageCanvas::Tool tool)
 {
     if (canvas->tool() == tool)
         return;
 
-    if (tool == TileCanvas::PenTool) {
+    if (tool == ImageCanvas::PenTool) {
         mouseEventOnCentre(penToolButton, MouseClick);
-    } else if (tool == TileCanvas::EyeDropperTool) {
+    } else if (tool == ImageCanvas::EyeDropperTool) {
         mouseEventOnCentre(eyeDropperToolButton, MouseClick);
-    } else if (tool == TileCanvas::FillTool) {
+    } else if (tool == ImageCanvas::FillTool) {
         mouseEventOnCentre(fillToolButton, MouseClick);
+    } else if (tool == ImageCanvas::EraserTool) {
+        mouseEventOnCentre(eraserToolButton, MouseClick);
     }
     QCOMPARE(canvas->tool(), tool);
 }
 
 void TestHelper::panTopLeftTo(int x, int y)
 {
-    const QPoint panDistance = QPoint(x, y) - canvas->firstPane()->offset();
+    const QPoint panDistance = QPoint(x, y) - tileCanvas->firstPane()->offset();
     panBy(panDistance.x(), panDistance.y());
 }
 
@@ -767,19 +927,19 @@ void TestHelper::panBy(int xDistance, int yDistance)
 {
     QPoint pressPos = tileSceneCentre(4, 4);
     QTest::mouseMove(window, pressPos);
-    QCOMPARE(canvas->currentPane(), canvas->firstPane());
+    QCOMPARE(tileCanvas->currentPane(), tileCanvas->firstPane());
 
     // TODO: get image checks working
     //        QVERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
     //        const QImage originalImage = imageGrabber.takeImage();
 
-    const QPoint originalOffset = canvas->currentPane()->offset();
+    const QPoint originalOffset = tileCanvas->currentPane()->offset();
     const QPoint expectedOffset = originalOffset + QPoint(xDistance, yDistance);
 
     QTest::keyPress(window, Qt::Key_Space);
     QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
-    QCOMPARE(canvas->currentPane()->offset(), originalOffset);
+    QCOMPARE(tileCanvas->currentPane()->offset(), originalOffset);
     //        QVERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
     //        // Cursor changed to OpenHandCursor.
@@ -789,7 +949,7 @@ void TestHelper::panBy(int xDistance, int yDistance)
 
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, pressPos);
     QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
-    QCOMPARE(canvas->currentPane()->offset(), originalOffset);
+    QCOMPARE(tileCanvas->currentPane()->offset(), originalOffset);
     //        QVERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
     //        currentImage = imageGrabber.takeImage();
@@ -799,7 +959,7 @@ void TestHelper::panBy(int xDistance, int yDistance)
 
     QTest::mouseMove(window, pressPos + QPoint(xDistance, yDistance));
     QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
-    QCOMPARE(canvas->currentPane()->offset(), expectedOffset);
+    QCOMPARE(tileCanvas->currentPane()->offset(), expectedOffset);
     //        QVERIFY(imageGrabber.requestImage(canvas));
     //        // Pane offset changed.
     //        currentImage = imageGrabber.takeImage();
@@ -808,9 +968,9 @@ void TestHelper::panBy(int xDistance, int yDistance)
 
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, pressPos + QPoint(xDistance, yDistance));
     QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
-    QCOMPARE(canvas->currentPane()->offset(), expectedOffset);
+    QCOMPARE(tileCanvas->currentPane()->offset(), expectedOffset);
 
     QTest::keyRelease(window, Qt::Key_Space);
     QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
-    QCOMPARE(canvas->currentPane()->offset(), expectedOffset);
+    QCOMPARE(tileCanvas->currentPane()->offset(), expectedOffset);
 }

@@ -36,5 +36,9 @@
         <file>ui/ShortcutRow.qml</file>
         <file>ui/qmldir</file>
         <file>ui/ErrorLabel.qml</file>
+        <file>ui/NewTilesetProjectPopup.qml</file>
+        <file>ui/ProjectTemplateButton.qml</file>
+        <file>ui/NewImageProjectPopup.qml</file>
+        <file>ui/CanvasContainer.qml</file>
     </qresource>
 </RCC>

@@ -8,17 +8,15 @@ import "." as Ui
 
 Item {
     id: root
+    objectName: "iconToolBar"
     implicitWidth: toolbarRow.implicitWidth
     implicitHeight: toolbarRow.implicitHeight
 
     property Project project
-    property TileCanvas canvas
+    property ImageCanvas canvas
     property FontMetrics fontMetrics
 
     property alias toolButtonGroup: toolButtonGroup
-    property alias penToolButton: penToolButton
-    property alias eyeDropperToolButton: eyeDropperToolButton
-    property alias eraserToolButton: eraserToolButton
 
     TextMetrics {
         id: cursorMaxTextMetrics
@@ -27,20 +25,44 @@ Item {
     }
 
     function switchTool(tool) {
-        canvas.ignoreToolChanges = true;
+        root.ignoreToolChanges = true;
         canvas.tool = tool;
-        canvas.ignoreToolChanges = false;
+        root.ignoreToolChanges = false;
+    }
+
+    // TODO: figure out a nicer solution than this.
+    property bool ignoreToolChanges: false
+
+    Connections {
+        target: canvas
+        onToolChanged: {
+            if (root.ignoreToolChanges)
+                return;
+
+            switch (canvas.tool) {
+            case TileCanvas.PenTool:
+                toolButtonGroup.checkedButton = penToolButton;
+                break;
+            case TileCanvas.EyeDropperTool:
+                toolButtonGroup.checkedButton = eyeDropperToolButton;
+                break;
+            case TileCanvas.EraserTool:
+                toolButtonGroup.checkedButton = eraserToolButton;
+                break;
+            }
+        }
     }
 
     Row {
         id: toolbarRow
+        enabled: canvas
         anchors.fill: parent
         anchors.leftMargin: toolSeparator.implicitWidth / 2
 
         Ui.IconToolButton {
             id: canvasSizeButton
             objectName: "canvasSizeButton"
-            enabled: project.loaded
+            enabled: project ? project.loaded : false
             hoverEnabled: true
 
             ToolTip.text: qsTr("Change the size of the canvas")
@@ -52,22 +74,21 @@ Item {
                 anchors.centerIn: parent
                 color: "transparent"
                 border.width: 2
-                border.color: canvasSizeButton.contentItem.color
+                border.color: iconRect.color
                 width: 12
                 height: 12
 
                 Ui.IconRectangle {
+                    id: iconRect
                     y: -2 - height
                     width: parent.width
                     height: 1
-                    color: canvasSizeButton.contentItem.color
                 }
 
                 Ui.IconRectangle {
                     x: -2 - width
                     width: 1
                     height: parent.height
-                    color: canvasSizeButton.contentItem.color
                 }
             }
 
@@ -87,7 +108,7 @@ Item {
             Ui.IconToolButton {
                 objectName: "undoButton"
                 iconText: "\uf0e2"
-                enabled: project.undoStack.canUndo
+                enabled: project ? project.undoStack.canUndo : false
                 hoverEnabled: true
 
                 ToolTip.text: qsTr("Undo the last canvas operation")
@@ -99,7 +120,7 @@ Item {
             Ui.IconToolButton {
                 objectName: "redoButton"
                 iconText: "\uf01e"
-                enabled: project.undoStack.canRedo
+                enabled: project ? project.undoStack.canRedo : false
                 hoverEnabled: true
 
                 ToolTip.text: qsTr("Redo the last undone canvas operation")
@@ -115,7 +136,7 @@ Item {
             id: modeToolButton
             objectName: "modeToolButton"
             iconText: "\uf044"
-            checked: canvas.mode === TileCanvas.TileMode
+            checked: canvas && canvas.hasOwnProperty("mode") ? canvas.mode === TileCanvas.TileMode : false
             checkable: true
             hoverEnabled: true
 
@@ -123,9 +144,9 @@ Item {
             ToolTip.visible: hovered
 
             onClicked: {
-                canvas.ignoreToolChanges = true;
+                root.ignoreToolChanges = true;
                 canvas.mode = checked ? TileCanvas.TileMode : TileCanvas.PixelMode;
-                canvas.ignoreToolChanges = false;
+                root.ignoreToolChanges = false;
             }
         }
 
@@ -206,6 +227,7 @@ Item {
             onClicked: toolSizeSliderPopup.visible = !toolSizeSliderPopup.visible
 
             Item {
+                objectName: "toolSizeButtonIcon"
                 width: 12
                 height: 12
                 anchors.centerIn: parent
@@ -256,7 +278,15 @@ Item {
 
             Label {
                 objectName: "cursorTilePixelPosLabel"
-                text: canvas.cursorTilePixelX + ", " + canvas.cursorTilePixelY
+                text: {
+                    if (!canvas)
+                        return "-1, -1";
+
+                    if (canvas.hasOwnProperty("cursorTilePixelX"))
+                        return canvas.cursorTilePixelX + ", " + canvas.cursorTilePixelY;
+
+                    return canvas.cursorSceneX + ", " + canvas.cursorSceneY;
+                }
                 width: Math.max(cursorMaxTextMetrics.width, implicitWidth)
                 anchors.verticalCenter: parent.verticalCenter
             }

@@ -13,7 +13,7 @@ GridLayout {
     columns: 2
     rowSpacing: 0
 
-    property TileCanvas canvas
+    property ImageCanvas canvas
 
     readonly property real spinBoxFactor: 1000
     readonly property real spinBoxStepSize: 10
@@ -91,6 +91,9 @@ GridLayout {
             property bool ignoreChanges: false
 
             onColorChanged: {
+                if (!canvas)
+                    return;
+
                 ignoreChanges = true;
                 canvas[hexColourRowLayout.colourSelector.currentPenName] = saturationLightnessPicker.color
                 ignoreChanges = false;
@@ -118,7 +121,7 @@ GridLayout {
     Slider {
         id: transparencySlider
         objectName: "transparencySlider"
-        value: canvas[hexColourRowLayout.colourSelector.currentPenName].a
+        value: canvas ? canvas[hexColourRowLayout.colourSelector.currentPenName].a : 1
         focusPolicy: Qt.NoFocus
 
         Layout.fillWidth: true
@@ -127,6 +130,9 @@ GridLayout {
         property bool ignoreChanges: false
 
         onValueChanged: {
+            if (!canvas)
+                return;
+
             ignoreChanges = true;
             canvas[hexColourRowLayout.colourSelector.currentPenName].a = transparencySlider.value;
             ignoreChanges = false;

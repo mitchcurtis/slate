@@ -26,14 +26,14 @@
 #include <QVector>
 #include <QtUndo/undocommand.h>
 
-#include "tilecanvas.h"
+#include "imagecanvas.h"
 
 class ApplyPixelEraserCommand : public UndoCommand
 {
     Q_OBJECT
 
 public:
-    ApplyPixelEraserCommand(TileCanvas *canvas, const QVector<QPoint> &scenePositions, const QVector<QColor> &previousColours,
+    ApplyPixelEraserCommand(ImageCanvas *canvas, const QVector<QPoint> &scenePositions, const QVector<QColor> &previousColours,
         UndoCommand *parent = nullptr);
 
     void undo() override;
@@ -45,7 +45,7 @@ public:
 private:
     friend QDebug operator<<(QDebug debug, const ApplyPixelEraserCommand &command);
 
-    TileCanvas *mCanvas;
+    ImageCanvas *mCanvas;
     QVector<QPoint> mScenePositions;
     QVector<QColor> mPreviousColours;
 };
