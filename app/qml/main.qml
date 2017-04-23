@@ -222,8 +222,8 @@ ApplicationWindow {
     Platform.FileDialog {
         id: openProjectDialog
         objectName: "openProjectDialog"
-        nameFilters: projectType === Project.TilesetType ? tilesetFilters : imageFilters
-        defaultSuffix: projectType === Project.TilesetType ? tilesetDefaultSuffix : imageDefaultSuffix
+        nameFilters: ["PNG files (*.png)", "BMP files (*.bmp)", "JSON files (*.json)"]
+        defaultSuffix: imageDefaultSuffix
         onAccepted: loadProject(file)
     }
 
