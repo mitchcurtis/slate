@@ -101,8 +101,11 @@ protected:
     QPoint mapToTile(const QPoint &cursorPos) const;
     QPoint tileSceneCentre(int xPosInTiles, int yPosInTiles) const;
     QPoint tileCanvasCentre(int xPosInTiles, int yPosInTiles) const;
+    QPointF canvasCentre() const;
+    QPoint canvasSceneCentre() const;
+    QPoint firstPaneSceneCentre() const;
     void setCursorPosInTiles(int xPosInTiles, int yPosInTiles);
-    void setCursorPosInPixels(int xPosInPixels, int yPosInPixels);
+    void setCursorPosInPixels(int xPosInPixels, int yPosInPixels, bool assertWithinWindow = true);
     void setCursorPosInPixels(const QPoint &posInPixels);
     QPoint tilesetTileCentre(int xPosInTiles, int yPosInTiles) const;
     QPoint tilesetTileSceneCentre(int xPosInTiles, int yPosInTiles) const;

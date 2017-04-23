@@ -464,7 +464,22 @@ QPoint TestHelper::tileCanvasCentre(int xPosInTiles, int yPosInTiles) const
 {
     return QPoint(
         xPosInTiles * tilesetProject->tileWidth() + tilesetProject->tileWidth() / 2,
-        yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2);
+                yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2);
+}
+
+QPointF TestHelper::canvasCentre() const
+{
+    return QPointF(canvas->width() / 2, canvas->height() / 2);
+}
+
+QPoint TestHelper::canvasSceneCentre() const
+{
+    return canvas->mapToScene(canvasCentre()).toPoint();
+}
+
+QPoint TestHelper::firstPaneSceneCentre() const
+{
+    return canvas->mapToScene(QPointF((canvas->firstPane()->size() * canvas->width()) / 2, canvas->height() / 2)).toPoint();
 }
 
 void TestHelper::setCursorPosInTiles(int xPosInTiles, int yPosInTiles)
@@ -473,12 +488,14 @@ void TestHelper::setCursorPosInTiles(int xPosInTiles, int yPosInTiles)
     cursorWindowPos = tileSceneCentre(xPosInTiles, yPosInTiles);
 }
 
-void TestHelper::setCursorPosInPixels(int xPosInPixels, int yPosInPixels)
+void TestHelper::setCursorPosInPixels(int xPosInPixels, int yPosInPixels, bool verifyWithinWindow)
 {
     cursorPos = QPoint(xPosInPixels, yPosInPixels);
     cursorWindowPos = canvas->mapToScene(cursorPos).toPoint() + canvas->firstPane()->offset();
-    QVERIFY2(cursorWindowPos.x() >= 0 && cursorWindowPos.y() >= 0,
-             qPrintable(QString::fromLatin1("x %1 y %2").arg(cursorWindowPos.x()).arg(cursorWindowPos.y())));
+    if (verifyWithinWindow) {
+        QVERIFY2(cursorWindowPos.x() >= 0 && cursorWindowPos.y() >= 0,
+                 qPrintable(QString::fromLatin1("x %1 y %2").arg(cursorWindowPos.x()).arg(cursorWindowPos.y())));
+    }
 }
 
 void TestHelper::setCursorPosInPixels(const QPoint &posInPixels)
@@ -919,27 +936,27 @@ void TestHelper::switchTool(ImageCanvas::Tool tool)
 
 void TestHelper::panTopLeftTo(int x, int y)
 {
-    const QPoint panDistance = QPoint(x, y) - tileCanvas->firstPane()->offset();
+    const QPoint panDistance = QPoint(x, y) - canvas->firstPane()->offset();
     panBy(panDistance.x(), panDistance.y());
 }
 
 void TestHelper::panBy(int xDistance, int yDistance)
 {
-    QPoint pressPos = tileSceneCentre(4, 4);
+    QPoint pressPos = firstPaneSceneCentre();
     QTest::mouseMove(window, pressPos);
-    QCOMPARE(tileCanvas->currentPane(), tileCanvas->firstPane());
+    QCOMPARE(canvas->currentPane(), canvas->firstPane());
 
     // TODO: get image checks working
     //        QVERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
     //        const QImage originalImage = imageGrabber.takeImage();
 
-    const QPoint originalOffset = tileCanvas->currentPane()->offset();
+    const QPoint originalOffset = canvas->currentPane()->offset();
     const QPoint expectedOffset = originalOffset + QPoint(xDistance, yDistance);
 
     QTest::keyPress(window, Qt::Key_Space);
     QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
-    QCOMPARE(tileCanvas->currentPane()->offset(), originalOffset);
+    QCOMPARE(canvas->currentPane()->offset(), originalOffset);
     //        QVERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
     //        // Cursor changed to OpenHandCursor.
@@ -949,7 +966,7 @@ void TestHelper::panBy(int xDistance, int yDistance)
 
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, pressPos);
     QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
-    QCOMPARE(tileCanvas->currentPane()->offset(), originalOffset);
+    QCOMPARE(canvas->currentPane()->offset(), originalOffset);
     //        QVERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
     //        currentImage = imageGrabber.takeImage();
@@ -959,7 +976,7 @@ void TestHelper::panBy(int xDistance, int yDistance)
 
     QTest::mouseMove(window, pressPos + QPoint(xDistance, yDistance));
     QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
-    QCOMPARE(tileCanvas->currentPane()->offset(), expectedOffset);
+    QCOMPARE(canvas->currentPane()->offset(), expectedOffset);
     //        QVERIFY(imageGrabber.requestImage(canvas));
     //        // Pane offset changed.
     //        currentImage = imageGrabber.takeImage();
@@ -968,9 +985,9 @@ void TestHelper::panBy(int xDistance, int yDistance)
 
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, pressPos + QPoint(xDistance, yDistance));
     QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
-    QCOMPARE(tileCanvas->currentPane()->offset(), expectedOffset);
+    QCOMPARE(canvas->currentPane()->offset(), expectedOffset);
 
     QTest::keyRelease(window, Qt::Key_Space);
     QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
-    QCOMPARE(tileCanvas->currentPane()->offset(), expectedOffset);
+    QCOMPARE(canvas->currentPane()->offset(), expectedOffset);
 }

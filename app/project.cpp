@@ -43,8 +43,13 @@ Project::Type Project::type() const
 
 QString Project::typeString() const
 {
+    return typeToString(type());
+}
+
+QString Project::typeToString(Project::Type type)
+{
     QMetaEnum metaEnum = QMetaEnum::fromType<Project::Type>();
-    return metaEnum.valueToKey(type());
+    return metaEnum.valueToKey(type);
 }
 
 QUrl Project::url() const

@@ -1147,52 +1147,72 @@ void tst_App::zoomAndCentre()
 
 void tst_App::penWhilePannedAndZoomed_data()
 {
+    QTest::addColumn<Project::Type>("projectType");
     QTest::addColumn<int>("xDistance");
     QTest::addColumn<int>("yDistance");
     QTest::addColumn<int>("zoomLevel");
 
     // TODO: test with zoom
-    QTest::newRow("{40, 0}, 1") << 40 << 0 << 1;
-    QTest::newRow("{0, 40}, 2") << 0 << 40 << 1;
-    QTest::newRow("{40, 40}, 3") << 40 << 40 << 1;
-    QTest::newRow("{-40, 0}, 3") << -40 << 0 << 1;
-    QTest::newRow("{0, 0}, 2") << 0 << -40 << 1;
-    QTest::newRow("{-40, -40}, 2") << -40 << -40 << 1;
+    for (int i = Project::TilesetType; i <= Project::ImageType; ++i) {
+        const Project::Type type = static_cast<Project::Type>(i);
+        const QString typeAsString = Project::typeToString(type);
+        QTest::newRow(qPrintable(QString::fromLatin1("%1, {40, 0}, 1").arg(typeAsString))) << type << 40 << 0 << 1;
+        QTest::newRow(qPrintable(QString::fromLatin1("%1, {0, 40}, 2").arg(typeAsString))) << type << 0 << 40 << 1;
+        QTest::newRow(qPrintable(QString::fromLatin1("%1, {40, 40}, 3").arg(typeAsString))) << type << 40 << 40 << 1;
+        QTest::newRow(qPrintable(QString::fromLatin1("%1, {-40, 0}, 3").arg(typeAsString))) << type << -40 << 0 << 1;
+        QTest::newRow(qPrintable(QString::fromLatin1("%1, {0, 0}, 2").arg(typeAsString))) << type << 0 << -40 << 1;
+        QTest::newRow(qPrintable(QString::fromLatin1("%1, {-40, -40}, 2").arg(typeAsString))) << type << -40 << -40 << 1;
+    }
 }
 
 void tst_App::penWhilePannedAndZoomed()
 {
+    QFETCH(Project::Type, projectType);
     QFETCH(int, xDistance);
     QFETCH(int, yDistance);
     QFETCH(int, zoomLevel);
 
-    createNewTilesetProject();
+    createNewProject(projectType);
     panTopLeftTo(0, 0);
     panBy(xDistance, yDistance);
 
     if (zoomLevel > 1) {
-        for (int i = 0; i < zoomLevel - tileCanvas->currentPane()->zoomLevel(); ++i) {
-            wheelEvent(tileCanvas, tileSceneCentre(5, 5), 1);
+        for (int i = 0; i < zoomLevel - canvas->currentPane()->zoomLevel(); ++i) {
+            wheelEvent(canvas, tileSceneCentre(5, 5), 1);
         }
-        QCOMPARE(tileCanvas->currentPane()->zoomLevel(), zoomLevel);
+        QCOMPARE(canvas->currentPane()->zoomLevel(), zoomLevel);
     } else if (zoomLevel < 1) {
-        for (int i = 0; i < qAbs(zoomLevel - tileCanvas->currentPane()->zoomLevel()); ++i) {
-            wheelEvent(tileCanvas, tileSceneCentre(5, 5), -1);
+        for (int i = 0; i < qAbs(zoomLevel - canvas->currentPane()->zoomLevel()); ++i) {
+            wheelEvent(canvas, tileSceneCentre(5, 5), -1);
         }
-        QCOMPARE(tileCanvas->currentPane()->zoomLevel(), zoomLevel);
+        QCOMPARE(canvas->currentPane()->zoomLevel(), zoomLevel);
     }
 
-    switchMode(TileCanvas::TileMode);
+    if (projectType == Project::TilesetType) {
+        switchMode(TileCanvas::TileMode);
 
-    // Draw a tile on.
-    setCursorPosInTiles(4, 4);
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QVERIFY(tilesetProject->hasUnsavedChanges());
+        // Draw a tile on.
+        setCursorPosInTiles(4, 4);
+        QTest::mouseMove(window, cursorWindowPos);
+        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QVERIFY(tilesetProject->hasUnsavedChanges());
 
-    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QVERIFY2(tilesetProject->tileAt(cursorPos), qPrintable(QString::fromLatin1("No tile at x %1 y %2")
-        .arg(cursorPos.x()).arg(cursorPos.y())));
+        QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QVERIFY2(tilesetProject->tileAt(cursorPos), qPrintable(QString::fromLatin1("No tile at x %1 y %2")
+                                                               .arg(cursorPos.x()).arg(cursorPos.y())));
+    } else {
+        // Draw a pixel on.
+        // TOOD: x=100 y=100 is a quick, hard-coded, hacky coordinate.
+        // If the test fails, it's probably because of this not being big enough/too big. Do it properly.
+        setCursorPosInPixels(100, 100, false);
+        QTest::mouseMove(window, cursorWindowPos);
+        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QVERIFY(imageProject->hasUnsavedChanges());
+
+        QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+//        QVERIFY2(imageProject->tileAt(cursorPos), qPrintable(QString::fromLatin1("No tile at x %1 y %2")
+//                                                               .arg(cursorPos.x()).arg(cursorPos.y())));
+    }
 }
 
 void tst_App::useTilesetSwatch()

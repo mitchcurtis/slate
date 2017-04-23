@@ -57,6 +57,7 @@ public:
 
     virtual Type type() const;
     QString typeString() const;
+    static QString typeToString(Project::Type type);
     bool hasLoaded() const;
     bool isNewProject() const;
     void setNewProject(bool newProject);
