@@ -16,8 +16,7 @@ Dialog {
     standardButtons: Dialog.Ok | Dialog.Cancel
 
     onAccepted: applyAllSettings()
-    // TODO: do this in rejected when QTBUG-56928 is fixed
-    onOpened: clearChanges()
+    onRejected: clearChanges()
 
     function applyAllSettings() {
         settings.loadLastOnStartup = loadLastCheckBox.checked;

@@ -33,9 +33,12 @@ RowLayout {
 
         Layout.minimumWidth: 200
 
+        // The fix for QTBUG-57098 should have been implemented in C++ as well.
+        Keys.onShortcutOverride: event.accepted = (event.key === Qt.Key_Escape)
+
         ItemDelegate {
             id: editButton
-            objectName: shortcutName + "ToolButton"
+            objectName: shortcutName + "Button"
             text: editor.displaySequence
             font.bold: editor.hasChanged
             width: parent.width

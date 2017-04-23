@@ -47,8 +47,6 @@ ApplicationWindow {
     objectName: "window"
     width: 1200
     height: 800
-//    width: 1080
-//    height: 1920
     title: qtbug53394Title
     visible: true
 

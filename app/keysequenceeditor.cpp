@@ -68,7 +68,7 @@ void KeySequenceEditor::setNewSequence(const QString &newSequence)
         return;
 
     mNewSequence = QKeySequence(newSequence, QKeySequence::PortableText);
-    qDebug(lcKeySequenceEditor) << "Set new sequence to" << mNewSequence;
+    qCDebug(lcKeySequenceEditor) << "Set new sequence to" << mNewSequence;
     emit newSequenceChanged();
     emit hasChangedChanged();
     emit displaySequenceChanged();
@@ -76,7 +76,7 @@ void KeySequenceEditor::setNewSequence(const QString &newSequence)
 
 void KeySequenceEditor::resetKeysPressed()
 {
-    qDebug(lcKeySequenceEditor) << "Clearing pressed keys";
+    qCDebug(lcKeySequenceEditor) << "Clearing pressed keys";
 
     for (int i = 0; i < mKeysPressed.size(); ++i) {
         mKeysPressed[i] = 0;
@@ -103,7 +103,7 @@ void KeySequenceEditor::setCurrentSequence(const QString &currentSequence)
         return;
 
     mCurrentSequence = QKeySequence(currentSequence, QKeySequence::PortableText);
-    qDebug(lcKeySequenceEditor) << "Current sequence changed to" << mCurrentSequence;
+    qCDebug(lcKeySequenceEditor) << "Current sequence changed to" << mCurrentSequence;
     emit hasChangedChanged();
     emit displaySequenceChanged();
 }
@@ -134,11 +134,11 @@ void KeySequenceEditor::keyPressEvent(QKeyEvent *event)
             modifiers |= Qt::META;
 
         if (event->key() >= Qt::Key_Shift && event->key() <= Qt::Key_Meta) {
-            qDebug(lcKeySequenceEditor) << "Only modifiers were pressed ("
+            qCDebug(lcKeySequenceEditor) << "Only modifiers were pressed ("
                 << event->text() << "/" << KeyHelper::keyName(event->key()) << "/" << QKeySequence(event->key()) << "; ignoring";
         } else {
             mKeysPressed[mCurrentKeyIndex++] = event->key() | modifiers;
-            qDebug(lcKeySequenceEditor) << "Adding key" << event->text() << "/" << KeyHelper::keyName(event->key()) << "/"
+            qCDebug(lcKeySequenceEditor) << "Adding key" << event->text() << "/" << KeyHelper::keyName(event->key()) << "/"
                     << QKeySequence(event->key()) << " with modifiers" << modifiers
                     << "(" << QKeySequence(mKeysPressed[mCurrentKeyIndex - 1]) << ") to pressed keys";
 
@@ -177,7 +177,7 @@ void KeySequenceEditor::focusOutEvent(QFocusEvent *event)
 
 void KeySequenceEditor::accept()
 {
-    qDebug(lcKeySequenceEditor) << "Attempting to accept input...";
+    qCDebug(lcKeySequenceEditor) << "Attempting to accept input...";
 
     // If there hasn't been anything new successfully entered yet, check against
     // the original sequence, otherwise check against the latest successfully entered sequence.
@@ -185,14 +185,14 @@ void KeySequenceEditor::accept()
     // in the future.
     if ((mCurrentSequence != mOriginalSequence) || (hasChanged() && mCurrentSequence != mNewSequence)) {
         if (validate(mCurrentSequence)) {
-            qDebug(lcKeySequenceEditor) << "Input valid";
+            qCDebug(lcKeySequenceEditor) << "Input valid";
             setNewSequence(mCurrentSequence.toString());
         } else {
-            qDebug(lcKeySequenceEditor) << "Input invalid";
+            qCDebug(lcKeySequenceEditor) << "Input invalid";
             cancel();
         }
     } else {
-        qDebug(lcKeySequenceEditor) << "Nothing has changed in the input";
+        qCDebug(lcKeySequenceEditor) << "Nothing has changed in the input";
         // Nothing's changed.
     }
 
@@ -203,12 +203,19 @@ void KeySequenceEditor::accept()
 void KeySequenceEditor::cancel()
 {
     resetKeysPressed();
-    setCurrentSequence(QString());
+    if (!mCurrentSequence.isEmpty()) {
+        setCurrentSequence(QString());
+    } else {
+        // If the current sequence is empty, setting it to an empty string
+        // obviously won't change anything, and it will return early.
+        // We need the display sequence to update though, so call it here.
+        emit displaySequenceChanged();
+    }
 }
 
 bool KeySequenceEditor::validate(const QKeySequence &sequence) const
 {
-    qDebug(lcKeySequenceEditor) << "Validating key sequence" << sequence << "...";
+    qCDebug(lcKeySequenceEditor) << "Validating key sequence" << sequence << "...";
 
     bool valid = true;//false;
 

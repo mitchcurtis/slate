@@ -123,8 +123,10 @@ void TileCanvas::paint(QPainter *painter)
     painter->fillRect(0, 0, firstPaneWidth, height(), mBackgroundColour);
     drawPane(painter, mFirstPane, 0);
 
-    painter->setPen(QPen(mSplitColour));
-    painter->drawLine(firstPaneWidth, 0, firstPaneWidth, height());
+    if (mSplitScreen) {
+        painter->setPen(QPen(mSplitColour));
+        painter->drawLine(firstPaneWidth, 0, firstPaneWidth, height());
+    }
 }
 
 void TileCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex)

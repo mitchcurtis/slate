@@ -300,8 +300,6 @@ void tst_App::saveAsAndLoad()
 
 void tst_App::keyboardShortcuts()
 {
-    QSKIP("https://bugreports.qt.io/browse/QTBUG-57098");
-
     createNewTilesetProject();
 
     QTest::keyPress(window, Qt::Key_1);
@@ -332,53 +330,53 @@ void tst_App::keyboardShortcuts()
     mouseEventOnCentre(shortcutsTabButton, MouseClick);
 
     // Give "New Project" shortcut editor focus.
-    QQuickItem *newShortcutToolButton = optionsDialog->findChild<QQuickItem*>("newShortcutToolButton");
-    QVERIFY(newShortcutToolButton);
-    QCOMPARE(newShortcutToolButton->property("text").toString(), app.settings()->defaultNewShortcut());
-    mouseEventOnCentre(newShortcutToolButton, MouseClick);
+    QQuickItem *newShortcutButton = optionsDialog->findChild<QQuickItem*>("newShortcutButton");
+    QVERIFY(newShortcutButton);
+    QCOMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
+    mouseEventOnCentre(newShortcutButton, MouseClick);
 
     QQuickItem *newShortcutEditor = optionsDialog->findChild<QQuickItem*>("newShortcutEditor");
     QVERIFY(newShortcutEditor);
     QVERIFY(newShortcutEditor->hasActiveFocus());
 
     // The toolbutton should display the shortcut that has been entered so far (nothing).
-    QCOMPARE(newShortcutToolButton->property("text").toString(), QString());
+    QCOMPARE(newShortcutButton->property("text").toString(), QString());
 
     // Begin inputting a shortcut.
     QTest::keyClick(window, Qt::Key_M, Qt::ControlModifier);
-    QCOMPARE(newShortcutToolButton->property("text").toString(), QLatin1String("Ctrl+M"));
+    QCOMPARE(newShortcutButton->property("text").toString(), QLatin1String("Ctrl+M"));
 
     // Cancel editing; shortcut shouldn't have changed.
     QTest::keyClick(window, Qt::Key_Escape);
     // The dialog should still be visible: QTBUG-57098
     QVERIFY(optionsDialog->property("visible").toBool());
     QVERIFY(!newShortcutEditor->hasActiveFocus());
-    QCOMPARE(newShortcutToolButton->property("text").toString(), app.settings()->defaultNewShortcut());
+    QCOMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
 
     // Give "New Project" shortcut editor focus again.
-    mouseEventOnCentre(newShortcutToolButton, MouseClick);
+    mouseEventOnCentre(newShortcutButton, MouseClick);
     QVERIFY(newShortcutEditor->hasActiveFocus());
 
     // Input another shortcut.
     QTest::keyClick(window, Qt::Key_U, Qt::ControlModifier);
-    QCOMPARE(newShortcutToolButton->property("text").toString(), QLatin1String("Ctrl+U"));
+    QCOMPARE(newShortcutButton->property("text").toString(), QLatin1String("Ctrl+U"));
 
     // Press Enter to accept it.
     QTest::keyClick(window, Qt::Key_Return);
     QVERIFY(!newShortcutEditor->hasActiveFocus());
-    QCOMPARE(newShortcutToolButton->property("text").toString(), QLatin1String("Ctrl+U"));
+    QCOMPARE(newShortcutButton->property("text").toString(), QLatin1String("Ctrl+U"));
 
     // There was an issue where entering the original shortcut (e.g. Ctrl+N) after
     // having changed it to a new one (e.g. Ctrl+U) would result in the now not-so-new one (Ctrl+U)
     // still being shown instead of the latest one (Ctrl+N).
-    mouseEventOnCentre(newShortcutToolButton, MouseClick);
+    mouseEventOnCentre(newShortcutButton, MouseClick);
     QVERIFY(newShortcutEditor->hasActiveFocus());
 
     QTest::keyClick(window, Qt::Key_N, Qt::ControlModifier);
-    QCOMPARE(newShortcutToolButton->property("text").toString(), app.settings()->defaultNewShortcut());
+    QCOMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
     QTest::keyClick(window, Qt::Key_Return);
     QVERIFY(!newShortcutEditor->hasActiveFocus());
-    QCOMPARE(newShortcutToolButton->property("text").toString(), app.settings()->defaultNewShortcut());
+    QCOMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
 
     // Close the dialog.
     QTest::keyClick(window, Qt::Key_Escape);
@@ -386,8 +384,6 @@ void tst_App::keyboardShortcuts()
 
 void tst_App::optionsCancelled()
 {
-    QSKIP("https://bugreports.qt.io/browse/QTBUG-57098");
-
     // Ensure that cancelling the options dialog after changing a shortcut cancels the shortcut change.
     createNewTilesetProject();
 
@@ -404,10 +400,10 @@ void tst_App::optionsCancelled()
     mouseEventOnCentre(shortcutsTabButton, MouseClick);
 
     // Give "New Project" shortcut editor focus.
-    QQuickItem *newShortcutToolButton = optionsDialog->findChild<QQuickItem*>("newShortcutToolButton");
-    QVERIFY(newShortcutToolButton);
-    QCOMPARE(newShortcutToolButton->property("text").toString(), app.settings()->defaultNewShortcut());
-    mouseEventOnCentre(newShortcutToolButton, MouseClick);
+    QQuickItem *newShortcutButton = optionsDialog->findChild<QQuickItem*>("newShortcutButton");
+    QVERIFY(newShortcutButton);
+    QCOMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
+    mouseEventOnCentre(newShortcutButton, MouseClick);
 
     QQuickItem *newShortcutEditor = optionsDialog->findChild<QQuickItem*>("newShortcutEditor");
     QVERIFY(newShortcutEditor);
@@ -415,12 +411,12 @@ void tst_App::optionsCancelled()
 
     // Begin inputting a shortcut.
     QTest::keyClick(window, Qt::Key_J, Qt::ControlModifier);
-    QCOMPARE(newShortcutToolButton->property("text").toString(), QLatin1String("Ctrl+J"));
+    QCOMPARE(newShortcutButton->property("text").toString(), QLatin1String("Ctrl+J"));
 
     // Press Enter to accept it.
     QTest::keyClick(window, Qt::Key_Return);
     QVERIFY(!newShortcutEditor->hasActiveFocus());
-    QCOMPARE(newShortcutToolButton->property("text").toString(), QLatin1String("Ctrl+J"));
+    QCOMPARE(newShortcutButton->property("text").toString(), QLatin1String("Ctrl+J"));
     // Shortcut shouldn't change until we hit "OK".
     QCOMPARE(app.settings()->newShortcut(), app.settings()->defaultNewShortcut());
 
@@ -433,7 +429,7 @@ void tst_App::optionsCancelled()
     mouseEventOnCentre(optionsToolButton, MouseClick);
     mouseEventOnCentre(settingsMenuButton, MouseClick);
     QVERIFY(optionsDialog->property("visible").toBool());
-    QTRY_COMPARE(newShortcutToolButton->property("text").toString(), app.settings()->defaultNewShortcut());
+    QTRY_COMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
     QCOMPARE(app.settings()->newShortcut(), app.settings()->defaultNewShortcut());
 
     // Close the dialog.
