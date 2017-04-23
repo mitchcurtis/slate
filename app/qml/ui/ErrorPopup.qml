@@ -4,6 +4,7 @@ import QtQuick.Controls 2.0
 
 Popup {
     id: control
+    objectName: "errorPopup"
     modal: true
     focus: true
 

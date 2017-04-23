@@ -17,14 +17,11 @@ Dialog {
     readonly property int imageHeight: imageHeightSpinBox.value
     readonly property bool transparentBackground: transparentImageBackgroundCheckBox.checked
 
-//    FontMetrics {
-//        id: fontMetrics
-//        font: tilesetPathTextField.font
-//    }
-
     onAboutToShow: {
         // Reset input controls to default values.
         imageWidthSpinBox.value = imageWidthSpinBox.defaultValue;
+        // QTBUG-60356
+        imageWidthSpinBox.contentItem.forceActiveFocus();
         imageHeightSpinBox.value = imageHeightSpinBox.defaultValue;
         transparentImageBackgroundCheckBox.checked = transparentImageBackgroundCheckBox.defaultValue;
     }

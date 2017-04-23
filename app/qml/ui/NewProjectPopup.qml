@@ -9,6 +9,7 @@ import App 1.0
 
 Dialog {
     id: popup
+    objectName: "newProjectPopup"
     modal: true
     focus: true
     padding: 20

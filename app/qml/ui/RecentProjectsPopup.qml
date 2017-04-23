@@ -4,6 +4,7 @@ import QtQuick.Controls 2.0
 
 Popup {
     id: popup
+    objectName: "recentProjectsPopup"
     modal: true
     focus: true
     padding: 10

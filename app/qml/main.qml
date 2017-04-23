@@ -51,6 +51,8 @@ ApplicationWindow {
     title: qtbug53394Title
     visible: true
 
+//    onActiveFocusItemChanged: print(activeFocusItem)
+
     property string qtbug53394Title: project && project.loaded ? ((project.url.length > 0 ? project.url.toString() : "Untitled") + (project.unsavedChanges ? "*" : "")) : ""
 
     readonly property int controlSpacing: 10
@@ -219,6 +221,7 @@ ApplicationWindow {
 
     Platform.FileDialog {
         id: openProjectDialog
+        objectName: "openProjectDialog"
         nameFilters: projectType === Project.TilesetType ? tilesetFilters : imageFilters
         defaultSuffix: projectType === Project.TilesetType ? tilesetDefaultSuffix : imageDefaultSuffix
         onAccepted: loadProject(file)
@@ -226,6 +229,7 @@ ApplicationWindow {
 
     Platform.FileDialog {
         id: saveAsDialog
+        objectName: "saveAsDialog"
         fileMode: Platform.FileDialog.SaveFile
         nameFilters: openProjectDialog.nameFilters
         defaultSuffix: openProjectDialog.defaultSuffix

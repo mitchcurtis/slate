@@ -395,9 +395,9 @@ QColor ImageCanvas::mapBackgroundColour() const
     return mBackgroundColour;
 }
 
-bool ImageCanvas::areModalPopupsOpen() const
+bool ImageCanvas::arePopupsOpen() const
 {
-    return mModalPopupsOpen;
+    return mPopupsOpen;
 }
 
 bool ImageCanvas::isAltPressed() const
@@ -421,7 +421,11 @@ void ImageCanvas::connectSignals()
     connect(mProject, SIGNAL(projectClosed()), this, SLOT(reset()));
     connect(mProject, SIGNAL(sizeChanged()), this, SLOT(update()));
 
-    connect(window(), SIGNAL(activeFocusItemChanged()), this, SLOT(checkIfModalPopupsOpen()));
+    connect(window(), SIGNAL(activeFocusItemChanged()), this, SLOT(checkIfPopupsOpen()));
+    // More hacks. Doing this because activeFocusItemChanged() doesn't seem to get called
+    // when the last new project popup has finished its exit transition.
+    QQuickItem *overlay = window()->property("overlay").value<QQuickItem*>();
+    connect(overlay, SIGNAL(childrenChanged()), this, SLOT(checkIfPopupsOpen()));
 
     centrePanes();
 }
@@ -433,8 +437,11 @@ void ImageCanvas::disconnectSignals()
     mProject->disconnect(SIGNAL(projectClosed()), this, SLOT(reset()));
     mProject->disconnect(SIGNAL(sizeChanged()), this, SLOT(update()));
 
-    if (window())
-        window()->disconnect(SIGNAL(activeFocusItemChanged()), this, SLOT(checkIfModalPopupsOpen()));
+    if (window()) {
+        window()->disconnect(SIGNAL(activeFocusItemChanged()), this, SLOT(checkIfPopupsOpen()));
+        QQuickItem *overlay = window()->property("overlay").value<QQuickItem*>();
+        disconnect(overlay, SIGNAL(childrenChanged()), this, SLOT(checkIfPopupsOpen()));
+    }
 }
 
 void ImageCanvas::toolChange()
@@ -446,24 +453,25 @@ bool ImageCanvas::hasBlankCursor() const
     return mHasBlankCursor;
 }
 
-void ImageCanvas::checkIfModalPopupsOpen()
+// This is a hack and should be replaced with something proper.
+void ImageCanvas::checkIfPopupsOpen()
 {
     if (!window())
         return;
 
-    const bool wasOpen = mModalPopupsOpen;
+    const bool wasOpen = mPopupsOpen;
 
     QQuickItem *overlay = window()->property("overlay").value<QQuickItem*>();
     Q_ASSERT(overlay);
 
-    mModalPopupsOpen = false;
+    mPopupsOpen = false;
     foreach (QQuickItem *child, overlay->childItems()) {
         if (QString::fromLatin1(child->metaObject()->className()).contains("QQuickPopup")) {
-            mModalPopupsOpen = true;
+            mPopupsOpen = true;
         }
     }
 
-    if (mModalPopupsOpen != wasOpen) {
+    if (mPopupsOpen != wasOpen) {
         updateWindowCursorShape();
         emit modalPopupsOpenChanged();
     }

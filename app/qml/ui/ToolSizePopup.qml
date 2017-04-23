@@ -4,6 +4,7 @@ import QtQuick.Controls 2.0
 import App 1.0
 
 Popup {
+    objectName: "toolSizePopup"
     modal: true
     dim: false
     focus: true
