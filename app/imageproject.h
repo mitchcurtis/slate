@@ -37,7 +37,7 @@ public:
 
     Type type() const override;
     QSize size() const override;
-    void setSize(const QSize &size) override;
+    void setSize(const QSize &newSize) override;
     int widthInPixels() const override;
     int heightInPixels() const override;
 

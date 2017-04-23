@@ -6,7 +6,8 @@ import App 1.0
 
 RowLayout {
     property ImageCanvas canvas
-    property Project project
+    property ProjectManager projectManager
+    property Project project: projectManager.project
 
     ToolButton {
         id: fileToolButton
@@ -43,7 +44,7 @@ RowLayout {
                 text: qsTr("Save")
                 enabled: project ? project.canSave : false
                 hoverEnabled: true
-                onClicked: project.saveOrSaveAs()
+                onClicked: projectManager.saveOrSaveAs()
             }
 
             MenuItem {

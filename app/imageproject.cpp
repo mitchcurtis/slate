@@ -37,10 +37,13 @@ QSize ImageProject::size() const
     return !mImage.isNull() ? mImage.size() : QSize();
 }
 
-void ImageProject::setSize(const QSize &size)
+void ImageProject::setSize(const QSize &newSize)
 {
+    if (newSize == size())
+        return;
+
     beginMacro(QLatin1String("ChangeCanvasSize"));
-    addChange(new ChangeImageCanvasSizeCommand(this, mImage.size(), size));
+    addChange(new ChangeImageCanvasSizeCommand(this, mImage.size(), newSize));
     endMacro();
 }
 
@@ -120,4 +123,5 @@ void ImageProject::changeSize(const QSize &newSize)
     Q_ASSERT(newSize != size());
     Q_ASSERT(!mImage.isNull());
     mImage = mImage.copy(0, 0, newSize.width(), newSize.height());
+    emit sizeChanged();
 }

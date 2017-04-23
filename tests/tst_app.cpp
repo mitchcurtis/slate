@@ -795,9 +795,18 @@ void tst_App::undoTilesetCanvasSizeChange()
 
     const QVector<int> originalTiles = tilesetProject->tiles();
 
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
+
     changeCanvasSize(9, 9);
     QVERIFY(tilesetProject->tiles() != originalTiles);
     QCOMPARE(tilesetProject->tiles().size(), 9 * 9);
+
+    // Ensure that the canvas was repainted after the size change.
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QVERIFY(imageGrabber.takeImage() != preSizeChangeCanvasSnapshot);
 
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(tilesetProject->tiles(), originalTiles);
@@ -831,7 +840,16 @@ void tst_App::undoImageCanvasSizeChange()
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(imageProject->image()->pixelColor(cursorPos), imageCanvas->penForegroundColour());
 
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
+
     changeCanvasSize(200, 200);
+
+    // Ensure that the canvas was repainted after the size change.
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QVERIFY(imageGrabber.takeImage() != preSizeChangeCanvasSnapshot);
 
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(imageProject->image()->size(), QSize(256, 256));

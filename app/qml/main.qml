@@ -54,6 +54,7 @@ ApplicationWindow {
 
     readonly property int controlSpacing: 10
 
+    property alias projectManager: projectManager
     property Project project: projectManager.project
     property ImageCanvas canvas: canvasContainer.canvas
     property alias newProjectPopup: newProjectPopup
@@ -139,7 +140,7 @@ ApplicationWindow {
 
     Ui.Shortcuts {
         window: window
-        project: window.project
+        projectManager: window.projectManager
         canvas: window.canvas
     }
 
@@ -194,7 +195,7 @@ ApplicationWindow {
             Ui.MenuBar {
                 id: menuBar
                 spacing: controlSpacing
-                project: window.project
+                projectManager: window.projectManager
                 canvas: window.canvas
             }
 

@@ -4,7 +4,8 @@ import App 1.0
 
 Item {
     property var window
-    property Project project
+    property ProjectManager projectManager
+    property Project project: projectManager.project
     property ImageCanvas canvas
 
     readonly property bool modalPopupsOpen: canvas ? canvas.modalPopupsOpen : false
@@ -29,7 +30,7 @@ Item {
 
     Shortcut {
         sequence: settings.saveShortcut
-        onActivated: project.saveOrSaveAs()
+        onActivated: projectManager.saveOrSaveAs()
         enabled: !modalPopupsOpen && (project ? project.canSave : false)
     }
 

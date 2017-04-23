@@ -474,10 +474,13 @@ QSize TilesetProject::size() const
     return QSize(mTilesWide, mTilesHigh);
 }
 
-void TilesetProject::setSize(const QSize &size)
+void TilesetProject::setSize(const QSize &newSize)
 {
+    if (newSize == size())
+        return;
+
     beginMacro(QLatin1String("ChangeCanvasSize"));
-    addChange(new ChangeTileCanvasSizeCommand(this, QSize(mTilesWide, mTilesHigh), size));
+    addChange(new ChangeTileCanvasSizeCommand(this, QSize(mTilesWide, mTilesHigh), newSize));
     endMacro();
 }
 
