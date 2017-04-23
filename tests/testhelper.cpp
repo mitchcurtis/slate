@@ -21,9 +21,6 @@
 
 #include "projectmanager.h"
 
-const QString TestHelper::imageProjectType = QStringLiteral("image");
-const QString TestHelper::tilesetProjectType = QStringLiteral("tileset");
-
 TestHelper::TestHelper(int &argc, char **argv) :
     app(argc, argv, QStringLiteral("Tile Editor Test Suite")),
     window(qobject_cast<QQuickWindow*>(app.qmlEngine()->rootObjects().first())),
@@ -538,16 +535,16 @@ int TestHelper::digitAt(int number, int index)
 
 void TestHelper::addAllProjectTypes()
 {
-    QTest::addColumn<QString>("projectType");
+    QTest::addColumn<Project::Type>("projectType");
 
-    QTest::newRow(qPrintable(tilesetProjectType)) << tilesetProjectType;
-    QTest::newRow(qPrintable(imageProjectType)) << imageProjectType;
+    QTest::newRow("TilesetType") << Project::TilesetType;
+    QTest::newRow("ImageType") << Project::ImageType;
 }
 
-void TestHelper::createNewProject(const QString &projectType, const QVariantMap &args)
+void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &args)
 {
     const bool wasTilesetProject = tilesetProject;
-    const bool isTilesetProject = projectType == tilesetProjectType;
+    const bool isTilesetProject = projectType == Project::TilesetType;
 
     // tileset args
     const int tileWidth = isTilesetProject ? args.value("tileWidth", 25).toInt() : 0;
@@ -839,7 +836,7 @@ void TestHelper::createNewTilesetProject(int tileWidth, int tileHeight, int tile
     args.insert("tilesetTilesWide", tilesetTilesWide);
     args.insert("tilesetTilesHigh", tilesetTilesHigh);
     args.insert("transparentTilesetBackground", transparentTilesetBackground);
-    createNewProject(tilesetProjectType, args);
+    createNewProject(Project::TilesetType, args);
 }
 
 void TestHelper::createNewImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)
@@ -848,7 +845,7 @@ void TestHelper::createNewImageProject(int imageWidth, int imageHeight, bool tra
     args.insert("imageWidth", imageWidth);
     args.insert("imageHeight", imageHeight);
     args.insert("transparentImageBackground", transparentImageBackground);
-    createNewProject(imageProjectType, args);
+    createNewProject(Project::ImageType, args);
 }
 
 void TestHelper::setupTempTilesetProjectDir()

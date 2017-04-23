@@ -7,9 +7,8 @@ Item {
     id: canvasContainer
     objectName: "canvasContainer"
 
-    property string projectType
-    property var project
-    property var canvas: loader.item
+    property Project project
+    property ImageCanvas canvas: loader.item
     property var checkedToolButton
 
     FontMetrics {
@@ -19,14 +18,14 @@ Item {
     Loader {
         id: loader
         objectName: "canvasContainerLoader"
-        sourceComponent: projectType.length > 0 ? componentMap[projectType] : null
+        sourceComponent: project && project.typeString.length > 0 ? componentMap[project.typeString] : null
         focus: true
         anchors.fill: parent
     }
 
     property var componentMap: {
-        "image": imageCanvasComponent,
-        "tileset": tileCanvasComponent
+        "ImageType": imageCanvasComponent,
+        "TilesetType": tileCanvasComponent
     }
 
     CrosshairCursor {

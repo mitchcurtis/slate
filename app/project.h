@@ -35,6 +35,7 @@ class Project : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(Type type READ type CONSTANT)
+    Q_PROPERTY(QString typeString READ typeString CONSTANT)
     Q_PROPERTY(bool loaded READ hasLoaded NOTIFY loadedChanged)
     Q_PROPERTY(bool newProject READ isNewProject WRITE setNewProject NOTIFY newProjectChanged)
     Q_PROPERTY(bool unsavedChanges READ hasUnsavedChanges NOTIFY unsavedChangesChanged)
@@ -55,6 +56,7 @@ public:
     Project();
 
     virtual Type type() const;
+    QString typeString() const;
     bool hasLoaded() const;
     bool isNewProject() const;
     void setNewProject(bool newProject);

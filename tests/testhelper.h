@@ -112,7 +112,7 @@ protected:
     int digitAt(int number, int index);
 
     void addAllProjectTypes();
-    void createNewProject(const QString &projectType, const QVariantMap &args = QVariantMap());
+    void createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
     void createNewTilesetProject(int tileWidth = 25, int tileHeight = 25,
         int tilesetTilesWide = -1, int tilesetTilesHigh = -1, bool transparentTilesetBackground = false);
     void createNewImageProject(int imageWidth = 256, int imageHeight = 256,
@@ -133,8 +133,6 @@ protected:
     Application app;
     QQuickWindow *window;
     QQuickItem *overlay;
-    static const QString imageProjectType;
-    static const QString tilesetProjectType;
     QPointer<ProjectManager> projectManager;
     QPointer<Project> project;
     QPointer<ImageProject> imageProject;

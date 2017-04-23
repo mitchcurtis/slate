@@ -52,26 +52,6 @@ void Settings::setLastProjectUrl(const QUrl &url)
     emit lastProjectUrlChanged();
 }
 
-QString Settings::lastProjectType() const
-{
-    return contains("lastProjectType") ? value("lastProjectType").toString() : QString();
-}
-
-void Settings::setLastProjectType(const QString &type)
-{
-    QVariant existingValue = value("lastProjectType");
-    QString existingType;
-    if (contains("lastProjectType")) {
-        existingType = existingValue.toString();
-    }
-
-    if (type == existingType)
-        return;
-
-    setValue("lastProjectType", type);
-    emit lastProjectTypeChanged();
-}
-
 bool Settings::loadLastOnStartup() const
 {
     return contains("loadLastOnStartup") ? value("loadLastOnStartup").toBool() : defaultLoadLastOnStartup();

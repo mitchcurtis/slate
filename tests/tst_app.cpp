@@ -122,12 +122,12 @@ void tst_App::openClose_data()
 
 void tst_App::openClose()
 {
-    QFETCH(QString, projectType);
+    QFETCH(Project::Type, projectType);
 
     // Create a new, valid project.
     createNewProject(projectType);
 
-    if (projectType == tilesetProjectType) {
+    if (projectType == Project::TilesetType) {
         // Test an invalid tileset URL.
         QTest::ignoreMessage(QtWarningMsg, "QFSFileEngine::open: No file name specified");
         project->load(QUrl("doesnotexist"));

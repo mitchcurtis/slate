@@ -50,11 +50,6 @@ Project *ProjectManager::temporaryProject() const
     return mTemporaryProject.data();
 }
 
-QString ProjectManager::type() const
-{
-    return mType;
-}
-
 Settings *ProjectManager::applicationSettings() const
 {
     return mSettings;
@@ -73,7 +68,7 @@ void ProjectManager::setApplicationSettings(Settings *settings)
 // while it tries to create/load a new project, so that if
 // Project::createNew()/load() fails, the current project
 // is not affected.
-void ProjectManager::beginCreation(const QString &type)
+void ProjectManager::beginCreation(Project::Type projectType)
 {
     if (mTemporaryProject) {
         qWarning() << "Already creating new project";
@@ -82,15 +77,13 @@ void ProjectManager::beginCreation(const QString &type)
 
     mProjectCreationFailed = false;
 
-    if (type == QStringLiteral("image")) {
+    if (projectType == Project::ImageType) {
         mTemporaryProject.reset(new ImageProject);
     } else {
         mTemporaryProject.reset(new TilesetProject);
     }
 
-    qCDebug(lcProjectManager) << "beginning creation of" << type << "project (" << mTemporaryProject.data() << ")";
-
-    mTemporaryProjectType = type;
+    qCDebug(lcProjectManager) << "beginning creation of" << mTemporaryProject->typeString() << "project (" << mTemporaryProject.data() << ")";
 
     connect(mTemporaryProject.data(), &Project::errorOccurred, this, &ProjectManager::creationFailed);
 
@@ -135,11 +128,6 @@ bool ProjectManager::completeCreation()
         // be alive until the end of this block.
         qCDebug(lcProjectManager) << "nullified ProjectManager::project; about to emit projectChanged()";
         emit projectChanged();
-
-        // We must also emit typedChanged, as that's what e.g.
-        // CanvasContainer's sourceComponent binding relies on.
-        mType = QString();
-        emit typeChanged();
     }
 
     Q_ASSERT(!mProject);
@@ -158,28 +146,23 @@ bool ProjectManager::completeCreation()
         connect(mProject.data(), &Project::urlChanged, this, &ProjectManager::projectUrlChanged);
     }
 
-    qCDebug(lcProjectManager) << "creation of" << mTemporaryProjectType << "project succeeded; about to emit projectChanged()";
+    qCDebug(lcProjectManager) << "creation of" << mProject->typeString() << "project succeeded; about to emit projectChanged()";
 
     emit projectChanged();
 
-    qCDebug(lcProjectManager) << "emitted projectChanged(); about to emit typeChanged()";
-
-    mType = mTemporaryProjectType;
-    mTemporaryProjectType = QString();
-    emit typeChanged();
+    qCDebug(lcProjectManager) << "emitted projectChanged()";
 
     return true;
 }
 
 void ProjectManager::creationFailed(const QString &errorMessage)
 {
-    qCDebug(lcProjectManager) << "creation of" << mTemporaryProjectType << "project failed;" << errorMessage;
+    qCDebug(lcProjectManager) << "creation of" << mTemporaryProject->typeString() << "project failed;" << errorMessage;
 
     disconnect(mProject.data(), &Project::urlChanged, this, &ProjectManager::projectUrlChanged);
 
     mProjectCreationFailed = true;
     mTemporaryProject.reset();
-    mTemporaryProjectType = QString();
     emit temporaryProjectChanged();
 }
 
@@ -187,6 +170,5 @@ void ProjectManager::projectUrlChanged()
 {
     if (mProject->hasLoaded()) {
         mSettings->setLastProjectUrl(mProject->url());
-        mSettings->setLastProjectType(mType);
     }
 }

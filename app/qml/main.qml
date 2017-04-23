@@ -71,9 +71,9 @@ ApplicationWindow {
         contentItem.objectName = "applicationWindowContentItem";
 
         if (settings.loadLastOnStartup && settings.lastProjectUrl.toString().length > 0) {
-            project.load(settings.lastProjectUrl);
+            loadProject(settings.lastProjectUrl)
         } else {
-            createNewProject("image")
+            createNewProject(Project.ImageType)
         }
 
         window.title = Qt.binding(function(){ return qtbug53394Title });
@@ -152,7 +152,6 @@ ApplicationWindow {
             focus: true
 
             project: projectManager.project
-            projectType: projectManager.type
             checkedToolButton: iconToolBar.toolButtonGroup.checkedButton
 
             Layout.preferredWidth: window.width / 3
@@ -218,7 +217,7 @@ ApplicationWindow {
         id: openProjectDialog
         nameFilters: ["JSON files (*.json)"]
         defaultSuffix: "json"
-        onAccepted: project.load(file)
+        onAccepted: loadProject(file)
     }
 
     Platform.FileDialog {
@@ -265,38 +264,37 @@ ApplicationWindow {
         projectManager.completeCreation();
     }
 
+    function loadProject(url) {
+        var type = url.toString().endsWith(".json") ? Project.TilesetType : Project.ImageType;
+
+        projectManager.beginCreation(type);
+        projectManager.load(url);
+        projectManager.completeCreation();
+    }
+
     Ui.NewTilesetProjectPopup {
         id: newTilesetProjectPopup
         x: parent.width / 2 - width / 2
         y: parent.height / 2 - height / 2
-        onVisibleChanged: canvas.focus = true
+        onVisibleChanged: if (window.canvas) window.canvas.focus = true
 
-        onAccepted: createNewProject("tileset")
+        onAccepted: createNewProject(Project.TilesetType)
     }
 
     Ui.NewImageProjectPopup {
         id: newImageProjectPopup
         x: parent.width / 2 - width / 2
         y: parent.height / 2 - height / 2
-        onVisibleChanged: window.canvas.focus = true
+        onVisibleChanged: if (window.canvas) window.canvas.focus = true
 
-        onAccepted: createNewProject("image")
-    }
-
-    Ui.RecentProjectsPopup {
-        id: recentProjectsPopup
-        x: parent.width / 2 - width / 2
-        y: parent.height / 2 - height / 2
-        onVisibleChanged: canvas.focus = true
-
-        onAccepted: project.load(fileName)
+        onAccepted: createNewProject(Project.ImageType)
     }
 
     Ui.OptionsDialog {
         id: optionsDialog
         x: parent.width / 2 - width / 2
         y: parent.height / 2 - implicitHeight / 2
-        onVisibleChanged: canvas.focus = true
+        onVisibleChanged: if (window.canvas) window.canvas.focus = true
     }
 
     Dialog {

@@ -23,14 +23,14 @@
 #include <QObject>
 #include <QScopedPointer>
 
-class Project;
+#include "project.h"
+
 class Settings;
 
 class ProjectManager : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(Project *project READ project NOTIFY projectChanged)
-    Q_PROPERTY(QString type READ type NOTIFY typeChanged)
 
     Q_PROPERTY(Project *temporaryProject READ temporaryProject NOTIFY temporaryProjectChanged)
 
@@ -45,17 +45,14 @@ public:
 
     Project *temporaryProject() const;
 
-    QString type() const;
-
     Settings *applicationSettings() const;
     void setApplicationSettings(Settings *applicationSettings);
 
-    Q_INVOKABLE void beginCreation(const QString &type);
+    Q_INVOKABLE void beginCreation(Project::Type projectType);
     Q_INVOKABLE bool completeCreation();
 
 signals:
     void projectChanged();
-    void typeChanged();
     void temporaryProjectChanged();
     void applicationSettingsChanged();
 
@@ -67,10 +64,8 @@ private:
     Q_DISABLE_COPY(ProjectManager)
 
     QScopedPointer<Project> mProject;
-    QString mType;
 
     QScopedPointer<Project> mTemporaryProject;
-    QString mTemporaryProjectType;
     bool mProjectCreationFailed;
 
     Settings *mSettings;

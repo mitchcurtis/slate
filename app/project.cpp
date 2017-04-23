@@ -22,6 +22,7 @@
 #include <QDateTime>
 #include <QImage>
 #include <QLoggingCategory>
+#include <QMetaEnum>
 
 Q_LOGGING_CATEGORY(lcProject, "app.project")
 Q_LOGGING_CATEGORY(lcProjectLifecycle, "app.project.lifecycle")
@@ -38,6 +39,12 @@ Project::Project() :
 Project::Type Project::type() const
 {
     return UnknownType;
+}
+
+QString Project::typeString() const
+{
+    QMetaEnum metaEnum = QMetaEnum::fromType<Project::Type>();
+    return metaEnum.valueToKey(type());
 }
 
 QUrl Project::url() const
