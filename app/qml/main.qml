@@ -53,7 +53,9 @@ ApplicationWindow {
 
 //    onActiveFocusItemChanged: print(activeFocusItem)
 
-    property string qtbug53394Title: project && project.loaded ? ((project.url.length > 0 ? project.url.toString() : "Untitled") + (project.unsavedChanges ? "*" : "")) : ""
+    property string qtbug53394Title: project && project.loaded
+        ? ((project.url.toString().length > 0 ? project.displayUrl : "Untitled") + (project.unsavedChanges ? "*" : ""))
+        : ""
 
     readonly property int controlSpacing: 10
 

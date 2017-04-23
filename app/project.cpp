@@ -73,6 +73,11 @@ void Project::setUrl(const QUrl &url)
     emit urlChanged();
 }
 
+QString Project::displayUrl() const
+{
+    return mUrl.toDisplayString(QUrl::PreferLocalFile);
+}
+
 bool Project::hasLoaded() const
 {
     return mFromNew || mUrl.isValid();
