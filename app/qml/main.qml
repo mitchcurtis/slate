@@ -214,7 +214,7 @@ ApplicationWindow {
         }
     }
 
-    readonly property var imageFilters: ["Image files (*.png,*.bmp,)"]
+    readonly property var imageFilters: ["PNG files (*.png)", "BMP files (*.bmp)"]
     readonly property string imageDefaultSuffix: "png"
     readonly property var tilesetFilters: ["JSON files (*.json)"]
     readonly property string tilesetDefaultSuffix: "json"

@@ -75,6 +75,11 @@ ImageCanvas::ImageCanvas() :
     connect(&mSecondPane, SIGNAL(zoomLevelChanged()), this, SLOT(update()));
     connect(&mSplitter, SIGNAL(positionChanged()), this, SLOT(onSplitterPositionChanged()));
 
+    mCheckerPixmap = QPixmap(":/images/checker.png");
+    if (mCheckerPixmap.isNull()) {
+        qWarning() << "Failed to load checker pixmap";
+    }
+
     qCDebug(lcCanvasLifecycle) << "constructing" << this;
 }
 
@@ -527,6 +532,8 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     const int zoomedCanvasWidth = qMin(zoomedCanvasSize.width(), paneWidth);
     const int zoomedCanvasHeight = qMin(zoomedCanvasSize.height(), qFloor(height()));
     painter->fillRect(0, 0, zoomedCanvasWidth, zoomedCanvasHeight, mapBackgroundColour());
+
+    painter->drawTiledPixmap(0, 0, zoomedCanvasWidth, zoomedCanvasHeight, mCheckerPixmap);
 
     const QImage image = *mImageProject->image();
     painter->drawImage(QRectF(QPointF(0, 0), pane.zoomedSize(image.size())), image, QRectF(0, 0, image.width(), image.height()));

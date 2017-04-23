@@ -105,7 +105,7 @@ GridLayout {
 
     Image {
         id: opacityLabel
-        source: "qrc:/icons/opacity.png"
+        source: "qrc:/images/opacity.png"
 
         Layout.alignment: Qt.AlignHCenter
 

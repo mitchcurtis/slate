@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QLoggingCategory>
+#include <QPixmap>
 #include <QQuickPaintedItem>
 #include <QStack>
 #include <QWheelEvent>
@@ -242,6 +243,7 @@ protected:
     bool mGridVisible;
     QColor mGridColour;
     QColor mSplitColour;
+    QPixmap mCheckerPixmap;
 
     bool mSplitScreen;
     Splitter mSplitter;
