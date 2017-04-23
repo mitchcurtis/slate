@@ -6,6 +6,7 @@ Item {
     property var window
     property ProjectManager projectManager
     property Project project: projectManager.project
+    property int projectType: project ? project.type : 0
     property ImageCanvas canvas
 
     readonly property bool modalPopupsOpen: canvas ? canvas.modalPopupsOpen : false
@@ -79,6 +80,7 @@ Item {
 
     Shortcut {
         sequence: settings.toolModeShortcut
+        enabled: projectType === Project.TilesetType
         onActivated: canvas.mode = (canvas.mode === TileCanvas.TileMode ? TileCanvas.PixelMode : TileCanvas.TileMode)
     }
 
@@ -94,21 +96,25 @@ Item {
 
     Shortcut {
         sequence: settings.swatchLeftShortcut
+        enabled: projectType === Project.TilesetType
         onActivated: canvas.swatchLeft()
     }
 
     Shortcut {
         sequence: settings.swatchRightShortcut
+        enabled: projectType === Project.TilesetType
         onActivated: canvas.swatchRight()
     }
 
     Shortcut {
         sequence: settings.swatchUpShortcut
+        enabled: projectType === Project.TilesetType
         onActivated: canvas.swatchUp()
     }
 
     Shortcut {
         sequence: settings.swatchDownShortcut
+        enabled: projectType === Project.TilesetType
         onActivated: canvas.swatchDown()
     }
 }

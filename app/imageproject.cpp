@@ -88,6 +88,24 @@ void ImageProject::createNew(int imageWidth, int imageHeight, bool transparentBa
     qCDebug(lcProject) << "finished creating new project";
 }
 
+void ImageProject::load(const QUrl &url)
+{
+    qCDebug(lcProject) << "loading project:" << url;
+
+    mUsingTempImage = false;
+
+    mImage = QImage(url.toLocalFile());
+    if (mImage.isNull()) {
+        error(QString::fromLatin1("Failed to open project's image at %1").arg(url.toLocalFile()));
+        return;
+    }
+
+    setUrl(url);
+    emit projectLoaded();
+
+    qCDebug(lcProject) << "loaded project";
+}
+
 void ImageProject::close()
 {
     qCDebug(lcProject) << "closing project...";
@@ -101,6 +119,45 @@ void ImageProject::close()
     emit projectClosed();
 
     qCDebug(lcProject) << "... closed project";
+}
+
+void ImageProject::saveAs(const QUrl &url)
+{
+    if (!hasLoaded())
+        return;
+
+    if (url.isEmpty())
+        return;
+
+    const QString filePath = url.toLocalFile();
+    const QFileInfo projectSaveFileInfo(filePath);
+    if (mTempDir.isValid()) {
+        if (projectSaveFileInfo.dir().path() == mTempDir.path()) {
+            error(QLatin1String("Cannot save project in internal temporary directory"));
+            return;
+        }
+    }
+
+    if (mImage.isNull()) {
+        error(QString::fromLatin1("Failed to save project: image is null"));
+        return;
+    }
+
+    if (!mImage.save(filePath)) {
+        error(QString::fromLatin1("Failed to save project's image to %1").arg(filePath));
+        return;
+    }
+
+    mUsingTempImage = false;
+
+    if (mFromNew) {
+        // The project was successfully saved, so it can now save
+        // to the same URL by default from now on.
+        setNewProject(false);
+    }
+    setUrl(url);
+    mUndoStack.setClean();
+    mHadUnsavedChangesBeforeMacroBegan = false;
 }
 
 QImage *ImageProject::image()

@@ -43,7 +43,10 @@ public:
 
 public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
+
+    void load(const QUrl &url) override;
     void close();
+    void saveAs(const QUrl &url) override;
 
 private:
     friend class ChangeImageCanvasSizeCommand;

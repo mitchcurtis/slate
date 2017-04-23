@@ -30,6 +30,7 @@ import "ui" as Ui
 
 /*
     TODO:
+    - add tests for image save/load/etc.
     - fix disappearing hue slider indicator
     - native menubars?
     - fix performance when drawing pixels
@@ -56,6 +57,7 @@ ApplicationWindow {
 
     property alias projectManager: projectManager
     property Project project: projectManager.project
+    property int projectType: project ? project.type : 0
     property ImageCanvas canvas: canvasContainer.canvas
     property alias newProjectPopup: newProjectPopup
     property alias openProjectDialog: openProjectDialog
@@ -168,7 +170,7 @@ ApplicationWindow {
 
             SimpleLoader {
                 objectName: "tilesetSwatchLoader"
-                active: window.project && window.project.type === Project.TilesetType && window.canvas
+                active: window.projectType === Project.TilesetType && window.canvas
                 sourceComponent: Ui.TilesetSwatch {
                     id: tilesetSwatch
                     objectName: "tilesetSwatch"
@@ -210,18 +212,23 @@ ApplicationWindow {
         }
     }
 
+    readonly property var imageFilters: ["Image files (*.png,*.bmp,)"]
+    readonly property string imageDefaultSuffix: "png"
+    readonly property var tilesetFilters: ["JSON files (*.json)"]
+    readonly property string tilesetDefaultSuffix: "json"
+
     Platform.FileDialog {
         id: openProjectDialog
-        nameFilters: ["JSON files (*.json)"]
-        defaultSuffix: "json"
+        nameFilters: projectType === Project.TilesetType ? tilesetFilters : imageFilters
+        defaultSuffix: projectType === Project.TilesetType ? tilesetDefaultSuffix : imageDefaultSuffix
         onAccepted: loadProject(file)
     }
 
     Platform.FileDialog {
         id: saveAsDialog
         fileMode: Platform.FileDialog.SaveFile
-        nameFilters: ["JSON files (*.json)"]
-        defaultSuffix: "json"
+        nameFilters: openProjectDialog.nameFilters
+        defaultSuffix: openProjectDialog.defaultSuffix
         onAccepted: project.saveAs(file)
     }
 
@@ -265,7 +272,7 @@ ApplicationWindow {
         var type = url.toString().endsWith(".json") ? Project.TilesetType : Project.ImageType;
 
         projectManager.beginCreation(type);
-        projectManager.load(url);
+        projectManager.temporaryProject.load(url);
         projectManager.completeCreation();
     }
 
