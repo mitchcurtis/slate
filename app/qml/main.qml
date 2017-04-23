@@ -166,12 +166,8 @@ ApplicationWindow {
             }
 
             SimpleLoader {
-                // TODO: this loader receives the typeChanged signal before CanvasContainer
-                // has had a chance to load the new canvas, so there's an error on
-                // "tileCanvas: window.canvas". Find a better way of ensuring this
-                // loader is only active when a TileCanvas is loaded.
                 objectName: "tilesetSwatchLoader"
-                active: projectManager.type === "tileset" && window.canvas && window.canvas.hasOwnProperty("penTile")
+                active: window.project && window.project.type === Project.TilesetType && window.canvas
                 sourceComponent: Ui.TilesetSwatch {
                     id: tilesetSwatch
                     objectName: "tilesetSwatch"
@@ -251,7 +247,7 @@ ApplicationWindow {
     function createNewProject(type) {
         projectManager.beginCreation(type);
 
-        if (type === "tileset") {
+        if (type === Project.TilesetType) {
             var p = newTilesetProjectPopup;
             projectManager.temporaryProject.createNew(p.tilesetPath, p.tileWidth, p.tileHeight,
                 p.tilesetTilesWide, p.tilesetTilesHigh, p.canvasTilesWide, p.canvasTilesHigh,

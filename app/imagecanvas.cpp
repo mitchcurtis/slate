@@ -433,7 +433,8 @@ void ImageCanvas::disconnectSignals()
     mProject->disconnect(SIGNAL(projectClosed()), this, SLOT(reset()));
     mProject->disconnect(SIGNAL(sizeChanged()), this, SLOT(update()));
 
-    window()->disconnect(SIGNAL(activeFocusItemChanged()), this, SLOT(checkIfModalPopupsOpen()));
+    if (window())
+        window()->disconnect(SIGNAL(activeFocusItemChanged()), this, SLOT(checkIfModalPopupsOpen()));
 }
 
 void ImageCanvas::toolChange()
