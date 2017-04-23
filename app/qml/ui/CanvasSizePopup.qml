@@ -43,6 +43,7 @@ Popup {
                 objectName: "changeCanvasWidthSpinBox"
                 from: 1
                 to: 1000
+                editable: true
                 stepSize: 1
 
                 ToolTip.text: project ? project.type === Project.TilesetType ? tilesetText : imageText : ""
@@ -59,6 +60,7 @@ Popup {
                 objectName: "changeCanvasHeightSpinBox"
                 from: 1
                 to: 1000
+                editable: true
                 stepSize: 1
 
                 ToolTip.text: project ? project.type === Project.TilesetType ? tilesetText : imageText : ""
