@@ -8,6 +8,7 @@ import App 1.0
 Dialog {
     id: popup
     modal: true
+    closePolicy: Popup.CloseOnEscape
     focus: true
     padding: 20
     bottomPadding: 0
