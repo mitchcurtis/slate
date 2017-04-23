@@ -326,10 +326,10 @@ bool ImageCanvas::isWithinImage(const QPoint &scenePos) const
             && scenePos.y() >= 0 && scenePos.y() < mImageProject->image()->height();
 }
 
-QPoint ImageCanvas::clampToImageBounds(const QPoint &scenePos) const
+QPoint ImageCanvas::clampToImageBounds(const QPoint &scenePos, bool inclusive) const
 {
-    return QPoint(qBound(0, scenePos.x(), mImageProject->image()->width() - 1),
-                  qBound(0, scenePos.y(), mImageProject->image()->height() - 1));
+    return QPoint(qBound(0, scenePos.x(), mImageProject->image()->width() - (inclusive ? 0 : 1)),
+                  qBound(0, scenePos.y(), mImageProject->image()->height() - (inclusive ? 0 : 1)));
 }
 
 bool ImageCanvas::containsMouse() const
@@ -616,8 +616,8 @@ ImageCanvas::PixelCandidateData ImageCanvas::penEraserPixelCandidates(Tool tool)
     QPoint bottomRight(qRound(mCursorSceneFX + mToolSize / 2.0), qRound(mCursorSceneFY + mToolSize / 2.0));
     bottomRight = clampToImageBounds(bottomRight);
     QPoint scenePos(topLeft);
-    for (; scenePos.y() <= bottomRight.y(); ++scenePos.ry()) {
-        for (scenePos.rx() = topLeft.x(); scenePos.x() <= bottomRight.x(); ++scenePos.rx()) {
+    for (; scenePos.y() < bottomRight.y(); ++scenePos.ry()) {
+        for (scenePos.rx() = topLeft.x(); scenePos.x() < bottomRight.x(); ++scenePos.rx()) {
             const QColor previousColour = mImageProject->image()->pixelColor(scenePos);
             // Don't do anything if the colours are the same; this prevents issues
             // with undos not undoing everything across tiles.

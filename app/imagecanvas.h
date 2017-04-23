@@ -205,7 +205,7 @@ protected:
     void restoreToolBeforeAltPressed();
     void setCursorPixelColour(const QColor &cursorPixelColour);
     bool isWithinImage(const QPoint &scenePos) const;
-    QPoint clampToImageBounds(const QPoint &scenePos) const;
+    QPoint clampToImageBounds(const QPoint &scenePos, bool inclusive = true) const;
 
     void setCurrentPane(CanvasPane *pane);
     CanvasPane *hoveredPane(const QPoint &pos);
