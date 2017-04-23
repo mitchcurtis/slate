@@ -68,7 +68,7 @@ SOURCES += \
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \
-    $$PWD/icons/icons.qrc \
+    $$PWD/images/images.qrc \
     $$PWD/qml/qml.qrc
 
 # Allow tests to use the default style.
