@@ -239,6 +239,8 @@ void TestHelper::changeCanvasSize(int width, int height)
     // TODO: use actual input events...
     QQuickItem *widthSpinBox = canvasSizePopup->findChild<QQuickItem*>("changeCanvasWidthSpinBox");
     QVERIFY(widthSpinBox);
+    // We want it to be easy to change the values with the keyboard..
+    QVERIFY(widthSpinBox->hasActiveFocus());
     const int originalWidthSpinBoxValue = widthSpinBox->property("value").toInt();
     QVERIFY(widthSpinBox->setProperty("value", originalWidthSpinBoxValue + 1));
     QCOMPARE(widthSpinBox->property("value").toInt(), originalWidthSpinBoxValue + 1);
