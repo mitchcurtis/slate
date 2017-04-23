@@ -35,6 +35,7 @@ public:
     QImage *image();
     const QImage *image() const;
 
+    Type type() const override;
     QSize size() const override;
     void setSize(const QSize &size) override;
     int widthInPixels() const override;

@@ -52,7 +52,8 @@ private Q_SLOTS:
     void undoLargePixelPen();
     void undoTiles();
     void undoWithDuplicates();
-    void undoCanvasSizeChange();
+    void undoTilesetCanvasSizeChange();
+    void undoImageCanvasSizeChange();
     void undoPixelFill();
     void undoTileFill();
     void colours();
@@ -776,7 +777,7 @@ void tst_App::undoWithDuplicates()
     QVERIFY(window->title().contains("*"));
 }
 
-void tst_App::undoCanvasSizeChange()
+void tst_App::undoTilesetCanvasSizeChange()
 {
     createNewTilesetProject();
 
@@ -794,7 +795,7 @@ void tst_App::undoCanvasSizeChange()
 
     const QVector<int> originalTiles = tilesetProject->tiles();
 
-    changeTilesetCanvasSize(9, 9);
+    changeCanvasSize(9, 9);
     QVERIFY(tilesetProject->tiles() != originalTiles);
     QCOMPARE(tilesetProject->tiles().size(), 9 * 9);
 
@@ -803,19 +804,37 @@ void tst_App::undoCanvasSizeChange()
     QCOMPARE(tilesetProject->tiles().size(), 10 * 10);
 
     // Check that neither of the following assert.
-    changeTilesetCanvasSize(10, 9);
+    changeCanvasSize(10, 9);
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(tilesetProject->tiles(), originalTiles);
     QCOMPARE(tilesetProject->tiles().size(), 10 * 10);
 
-    changeTilesetCanvasSize(9, 10);
+    changeCanvasSize(9, 10);
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(tilesetProject->tiles(), originalTiles);
     QCOMPARE(tilesetProject->tiles().size(), 10 * 10);
 
-    changeTilesetCanvasSize(12, 12);
+    changeCanvasSize(12, 12);
     QCOMPARE(tilesetProject->tiles().size(), 12 * 12);
     QCOMPARE(tilesetProject->tiles().last(), -1);
+}
+
+void tst_App::undoImageCanvasSizeChange()
+{
+    createNewImageProject();
+
+    QCOMPARE(imageProject->widthInPixels(), 256);
+    QCOMPARE(imageProject->heightInPixels(), 256);
+
+    setCursorPosInPixels(250, 250);
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(imageProject->image()->pixelColor(cursorPos), imageCanvas->penForegroundColour());
+
+    changeCanvasSize(200, 200);
+
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(imageProject->image()->size(), QSize(256, 256));
 }
 
 void tst_App::undoPixelFill()

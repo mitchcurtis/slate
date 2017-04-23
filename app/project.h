@@ -34,6 +34,7 @@ Q_DECLARE_LOGGING_CATEGORY(lcProjectLifecycle)
 class Project : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(Type type READ type CONSTANT)
     Q_PROPERTY(bool loaded READ hasLoaded NOTIFY loadedChanged)
     Q_PROPERTY(bool newProject READ isNewProject WRITE setNewProject NOTIFY newProjectChanged)
     Q_PROPERTY(bool unsavedChanges READ hasUnsavedChanges NOTIFY unsavedChangesChanged)
@@ -43,8 +44,17 @@ class Project : public QObject
     Q_PROPERTY(UndoStack *undoStack READ undoStack CONSTANT)
 
 public:
+    enum Type {
+        UnknownType,
+        TilesetType,
+        ImageType
+    };
+
+    Q_ENUM(Type)
+
     Project();
 
+    virtual Type type() const;
     bool hasLoaded() const;
     bool isNewProject() const;
     void setNewProject(bool newProject);

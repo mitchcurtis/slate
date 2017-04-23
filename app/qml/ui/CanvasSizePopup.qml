@@ -15,9 +15,9 @@ Popup {
     property Project project
 
     onVisibleChanged: {
-        if (visible) {
-            widthSpinBox.value = project.tilesWide;
-            heightSpinBox.value = project.tilesHigh;
+        if (visible && project) {
+            widthSpinBox.value = project.size.width;
+            heightSpinBox.value = project.size.height;
         }
     }
 
@@ -45,7 +45,10 @@ Popup {
                 to: 1000
                 stepSize: 1
 
-                ToolTip.text: qsTr("Number of horizontal tiles")
+                ToolTip.text: project ? project.type === Project.TilesetType ? tilesetText : imageText : ""
+
+                readonly property string tilesetText: qsTr("Number of horizontal tiles")
+                readonly property string imageText: qsTr("Canvas width in pixels")
             }
             Label {
                 text: qsTr("Canvas height")
@@ -58,7 +61,10 @@ Popup {
                 to: 1000
                 stepSize: 1
 
-                ToolTip.text: qsTr("Number of vertical tiles")
+                ToolTip.text: project ? project.type === Project.TilesetType ? tilesetText : imageText : ""
+
+                readonly property string tilesetText: qsTr("Number of vertical tiles")
+                readonly property string imageText: qsTr("Canvas height in pixels")
             }
 
             Item {

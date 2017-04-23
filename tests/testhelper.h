@@ -122,7 +122,7 @@ protected:
     void switchTool(ImageCanvas::Tool tool);
     void panTopLeftTo(int x, int y);
     void panBy(int xDistance, int yDistance);
-    void changeTilesetCanvasSize(int width, int height);
+    void changeCanvasSize(int width, int height);
     void changeToolSize(int size);
     int sliderValue(QQuickItem *slider) const;
     void drawPixelAtCursorPos();

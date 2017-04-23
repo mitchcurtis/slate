@@ -47,6 +47,11 @@ TilesetProject::~TilesetProject()
     qCDebug(lcProjectLifecycle) << "destructing" << this;
 }
 
+Project::Type TilesetProject::type() const
+{
+    return TilesetType;
+}
+
 void TilesetProject::createTilesetTiles(int tilesetTilesWide, int tilesetTilesHigh)
 {
     Q_ASSERT(mTileDatabase.isEmpty());

@@ -54,8 +54,8 @@ ApplicationWindow {
 
     readonly property int controlSpacing: 10
 
-    property var project: projectManager.project
-    property var canvas: canvasContainer.canvas
+    property Project project: projectManager.project
+    property ImageCanvas canvas: canvasContainer.canvas
     property alias newProjectPopup: newProjectPopup
     property alias openProjectDialog: openProjectDialog
     property alias saveChangesDialog: discardChangesDialog

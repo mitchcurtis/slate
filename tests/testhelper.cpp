@@ -230,11 +230,8 @@ void TestHelper::wheelEvent(QQuickItem *item, const QPoint &localPos, const int 
         QTest::qWarn("Wheel event not accepted by receiving window");
 }
 
-void TestHelper::changeTilesetCanvasSize(int width, int height)
+void TestHelper::changeCanvasSize(int width, int height)
 {
-    QCOMPARE(tilesetProject->tilesWide(), 10);
-    QCOMPARE(tilesetProject->tilesHigh(), 10);
-
     // Open the canvas size popup.
     mouseEventOnCentre(canvasSizeButton, MouseClick);
     const QObject *canvasSizePopup = findPopupFromTypeName("CanvasSizePopup");
@@ -245,26 +242,30 @@ void TestHelper::changeTilesetCanvasSize(int width, int height)
     // TODO: use actual input events...
     QQuickItem *widthSpinBox = canvasSizePopup->findChild<QQuickItem*>("changeCanvasWidthSpinBox");
     QVERIFY(widthSpinBox);
-    widthSpinBox->setProperty("value", 11);
+    const int originalWidthSpinBoxValue = widthSpinBox->property("value").toInt();
+    QVERIFY(widthSpinBox->setProperty("value", originalWidthSpinBoxValue + 1));
+    QCOMPARE(widthSpinBox->property("value").toInt(), originalWidthSpinBoxValue + 1);
 
     QQuickItem *heightSpinBox = canvasSizePopup->findChild<QQuickItem*>("changeCanvasHeightSpinBox");
+    const int originalHeightSpinBoxValue = heightSpinBox->property("value").toInt();
     QVERIFY(heightSpinBox);
-    heightSpinBox->setProperty("value", 9);
+    QVERIFY(heightSpinBox->setProperty("value", originalHeightSpinBoxValue - 1));
+    QCOMPARE(heightSpinBox->property("value").toInt(), originalHeightSpinBoxValue - 1);
 
     QQuickItem *cancelButton = canvasSizePopup->findChild<QQuickItem*>("canvasSizePopupCancelButton");
     QVERIFY(cancelButton);
     mouseEventOnCentre(cancelButton, MouseClick);
     QVERIFY(!canvasSizePopup->property("visible").toBool());
-    QCOMPARE(tilesetProject->tilesWide(), 10);
-    QCOMPARE(tilesetProject->tilesHigh(), 10);
+    QCOMPARE(project->size().width(), originalWidthSpinBoxValue);
+    QCOMPARE(project->size().height(), originalHeightSpinBoxValue);
 
     // Open the popup again.
     mouseEventOnCentre(canvasSizeButton, MouseClick);
     QVERIFY(canvasSizePopup);
     QVERIFY(canvasSizePopup->property("visible").toBool());
     // The old values should be restored.
-    QCOMPARE(widthSpinBox->property("value").toInt(), 10);
-    QCOMPARE(heightSpinBox->property("value").toInt(), 10);
+    QCOMPARE(widthSpinBox->property("value").toInt(), originalWidthSpinBoxValue);
+    QCOMPARE(heightSpinBox->property("value").toInt(), originalHeightSpinBoxValue);
 
     // Change the values and then press OK.
     QVERIFY(widthSpinBox->setProperty("value", width));
@@ -276,8 +277,8 @@ void TestHelper::changeTilesetCanvasSize(int width, int height)
     QVERIFY(okButton);
     mouseEventOnCentre(okButton, MouseClick);
     QVERIFY(!canvasSizePopup->property("visible").toBool());
-    QCOMPARE(tilesetProject->tilesWide(), width);
-    QCOMPARE(tilesetProject->tilesHigh(), height);
+    QCOMPARE(project->size().width(), width);
+    QCOMPARE(project->size().height(), height);
     QCOMPARE(widthSpinBox->property("value").toInt(), width);
     QCOMPARE(heightSpinBox->property("value").toInt(), height);
 }

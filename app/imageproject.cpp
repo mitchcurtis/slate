@@ -105,6 +105,11 @@ QImage *ImageProject::image()
     return &mImage;
 }
 
+Project::Type ImageProject::type() const
+{
+    return ImageType;
+}
+
 void ImageProject::changeSize(const QSize &newSize)
 {
     if (newSize.width() <= 0 || newSize.height() <= 0) {

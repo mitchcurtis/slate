@@ -35,6 +35,11 @@ Project::Project() :
     connect(&mUndoStack, SIGNAL(cleanChanged(bool)), this, SIGNAL(unsavedChangesChanged()));
 }
 
+Project::Type Project::type() const
+{
+    return UnknownType;
+}
+
 QUrl Project::url() const
 {
     return mUrl;

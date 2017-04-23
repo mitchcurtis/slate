@@ -62,9 +62,6 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
 {
     qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");
     qmlRegisterUncreatableType<Project>("App", 1, 0, "Project", QLatin1String("Cannot create objects of type Project"));
-    // TODO: do we need these exposed to QML?
-//    qmlRegisterType<ImageProject>("App", 1, 0, "ImageProject");
-//    qmlRegisterType<TilesetProject>("App", 1, 0, "TilesetProject");
     qmlRegisterType<ImageCanvas>("App", 1, 0, "ImageCanvas");
     qmlRegisterType<ImageCanvas>();
     qmlRegisterType<TileCanvas>("App", 1, 0, "TileCanvas");

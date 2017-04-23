@@ -47,6 +47,7 @@ public:
     TilesetProject();
     ~TilesetProject();
 
+    Type type() const override;
     int tilesWide() const;
     void setTilesWide(int tilesWide);
     int tilesHigh() const;
