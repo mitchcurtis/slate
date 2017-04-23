@@ -65,7 +65,7 @@ Dialog {
         spacing: 14
 
         Label {
-            text: qsTr("New Project")
+            text: qsTr("New Tileset Project")
             font.pixelSize: fontMetrics.font.pixelSize * 1.5
             anchors.horizontalCenter: parent.horizontalCenter
         }

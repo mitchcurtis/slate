@@ -30,7 +30,7 @@ Dialog {
         spacing: 14
 
         Label {
-            text: qsTr("New Image")
+            text: qsTr("New Image Project")
             font.pixelSize: popup.font.pixelSize * 1.5
             anchors.horizontalCenter: parent.horizontalCenter
         }
