@@ -498,8 +498,10 @@ void ImageCanvas::paint(QPainter *painter)
 
     // The order here is deliberate; see the clip region code in drawPane().
     const int firstPaneWidth = width() * mFirstPane.size();
-    painter->fillRect(firstPaneWidth, 0, width() - firstPaneWidth, height(), mBackgroundColour);
-    drawPane(painter, mSecondPane, 1);
+    if (mSplitScreen) {
+        painter->fillRect(firstPaneWidth, 0, width() - firstPaneWidth, height(), mBackgroundColour);
+        drawPane(painter, mSecondPane, 1);
+    }
 
     painter->fillRect(0, 0, firstPaneWidth, height(), mBackgroundColour);
     drawPane(painter, mFirstPane, 0);
@@ -533,6 +535,7 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     const int zoomedCanvasHeight = qMin(zoomedCanvasSize.height(), qFloor(height()));
     painter->fillRect(0, 0, zoomedCanvasWidth, zoomedCanvasHeight, mapBackgroundColour());
 
+    // Draw the checkered pixmap that acts as an indicator for transparency.
     painter->drawTiledPixmap(0, 0, zoomedCanvasWidth, zoomedCanvasHeight, mCheckerPixmap);
 
     const QImage image = *mImageProject->image();
@@ -679,14 +682,10 @@ void ImageCanvas::applyCurrentTool()
         break;
     }
     case EyeDropperTool: {
-        // TODO
-//        const QPoint tilePos = QPoint(mCursorSceneX, mCursorSceneY);
-//        Tile *tile = mProject->tileAt(tilePos);
-//        if (tile) {
-//            if (mMode == PixelMode) {
-//                setPenForegroundColour(tile->pixelColor(mCursorTilePixelX, mCursorTilePixelY));
-//            }
-//        }
+        const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
+        if (isWithinImage(scenePos)) {
+            setPenForegroundColour(mImageProject->image()->pixelColor(scenePos));
+        }
         break;
     }
     case EraserTool: {
