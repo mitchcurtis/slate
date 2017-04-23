@@ -9,6 +9,7 @@ T.AbstractButton {
     implicitHeight: 160
     spacing: 20
     checkable: true
+    focusPolicy: Qt.TabFocus
 
     property string titleText
     property string descriptionText
@@ -20,7 +21,7 @@ T.AbstractButton {
         spacing: root.spacing
 
         Rectangle {
-            color: Qt.darker(root.iconBackgroundColour, root.down || root.checked ? 1.3 : 1.0)
+            color: Qt.darker(root.iconBackgroundColour, root.down || root.checked || root.visualFocus ? 1.3 : 1.0)
             radius: root.radius
 
             Layout.preferredWidth: root.implicitHeight
@@ -49,10 +50,4 @@ T.AbstractButton {
             }
         }
     }
-
-//    background: Rectangle {
-//        anchors.fill: parent
-//        radius: root.radius
-//        color: root.down || root.checked ? root.iconBackgroundColour : "transparent"
-//    }
 }

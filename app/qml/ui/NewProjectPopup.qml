@@ -13,12 +13,12 @@ Dialog {
     modal: true
     focus: true
     padding: 20
-    bottomPadding: 0
     contentWidth: 600
     contentHeight: 400
 
     onAboutToShow: {
         buttonGroup.checkedButton = null;
+        tilesetProjectButton.forceActiveFocus();
     }
 
     signal choseTilesetProject
@@ -49,8 +49,9 @@ Dialog {
             radius: popup.background.radius
             iconBackgroundColour: Qt.darker(popup.background.color, 1.15)
 
+            onClicked: popup.accept()
+
             Layout.fillWidth: true
-            Layout.topMargin: 40
 
             Label {
                 text: "\uf00a"
@@ -82,6 +83,8 @@ Dialog {
             radius: popup.background.radius
             iconBackgroundColour: Qt.darker(popup.background.color, 1.15)
 
+            onClicked: popup.accept()
+
             Layout.fillWidth: true
 
             Label {
@@ -93,34 +96,6 @@ Dialog {
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-            }
-        }
-    }
-
-    footer: Item {
-        implicitWidth: footerLayout.implicitWidth + footerLayout.anchors.leftMargin + footerLayout.anchors.rightMargin
-        implicitHeight: footerLayout.implicitHeight + footerLayout.anchors.topMargin + footerLayout.anchors.bottomMargin
-
-        RowLayout {
-            id: footerLayout
-            anchors.fill: parent
-            anchors.margins: 20
-            anchors.topMargin: 8
-
-            Item {
-                Layout.fillWidth: true
-            }
-
-            Button {
-                id: okButton
-                objectName: "newProjectOkButton"
-                text: "OK"
-                enabled: buttonGroup.checkedButton
-                onClicked: popup.accept()
-            }
-            Button {
-                text: "Cancel"
-                onClicked: popup.reject()
             }
         }
     }

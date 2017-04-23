@@ -627,10 +627,6 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         QCOMPARE(imageProjectButton->property("checked").toBool(), true);
     }
 
-    // Hit OK.
-    QQuickItem *newProjectOkButton = newProjectPopup->findChild<QQuickItem*>("newProjectOkButton");
-    QVERIFY(newProjectOkButton);
-    mouseEventOnCentre(newProjectOkButton, MouseClick);
     QTRY_COMPARE(newProjectPopup->property("visible").toBool(), false);
 
     if (isTilesetProject) {
