@@ -6,5 +6,8 @@
         <file>opacity@4x.png</file>
         <file>checker.png</file>
         <file>change-size.png</file>
+        <file>change-size@2x.png</file>
+        <file>change-size@3x.png</file>
+        <file>change-size@4x.png</file>
     </qresource>
 </RCC>
