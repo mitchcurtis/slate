@@ -57,40 +57,22 @@ Item {
         id: toolbarRow
         enabled: canvas
         anchors.fill: parent
-        anchors.leftMargin: toolSeparator.implicitWidth / 2
+        // Make sure that we don't end up on a sub-pixel position.
+        anchors.leftMargin: Math.round(toolSeparator.implicitWidth / 2)
 
-        Ui.IconToolButton {
+        ToolButton {
             id: canvasSizeButton
             objectName: "canvasSizeButton"
             enabled: project ? project.loaded : false
             hoverEnabled: true
+            focusPolicy: Qt.TabFocus
+
+            icon.source: "qrc:/images/change-size.png"
 
             ToolTip.text: qsTr("Change the size of the canvas")
             ToolTip.visible: hovered && !canvasSizePopup.visible
 
             onClicked: canvasSizePopup.visible = !canvasSizePopup.visible
-
-            Ui.IconRectangle {
-                anchors.centerIn: parent
-                color: "transparent"
-                border.width: 2
-                border.color: iconRect.color
-                width: 12
-                height: 12
-
-                Ui.IconRectangle {
-                    id: iconRect
-                    y: -2 - height
-                    width: parent.width
-                    height: 1
-                }
-
-                Ui.IconRectangle {
-                    x: -2 - width
-                    width: 1
-                    height: parent.height
-                }
-            }
 
             CanvasSizePopup {
                 id: canvasSizePopup
@@ -136,9 +118,10 @@ Item {
             id: modeToolButton
             objectName: "modeToolButton"
             iconText: "\uf044"
-            checked: canvas && canvas.hasOwnProperty("mode") ? canvas.mode === TileCanvas.TileMode : false
+            checked: canvas && canvas.mode === TileCanvas.TileMode
             checkable: true
             hoverEnabled: true
+            enabled: canvas && project && project.type === Project.TilesetType
 
             ToolTip.text: qsTr("Operate on either pixels or whole tiles")
             ToolTip.visible: hovered
