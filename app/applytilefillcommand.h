@@ -18,7 +18,7 @@
 */
 
 #ifndef APPLYTILEFILLCOMMAND_H
-#define APPLYTILEFillCOMMAND_H
+#define APPLYTILEFILLCOMMAND_H
 
 #include <QColor>
 #include <QDebug>

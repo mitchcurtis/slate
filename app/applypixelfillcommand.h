@@ -18,7 +18,7 @@
 */
 
 #ifndef APPLYPIXELFILLCOMMAND_H
-#define APPLYPIXELFillCOMMAND_H
+#define APPLYPIXELFILLCOMMAND_H
 
 #include <QColor>
 #include <QDebug>

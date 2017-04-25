@@ -182,7 +182,7 @@ protected slots:
     void onSplitterPositionChanged();
 
 protected:
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
+    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
     friend class ApplyPixelPenCommand;
     friend class ApplyPixelEraserCommand;

@@ -45,7 +45,7 @@ public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
 
     void load(const QUrl &url) override;
-    void close();
+    void close() override;
     void saveAs(const QUrl &url) override;
 
 private:

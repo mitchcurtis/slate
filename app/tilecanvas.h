@@ -92,7 +92,7 @@ protected:
     void disconnectSignals() override;
     void toolChange() override;
 
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
+    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
     void onLoadedChanged() override;
 
