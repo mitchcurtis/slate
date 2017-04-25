@@ -334,7 +334,7 @@ int TestHelper::sliderValue(QQuickItem *slider) const
     const qreal position = slider->property("position").toReal();
     qreal value = 0;
     QMetaObject::invokeMethod(slider, "valueAt", Qt::DirectConnection, Q_RETURN_ARG(qreal, value), Q_ARG(qreal, position));
-    return qRound(value);
+    return qFloor(value);
 }
 
 void TestHelper::drawPixelAtCursorPos()

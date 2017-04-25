@@ -233,8 +233,8 @@ ApplicationWindow {
         id: saveAsDialog
         objectName: "saveAsDialog"
         fileMode: Platform.FileDialog.SaveFile
-        nameFilters: openProjectDialog.nameFilters
-        defaultSuffix: openProjectDialog.defaultSuffix
+        nameFilters: projectType === Project.TilesetType ? tilesetFilters : imageFilters
+        defaultSuffix: projectType === Project.TilesetType ? tilesetDefaultSuffix : imageDefaultSuffix
         onAccepted: project.saveAs(file)
     }
 
