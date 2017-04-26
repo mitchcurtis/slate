@@ -57,8 +57,6 @@ ApplicationWindow {
         ? ((project.url.toString().length > 0 ? project.displayUrl : "Untitled") + (project.unsavedChanges ? "*" : ""))
         : ""
 
-    readonly property int controlSpacing: 10
-
     property alias projectManager: projectManager
     property Project project: projectManager.project
     property int projectType: project ? project.type : 0
@@ -200,7 +198,6 @@ ApplicationWindow {
 
             Ui.MenuBar {
                 id: menuBar
-                spacing: controlSpacing
                 projectManager: window.projectManager
                 canvas: window.canvas
             }

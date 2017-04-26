@@ -40,5 +40,6 @@
         <file>ui/ProjectTemplateButton.qml</file>
         <file>ui/NewImageProjectPopup.qml</file>
         <file>ui/CanvasContainer.qml</file>
+        <file>ui/+windows/MenuBar.qml</file>
     </qresource>
 </RCC>
