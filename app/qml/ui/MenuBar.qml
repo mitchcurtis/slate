@@ -1,188 +1,128 @@
-import QtQuick 2.6
-import QtQuick.Layouts 1.2
-import QtQuick.Controls 2.1
+import Qt.labs.platform 1.0 as Platform
 
 import App 1.0
 
-RowLayout {
+Platform.MenuBar {
     property ImageCanvas canvas
     property ProjectManager projectManager
     property Project project: projectManager.project
 
-    ToolButton {
-        id: fileToolButton
-        objectName: "fileToolButton"
-        text: qsTr("File")
-        hoverEnabled: true
-        focusPolicy: Qt.TabFocus
+    Platform.Menu {
+        id: fileMenu
+        objectName: "fileMenu"
+        title: qsTr("File")
 
-        // QTBUG-54916
-        Layout.preferredWidth: implicitWidth == implicitHeight ? implicitHeight + 1 : implicitWidth
+        Platform.MenuItem {
+            objectName: "newMenuButton"
+            text: qsTr("New")
+            onTriggered: doIfChangesDiscarded(function() { newProjectPopup.open() })
+        }
 
-        onClicked: fileMenu.open()
+        Platform.MenuItem {
+            objectName: "openMenuButton"
+            text: qsTr("Open")
+            onTriggered: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
+        }
 
-        Menu {
-            id: fileMenu
-            y: fileToolButton.height
+        Platform.MenuItem {
+            objectName: "saveMenuButton"
+            text: qsTr("Save")
+            enabled: project ? project.canSave : false
+            onTriggered: projectManager.saveOrSaveAs()
+        }
 
-            MenuItem {
-                objectName: "newMenuButton"
-                text: qsTr("New")
-                hoverEnabled: true
-                onClicked: doIfChangesDiscarded(function() { newProjectPopup.open() })
-            }
+        Platform.MenuItem {
+            objectName: "saveAsMenuButton"
+            text: qsTr("Save As")
+            enabled: project ? project.loaded : false
+            onTriggered: saveAsDialog.open()
+        }
 
-            MenuItem {
-                objectName: "openMenuButton"
-                text: qsTr("Open")
-                hoverEnabled: true
-                onClicked: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
-            }
+        Platform.MenuItem {
+            objectName: "closeMenuButton"
+            text: qsTr("Close")
+            enabled: project ? project.loaded : false
+            onTriggered: doIfChangesDiscarded(function() { project.close() })
+        }
 
-            MenuItem {
-                objectName: "saveMenuButton"
-                text: qsTr("Save")
-                enabled: project ? project.canSave : false
-                hoverEnabled: true
-                onClicked: projectManager.saveOrSaveAs()
-            }
-
-            MenuItem {
-                objectName: "saveAsMenuButton"
-                text: qsTr("Save As")
-                enabled: project ? project.loaded : false
-                hoverEnabled: true
-                onClicked: saveAsDialog.open()
-            }
-
-            MenuItem {
-                objectName: "closeMenuButton"
-                text: qsTr("Close")
-                enabled: project ? project.loaded : false
-                hoverEnabled: true
-                onClicked: doIfChangesDiscarded(function() { project.close() })
-            }
-
-            MenuItem {
-                objectName: "revertMenuButton"
-                text: qsTr("Revert")
-                enabled: project ? project.loaded && project.unsavedChanges : false
-                hoverEnabled: true
-                onClicked: project.revert()
-            }
+        Platform.MenuItem {
+            objectName: "revertMenuButton"
+            text: qsTr("Revert")
+            enabled: project ? project.loaded && project.unsavedChanges : false
+            onTriggered: project.revert()
         }
     }
 
-    ToolButton {
-        id: editToolButton
-        objectName: "editToolButton"
-        text: qsTr("Edit")
-        hoverEnabled: true
-        focusPolicy: Qt.TabFocus
+    Platform.Menu {
+        id: editMenu
+        objectName: "editMenu"
+        title: qsTr("Edit")
 
-        // QTBUG-54916
-        Layout.preferredWidth: implicitWidth == implicitHeight ? implicitHeight + 1 : implicitWidth
+        Platform.MenuItem {
+            objectName: "undoMenuButton"
+            text: qsTr("Undo")
+            onTriggered: project.undoStack.undo()
+            enabled: project ? project.undoStack.canUndo : false
+        }
 
-        onClicked: editMenu.open()
-
-        Menu {
-            id: editMenu
-            y: editToolButton.height
-
-            MenuItem {
-                objectName: "undoMenuButton"
-                text: qsTr("Undo")
-                onClicked: project.undoStack.undo()
-                enabled: project ? project.undoStack.canUndo : false
-            }
-
-            MenuItem {
-                objectName: "redoMenuButton"
-                text: qsTr("Redo")
-                onClicked: project.undoStack.redo()
-                enabled: project ? project.undoStack.canRedo : false
-            }
+        Platform.MenuItem {
+            objectName: "redoMenuButton"
+            text: qsTr("Redo")
+            onTriggered: project.undoStack.redo()
+            enabled: project ? project.undoStack.canRedo : false
         }
     }
 
-    ToolButton {
-        id: viewToolButton
-        objectName: "viewToolButton"
-        text: qsTr("View")
-        hoverEnabled: true
-        focusPolicy: Qt.TabFocus
-        Layout.preferredWidth: implicitWidth <= implicitHeight ? implicitWidth + 1 : implicitWidth
-        onClicked: viewMenu.open()
+    Platform.Menu {
+        id: viewMenu
+        objectName: "viewMenu"
+        title: qsTr("View")
 
-        Menu {
-            id: viewMenu
-            y: viewToolButton.height
+        Platform.MenuItem {
+            objectName: "centreMenuButton"
+            text: qsTr("Centre")
+            enabled: canvas
+            onTriggered: canvas.centreView()
+        }
 
-            MenuItem {
-                objectName: "centreMenuButton"
-                text: qsTr("Centre")
-                enabled: canvas
-                onClicked: canvas.centreView()
-            }
+        Platform.MenuSeparator {}
 
-            MenuSeparator {}
+        Platform.MenuItem {
+            objectName: "showGridMenuButton"
+            text: qsTr("Show Grid")
+            enabled: canvas
+            checkable: true
+            checked: settings.gridVisible
+            onTriggered: settings.gridVisible = checked
+        }
 
-            MenuItem {
-                objectName: "showGridMenuButton"
-                text: qsTr("Show Grid")
-                enabled: canvas
-                checkable: true
-                checked: settings.gridVisible
-                onClicked: settings.gridVisible = checked
-            }
+        Platform.MenuItem {
+            objectName: "splitScreenMenuButton"
+            text: qsTr("Split Screen")
+            enabled: canvas
+            checkable: true
+            checked: settings.splitScreen
+            onTriggered: settings.splitScreen = checked
+        }
 
-            MenuItem {
-                objectName: "splitScreenMenuButton"
-                text: qsTr("Split Screen")
-                enabled: canvas
-                checkable: true
-                checked: settings.splitScreen
-                onClicked: settings.splitScreen = checked
-            }
-
-            MenuItem {
-                objectName: "splitterLockedMenuButton"
-                text: qsTr("Lock Splitter")
-                enabled: canvas && settings.splitScreen
-                checkable: true
-                checked: settings.splitterLocked
-                onClicked: settings.splitterLocked = checked
-            }
+        Platform.MenuItem {
+            objectName: "splitterLockedMenuButton"
+            text: qsTr("Lock Splitter")
+            enabled: canvas && settings.splitScreen
+            checkable: true
+            checked: settings.splitterLocked
+            onTriggered: settings.splitterLocked = checked
         }
     }
 
-    ToolButton {
-        id: toolsToolButton
-        objectName: "optionsToolButton"
-        text: qsTr("Tools")
-        hoverEnabled: true
-        focusPolicy: Qt.TabFocus
-        onClicked: settingsMenu.open()
+    Platform.Menu {
+        id: settingsMenu
+        title: qsTr("Tools")
 
-        Menu {
-            id: settingsMenu
-            y: toolsToolButton.height
-
-            MenuItem {
-                objectName: "settingsMenuButton"
-                text: qsTr("Options")
-                onClicked: optionsDialog.open()
-            }
+        Platform.MenuItem {
+            objectName: "settingsMenuButton"
+            text: qsTr("Options")
+            onTriggered: optionsDialog.open()
         }
-    }
-
-    Label {
-        text: "Slate"
-        color: "#ffffff"
-        opacity: 0.1
-        style: Text.Sunken
-        font.family: "arial"
-        font.pixelSize: Qt.application.font.pixelSize * 1.5
-        Layout.leftMargin: 8
     }
 }
