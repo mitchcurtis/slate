@@ -191,22 +191,28 @@ ApplicationWindow {
         }
     }
 
-    Ui.MenuBar {
-        id: menuBar
-        projectManager: window.projectManager
-        canvas: window.canvas
-    }
-
     header: Ui.ToolBar {
         objectName: "toolBar"
 
-        Ui.IconToolBar {
-            id: iconToolBar
-            project: window.project
-            canvas: window.canvas
-            fontMetrics: fontMetrics
+        ColumnLayout {
+            anchors.fill: parent
+            spacing: 0
 
-            Layout.fillWidth: true
+            Ui.MenuBar {
+                id: menuBar
+                spacing: controlSpacing
+                projectManager: window.projectManager
+                canvas: window.canvas
+            }
+
+            Ui.IconToolBar {
+                id: iconToolBar
+                project: window.project
+                canvas: window.canvas
+                fontMetrics: fontMetrics
+
+                Layout.fillWidth: true
+            }
         }
     }
 
