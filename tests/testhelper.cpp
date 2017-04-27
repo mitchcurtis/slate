@@ -33,6 +33,16 @@ TestHelper::TestHelper(int &argc, char **argv) :
     fileToolButton(nullptr),
     optionsToolButton(nullptr),
     viewToolButton(nullptr),
+    newMenuButton(nullptr),
+    closeMenuButton(nullptr),
+    openMenuButton(nullptr),
+    saveMenuButton(nullptr),
+    saveAsMenuButton(nullptr),
+    settingsMenuButton(nullptr),
+    revertMenuButton(nullptr),
+    centreMenuButton(nullptr),
+    showGridMenuButton(nullptr),
+    splitScreenMenuButton(nullptr),
     canvasSizeButton(nullptr),
     modeToolButton(nullptr),
     penToolButton(nullptr),
@@ -40,18 +50,8 @@ TestHelper::TestHelper(int &argc, char **argv) :
     fillToolButton(nullptr),
     eraserToolButton(nullptr),
     toolSizeButton(nullptr),
-    newMenuButton(nullptr),
-    closeMenuButton(nullptr),
-    openMenuButton(nullptr),
-    saveMenuButton(nullptr),
-    saveAsMenuButton(nullptr),
-    settingsMenuButton(nullptr),
     undoButton(nullptr),
     redoButton(nullptr),
-    revertMenuButton(nullptr),
-    centreMenuButton(nullptr),
-    showGridMenuButton(nullptr),
-    splitScreenMenuButton(nullptr),
     penForegroundColourButton(nullptr),
     penBackgroundColourButton(nullptr),
     tilesetSwatch(nullptr),
@@ -109,6 +109,30 @@ void TestHelper::initTestCase()
     viewToolButton = window->findChild<QQuickItem*>("viewToolButton");
     QVERIFY(viewToolButton);
 
+    newMenuButton = window->findChild<QQuickItem*>("newMenuButton");
+    QVERIFY(newMenuButton);
+
+    closeMenuButton = window->findChild<QQuickItem*>("closeMenuButton");
+    QVERIFY(closeMenuButton);
+
+    openMenuButton = window->findChild<QQuickItem*>("openMenuButton");
+    QVERIFY(openMenuButton);
+
+    saveMenuButton = window->findChild<QQuickItem*>("saveMenuButton");
+    QVERIFY(saveMenuButton);
+
+    saveAsMenuButton = window->findChild<QQuickItem*>("saveAsMenuButton");
+    QVERIFY(saveAsMenuButton);
+
+    settingsMenuButton = window->findChild<QQuickItem*>("settingsMenuButton");
+    QVERIFY(settingsMenuButton);
+
+    revertMenuButton = window->findChild<QQuickItem*>("revertMenuButton");
+    QVERIFY(revertMenuButton);
+
+    centreMenuButton = window->findChild<QQuickItem*>("centreMenuButton");
+    QVERIFY(centreMenuButton);
+
     canvasSizeButton = window->findChild<QQuickItem*>("canvasSizeButton");
     QVERIFY(canvasSizeButton);
 
@@ -130,35 +154,11 @@ void TestHelper::initTestCase()
     toolSizeButton = window->findChild<QQuickItem*>("toolSizeButton");
     QVERIFY(toolSizeButton);
 
-    newMenuButton = window->findChild<QQuickItem*>("newMenuButton");
-    QVERIFY(newMenuButton);
-
-    closeMenuButton = window->findChild<QQuickItem*>("closeMenuButton");
-    QVERIFY(closeMenuButton);
-
-    openMenuButton = window->findChild<QQuickItem*>("openMenuButton");
-    QVERIFY(openMenuButton);
-
-    saveMenuButton = window->findChild<QQuickItem*>("saveMenuButton");
-    QVERIFY(saveMenuButton);
-
-    saveAsMenuButton = window->findChild<QQuickItem*>("saveAsMenuButton");
-    QVERIFY(saveAsMenuButton);
-
-    settingsMenuButton = window->findChild<QQuickItem*>("settingsMenuButton");
-    QVERIFY(settingsMenuButton);
-
     undoButton = window->findChild<QQuickItem*>("undoButton");
     QVERIFY(undoButton);
 
     redoButton = window->findChild<QQuickItem*>("redoButton");
     QVERIFY(redoButton);
-
-    revertMenuButton = window->findChild<QQuickItem*>("revertMenuButton");
-    QVERIFY(revertMenuButton);
-
-    centreMenuButton = window->findChild<QQuickItem*>("centreMenuButton");
-    QVERIFY(centreMenuButton);
 
     showGridMenuButton = window->findChild<QQuickItem*>("showGridMenuButton");
     QVERIFY(showGridMenuButton);
