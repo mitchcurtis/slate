@@ -71,6 +71,8 @@ public:
     QSharedPointer<QQuickItemGrabResult> result;
 };
 
+//#define WIN_BUILD
+
 class TestHelper : public QObject
 {
     Q_OBJECT
@@ -114,6 +116,9 @@ protected:
     int digits(int number);
     int digitAt(int number, int index);
 
+    // Platform-dependent actions
+    void newProject();
+
     void addAllProjectTypes();
     void createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
     void createNewTilesetProject(int tileWidth = 25, int tileHeight = 25,
@@ -143,6 +148,7 @@ protected:
     QPointer<ImageCanvas> canvas;
     QPointer<ImageCanvas> imageCanvas;
     QPointer<TileCanvas> tileCanvas;
+#ifdef WIN_BUILD
     QQuickItem *fileToolButton;
     QQuickItem *optionsToolButton;
     QQuickItem *viewToolButton;
@@ -156,6 +162,12 @@ protected:
     QQuickItem *centreMenuButton;
     QQuickItem *showGridMenuButton;
     QQuickItem *splitScreenMenuButton;
+    QQuickItem *duplicateTileMenuButton;
+    QQuickItem *rotateTileLeftMenuButton;
+    QQuickItem *rotateTileRightMenuButton;
+#else
+    QObject *fileToolButton;
+#endif
     QQuickItem *canvasSizeButton;
     QQuickItem *modeToolButton;
     QQuickItem *penToolButton;
@@ -168,9 +180,6 @@ protected:
     QQuickItem *penForegroundColourButton;
     QQuickItem *penBackgroundColourButton;
     QQuickItem *tilesetSwatch;
-    QQuickItem *duplicateTileMenuButton;
-    QQuickItem *rotateTileLeftMenuButton;
-    QQuickItem *rotateTileRightMenuButton;
 
     QScopedPointer<QSignalSpy> creationErrorOccurredSpy;
 

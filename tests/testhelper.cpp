@@ -30,6 +30,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     tilesetProject(nullptr),
     imageCanvas(nullptr),
     tileCanvas(nullptr),
+#ifdef WIN_BUILD
     fileToolButton(nullptr),
     optionsToolButton(nullptr),
     viewToolButton(nullptr),
@@ -43,6 +44,10 @@ TestHelper::TestHelper(int &argc, char **argv) :
     centreMenuButton(nullptr),
     showGridMenuButton(nullptr),
     splitScreenMenuButton(nullptr),
+    duplicateTileMenuButton(nullptr),
+    rotateTileLeftMenuButton(nullptr),
+    rotateTileRightMenuButton(nullptr),
+#endif
     canvasSizeButton(nullptr),
     modeToolButton(nullptr),
     penToolButton(nullptr),
@@ -55,9 +60,6 @@ TestHelper::TestHelper(int &argc, char **argv) :
     penForegroundColourButton(nullptr),
     penBackgroundColourButton(nullptr),
     tilesetSwatch(nullptr),
-    duplicateTileMenuButton(nullptr),
-    rotateTileLeftMenuButton(nullptr),
-    rotateTileRightMenuButton(nullptr),
     tilesetBasename("test-tileset.png")
 {
 }
@@ -100,6 +102,7 @@ void TestHelper::initTestCase()
     imageProject = qobject_cast<ImageProject*>(project.data());
     QVERIFY(imageProject);
 
+#ifdef WIN_BUILD
     fileToolButton = window->findChild<QQuickItem*>("fileToolButton");
     QVERIFY(fileToolButton);
 
@@ -133,6 +136,13 @@ void TestHelper::initTestCase()
     centreMenuButton = window->findChild<QQuickItem*>("centreMenuButton");
     QVERIFY(centreMenuButton);
 
+    showGridMenuButton = window->findChild<QQuickItem*>("showGridMenuButton");
+    QVERIFY(showGridMenuButton);
+
+    splitScreenMenuButton = window->findChild<QQuickItem*>("splitScreenMenuButton");
+    QVERIFY(splitScreenMenuButton);
+#endif
+
     canvasSizeButton = window->findChild<QQuickItem*>("canvasSizeButton");
     QVERIFY(canvasSizeButton);
 
@@ -159,12 +169,6 @@ void TestHelper::initTestCase()
 
     redoButton = window->findChild<QQuickItem*>("redoButton");
     QVERIFY(redoButton);
-
-    showGridMenuButton = window->findChild<QQuickItem*>("showGridMenuButton");
-    QVERIFY(showGridMenuButton);
-
-    splitScreenMenuButton = window->findChild<QQuickItem*>("splitScreenMenuButton");
-    QVERIFY(splitScreenMenuButton);
 
     penForegroundColourButton = window->findChild<QQuickItem*>("penForegroundColourButton");
     QVERIFY(penForegroundColourButton);
@@ -552,6 +556,18 @@ int TestHelper::digitAt(int number, int index)
     return index < digits.size() ? digits.at(index) : 0;
 }
 
+void TestHelper::newProject()
+{
+#ifdef WIN_BUILD
+    mouseEventOnCentre(fileToolButton, MouseClick);
+    mouseEventOnCentre(newMenuButton, MouseClick);
+#else
+    int value = QKeySequence(app.settings()->newShortcut())[0];
+    Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(value & Qt::KeyboardModifierMask);
+    QTest::keyClick(window, value & ~mods, mods);
+#endif
+}
+
 void TestHelper::addAllProjectTypes()
 {
     QTest::addColumn<Project::Type>("projectType");
@@ -587,8 +603,7 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         creationErrorOccurredSpy->clear();
 
     // Click the new project button.
-    mouseEventOnCentre(fileToolButton, MouseClick);
-    mouseEventOnCentre(newMenuButton, MouseClick);
+    newProject();
 
     // Check that we get prompted to discard any changes.
     if (project && project->hasUnsavedChanges()) {
@@ -807,7 +822,7 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     cursorWindowPos = QPoint();
 
     // Sanity check.
-    QCOMPARE(canvas->window(), fileToolButton->window());
+    QCOMPARE(canvas->window(), canvasSizeButton->window());
     QCOMPARE(canvas->splitter()->position(), 0.5);
     QVERIFY(!canvas->splitter()->isPressed());
     QVERIFY(!canvas->splitter()->isHovered());
