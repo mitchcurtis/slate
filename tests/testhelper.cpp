@@ -30,7 +30,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     tilesetProject(nullptr),
     imageCanvas(nullptr),
     tileCanvas(nullptr),
-#ifdef WIN_BUILD
+#ifdef NON_NATIVE_MENUS
     fileToolButton(nullptr),
     optionsToolButton(nullptr),
     viewToolButton(nullptr),
@@ -102,7 +102,7 @@ void TestHelper::initTestCase()
     imageProject = qobject_cast<ImageProject*>(project.data());
     QVERIFY(imageProject);
 
-#ifdef WIN_BUILD
+#ifdef NON_NATIVE_MENUS
     fileToolButton = window->findChild<QQuickItem*>("fileToolButton");
     QVERIFY(fileToolButton);
 
@@ -556,15 +556,113 @@ int TestHelper::digitAt(int number, int index)
     return index < digits.size() ? digits.at(index) : 0;
 }
 
-void TestHelper::newProject()
+void TestHelper::triggerShortcut(const QString &sequenceAsString)
 {
-#ifdef WIN_BUILD
+    const int value = QKeySequence(sequenceAsString)[0];
+    Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(value & Qt::KeyboardModifierMask);
+    QTest::keyClick(window, value & ~mods, mods);
+}
+
+void TestHelper::triggerNewProject()
+{
+#ifdef NON_NATIVE_MENUS
     mouseEventOnCentre(fileToolButton, MouseClick);
     mouseEventOnCentre(newMenuButton, MouseClick);
 #else
-    int value = QKeySequence(app.settings()->newShortcut())[0];
-    Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(value & Qt::KeyboardModifierMask);
-    QTest::keyClick(window, value & ~mods, mods);
+    triggerShortcut(app.settings()->newShortcut());
+#endif
+}
+
+void TestHelper::triggerCloseProject()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(fileToolButton, MouseClick);
+    mouseEventOnCentre(closeMenuButton, MouseClick);
+#else
+    triggerShortcut(app.settings()->closeShortcut());
+#endif
+}
+
+void TestHelper::triggerSaveProject()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(fileToolButton, MouseClick);
+    mouseEventOnCentre(saveMenuButton, MouseClick);
+#else
+    triggerShortcut(app.settings()->saveShortcut());
+#endif
+}
+
+void TestHelper::triggerSaveProjectAs()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(fileToolButton, MouseClick);
+    mouseEventOnCentre(saveAsMenuButton, MouseClick);
+#else
+    QFAIL("TODO: no saveas shortcut");
+//    triggerShortcut(app.settings()->saveShortcut());
+#endif
+}
+
+void TestHelper::triggerOpenProject()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(loadToolButton, MouseClick);
+    mouseEventOnCentre(loadMenuButton, MouseClick);
+#else
+    triggerShortcut(app.settings()->openShortcut());
+#endif
+}
+
+void TestHelper::triggerRevert()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(fileToolButton, MouseClick);
+    mouseEventOnCentre(revertMenuButton, MouseClick);
+#else
+    QFAIL("TODO: no revert shortcut");
+//    triggerShortcut(app.settings()->revertShortcut());
+#endif
+}
+
+void TestHelper::triggerCentre()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(viewToolButton, MouseClick);
+    mouseEventOnCentre(centreMenuButton, MouseClick);
+#else
+    QFAIL("TODO: no centre shortcut");
+//    triggerShortcut(app.settings()->centreShortcut());
+#endif
+}
+
+void TestHelper::triggerGridVisible()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(viewToolButton, MouseClick);
+    mouseEventOnCentre(showGridMenuButton, MouseClick);
+#else
+    triggerShortcut(app.settings()->gridVisibleShortcut());
+#endif
+}
+
+void TestHelper::triggerSplitScreen()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(viewToolButton, MouseClick);
+    mouseEventOnCentre(splitScreenMenuButton, MouseClick);
+#else
+    triggerShortcut(app.settings()->splitScreenShortcut());
+#endif
+}
+
+void TestHelper::triggerOptions()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(optionsToolButton, MouseClick);
+    mouseEventOnCentre(settingsMenuButton, MouseClick);
+#else
+    QFAIL("TODO: no options shortcut");
 #endif
 }
 
@@ -603,7 +701,7 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         creationErrorOccurredSpy->clear();
 
     // Click the new project button.
-    newProject();
+    triggerNewProject();
 
     // Check that we get prompted to discard any changes.
     if (project && project->hasUnsavedChanges()) {
@@ -827,12 +925,14 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     QVERIFY(!canvas->splitter()->isPressed());
     QVERIFY(!canvas->splitter()->isHovered());
 
+#ifdef NON_NATIVE_MENUS
     QVERIFY(newMenuButton->isEnabled());
     QVERIFY(saveMenuButton->isEnabled());
     QVERIFY(saveAsMenuButton->isEnabled());
     QVERIFY(openMenuButton->isEnabled());
     QVERIFY(closeMenuButton->isEnabled());
     QVERIFY(settingsMenuButton->isEnabled());
+#endif
 
     if (isTilesetProject) {
         // Establish references to TilesetProject-specific properties.
@@ -842,6 +942,7 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         QVERIFY(!qFuzzyIsNull(tilesetSwatch->width()));
         QVERIFY(!qFuzzyIsNull(tilesetSwatch->height()));
 
+#ifdef NON_NATIVE_MENUS
         duplicateTileMenuButton = window->findChild<QQuickItem*>("duplicateTileMenuButton");
         QVERIFY(duplicateTileMenuButton);
 
@@ -850,6 +951,7 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
 
         rotateTileRightMenuButton = window->findChild<QQuickItem*>("rotateTileRightMenuButton");
         QVERIFY(rotateTileRightMenuButton);
+#endif
 
         QVERIFY(imageGrabber.requestImage(tileCanvas));
         QTRY_VERIFY(imageGrabber.isReady());

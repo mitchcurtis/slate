@@ -284,8 +284,7 @@ void tst_App::saveAsAndLoad()
     }
 
     // Loading the saved file.
-    mouseEventOnCentre(fileToolButton, MouseClick);
-    mouseEventOnCentre(closeMenuButton, MouseClick);
+    triggerCloseProject();
     QVERIFY(!tilesetProject->hasLoaded());
 
     QVERIFY(imageGrabber.requestImage(tileCanvas));
@@ -319,8 +318,7 @@ void tst_App::keyboardShortcuts()
     QCOMPARE(tileCanvas->tool(), TileCanvas::EraserTool);
 
     // Open options dialog.
-    mouseEventOnCentre(optionsToolButton, MouseClick);
-    mouseEventOnCentre(settingsMenuButton, MouseClick);
+    triggerOptions();
     const QObject *optionsDialog = findPopupFromTypeName("OptionsDialog");
     QVERIFY(optionsDialog);
     QVERIFY(optionsDialog->property("visible").toBool());
@@ -389,8 +387,7 @@ void tst_App::optionsCancelled()
     createNewTilesetProject();
 
     // Open options dialog.
-    mouseEventOnCentre(optionsToolButton, MouseClick);
-    mouseEventOnCentre(settingsMenuButton, MouseClick);
+    triggerOptions();
     const QObject *optionsDialog = findPopupFromTypeName("OptionsDialog");
     QVERIFY(optionsDialog);
     QVERIFY(optionsDialog->property("visible").toBool());
@@ -427,8 +424,7 @@ void tst_App::optionsCancelled()
     QCOMPARE(app.settings()->newShortcut(), app.settings()->defaultNewShortcut());
 
     // Reopen the dialog to make sure that the editor shows the default shortcut.
-    mouseEventOnCentre(optionsToolButton, MouseClick);
-    mouseEventOnCentre(settingsMenuButton, MouseClick);
+    triggerOptions();
     QVERIFY(optionsDialog->property("visible").toBool());
     QTRY_COMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
     QCOMPARE(app.settings()->newShortcut(), app.settings()->defaultNewShortcut());
@@ -447,13 +443,10 @@ void tst_App::showGrid()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage withGrid = imageGrabber.takeImage();
 
-    mouseEventOnCentre(viewToolButton, MouseClick);
-    QVERIFY(showGridMenuButton->property("checked").toBool());
     QVERIFY(app.settings()->isGridVisible());
-
     // Toggle the option.
-    mouseEventOnCentre(showGridMenuButton, MouseClick);
-    QVERIFY(!showGridMenuButton->property("checked").toBool());
+    triggerGridVisible();
+    QVERIFY(!app.settings()->isGridVisible());
 
     // Close the view menu.
     QTest::keyClick(window, Qt::Key_Escape);
@@ -464,9 +457,7 @@ void tst_App::showGrid()
     QVERIFY(withoutGrid != withGrid);
 
     // Show the grid again.
-    mouseEventOnCentre(viewToolButton, MouseClick);
-    mouseEventOnCentre(showGridMenuButton, MouseClick);
-    QVERIFY(showGridMenuButton->property("checked").toBool());
+    triggerGridVisible();
     QVERIFY(app.settings()->isGridVisible());
 }
 
@@ -539,8 +530,7 @@ void tst_App::undoPixels()
     QVERIFY(window->title().contains("*"));
 
     // Test reverting.
-    mouseEventOnCentre(fileToolButton, MouseClick);
-    mouseEventOnCentre(revertMenuButton, MouseClick);
+    triggerRevert();
     QVERIFY(!tilesetProject->tileAt(cursorPos));
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(!window->title().contains("*"));
@@ -676,9 +666,7 @@ void tst_App::undoTiles()
     QVERIFY(window->title().contains("*"));
 
     // Test reverting.
-    mouseEventOnCentre(fileToolButton, MouseClick);
-    QVERIFY(revertMenuButton->isEnabled());
-    mouseEventOnCentre(revertMenuButton, MouseClick);
+    triggerRevert();
     QVERIFY(!tilesetProject->tileAt(cursorPos));
     QVERIFY(!undoButton->isEnabled());
     QVERIFY(!tilesetProject->hasUnsavedChanges());
@@ -1023,16 +1011,14 @@ void tst_App::panes()
     QVERIFY(tilesetProject->tileAt(cursorPos) != lastTile);
 
     // Remove split.
-    mouseEventOnCentre(viewToolButton, MouseClick);
-    mouseEventOnCentre(splitScreenMenuButton, MouseClick);
+    triggerSplitScreen();
     QVERIFY(!app.settings()->isSplitScreen());
     QVERIFY(!tileCanvas->secondPane());
     QVERIFY(tileCanvas->firstPane());
     QCOMPARE(tileCanvas->firstPane()->size(), 1.0);
 
     // Add it back again.
-    mouseEventOnCentre(viewToolButton, MouseClick);
-    mouseEventOnCentre(splitScreenMenuButton, MouseClick);
+    triggerSplitScreen();
     QVERIFY(app.settings()->isSplitScreen());
     QVERIFY(tileCanvas->firstPane());
     QCOMPARE(tileCanvas->firstPane()->size(), 0.5);
@@ -1051,9 +1037,11 @@ void tst_App::altEyedropper()
     QTest::keyRelease(window, Qt::Key_Alt);
     QCOMPARE(tileCanvas->tool(), TileCanvas::PenTool);
 
+#ifdef WIN_BUILD
     mouseEventOnCentre(fileToolButton, MouseClick);
     QTest::keyClick(window, Qt::Key_Escape);
     QCOMPARE(window->activeFocusItem(), tileCanvas.data());
+#endif
 
     QTest::keyPress(window, Qt::Key_Alt);
     QCOMPARE(tileCanvas->tool(), TileCanvas::EyeDropperTool);
@@ -1133,8 +1121,7 @@ void tst_App::zoomAndCentre()
         wheelEvent(tileCanvas, zoomPos, 1);
     QCOMPARE(currentPane->zoomLevel(), expectedZoomLevel);
 
-    mouseEventOnCentre(viewToolButton, MouseClick);
-    mouseEventOnCentre(centreMenuButton, MouseClick);
+    triggerCentre();
     const QPoint expectedOffset(
         currentPane->size() * tileCanvas->width() / 2 - (tilesetProject->widthInPixels() * currentPane->zoomLevel()) / 2,
         tileCanvas->height() / 2 - (tilesetProject->heightInPixels() * currentPane->zoomLevel()) / 2);
@@ -1261,6 +1248,7 @@ void tst_App::useTilesetSwatch()
 
 void tst_App::tilesetSwatchContextMenu()
 {
+#ifdef WIN_BUILD
     createNewTilesetProject();
 
     QCOMPARE(tileCanvas->penTile(), tilesetProject->tilesetTileAt(0, 0));
@@ -1341,6 +1329,7 @@ void tst_App::tilesetSwatchContextMenu()
     QTRY_VERIFY(imageGrabber.isReady());
     currentImage = imageGrabber.takeImage();
     QVERIFY(currentImage != lastCanvasSnapshot);
+#endif
 }
 
 void tst_App::tilesetSwatchNavigation()

@@ -71,7 +71,9 @@ public:
     QSharedPointer<QQuickItemGrabResult> result;
 };
 
-//#define WIN_BUILD
+#ifdef Q_OS_WIN32
+#define NON_NATIVE_MENUS
+#endif
 
 class TestHelper : public QObject
 {
@@ -117,7 +119,19 @@ protected:
     int digitAt(int number, int index);
 
     // Platform-dependent actions
-    void newProject();
+    void triggerShortcut(const QString &sequenceAsString);
+    void triggerNewProject();
+    void triggerCloseProject();
+    void triggerSaveProject();
+    void triggerSaveProjectAs();
+    void triggerOpenProject();
+    void triggerRevert();
+
+    void triggerCentre();
+    void triggerGridVisible();
+    void triggerSplitScreen();
+
+    void triggerOptions();
 
     void addAllProjectTypes();
     void createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
@@ -148,7 +162,7 @@ protected:
     QPointer<ImageCanvas> canvas;
     QPointer<ImageCanvas> imageCanvas;
     QPointer<TileCanvas> tileCanvas;
-#ifdef WIN_BUILD
+#ifdef NON_NATIVE_MENUS
     QQuickItem *fileToolButton;
     QQuickItem *optionsToolButton;
     QQuickItem *viewToolButton;
