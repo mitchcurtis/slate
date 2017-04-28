@@ -161,10 +161,12 @@ void Settings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("openShortcut"));
         allShortcuts.append(QLatin1String("saveShortcut"));
         allShortcuts.append(QLatin1String("closeShortcut"));
+        allShortcuts.append(QLatin1String("revertShortcut"));
         allShortcuts.append(QLatin1String("undoShortcut"));
         allShortcuts.append(QLatin1String("redoShortcut"));
         allShortcuts.append(QLatin1String("gridVisibleShortcut"));
         allShortcuts.append(QLatin1String("splitScreenShortcut"));
+        allShortcuts.append(QLatin1String("optionsShortcut"));
         allShortcuts.append(QLatin1String("penToolShortcut"));
         allShortcuts.append(QLatin1String("eyeDropperToolShortcut"));
         allShortcuts.append(QLatin1String("eraserToolShortcut"));
@@ -269,7 +271,22 @@ QString Settings::closeShortcut() const
 
 void Settings::setCloseShortcut(const QString &shortcut)
 {
-    SET_SHORTCUT("closeShortcut", defaultCloseShortcut, quitShortcutChanged)
+    SET_SHORTCUT("closeShortcut", defaultCloseShortcut, closeShortcutChanged)
+}
+
+QString Settings::defaultRevertShortcut() const
+{
+    return QLatin1String("Ctrl+Shift+R");
+}
+
+QString Settings::revertShortcut() const
+{
+    GET_SHORTCUT("revertShortcut", defaultRevertShortcut)
+}
+
+void Settings::setRevertShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("revertShortcut", defaultRevertShortcut, revertShortcutChanged)
 }
 
 QString Settings::defaultUndoShortcut() const
@@ -330,6 +347,21 @@ QString Settings::splitScreenShortcut() const
 void Settings::setSplitScreenShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("splitScreenShortcut", defaultSplitScreenShortcut, splitScreenShortcutChanged)
+}
+
+QString Settings::defaultOptionsShortcut() const
+{
+    return QLatin1String("Ctrl+Alt+T");
+}
+
+QString Settings::optionsShortcut() const
+{
+    GET_SHORTCUT("optionsShortcut", defaultOptionsShortcut)
+}
+
+void Settings::setOptionsShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("optionsShortcut", defaultOptionsShortcut, optionsShortcutChanged)
 }
 
 QString Settings::defaultPenToolShortcut() const

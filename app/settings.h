@@ -37,10 +37,12 @@ class Settings : public QSettings
     Q_PROPERTY(QString openShortcut READ openShortcut WRITE setOpenShortcut NOTIFY openShortcutChanged)
     Q_PROPERTY(QString saveShortcut READ saveShortcut WRITE setSaveShortcut NOTIFY saveShortcutChanged)
     Q_PROPERTY(QString closeShortcut READ closeShortcut WRITE setCloseShortcut NOTIFY closeShortcutChanged)
+    Q_PROPERTY(QString revertShortcut READ revertShortcut WRITE setRevertShortcut NOTIFY revertShortcutChanged)
     Q_PROPERTY(QString undoShortcut READ undoShortcut WRITE setUndoShortcut NOTIFY undoShortcutChanged)
     Q_PROPERTY(QString redoShortcut READ redoShortcut WRITE setRedoShortcut NOTIFY redoShortcutChanged)
     Q_PROPERTY(QString gridVisibleShortcut READ gridVisibleShortcut WRITE setGridVisibleShortcut NOTIFY gridVisibleShortcutChanged)
     Q_PROPERTY(QString splitScreenShortcut READ splitScreenShortcut WRITE setSplitScreenShortcut NOTIFY splitScreenShortcutChanged)
+    Q_PROPERTY(QString optionsShortcut READ optionsShortcut WRITE setOptionsShortcut NOTIFY optionsShortcutChanged)
     Q_PROPERTY(QString penToolShortcut READ penToolShortcut WRITE setPenToolShortcut NOTIFY penToolShortcutChanged)
     Q_PROPERTY(QString eyeDropperToolShortcut READ eyeDropperToolShortcut WRITE setEyeDropperToolShortcut NOTIFY eyeDropperToolShortcutChanged)
     Q_PROPERTY(QString eraserToolShortcut READ eraserToolShortcut WRITE setEraserToolShortcut NOTIFY eraserToolShortcutChanged)
@@ -96,6 +98,10 @@ public:
     QString closeShortcut() const;
     void setCloseShortcut(const QString &shortcut);
 
+    QString defaultRevertShortcut() const;
+    QString revertShortcut() const;
+    void setRevertShortcut(const QString &shortcut);
+
     QString defaultUndoShortcut() const;
     QString undoShortcut() const;
     void setUndoShortcut(const QString &shortcut);
@@ -111,6 +117,10 @@ public:
     QString defaultSplitScreenShortcut() const;
     QString splitScreenShortcut() const;
     void setSplitScreenShortcut(const QString &shortcut);
+
+    QString defaultOptionsShortcut() const;
+    QString optionsShortcut() const;
+    void setOptionsShortcut(const QString &shortcut);
 
     QString defaultPenToolShortcut() const;
     QString penToolShortcut() const;
@@ -164,11 +174,13 @@ signals:
     void openShortcutChanged();
     void saveShortcutChanged();
     void closeShortcutChanged();
+    void revertShortcutChanged();
     void undoShortcutChanged();
     void redoShortcutChanged();
     void gridVisibleShortcutChanged();
     void splitScreenShortcutChanged();
     void penToolShortcutChanged();
+    void optionsShortcutChanged();
     void eyeDropperToolShortcutChanged();
     void eraserToolShortcutChanged();
     void toolModeShortcutChanged();

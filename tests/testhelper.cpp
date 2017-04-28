@@ -558,6 +558,7 @@ int TestHelper::digitAt(int number, int index)
 
 void TestHelper::triggerShortcut(const QString &sequenceAsString)
 {
+    QTest::qWaitForWindowActive(window);
     const int value = QKeySequence(sequenceAsString)[0];
     Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(value & Qt::KeyboardModifierMask);
     QTest::keyClick(window, value & ~mods, mods);
@@ -620,8 +621,7 @@ void TestHelper::triggerRevert()
     mouseEventOnCentre(fileToolButton, MouseClick);
     mouseEventOnCentre(revertMenuButton, MouseClick);
 #else
-    QFAIL("TODO: no revert shortcut");
-//    triggerShortcut(app.settings()->revertShortcut());
+    triggerShortcut(app.settings()->revertShortcut());
 #endif
 }
 
@@ -662,7 +662,7 @@ void TestHelper::triggerOptions()
     mouseEventOnCentre(optionsToolButton, MouseClick);
     mouseEventOnCentre(settingsMenuButton, MouseClick);
 #else
-    QFAIL("TODO: no options shortcut");
+    triggerShortcut(app.settings()->optionsShortcut());
 #endif
 }
 

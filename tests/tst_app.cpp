@@ -1037,7 +1037,7 @@ void tst_App::altEyedropper()
     QTest::keyRelease(window, Qt::Key_Alt);
     QCOMPARE(tileCanvas->tool(), TileCanvas::PenTool);
 
-#ifdef WIN_BUILD
+#ifdef NON_NATIVE_MENUS
     mouseEventOnCentre(fileToolButton, MouseClick);
     QTest::keyClick(window, Qt::Key_Escape);
     QCOMPARE(window->activeFocusItem(), tileCanvas.data());
@@ -1248,7 +1248,7 @@ void tst_App::useTilesetSwatch()
 
 void tst_App::tilesetSwatchContextMenu()
 {
-#ifdef WIN_BUILD
+#ifdef NON_NATIVE_MENUS
     createNewTilesetProject();
 
     QCOMPARE(tileCanvas->penTile(), tilesetProject->tilesetTileAt(0, 0));

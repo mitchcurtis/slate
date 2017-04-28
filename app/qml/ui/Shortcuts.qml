@@ -42,6 +42,12 @@ Item {
     }
 
     Shortcut {
+        sequence: settings.revertShortcut
+        onActivated: project.revert()
+        enabled: !modalPopupsOpen
+    }
+
+    Shortcut {
         sequence: settings.undoShortcut
         onActivated: project.undoStack.undo()
         enabled: !modalPopupsOpen
@@ -61,6 +67,12 @@ Item {
     Shortcut {
         sequence: settings.splitScreenShortcut
         onActivated: settings.splitScreen = !settings.splitScreen
+    }
+
+    Shortcut {
+        sequence: settings.optionsShortcut
+        onActivated: optionsDialog.open()
+        enabled: !modalPopupsOpen
     }
 
     Shortcut {
