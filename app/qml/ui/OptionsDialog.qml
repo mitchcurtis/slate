@@ -128,6 +128,10 @@ Dialog {
                     shortcutDisplayName: qsTr("Close Project")
                 }
                 ShortcutRow {
+                    shortcutName: "revertShortcut"
+                    shortcutDisplayName: qsTr("Revert To Last Save")
+                }
+                ShortcutRow {
                     shortcutName: "undoShortcut"
                     shortcutDisplayName: qsTr("Undo Action")
                 }
@@ -136,12 +140,20 @@ Dialog {
                     shortcutDisplayName: qsTr("Redo Action")
                 }
                 ShortcutRow {
+                    shortcutName: "centreShortcut"
+                    shortcutDisplayName: qsTr("Centre View")
+                }
+                ShortcutRow {
                     shortcutName: "gridVisibleShortcut"
                     shortcutDisplayName: qsTr("Toggle Grid Visibility")
                 }
                 ShortcutRow {
                     shortcutName: "splitScreenShortcut"
                     shortcutDisplayName: qsTr("Toggle Split Screen")
+                }
+                ShortcutRow {
+                    shortcutName: "optionsShortcut"
+                    shortcutDisplayName: qsTr("Options")
                 }
                 ShortcutRow {
                     shortcutName: "penToolShortcut"
