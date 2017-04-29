@@ -558,6 +558,10 @@ int TestHelper::digitAt(int number, int index)
 
 void TestHelper::triggerShortcut(const QString &sequenceAsString)
 {
+    // Move the mouse away first to close ToolTip: https://bugreports.qt.io/browse/QTBUG-60492
+    if (canvas)
+        QTest::mouseMove(window, canvasSceneCentre());
+
     QTest::qWaitForWindowActive(window);
     const int value = QKeySequence(sequenceAsString)[0];
     Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(value & Qt::KeyboardModifierMask);
@@ -631,8 +635,7 @@ void TestHelper::triggerCentre()
     mouseEventOnCentre(viewToolButton, MouseClick);
     mouseEventOnCentre(centreMenuButton, MouseClick);
 #else
-    QFAIL("TODO: no centre shortcut");
-//    triggerShortcut(app.settings()->centreShortcut());
+    triggerShortcut(app.settings()->centreShortcut());
 #endif
 }
 

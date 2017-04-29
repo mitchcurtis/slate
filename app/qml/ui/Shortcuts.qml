@@ -19,13 +19,13 @@ Item {
     Shortcut {
         id: s
         sequence: settings.newShortcut
-        onActivated: window.newProjectPopup.open()
+        onActivated: doIfChangesDiscarded(function() { newProjectPopup.open() })
         enabled: !modalPopupsOpen
     }
 
     Shortcut {
         sequence: settings.openShortcut
-        onActivated: window.openProjectDialog.open()
+        onActivated: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
         enabled: !modalPopupsOpen
     }
 
@@ -37,7 +37,7 @@ Item {
 
     Shortcut {
         sequence: settings.closeShortcut
-        onActivated: project.close()
+        onActivated: doIfChangesDiscarded(function() { project.close() })
         enabled: !modalPopupsOpen
     }
 
@@ -67,6 +67,13 @@ Item {
     Shortcut {
         sequence: settings.splitScreenShortcut
         onActivated: settings.splitScreen = !settings.splitScreen
+        enabled: !modalPopupsOpen
+    }
+
+    Shortcut {
+        sequence: settings.centreShortcut
+        onActivated: canvas.centreView()
+        enabled: !modalPopupsOpen
     }
 
     Shortcut {

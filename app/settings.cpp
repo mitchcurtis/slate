@@ -164,6 +164,7 @@ void Settings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("revertShortcut"));
         allShortcuts.append(QLatin1String("undoShortcut"));
         allShortcuts.append(QLatin1String("redoShortcut"));
+        allShortcuts.append(QLatin1String("centreShortcut"));
         allShortcuts.append(QLatin1String("gridVisibleShortcut"));
         allShortcuts.append(QLatin1String("splitScreenShortcut"));
         allShortcuts.append(QLatin1String("optionsShortcut"));
@@ -332,6 +333,21 @@ QString Settings::gridVisibleShortcut() const
 void Settings::setGridVisibleShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("gridVisibleShortcut", defaultGridVisibleShortcut, gridVisibleShortcutChanged)
+}
+
+QString Settings::defaultCentreShortcut() const
+{
+    return QLatin1String("Ctrl+Space");
+}
+
+QString Settings::centreShortcut() const
+{
+    GET_SHORTCUT("centreShortcut", defaultCentreShortcut)
+}
+
+void Settings::setCentreShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("centreShortcut", defaultCentreShortcut, centreShortcutChanged)
 }
 
 QString Settings::defaultSplitScreenShortcut() const
