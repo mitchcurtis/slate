@@ -16,12 +16,6 @@ Item {
         id: fontMetrics
     }
 
-    TextMetrics {
-        id: cursorMaxTextMetrics
-        font.pixelSize: fontMetrics.font.pixelSize
-        text: "999, 999"
-    }
-
     Loader {
         id: loader
         objectName: "canvasContainerLoader"
@@ -64,10 +58,11 @@ Item {
 
     Pane {
         id: statusBarPane
-        z: 1
         objectName: "statusBarPane"
+        z: 1
         width: parent.width
         contentHeight: statusBarLayout.implicitHeight
+        padding: 6
         anchors.bottom: parent.bottom
 
         Rectangle {
@@ -103,7 +98,8 @@ Item {
             }
 
             Label {
-                objectName: "cursorTilePixelPosLabel"
+                id: cursorPixelPosLabel
+                objectName: "cursorPixelPosLabel"
                 text: {
                     if (!canvas)
                         return "-1, -1";
@@ -113,8 +109,56 @@ Item {
 
                     return canvas.cursorSceneX + ", " + canvas.cursorSceneY;
                 }
-                Layout.preferredWidth: Math.max(cursorMaxTextMetrics.width, implicitWidth)
                 anchors.verticalCenter: parent.verticalCenter
+
+                Layout.minimumWidth: cursorMaxTextMetrics.width
+                Layout.maximumWidth: cursorMaxTextMetrics.width
+
+                TextMetrics {
+                    id: cursorMaxTextMetrics
+                    font: pointerIconLabel.font
+                    text: "999, 999"
+                }
+            }
+
+            ToolSeparator {
+                padding: 0
+                anchors.verticalCenter: parent.verticalCenter
+
+                Layout.fillHeight: true
+                Layout.maximumHeight: 24
+            }
+
+            Label {
+                id: selectionIconLabel
+                text: "\uf0ce"
+                font.family: "FontAwesome"
+                font.pixelSize: fontMetrics.font.pixelSize * 1.2
+                horizontalAlignment: Label.AlignHCenter
+                anchors.verticalCenter: parent.verticalCenter
+
+                Layout.preferredWidth: Math.max(26, implicitWidth)
+            }
+
+            Label {
+                id: selectionSizeLabel
+                objectName: "selectionSizeLabel"
+                text: {
+                    if (!canvas)
+                        return "0 x 0";
+
+                    return canvas.selectionArea.width + " x " + canvas.selectionArea.height
+                }
+                anchors.verticalCenter: parent.verticalCenter
+
+                Layout.minimumWidth: selectionAreaMaxTextMetrics.width
+                Layout.maximumWidth: selectionAreaMaxTextMetrics.width
+
+                TextMetrics {
+                    id: selectionAreaMaxTextMetrics
+                    font: selectionIconLabel.font
+                    text: "999 x 999"
+                }
             }
 
             Item {
@@ -125,6 +169,7 @@ Item {
                 objectName: "firstPaneZoomIndicator"
                 pane: canvas ? canvas.firstPane : null
                 fontMetrics: fontMetrics
+                anchors.verticalCenter: parent.verticalCenter
             }
         }
 
@@ -135,6 +180,7 @@ Item {
             visible: project && canvas && project.loaded && canvas.splitScreen
             pane: canvas ? canvas.secondPane : null
             fontMetrics: fontMetrics
+            anchors.verticalCenter: parent.verticalCenter
         }
     }
 
@@ -153,6 +199,7 @@ Item {
             gridVisible: settings.gridVisible
             gridColour: "#55000000"
             splitScreen: settings.splitScreen
+            splitColour: CanvasColours.splitColour
             splitter.enabled: settings.splitScreen && !settings.splitterLocked
             splitter.width: 32
             anchors.fill: parent
@@ -178,6 +225,7 @@ Item {
             gridVisible: settings.gridVisible
             gridColour: "#55000000"
             splitScreen: settings.splitScreen
+            splitColour: CanvasColours.splitColour
             splitter.enabled: settings.splitScreen && !settings.splitterLocked
             splitter.width: 32
             anchors.fill: parent
