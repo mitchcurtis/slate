@@ -65,7 +65,6 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(QColor penForegroundColour READ penForegroundColour WRITE setPenForegroundColour NOTIFY penForegroundColourChanged)
     Q_PROPERTY(QColor penBackgroundColour READ penBackgroundColour WRITE setPenBackgroundColour NOTIFY penBackgroundColourChanged)
     Q_PROPERTY(bool hasBlankCursor READ hasBlankCursor NOTIFY hasBlankCursorChanged)
-    Q_PROPERTY(bool modalPopupsOpen READ arePopupsOpen NOTIFY modalPopupsOpenChanged)
     Q_PROPERTY(bool altPressed READ isAltPressed NOTIFY altPressedChanged)
 
 public:
@@ -139,8 +138,6 @@ public:
 
     bool hasBlankCursor() const;
 
-    bool arePopupsOpen() const;
-
     bool isAltPressed() const;
 
     QPoint scenePosToTilePixelPos(const QPoint &scenePos) const;
@@ -178,7 +175,6 @@ public slots:
 protected slots:
     virtual void onLoadedChanged();
     void updateWindowCursorShape();
-    void checkIfPopupsOpen();
     void onSplitterPositionChanged();
 
 protected:
@@ -277,8 +273,6 @@ protected:
     Tool mToolBeforeAltPressed;
     bool mSpacePressed;
     bool mHasBlankCursor;
-
-    bool mPopupsOpen;
 };
 
 #endif // IMAGECANVAS_H

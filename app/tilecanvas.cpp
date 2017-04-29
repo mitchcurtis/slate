@@ -610,7 +610,7 @@ void TileCanvas::setHasBlankCursor(bool hasCustomCursor)
 
 void TileCanvas::updateTilePenPreview()
 {
-    setTilePenPreview(!arePopupsOpen() && mMode == TileMode && mTool == PenTool);
+    setTilePenPreview(mMode == TileMode && mTool == PenTool);
 }
 
 void TileCanvas::setTilePenPreview(bool tilePenPreview)

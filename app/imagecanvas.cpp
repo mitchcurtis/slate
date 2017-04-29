@@ -400,11 +400,6 @@ QColor ImageCanvas::mapBackgroundColour() const
     return mBackgroundColour;
 }
 
-bool ImageCanvas::arePopupsOpen() const
-{
-    return mPopupsOpen;
-}
-
 bool ImageCanvas::isAltPressed() const
 {
     return mAltPressed;
@@ -426,11 +421,12 @@ void ImageCanvas::connectSignals()
     connect(mProject, SIGNAL(projectClosed()), this, SLOT(reset()));
     connect(mProject, SIGNAL(sizeChanged()), this, SLOT(update()));
 
-    connect(window(), SIGNAL(activeFocusItemChanged()), this, SLOT(checkIfPopupsOpen()));
+    connect(window(), SIGNAL(activeFocusItemChanged()), this, SLOT(updateWindowCursorShape()));
     // More hacks. Doing this because activeFocusItemChanged() doesn't seem to get called
     // when the last new project popup has finished its exit transition.
-    QQuickItem *overlay = window()->property("overlay").value<QQuickItem*>();
-    connect(overlay, SIGNAL(childrenChanged()), this, SLOT(checkIfPopupsOpen()));
+    // TODO: still necessary?
+//    QQuickItem *overlay = window()->property("overlay").value<QQuickItem*>();
+//    connect(overlay, SIGNAL(childrenChanged()), this, SLOT(updateWindowCursorShape()));
 
     centrePanes();
 }
@@ -456,30 +452,6 @@ void ImageCanvas::toolChange()
 bool ImageCanvas::hasBlankCursor() const
 {
     return mHasBlankCursor;
-}
-
-// This is a hack and should be replaced with something proper.
-void ImageCanvas::checkIfPopupsOpen()
-{
-    if (!window())
-        return;
-
-    const bool wasOpen = mPopupsOpen;
-
-    QQuickItem *overlay = window()->property("overlay").value<QQuickItem*>();
-    Q_ASSERT(overlay);
-
-    mPopupsOpen = false;
-    foreach (QQuickItem *child, overlay->childItems()) {
-        if (QString::fromLatin1(child->metaObject()->className()).contains("QQuickPopup")) {
-            mPopupsOpen = true;
-        }
-    }
-
-    if (mPopupsOpen != wasOpen) {
-        updateWindowCursorShape();
-        emit modalPopupsOpenChanged();
-    }
 }
 
 void ImageCanvas::onSplitterPositionChanged()

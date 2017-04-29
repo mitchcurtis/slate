@@ -8,8 +8,7 @@ Item {
     property Project project: projectManager.project
     property int projectType: project ? project.type : 0
     property ImageCanvas canvas
-
-    readonly property bool modalPopupsOpen: canvas ? canvas.modalPopupsOpen : false
+    readonly property bool canvasHasActiveFocus: canvas ? canvas.activeFocus : false
 
     Shortcut {
         sequence: settings.quitShortcut
@@ -20,43 +19,43 @@ Item {
         id: s
         sequence: settings.newShortcut
         onActivated: doIfChangesDiscarded(function() { newProjectPopup.open() })
-        enabled: !modalPopupsOpen
+        enabled: canvasHasActiveFocus
     }
 
     Shortcut {
         sequence: settings.openShortcut
         onActivated: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
-        enabled: !modalPopupsOpen
+        enabled: canvasHasActiveFocus
     }
 
     Shortcut {
         sequence: settings.saveShortcut
         onActivated: projectManager.saveOrSaveAs()
-        enabled: !modalPopupsOpen && (project ? project.canSave : false)
+        enabled: canvasHasActiveFocus && (project ? project.canSave : false)
     }
 
     Shortcut {
         sequence: settings.closeShortcut
         onActivated: doIfChangesDiscarded(function() { project.close() })
-        enabled: !modalPopupsOpen
+        enabled: canvasHasActiveFocus
     }
 
     Shortcut {
         sequence: settings.revertShortcut
         onActivated: project.revert()
-        enabled: !modalPopupsOpen
+        enabled: canvasHasActiveFocus
     }
 
     Shortcut {
         sequence: settings.undoShortcut
         onActivated: project.undoStack.undo()
-        enabled: !modalPopupsOpen
+        enabled: canvasHasActiveFocus
     }
 
     Shortcut {
         sequence: settings.redoShortcut
         onActivated: project.undoStack.redo()
-        enabled: !modalPopupsOpen
+        enabled: canvasHasActiveFocus
     }
 
     Shortcut {
@@ -67,19 +66,19 @@ Item {
     Shortcut {
         sequence: settings.splitScreenShortcut
         onActivated: settings.splitScreen = !settings.splitScreen
-        enabled: !modalPopupsOpen
+        enabled: canvasHasActiveFocus
     }
 
     Shortcut {
         sequence: settings.centreShortcut
         onActivated: canvas.centreView()
-        enabled: !modalPopupsOpen
+        enabled: canvasHasActiveFocus
     }
 
     Shortcut {
         sequence: settings.optionsShortcut
         onActivated: optionsDialog.open()
-        enabled: !modalPopupsOpen
+        enabled: canvasHasActiveFocus
     }
 
     Shortcut {

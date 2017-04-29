@@ -240,7 +240,7 @@ ApplicationWindow {
         x: parent.width / 2 - width / 2
         y: parent.height / 2 - height / 2
         // TODO: shouldn't have to do this, but not even a FocusScope around TileCanvas worked..
-        onVisibleChanged: canvas.focus = true
+        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }
 
     Ui.NewProjectPopup {
@@ -252,7 +252,7 @@ ApplicationWindow {
 
         onChoseTilesetProject: newTilesetProjectPopup.open()
         onChoseImageProject: newImageProjectPopup.open()
-        onRejected: canvas.focus = true
+        onRejected: if (window.canvas) window.canvas.forceActiveFocus()
     }
 
     function createNewProject(type) {
@@ -283,7 +283,7 @@ ApplicationWindow {
         id: newTilesetProjectPopup
         x: parent.width / 2 - width / 2
         y: parent.height / 2 - height / 2
-        onVisibleChanged: if (window.canvas) window.canvas.focus = true
+        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
 
         onAccepted: createNewProject(Project.TilesetType)
     }
@@ -292,7 +292,7 @@ ApplicationWindow {
         id: newImageProjectPopup
         x: parent.width / 2 - width / 2
         y: parent.height / 2 - height / 2
-        onVisibleChanged: if (window.canvas) window.canvas.focus = true
+        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
 
         onAccepted: createNewProject(Project.ImageType)
     }
@@ -301,7 +301,7 @@ ApplicationWindow {
         id: optionsDialog
         x: parent.width / 2 - width / 2
         y: parent.height / 2 - implicitHeight / 2
-        onVisibleChanged: if (window.canvas) window.canvas.focus = true
+        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }
 
     Dialog {
@@ -311,6 +311,8 @@ ApplicationWindow {
         y: parent.height / 2 - height / 2
         title: qsTr("Unsaved changes")
         standardButtons: Dialog.Yes | Dialog.No
+        modal: true
+        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
 
         Label {
             text: qsTr("The action you're about to perform could discard changes.\n\nContinue anyway?")
