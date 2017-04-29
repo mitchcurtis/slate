@@ -16,7 +16,7 @@ RowLayout {
     TextMetrics {
         id: maxZoomTextMetrics
         font.pixelSize: pixelSize
-        text: zoomLevelText.text
+        text: pane ? pane.maxZoomLevel.toString() : "99"
     }
 
     Label {

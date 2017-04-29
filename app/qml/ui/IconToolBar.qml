@@ -1,5 +1,4 @@
 import QtQuick 2.6
-import QtQuick.Layouts 1.2
 import QtQuick.Controls 2.1
 
 import App 1.0
@@ -18,12 +17,6 @@ Item {
     property FontMetrics fontMetrics
 
     property alias toolButtonGroup: toolButtonGroup
-
-    TextMetrics {
-        id: cursorMaxTextMetrics
-        font.pixelSize: fontMetrics.font.pixelSize
-        text: "999, 999"
-    }
 
     function switchTool(tool) {
         root.ignoreToolChanges = true;
@@ -258,36 +251,6 @@ Item {
 
         ToolSeparator {
             id: toolSeparator
-        }
-
-        RowLayout {
-            anchors.verticalCenter: parent.verticalCenter
-
-            Label {
-                id: pointerIconLabel
-                text: "\uf245"
-                font.family: "FontAwesome"
-                font.pixelSize: fontMetrics.font.pixelSize * 1.2
-                horizontalAlignment: Label.AlignHCenter
-                anchors.verticalCenter: parent.verticalCenter
-
-                Layout.preferredWidth: Math.max(26, implicitWidth)
-            }
-
-            Label {
-                objectName: "cursorTilePixelPosLabel"
-                text: {
-                    if (!canvas)
-                        return "-1, -1";
-
-                    if (canvas.hasOwnProperty("cursorTilePixelX"))
-                        return canvas.cursorTilePixelX + ", " + canvas.cursorTilePixelY;
-
-                    return canvas.cursorSceneX + ", " + canvas.cursorSceneY;
-                }
-                width: Math.max(cursorMaxTextMetrics.width, implicitWidth)
-                anchors.verticalCenter: parent.verticalCenter
-            }
         }
     }
 }

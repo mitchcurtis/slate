@@ -25,5 +25,6 @@ QtObject {
     // The light theme's background colour is too white for the crosshair cursor.
     property color backgroundColour: Material.theme === Material.Dark ? Material.background : "#ccc"
     property color panelColour: "#424242"
-    property color focusColor: Material.accent
+    property color focusColour: Material.accent
+    property color splitColour: "#444"
 }

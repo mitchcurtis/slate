@@ -25,5 +25,6 @@ import QtQuick.Controls.Universal 2.1
 QtObject {
     property color backgroundColour: Universal.background
     property color panelColour: "#424242"
-    property color focusColor: Universal.accent
+    property color focusColour: Universal.accent
+    property color splitColour: "#444"
 }

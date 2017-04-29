@@ -1,5 +1,6 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.1
+import QtQuick.Layouts 1.3
 
 import App 1.0
 
@@ -13,6 +14,12 @@ Item {
 
     FontMetrics {
         id: fontMetrics
+    }
+
+    TextMetrics {
+        id: cursorMaxTextMetrics
+        font.pixelSize: fontMetrics.font.pixelSize
+        text: "999, 999"
     }
 
     Loader {
@@ -55,26 +62,80 @@ Item {
         text: checkedToolButton.iconText
     }
 
-    ZoomIndicator {
-        objectName: "firstPaneZoomIndicator"
-        x: canvas ? canvas.firstPane.size * canvas.width - width - 16 : 0
+    Pane {
+        id: statusBarPane
         z: 1
-        anchors.bottom: canvasContainer.bottom
-        anchors.bottomMargin: 16
-        visible: project && canvas && project.loaded
-        pane: canvas ? canvas.firstPane : null
-        fontMetrics: fontMetrics
-    }
+        objectName: "statusBarPane"
+        width: parent.width
+        contentHeight: statusBarLayout.implicitHeight
+        anchors.bottom: parent.bottom
 
-    ZoomIndicator {
-        objectName: "secondPaneZoomIndicator"
-        z: 1
-        anchors.right: canvasContainer.right
-        anchors.bottom: canvasContainer.bottom
-        anchors.margins: 16
-        visible: project && canvas && project.loaded && canvas.splitScreen
-        pane: canvas ? canvas.secondPane : null
-        fontMetrics: fontMetrics
+        Rectangle {
+            parent: statusBarPane.background
+            width: parent.width
+            height: 1
+            color: "#444"
+        }
+
+        Rectangle {
+            parent: statusBarPane.background
+            x: parent.width
+            width: 1
+            height: parent.height
+            color: "#444"
+        }
+
+        RowLayout {
+            id: statusBarLayout
+            width: canvas ? canvas.firstPane.size * canvas.width - statusBarPane.padding * 2 : parent.width
+            visible: project && canvas && project.loaded
+            anchors.verticalCenter: parent.verticalCenter
+
+            Label {
+                id: pointerIconLabel
+                text: "\uf245"
+                font.family: "FontAwesome"
+                font.pixelSize: fontMetrics.font.pixelSize * 1.2
+                horizontalAlignment: Label.AlignHCenter
+                anchors.verticalCenter: parent.verticalCenter
+
+                Layout.preferredWidth: Math.max(26, implicitWidth)
+            }
+
+            Label {
+                objectName: "cursorTilePixelPosLabel"
+                text: {
+                    if (!canvas)
+                        return "-1, -1";
+
+                    if (canvas.hasOwnProperty("cursorTilePixelX"))
+                        return canvas.cursorTilePixelX + ", " + canvas.cursorTilePixelY;
+
+                    return canvas.cursorSceneX + ", " + canvas.cursorSceneY;
+                }
+                Layout.preferredWidth: Math.max(cursorMaxTextMetrics.width, implicitWidth)
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Item {
+                Layout.fillWidth: true
+            }
+
+            ZoomIndicator {
+                objectName: "firstPaneZoomIndicator"
+                pane: canvas ? canvas.firstPane : null
+                fontMetrics: fontMetrics
+            }
+        }
+
+        ZoomIndicator {
+            objectName: "secondPaneZoomIndicator"
+            z: 1
+            anchors.right: parent.right
+            visible: project && canvas && project.loaded && canvas.splitScreen
+            pane: canvas ? canvas.secondPane : null
+            fontMetrics: fontMetrics
+        }
     }
 
     Component {

@@ -229,7 +229,7 @@ GridLayout {
         implicitWidth: lightnessLabel.implicitWidth
         implicitHeight: lightnessLabel.implicitHeight
         gradient: Gradient {
-            GradientStop { position: 0; color: Ui.CanvasColours.focusColor }
+            GradientStop { position: 0; color: Ui.CanvasColours.focusColour }
             GradientStop { position: 1; color: "#ccc" }
         }
 

@@ -90,7 +90,7 @@ Pane {
                 tilesWide: project && project.tileset ? project.tileset.tilesWide : 1
                 tilesHigh: project && project.tileset ? project.tileset.tilesHigh : 1
                 colour: tileCanvas ? tileCanvas.gridColour : "black"
-                highlightColour: Ui.CanvasColours.focusColor
+                highlightColour: Ui.CanvasColours.focusColour
                 anchors.fill: parent
             }
         }
