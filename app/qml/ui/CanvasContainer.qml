@@ -82,6 +82,7 @@ Item {
 
         RowLayout {
             id: statusBarLayout
+            objectName: "statusBarLayout"
             width: canvas ? canvas.firstPane.size * canvas.width - statusBarPane.padding * 2 : parent.width
             visible: project && canvas && project.loaded
             anchors.verticalCenter: parent.verticalCenter
@@ -116,7 +117,7 @@ Item {
 
                 TextMetrics {
                     id: cursorMaxTextMetrics
-                    font: pointerIconLabel.font
+                    font: cursorPixelPosLabel.font
                     text: "999, 999"
                 }
             }
@@ -129,15 +130,11 @@ Item {
                 Layout.maximumHeight: 24
             }
 
-            Label {
-                id: selectionIconLabel
-                text: "\uf0ce"
-                font.family: "FontAwesome"
-                font.pixelSize: fontMetrics.font.pixelSize * 1.2
-                horizontalAlignment: Label.AlignHCenter
+            Image {
+                id: selectionIcon
+                source: "qrc:/images/selection.png"
                 anchors.verticalCenter: parent.verticalCenter
-
-                Layout.preferredWidth: Math.max(26, implicitWidth)
+                Layout.rightMargin: 6
             }
 
             Label {
@@ -156,7 +153,7 @@ Item {
 
                 TextMetrics {
                     id: selectionAreaMaxTextMetrics
-                    font: selectionIconLabel.font
+                    font: selectionSizeLabel.font
                     text: "999 x 999"
                 }
             }

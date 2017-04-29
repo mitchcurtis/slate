@@ -9,5 +9,9 @@
         <file>change-size@2x.png</file>
         <file>change-size@3x.png</file>
         <file>change-size@4x.png</file>
+        <file>selection.png</file>
+        <file>selection@2x.png</file>
+        <file>selection@3x.png</file>
+        <file>selection@4x.png</file>
     </qresource>
 </RCC>
