@@ -154,7 +154,7 @@ Item {
                 ToolTip.text: qsTr("Draw pixels or tiles on the canvas")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(TileCanvas.PenTool)
+                onClicked: switchTool(ImageCanvas.PenTool)
             }
 
             Ui.IconToolButton {
@@ -167,7 +167,7 @@ Item {
                 ToolTip.text: qsTr("Select colours or tiles from the canvas")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(TileCanvas.EyeDropperTool)
+                onClicked: switchTool(ImageCanvas.EyeDropperTool)
             }
 
             Ui.IconToolButton {
@@ -180,7 +180,7 @@ Item {
                 ToolTip.text: qsTr("Erase pixels or tiles from the canvas")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(TileCanvas.EraserTool)
+                onClicked: switchTool(ImageCanvas.EraserTool)
             }
 
             Ui.IconToolButton {
@@ -193,8 +193,21 @@ Item {
                 ToolTip.text: qsTr("Fill a contiguous area with pixels or tiles")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(TileCanvas.FillTool)
+                onClicked: switchTool(ImageCanvas.FillTool)
             }
+
+//            Ui.IconToolButton {
+//                id: selectionToolButton
+//                objectName: "selectionToolButton"
+//                iconText: "\uf0ce"
+//                checkable: true
+//                hoverEnabled: true
+
+//                ToolTip.text: qsTr("Select pixels within an area and move them")
+//                ToolTip.visible: hovered
+
+//                onClicked: switchTool(ImageCanvas.SelectionTool)
+//            }
 
             ToolSeparator {}
         }

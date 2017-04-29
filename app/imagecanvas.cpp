@@ -311,6 +311,20 @@ void ImageCanvas::setPenBackgroundColour(const QColor &penBackgroundColour)
     emit penBackgroundColourChanged();
 }
 
+QRect ImageCanvas::selectionArea() const
+{
+    return mSelectionArea;
+}
+
+void ImageCanvas::setSelectionArea(const QRect &selectionArea)
+{
+    if (selectionArea == mSelectionArea)
+        return;
+
+    mSelectionArea = selectionArea;
+    emit selectionAreaChanged();
+}
+
 QColor ImageCanvas::cursorPixelColour() const
 {
     return mCursorPixelColour;
@@ -513,6 +527,15 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
 
     const QImage image = *mImageProject->image();
     painter->drawImage(QRectF(QPointF(0, 0), pane.zoomedSize(image.size())), image, QRectF(0, 0, image.width(), image.height()));
+
+    // Draw the selection area.
+    QPen pen;
+    QVector<qreal> dashes;
+    dashes << 4 << 4;
+    pen.setDashPattern(dashes);
+    const QRect zoomedSelectionArea = QRect(mSelectionArea.topLeft(), pane.zoomedSize(mSelectionArea.size()));
+    painter->setPen(pen);
+    painter->drawRect(zoomedSelectionArea);
 
     painter->restore();
 }

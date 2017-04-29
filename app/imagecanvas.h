@@ -64,6 +64,7 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(int maxToolSize READ maxToolSize CONSTANT)
     Q_PROPERTY(QColor penForegroundColour READ penForegroundColour WRITE setPenForegroundColour NOTIFY penForegroundColourChanged)
     Q_PROPERTY(QColor penBackgroundColour READ penBackgroundColour WRITE setPenBackgroundColour NOTIFY penBackgroundColourChanged)
+    Q_PROPERTY(QRect selectionArea READ selectionArea WRITE setSelectionArea NOTIFY selectionAreaChanged)
     Q_PROPERTY(bool hasBlankCursor READ hasBlankCursor NOTIFY hasBlankCursorChanged)
     Q_PROPERTY(bool altPressed READ isAltPressed NOTIFY altPressedChanged)
 
@@ -72,7 +73,8 @@ public:
         PenTool,
         EyeDropperTool,
         EraserTool,
-        FillTool
+        FillTool,
+        SelectionTool
     };
 
     Q_ENUM(Tool)
@@ -136,6 +138,9 @@ public:
     QColor penBackgroundColour() const;
     void setPenBackgroundColour(const QColor &penBackgroundColour);
 
+    QRect selectionArea() const;
+    void setSelectionArea(const QRect &selectionArea);
+
     bool hasBlankCursor() const;
 
     bool isAltPressed() const;
@@ -164,7 +169,7 @@ signals:
     void penForegroundColourChanged();
     void penBackgroundColourChanged();
     void hasBlankCursorChanged();
-    void modalPopupsOpenChanged();
+    void selectionAreaChanged();
     void altPressedChanged();
     void errorOccurred(const QString &errorMessage);
 
@@ -268,6 +273,7 @@ protected:
     int mMaxToolSize;
     QColor mPenForegroundColour;
     QColor mPenBackgroundColour;
+    QRect mSelectionArea;
 
     bool mAltPressed;
     Tool mToolBeforeAltPressed;
