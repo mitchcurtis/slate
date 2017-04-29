@@ -488,6 +488,8 @@ void TileCanvas::applyCurrentTool()
         }
         break;
     }
+    default:
+        break;
     }
 }
 

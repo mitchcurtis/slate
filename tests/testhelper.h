@@ -188,6 +188,7 @@ protected:
     QQuickItem *eyeDropperToolButton;
     QQuickItem *fillToolButton;
     QQuickItem *eraserToolButton;
+    QQuickItem *selectionToolButton;
     QQuickItem *toolSizeButton;
     QQuickItem *undoButton;
     QQuickItem *redoButton;

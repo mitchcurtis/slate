@@ -13,6 +13,7 @@ Item {
     implicitHeight: toolbarRow.implicitHeight
 
     property Project project
+    property int projectType: project ? project.type : 0
     property ImageCanvas canvas
     property FontMetrics fontMetrics
 
@@ -121,7 +122,7 @@ Item {
             checked: canvas && canvas.mode === TileCanvas.TileMode
             checkable: true
             hoverEnabled: true
-            enabled: canvas && project && project.type === Project.TilesetType
+            enabled: canvas && projectType === Project.TilesetType
 
             ToolTip.text: qsTr("Operate on either pixels or whole tiles")
             ToolTip.visible: hovered
@@ -196,18 +197,19 @@ Item {
                 onClicked: switchTool(ImageCanvas.FillTool)
             }
 
-//            Ui.IconToolButton {
-//                id: selectionToolButton
-//                objectName: "selectionToolButton"
-//                iconText: "\uf0ce"
-//                checkable: true
-//                hoverEnabled: true
+            Ui.IconToolButton {
+                id: selectionToolButton
+                objectName: "selectionToolButton"
+                iconText: "\uf0ce"
+                checkable: true
+                hoverEnabled: true
+                enabled: projectType === Project.ImageType
 
-//                ToolTip.text: qsTr("Select pixels within an area and move them")
-//                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Select pixels within an area and move them")
+                ToolTip.visible: hovered
 
-//                onClicked: switchTool(ImageCanvas.SelectionTool)
-//            }
+                onClicked: switchTool(ImageCanvas.SelectionTool)
+            }
 
             ToolSeparator {}
         }

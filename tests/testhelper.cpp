@@ -54,6 +54,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     eyeDropperToolButton(nullptr),
     fillToolButton(nullptr),
     eraserToolButton(nullptr),
+    selectionToolButton(nullptr),
     toolSizeButton(nullptr),
     undoButton(nullptr),
     redoButton(nullptr),
@@ -160,6 +161,9 @@ void TestHelper::initTestCase()
 
     eraserToolButton = window->findChild<QQuickItem*>("eraserToolButton");
     QVERIFY(eraserToolButton);
+
+    selectionToolButton = window->findChild<QQuickItem*>("selectionToolButton");
+    QVERIFY(selectionToolButton);
 
     toolSizeButton = window->findChild<QQuickItem*>("toolSizeButton");
     QVERIFY(toolSizeButton);
@@ -1046,6 +1050,8 @@ void TestHelper::switchTool(ImageCanvas::Tool tool)
         mouseEventOnCentre(fillToolButton, MouseClick);
     } else if (tool == ImageCanvas::EraserTool) {
         mouseEventOnCentre(eraserToolButton, MouseClick);
+    } else if (tool == ImageCanvas::SelectionTool) {
+        mouseEventOnCentre(selectionToolButton, MouseClick);
     }
     QCOMPARE(canvas->tool(), tool);
 }

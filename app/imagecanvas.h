@@ -64,7 +64,7 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(int maxToolSize READ maxToolSize CONSTANT)
     Q_PROPERTY(QColor penForegroundColour READ penForegroundColour WRITE setPenForegroundColour NOTIFY penForegroundColourChanged)
     Q_PROPERTY(QColor penBackgroundColour READ penBackgroundColour WRITE setPenBackgroundColour NOTIFY penBackgroundColourChanged)
-    Q_PROPERTY(QRect selectionArea READ selectionArea WRITE setSelectionArea NOTIFY selectionAreaChanged)
+    Q_PROPERTY(QRect selectionArea READ selectionArea NOTIFY selectionAreaChanged)
     Q_PROPERTY(bool hasBlankCursor READ hasBlankCursor NOTIFY hasBlankCursorChanged)
     Q_PROPERTY(bool altPressed READ isAltPressed NOTIFY altPressedChanged)
 
@@ -217,6 +217,9 @@ protected:
     void centrePanes(bool respectSceneCentred = true);
     bool mouseOverSplitterHandle(const QPoint &mousePos);
 
+    void updateSelectionArea();
+    void clearSelectionArea();
+
     void setAltPressed(bool altPressed);
 
     virtual void connectSignals();
@@ -236,6 +239,7 @@ protected:
     void focusOutEvent(QFocusEvent *event) override;
 
     Project *mProject;
+
 private:
     ImageProject *mImageProject;
 
@@ -267,6 +271,7 @@ protected:
     bool mContainsMouse;
     Qt::MouseButton mMouseButtonPressed;
     QPoint mPressPosition;
+    QPoint mPressScenePosition;
     QPoint mCurrentPaneOffsetBeforePress;
     Tool mTool;
     int mToolSize;

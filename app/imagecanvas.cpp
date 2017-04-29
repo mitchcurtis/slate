@@ -247,6 +247,10 @@ void ImageCanvas::setTool(const Tool &tool)
         return;
 
     mTool = tool;
+    // The selection tool doesn't follow the undo rules, so we have to clear
+    // the selected area if a different tool is chosen.
+    if (mTool != SelectionTool)
+        clearSelectionArea();
     toolChange();
     emit toolChanged();
 }
@@ -318,10 +322,12 @@ QRect ImageCanvas::selectionArea() const
 
 void ImageCanvas::setSelectionArea(const QRect &selectionArea)
 {
-    if (selectionArea == mSelectionArea)
+    const QRect normalisedArea = selectionArea.normalized();
+    if (normalisedArea == mSelectionArea)
         return;
 
-    mSelectionArea = selectionArea;
+    mSelectionArea = normalisedArea;
+    update();
     emit selectionAreaChanged();
 }
 
@@ -571,6 +577,28 @@ bool ImageCanvas::mouseOverSplitterHandle(const QPoint &mousePos)
     return splitterRegion.contains(mousePos);
 }
 
+void ImageCanvas::updateSelectionArea()
+{
+    QRect newSelectionArea;
+
+    const int boundPressSceneX = qBound(0, mPressScenePosition.x(), mProject->widthInPixels());
+    const int boundPressSceneY = qBound(0, mPressScenePosition.y(), mProject->heightInPixels());
+    newSelectionArea.setX(boundPressSceneX);
+    newSelectionArea.setY(boundPressSceneY);
+
+    const int boundCursorSceneX = qBound(0, mCursorSceneX, mProject->widthInPixels());
+    const int boundCursorSceneY = qBound(0, mCursorSceneY, mProject->heightInPixels());
+    newSelectionArea.setWidth(boundCursorSceneX - boundPressSceneX);
+    newSelectionArea.setHeight(boundCursorSceneY - boundPressSceneY);
+
+    setSelectionArea(newSelectionArea);
+}
+
+void ImageCanvas::clearSelectionArea()
+{
+    setSelectionArea(QRect());
+}
+
 void ImageCanvas::reset()
 {
     mFirstPane.reset();
@@ -588,7 +616,9 @@ void ImageCanvas::reset()
     mContainsMouse = false;
     mMouseButtonPressed = Qt::NoButton;
     mPressPosition = QPoint(0, 0);
+    mPressScenePosition = QPoint(0, 0);
     mCurrentPaneOffsetBeforePress = QPoint(0, 0);
+    mSelectionArea = QRect(0, 0, 0, 0);
     setAltPressed(false);
     mToolBeforeAltPressed = PenTool;
     mSpacePressed = false;
@@ -705,6 +735,8 @@ void ImageCanvas::applyCurrentTool()
             candidateData.previousColours.first(), penColour()));
         break;
     }
+    default:
+        break;
     }
 }
 
@@ -908,14 +940,17 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
 
     mMouseButtonPressed = event->button();
     mPressPosition = event->pos();
+    mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
     mCurrentPaneOffsetBeforePress = mCurrentPane->offset();
     setContainsMouse(true);
     // Pressing the mouse while holding down space should pan.
     if (!mSpacePressed) {
         if (mSplitter.isEnabled() && mouseOverSplitterHandle(event->pos())) {
             mSplitter.setPressed(true);
-        } else {
+        } else if (mTool != SelectionTool) {
             applyCurrentTool();
+        } else {
+            updateSelectionArea();
         }
     } else {
         updateWindowCursorShape();
@@ -938,7 +973,10 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
             mSplitter.setPosition(mCursorX / width());
         } else {
             if (!mSpacePressed) {
-                applyCurrentTool();
+                if (mTool != SelectionTool)
+                    applyCurrentTool();
+                else
+                    updateSelectionArea();
             } else {
                 // Panning.
                 mCurrentPane->setSceneCentered(false);
@@ -958,12 +996,17 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
     if (!mProject->hasLoaded())
         return;
 
+    if (mTool == SelectionTool) {
+        updateSelectionArea();
+    }
+
     if (mProject->isComposingMacro()) {
         mProject->endMacro();
     }
 
     mMouseButtonPressed = Qt::NoButton;
     mPressPosition = QPoint(0, 0);
+    mPressScenePosition = QPoint(0, 0);
     mCurrentPaneOffsetBeforePress = QPoint(0, 0);
     updateWindowCursorShape();
     mSplitter.setPressed(false);

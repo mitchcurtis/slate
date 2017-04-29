@@ -70,6 +70,7 @@ private Q_SLOTS:
     void cursorShapeAfterClickingLighter();
 //    void colourPickerHexField();
     void eraseImageCanvas();
+    void selectionToolImageCanvas();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -1462,6 +1463,92 @@ void tst_App::eraseImageCanvas()
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 
     QCOMPARE(imageProject->image()->pixelColor(cursorPos), QColor(Qt::transparent));
+}
+
+struct SelectionData
+{
+    SelectionData(const QPoint &pressScenePos = QPoint(),
+            const QPoint &releaseScenePos = QPoint(),
+            const QRect &expectedSelectionArea = QRect()) :
+        pressScenePos(pressScenePos),
+        releaseScenePos(releaseScenePos),
+        expectedSelectionArea(expectedSelectionArea)
+    {
+    }
+
+    QString toString() const;
+
+    QPoint pressScenePos;
+    QPoint releaseScenePos;
+    QRect expectedSelectionArea;
+};
+
+QDebug Q_QUICK_EXPORT operator<<(QDebug debug, const SelectionData &data)
+{
+    debug << "press:" << data.pressScenePos
+          << "release:" << data.releaseScenePos
+          << "expected area:" << data.expectedSelectionArea;
+    return debug;
+}
+
+QString toString(const SelectionData &data)
+{
+    QString string;
+    QDebug stringBuilder(&string);
+    stringBuilder << data;
+    return string;
+}
+
+QString toString(const QRect &rect)
+{
+    QString string;
+    QDebug stringBuilder(&string);
+    stringBuilder << rect;
+    return string;
+}
+
+QByteArray selectionAreaFailureMessage(ImageCanvas *canvas, const SelectionData &selectionData, const QRect &expectedArea)
+{
+    return qPrintable(QString::fromLatin1("Data: %1 \n      Actual area: %2\n    Expected area: %3")
+        .arg(toString(selectionData), toString(canvas->selectionArea()), toString(expectedArea)));
+}
+
+void tst_App::selectionToolImageCanvas()
+{
+    createNewImageProject();
+
+    switchTool(ImageCanvas::SelectionTool);
+
+    // We don't want to use a _data() function for this, because we don't need
+    // to create a new project every time.
+    QVector<SelectionData> selectionData;
+    selectionData << SelectionData(QPoint(-10, -10), QPoint(10, 10), QRect(0, 0, 10, 10));
+    selectionData << SelectionData(QPoint(-10, 0), QPoint(10, 10), QRect(0, 0, 10, 10));
+    selectionData << SelectionData(QPoint(0, -10), QPoint(10, 10), QRect(0, 0, 10, 10));
+    selectionData << SelectionData(QPoint(project->widthInPixels() + 10, project->heightInPixels() + 10),
+        QPoint(project->widthInPixels() - 10, project->widthInPixels() - 10),
+        QRect(project->widthInPixels() - 10, project->widthInPixels() - 10, 10, 10));
+
+    foreach (const SelectionData &data, selectionData) {
+        // Pressing outside the canvas should make the selection start at {0, 0}.
+        setCursorPosInPixels(data.pressScenePos);
+        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        const QPoint boundExpectedPressPos = QPoint(qBound(0, data.pressScenePos.x(), project->widthInPixels()),
+            qBound(0, data.pressScenePos.y(), project->heightInPixels()));
+        const QRect expectedPressArea = QRect(boundExpectedPressPos, QSize(0, 0));
+        QVERIFY2(canvas->selectionArea() == expectedPressArea, selectionAreaFailureMessage(canvas, data, expectedPressArea));
+
+        setCursorPosInPixels(data.releaseScenePos);
+        QTest::mouseMove(window, cursorWindowPos);
+        QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
+
+        QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
+    }
+
+    // Switching tools should clear the selection.
+//    switchTool(ImageCanvas::PenTool);
+//    QCOMPARE(canvas->selectionArea(), QRect());
 }
 
 int main(int argc, char *argv[])
