@@ -612,8 +612,8 @@ void TestHelper::triggerSaveProjectAs()
 void TestHelper::triggerOpenProject()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(loadToolButton, MouseClick);
-    mouseEventOnCentre(loadMenuButton, MouseClick);
+    mouseEventOnCentre(fileToolButton, MouseClick);
+    mouseEventOnCentre(openMenuButton, MouseClick);
 #else
     triggerShortcut(app.settings()->openShortcut());
 #endif
