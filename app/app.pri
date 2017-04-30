@@ -4,69 +4,70 @@ CONFIG += c++11
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    $$PWD/settings.h \
     $$PWD/application.h \
-    $$PWD/project.h \
-    $$PWD/applypixelpencommand.h \
-    $$PWD/tile.h \
-    $$PWD/applytilepencommand.h \
-    $$PWD/filevalidator.h \
-    $$PWD/tileset.h \
-    $$PWD/rectangularcursor.h \
-    $$PWD/tilesetswatchimage.h \
     $$PWD/applypixelerasercommand.h \
-    $$PWD/applytileerasercommand.h \
-    $$PWD/changetilecanvassizecommand.h \
     $$PWD/applypixelfillcommand.h \
+    $$PWD/applypixelpencommand.h \
+    $$PWD/applytileerasercommand.h \
     $$PWD/applytilefillcommand.h \
-    $$PWD/floodfill.h \
-    $$PWD/keysequenceeditor.h \
-    $$PWD/tilecanvas.h \
-    $$PWD/utils.h \
-    $$PWD/tilegrid.h \
-    $$PWD/splitter.h \
-    $$PWD/newprojectvalidator.h \
-    $$PWD/tilesetproject.h \
-    $$PWD/imagecanvas.h \
+    $$PWD/applytilepencommand.h \
     $$PWD/canvaspane.h \
-    $$PWD/commands.h \
-    $$PWD/imageproject.h \
     $$PWD/changeimagecanvassizecommand.h \
+    $$PWD/changetilecanvassizecommand.h \
+    $$PWD/commands.h \
+    $$PWD/filevalidator.h \
+    $$PWD/floodfill.h \
+    $$PWD/imagecanvas.h \
+    $$PWD/imageproject.h \
+    $$PWD/keysequenceeditor.h \
+    $$PWD/moveimagecanvasselectioncommand.h \
+    $$PWD/newprojectvalidator.h \
+    $$PWD/project.h \
     $$PWD/projectmanager.h \
+    $$PWD/rectangularcursor.h \
+    $$PWD/settings.h \
     $$PWD/simpleloader.h \
-    $$PWD/moveimagecanvasselectioncommand.h
+    $$PWD/splitter.h \
+    $$PWD/tilecanvas.h \
+    $$PWD/tilegrid.h \
+    $$PWD/tile.h \
+    $$PWD/tileset.h \
+    $$PWD/tilesetproject.h \
+    $$PWD/tilesetswatchimage.h \
+    $$PWD/utils.h
 
 SOURCES += \
-    $$PWD/settings.cpp \
     $$PWD/application.cpp \
-    $$PWD/project.cpp \
-    $$PWD/applypixelpencommand.cpp \
-    $$PWD/tile.cpp \
-    $$PWD/applytilepencommand.cpp \
-    $$PWD/filevalidator.cpp \
-    $$PWD/tileset.cpp \
-    $$PWD/rectangularcursor.cpp \
-    $$PWD/tilesetswatchimage.cpp \
     $$PWD/applypixelerasercommand.cpp \
-    $$PWD/applytileerasercommand.cpp \
-    $$PWD/changetilecanvassizecommand.cpp \
     $$PWD/applypixelfillcommand.cpp \
+    $$PWD/applypixelpencommand.cpp \
+    $$PWD/applytileerasercommand.cpp \
     $$PWD/applytilefillcommand.cpp \
-    $$PWD/floodfill.cpp \
-    $$PWD/keysequenceeditor.cpp \
-    $$PWD/tilecanvas.cpp \
-    $$PWD/utils.cpp \
-    $$PWD/tilegrid.cpp \
-    $$PWD/splitter.cpp \
-    $$PWD/newprojectvalidator.cpp \
-    $$PWD/tilesetproject.cpp \
-    $$PWD/imagecanvas.cpp \
+    $$PWD/applytilepencommand.cpp \
     $$PWD/canvaspane.cpp \
-    $$PWD/imageproject.cpp \
     $$PWD/changeimagecanvassizecommand.cpp \
+    $$PWD/changetilecanvassizecommand.cpp \
+    $$PWD/filevalidator.cpp \
+    $$PWD/floodfill.cpp \
+    $$PWD/imagecanvas.cpp \
+    $$PWD/imageproject.cpp \
+    $$PWD/keysequenceeditor.cpp \
+    $$PWD/moveimagecanvasselectioncommand.cpp \
+    $$PWD/newprojectvalidator.cpp \
+    $$PWD/project.cpp \
     $$PWD/projectmanager.cpp \
+    $$PWD/rectangularcursor.cpp \
+    $$PWD/settings.cpp \
     $$PWD/simpleloader.cpp \
-    $$PWD/moveimagecanvasselectioncommand.cpp
+    $$PWD/splitter.cpp \
+    $$PWD/tilecanvas.cpp \
+    $$PWD/tile.cpp \
+    $$PWD/tilegrid.cpp \
+    $$PWD/tileset.cpp \
+    $$PWD/tilesetproject.cpp \
+    $$PWD/tilesetswatchimage.cpp \
+    $$PWD/utils.cpp
+
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \
