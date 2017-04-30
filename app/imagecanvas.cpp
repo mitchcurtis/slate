@@ -542,7 +542,7 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     // We use the unbounded canvas size here, otherwise the drawn area is too small past a certain zoom level.
     painter->drawTiledPixmap(0, 0, zoomedCanvasSize.width(), zoomedCanvasSize.height(), mCheckerPixmap);
 
-    const bool shouldDrawSelectionPreviewImage = mHasSelection && (mMovingSelection || mHasMovedSelection);
+    const bool shouldDrawSelectionPreviewImage = mMovingSelection || mHasMovedSelection;
     const QImage image = !shouldDrawSelectionPreviewImage ? *mImageProject->image() : mSelectionPreviewImage;
     painter->drawImage(QRectF(QPointF(0, 0), pane.zoomedSize(image.size())), image, QRectF(0, 0, image.width(), image.height()));
 
@@ -700,7 +700,6 @@ QRect ImageCanvas::boundSelectionArea(const QRect &selectionArea) const
 
 void ImageCanvas::clearSelection()
 {
-    qDebug() << Q_FUNC_INFO << "clearing selection";
     setSelectionArea(QRect());
     mPotentiallySelecting = false;
     setHasSelection(false);
@@ -724,7 +723,6 @@ void ImageCanvas::setHasSelection(bool hasSelection)
 
 void ImageCanvas::setMovingSelection(bool movingSelection)
 {
-    qDebug() << Q_FUNC_INFO << "setting mMovingSelection to" << movingSelection;
     mMovingSelection = movingSelection;
 }
 
