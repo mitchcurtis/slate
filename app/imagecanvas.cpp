@@ -322,11 +322,10 @@ QRect ImageCanvas::selectionArea() const
 
 void ImageCanvas::setSelectionArea(const QRect &selectionArea)
 {
-    const QRect normalisedArea = selectionArea.normalized();
-    if (normalisedArea == mSelectionArea)
+    if (selectionArea == mSelectionArea)
         return;
 
-    mSelectionArea = normalisedArea;
+    mSelectionArea = selectionArea;
     update();
     emit selectionAreaChanged();
 }
@@ -579,17 +578,15 @@ bool ImageCanvas::mouseOverSplitterHandle(const QPoint &mousePos)
 
 void ImageCanvas::updateSelectionArea()
 {
-    QRect newSelectionArea;
+    QRect newSelectionArea(mPressScenePosition.x(), mPressScenePosition.y(),
+        mCursorSceneX - mPressScenePosition.x(), mCursorSceneY - mPressScenePosition.y());
 
-    const int boundPressSceneX = qBound(0, mPressScenePosition.x(), mProject->widthInPixels());
-    const int boundPressSceneY = qBound(0, mPressScenePosition.y(), mProject->heightInPixels());
-    newSelectionArea.setX(boundPressSceneX);
-    newSelectionArea.setY(boundPressSceneY);
+    newSelectionArea = newSelectionArea.normalized();
 
-    const int boundCursorSceneX = qBound(0, mCursorSceneX, mProject->widthInPixels());
-    const int boundCursorSceneY = qBound(0, mCursorSceneY, mProject->heightInPixels());
-    newSelectionArea.setWidth(boundCursorSceneX - boundPressSceneX);
-    newSelectionArea.setHeight(boundCursorSceneY - boundPressSceneY);
+    newSelectionArea.setX(qBound(0, newSelectionArea.x(), mProject->widthInPixels()));
+    newSelectionArea.setY(qBound(0, newSelectionArea.y(), mProject->heightInPixels()));
+    newSelectionArea.setWidth(qBound(0, newSelectionArea.width(), mProject->widthInPixels() - newSelectionArea.x()));
+    newSelectionArea.setHeight(qBound(0, newSelectionArea.height(), mProject->heightInPixels() - newSelectionArea.y()));
 
     setSelectionArea(newSelectionArea);
 }
