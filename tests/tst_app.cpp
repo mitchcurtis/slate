@@ -1575,6 +1575,7 @@ void tst_App::cancelSelectionToolImageCanvas()
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
 
     switchTool(ImageCanvas::SelectionTool);
+    QCOMPARE(project->hasUnsavedChanges(), false);
 
     // Select an area.
     setCursorPosInPixels(QPoint(0, 0));
@@ -1597,6 +1598,19 @@ void tst_App::cancelSelectionToolImageCanvas()
     // ImageCanvas has to assume that it might still be selection at this point.
     QCOMPARE(canvas->selectionArea(), QRect(20, 20, 0, 0));
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
+    QCOMPARE(project->hasUnsavedChanges(), false);
+
+    // Select an area.
+    setCursorPosInPixels(QPoint(0, 0));
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    setCursorPosInPixels(QPoint(10, 10));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 10, 10));
+
+    // Pressing escape should clear the selection.
+    QTest::keyClick(window, Qt::Key_Escape);
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
 }
 

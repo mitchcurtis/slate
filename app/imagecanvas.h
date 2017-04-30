@@ -221,12 +221,15 @@ protected:
     void centrePanes(bool respectSceneCentred = true);
     bool mouseOverSplitterHandle(const QPoint &mousePos);
 
+    void beginSelectionMove();
     void updateSelectionArea();
     void moveSelectionArea();
+    void confirmSelectionMove();
     QRect clampSelectionArea(const QRect &selectionArea) const;
     QRect boundSelectionArea(const QRect &selectionArea) const;
     void clearSelection();
     void setHasSelection(bool hasSelection);
+    void setMovingSelection(bool movingSelection);
     bool cursorOverSelection() const;
 
     void setAltPressed(bool altPressed);
@@ -288,10 +291,19 @@ protected:
     QColor mPenForegroundColour;
     QColor mPenBackgroundColour;
 
+    bool mPotentiallySelecting;
     bool mHasSelection;
     bool mMovingSelection;
+    bool mHasMovedSelection;
+    // The current selection area. This is set as soon as we receive a mouse press event
+    // outside of any existing selection, which means that it starts off with an "empty" size.
     QRect mSelectionArea;
-    QRect mSelectionAreaBeforePress;
+    QRect mSelectionAreaBeforeFirstMove;
+    // The selection area before the most recent move.
+    QRect mSelectionAreaBeforeLastMove;
+    // The last selection area with a non-empty size. This is set after a mouse release event.
+    QRect mLastValidSelectionArea;
+    QImage mSelectionContents;
     // The entire image as it would look if the selection (that is currently being dragged)
     // was dropped where it is now.
     QImage mSelectionPreviewImage;

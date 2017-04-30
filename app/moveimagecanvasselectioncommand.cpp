@@ -37,7 +37,7 @@ void MoveImageCanvasSelectionCommand::undo()
 {
     mCanvas->replacePortionOfImage(mPreviousArea, mPreviousAreaImagePortion);
     mCanvas->replacePortionOfImage(mNewArea, mNewAreaImagePortion);
-    // This matches what MSPaint does; undoing a selection move causes the selection to be cleared.
+    // This matches what mspaint does; undoing a selection move causes the selection to be cleared.
     mCanvas->clearSelection();
 }
 

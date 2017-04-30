@@ -38,7 +38,7 @@ void DeleteImageCanvasSelectionCommand::undo()
 void DeleteImageCanvasSelectionCommand::redo()
 {
     mCanvas->erasePortionOfImage(mDeletedArea);
-    // This matches what MSPaint does; deleting a selection also causes the selection to be cleared.
+    // This matches what mspaint does; deleting a selection also causes the selection to be cleared.
     mCanvas->clearSelection();
 }
 

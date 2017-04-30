@@ -62,8 +62,10 @@ ImageCanvas::ImageCanvas() :
     mMaxToolSize(100),
     mPenForegroundColour(Qt::black),
     mPenBackgroundColour(Qt::white),
+    mPotentiallySelecting(false),
     mHasSelection(false),
     mMovingSelection(false),
+    mHasMovedSelection(false),
     mAltPressed(false),
     mToolBeforeAltPressed(PenTool),
     mSpacePressed(false),
@@ -540,7 +542,8 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     // We use the unbounded canvas size here, otherwise the drawn area is too small past a certain zoom level.
     painter->drawTiledPixmap(0, 0, zoomedCanvasSize.width(), zoomedCanvasSize.height(), mCheckerPixmap);
 
-    const QImage image = !mMovingSelection ? *mImageProject->image() : mSelectionPreviewImage;
+    const bool shouldDrawSelectionPreviewImage = mHasSelection && (mMovingSelection || mHasMovedSelection);
+    const QImage image = !shouldDrawSelectionPreviewImage ? *mImageProject->image() : mSelectionPreviewImage;
     painter->drawImage(QRectF(QPointF(0, 0), pane.zoomedSize(image.size())), image, QRectF(0, 0, image.width(), image.height()));
 
     // Draw the selection area.
@@ -586,8 +589,23 @@ bool ImageCanvas::mouseOverSplitterHandle(const QPoint &mousePos)
     return splitterRegion.contains(mousePos);
 }
 
+void ImageCanvas::beginSelectionMove()
+{
+    setMovingSelection(true);
+    mSelectionAreaBeforeLastMove = mSelectionArea;
+
+    if (mSelectionAreaBeforeFirstMove.isEmpty()) {
+        // When the selection is moved for the first time in its life,
+        // copy the contents within it so that we can moved them around as a preview.
+        mSelectionAreaBeforeFirstMove = mSelectionArea;
+        mSelectionContents = mImageProject->image()->copy(mSelectionAreaBeforeFirstMove);
+    }
+}
+
 void ImageCanvas::updateSelectionArea()
 {
+    Q_ASSERT(mPotentiallySelecting);
+
     QRect newSelectionArea(mPressScenePosition.x(), mPressScenePosition.y(),
         mCursorSceneX - mPressScenePosition.x(), mCursorSceneY - mPressScenePosition.y());
 
@@ -598,23 +616,33 @@ void ImageCanvas::updateSelectionArea()
 
 void ImageCanvas::moveSelectionArea()
 {
-    QRect newSelectionArea = mSelectionAreaBeforePress;
+    QRect newSelectionArea = mSelectionAreaBeforeLastMove;
     const QPoint distanceMoved(mCursorSceneX - mPressScenePosition.x(), mCursorSceneY - mPressScenePosition.y());
     newSelectionArea.translate(distanceMoved);
     setSelectionArea(boundSelectionArea(newSelectionArea));
 
-    // First, copy the dragged contents.
-    const QImage movedImagePortion = mImageProject->image()->copy(mSelectionAreaBeforePress);
-
     // Then, erase the area left behind.
-    mSelectionPreviewImage = Utils::erasePortionOfImage(*mImageProject->image(), mSelectionAreaBeforePress);
+    mSelectionPreviewImage = Utils::erasePortionOfImage(*mImageProject->image(), mSelectionAreaBeforeFirstMove);
 
     // Then, move the dragged contents to their new location.
     // Doing this last ensures that the drag contents are painted over the transparency,
     // and not the other way around.
-    mSelectionPreviewImage = Utils::replacePortionOfImage(mSelectionPreviewImage, mSelectionArea, movedImagePortion);
+    mSelectionPreviewImage = Utils::replacePortionOfImage(mSelectionPreviewImage, mSelectionArea, mSelectionContents);
+
+    mHasMovedSelection = true;
 
     update();
+}
+
+void ImageCanvas::confirmSelectionMove()
+{
+    Q_ASSERT(mHasMovedSelection);
+
+    mProject->beginMacro(QLatin1String("MoveSelection"));
+    mProject->addChange(new MoveImageCanvasSelectionCommand(this, mSelectionAreaBeforeFirstMove, mLastValidSelectionArea));
+    mProject->endMacro();
+
+    clearSelection();
 }
 
 // Limits selectionArea to the canvas' bounds, shrinking it if necessary.
@@ -672,11 +700,17 @@ QRect ImageCanvas::boundSelectionArea(const QRect &selectionArea) const
 
 void ImageCanvas::clearSelection()
 {
+    qDebug() << Q_FUNC_INFO << "clearing selection";
     setSelectionArea(QRect());
+    mPotentiallySelecting = false;
     setHasSelection(false);
-    mMovingSelection = false;
-    mSelectionAreaBeforePress = QRect(0, 0, 0, 0);
+    setMovingSelection(false);
+    mHasMovedSelection = false;
+    mSelectionAreaBeforeFirstMove = QRect(0, 0, 0, 0);
+    mSelectionAreaBeforeLastMove = QRect(0, 0, 0, 0);
+    mLastValidSelectionArea = QRect(0, 0, 0, 0);
     mSelectionPreviewImage = QImage();
+    mSelectionContents = QImage();
 }
 
 void ImageCanvas::setHasSelection(bool hasSelection)
@@ -686,6 +720,12 @@ void ImageCanvas::setHasSelection(bool hasSelection)
 
     mHasSelection = hasSelection;
     updateWindowCursorShape();
+}
+
+void ImageCanvas::setMovingSelection(bool movingSelection)
+{
+    qDebug() << Q_FUNC_INFO << "setting mMovingSelection to" << movingSelection;
+    mMovingSelection = movingSelection;
 }
 
 bool ImageCanvas::cursorOverSelection() const
@@ -1062,13 +1102,13 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
             applyCurrentTool();
         } else {
             if (!cursorOverSelection()) {
+                mPotentiallySelecting = true;
                 updateSelectionArea();
             } else {
-                // If the cursor *is* over the current selection,
-                // we don't do anything on press events; we wait until mouseMoveEvent()
+                // The user has just clicked the selection. We don't actually
+                // move anything on press events; we wait until mouseMoveEvent()
                 // and then start moving the selection and its contents.
-                mMovingSelection = true;
-                mSelectionAreaBeforePress = mSelectionArea;
+                beginSelectionMove();
             }
         }
     } else {
@@ -1128,16 +1168,42 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
     // updateSelectionArea() needs that information).
     if (mTool == SelectionTool) {
         if (!mMovingSelection) {
-            updateSelectionArea();
+            if (mPotentiallySelecting) {
+                // The mouse press that caused mPotentiallySelecting to be set to
+                // true has now been accompanied by a release. If there was mouse movement
+                // in between these two events, then we now have a selection.
+                if (!mHasMovedSelection) {
+                    // We haven't moved the selection, meaning that there have been no
+                    // changes to the canvas during this "event cycle".
+                    if (mHasSelection) {
+                        // Finish off the selection by including the last release event.
+                        updateSelectionArea();
+                        if (!mSelectionArea.size().isEmpty()) {
+                            // As this selection is valid, store it. If this branch (or the one above it)
+                            // doesn't get run, then the user was simply clicking outside of the selection
+                            // in order to clear it.
+                            mLastValidSelectionArea = mSelectionArea;
+                        }
+                    } else {
+                        // Since we hadn't done anything to the selection that we might have had
+                        // before (that this event cycle is interrupting), releasing the mouse
+                        // should cancel it.
+                        clearSelection();
+                    }
+                } else {
+                    // We have moved the selection since creating it, but we're not
+                    // currently moving it, which means that the user just clicked outside of it,
+                    // which means we confirm it.
+                    confirmSelectionMove();
+                }
+            }
         } else {
             moveSelectionArea();
-
-            mProject->beginMacro(QLatin1String("MoveSelection"));
-            mProject->addChange(new MoveImageCanvasSelectionCommand(this, mSelectionAreaBeforePress, mSelectionArea));
-
-            mMovingSelection = false;
-            mSelectionAreaBeforePress = QRect(0, 0, 0, 0);
+            setMovingSelection(false);
+            if (!mSelectionArea.size().isEmpty())
+                mLastValidSelectionArea = mSelectionArea;
         }
+        mPotentiallySelecting = false;
     }
 
     if (mProject->isComposingMacro()) {
@@ -1220,6 +1286,14 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
         mProject->addChange(new DeleteImageCanvasSelectionCommand(this, mSelectionArea));
         mProject->endMacro();
         clearSelection();
+    } else if (event->key() == Qt::Key_Escape && mHasSelection) {
+        if (mHasMovedSelection) {
+            // We've moved the selection since creating it, so, like mspaint, escape confirms it.
+            confirmSelectionMove();
+        } else {
+            clearSelection();
+        }
+
     } else if (event->modifiers().testFlag(Qt::AltModifier)) {
         setAltPressed(true);
         mToolBeforeAltPressed = mTool;
