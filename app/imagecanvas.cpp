@@ -28,6 +28,7 @@
 #include "applypixelerasercommand.h"
 #include "applypixelfillcommand.h"
 #include "applypixelpencommand.h"
+#include "deleteimagecanvasselectioncommand.h"
 #include "floodfill.h"
 #include "imageproject.h"
 #include "moveimagecanvasselectioncommand.h"
@@ -254,7 +255,7 @@ void ImageCanvas::setTool(const Tool &tool)
     // The selection tool doesn't follow the undo rules, so we have to clear
     // the selected area if a different tool is chosen.
     if (mTool != SelectionTool)
-        clearSelectionArea();
+        clearSelection();
     toolChange();
     emit toolChanged();
 }
@@ -669,9 +670,13 @@ QRect ImageCanvas::boundSelectionArea(const QRect &selectionArea) const
     return newSelectionArea;
 }
 
-void ImageCanvas::clearSelectionArea()
+void ImageCanvas::clearSelection()
 {
     setSelectionArea(QRect());
+    setHasSelection(false);
+    mMovingSelection = false;
+    mSelectionAreaBeforePress = QRect(0, 0, 0, 0);
+    mSelectionPreviewImage = QImage();
 }
 
 void ImageCanvas::setHasSelection(bool hasSelection)
@@ -707,11 +712,7 @@ void ImageCanvas::reset()
     mPressPosition = QPoint(0, 0);
     mPressScenePosition = QPoint(0, 0);
     mCurrentPaneOffsetBeforePress = QPoint(0, 0);
-    mHasSelection = false;
-    mMovingSelection = false;
-    mSelectionArea = QRect(0, 0, 0, 0);
-    mSelectionAreaBeforePress = QRect(0, 0, 0, 0);
-    mSelectionPreviewImage = QImage();
+    clearSelection();
     setAltPressed(false);
     mToolBeforeAltPressed = PenTool;
     mSpacePressed = false;
@@ -1131,7 +1132,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
         } else {
             moveSelectionArea();
 
-            mProject->beginMacro(QLatin1String("SelectionTool"));
+            mProject->beginMacro(QLatin1String("MoveSelection"));
             mProject->addChange(new MoveImageCanvasSelectionCommand(this, mSelectionAreaBeforePress, mSelectionArea));
 
             mMovingSelection = false;
@@ -1214,6 +1215,11 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
     } else if (event->key() == Qt::Key_Space) {
         mSpacePressed = true;
         updateWindowCursorShape();
+    } else if (event->key() == Qt::Key_Delete && mHasSelection) {
+        mProject->beginMacro(QLatin1String("DeleteSelection"));
+        mProject->addChange(new DeleteImageCanvasSelectionCommand(this, mSelectionArea));
+        mProject->endMacro();
+        clearSelection();
     } else if (event->modifiers().testFlag(Qt::AltModifier)) {
         setAltPressed(true);
         mToolBeforeAltPressed = mTool;

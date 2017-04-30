@@ -189,6 +189,7 @@ protected:
     friend class ApplyPixelEraserCommand;
     friend class ApplyPixelFillCommand;
     friend class MoveImageCanvasSelectionCommand;
+    friend class DeleteImageCanvasSelectionCommand;
 
     struct PixelCandidateData
     {
@@ -224,7 +225,7 @@ protected:
     void moveSelectionArea();
     QRect clampSelectionArea(const QRect &selectionArea) const;
     QRect boundSelectionArea(const QRect &selectionArea) const;
-    void clearSelectionArea();
+    void clearSelection();
     void setHasSelection(bool hasSelection);
     bool cursorOverSelection() const;
 

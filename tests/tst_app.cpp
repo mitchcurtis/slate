@@ -72,6 +72,7 @@ private Q_SLOTS:
     void eraseImageCanvas();
     void selectionToolImageCanvas();
     void cancelSelectionToolImageCanvas();
+    void deleteSelectionImageCanvas();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -1597,6 +1598,32 @@ void tst_App::cancelSelectionToolImageCanvas()
     QCOMPARE(canvas->selectionArea(), QRect(20, 20, 0, 0));
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
+}
+
+void tst_App::deleteSelectionImageCanvas()
+{
+    createNewImageProject();
+
+    switchTool(ImageCanvas::SelectionTool);
+
+    // Select an area.
+    setCursorPosInPixels(QPoint(0, 0));
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    setCursorPosInPixels(QPoint(10, 10));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 10, 10));
+
+    QTest::keyClick(window, Qt::Key_Delete);
+    // The selection should be cleared.
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
+
+    const QImage deletedPortion = imageProject->image()->copy(0, 0, 10, 10);
+    for (int y = 0; y < deletedPortion.size().height(); ++y) {
+        for (int x = 0; x < deletedPortion.size().width(); ++x) {
+            QCOMPARE(deletedPortion.pixelColor(x, y), QColor(Qt::transparent));
+        }
+    }
 }
 
 int main(int argc, char *argv[])

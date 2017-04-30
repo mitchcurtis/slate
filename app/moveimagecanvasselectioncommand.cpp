@@ -37,6 +37,8 @@ void MoveImageCanvasSelectionCommand::undo()
 {
     mCanvas->replacePortionOfImage(mPreviousArea, mPreviousAreaImagePortion);
     mCanvas->replacePortionOfImage(mNewArea, mNewAreaImagePortion);
+    // This matches what MSPaint does; undoing a selection move causes the selection to be cleared.
+    mCanvas->clearSelection();
 }
 
 void MoveImageCanvasSelectionCommand::redo()
@@ -52,7 +54,7 @@ int MoveImageCanvasSelectionCommand::id() const
 
 QDebug operator<<(QDebug debug, const MoveImageCanvasSelectionCommand &command)
 {
-    debug.nospace() << "(ChangeCanvasSizeCommand size=" << command.mNewArea
+    debug.nospace() << "(MoveImageCanvasSelectionCommand size=" << command.mNewArea
         << "previousSize=" << command.mPreviousArea
         << ")";
     return debug.space();
