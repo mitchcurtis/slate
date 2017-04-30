@@ -193,13 +193,15 @@ Item {
                 onClicked: switchTool(ImageCanvas.FillTool)
             }
 
-            Ui.IconToolButton {
+            ToolButton {
                 id: selectionToolButton
                 objectName: "selectionToolButton"
-                iconText: "\uf0ce"
                 checkable: true
                 hoverEnabled: true
+                focusPolicy: Qt.TabFocus
                 enabled: projectType === Project.ImageType
+
+                icon.source: "qrc:/images/selection.png"
 
                 ToolTip.text: qsTr("Select pixels within an area and move them")
                 ToolTip.visible: hovered
