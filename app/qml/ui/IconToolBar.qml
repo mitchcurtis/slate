@@ -43,6 +43,9 @@ Item {
             case TileCanvas.EraserTool:
                 toolButtonGroup.checkedButton = eraserToolButton;
                 break;
+            case TileCanvas.SelectionTool:
+                toolButtonGroup.checkedButton = selectionToolButton;
+                break;
             }
         }
     }

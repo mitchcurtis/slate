@@ -218,8 +218,12 @@ protected:
     bool mouseOverSplitterHandle(const QPoint &mousePos);
 
     void updateSelectionArea();
+    void moveSelectionArea();
+    QRect clampSelectionArea(const QRect &selectionArea) const;
+    QRect boundSelectionArea(const QRect &selectionArea) const;
     void clearSelectionArea();
     void setHasSelection(bool hasSelection);
+    bool cursorOverSelection() const;
 
     void setAltPressed(bool altPressed);
 
@@ -280,7 +284,9 @@ protected:
     QColor mPenForegroundColour;
     QColor mPenBackgroundColour;
     bool mHasSelection;
+    bool mMovingSelection;
     QRect mSelectionArea;
+    QRect mSelectionAreaBeforePress;
 
     bool mAltPressed;
     Tool mToolBeforeAltPressed;

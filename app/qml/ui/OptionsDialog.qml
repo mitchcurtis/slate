@@ -168,6 +168,10 @@ Dialog {
                     shortcutDisplayName: qsTr("Eraser Tool")
                 }
                 ShortcutRow {
+                    shortcutName: "selectionToolShortcut"
+                    shortcutDisplayName: qsTr("Selection Tool")
+                }
+                ShortcutRow {
                     shortcutName: "toolModeShortcut"
                     shortcutDisplayName: qsTr("Toggle Tool Mode")
                 }

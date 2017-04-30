@@ -1547,6 +1547,11 @@ void tst_App::selectionToolImageCanvas()
 
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
         QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
+
+        // Cancel the selection so that we can do the next one.
+        switchTool(ImageCanvas::PenTool);
+        QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
+        switchTool(ImageCanvas::SelectionTool);
     }
 }
 
@@ -1556,11 +1561,13 @@ void tst_App::cancelSelectionToolImageCanvas()
 
     switchTool(ImageCanvas::SelectionTool);
 
+    // Select an area.
     setCursorPosInPixels(QPoint(0, 0));
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     setCursorPosInPixels(QPoint(10, 10));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 10, 10));
 
     // Switching tools should clear the selection.
     switchTool(ImageCanvas::PenTool);
@@ -1568,14 +1575,23 @@ void tst_App::cancelSelectionToolImageCanvas()
 
     switchTool(ImageCanvas::SelectionTool);
 
+    // Select an area.
     setCursorPosInPixels(QPoint(0, 0));
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     setCursorPosInPixels(QPoint(10, 10));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 10, 10));
+    // Hover to the centre of it
+    setCursorPosInPixels(QPoint(5, 5));
+    QTest::mouseMove(window, cursorWindowPos);
+    // The cursor shape should change.
+    QCOMPARE(window->cursor().shape(), Qt::SizeAllCursor);
 
     // Pressing outside of the selection should clear it.
     setCursorPosInPixels(QPoint(20, 20));
+    QTest::mouseMove(window, cursorWindowPos);
+    QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     // ImageCanvas has to assume that it might still be selection at this point.
     QCOMPARE(canvas->selectionArea(), QRect(20, 20, 0, 0));

@@ -60,6 +60,7 @@ ImageCanvas::ImageCanvas() :
     mPenForegroundColour(Qt::black),
     mPenBackgroundColour(Qt::white),
     mHasSelection(false),
+    mMovingSelection(false),
     mAltPressed(false),
     mToolBeforeAltPressed(PenTool),
     mSpacePressed(false),
@@ -587,14 +588,70 @@ void ImageCanvas::updateSelectionArea()
     QRect newSelectionArea(mPressScenePosition.x(), mPressScenePosition.y(),
         mCursorSceneX - mPressScenePosition.x(), mCursorSceneY - mPressScenePosition.y());
 
-    newSelectionArea = newSelectionArea.normalized();
-
-    newSelectionArea.setX(qBound(0, newSelectionArea.x(), mProject->widthInPixels()));
-    newSelectionArea.setY(qBound(0, newSelectionArea.y(), mProject->heightInPixels()));
-    newSelectionArea.setWidth(qBound(0, newSelectionArea.width(), mProject->widthInPixels() - newSelectionArea.x()));
-    newSelectionArea.setHeight(qBound(0, newSelectionArea.height(), mProject->heightInPixels() - newSelectionArea.y()));
+    newSelectionArea = clampSelectionArea(newSelectionArea.normalized());
 
     setSelectionArea(newSelectionArea);
+}
+
+void ImageCanvas::moveSelectionArea()
+{
+    QRect newSelectionArea = mSelectionAreaBeforePress;
+    const QPoint distanceMoved(mCursorSceneX - mPressScenePosition.x(), mCursorSceneY - mPressScenePosition.y());
+    newSelectionArea.translate(distanceMoved);
+    setSelectionArea(boundSelectionArea(newSelectionArea));
+}
+
+// Limits selectionArea to the canvas' bounds, shrinking it if necessary.
+QRect ImageCanvas::clampSelectionArea(const QRect &selectionArea) const
+{
+    QRect newSelectionArea = selectionArea;
+
+    if (selectionArea.x() < 0) {
+        newSelectionArea.setLeft(0);
+    }
+
+    if (selectionArea.y() < 0) {
+        newSelectionArea.setTop(0);
+    }
+
+    if (newSelectionArea.width() < 0 || newSelectionArea.height() < 0
+            || newSelectionArea.x() >= mProject->widthInPixels()
+            || newSelectionArea.y() >= mProject->heightInPixels()) {
+        newSelectionArea.setSize(QSize(0, 0));
+    }
+
+    if (newSelectionArea.x() + newSelectionArea.width() > mProject->widthInPixels()) {
+        newSelectionArea.setWidth(mProject->widthInPixels() - newSelectionArea.x());
+    }
+
+    if (newSelectionArea.y() + newSelectionArea.height() > mProject->heightInPixels()) {
+        newSelectionArea.setHeight(mProject->heightInPixels() - newSelectionArea.y());
+    }
+
+    if (newSelectionArea.width() < 0 || newSelectionArea.height() < 0) {
+        newSelectionArea.setSize(QSize(0, 0));
+    }
+
+    return newSelectionArea;
+}
+
+// Limits selectionArea to the canvas' bounds without shrinking it.
+// This should be used when the selection area has already been created and is being dragged.
+QRect ImageCanvas::boundSelectionArea(const QRect &selectionArea) const
+{
+    QRect newSelectionArea = selectionArea;
+
+    if (selectionArea.x() + selectionArea.width() > mProject->widthInPixels())
+        newSelectionArea.moveLeft(mProject->widthInPixels() - selectionArea.width());
+    else if (selectionArea.x() < 0)
+        newSelectionArea.moveLeft(0);
+
+    if (selectionArea.y() + selectionArea.height() > mProject->heightInPixels())
+        newSelectionArea.moveTop(mProject->heightInPixels() - selectionArea.height());
+    else if (selectionArea.y() < 0)
+        newSelectionArea.moveTop(0);
+
+    return newSelectionArea;
 }
 
 void ImageCanvas::clearSelectionArea()
@@ -609,6 +666,11 @@ void ImageCanvas::setHasSelection(bool hasSelection)
 
     mHasSelection = hasSelection;
     updateWindowCursorShape();
+}
+
+bool ImageCanvas::cursorOverSelection() const
+{
+    return mHasSelection ? mSelectionArea.contains(QPoint(mCursorSceneX, mCursorSceneY)) : false;
 }
 
 void ImageCanvas::reset()
@@ -630,7 +692,10 @@ void ImageCanvas::reset()
     mPressPosition = QPoint(0, 0);
     mPressScenePosition = QPoint(0, 0);
     mCurrentPaneOffsetBeforePress = QPoint(0, 0);
+    mHasSelection = false;
+    mMovingSelection = false;
     mSelectionArea = QRect(0, 0, 0, 0);
+    mSelectionAreaBeforePress = QRect(0, 0, 0, 0);
     setAltPressed(false);
     mToolBeforeAltPressed = PenTool;
     mSpacePressed = false;
@@ -817,12 +882,15 @@ void ImageCanvas::updateWindowCursorShape()
     // Hide the window's cursor when we're in the spotlight; otherwise, use the non-custom arrow cursor.
     const bool nothingOverUs = mProject->hasLoaded() && hasActiveFocus() /*&& !mModalPopupsOpen*/ && mContainsMouse;
     const bool splitterHovered = mSplitter.isEnabled() && mSplitter.isHovered();
-    setHasBlankCursor(nothingOverUs && !mSpacePressed && !splitterHovered);
+    const bool overSelection = cursorOverSelection();
+    setHasBlankCursor(nothingOverUs && !mSpacePressed && !splitterHovered && !overSelection);
 
     Qt::CursorShape cursorShape = Qt::BlankCursor;
     if (!mHasBlankCursor) {
         if (mSpacePressed) {
             cursorShape = mMouseButtonPressed == Qt::LeftButton ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
+        } else if (overSelection) {
+            cursorShape = Qt::SizeAllCursor;
         } else {
             cursorShape = mSplitter.isEnabled() && mSplitter.isHovered() ? Qt::SplitHCursor : Qt::ArrowCursor;
         }
@@ -850,6 +918,8 @@ void ImageCanvas::updateWindowCursorShape()
         case Qt::SplitHCursor:
             cursorName = "SplitHCursor";
             break;
+        case Qt::SizeAllCursor:
+            cursorName = "SizeAllCursor";
         default:
             break;
         }
@@ -962,7 +1032,15 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
         } else if (mTool != SelectionTool) {
             applyCurrentTool();
         } else {
-            updateSelectionArea();
+            if (!cursorOverSelection()) {
+                updateSelectionArea();
+            } else {
+                // If the cursor *is* over the current selection,
+                // we don't do anything on press events; we wait until mouseMoveEvent()
+                // and then start moving the selection and its contents.
+                mMovingSelection = true;
+                mSelectionAreaBeforePress = mSelectionArea;
+            }
         }
     } else {
         updateWindowCursorShape();
@@ -985,10 +1063,15 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
             mSplitter.setPosition(mCursorX / width());
         } else {
             if (!mSpacePressed) {
-                if (mTool != SelectionTool)
+                if (mTool != SelectionTool) {
                     applyCurrentTool();
-                else
-                    updateSelectionArea();
+                } else {
+                    if (!mMovingSelection) {
+                        updateSelectionArea();
+                    } else {
+                        moveSelectionArea();
+                    }
+                }
             } else {
                 // Panning.
                 mCurrentPane->setSceneCentered(false);
@@ -1019,7 +1102,13 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
     // but before the press position has been cleared (as
     // updateSelectionArea() needs that information).
     if (mTool == SelectionTool) {
-        updateSelectionArea();
+        if (!mMovingSelection) {
+            updateSelectionArea();
+        } else {
+            moveSelectionArea();
+            mMovingSelection = false;
+            mSelectionAreaBeforePress = QRect(0, 0, 0, 0);
+        }
     }
 
     mPressPosition = QPoint(0, 0);
@@ -1052,9 +1141,18 @@ void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
     if (!mProject->hasLoaded())
         return;
 
+    bool updateCursorShape = false;
     const bool wasSplitterHovered = mSplitter.isHovered();
     mSplitter.setHovered(mouseOverSplitterHandle(event->pos()));
     if (mSplitter.isHovered() != wasSplitterHovered) {
+        updateCursorShape = true;
+    }
+
+    if (mHasSelection) {
+        updateCursorShape |= true;
+    }
+
+    if (updateCursorShape) {
         updateWindowCursorShape();
     }
 }

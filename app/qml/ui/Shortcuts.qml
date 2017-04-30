@@ -83,17 +83,22 @@ Item {
 
     Shortcut {
         sequence: settings.penToolShortcut
-        onActivated: canvas.tool = TileCanvas.PenTool
+        onActivated: canvas.tool = ImageCanvas.PenTool
     }
 
     Shortcut {
         sequence: settings.eyeDropperToolShortcut
-        onActivated: canvas.tool = TileCanvas.EyeDropperTool
+        onActivated: canvas.tool = ImageCanvas.EyeDropperTool
     }
 
     Shortcut {
         sequence: settings.eraserToolShortcut
-        onActivated: canvas.tool = TileCanvas.EraserTool
+        onActivated: canvas.tool = ImageCanvas.EraserTool
+    }
+
+    Shortcut {
+        sequence: settings.selectionToolShortcut
+        onActivated: canvas.tool = ImageCanvas.SelectionTool
     }
 
     Shortcut {
