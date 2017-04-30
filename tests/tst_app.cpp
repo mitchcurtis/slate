@@ -71,6 +71,7 @@ private Q_SLOTS:
 //    void colourPickerHexField();
     void eraseImageCanvas();
     void selectionToolImageCanvas();
+    void cancelSelectionToolImageCanvas();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -1547,9 +1548,38 @@ void tst_App::selectionToolImageCanvas()
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
         QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
     }
+}
+
+void tst_App::cancelSelectionToolImageCanvas()
+{
+    createNewImageProject();
+
+    switchTool(ImageCanvas::SelectionTool);
+
+    setCursorPosInPixels(QPoint(0, 0));
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    setCursorPosInPixels(QPoint(10, 10));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 
     // Switching tools should clear the selection.
     switchTool(ImageCanvas::PenTool);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
+
+    switchTool(ImageCanvas::SelectionTool);
+
+    setCursorPosInPixels(QPoint(0, 0));
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    setCursorPosInPixels(QPoint(10, 10));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+
+    // Pressing outside of the selection should clear it.
+    setCursorPosInPixels(QPoint(20, 20));
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    // ImageCanvas has to assume that it might still be selection at this point.
+    QCOMPARE(canvas->selectionArea(), QRect(20, 20, 0, 0));
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
 }
 

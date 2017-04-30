@@ -219,6 +219,7 @@ protected:
 
     void updateSelectionArea();
     void clearSelectionArea();
+    void setHasSelection(bool hasSelection);
 
     void setAltPressed(bool altPressed);
 
@@ -278,6 +279,7 @@ protected:
     int mMaxToolSize;
     QColor mPenForegroundColour;
     QColor mPenBackgroundColour;
+    bool mHasSelection;
     QRect mSelectionArea;
 
     bool mAltPressed;

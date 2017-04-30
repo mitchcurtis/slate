@@ -59,6 +59,7 @@ ImageCanvas::ImageCanvas() :
     mMaxToolSize(100),
     mPenForegroundColour(Qt::black),
     mPenBackgroundColour(Qt::white),
+    mHasSelection(false),
     mAltPressed(false),
     mToolBeforeAltPressed(PenTool),
     mSpacePressed(false),
@@ -322,10 +323,15 @@ QRect ImageCanvas::selectionArea() const
 
 void ImageCanvas::setSelectionArea(const QRect &selectionArea)
 {
-    if (selectionArea == mSelectionArea)
+    QRect adjustedSelectionArea = selectionArea;
+    if (!mMouseButtonPressed && selectionArea.size().isEmpty())
+        adjustedSelectionArea = QRect();
+
+    if (adjustedSelectionArea == mSelectionArea)
         return;
 
-    mSelectionArea = selectionArea;
+    mSelectionArea = adjustedSelectionArea;
+    setHasSelection(!mSelectionArea.isEmpty());
     update();
     emit selectionAreaChanged();
 }
@@ -594,6 +600,15 @@ void ImageCanvas::updateSelectionArea()
 void ImageCanvas::clearSelectionArea()
 {
     setSelectionArea(QRect());
+}
+
+void ImageCanvas::setHasSelection(bool hasSelection)
+{
+    if (hasSelection == mHasSelection)
+        return;
+
+    mHasSelection = hasSelection;
+    updateWindowCursorShape();
 }
 
 void ImageCanvas::reset()
@@ -993,15 +1008,20 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
     if (!mProject->hasLoaded())
         return;
 
-    if (mTool == SelectionTool) {
-        updateSelectionArea();
-    }
-
     if (mProject->isComposingMacro()) {
         mProject->endMacro();
     }
 
     mMouseButtonPressed = Qt::NoButton;
+
+    // Make sure we do this after the mouse button has been cleared
+    // (as setSelectionArea() relies on this to accurately set mHasSelection),
+    // but before the press position has been cleared (as
+    // updateSelectionArea() needs that information).
+    if (mTool == SelectionTool) {
+        updateSelectionArea();
+    }
+
     mPressPosition = QPoint(0, 0);
     mPressScenePosition = QPoint(0, 0);
     mCurrentPaneOffsetBeforePress = QPoint(0, 0);
