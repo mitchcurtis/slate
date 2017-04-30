@@ -30,8 +30,10 @@
 #include "applypixelpencommand.h"
 #include "floodfill.h"
 #include "imageproject.h"
+#include "moveimagecanvasselectioncommand.h"
 #include "project.h"
 #include "tileset.h"
+#include "utils.h"
 
 Q_LOGGING_CATEGORY(lcCanvas, "app.canvas")
 Q_LOGGING_CATEGORY(lcCanvasLifecycle, "app.canvas.lifecycle")
@@ -537,7 +539,7 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     // We use the unbounded canvas size here, otherwise the drawn area is too small past a certain zoom level.
     painter->drawTiledPixmap(0, 0, zoomedCanvasSize.width(), zoomedCanvasSize.height(), mCheckerPixmap);
 
-    const QImage image = *mImageProject->image();
+    const QImage image = !mMovingSelection ? *mImageProject->image() : mSelectionPreviewImage;
     painter->drawImage(QRectF(QPointF(0, 0), pane.zoomedSize(image.size())), image, QRectF(0, 0, image.width(), image.height()));
 
     // Draw the selection area.
@@ -599,6 +601,19 @@ void ImageCanvas::moveSelectionArea()
     const QPoint distanceMoved(mCursorSceneX - mPressScenePosition.x(), mCursorSceneY - mPressScenePosition.y());
     newSelectionArea.translate(distanceMoved);
     setSelectionArea(boundSelectionArea(newSelectionArea));
+
+    // First, copy the dragged contents.
+    const QImage movedImagePortion = mImageProject->image()->copy(mSelectionAreaBeforePress);
+
+    // Then, erase the area left behind.
+    mSelectionPreviewImage = Utils::erasePortionOfImage(*mImageProject->image(), mSelectionAreaBeforePress);
+
+    // Then, move the dragged contents to their new location.
+    // Doing this last ensures that the drag contents are painted over the transparency,
+    // and not the other way around.
+    mSelectionPreviewImage = Utils::replacePortionOfImage(mSelectionPreviewImage, mSelectionArea, movedImagePortion);
+
+    update();
 }
 
 // Limits selectionArea to the canvas' bounds, shrinking it if necessary.
@@ -696,6 +711,7 @@ void ImageCanvas::reset()
     mMovingSelection = false;
     mSelectionArea = QRect(0, 0, 0, 0);
     mSelectionAreaBeforePress = QRect(0, 0, 0, 0);
+    mSelectionPreviewImage = QImage();
     setAltPressed(false);
     mToolBeforeAltPressed = PenTool;
     mSpacePressed = false;
@@ -821,6 +837,18 @@ void ImageCanvas::applyCurrentTool()
 void ImageCanvas::applyPixelPenTool(const QPoint &scenePos, const QColor &colour)
 {
     mImageProject->image()->setPixelColor(scenePos, colour);
+    update();
+}
+
+void ImageCanvas::replacePortionOfImage(const QRect &portion, const QImage &replacementImage)
+{
+    *mImageProject->image() = Utils::replacePortionOfImage(*mImageProject->image(), portion, replacementImage);
+    update();
+}
+
+void ImageCanvas::erasePortionOfImage(const QRect &portion)
+{
+    *mImageProject->image() = Utils::erasePortionOfImage(*mImageProject->image(), portion);
     update();
 }
 
@@ -1091,10 +1119,6 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
     if (!mProject->hasLoaded())
         return;
 
-    if (mProject->isComposingMacro()) {
-        mProject->endMacro();
-    }
-
     mMouseButtonPressed = Qt::NoButton;
 
     // Make sure we do this after the mouse button has been cleared
@@ -1106,9 +1130,17 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
             updateSelectionArea();
         } else {
             moveSelectionArea();
+
+            mProject->beginMacro(QLatin1String("SelectionTool"));
+            mProject->addChange(new MoveImageCanvasSelectionCommand(this, mSelectionAreaBeforePress, mSelectionArea));
+
             mMovingSelection = false;
             mSelectionAreaBeforePress = QRect(0, 0, 0, 0);
         }
+    }
+
+    if (mProject->isComposingMacro()) {
+        mProject->endMacro();
     }
 
     mPressPosition = QPoint(0, 0);

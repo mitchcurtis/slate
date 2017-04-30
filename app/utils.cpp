@@ -19,6 +19,8 @@
 
 #include "utils.h"
 
+#include <QPainter>
+
 QImage Utils::rotate(const QImage &image, int angle)
 {
     const QPoint center = image.rect().center();
@@ -26,4 +28,21 @@ QImage Utils::rotate(const QImage &image, int angle)
     matrix.translate(center.x(), center.y());
     matrix.rotate(angle);
     return image.transformed(matrix);
+}
+
+QImage Utils::replacePortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
+{
+    QImage newImage = image;
+    QPainter painter(&newImage);
+    painter.drawImage(portion.topLeft(), replacementImage);
+    return newImage;
+}
+
+QImage Utils::erasePortionOfImage(const QImage &image, const QRect &portion)
+{
+    QImage newImage = image;
+    QPainter painter(&newImage);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.fillRect(portion, Qt::transparent);
+    return newImage;
 }

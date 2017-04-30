@@ -33,7 +33,8 @@ HEADERS += \
     $$PWD/imageproject.h \
     $$PWD/changeimagecanvassizecommand.h \
     $$PWD/projectmanager.h \
-    $$PWD/simpleloader.h
+    $$PWD/simpleloader.h \
+    $$PWD/moveimagecanvasselectioncommand.h
 
 SOURCES += \
     $$PWD/settings.cpp \
@@ -64,7 +65,8 @@ SOURCES += \
     $$PWD/imageproject.cpp \
     $$PWD/changeimagecanvassizecommand.cpp \
     $$PWD/projectmanager.cpp \
-    $$PWD/simpleloader.cpp
+    $$PWD/simpleloader.cpp \
+    $$PWD/moveimagecanvasselectioncommand.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \

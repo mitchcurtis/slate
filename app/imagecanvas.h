@@ -188,6 +188,7 @@ protected:
     friend class ApplyPixelPenCommand;
     friend class ApplyPixelEraserCommand;
     friend class ApplyPixelFillCommand;
+    friend class MoveImageCanvasSelectionCommand;
 
     struct PixelCandidateData
     {
@@ -199,6 +200,8 @@ protected:
 
     virtual void applyCurrentTool();
     virtual void applyPixelPenTool(const QPoint &scenePos, const QColor &colour);
+    void replacePortionOfImage(const QRect &portion, const QImage &replacementImage);
+    void erasePortionOfImage(const QRect &portion);
 
     virtual void updateCursorPos(const QPoint &eventPos);
     void error(const QString &message);
@@ -283,10 +286,14 @@ protected:
     int mMaxToolSize;
     QColor mPenForegroundColour;
     QColor mPenBackgroundColour;
+
     bool mHasSelection;
     bool mMovingSelection;
     QRect mSelectionArea;
     QRect mSelectionAreaBeforePress;
+    // The entire image as it would look if the selection (that is currently being dragged)
+    // was dropped where it is now.
+    QImage mSelectionPreviewImage;
 
     bool mAltPressed;
     Tool mToolBeforeAltPressed;

@@ -17,21 +17,22 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CHANGEIMAGECANVASSIZECOMMAND_H
-#define CHANGEIMAGECANVASSIZECOMMAND_H
+#ifndef MOVEIMAGECANVASSELECTIONCOMMAND_H
+#define MOVEIMAGECANVASSELECTIONCOMMAND_H
 
 #include <QDebug>
-#include <QSize>
+#include <QImage>
+#include <QRect>
 #include <QtUndo/undocommand.h>
 
-class ImageProject;
+class ImageCanvas;
 
-class ChangeImageCanvasSizeCommand : public UndoCommand
+class MoveImageCanvasSelectionCommand : public UndoCommand
 {
     Q_OBJECT
 
 public:
-    ChangeImageCanvasSizeCommand(ImageProject *project, const QSize &previousSize, const QSize &size,
+    MoveImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &previousArea, const QRect &newArea,
         UndoCommand *parent = nullptr);
 
     void undo() override;
@@ -40,11 +41,15 @@ public:
     int id() const override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const ChangeImageCanvasSizeCommand &command);
+    friend QDebug operator<<(QDebug debug, const MoveImageCanvasSelectionCommand &command);
 
-    ImageProject *mProject;
-    QSize mPreviousSize;
-    QSize mSize;
+    ImageCanvas *mCanvas;
+    QRect mPreviousArea;
+    // The portion of the image under the selection before the selection was moved.
+    QImage mPreviousAreaImagePortion;
+    QRect mNewArea;
+    // The portion of the image under the destination area, before the selection was moved.
+    QImage mNewAreaImagePortion;
 };
 
-#endif // CHANGEIMAGECANVASSIZECOMMAND_H
+#endif // MOVEIMAGECANVASSELECTIONCOMMAND_H
