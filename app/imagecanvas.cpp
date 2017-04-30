@@ -551,7 +551,7 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     QVector<qreal> dashes;
     dashes << 4 << 4;
     pen.setDashPattern(dashes);
-    const QRect zoomedSelectionArea = QRect(mSelectionArea.topLeft(), pane.zoomedSize(mSelectionArea.size()));
+    const QRect zoomedSelectionArea(mSelectionArea.topLeft() * pane.zoomLevel(), pane.zoomedSize(mSelectionArea.size()));
     painter->setPen(pen);
     painter->drawRect(zoomedSelectionArea);
 
