@@ -165,6 +165,8 @@ void Settings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("undoShortcut"));
         allShortcuts.append(QLatin1String("redoShortcut"));
         allShortcuts.append(QLatin1String("centreShortcut"));
+        allShortcuts.append(QLatin1String("zoomInShortcut"));
+        allShortcuts.append(QLatin1String("zoomOutShortcut"));
         allShortcuts.append(QLatin1String("gridVisibleShortcut"));
         allShortcuts.append(QLatin1String("splitScreenShortcut"));
         allShortcuts.append(QLatin1String("optionsShortcut"));
@@ -349,6 +351,36 @@ QString Settings::centreShortcut() const
 void Settings::setCentreShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("centreShortcut", defaultCentreShortcut, centreShortcutChanged)
+}
+
+QString Settings::defaultZoomInShortcut() const
+{
+    return QKeySequence(QKeySequence::ZoomIn).toString();
+}
+
+QString Settings::zoomInShortcut() const
+{
+    GET_SHORTCUT("zoomInShortcut", defaultZoomInShortcut)
+}
+
+void Settings::setZoomInShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("zoomInShortcut", defaultZoomInShortcut, zoomInShortcutChanged)
+}
+
+QString Settings::defaultZoomOutShortcut() const
+{
+    return QKeySequence(QKeySequence::ZoomOut).toString();
+}
+
+QString Settings::zoomOutShortcut() const
+{
+    GET_SHORTCUT("zoomOutShortcut", defaultZoomOutShortcut)
+}
+
+void Settings::setZoomOutShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("zoomOutShortcut", defaultZoomOutShortcut, zoomOutShortcutChanged)
 }
 
 QString Settings::defaultSplitScreenShortcut() const

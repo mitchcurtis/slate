@@ -42,6 +42,8 @@ class Settings : public QSettings
     Q_PROPERTY(QString redoShortcut READ redoShortcut WRITE setRedoShortcut NOTIFY redoShortcutChanged)
     Q_PROPERTY(QString gridVisibleShortcut READ gridVisibleShortcut WRITE setGridVisibleShortcut NOTIFY gridVisibleShortcutChanged)
     Q_PROPERTY(QString centreShortcut READ centreShortcut WRITE setCentreShortcut NOTIFY centreShortcutChanged)
+    Q_PROPERTY(QString zoomInShortcut READ zoomInShortcut WRITE setZoomInShortcut NOTIFY zoomInShortcutChanged)
+    Q_PROPERTY(QString zoomOutShortcut READ zoomOutShortcut WRITE setZoomOutShortcut NOTIFY zoomOutShortcutChanged)
     Q_PROPERTY(QString splitScreenShortcut READ splitScreenShortcut WRITE setSplitScreenShortcut NOTIFY splitScreenShortcutChanged)
     Q_PROPERTY(QString optionsShortcut READ optionsShortcut WRITE setOptionsShortcut NOTIFY optionsShortcutChanged)
     Q_PROPERTY(QString penToolShortcut READ penToolShortcut WRITE setPenToolShortcut NOTIFY penToolShortcutChanged)
@@ -120,6 +122,14 @@ public:
     QString centreShortcut() const;
     void setCentreShortcut(const QString &shortcut);
 
+    QString defaultZoomInShortcut() const;
+    QString zoomInShortcut() const;
+    void setZoomInShortcut(const QString &shortcut);
+
+    QString defaultZoomOutShortcut() const;
+    QString zoomOutShortcut() const;
+    void setZoomOutShortcut(const QString &shortcut);
+
     QString defaultSplitScreenShortcut() const;
     QString splitScreenShortcut() const;
     void setSplitScreenShortcut(const QString &shortcut);
@@ -189,6 +199,8 @@ signals:
     void redoShortcutChanged();
     void gridVisibleShortcutChanged();
     void centreShortcutChanged();
+    void zoomInShortcutChanged();
+    void zoomOutShortcutChanged();
     void splitScreenShortcutChanged();
     void penToolShortcutChanged();
     void optionsShortcutChanged();

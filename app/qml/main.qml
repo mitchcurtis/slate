@@ -30,6 +30,8 @@ import "ui" as Ui
 
 /*
     TODO:
+    - disable scroll wheel zooming option
+    - fix alt eye dropper cursor icon on mac
     - add tests for image save/load/etc.
     - fix disappearing hue slider indicator
     - native menubars?

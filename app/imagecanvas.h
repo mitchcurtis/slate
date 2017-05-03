@@ -176,6 +176,8 @@ signals:
 public slots:
     void reset();
     void centreView();
+    void zoomIn();
+    void zoomOut();
 
 protected slots:
     virtual void onLoadedChanged();

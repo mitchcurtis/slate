@@ -127,6 +127,20 @@ RowLayout {
                 onClicked: canvas.centreView()
             }
 
+            MenuItem {
+                objectName: "zoomInMenuButton"
+                text: qsTr("Zoom In")
+                enabled: canvas
+                onClicked: canvas.zoomIn()
+            }
+
+            MenuItem {
+                objectName: "zoomOutMenuButton"
+                text: qsTr("Zoom Out")
+                enabled: canvas
+                onClicked: canvas.zoomOut()
+            }
+
             MenuSeparator {}
 
             MenuItem {

@@ -144,6 +144,14 @@ Dialog {
                     shortcutDisplayName: qsTr("Centre View")
                 }
                 ShortcutRow {
+                    shortcutName: "zoomInShortcut"
+                    shortcutDisplayName: qsTr("Zoom In")
+                }
+                ShortcutRow {
+                    shortcutName: "zoomOutShortcut"
+                    shortcutDisplayName: qsTr("Zoom Out")
+                }
+                ShortcutRow {
                     shortcutName: "gridVisibleShortcut"
                     shortcutDisplayName: qsTr("Toggle Grid Visibility")
                 }

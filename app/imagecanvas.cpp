@@ -769,6 +769,24 @@ void ImageCanvas::centreView()
     centrePanes(false);
 }
 
+void ImageCanvas::zoomIn()
+{
+    CanvasPane *pane = currentPane();
+    if (!pane)
+        return;
+
+    pane->setZoomLevel(pane->zoomLevel() + 1);
+}
+
+void ImageCanvas::zoomOut()
+{
+    CanvasPane *pane = currentPane();
+    if (!pane)
+        return;
+
+    pane->setZoomLevel(pane->zoomLevel() - 1);
+}
+
 void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
     QQuickItem::geometryChanged(newGeometry, oldGeometry);

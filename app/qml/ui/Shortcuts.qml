@@ -76,6 +76,24 @@ Item {
     }
 
     Shortcut {
+        sequence: {
+            print(settings.zoomInShortcut)
+            settings.zoomInShortcut
+        }
+        onActivated: {
+            print(settings.zoomInShortcut)
+            canvas.zoomIn()
+        }
+        enabled: canvasHasActiveFocus
+    }
+
+    Shortcut {
+        sequence: settings.zoomOutShortcut
+        onActivated: canvas.zoomOut()
+        enabled: canvasHasActiveFocus
+    }
+
+    Shortcut {
         sequence: settings.optionsShortcut
         onActivated: optionsDialog.open()
         enabled: canvasHasActiveFocus
