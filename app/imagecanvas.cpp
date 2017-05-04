@@ -57,6 +57,7 @@ ImageCanvas::ImageCanvas() :
     mCursorPixelColour(Qt::black),
     mContainsMouse(false),
     mMouseButtonPressed(Qt::NoButton),
+    mScrollZoom(false),
     mTool(PenTool),
     mToolSize(1),
     mMaxToolSize(100),
@@ -404,6 +405,20 @@ void ImageCanvas::setSplitScreen(bool splitScreen)
     update();
 
     emit splitScreenChanged();
+}
+
+bool ImageCanvas::scrollZoom() const
+{
+    return mScrollZoom;
+}
+
+void ImageCanvas::setScrollZoom(bool scrollZoom)
+{
+    if (scrollZoom == mScrollZoom)
+        return;
+
+    mScrollZoom = scrollZoom;
+    emit scrollZoomChanged();
 }
 
 CanvasPane *ImageCanvas::firstPane()
@@ -1075,7 +1090,8 @@ void ImageCanvas::restoreToolBeforeAltPressed()
 
 void ImageCanvas::wheelEvent(QWheelEvent *event)
 {
-    if (!mProject->hasLoaded()) {
+    qDebug() << "mScrollZoom" << mScrollZoom;
+    if (!mProject->hasLoaded() || !mScrollZoom) {
         event->ignore();
         return;
     }

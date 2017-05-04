@@ -76,14 +76,8 @@ Item {
     }
 
     Shortcut {
-        sequence: {
-            print(settings.zoomInShortcut)
-            settings.zoomInShortcut
-        }
-        onActivated: {
-            print(settings.zoomInShortcut)
-            canvas.zoomIn()
-        }
+        sequence: settings.zoomInShortcut
+        onActivated: canvas.zoomIn()
         enabled: canvasHasActiveFocus
     }
 

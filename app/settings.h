@@ -31,6 +31,7 @@ class Settings : public QSettings
     Q_PROPERTY(bool gridVisible READ isGridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
     Q_PROPERTY(bool splitScreen READ isSplitScreen WRITE setSplitScreen NOTIFY splitScreenChanged)
     Q_PROPERTY(bool splitterLocked READ isSplitterLocked WRITE setSplitterLocked NOTIFY splitterLockedChanged)
+    Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
 
     Q_PROPERTY(QString quitShortcut READ quitShortcut WRITE setQuitShortcut NOTIFY quitShortcutChanged)
     Q_PROPERTY(QString newShortcut READ newShortcut WRITE setNewShortcut NOTIFY newShortcutChanged)
@@ -79,6 +80,10 @@ public:
     bool defaultSplitterLocked() const;
     bool isSplitterLocked() const;
     void setSplitterLocked(bool splitterLocked);
+
+    bool defaultScrollZoom() const;
+    bool scrollZoom() const;
+    void setScrollZoom(bool scrollZoom);
 
     Q_INVOKABLE void resetShortcutsToDefaults();
 
@@ -188,6 +193,7 @@ signals:
     void gridVisibleChanged();
     void splitScreenChanged();
     void splitterLockedChanged();
+    void scrollZoomChanged();
 
     void quitShortcutChanged();
     void newShortcutChanged();

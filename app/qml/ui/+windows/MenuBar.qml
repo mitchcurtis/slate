@@ -169,6 +169,15 @@ RowLayout {
                 checked: settings.splitterLocked
                 onClicked: settings.splitterLocked = checked
             }
+
+            MenuItem {
+                objectName: "scrollZoomMenuButton"
+                text: qsTr("Scroll Zoom")
+                enabled: canvas
+                checkable: true
+                checked: settings.scrollZoom
+                onClicked: settings.scrollZoom = checked
+            }
         }
     }
 

@@ -113,6 +113,15 @@ Platform.MenuBar {
             checked: settings.splitterLocked
             onTriggered: settings.splitterLocked = checked
         }
+
+        Platform.MenuItem {
+            objectName: "scrollZoomMenuButton"
+            text: qsTr("Scroll Zoom")
+            enabled: canvas
+            checkable: true
+            checked: settings.scrollZoom
+            onTriggered: settings.scrollZoom = checked
+        }
     }
 
     Platform.Menu {

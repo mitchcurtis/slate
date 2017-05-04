@@ -199,6 +199,7 @@ Item {
             splitColour: CanvasColours.splitColour
             splitter.enabled: settings.splitScreen && !settings.splitterLocked
             splitter.width: 32
+            scrollZoom: settings.scrollZoom
             anchors.fill: parent
 
             readonly property int currentPaneZoomLevel: imageCanvas.currentPane ? imageCanvas.currentPane.zoomLevel : 1
@@ -226,6 +227,7 @@ Item {
             splitColour: CanvasColours.splitColour
             splitter.enabled: settings.splitScreen && !settings.splitterLocked
             splitter.width: 32
+            scrollZoom: settings.scrollZoom
             anchors.fill: parent
 
             readonly property int currentPaneZoomLevel: tileCanvas.currentPane ? tileCanvas.currentPane.zoomLevel : 1

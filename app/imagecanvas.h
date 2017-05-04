@@ -49,6 +49,7 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(QColor gridColour READ gridColour WRITE setGridColour NOTIFY gridColourChanged)
     Q_PROPERTY(QColor splitColour READ splitColour WRITE setSplitColour NOTIFY splitColourChanged)
     Q_PROPERTY(bool splitScreen READ isSplitScreen WRITE setSplitScreen NOTIFY splitScreenChanged)
+    Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
     Q_PROPERTY(Splitter *splitter READ splitter CONSTANT)
     Q_PROPERTY(CanvasPane *firstPane READ firstPane CONSTANT)
     Q_PROPERTY(CanvasPane *secondPane READ secondPane CONSTANT)
@@ -117,6 +118,9 @@ public:
     bool isSplitScreen() const;
     void setSplitScreen(bool splitScreen);
 
+    bool scrollZoom() const;
+    void setScrollZoom(bool scrollZoom);
+
     Splitter *splitter();
 
     CanvasPane *firstPane();
@@ -163,6 +167,7 @@ signals:
     void gridColourChanged();
     void splitColourChanged();
     void splitScreenChanged();
+    void scrollZoomChanged();
     void currentPaneChanged();
     void toolChanged();
     void toolSizeChanged();
@@ -287,6 +292,8 @@ protected:
     QPoint mPressPosition;
     QPoint mPressScenePosition;
     QPoint mCurrentPaneOffsetBeforePress;
+    bool mScrollZoom;
+
     Tool mTool;
     int mToolSize;
     int mMaxToolSize;

@@ -152,6 +152,32 @@ void Settings::setSplitterLocked(bool splitterLocked)
     emit splitterLockedChanged();
 }
 
+bool Settings::defaultScrollZoom() const
+{
+    return true;
+}
+
+bool Settings::scrollZoom() const
+{
+    qDebug() << value("scrollZoom");
+    return contains("scrollZoom") ? value("scrollZoom").toBool() : defaultScrollZoom();
+}
+
+void Settings::setScrollZoom(bool scrollZoom)
+{
+    QVariant existingValue = value("scrollZoom");
+    bool existingBoolValue = defaultScrollZoom();
+    if (contains("scrollZoom")) {
+        existingBoolValue = existingValue.toBool();
+    }
+
+    if (scrollZoom == existingBoolValue)
+        return;
+
+    setValue("scrollZoom", scrollZoom);
+    emit scrollZoomChanged();
+}
+
 void Settings::resetShortcutsToDefaults()
 {
     static QVector<QString> allShortcuts;
