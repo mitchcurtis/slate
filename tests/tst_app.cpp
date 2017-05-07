@@ -1485,7 +1485,7 @@ struct SelectionData
     QRect expectedSelectionArea;
 };
 
-QDebug Q_QUICK_EXPORT operator<<(QDebug debug, const SelectionData &data)
+QDebug operator<<(QDebug debug, const SelectionData &data)
 {
     debug << "press:" << data.pressScenePos
           << "release:" << data.releaseScenePos
