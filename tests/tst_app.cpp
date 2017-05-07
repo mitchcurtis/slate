@@ -1646,6 +1646,15 @@ void tst_App::moveSelectionImageCanvas()
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(18, 18, 5, 5));
+
+    // The project's actual image contents shouldn't change until the move has
+    // been confirmed.
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(18, 18), QColor(Qt::white));
+    QCOMPARE(imageProject->image()->pixelColor(22, 22), QColor(Qt::white));
+
+    switchTool(ImageCanvas::PenTool);
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::transparent));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::transparent));
     QCOMPARE(imageProject->image()->pixelColor(18, 18), QColor(Qt::black));

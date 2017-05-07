@@ -261,8 +261,12 @@ void ImageCanvas::setTool(const Tool &tool)
     mTool = tool;
     // The selection tool doesn't follow the undo rules, so we have to clear
     // the selected area if a different tool is chosen.
-    if (mTool != SelectionTool)
-        clearSelection();
+    if (mTool != SelectionTool && mHasSelection) {
+        if (mHasMovedSelection)
+            confirmSelectionMove();
+        else
+            clearSelection();
+    }
     toolChange();
     emit toolChanged();
 }
@@ -1282,7 +1286,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
                     // We have moved the selection since creating it, but we're not
                     // currently moving it, which means that the user just clicked outside of it,
                     // which means we clear it.
-                    clearSelection();
+                    confirmSelectionMove();
                 }
             }
         } else {
@@ -1290,9 +1294,6 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
             setMovingSelection(false);
             if (!mSelectionArea.size().isEmpty())
                 mLastValidSelectionArea = mSelectionArea;
-            // Each mouse release after a move is an undoable command.
-            // We shouldn't clear the selection after confirming it, though.
-            confirmSelectionMove(false);
         }
         mPotentiallySelecting = false;
     }
