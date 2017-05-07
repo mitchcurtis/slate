@@ -10,6 +10,7 @@ RowLayout {
     property ImageCanvas canvas
     property ProjectManager projectManager
     property Project project: projectManager.project
+    property int projectType: project ? project.type : 0
 
     ToolButton {
         id: fileToolButton
@@ -108,17 +109,33 @@ RowLayout {
             MenuSeparator {}
 
             MenuItem {
+                objectName: "copyMenuButton"
+                text: qsTr("Copy")
+                onClicked: canvas.copySelection()
+                enabled: projectType === Project.ImageType && canvas && canvas.hasSelection
+            }
+
+            MenuItem {
+                objectName: "pasteMenuButton"
+                text: qsTr("Paste")
+                onClicked: canvas.paste()
+                enabled: projectType === Project.ImageType && canvas
+            }
+
+            MenuSeparator {}
+
+            MenuItem {
                 objectName: "flipHorizontallyMenuButton"
                 text: qsTr("Flip Horizontally")
                 onClicked: canvas.flipSelection(Qt.Horizontal)
-                enabled: canvas && canvas.hasSelection
+                enabled: projectType === Project.ImageType && canvas && canvas.hasSelection
             }
 
             MenuItem {
                 objectName: "flipVerticallyMenuButton"
                 text: qsTr("Flip Vertically")
                 onClicked: canvas.flipSelection(Qt.Vertical)
-                enabled: canvas && canvas.hasSelection
+                enabled: projectType === Project.ImageType && canvas && canvas.hasSelection
             }
         }
     }

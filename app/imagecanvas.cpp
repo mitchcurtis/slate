@@ -19,7 +19,9 @@
 
 #include "imagecanvas.h"
 
+#include <QClipboard>
 #include <QCursor>
+#include <QGuiApplication>
 #include <QImage>
 #include <QPainter>
 #include <QQuickWindow>
@@ -33,6 +35,7 @@
 #include "floodfill.h"
 #include "imageproject.h"
 #include "moveimagecanvasselectioncommand.h"
+#include "pasteimagecanvascommand.h"
 #include "project.h"
 #include "tileset.h"
 #include "utils.h"
@@ -820,6 +823,34 @@ void ImageCanvas::flipSelection(Qt::Orientation orientation)
     mProject->endMacro();
 }
 
+void ImageCanvas::copySelection()
+{
+    if (!mHasSelection)
+        return;
+
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    clipboard->setImage(mImageProject->image()->copy(mSelectionArea));
+}
+
+void ImageCanvas::paste()
+{
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    QImage clipboardImage = clipboard->image();
+    if (clipboardImage.isNull())
+        return;
+
+    const QSize adjustedSize(qMin(clipboardImage.width(), mProject->widthInPixels()),
+        qMin(clipboardImage.height(), mProject->heightInPixels()));
+    if (adjustedSize != clipboardImage.size())
+        clipboardImage = clipboardImage.copy(0, 0, adjustedSize.width(), adjustedSize.height());
+
+    mProject->beginMacro(QLatin1String("PasteCommand"));
+    mProject->addChange(new PasteImageCanvasCommand(this, clipboardImage, mSelectionArea.topLeft()));
+    mProject->endMacro();
+
+    update();
+}
+
 void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
@@ -1250,8 +1281,8 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
                 } else {
                     // We have moved the selection since creating it, but we're not
                     // currently moving it, which means that the user just clicked outside of it,
-                    // which means we confirm it.
-                    confirmSelectionMove();
+                    // which means we clear it.
+                    clearSelection();
                 }
             }
         } else {

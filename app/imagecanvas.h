@@ -188,6 +188,8 @@ public slots:
     void zoomIn();
     void zoomOut();
     void flipSelection(Qt::Orientation orientation);
+    void copySelection();
+    void paste();
 
 protected slots:
     virtual void onLoadedChanged();
@@ -203,6 +205,7 @@ protected:
     friend class MoveImageCanvasSelectionCommand;
     friend class DeleteImageCanvasSelectionCommand;
     friend class FlipImageCanvasSelectionCommand;
+    friend class PasteImageCanvasCommand;
 
     struct PixelCandidateData
     {

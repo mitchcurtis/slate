@@ -59,6 +59,18 @@ Item {
     }
 
     Shortcut {
+        sequence: StandardKey.Copy
+        onActivated: canvas.copySelection()
+        enabled: projectType === Project.ImageType && canvasHasActiveFocus && canvas.hasSelection
+    }
+
+    Shortcut {
+        sequence: StandardKey.Paste
+        onActivated: canvas.paste()
+        enabled: projectType === Project.ImageType && canvasHasActiveFocus
+    }
+
+    Shortcut {
         sequence: settings.gridVisibleShortcut
         onActivated: settings.gridVisible = !settings.gridVisible
     }
