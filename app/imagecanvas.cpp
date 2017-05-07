@@ -655,7 +655,7 @@ void ImageCanvas::moveSelectionArea()
     update();
 }
 
-void ImageCanvas::confirmSelectionMove()
+void ImageCanvas::confirmSelectionMove(bool andClear)
 {
     Q_ASSERT(mHasMovedSelection);
 
@@ -663,7 +663,8 @@ void ImageCanvas::confirmSelectionMove()
     mProject->addChange(new MoveImageCanvasSelectionCommand(this, mSelectionAreaBeforeFirstMove, mLastValidSelectionArea));
     mProject->endMacro();
 
-    clearSelection();
+    if (andClear)
+        clearSelection();
 }
 
 // Limits selectionArea to the canvas' bounds, shrinking it if necessary.
@@ -1258,6 +1259,9 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
             setMovingSelection(false);
             if (!mSelectionArea.size().isEmpty())
                 mLastValidSelectionArea = mSelectionArea;
+            // Each mouse release after a move is an undoable command.
+            // We shouldn't clear the selection after confirming it, though.
+            confirmSelectionMove(false);
         }
         mPotentiallySelecting = false;
     }

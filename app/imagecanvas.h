@@ -238,7 +238,7 @@ protected:
     void beginSelectionMove();
     void updateSelectionArea();
     void moveSelectionArea();
-    void confirmSelectionMove();
+    void confirmSelectionMove(bool andClear = true);
     QRect clampSelectionArea(const QRect &selectionArea) const;
     QRect boundSelectionArea(const QRect &selectionArea) const;
     void clearSelection();
