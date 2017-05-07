@@ -261,11 +261,8 @@ void ImageCanvas::setTool(const Tool &tool)
     mTool = tool;
     // The selection tool doesn't follow the undo rules, so we have to clear
     // the selected area if a different tool is chosen.
-    if (mTool != SelectionTool && mHasSelection) {
-        if (mHasMovedSelection)
-            confirmSelectionMove();
-        else
-            clearSelection();
+    if (mTool != SelectionTool) {
+        clearOrConfirmSelection();
     }
     toolChange();
     emit toolChanged();
@@ -741,6 +738,16 @@ void ImageCanvas::clearSelection()
     mSelectionContents = QImage();
 }
 
+void ImageCanvas::clearOrConfirmSelection()
+{
+    if (mHasSelection) {
+        if (mHasMovedSelection)
+            confirmSelectionMove();
+        else
+            clearSelection();
+    }
+}
+
 void ImageCanvas::setHasSelection(bool hasSelection)
 {
     if (hasSelection == mHasSelection)
@@ -838,6 +845,8 @@ void ImageCanvas::copySelection()
 
 void ImageCanvas::paste()
 {
+    clearOrConfirmSelection();
+
     QClipboard *clipboard = QGuiApplication::clipboard();
     QImage clipboardImage = clipboard->image();
     if (clipboardImage.isNull())
@@ -845,12 +854,16 @@ void ImageCanvas::paste()
 
     const QSize adjustedSize(qMin(clipboardImage.width(), mProject->widthInPixels()),
         qMin(clipboardImage.height(), mProject->heightInPixels()));
+    const QRect pastedArea(QPoint(0, 0), adjustedSize);
     if (adjustedSize != clipboardImage.size())
-        clipboardImage = clipboardImage.copy(0, 0, adjustedSize.width(), adjustedSize.height());
+        clipboardImage = clipboardImage.copy(pastedArea);
 
     mProject->beginMacro(QLatin1String("PasteCommand"));
-    mProject->addChange(new PasteImageCanvasCommand(this, clipboardImage, mSelectionArea.topLeft()));
+    mProject->addChange(new PasteImageCanvasCommand(this, clipboardImage, pastedArea.topLeft()));
     mProject->endMacro();
+
+    mSelectionContents = clipboardImage;
+    setSelectionArea(pastedArea);
 
     update();
 }

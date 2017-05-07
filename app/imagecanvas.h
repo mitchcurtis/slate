@@ -245,6 +245,7 @@ protected:
     QRect clampSelectionArea(const QRect &selectionArea) const;
     QRect boundSelectionArea(const QRect &selectionArea) const;
     void clearSelection();
+    void clearOrConfirmSelection();
     void setHasSelection(bool hasSelection);
     void setMovingSelection(bool movingSelection);
     bool cursorOverSelection() const;

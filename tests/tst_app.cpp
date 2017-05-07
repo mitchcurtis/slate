@@ -17,7 +17,9 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QClipboard>
 #include <QCursor>
+#include <QGuiApplication>
 #include <QQmlEngine>
 #include <QSharedPointer>
 #include <QtTest>
@@ -74,6 +76,7 @@ private Q_SLOTS:
     void cancelSelectionToolImageCanvas();
     void moveSelectionImageCanvas();
     void deleteSelectionImageCanvas();
+    void copyPaste();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -1685,6 +1688,41 @@ void tst_App::deleteSelectionImageCanvas()
             QCOMPARE(deletedPortion.pixelColor(x, y), QColor(Qt::transparent));
         }
     }
+}
+
+void tst_App::copyPaste()
+{
+    createNewImageProject();
+
+    // Draw a square of black pixels.
+    switchTool(ImageCanvas::PenTool);
+    changeToolSize(5);
+    setCursorPosInPixels(12, 12);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+
+    changeToolSize(1);
+    switchTool(ImageCanvas::SelectionTool);
+
+    // Select an area.
+    setCursorPosInPixels(QPoint(10, 10));
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    setCursorPosInPixels(QPoint(15, 15));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->selectionArea(), QRect(10, 10, 5, 5));
+
+    keySequence(window, QKeySequence::Copy);
+    QCOMPARE(QGuiApplication::clipboard()->image(), imageProject->image()->copy(10, 10, 5, 5));
+    // The project's actual image contents shouldn't change until the move has been confirmed.
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::white));
+
+    keySequence(window, QKeySequence::Paste);
+    QCOMPARE(QGuiApplication::clipboard()->image(), imageProject->image()->copy(10, 10, 5, 5));
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
 }
 
 int main(int argc, char *argv[])
