@@ -104,6 +104,22 @@ RowLayout {
                 onClicked: project.undoStack.redo()
                 enabled: project ? project.undoStack.canRedo : false
             }
+
+            MenuSeparator {}
+
+            MenuItem {
+                objectName: "flipHorizontallyMenuButton"
+                text: qsTr("Flip Horizontally")
+                onClicked: canvas.flipSelection(Qt.Horizontal)
+                enabled: canvas && canvas.hasSelection
+            }
+
+            MenuItem {
+                objectName: "flipVerticallyMenuButton"
+                text: qsTr("Flip Vertically")
+                onClicked: canvas.flipSelection(Qt.Vertical)
+                enabled: canvas && canvas.hasSelection
+            }
         }
     }
 

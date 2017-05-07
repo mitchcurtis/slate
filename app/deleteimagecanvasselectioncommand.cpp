@@ -32,7 +32,7 @@ DeleteImageCanvasSelectionCommand::DeleteImageCanvasSelectionCommand(ImageCanvas
 
 void DeleteImageCanvasSelectionCommand::undo()
 {
-    mCanvas->replacePortionOfImage(mDeletedArea, mDeletedAreaImagePortion);
+    mCanvas->paintImageOntoPortionOfImage(mDeletedArea, mDeletedAreaImagePortion);
 }
 
 void DeleteImageCanvasSelectionCommand::redo()

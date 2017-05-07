@@ -35,7 +35,8 @@ HEADERS += \
     $$PWD/tilesetproject.h \
     $$PWD/tilesetswatchimage.h \
     $$PWD/utils.h \
-    $$PWD/deleteimagecanvasselectioncommand.h
+    $$PWD/deleteimagecanvasselectioncommand.h \
+    $$PWD/flipimagecanvasselectioncommand.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -68,7 +69,8 @@ SOURCES += \
     $$PWD/tilesetproject.cpp \
     $$PWD/tilesetswatchimage.cpp \
     $$PWD/utils.cpp \
-    $$PWD/deleteimagecanvasselectioncommand.cpp
+    $$PWD/deleteimagecanvasselectioncommand.cpp \
+    $$PWD/flipimagecanvasselectioncommand.cpp
 
 
 RESOURCES += \

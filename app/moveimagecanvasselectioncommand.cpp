@@ -35,8 +35,8 @@ MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *ca
 
 void MoveImageCanvasSelectionCommand::undo()
 {
-    mCanvas->replacePortionOfImage(mPreviousArea, mPreviousAreaImagePortion);
-    mCanvas->replacePortionOfImage(mNewArea, mNewAreaImagePortion);
+    mCanvas->paintImageOntoPortionOfImage(mPreviousArea, mPreviousAreaImagePortion);
+    mCanvas->paintImageOntoPortionOfImage(mNewArea, mNewAreaImagePortion);
     // This matches what mspaint does; undoing a selection move causes the selection to be cleared.
     mCanvas->clearSelection();
 }
@@ -44,7 +44,7 @@ void MoveImageCanvasSelectionCommand::undo()
 void MoveImageCanvasSelectionCommand::redo()
 {
     mCanvas->erasePortionOfImage(mPreviousArea);
-    mCanvas->replacePortionOfImage(mNewArea, mPreviousAreaImagePortion);
+    mCanvas->paintImageOntoPortionOfImage(mNewArea, mPreviousAreaImagePortion);
 }
 
 int MoveImageCanvasSelectionCommand::id() const

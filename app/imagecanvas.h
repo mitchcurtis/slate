@@ -65,6 +65,7 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(int maxToolSize READ maxToolSize CONSTANT)
     Q_PROPERTY(QColor penForegroundColour READ penForegroundColour WRITE setPenForegroundColour NOTIFY penForegroundColourChanged)
     Q_PROPERTY(QColor penBackgroundColour READ penBackgroundColour WRITE setPenBackgroundColour NOTIFY penBackgroundColourChanged)
+    Q_PROPERTY(bool hasSelection READ hasSelection NOTIFY hasSelectionChanged)
     Q_PROPERTY(QRect selectionArea READ selectionArea NOTIFY selectionAreaChanged)
     Q_PROPERTY(bool hasBlankCursor READ hasBlankCursor NOTIFY hasBlankCursorChanged)
     Q_PROPERTY(bool altPressed READ isAltPressed NOTIFY altPressedChanged)
@@ -142,6 +143,8 @@ public:
     QColor penBackgroundColour() const;
     void setPenBackgroundColour(const QColor &penBackgroundColour);
 
+    bool hasSelection() const;
+
     QRect selectionArea() const;
     void setSelectionArea(const QRect &selectionArea);
 
@@ -174,6 +177,7 @@ signals:
     void penForegroundColourChanged();
     void penBackgroundColourChanged();
     void hasBlankCursorChanged();
+    void hasSelectionChanged();
     void selectionAreaChanged();
     void altPressedChanged();
     void errorOccurred(const QString &errorMessage);
@@ -183,6 +187,7 @@ public slots:
     void centreView();
     void zoomIn();
     void zoomOut();
+    void flipSelection(Qt::Orientation orientation);
 
 protected slots:
     virtual void onLoadedChanged();
@@ -197,6 +202,7 @@ protected:
     friend class ApplyPixelFillCommand;
     friend class MoveImageCanvasSelectionCommand;
     friend class DeleteImageCanvasSelectionCommand;
+    friend class FlipImageCanvasSelectionCommand;
 
     struct PixelCandidateData
     {
@@ -208,8 +214,9 @@ protected:
 
     virtual void applyCurrentTool();
     virtual void applyPixelPenTool(const QPoint &scenePos, const QColor &colour);
-    void replacePortionOfImage(const QRect &portion, const QImage &replacementImage);
+    void paintImageOntoPortionOfImage(const QRect &portion, const QImage &replacementImage);
     void erasePortionOfImage(const QRect &portion);
+    void doFlipSelection(const QRect &area, Qt::Orientation orientation);
 
     virtual void updateCursorPos(const QPoint &eventPos);
     void error(const QString &message);

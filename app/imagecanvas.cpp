@@ -29,6 +29,7 @@
 #include "applypixelfillcommand.h"
 #include "applypixelpencommand.h"
 #include "deleteimagecanvasselectioncommand.h"
+#include "flipimagecanvasselectioncommand.h"
 #include "floodfill.h"
 #include "imageproject.h"
 #include "moveimagecanvasselectioncommand.h"
@@ -321,6 +322,11 @@ void ImageCanvas::setPenBackgroundColour(const QColor &penBackgroundColour)
 
     mPenBackgroundColour = colour;
     emit penBackgroundColourChanged();
+}
+
+bool ImageCanvas::hasSelection() const
+{
+    return mHasSelection;
 }
 
 QRect ImageCanvas::selectionArea() const
@@ -642,7 +648,7 @@ void ImageCanvas::moveSelectionArea()
     // Then, move the dragged contents to their new location.
     // Doing this last ensures that the drag contents are painted over the transparency,
     // and not the other way around.
-    mSelectionPreviewImage = Utils::replacePortionOfImage(mSelectionPreviewImage, mSelectionArea, mSelectionContents);
+    mSelectionPreviewImage = Utils::paintImageOntoPortionOfImage(mSelectionPreviewImage, mSelectionArea, mSelectionContents);
 
     mHasMovedSelection = true;
 
@@ -734,6 +740,7 @@ void ImageCanvas::setHasSelection(bool hasSelection)
 
     mHasSelection = hasSelection;
     updateWindowCursorShape();
+    emit hasSelectionChanged();
 }
 
 void ImageCanvas::setMovingSelection(bool movingSelection)
@@ -800,6 +807,16 @@ void ImageCanvas::zoomOut()
         return;
 
     pane->setZoomLevel(pane->zoomLevel() - 1);
+}
+
+void ImageCanvas::flipSelection(Qt::Orientation orientation)
+{
+    if (!mHasSelection)
+        return;
+
+    mProject->beginMacro(QLatin1String("FlipSelection"));
+    mProject->addChange(new FlipImageCanvasSelectionCommand(this, mSelectionArea, orientation));
+    mProject->endMacro();
 }
 
 void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
@@ -912,9 +929,9 @@ void ImageCanvas::applyPixelPenTool(const QPoint &scenePos, const QColor &colour
     update();
 }
 
-void ImageCanvas::replacePortionOfImage(const QRect &portion, const QImage &replacementImage)
+void ImageCanvas::paintImageOntoPortionOfImage(const QRect &portion, const QImage &replacementImage)
 {
-    *mImageProject->image() = Utils::replacePortionOfImage(*mImageProject->image(), portion, replacementImage);
+    *mImageProject->image() = Utils::paintImageOntoPortionOfImage(*mImageProject->image(), portion, replacementImage);
     update();
 }
 
@@ -922,6 +939,14 @@ void ImageCanvas::erasePortionOfImage(const QRect &portion)
 {
     *mImageProject->image() = Utils::erasePortionOfImage(*mImageProject->image(), portion);
     update();
+}
+
+void ImageCanvas::doFlipSelection(const QRect &area, Qt::Orientation orientation)
+{
+    const QImage flippedImagePortion = mImageProject->image()->copy(area)
+        .mirrored(orientation == Qt::Horizontal, orientation == Qt::Vertical);
+    erasePortionOfImage(area);
+    paintImageOntoPortionOfImage(area, flippedImagePortion);
 }
 
 void ImageCanvas::updateCursorPos(const QPoint &eventPos)

@@ -30,7 +30,7 @@ QImage Utils::rotate(const QImage &image, int angle)
     return image.transformed(matrix);
 }
 
-QImage Utils::replacePortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
+QImage Utils::paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
 {
     QImage newImage = image;
     QPainter painter(&newImage);

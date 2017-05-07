@@ -71,6 +71,22 @@ Platform.MenuBar {
             onTriggered: project.undoStack.redo()
             enabled: project ? project.undoStack.canRedo : false
         }
+
+        Platform.MenuSeparator {}
+
+        Platform.MenuItem {
+            objectName: "flipHorizontallyMenuButton"
+            text: qsTr("Flip Horizontally")
+            onTriggered: canvas.flipSelection(Qt.Horizontal)
+            enabled: canvas && canvas.hasSelection
+        }
+
+        Platform.MenuItem {
+            objectName: "flipVerticallyMenuButton"
+            text: qsTr("Flip Vertically")
+            onTriggered: canvas.flipSelection(Qt.Vertical)
+            enabled: canvas && canvas.hasSelection
+        }
     }
 
     Platform.Menu {

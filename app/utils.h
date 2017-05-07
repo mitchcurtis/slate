@@ -26,7 +26,7 @@
 namespace Utils {
     QImage rotate(const QImage &image, int angle);
 
-    QImage replacePortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
+    QImage paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
 
     QImage erasePortionOfImage(const QImage &image, const QRect &portion);
 }
