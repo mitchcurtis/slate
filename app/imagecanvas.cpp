@@ -1090,7 +1090,6 @@ void ImageCanvas::restoreToolBeforeAltPressed()
 
 void ImageCanvas::wheelEvent(QWheelEvent *event)
 {
-    qDebug() << "mScrollZoom" << mScrollZoom;
     if (!mProject->hasLoaded() || !mScrollZoom) {
         event->ignore();
         return;

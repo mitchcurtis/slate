@@ -159,7 +159,6 @@ bool Settings::defaultScrollZoom() const
 
 bool Settings::scrollZoom() const
 {
-    qDebug() << value("scrollZoom");
     return contains("scrollZoom") ? value("scrollZoom").toBool() : defaultScrollZoom();
 }
 
