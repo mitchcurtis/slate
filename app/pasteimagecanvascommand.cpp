@@ -35,6 +35,7 @@ PasteImageCanvasCommand::PasteImageCanvasCommand(ImageCanvas *canvas, const QIma
 void PasteImageCanvasCommand::undo()
 {
     mCanvas->paintImageOntoPortionOfImage(mArea, mPreviousImage);
+    mCanvas->clearSelection();
 }
 
 void PasteImageCanvasCommand::redo()

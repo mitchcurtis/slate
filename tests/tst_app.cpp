@@ -1699,8 +1699,8 @@ void tst_App::copyPaste()
     changeToolSize(5);
     setCursorPosInPixels(12, 12);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(10, 10), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(14, 14), QColor(Qt::black));
 
     changeToolSize(1);
     switchTool(ImageCanvas::SelectionTool);
@@ -1715,14 +1715,18 @@ void tst_App::copyPaste()
 
     keySequence(window, QKeySequence::Copy);
     QCOMPARE(QGuiApplication::clipboard()->image(), imageProject->image()->copy(10, 10, 5, 5));
-    // The project's actual image contents shouldn't change until the move has been confirmed.
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::white));
-    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::white));
 
     keySequence(window, QKeySequence::Paste);
-    QCOMPARE(QGuiApplication::clipboard()->image(), imageProject->image()->copy(10, 10, 5, 5));
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+    QCOMPARE(imageCanvas->hasSelection(), true);
+    QCOMPARE(imageCanvas->selectionArea(), QRect(0, 0, 5, 5));
+
+    keySequence(window, app.settings()->undoShortcut());
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::white));
+    QCOMPARE(imageCanvas->hasSelection(), false);
+    QCOMPARE(imageCanvas->selectionArea(), QRect(0, 0, 0, 0));
 }
 
 int main(int argc, char *argv[])
