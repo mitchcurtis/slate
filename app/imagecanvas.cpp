@@ -914,12 +914,8 @@ ImageCanvas::PixelCandidateData ImageCanvas::fillPixelCandidates() const
         return candidateData;
     }
 
-    QVector<QPoint> scenePositions;
-    imagePixelFloodFill(mImageProject->image(), scenePos, previousColour, penColour(), scenePositions);
-
-    for (const QPoint &scenePos : scenePositions) {
-        candidateData.scenePositions.append(scenePos);
-    }
+    QVector<QPoint> scenePositions = imagePixelFloodFill(mImageProject->image(), scenePos, previousColour, penColour());
+    candidateData.scenePositions = scenePositions;
 
     candidateData.previousColours.append(previousColour);
     return candidateData;

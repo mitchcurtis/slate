@@ -23,6 +23,7 @@
 #include <QColor>
 #include <QImage>
 #include <QLoggingCategory>
+#include <QQueue>
 
 #include "tile.h"
 #include "tilesetproject.h"
@@ -30,44 +31,59 @@
 Q_LOGGING_CATEGORY(lcPixelFloodFill, "app.pixelFloodFill")
 Q_LOGGING_CATEGORY(lcTileFloodFill, "app.tileFloodFill")
 
-void imagePixelFloodFill(const QImage *image, const QPoint &pos, const QColor &targetColour,
-    const QColor &replacementColour, QVector<QPoint> &filledPositions)
+// https://en.wikipedia.org/wiki/Flood_fill#Alternative_implementations
+// TODO: this is too slow
+QVector<QPoint> imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
+    const QColor &replacementColour)
 {
-    if (filledPositions.contains(pos)) {
-        // This tile has already been filled (would this ever happen?)
-        return;
+    QVector<QPoint> filledPositions;
+    const QRect imageBounds(0, 0, image->width(), image->height());
+    if (!imageBounds.contains(startPos)) {
+        return filledPositions;
     }
 
-    if (image->pixelColor(pos) == replacementColour) {
-        return;
+    if (image->pixelColor(startPos) == replacementColour) {
+        return filledPositions;
     }
 
-    if (image->pixelColor(pos) != targetColour) {
-        return;
+    if (image->pixelColor(startPos) != targetColour) {
+        return filledPositions;
     }
 
-    filledPositions.append(pos);
+    QQueue<QPoint> queue;
+    queue.append(startPos);
+    filledPositions.append(startPos);
 
-    const QRect tileBounds(0, 0, image->width(), image->height());
-    const QPoint north = pos - QPoint(0, 1);
-    const QPoint south = pos + QPoint(0, 1);
-    const QPoint east = pos + QPoint(1, 0);
-    const QPoint west = pos - QPoint(1, 0);
+    while (!queue.isEmpty()) {
+        QPoint node = queue.takeFirst();
 
-    if (tileBounds.contains(north)) {
-        imagePixelFloodFill(image, north, targetColour, replacementColour, filledPositions);
+        const QPoint north = node - QPoint(0, 1);
+        const QPoint south = node + QPoint(0, 1);
+        const QPoint east = node + QPoint(1, 0);
+        const QPoint west = node - QPoint(1, 0);
+
+        if (imageBounds.contains(west) && !filledPositions.contains(west) && image->pixelColor(west) == targetColour) {
+            queue.append(west);
+            filledPositions.append(west);
+        }
+        if (imageBounds.contains(east) && !filledPositions.contains(east) && image->pixelColor(east) == targetColour) {
+            queue.append(east);
+            filledPositions.append(east);
+        }
+        if (imageBounds.contains(north) && !filledPositions.contains(north) && image->pixelColor(north) == targetColour) {
+            queue.append(north);
+            filledPositions.append(north);
+        }
+        if (imageBounds.contains(south) && !filledPositions.contains(south) && image->pixelColor(south) == targetColour) {
+            queue.append(south);
+            filledPositions.append(south);
+        }
     }
-    if (tileBounds.contains(south)) {
-        imagePixelFloodFill(image, south, targetColour, replacementColour, filledPositions);
-    }
-    if (tileBounds.contains(east)) {
-        imagePixelFloodFill(image, east, targetColour, replacementColour, filledPositions);
-    }
-    if (tileBounds.contains(west)) {
-        imagePixelFloodFill(image, west, targetColour, replacementColour, filledPositions);
-    }
+
+    return filledPositions;
 }
 
+// TODO: convert these to non-recursive algorithms as above
 void tilesetPixelFloodFill(const Tile *tile, const QPoint &pos, const QColor &targetColour,
     const QColor &replacementColour, QVector<QPoint> &filledPositions)
 {

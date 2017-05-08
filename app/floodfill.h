@@ -29,8 +29,8 @@ class QVector;
 class TilesetProject;
 class Tile;
 
-void imagePixelFloodFill(const QImage *image, const QPoint &pos, const QColor &targetColour,
-    const QColor &replacementColour, QVector<QPoint> &filledPositions);
+QVector<QPoint> imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
+    const QColor &replacementColour);
 
 void tilesetPixelFloodFill(const Tile *tile, const QPoint &pos, const QColor &targetColour,
     const QColor &replacementColour, QVector<QPoint> &filledPositions);

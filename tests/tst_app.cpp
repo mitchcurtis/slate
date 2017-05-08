@@ -77,6 +77,7 @@ private Q_SLOTS:
     void moveSelectionImageCanvas();
     void deleteSelectionImageCanvas();
     void copyPaste();
+    void fillImageCanvas();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -1727,6 +1728,21 @@ void tst_App::copyPaste()
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::white));
     QCOMPARE(imageCanvas->hasSelection(), false);
     QCOMPARE(imageCanvas->selectionArea(), QRect(0, 0, 0, 0));
+}
+
+void tst_App::fillImageCanvas()
+{
+    createNewImageProject();
+
+    changeCanvasSize(90, 90);
+
+    // Fill the canvas with black.
+    switchTool(ImageCanvas::FillTool);
+    setCursorPosInPixels(0, 0);
+    mouseEvent(canvas, cursorWindowPos, MouseClick);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(imageProject->image()->pixelColor(imageProject->widthInPixels() - 1,
+        imageProject->heightInPixels() - 1), QColor(Qt::white));
 }
 
 int main(int argc, char *argv[])
