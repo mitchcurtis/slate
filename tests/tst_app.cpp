@@ -1734,15 +1734,17 @@ void tst_App::fillImageCanvas()
 {
     createNewImageProject();
 
+    // A fill on a canvas of this size would previously trigger a stack overflow
+    // using a recursive algorithm.
     changeCanvasSize(90, 90);
 
     // Fill the canvas with black.
     switchTool(ImageCanvas::FillTool);
     setCursorPosInPixels(0, 0);
     mouseEvent(canvas, cursorWindowPos, MouseClick);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(imageProject->widthInPixels() - 1,
-        imageProject->heightInPixels() - 1), QColor(Qt::white));
+        imageProject->heightInPixels() - 1), QColor(Qt::black));
 }
 
 int main(int argc, char *argv[])
