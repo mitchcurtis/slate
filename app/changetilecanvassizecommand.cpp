@@ -23,7 +23,7 @@
 
 #include "tilesetproject.h"
 
-Q_LOGGING_CATEGORY(lcChangeTileCanvasSizeCommand, "app.changeTileCanvasSizeCommand")
+Q_LOGGING_CATEGORY(lcChangeTileCanvasSizeCommand, "app.undo.changeTileCanvasSizeCommand")
 
 ChangeTileCanvasSizeCommand::ChangeTileCanvasSizeCommand(TilesetProject *project, const QSize &previousSize,
     const QSize &size, UndoCommand *parent) :
@@ -37,13 +37,13 @@ ChangeTileCanvasSizeCommand::ChangeTileCanvasSizeCommand(TilesetProject *project
 
 void ChangeTileCanvasSizeCommand::undo()
 {
-    qCDebug(lcChangeTileCanvasSizeCommand) << "undoing change canvas size command:" << mPreviousSize;
+    qCDebug(lcChangeTileCanvasSizeCommand) << "undoing" << this;
     mProject->changeSize(mPreviousSize, mPreviousTiles);
 }
 
 void ChangeTileCanvasSizeCommand::redo()
 {
-    qCDebug(lcChangeTileCanvasSizeCommand) << "redoing change canvas size command:" << mSize;
+    qCDebug(lcChangeTileCanvasSizeCommand) << "redoing" << this;
     mProject->changeSize(mSize);
 }
 

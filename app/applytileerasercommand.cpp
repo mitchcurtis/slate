@@ -24,7 +24,7 @@
 #include "commands.h"
 #include "tile.h"
 
-Q_LOGGING_CATEGORY(lcApplyTileEraserCommand, "app.applyTileEraserCommand")
+Q_LOGGING_CATEGORY(lcApplyTileEraserCommand, "app.undo.applyTileEraserCommand")
 
 ApplyTileEraserCommand::ApplyTileEraserCommand(TileCanvas *canvas, const QPoint &tilePos,
     int previousId, UndoCommand *parent) :
@@ -37,7 +37,7 @@ ApplyTileEraserCommand::ApplyTileEraserCommand(TileCanvas *canvas, const QPoint 
 
 void ApplyTileEraserCommand::undo()
 {
-    qCDebug(lcApplyTileEraserCommand) << "undoing tile eraser command:" << mTilePositions << mPreviousIds;
+    qCDebug(lcApplyTileEraserCommand) << "undoing" << this;
     for (int i = 0; i < mTilePositions.size(); ++i) {
         mCanvas->applyTilePenTool(mTilePositions.at(i), mPreviousIds.at(i));
     }
@@ -45,7 +45,7 @@ void ApplyTileEraserCommand::undo()
 
 void ApplyTileEraserCommand::redo()
 {
-    qCDebug(lcApplyTileEraserCommand) << "redoing tile eraser command:" << mTilePositions;
+    qCDebug(lcApplyTileEraserCommand) << "redoing" << this;
     for (int i = 0; i < mTilePositions.size(); ++i) {
         mCanvas->applyTilePenTool(mTilePositions.at(i), Tile::invalidId());
     }

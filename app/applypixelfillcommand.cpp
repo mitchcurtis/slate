@@ -24,7 +24,7 @@
 #include "commands.h"
 #include "imagecanvas.h"
 
-Q_LOGGING_CATEGORY(lcApplyPixelFillCommand, "app.applyPixelFillCommand")
+Q_LOGGING_CATEGORY(lcApplyPixelFillCommand, "app.undo.applyPixelFillCommand")
 
 ApplyPixelFillCommand::ApplyPixelFillCommand(ImageCanvas *canvas, const QVector<QPoint> &scenePositions,
     const QColor &previousColour, const QColor &colour, UndoCommand *parent) :
@@ -38,7 +38,7 @@ ApplyPixelFillCommand::ApplyPixelFillCommand(ImageCanvas *canvas, const QVector<
 
 void ApplyPixelFillCommand::undo()
 {
-    qCDebug(lcApplyPixelFillCommand) << "undoing pixel fill command:" << mScenePositions << mPreviousColour;
+    qCDebug(lcApplyPixelFillCommand) << "undoing" << this;
     for (int i = 0; i < mScenePositions.size(); ++i) {
         mCanvas->applyPixelPenTool(mScenePositions.at(i), mPreviousColour);
     }
@@ -46,7 +46,7 @@ void ApplyPixelFillCommand::undo()
 
 void ApplyPixelFillCommand::redo()
 {
-    qCDebug(lcApplyPixelFillCommand) << "redoing pixel fill command:" << mScenePositions << mColour;
+    qCDebug(lcApplyPixelFillCommand) << "redoing" << this;
     for (int i = 0; i < mScenePositions.size(); ++i) {
         mCanvas->applyPixelPenTool(mScenePositions.at(i), mColour);
     }

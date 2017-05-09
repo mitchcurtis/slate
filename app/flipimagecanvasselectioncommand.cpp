@@ -21,6 +21,8 @@
 
 #include "imagecanvas.h"
 
+Q_LOGGING_CATEGORY(lcFlipImageCanvasSelectionCommand, "app.undo.flipImageCanvasSelectionCommand")
+
 FlipImageCanvasSelectionCommand::FlipImageCanvasSelectionCommand(ImageCanvas *canvas,
         const QRect &area, Qt::Orientation orientation, UndoCommand *parent) :
     UndoCommand(parent),
@@ -32,11 +34,13 @@ FlipImageCanvasSelectionCommand::FlipImageCanvasSelectionCommand(ImageCanvas *ca
 
 void FlipImageCanvasSelectionCommand::undo()
 {
+    qCDebug(lcFlipImageCanvasSelectionCommand) << "undoing" << this;
     mCanvas->doFlipSelection(mArea, mOrientation);
 }
 
 void FlipImageCanvasSelectionCommand::redo()
 {
+    qCDebug(lcFlipImageCanvasSelectionCommand) << "redoing" << this;
     mCanvas->doFlipSelection(mArea, mOrientation);
 }
 

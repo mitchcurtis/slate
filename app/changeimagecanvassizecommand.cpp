@@ -23,7 +23,7 @@
 
 #include "imageproject.h"
 
-Q_LOGGING_CATEGORY(lcChangeImageCanvasSizeCommand, "app.changeImageCanvasSizeCommand")
+Q_LOGGING_CATEGORY(lcChangeImageCanvasSizeCommand, "app.undo.changeImageCanvasSizeCommand")
 
 ChangeImageCanvasSizeCommand::ChangeImageCanvasSizeCommand(ImageProject *project, const QSize &previousSize,
     const QSize &size, UndoCommand *parent) :
@@ -36,13 +36,13 @@ ChangeImageCanvasSizeCommand::ChangeImageCanvasSizeCommand(ImageProject *project
 
 void ChangeImageCanvasSizeCommand::undo()
 {
-    qCDebug(lcChangeImageCanvasSizeCommand) << "undoing change canvas size command:" << mPreviousSize;
+    qCDebug(lcChangeImageCanvasSizeCommand) << "undoing" << this;
     mProject->changeSize(mPreviousSize);
 }
 
 void ChangeImageCanvasSizeCommand::redo()
 {
-    qCDebug(lcChangeImageCanvasSizeCommand) << "redoing change canvas size command:" << mSize;
+    qCDebug(lcChangeImageCanvasSizeCommand) << "redoing" << this;
     mProject->changeSize(mSize);
 }
 

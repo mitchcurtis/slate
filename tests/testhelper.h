@@ -152,6 +152,22 @@ protected:
     void fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
     void fuzzyImageCompare(const QImage &image1, const QImage &image2);
 
+    template<typename Type>
+    void verifyCommandType(int index)
+    {
+        if (index >= project->undoStack()->count()) {
+            QFAIL(qPrintable(QString::fromLatin1("Expected command of type %1 at index %2, but there are only %3 command(s)")
+                .arg(typeid(const Type*).name()).arg(index).arg(project->undoStack()->count())));
+        }
+
+        if (!qobject_cast<const Type*>(project->undoStack()->command(index))) {
+            QString actualStr;
+            QDebug debug(&actualStr);
+            debug << project->undoStack()->command(index);
+            QFAIL(qPrintable(QString::fromLatin1("Expected command of type %1 but got %2").arg(typeid(const Type*).name(), actualStr)));
+        }
+    }
+
     Application app;
     QQuickWindow *window;
     QQuickItem *overlay;

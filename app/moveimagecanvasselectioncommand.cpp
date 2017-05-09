@@ -22,6 +22,8 @@
 #include "imagecanvas.h"
 #include "imageproject.h"
 
+Q_LOGGING_CATEGORY(lcMoveImageCanvasSelectionCommand, "app.undo.moveImageCanvasSelectionCommand")
+
 MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &previousArea,
     const QRect &newArea, UndoCommand *parent) :
     UndoCommand(parent),
@@ -35,6 +37,7 @@ MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *ca
 
 void MoveImageCanvasSelectionCommand::undo()
 {
+    qCDebug(lcMoveImageCanvasSelectionCommand) << "undoing" << this;
     mCanvas->paintImageOntoPortionOfImage(mPreviousArea, mPreviousAreaImagePortion);
     mCanvas->paintImageOntoPortionOfImage(mNewArea, mNewAreaImagePortion);
     // This matches what mspaint does; undoing a selection move causes the selection to be cleared.
@@ -43,6 +46,7 @@ void MoveImageCanvasSelectionCommand::undo()
 
 void MoveImageCanvasSelectionCommand::redo()
 {
+    qCDebug(lcMoveImageCanvasSelectionCommand) << "redoing" << this;
     mCanvas->erasePortionOfImage(mPreviousArea);
     mCanvas->paintImageOntoPortionOfImage(mNewArea, mPreviousAreaImagePortion);
 }

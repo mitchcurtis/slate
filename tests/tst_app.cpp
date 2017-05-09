@@ -1630,6 +1630,7 @@ void tst_App::moveSelectionImageCanvas()
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+    verifyCommandType<ApplyPixelPenCommand>(0);
 
     changeToolSize(1);
     switchTool(ImageCanvas::SelectionTool);
@@ -1663,6 +1664,12 @@ void tst_App::moveSelectionImageCanvas()
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::transparent));
     QCOMPARE(imageProject->image()->pixelColor(18, 18), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(22, 22), QColor(Qt::black));
+
+    keySequence(window, app.settings()->undoShortcut());
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(18, 18), QColor(Qt::white));
+    QCOMPARE(imageProject->image()->pixelColor(22, 22), QColor(Qt::white));
 }
 
 void tst_App::deleteSelectionImageCanvas()

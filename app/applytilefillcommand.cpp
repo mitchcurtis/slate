@@ -23,7 +23,7 @@
 
 #include "commands.h"
 
-Q_LOGGING_CATEGORY(lcApplyTileFillCommand, "app.applyTileFillCommand")
+Q_LOGGING_CATEGORY(lcApplyTileFillCommand, "app.undo.applyTileFillCommand")
 
 ApplyTileFillCommand::ApplyTileFillCommand(TileCanvas *canvas, const QVector<QPoint> &tilePositions,
     int previousTile, int tile, UndoCommand *parent) :
@@ -38,7 +38,7 @@ ApplyTileFillCommand::ApplyTileFillCommand(TileCanvas *canvas, const QVector<QPo
 
 void ApplyTileFillCommand::undo()
 {
-    qCDebug(lcApplyTileFillCommand) << "undoing tile fill command:" << mTilePositions << mPreviousTile;
+    qCDebug(lcApplyTileFillCommand) << "undoing" << this;
     for (int i = 0; i < mTilePositions.size(); ++i) {
         mCanvas->applyTilePenTool(mTilePositions.at(i), mPreviousTile);
     }
@@ -46,7 +46,7 @@ void ApplyTileFillCommand::undo()
 
 void ApplyTileFillCommand::redo()
 {
-    qCDebug(lcApplyTileFillCommand) << "redoing tile fill command:" << mTilePositions << mTile;
+    qCDebug(lcApplyTileFillCommand) << "redoing" << this;
     for (int i = 0; i < mTilePositions.size(); ++i) {
         mCanvas->applyTilePenTool(mTilePositions.at(i), mTile);
     }

@@ -71,6 +71,7 @@ ImageCanvas::ImageCanvas() :
     mHasSelection(false),
     mMovingSelection(false),
     mHasMovedSelection(false),
+    mIsSelectionFromPaste(false),
     mAltPressed(false),
     mToolBeforeAltPressed(PenTool),
     mSpacePressed(false),
@@ -646,8 +647,12 @@ void ImageCanvas::moveSelectionArea()
     newSelectionArea.translate(distanceMoved);
     setSelectionArea(boundSelectionArea(newSelectionArea));
 
-    // Then, erase the area left behind.
-    mSelectionPreviewImage = Utils::erasePortionOfImage(*mImageProject->image(), mSelectionAreaBeforeFirstMove);
+    if (!mIsSelectionFromPaste) {
+        // Only if the selection wasn't pased should we erase the area left behind.
+        mSelectionPreviewImage = Utils::erasePortionOfImage(*mImageProject->image(), mSelectionAreaBeforeFirstMove);
+    } else {
+        mSelectionPreviewImage = *mImageProject->image();
+    }
 
     // Then, move the dragged contents to their new location.
     // Doing this last ensures that the drag contents are painted over the transparency,
@@ -731,6 +736,7 @@ void ImageCanvas::clearSelection()
     setHasSelection(false);
     setMovingSelection(false);
     mHasMovedSelection = false;
+    mIsSelectionFromPaste = false;
     mSelectionAreaBeforeFirstMove = QRect(0, 0, 0, 0);
     mSelectionAreaBeforeLastMove = QRect(0, 0, 0, 0);
     mLastValidSelectionArea = QRect(0, 0, 0, 0);
@@ -862,6 +868,9 @@ void ImageCanvas::paste()
     mProject->addChange(new PasteImageCanvasCommand(this, clipboardImage, pastedArea.topLeft()));
     mProject->endMacro();
 
+    // Setting a selection area is only done when a paste is first created,
+    // not when it's redone, so we do it here instead of in the command.
+    mIsSelectionFromPaste = true;
     mSelectionContents = clipboardImage;
     setSelectionArea(pastedArea);
 

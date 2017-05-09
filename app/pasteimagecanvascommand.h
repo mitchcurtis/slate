@@ -47,6 +47,8 @@ private:
     QImage mNewImage;
     QImage mPreviousImage;
     QRect mArea;
+
+    bool mUsed;
 };
 
 #endif // PASTEIMAGECANVASCOMMAND_H

@@ -23,7 +23,7 @@
 
 #include "commands.h"
 
-Q_LOGGING_CATEGORY(lcApplyPixelEraserCommand, "app.applyPixelEraserCommand")
+Q_LOGGING_CATEGORY(lcApplyPixelEraserCommand, "app.undo.applyPixelEraserCommand")
 
 ApplyPixelEraserCommand::ApplyPixelEraserCommand(ImageCanvas *canvas, const QVector<QPoint> &scenePositions,
     const QVector<QColor> &previousColours, UndoCommand *parent) :
@@ -36,7 +36,7 @@ ApplyPixelEraserCommand::ApplyPixelEraserCommand(ImageCanvas *canvas, const QVec
 
 void ApplyPixelEraserCommand::undo()
 {
-    qCDebug(lcApplyPixelEraserCommand) << "undoing pixel eraser command:" << mScenePositions << mPreviousColours;
+    qCDebug(lcApplyPixelEraserCommand) << "undoing" << this;
     for (int i = 0; i < mScenePositions.size(); ++i) {
         mCanvas->applyPixelPenTool(mScenePositions.at(i), mPreviousColours.at(i));
     }
@@ -44,7 +44,7 @@ void ApplyPixelEraserCommand::undo()
 
 void ApplyPixelEraserCommand::redo()
 {
-    qCDebug(lcApplyPixelEraserCommand) << "redoing pixel eraser command:" << mScenePositions;
+    qCDebug(lcApplyPixelEraserCommand) << "redoing" << this;
     for (int i = 0; i < mScenePositions.size(); ++i) {
         mCanvas->applyPixelPenTool(mScenePositions.at(i), QColor(Qt::transparent));
     }

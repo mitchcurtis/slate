@@ -22,25 +22,40 @@
 #include "imagecanvas.h"
 #include "imageproject.h"
 
+Q_LOGGING_CATEGORY(lcPasteImageCanvasCommand, "app.undo.pasteImageCanvasCommand")
+
 PasteImageCanvasCommand::PasteImageCanvasCommand(ImageCanvas *canvas, const QImage &image,
     const QPoint &position, UndoCommand *parent) :
     UndoCommand(parent),
     mCanvas(canvas),
     mNewImage(image),
     mPreviousImage(canvas->mImageProject->image()->copy(QRect(position, image.size()))),
-    mArea(QRect(position, image.size()))
+    mArea(QRect(position, image.size())),
+    mUsed(false)
 {
 }
 
 void PasteImageCanvasCommand::undo()
 {
+    qCDebug(lcPasteImageCanvasCommand) << "undoing" << this;
     mCanvas->paintImageOntoPortionOfImage(mArea, mPreviousImage);
     mCanvas->clearSelection();
 }
 
 void PasteImageCanvasCommand::redo()
 {
-    mCanvas->paintImageOntoPortionOfImage(mArea, mNewImage);
+    if (mUsed) {
+        qCDebug(lcPasteImageCanvasCommand) << "redoing" << this;
+        // ImageCanvas handles everything for us for the initial paste,
+        // as we need a selection area on that occasion. However,
+        // for every other redo and undo, we can do the following.
+        mCanvas->paintImageOntoPortionOfImage(mArea, mNewImage);
+        mCanvas->clearSelection();
+    } else {
+        qCDebug(lcPasteImageCanvasCommand) << "skipping" << this
+            << ", as ImageCanvas does it for us the first time";
+    }
+    mUsed = true;
 }
 
 int PasteImageCanvasCommand::id() const

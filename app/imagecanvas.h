@@ -315,6 +315,7 @@ protected:
     bool mHasSelection;
     bool mMovingSelection;
     bool mHasMovedSelection;
+    bool mIsSelectionFromPaste;
     // The current selection area. This is set as soon as we receive a mouse press event
     // outside of any existing selection, which means that it starts off with an "empty" size.
     QRect mSelectionArea;
