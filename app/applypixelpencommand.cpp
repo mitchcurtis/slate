@@ -33,6 +33,8 @@ ApplyPixelPenCommand::ApplyPixelPenCommand(ImageCanvas *canvas, const QVector<QP
 {
     mScenePositions = scenePositions;
     mPreviousColours = previousColours;
+
+    qCDebug(lcApplyPixelPenCommand) << "constructed" << this;
 }
 
 void ApplyPixelPenCommand::undo()
@@ -73,17 +75,17 @@ bool ApplyPixelPenCommand::mergeWith(const UndoCommand *other)
     }
 
     // A unique pixel that we haven't touched yet; add it.
-    qCDebug(lcApplyPixelPenCommand) << "\nmerging:\n    " << *otherCommand << "\nwith:\n    " << *this;
+    qCDebug(lcApplyPixelPenCommand) << "\nmerging:\n    " << otherCommand << "\nwith:\n    " << this;
     mScenePositions.append(otherCommand->mScenePositions);
     mPreviousColours.append(otherCommand->mPreviousColours);
     return true;
 }
 
-QDebug operator<<(QDebug debug, const ApplyPixelPenCommand &command)
+QDebug operator<<(QDebug debug, const ApplyPixelPenCommand *command)
 {
-    debug.nospace() << "(ApplyPixelPenCommand scenePositions=" << command.mScenePositions
-        << ", previousColours=" << command.mPreviousColours
-        << ", colour=" << command.mColour
+    debug.nospace() << "(ApplyPixelPenCommand scenePositions=" << command->mScenePositions
+        << ", previousColours=" << command->mPreviousColours
+        << ", colour=" << command->mColour
         << ")";
     return debug.space();
 }

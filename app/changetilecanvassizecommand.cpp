@@ -33,6 +33,8 @@ ChangeTileCanvasSizeCommand::ChangeTileCanvasSizeCommand(TilesetProject *project
     mSize(size)
 {
     mPreviousTiles = project->tiles();
+
+    qCDebug(lcChangeTileCanvasSizeCommand) << "constructed" << this;
 }
 
 void ChangeTileCanvasSizeCommand::undo()

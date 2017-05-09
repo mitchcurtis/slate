@@ -22,6 +22,7 @@
 
 #include <QQuickItemGrabResult>
 #include <QQuickWindow>
+#include <QMetaObject>
 #include <QPointer>
 #include <QScopedPointer>
 #include <QSharedPointer>
@@ -153,19 +154,26 @@ protected:
     void fuzzyImageCompare(const QImage &image1, const QImage &image2);
 
     template<typename Type>
-    void verifyCommandType(int index)
+    QSharedPointer<QByteArray> verifyCommandType(int index)
     {
         if (index >= project->undoStack()->count()) {
-            QFAIL(qPrintable(QString::fromLatin1("Expected command of type %1 at index %2, but there are only %3 command(s)")
-                .arg(typeid(const Type*).name()).arg(index).arg(project->undoStack()->count())));
+            QSharedPointer<QByteArray> result(new QByteArray(qPrintable(QString::fromLatin1(
+                "Expected command of type %1 at index %2, but there are only %3 command(s)")
+                    .arg(typeid(const Type*).name()).arg(index).arg(project->undoStack()->count()))));
+            return result;
         }
 
         if (!qobject_cast<const Type*>(project->undoStack()->command(index))) {
             QString actualStr;
             QDebug debug(&actualStr);
             debug << project->undoStack()->command(index);
-            QFAIL(qPrintable(QString::fromLatin1("Expected command of type %1 but got %2").arg(typeid(const Type*).name(), actualStr)));
+
+            QSharedPointer<QByteArray> result(new QByteArray(qPrintable(QString::fromLatin1("Expected command of type %1 but got %2")
+                .arg(typeid(const Type*).name(), actualStr))));
+            return result;
         }
+
+        return QSharedPointer<QByteArray>();
     }
 
     Application app;

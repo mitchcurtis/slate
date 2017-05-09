@@ -32,6 +32,7 @@ ChangeImageCanvasSizeCommand::ChangeImageCanvasSizeCommand(ImageProject *project
     mPreviousSize(previousSize),
     mSize(size)
 {
+    qCDebug(lcChangeImageCanvasSizeCommand) << "constructed" << this;
 }
 
 void ChangeImageCanvasSizeCommand::undo()

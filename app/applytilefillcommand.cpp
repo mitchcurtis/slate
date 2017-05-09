@@ -34,6 +34,8 @@ ApplyTileFillCommand::ApplyTileFillCommand(TileCanvas *canvas, const QVector<QPo
 {
     mTilePositions = tilePositions;
     mPreviousTile = previousTile;
+
+    qCDebug(lcApplyTileFillCommand) << "constructed" << this;
 }
 
 void ApplyTileFillCommand::undo()

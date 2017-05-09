@@ -33,6 +33,7 @@ MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *ca
     mNewArea(newArea),
     mNewAreaImagePortion(canvas->mImageProject->image()->copy(newArea))
 {
+    qCDebug(lcMoveImageCanvasSelectionCommand) << "constructed" << this;
 }
 
 void MoveImageCanvasSelectionCommand::undo()

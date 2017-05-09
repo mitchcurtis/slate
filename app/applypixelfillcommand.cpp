@@ -34,6 +34,8 @@ ApplyPixelFillCommand::ApplyPixelFillCommand(ImageCanvas *canvas, const QVector<
 {
     mScenePositions = scenePositions;
     mPreviousColour = previousColour;
+
+    qCDebug(lcApplyPixelFillCommand) << "constructed" << this;
 }
 
 void ApplyPixelFillCommand::undo()

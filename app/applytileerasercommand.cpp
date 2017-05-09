@@ -33,6 +33,8 @@ ApplyTileEraserCommand::ApplyTileEraserCommand(TileCanvas *canvas, const QPoint 
 {
     mTilePositions.append(tilePos);
     mPreviousIds.append(previousId);
+
+    qCDebug(lcApplyTileEraserCommand) << "constructed" << this;
 }
 
 void ApplyTileEraserCommand::undo()

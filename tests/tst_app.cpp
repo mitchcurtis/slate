@@ -1630,7 +1630,8 @@ void tst_App::moveSelectionImageCanvas()
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
-    verifyCommandType<ApplyPixelPenCommand>(0);
+//    verifyCommandType<ApplyPixelPenCommand>(0);
+    if (auto result = verifyCommandType<ApplyPixelPenCommand>(0)) { QFAIL(*result); }
 
     changeToolSize(1);
     switchTool(ImageCanvas::SelectionTool);

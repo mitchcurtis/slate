@@ -30,6 +30,7 @@ DeleteImageCanvasSelectionCommand::DeleteImageCanvasSelectionCommand(ImageCanvas
     mDeletedArea(area),
     mDeletedAreaImagePortion(canvas->mImageProject->image()->copy(area))
 {
+    qCDebug(lcDeleteImageCanvasSelectionCommand) << "constructed" << this;
 }
 
 void DeleteImageCanvasSelectionCommand::undo()

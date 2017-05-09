@@ -32,6 +32,8 @@ ApplyPixelEraserCommand::ApplyPixelEraserCommand(ImageCanvas *canvas, const QVec
 {
     mScenePositions = scenePositions;
     mPreviousColours = previousColours;
+
+    qCDebug(lcApplyPixelEraserCommand) << "constructed" << this;
 }
 
 void ApplyPixelEraserCommand::undo()

@@ -30,6 +30,7 @@ FlipImageCanvasSelectionCommand::FlipImageCanvasSelectionCommand(ImageCanvas *ca
     mOrientation(orientation),
     mArea(area)
 {
+    qCDebug(lcFlipImageCanvasSelectionCommand) << "constructed" << this;
 }
 
 void FlipImageCanvasSelectionCommand::undo()

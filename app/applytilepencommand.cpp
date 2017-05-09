@@ -33,6 +33,8 @@ ApplyTilePenCommand::ApplyTilePenCommand(TileCanvas *canvas, const QPoint &tileP
 {
     mTilePositions.append(tilePos);
     mPreviousIds.append(previousId);
+
+    qCDebug(lcApplyTilePenCommand) << "constructed" << this;
 }
 
 void ApplyTilePenCommand::undo()

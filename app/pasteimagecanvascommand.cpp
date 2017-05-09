@@ -33,6 +33,7 @@ PasteImageCanvasCommand::PasteImageCanvasCommand(ImageCanvas *canvas, const QIma
     mArea(QRect(position, image.size())),
     mUsed(false)
 {
+    qCDebug(lcPasteImageCanvasCommand) << "constructed" << this;
 }
 
 void PasteImageCanvasCommand::undo()
