@@ -1767,6 +1767,9 @@ void tst_App::copyPaste()
     QTRY_VERIFY(imageGrabber.isReady());
     QImage img = imageGrabber.takeImage();
     QVERIFY(img.save("C:/dev/image.png"));
+    // TODO:
+    // - selection preview image still not updated
+    // - undoing paste leaves transparent area
     QCOMPARE(img.pixelColor(2, 2), QColor(Qt::black));
 
     keySequence(window, app.settings()->undoShortcut());
