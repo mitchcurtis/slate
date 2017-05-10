@@ -17,7 +17,7 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "settings.h"
+#include "applicationsettings.h"
 
 #include <QDebug>
 #include <QKeySequence>

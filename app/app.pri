@@ -25,7 +25,6 @@ HEADERS += \
     $$PWD/project.h \
     $$PWD/projectmanager.h \
     $$PWD/rectangularcursor.h \
-    $$PWD/settings.h \
     $$PWD/simpleloader.h \
     $$PWD/splitter.h \
     $$PWD/tilecanvas.h \
@@ -37,7 +36,8 @@ HEADERS += \
     $$PWD/utils.h \
     $$PWD/deleteimagecanvasselectioncommand.h \
     $$PWD/flipimagecanvasselectioncommand.h \
-    $$PWD/pasteimagecanvascommand.h
+    $$PWD/pasteimagecanvascommand.h \
+    $$PWD/applicationsettings.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -60,7 +60,6 @@ SOURCES += \
     $$PWD/project.cpp \
     $$PWD/projectmanager.cpp \
     $$PWD/rectangularcursor.cpp \
-    $$PWD/settings.cpp \
     $$PWD/simpleloader.cpp \
     $$PWD/splitter.cpp \
     $$PWD/tilecanvas.cpp \
@@ -72,7 +71,8 @@ SOURCES += \
     $$PWD/utils.cpp \
     $$PWD/deleteimagecanvasselectioncommand.cpp \
     $$PWD/flipimagecanvasselectioncommand.cpp \
-    $$PWD/pasteimagecanvascommand.cpp
+    $$PWD/pasteimagecanvascommand.cpp \
+    $$PWD/applicationsettings.cpp
 
 
 RESOURCES += \

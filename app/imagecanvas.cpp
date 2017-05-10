@@ -27,6 +27,7 @@
 #include <QQuickWindow>
 #include <QtMath>
 
+#include "applicationsettings.h"
 #include "applypixelerasercommand.h"
 #include "applypixelfillcommand.h"
 #include "applypixelpencommand.h"
@@ -1453,15 +1454,20 @@ void ImageCanvas::focusOutEvent(QFocusEvent *event)
 
 // A selection should be cleared when Ctrl + Z is pressed, as this is
 // what mspaint does. However, it doesn't make sense for a selection
-// to have its own undo command, so we intercept the undo shortcut
+// to have its own undo command (as it's cleared after the first undo
+// on selection moves), so we intercept the undo shortcut
 // to handle this special case ourselves.
 bool ImageCanvas::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-//        if (keyEvent->k)
-        QShortcutEvent *shortcutEvent = static_cast<QShortcutEvent*>(event);
-        return true;
+        // Taken from the following Qt code, so I assume that it's gonna work...
+        // http://code.qt.io/cgit/qt/qtbase.git/tree/src/gui/kernel/qevent.cpp?id=d1210281e41008ce2e3510aa5cfb3ebea1c57734#n1313
+        const QKeySequence eventKeySequence(keyEvent->modifiers() | keyEvent->key());
+        if (eventKeySequence == mProject->settings()->undoShortcut() && mHasSelection) {
+            clearSelection();
+            return true;
+        }
     }
 
     return QObject::eventFilter(object, event);

@@ -31,6 +31,8 @@
 Q_DECLARE_LOGGING_CATEGORY(lcProject)
 Q_DECLARE_LOGGING_CATEGORY(lcProjectLifecycle)
 
+class ApplicationSettings;
+
 class Project : public QObject
 {
     Q_OBJECT
@@ -44,6 +46,7 @@ class Project : public QObject
     Q_PROPERTY(QString displayUrl READ displayUrl NOTIFY urlChanged)
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
     Q_PROPERTY(UndoStack *undoStack READ undoStack CONSTANT)
+    Q_PROPERTY(ApplicationSettings *settings READ settings WRITE setSettings NOTIFY settingsChanged)
 
 public:
     enum Type {
@@ -83,6 +86,9 @@ public:
     void addChange(UndoCommand *undoCommand);
     void clearChanges();
 
+    ApplicationSettings *settings() const;
+    void setSettings(ApplicationSettings *settings);
+
 signals:
     void projectCreated();
     void projectLoaded();
@@ -94,6 +100,7 @@ signals:
     void urlChanged();
     void sizeChanged();
     void errorOccurred(const QString &errorMessage);
+    void settingsChanged();
 
 public slots:
     virtual void load(const QUrl &url);
@@ -108,6 +115,8 @@ protected:
     void setComposingMacro(bool composingMacro);
 
     QUrl createTemporaryImage(int width, int height, const QColor &colour);
+
+    ApplicationSettings *mSettings;
 
     bool mFromNew;
     QUrl mUrl;

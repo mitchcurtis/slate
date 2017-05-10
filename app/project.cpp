@@ -24,10 +24,13 @@
 #include <QLoggingCategory>
 #include <QMetaEnum>
 
+#include "applicationsettings.h"
+
 Q_LOGGING_CATEGORY(lcProject, "app.project")
 Q_LOGGING_CATEGORY(lcProjectLifecycle, "app.project.lifecycle")
 
 Project::Project() :
+    mSettings(nullptr),
     mFromNew(false),
     mUsingTempImage(false),
     mComposingMacro(false),
@@ -189,6 +192,20 @@ QUrl Project::createTemporaryImage(int width, int height, const QColor &colour)
     qCDebug(lcProject) << "Successfully created temporary image:" << fileName;
     mUsingTempImage = true;
     return QUrl::fromLocalFile(fileName);
+}
+
+ApplicationSettings *Project::settings() const
+{
+    return mSettings;
+}
+
+void Project::setSettings(ApplicationSettings *settings)
+{
+    if (settings == mSettings)
+        return;
+
+    mSettings = settings;
+    emit settingsChanged();
 }
 
 void Project::setSize(const QSize &)

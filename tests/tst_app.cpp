@@ -1651,8 +1651,7 @@ void tst_App::moveSelectionImageCanvas()
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(18, 18, 5, 5));
 
-    // The project's actual image contents shouldn't change until the move has
-    // been confirmed.
+    // The project's actual image contents shouldn't change until the move has been confirmed.
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(18, 18), QColor(Qt::white));
@@ -1663,6 +1662,9 @@ void tst_App::moveSelectionImageCanvas()
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::transparent));
     QCOMPARE(imageProject->image()->pixelColor(18, 18), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(22, 22), QColor(Qt::black));
+
+    // Clear the selection, so that a proper move undo command gets created.
+    switchTool(ImageCanvas::SelectionTool);
 
     // Undo the selection move.
     QVERIFY(canvas->hasActiveFocus());
@@ -1684,10 +1686,21 @@ void tst_App::moveSelectionImageCanvas()
     setCursorPosInPixels(QPoint(2, 2));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    setCursorPosInPixels(QPoint(4, 4));
+    setCursorPosInPixels(QPoint(2, 4));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(canvas->selectionArea(), QRect(18, 18, 5, 5));
+    QCOMPARE(canvas->selectionArea(), QRect(0, 2, 5, 5));
+    // The project's actual image contents shouldn't change until the move has been confirmed.
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+
+    // "Undo" the selection move. The selection move was never confirmed, so this
+    // will take the ImageCanvas-shortcutOverride path.
+    QTest::qWait(3000);
+    triggerShortcut(app.settings()->undoShortcut());
+    QTest::qWait(3000);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
 }
 
 void tst_App::deleteSelectionImageCanvas()

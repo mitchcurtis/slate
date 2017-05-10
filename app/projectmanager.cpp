@@ -22,7 +22,7 @@
 #include <QLoggingCategory>
 
 #include "imageproject.h"
-#include "settings.h"
+#include "applicationsettings.h"
 #include "tilesetproject.h"
 
 Q_LOGGING_CATEGORY(lcProjectManager, "app.projectManager")
@@ -142,6 +142,9 @@ bool ProjectManager::completeCreation()
 
     if (mProject) {
         mProject->setParent(this);
+        // Currently projects don't require settings during loading; we only store it there because it's a more
+        // logical place than ImageCanvas, which does need it (for events). For that reason, it's OK to set it so late.
+        mProject->setSettings(mSettings);
 
         connect(mProject.data(), &Project::urlChanged, this, &ProjectManager::projectUrlChanged);
     }

@@ -24,7 +24,7 @@
 #include <QScopedPointer>
 #include <QtQml>
 
-#include "settings.h"
+#include "applicationsettings.h"
 
 class Application
 {
