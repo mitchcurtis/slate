@@ -242,6 +242,7 @@ protected:
 
     void beginSelectionMove();
     void updateSelectionArea();
+    void updateSelectionPreviewImage();
     void moveSelectionArea();
     void confirmSelectionMove(bool andClear = true);
     QRect clampSelectionArea(const QRect &selectionArea) const;

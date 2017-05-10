@@ -42,7 +42,9 @@
 #include "utils.h"
 
 Q_LOGGING_CATEGORY(lcCanvas, "app.canvas")
+Q_LOGGING_CATEGORY(lcCanvasCursorShape, "app.canvas.cursorshape")
 Q_LOGGING_CATEGORY(lcCanvasLifecycle, "app.canvas.lifecycle")
+Q_LOGGING_CATEGORY(lcCanvasSelection, "app.canvas.selection")
 
 ImageCanvas::ImageCanvas() :
     mProject(nullptr),
@@ -631,6 +633,8 @@ bool ImageCanvas::mouseOverSplitterHandle(const QPoint &mousePos)
 
 void ImageCanvas::beginSelectionMove()
 {
+    qCDebug(lcCanvasSelection) << "beginning selection move... mIsSelectionFromPaste =" << mIsSelectionFromPaste;
+
     setMovingSelection(true);
     mSelectionAreaBeforeLastMove = mSelectionArea;
 
@@ -639,6 +643,7 @@ void ImageCanvas::beginSelectionMove()
         // copy the contents within it so that we can moved them around as a preview.
         mSelectionAreaBeforeFirstMove = mSelectionArea;
         mSelectionContents = mImageProject->image()->copy(mSelectionAreaBeforeFirstMove);
+        qCDebug(lcCanvasSelection) << "selection is not from a paste; copying project's image contents";
     }
 }
 
@@ -654,15 +659,10 @@ void ImageCanvas::updateSelectionArea()
     setSelectionArea(newSelectionArea);
 }
 
-void ImageCanvas::moveSelectionArea()
+void ImageCanvas::updateSelectionPreviewImage()
 {
-    QRect newSelectionArea = mSelectionAreaBeforeLastMove;
-    const QPoint distanceMoved(mCursorSceneX - mPressScenePosition.x(), mCursorSceneY - mPressScenePosition.y());
-    newSelectionArea.translate(distanceMoved);
-    setSelectionArea(boundSelectionArea(newSelectionArea));
-
     if (!mIsSelectionFromPaste) {
-        // Only if the selection wasn't pased should we erase the area left behind.
+        // Only if the selection wasn't pasted should we erase the area left behind.
         mSelectionPreviewImage = Utils::erasePortionOfImage(*mImageProject->image(), mSelectionAreaBeforeFirstMove);
     } else {
         mSelectionPreviewImage = *mImageProject->image();
@@ -672,6 +672,18 @@ void ImageCanvas::moveSelectionArea()
     // Doing this last ensures that the drag contents are painted over the transparency,
     // and not the other way around.
     mSelectionPreviewImage = Utils::paintImageOntoPortionOfImage(mSelectionPreviewImage, mSelectionArea, mSelectionContents);
+}
+
+void ImageCanvas::moveSelectionArea()
+{
+    qCDebug(lcCanvasSelection) << "moving selection area... mIsSelectionFromPaste =" << mIsSelectionFromPaste;
+
+    QRect newSelectionArea = mSelectionAreaBeforeLastMove;
+    const QPoint distanceMoved(mCursorSceneX - mPressScenePosition.x(), mCursorSceneY - mPressScenePosition.y());
+    newSelectionArea.translate(distanceMoved);
+    setSelectionArea(boundSelectionArea(newSelectionArea));
+
+    updateSelectionPreviewImage();
 
     mHasMovedSelection = true;
 
@@ -745,6 +757,8 @@ QRect ImageCanvas::boundSelectionArea(const QRect &selectionArea) const
 
 void ImageCanvas::clearSelection()
 {
+    qCDebug(lcCanvasSelection) << "clearing selection";
+
     setSelectionArea(QRect());
     mPotentiallySelecting = false;
     setHasSelection(false);
@@ -865,12 +879,16 @@ void ImageCanvas::copySelection()
 
 void ImageCanvas::paste()
 {
+    qCDebug(lcCanvasSelection) << "pasting selection from clipboard";
+
     clearOrConfirmSelection();
 
     QClipboard *clipboard = QGuiApplication::clipboard();
     QImage clipboardImage = clipboard->image();
-    if (clipboardImage.isNull())
+    if (clipboardImage.isNull()) {
+        qCDebug(lcCanvasSelection) << "Clipboard content is not an image; can't paste";
         return;
+    }
 
     const QSize adjustedSize(qMin(clipboardImage.width(), mProject->widthInPixels()),
         qMin(clipboardImage.height(), mProject->heightInPixels()));
@@ -885,8 +903,18 @@ void ImageCanvas::paste()
     // Setting a selection area is only done when a paste is first created,
     // not when it's redone, so we do it here instead of in the command.
     mIsSelectionFromPaste = true;
+    qCDebug(lcCanvasSelection) << "setting selection contents to clipboard image";
     mSelectionContents = clipboardImage;
+
     setSelectionArea(pastedArea);
+
+    // This part is also important, as it ensures that beginSelectionMove()
+    // doesn't overwrite the paste contents.
+    mSelectionAreaBeforeFirstMove = mSelectionArea;
+
+    // moveSelectionArea() does this for us when we're moving, but for the initial
+    // paste, we must do it ourselves.
+    updateSelectionPreviewImage();
 
     update();
 }
@@ -1092,7 +1120,7 @@ void ImageCanvas::updateWindowCursorShape()
         setCursor(Qt::BlankCursor);
     }
 
-    if (lcCanvas().isDebugEnabled()) {
+    if (lcCanvasCursorShape().isDebugEnabled()) {
         QString cursorName;
 
         switch (cursorShape) {
@@ -1117,12 +1145,13 @@ void ImageCanvas::updateWindowCursorShape()
             break;
         }
 
-        qDebug() << "Updating window cursor shape... mProject->hasLoaded():" << mProject->hasLoaded()
-                 << "hasActiveFocus()" << hasActiveFocus()
-                 << "mContainsMouse" << mContainsMouse
-                 << "mSpacePressed" << mSpacePressed
-                 << "mSplitter.isHovered()" << mSplitter.isHovered()
-                 << "cursor shape" << cursorName;
+        qDebug(lcCanvasCursorShape)
+            << "Updating window cursor shape... mProject->hasLoaded():" << mProject->hasLoaded()
+            << "hasActiveFocus()" << hasActiveFocus()
+            << "mContainsMouse" << mContainsMouse
+            << "mSpacePressed" << mSpacePressed
+            << "mSplitter.isHovered()" << mSplitter.isHovered()
+            << "cursor shape" << cursorName;
     }
 
     if (window())
