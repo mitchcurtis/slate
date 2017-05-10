@@ -1630,8 +1630,6 @@ void tst_App::moveSelectionImageCanvas()
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
-//    verifyCommandType<ApplyPixelPenCommand>(0);
-    if (auto result = verifyCommandType<ApplyPixelPenCommand>(0)) { QFAIL(*result); }
 
     changeToolSize(1);
     switchTool(ImageCanvas::SelectionTool);
@@ -1666,11 +1664,30 @@ void tst_App::moveSelectionImageCanvas()
     QCOMPARE(imageProject->image()->pixelColor(18, 18), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(22, 22), QColor(Qt::black));
 
-    keySequence(window, app.settings()->undoShortcut());
+    // Undo the selection move.
+    QVERIFY(canvas->hasActiveFocus());
+    triggerShortcut(app.settings()->undoShortcut());
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(18, 18), QColor(Qt::white));
     QCOMPARE(imageProject->image()->pixelColor(22, 22), QColor(Qt::white));
+
+    // Select the same area again.
+    setCursorPosInPixels(QPoint(0, 0));
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    setCursorPosInPixels(QPoint(5, 5));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 5, 5));
+
+    // Drag the selection half way down past its original position.
+    setCursorPosInPixels(QPoint(2, 2));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    setCursorPosInPixels(QPoint(4, 4));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->selectionArea(), QRect(18, 18, 5, 5));
 }
 
 void tst_App::deleteSelectionImageCanvas()

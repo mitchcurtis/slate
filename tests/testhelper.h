@@ -153,29 +153,6 @@ protected:
     void fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
     void fuzzyImageCompare(const QImage &image1, const QImage &image2);
 
-    template<typename Type>
-    QSharedPointer<QByteArray> verifyCommandType(int index)
-    {
-        if (index >= project->undoStack()->count()) {
-            QSharedPointer<QByteArray> result(new QByteArray(qPrintable(QString::fromLatin1(
-                "Expected command of type %1 at index %2, but there are only %3 command(s)")
-                    .arg(typeid(const Type*).name()).arg(index).arg(project->undoStack()->count()))));
-            return result;
-        }
-
-        if (!qobject_cast<const Type*>(project->undoStack()->command(index))) {
-            QString actualStr;
-            QDebug debug(&actualStr);
-            debug << project->undoStack()->command(index);
-
-            QSharedPointer<QByteArray> result(new QByteArray(qPrintable(QString::fromLatin1("Expected command of type %1 but got %2")
-                .arg(typeid(const Type*).name(), actualStr))));
-            return result;
-        }
-
-        return QSharedPointer<QByteArray>();
-    }
-
     Application app;
     QQuickWindow *window;
     QQuickItem *overlay;

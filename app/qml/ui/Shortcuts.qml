@@ -3,6 +3,8 @@ import QtQuick 2.6
 import App 1.0
 
 Item {
+    objectName: "shortcuts"
+
     property var window
     property ProjectManager projectManager
     property Project project: projectManager.project
@@ -16,7 +18,6 @@ Item {
     }
 
     Shortcut {
-        id: s
         sequence: settings.newShortcut
         onActivated: doIfChangesDiscarded(function() { newProjectPopup.open() })
         enabled: canvasHasActiveFocus

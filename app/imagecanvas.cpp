@@ -93,6 +93,8 @@ ImageCanvas::ImageCanvas() :
         qWarning() << "Failed to load checker pixmap";
     }
 
+    installEventFilter(this);
+
     qCDebug(lcCanvasLifecycle) << "constructing" << this;
 }
 
@@ -1447,4 +1449,20 @@ void ImageCanvas::focusOutEvent(QFocusEvent *event)
     }
 
     updateWindowCursorShape();
+}
+
+// A selection should be cleared when Ctrl + Z is pressed, as this is
+// what mspaint does. However, it doesn't make sense for a selection
+// to have its own undo command, so we intercept the undo shortcut
+// to handle this special case ourselves.
+bool ImageCanvas::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::ShortcutOverride) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->k)
+        QShortcutEvent *shortcutEvent = static_cast<QShortcutEvent*>(event);
+        return true;
+    }
+
+    return QObject::eventFilter(object, event);
 }
