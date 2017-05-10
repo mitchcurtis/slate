@@ -57,7 +57,7 @@ static QGuiApplication *createApplication(int &argc, char **argv, const QString 
 
 Application::Application(int &argc, char **argv, const QString &applicationName) :
     mApplication(createApplication(argc, argv, applicationName)),
-    mSettings(new Settings),
+    mSettings(new ApplicationSettings),
     mEngine(new QQmlApplicationEngine)
 {
     qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");
@@ -82,7 +82,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qRegisterMetaType<UndoStack*>();
     qRegisterMetaType<Tile*>();
     qRegisterMetaType<Tileset*>();
-    qRegisterMetaType<Settings*>();
+    qRegisterMetaType<ApplicationSettings*>();
     qRegisterMetaType<Project::Type>();
 
     if (QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf") == -1) {
@@ -101,7 +101,7 @@ int Application::run()
     return mApplication->exec();
 }
 
-Settings *Application::settings() const
+ApplicationSettings *Application::settings() const
 {
     return mSettings.data();
 }

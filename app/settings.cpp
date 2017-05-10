@@ -24,20 +24,20 @@
 #include <QLoggingCategory>
 #include <QVector>
 
-Q_LOGGING_CATEGORY(lcSettings, "app.settings")
+Q_LOGGING_CATEGORY(lcSettings, "app.applicationsettings")
 
-Settings::Settings(QObject *parent) :
+ApplicationSettings::ApplicationSettings(QObject *parent) :
     QSettings(parent)
 {
     qCDebug(lcSettings) << "Loading settings from" << fileName();
 }
 
-QUrl Settings::lastProjectUrl() const
+QUrl ApplicationSettings::lastProjectUrl() const
 {
     return value("lastProjectUrl").toUrl();
 }
 
-void Settings::setLastProjectUrl(const QUrl &url)
+void ApplicationSettings::setLastProjectUrl(const QUrl &url)
 {
     QVariant existingValue = value("lastProjectUrl");
     QUrl existingUrl;
@@ -52,12 +52,12 @@ void Settings::setLastProjectUrl(const QUrl &url)
     emit lastProjectUrlChanged();
 }
 
-bool Settings::loadLastOnStartup() const
+bool ApplicationSettings::loadLastOnStartup() const
 {
     return contains("loadLastOnStartup") ? value("loadLastOnStartup").toBool() : defaultLoadLastOnStartup();
 }
 
-void Settings::setLoadLastOnStartup(bool loadLastOnStartup)
+void ApplicationSettings::setLoadLastOnStartup(bool loadLastOnStartup)
 {
     QVariant existingValue = value("loadLastOnStartup");
     bool existingBoolValue = defaultLoadLastOnStartup();
@@ -72,17 +72,17 @@ void Settings::setLoadLastOnStartup(bool loadLastOnStartup)
     emit loadLastOnStartupChanged();
 }
 
-bool Settings::defaultLoadLastOnStartup() const
+bool ApplicationSettings::defaultLoadLastOnStartup() const
 {
     return false;
 }
 
-bool Settings::isGridVisible() const
+bool ApplicationSettings::isGridVisible() const
 {
     return contains("gridVisible") ? value("gridVisible").toBool() : defaultGridVisible();
 }
 
-void Settings::setGridVisible(bool gridVisible)
+void ApplicationSettings::setGridVisible(bool gridVisible)
 {
     QVariant existingValue = value("gridVisible");
     bool existingBoolValue = defaultGridVisible();
@@ -97,22 +97,22 @@ void Settings::setGridVisible(bool gridVisible)
     emit gridVisibleChanged();
 }
 
-bool Settings::defaultGridVisible() const
+bool ApplicationSettings::defaultGridVisible() const
 {
     return true;
 }
 
-bool Settings::defaultSplitScreen() const
+bool ApplicationSettings::defaultSplitScreen() const
 {
     return true;
 }
 
-bool Settings::isSplitScreen() const
+bool ApplicationSettings::isSplitScreen() const
 {
     return contains("splitScreen") ? value("splitScreen").toBool() : defaultSplitScreen();
 }
 
-void Settings::setSplitScreen(bool splitScreen)
+void ApplicationSettings::setSplitScreen(bool splitScreen)
 {
     QVariant existingValue = value("splitScreen");
     bool existingBoolValue = defaultSplitScreen();
@@ -127,17 +127,17 @@ void Settings::setSplitScreen(bool splitScreen)
     emit splitScreenChanged();
 }
 
-bool Settings::defaultSplitterLocked() const
+bool ApplicationSettings::defaultSplitterLocked() const
 {
     return true;
 }
 
-bool Settings::isSplitterLocked() const
+bool ApplicationSettings::isSplitterLocked() const
 {
     return contains("splitterLocked") ? value("splitterLocked").toBool() : defaultSplitterLocked();
 }
 
-void Settings::setSplitterLocked(bool splitterLocked)
+void ApplicationSettings::setSplitterLocked(bool splitterLocked)
 {
     QVariant existingValue = value("splitterLocked");
     bool existingBoolValue = defaultSplitterLocked();
@@ -152,17 +152,17 @@ void Settings::setSplitterLocked(bool splitterLocked)
     emit splitterLockedChanged();
 }
 
-bool Settings::defaultScrollZoom() const
+bool ApplicationSettings::defaultScrollZoom() const
 {
     return true;
 }
 
-bool Settings::scrollZoom() const
+bool ApplicationSettings::scrollZoom() const
 {
     return contains("scrollZoom") ? value("scrollZoom").toBool() : defaultScrollZoom();
 }
 
-void Settings::setScrollZoom(bool scrollZoom)
+void ApplicationSettings::setScrollZoom(bool scrollZoom)
 {
     QVariant existingValue = value("scrollZoom");
     bool existingBoolValue = defaultScrollZoom();
@@ -177,7 +177,7 @@ void Settings::setScrollZoom(bool scrollZoom)
     emit scrollZoomChanged();
 }
 
-void Settings::resetShortcutsToDefaults()
+void ApplicationSettings::resetShortcutsToDefaults()
 {
     static QVector<QString> allShortcuts;
     if (allShortcuts.isEmpty()) {
@@ -229,376 +229,376 @@ void Settings::resetShortcutsToDefaults()
     setValue(shortcutName, shortcut); \
     emit notifySignal();
 
-QString Settings::defaultQuitShortcut() const
+QString ApplicationSettings::defaultQuitShortcut() const
 {
     return QKeySequence(QKeySequence::Quit).toString();
 }
 
-QString Settings::quitShortcut() const
+QString ApplicationSettings::quitShortcut() const
 {
     GET_SHORTCUT("quitShortcut", defaultQuitShortcut)
 }
-void Settings::setQuitShortcut(const QString &shortcut)
+void ApplicationSettings::setQuitShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("quitShortcut", defaultQuitShortcut, quitShortcutChanged)
 }
 
-QString Settings::defaultNewShortcut() const
+QString ApplicationSettings::defaultNewShortcut() const
 {
     return QKeySequence(QKeySequence::New).toString();
 }
 
-QString Settings::newShortcut() const
+QString ApplicationSettings::newShortcut() const
 {
     GET_SHORTCUT("newShortcut", defaultNewShortcut)
 }
 
-void Settings::setNewShortcut(const QString &shortcut)
+void ApplicationSettings::setNewShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("newShortcut", defaultNewShortcut, newShortcutChanged)
 }
 
-QString Settings::defaultOpenShortcut() const
+QString ApplicationSettings::defaultOpenShortcut() const
 {
     return QKeySequence(QKeySequence::Open).toString();
 }
 
-QString Settings::openShortcut() const
+QString ApplicationSettings::openShortcut() const
 {
     GET_SHORTCUT("openShortcut", defaultOpenShortcut)
 }
 
-void Settings::setOpenShortcut(const QString &shortcut)
+void ApplicationSettings::setOpenShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("openShortcut", defaultOpenShortcut, openShortcutChanged)
 }
 
-QString Settings::defaultSaveShortcut() const
+QString ApplicationSettings::defaultSaveShortcut() const
 {
     return QKeySequence(QKeySequence::Save).toString();
 }
 
-QString Settings::saveShortcut() const
+QString ApplicationSettings::saveShortcut() const
 {
     GET_SHORTCUT("saveShortcut", defaultSaveShortcut)
 }
 
-void Settings::setSaveShortcut(const QString &shortcut)
+void ApplicationSettings::setSaveShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("saveShortcut", defaultSaveShortcut, saveShortcutChanged)
 }
 
-QString Settings::defaultCloseShortcut() const
+QString ApplicationSettings::defaultCloseShortcut() const
 {
     return QKeySequence(QKeySequence::Close).toString();
 }
 
-QString Settings::closeShortcut() const
+QString ApplicationSettings::closeShortcut() const
 {
     GET_SHORTCUT("closeShortcut", defaultCloseShortcut)
 }
 
-void Settings::setCloseShortcut(const QString &shortcut)
+void ApplicationSettings::setCloseShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("closeShortcut", defaultCloseShortcut, closeShortcutChanged)
 }
 
-QString Settings::defaultRevertShortcut() const
+QString ApplicationSettings::defaultRevertShortcut() const
 {
     return QLatin1String("Ctrl+Shift+R");
 }
 
-QString Settings::revertShortcut() const
+QString ApplicationSettings::revertShortcut() const
 {
     GET_SHORTCUT("revertShortcut", defaultRevertShortcut)
 }
 
-void Settings::setRevertShortcut(const QString &shortcut)
+void ApplicationSettings::setRevertShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("revertShortcut", defaultRevertShortcut, revertShortcutChanged)
 }
 
-QString Settings::defaultUndoShortcut() const
+QString ApplicationSettings::defaultUndoShortcut() const
 {
     return QKeySequence(QKeySequence::Undo).toString();
 }
 
-QString Settings::undoShortcut() const
+QString ApplicationSettings::undoShortcut() const
 {
     GET_SHORTCUT("undoShortcut", defaultUndoShortcut)
 }
 
-void Settings::setUndoShortcut(const QString &shortcut)
+void ApplicationSettings::setUndoShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("undoShortcut", defaultUndoShortcut, undoShortcutChanged)
 }
 
-QString Settings::defaultRedoShortcut() const
+QString ApplicationSettings::defaultRedoShortcut() const
 {
     return QKeySequence(QKeySequence::Redo).toString();
 }
 
-QString Settings::redoShortcut() const
+QString ApplicationSettings::redoShortcut() const
 {
     GET_SHORTCUT("redoShortcut", defaultRedoShortcut)
 }
 
-void Settings::setRedoShortcut(const QString &shortcut)
+void ApplicationSettings::setRedoShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("redoShortcut", defaultRedoShortcut, redoShortcutChanged)
 }
 
-QString Settings::defaultGridVisibleShortcut() const
+QString ApplicationSettings::defaultGridVisibleShortcut() const
 {
     return QLatin1String("Ctrl+'");
 }
 
-QString Settings::gridVisibleShortcut() const
+QString ApplicationSettings::gridVisibleShortcut() const
 {
     GET_SHORTCUT("gridVisibleShortcut", defaultGridVisibleShortcut)
 }
 
-void Settings::setGridVisibleShortcut(const QString &shortcut)
+void ApplicationSettings::setGridVisibleShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("gridVisibleShortcut", defaultGridVisibleShortcut, gridVisibleShortcutChanged)
 }
 
-QString Settings::defaultCentreShortcut() const
+QString ApplicationSettings::defaultCentreShortcut() const
 {
     return QLatin1String("Ctrl+Space");
 }
 
-QString Settings::centreShortcut() const
+QString ApplicationSettings::centreShortcut() const
 {
     GET_SHORTCUT("centreShortcut", defaultCentreShortcut)
 }
 
-void Settings::setCentreShortcut(const QString &shortcut)
+void ApplicationSettings::setCentreShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("centreShortcut", defaultCentreShortcut, centreShortcutChanged)
 }
 
-QString Settings::defaultZoomInShortcut() const
+QString ApplicationSettings::defaultZoomInShortcut() const
 {
     return QKeySequence(QKeySequence::ZoomIn).toString();
 }
 
-QString Settings::zoomInShortcut() const
+QString ApplicationSettings::zoomInShortcut() const
 {
     GET_SHORTCUT("zoomInShortcut", defaultZoomInShortcut)
 }
 
-void Settings::setZoomInShortcut(const QString &shortcut)
+void ApplicationSettings::setZoomInShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("zoomInShortcut", defaultZoomInShortcut, zoomInShortcutChanged)
 }
 
-QString Settings::defaultZoomOutShortcut() const
+QString ApplicationSettings::defaultZoomOutShortcut() const
 {
     return QKeySequence(QKeySequence::ZoomOut).toString();
 }
 
-QString Settings::zoomOutShortcut() const
+QString ApplicationSettings::zoomOutShortcut() const
 {
     GET_SHORTCUT("zoomOutShortcut", defaultZoomOutShortcut)
 }
 
-void Settings::setZoomOutShortcut(const QString &shortcut)
+void ApplicationSettings::setZoomOutShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("zoomOutShortcut", defaultZoomOutShortcut, zoomOutShortcutChanged)
 }
 
-QString Settings::defaultSplitScreenShortcut() const
+QString ApplicationSettings::defaultSplitScreenShortcut() const
 {
     return QLatin1String("Ctrl+E");
 }
 
-QString Settings::splitScreenShortcut() const
+QString ApplicationSettings::splitScreenShortcut() const
 {
     GET_SHORTCUT("splitScreenShortcut", defaultSplitScreenShortcut)
 }
 
-void Settings::setSplitScreenShortcut(const QString &shortcut)
+void ApplicationSettings::setSplitScreenShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("splitScreenShortcut", defaultSplitScreenShortcut, splitScreenShortcutChanged)
 }
 
-QString Settings::defaultOptionsShortcut() const
+QString ApplicationSettings::defaultOptionsShortcut() const
 {
     return QLatin1String("Ctrl+Alt+T");
 }
 
-QString Settings::optionsShortcut() const
+QString ApplicationSettings::optionsShortcut() const
 {
     GET_SHORTCUT("optionsShortcut", defaultOptionsShortcut)
 }
 
-void Settings::setOptionsShortcut(const QString &shortcut)
+void ApplicationSettings::setOptionsShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("optionsShortcut", defaultOptionsShortcut, optionsShortcutChanged)
 }
 
-QString Settings::defaultPenToolShortcut() const
+QString ApplicationSettings::defaultPenToolShortcut() const
 {
     return QLatin1String("B");
 }
 
-QString Settings::penToolShortcut() const
+QString ApplicationSettings::penToolShortcut() const
 {
     GET_SHORTCUT("penToolShortcut", defaultPenToolShortcut)
 }
 
-void Settings::setPenToolShortcut(const QString &shortcut)
+void ApplicationSettings::setPenToolShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("penToolShortcut", defaultPenToolShortcut, penToolShortcutChanged)
 }
 
-QString Settings::defaultEyeDropperToolShortcut() const
+QString ApplicationSettings::defaultEyeDropperToolShortcut() const
 {
     return QLatin1String("I");
 }
 
-QString Settings::eyeDropperToolShortcut() const
+QString ApplicationSettings::eyeDropperToolShortcut() const
 {
     GET_SHORTCUT("eyeDropperToolShortcut", defaultEyeDropperToolShortcut)
 }
 
-void Settings::setEyeDropperToolShortcut(const QString &shortcut)
+void ApplicationSettings::setEyeDropperToolShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("eyeDropperToolShortcut", defaultEyeDropperToolShortcut, eyeDropperToolShortcutChanged)
 }
 
-QString Settings::defaultEraserToolShortcut() const
+QString ApplicationSettings::defaultEraserToolShortcut() const
 {
     return QLatin1String("E");
 }
 
-QString Settings::eraserToolShortcut() const
+QString ApplicationSettings::eraserToolShortcut() const
 {
     GET_SHORTCUT("eraserToolShortcut", defaultEraserToolShortcut)
 }
 
-void Settings::setEraserToolShortcut(const QString &shortcut)
+void ApplicationSettings::setEraserToolShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("eraserToolShortcut", defaultEraserToolShortcut, eraserToolShortcutChanged)
 }
 
-QString Settings::defaultSelectionToolShortcut() const
+QString ApplicationSettings::defaultSelectionToolShortcut() const
 {
     return QLatin1String("M");
 }
 
-QString Settings::selectionToolShortcut() const
+QString ApplicationSettings::selectionToolShortcut() const
 {
     GET_SHORTCUT("selectionToolShortcut", defaultSelectionToolShortcut)
 }
 
-void Settings::setSelectionToolShortcut(const QString &shortcut)
+void ApplicationSettings::setSelectionToolShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("selectionToolShortcut", defaultSelectionToolShortcut, selectionToolShortcutChanged)
 }
 
-QString Settings::defaultToolModeShortcut() const
+QString ApplicationSettings::defaultToolModeShortcut() const
 {
     return QLatin1String("T");
 }
 
-QString Settings::toolModeShortcut() const
+QString ApplicationSettings::toolModeShortcut() const
 {
     GET_SHORTCUT("toolModeShortcut", defaultToolModeShortcut)
 }
 
-void Settings::setToolModeShortcut(const QString &shortcut)
+void ApplicationSettings::setToolModeShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("toolModeShortcut", defaultToolModeShortcut, toolModeShortcutChanged)
 }
 
-QString Settings::defaultDecreaseToolSizeShortcut() const
+QString ApplicationSettings::defaultDecreaseToolSizeShortcut() const
 {
     return QLatin1String("[");
 }
 
-QString Settings::decreaseToolSizeShortcut() const
+QString ApplicationSettings::decreaseToolSizeShortcut() const
 {
     GET_SHORTCUT("decreaseToolSizeShortcut", defaultDecreaseToolSizeShortcut)
 }
 
-void Settings::setDecreaseToolSizeShortcut(const QString &shortcut)
+void ApplicationSettings::setDecreaseToolSizeShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("decreaseToolSizeShortcut", defaultDecreaseToolSizeShortcut, decreaseToolSizeShortcutChanged)
 }
 
-QString Settings::defaultIncreaseToolSizeShortcut() const
+QString ApplicationSettings::defaultIncreaseToolSizeShortcut() const
 {
     return QLatin1String("]");
 }
 
-QString Settings::increaseToolSizeShortcut() const
+QString ApplicationSettings::increaseToolSizeShortcut() const
 {
     GET_SHORTCUT("increaseToolSizeShortcut", defaultIncreaseToolSizeShortcut)
 }
 
-void Settings::setIncreaseToolSizeShortcut(const QString &shortcut)
+void ApplicationSettings::setIncreaseToolSizeShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("increaseToolSizeShortcut", defaultIncreaseToolSizeShortcut, increaseToolSizeShortcutChanged)
 }
 
-QString Settings::defaultSwatchLeftShortcut() const
+QString ApplicationSettings::defaultSwatchLeftShortcut() const
 {
     return QLatin1String("A");
 }
 
-QString Settings::swatchLeftShortcut() const
+QString ApplicationSettings::swatchLeftShortcut() const
 {
     GET_SHORTCUT("swatchLeftShortcut", defaultSwatchLeftShortcut)
 }
 
-void Settings::setSwatchLeftShortcut(const QString &shortcut)
+void ApplicationSettings::setSwatchLeftShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("swatchLeftShortcut", defaultSwatchLeftShortcut, swatchLeftShortcutChanged)
 }
 
-QString Settings::defaultSwatchRightShortcut() const
+QString ApplicationSettings::defaultSwatchRightShortcut() const
 {
     return QLatin1String("D");
 }
 
-QString Settings::swatchRightShortcut() const
+QString ApplicationSettings::swatchRightShortcut() const
 {
     GET_SHORTCUT("swatchRightShortcut", defaultSwatchRightShortcut)
 }
 
-void Settings::setSwatchRightShortcut(const QString &shortcut)
+void ApplicationSettings::setSwatchRightShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("swatchRightShortcut", defaultSwatchRightShortcut, swatchRightShortcutChanged)
 }
 
-QString Settings::defaultSwatchUpShortcut() const
+QString ApplicationSettings::defaultSwatchUpShortcut() const
 {
     return QLatin1String("W");
 }
 
-QString Settings::swatchUpShortcut() const
+QString ApplicationSettings::swatchUpShortcut() const
 {
     GET_SHORTCUT("swatchUpShortcut", defaultSwatchUpShortcut)
 }
 
-void Settings::setSwatchUpShortcut(const QString &shortcut)
+void ApplicationSettings::setSwatchUpShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("swatchUpShortcut", defaultSwatchUpShortcut, swatchUpShortcutChanged)
 }
 
-QString Settings::defaultSwatchDownShortcut() const
+QString ApplicationSettings::defaultSwatchDownShortcut() const
 {
     return QLatin1String("S");
 }
 
-QString Settings::swatchDownShortcut() const
+QString ApplicationSettings::swatchDownShortcut() const
 {
     GET_SHORTCUT("swatchDownShortcut", defaultSwatchDownShortcut)
 }
 
-void Settings::setSwatchDownShortcut(const QString &shortcut)
+void ApplicationSettings::setSwatchDownShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("swatchDownShortcut", defaultSwatchDownShortcut, swatchDownShortcutChanged)
 }

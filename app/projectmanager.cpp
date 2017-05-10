@@ -50,12 +50,12 @@ Project *ProjectManager::temporaryProject() const
     return mTemporaryProject.data();
 }
 
-Settings *ProjectManager::applicationSettings() const
+ApplicationSettings *ProjectManager::applicationSettings() const
 {
     return mSettings;
 }
 
-void ProjectManager::setApplicationSettings(Settings *settings)
+void ProjectManager::setApplicationSettings(ApplicationSettings *settings)
 {
     if (settings == mSettings)
         return;

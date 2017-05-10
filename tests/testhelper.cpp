@@ -919,7 +919,7 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     // Reset any settings that have changed back to their defaults.
     QVariant settingsAsVariant = qmlEngine(canvas)->rootContext()->contextProperty("settings");
     QVERIFY(settingsAsVariant.isValid());
-    Settings *settings = settingsAsVariant.value<Settings*>();
+    ApplicationSettings *settings = settingsAsVariant.value<ApplicationSettings*>();
     QVERIFY(settings);
     settings->resetShortcutsToDefaults();
 

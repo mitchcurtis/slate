@@ -33,12 +33,12 @@ public:
 
     int run();
 
-    Settings *settings() const;
+    ApplicationSettings *settings() const;
     QQmlApplicationEngine *qmlEngine() const;
 
 private:
     QScopedPointer<QGuiApplication> mApplication;
-    QScopedPointer<Settings> mSettings;
+    QScopedPointer<ApplicationSettings> mSettings;
     QScopedPointer<QQmlApplicationEngine> mEngine;
 };
 

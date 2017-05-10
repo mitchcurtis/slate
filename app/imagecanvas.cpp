@@ -1459,7 +1459,7 @@ bool ImageCanvas::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        if (keyEvent->k)
+//        if (keyEvent->k)
         QShortcutEvent *shortcutEvent = static_cast<QShortcutEvent*>(event);
         return true;
     }

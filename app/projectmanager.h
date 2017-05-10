@@ -25,7 +25,7 @@
 
 #include "project.h"
 
-class Settings;
+class ApplicationSettings;
 
 class ProjectManager : public QObject
 {
@@ -34,7 +34,7 @@ class ProjectManager : public QObject
 
     Q_PROPERTY(Project *temporaryProject READ temporaryProject NOTIFY temporaryProjectChanged)
 
-    Q_PROPERTY(Settings *applicationSettings READ applicationSettings
+    Q_PROPERTY(ApplicationSettings *applicationSettings READ applicationSettings
         WRITE setApplicationSettings NOTIFY applicationSettingsChanged)
 
 public:
@@ -45,8 +45,8 @@ public:
 
     Project *temporaryProject() const;
 
-    Settings *applicationSettings() const;
-    void setApplicationSettings(Settings *applicationSettings);
+    ApplicationSettings *applicationSettings() const;
+    void setApplicationSettings(ApplicationSettings *applicationSettings);
 
     Q_INVOKABLE void beginCreation(Project::Type projectType);
     Q_INVOKABLE bool completeCreation();
@@ -68,7 +68,7 @@ private:
     QScopedPointer<Project> mTemporaryProject;
     bool mProjectCreationFailed;
 
-    Settings *mSettings;
+    ApplicationSettings *mSettings;
 };
 
 #endif // PROJECTMANAGER_H

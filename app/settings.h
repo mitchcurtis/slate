@@ -17,13 +17,13 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#ifndef APPLICATIONSETTINGS_H
+#define APPLICATIONSETTINGS_H
 
 #include <QSettings>
 #include <QUrl>
 
-class Settings : public QSettings
+class ApplicationSettings : public QSettings
 {
     Q_OBJECT
     Q_PROPERTY(bool loadLastOnStartup READ loadLastOnStartup WRITE setLoadLastOnStartup NOTIFY loadLastOnStartupChanged)
@@ -60,7 +60,7 @@ class Settings : public QSettings
     Q_PROPERTY(QString swatchDownShortcut READ swatchDownShortcut WRITE setSwatchDownShortcut NOTIFY swatchDownShortcutChanged)
 
 public:
-    explicit Settings(QObject *parent = 0);
+    explicit ApplicationSettings(QObject *parent = 0);
 
     QUrl lastProjectUrl() const;
     void setLastProjectUrl(const QUrl &url);
@@ -222,4 +222,4 @@ signals:
     void swatchDownShortcutChanged();
 };
 
-#endif // SETTINGS_H
+#endif // APPLICATIONSETTINGS_H
