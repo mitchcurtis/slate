@@ -156,6 +156,8 @@ public:
 
     void paint(QPainter *painter) override;
 
+    Q_INVOKABLE bool overrideShortcut(const QKeySequence &keySequence);
+
 signals:
     void projectChanged();
     void zoomLevelChanged();
@@ -267,7 +269,6 @@ protected:
     void keyReleaseEvent(QKeyEvent *event) override;
     void focusInEvent(QFocusEvent *event) override;
     void focusOutEvent(QFocusEvent *event) override;
-    bool eventFilter(QObject *object, QEvent *event) override;
 
     Project *mProject;
 

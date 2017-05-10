@@ -49,14 +49,24 @@ Item {
 
     Shortcut {
         sequence: settings.undoShortcut
-        onActivated: project.undoStack.undo()
-        enabled: canvasHasActiveFocus
+        onActivated: {
+            // A selection should be cleared when Ctrl + Z is pressed, as this is
+            // what mspaint does. However, it doesn't make sense for a selection
+            // to have its own undo command (as it's cleared after the first undo
+            // on selection moves), so we let ImageCanvas intercept the undo shortcut
+            // to handle this special case ourselves. This has the advantage of
+            // being faster by not using an event filter..
+            // .. and I couldn't manage to override shortcuts using an event filter. :(
+            if (!canvas.overrideShortcut(sequence))
+                project.undoStack.undo()
+        }
+        enabled: canvasHasActiveFocus && project && project.undoStack.canUndo
     }
 
     Shortcut {
         sequence: settings.redoShortcut
         onActivated: project.undoStack.redo()
-        enabled: canvasHasActiveFocus
+        enabled: canvasHasActiveFocus && project && project.undoStack.canRedo
     }
 
     Shortcut {

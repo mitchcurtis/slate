@@ -1696,9 +1696,7 @@ void tst_App::moveSelectionImageCanvas()
 
     // "Undo" the selection move. The selection move was never confirmed, so this
     // will take the ImageCanvas-shortcutOverride path.
-    QTest::qWait(3000);
     triggerShortcut(app.settings()->undoShortcut());
-    QTest::qWait(3000);
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
 }
@@ -1733,6 +1731,9 @@ void tst_App::copyPaste()
 {
     createNewImageProject();
 
+    // Make comparing grabbed image pixels easier.
+    panTopLeftTo(0, 0);
+
     // Draw a square of black pixels.
     switchTool(ImageCanvas::PenTool);
     changeToolSize(5);
@@ -1755,11 +1756,18 @@ void tst_App::copyPaste()
     keySequence(window, QKeySequence::Copy);
     QCOMPARE(QGuiApplication::clipboard()->image(), imageProject->image()->copy(10, 10, 5, 5));
 
+    // Paste. The project's image shouldn't change until the paste selection is confirmed.
     keySequence(window, QKeySequence::Paste);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::white));
     QCOMPARE(imageCanvas->hasSelection(), true);
     QCOMPARE(imageCanvas->selectionArea(), QRect(0, 0, 5, 5));
+    // However, the selection preview image should be visible...
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QImage img = imageGrabber.takeImage();
+    QVERIFY(img.save("C:/dev/image.png"));
+    QCOMPARE(img.pixelColor(2, 2), QColor(Qt::black));
 
     keySequence(window, app.settings()->undoShortcut());
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::white));

@@ -544,6 +544,17 @@ void ImageCanvas::paint(QPainter *painter)
     }
 }
 
+bool ImageCanvas::overrideShortcut(const QKeySequence &keySequence)
+{
+    if (keySequence == mProject->settings()->undoShortcut() && mHasSelection) {
+        qCDebug(lcCanvas) << "Overriding undo shortcut to cancel selection that hadn't been moved";
+        clearSelection();
+        return true;
+    }
+
+    return false;
+}
+
 void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex)
 {
     const int paneWidth = width() * pane.size();
@@ -1450,25 +1461,4 @@ void ImageCanvas::focusOutEvent(QFocusEvent *event)
     }
 
     updateWindowCursorShape();
-}
-
-// A selection should be cleared when Ctrl + Z is pressed, as this is
-// what mspaint does. However, it doesn't make sense for a selection
-// to have its own undo command (as it's cleared after the first undo
-// on selection moves), so we intercept the undo shortcut
-// to handle this special case ourselves.
-bool ImageCanvas::eventFilter(QObject *object, QEvent *event)
-{
-    if (event->type() == QEvent::ShortcutOverride) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        // Taken from the following Qt code, so I assume that it's gonna work...
-        // http://code.qt.io/cgit/qt/qtbase.git/tree/src/gui/kernel/qevent.cpp?id=d1210281e41008ce2e3510aa5cfb3ebea1c57734#n1313
-        const QKeySequence eventKeySequence(keyEvent->modifiers() | keyEvent->key());
-        if (eventKeySequence == mProject->settings()->undoShortcut() && mHasSelection) {
-            clearSelection();
-            return true;
-        }
-    }
-
-    return QObject::eventFilter(object, event);
 }
