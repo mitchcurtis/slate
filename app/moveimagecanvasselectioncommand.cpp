@@ -24,14 +24,15 @@
 
 Q_LOGGING_CATEGORY(lcMoveImageCanvasSelectionCommand, "app.undo.moveImageCanvasSelectionCommand")
 
-MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &previousArea,
-    const QRect &newArea, UndoCommand *parent) :
+MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &previousArea, const QImage &previousAreaImagePortion,
+    const QRect &newArea, bool fromPaste, UndoCommand *parent) :
     UndoCommand(parent),
     mCanvas(canvas),
     mPreviousArea(previousArea),
-    mPreviousAreaImagePortion(canvas->mImageProject->image()->copy(previousArea)),
+    mPreviousAreaImagePortion(previousAreaImagePortion),
     mNewArea(newArea),
-    mNewAreaImagePortion(canvas->mImageProject->image()->copy(newArea))
+    mNewAreaImagePortion(canvas->mImageProject->image()->copy(newArea)),
+    mFromPaste(fromPaste)
 {
     qCDebug(lcMoveImageCanvasSelectionCommand) << "constructed" << this;
 }
@@ -48,7 +49,8 @@ void MoveImageCanvasSelectionCommand::undo()
 void MoveImageCanvasSelectionCommand::redo()
 {
     qCDebug(lcMoveImageCanvasSelectionCommand) << "redoing" << this;
-    mCanvas->erasePortionOfImage(mPreviousArea);
+    if (!mFromPaste)
+        mCanvas->erasePortionOfImage(mPreviousArea);
     mCanvas->paintImageOntoPortionOfImage(mNewArea, mPreviousAreaImagePortion);
 }
 
@@ -61,6 +63,7 @@ QDebug operator<<(QDebug debug, const MoveImageCanvasSelectionCommand &command)
 {
     debug.nospace() << "(MoveImageCanvasSelectionCommand size=" << command.mNewArea
         << "previousSize=" << command.mPreviousArea
+        << "fromPaste=" << command.mFromPaste
         << ")";
     return debug.space();
 }

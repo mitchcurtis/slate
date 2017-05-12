@@ -963,6 +963,8 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         QVERIFY(imageGrabber.requestImage(tileCanvas));
         QTRY_VERIFY(imageGrabber.isReady());
         QCOMPARE(imageGrabber.takeImage().pixelColor(16, 16), tileCanvas->mapBackgroundColour());
+    } else {
+        QVERIFY(window->findChild<QQuickItem*>("selectionToolButton"));
     }
 }
 

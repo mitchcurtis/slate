@@ -1657,13 +1657,13 @@ void tst_App::moveSelectionImageCanvas()
     QCOMPARE(imageProject->image()->pixelColor(18, 18), QColor(Qt::white));
     QCOMPARE(imageProject->image()->pixelColor(22, 22), QColor(Qt::white));
 
+    // Clear the selection.
     switchTool(ImageCanvas::PenTool);
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::transparent));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::transparent));
     QCOMPARE(imageProject->image()->pixelColor(18, 18), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(22, 22), QColor(Qt::black));
 
-    // Clear the selection, so that a proper move undo command gets created.
     switchTool(ImageCanvas::SelectionTool);
 
     // Undo the selection move.
@@ -1765,16 +1765,19 @@ void tst_App::copyPaste()
     // However, the selection preview image should be visible...
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
-    QImage img = imageGrabber.takeImage();
-    QVERIFY(img.save("C:/dev/image.png"));
-    // TODO:
-    // - selection preview image still not updated
-    // - undoing paste leaves transparent area
-    QCOMPARE(img.pixelColor(2, 2), QColor(Qt::black));
+    QCOMPARE(imageGrabber.takeImage().pixelColor(2, 2), QColor(Qt::black));
 
+    // Undo the paste while it's still selected.
     keySequence(window, app.settings()->undoShortcut());
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::white));
+    QCOMPARE(imageCanvas->hasSelection(), false);
+    QCOMPARE(imageCanvas->selectionArea(), QRect(0, 0, 0, 0));
+
+    // Redo the paste. There shouldn't be any selection, but the image should have been applied.
+    keySequence(window, app.settings()->redoShortcut());
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
     QCOMPARE(imageCanvas->hasSelection(), false);
     QCOMPARE(imageCanvas->selectionArea(), QRect(0, 0, 0, 0));
 }

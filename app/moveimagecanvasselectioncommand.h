@@ -32,8 +32,9 @@ class MoveImageCanvasSelectionCommand : public UndoCommand
     Q_OBJECT
 
 public:
-    MoveImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &previousArea, const QRect &newArea,
-        UndoCommand *parent = nullptr);
+    MoveImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &previousArea,
+        const QImage &previousAreaImagePortion, const QRect &newArea,
+        bool fromPaste, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
@@ -50,6 +51,7 @@ private:
     QRect mNewArea;
     // The portion of the image under the destination area, before the selection was moved.
     QImage mNewAreaImagePortion;
+    bool mFromPaste;
 };
 
 #endif // MOVEIMAGECANVASSELECTIONCOMMAND_H

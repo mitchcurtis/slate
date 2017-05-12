@@ -546,17 +546,6 @@ void ImageCanvas::paint(QPainter *painter)
     }
 }
 
-bool ImageCanvas::overrideShortcut(const QKeySequence &keySequence)
-{
-    if (keySequence == mProject->settings()->undoShortcut() && mHasSelection) {
-        qCDebug(lcCanvas) << "Overriding undo shortcut to cancel selection that hadn't been moved";
-        clearSelection();
-        return true;
-    }
-
-    return false;
-}
-
 void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex)
 {
     const int paneWidth = width() * pane.size();
@@ -584,7 +573,7 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     // We use the unbounded canvas size here, otherwise the drawn area is too small past a certain zoom level.
     painter->drawTiledPixmap(0, 0, zoomedCanvasSize.width(), zoomedCanvasSize.height(), mCheckerPixmap);
 
-    const bool shouldDrawSelectionPreviewImage = mMovingSelection || mHasMovedSelection;
+    const bool shouldDrawSelectionPreviewImage = mMovingSelection || mHasMovedSelection || mIsSelectionFromPaste;
     const QImage image = !shouldDrawSelectionPreviewImage ? *mImageProject->image() : mSelectionPreviewImage;
     painter->drawImage(QRectF(QPointF(0, 0), pane.zoomedSize(image.size())), image, QRectF(0, 0, image.width(), image.height()));
 
@@ -676,7 +665,7 @@ void ImageCanvas::updateSelectionPreviewImage()
 
 void ImageCanvas::moveSelectionArea()
 {
-    qCDebug(lcCanvasSelection) << "moving selection area... mIsSelectionFromPaste =" << mIsSelectionFromPaste;
+//    qCDebug(lcCanvasSelection) << "moving selection area... mIsSelectionFromPaste =" << mIsSelectionFromPaste;
 
     QRect newSelectionArea = mSelectionAreaBeforeLastMove;
     const QPoint distanceMoved(mCursorSceneX - mPressScenePosition.x(), mCursorSceneY - mPressScenePosition.y());
@@ -694,8 +683,12 @@ void ImageCanvas::confirmSelectionMove(bool andClear)
 {
     Q_ASSERT(mHasMovedSelection);
 
+    const QImage previousImageAreaPortion = !mIsSelectionFromPaste
+        ? mImageProject->image()->copy(mSelectionAreaBeforeFirstMove) : mSelectionContents;
+
     mProject->beginMacro(QLatin1String("MoveSelection"));
-    mProject->addChange(new MoveImageCanvasSelectionCommand(this, mSelectionAreaBeforeFirstMove, mLastValidSelectionArea));
+    mProject->addChange(new MoveImageCanvasSelectionCommand(
+        this, mSelectionAreaBeforeFirstMove, previousImageAreaPortion, mLastValidSelectionArea, mIsSelectionFromPaste));
     mProject->endMacro();
 
     if (andClear)
@@ -903,7 +896,7 @@ void ImageCanvas::paste()
     // Setting a selection area is only done when a paste is first created,
     // not when it's redone, so we do it here instead of in the command.
     mIsSelectionFromPaste = true;
-    qCDebug(lcCanvasSelection) << "setting selection contents to clipboard image";
+    qCDebug(lcCanvasSelection) << "setting selection contents to clipboard image with area" << pastedArea;
     mSelectionContents = clipboardImage;
 
     setSelectionArea(pastedArea);
@@ -1145,7 +1138,7 @@ void ImageCanvas::updateWindowCursorShape()
             break;
         }
 
-        qDebug(lcCanvasCursorShape)
+        qCDebug(lcCanvasCursorShape)
             << "Updating window cursor shape... mProject->hasLoaded():" << mProject->hasLoaded()
             << "hasActiveFocus()" << hasActiveFocus()
             << "mContainsMouse" << mContainsMouse
@@ -1338,6 +1331,12 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
                             mLastValidSelectionArea = mSelectionArea;
                         }
                     } else {
+                        if (mIsSelectionFromPaste) {
+                            // Pasting an image creates a selection, and clicking outside of that selection
+                            // without moving it should apply the paste.
+                            paintImageOntoPortionOfImage(mSelectionAreaBeforeFirstMove, mSelectionContents);
+                        }
+
                         // Since we hadn't done anything to the selection that we might have had
                         // before (that this event cycle is interrupting), releasing the mouse
                         // should cancel it.

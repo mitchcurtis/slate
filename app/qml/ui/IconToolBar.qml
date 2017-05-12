@@ -205,8 +205,6 @@ Item {
                 enabled: projectType === Project.ImageType
 
                 icon.source: "qrc:/images/selection.png"
-                // TODO: checked colour
-//                icon.color: enabled ? undefined : Material.hintTextColor
 
                 ToolTip.text: qsTr("Select pixels within an area and move them")
                 ToolTip.visible: hovered
