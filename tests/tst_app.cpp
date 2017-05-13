@@ -77,6 +77,7 @@ private Q_SLOTS:
     void moveSelectionImageCanvas();
     void deleteSelectionImageCanvas();
     void copyPaste();
+    void flipPastedImage();
     void fillImageCanvas();
 };
 
@@ -1780,6 +1781,11 @@ void tst_App::copyPaste()
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
     QCOMPARE(imageCanvas->hasSelection(), false);
     QCOMPARE(imageCanvas->selectionArea(), QRect(0, 0, 0, 0));
+}
+
+void tst_App::flipPastedImage()
+{
+    // TODO
 }
 
 void tst_App::fillImageCanvas()
