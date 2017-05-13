@@ -53,7 +53,7 @@ Item {
         y: canvas ? canvas.cursorY - height + 3 : 0
         z: 1
         visible: canvas && canvas.hasBlankCursor && canvas.useIconCursor
-        text: visible ? checkedToolButton.iconText : ""
+        text: visible && checkedToolButton ? checkedToolButton.iconText : ""
     }
 
     Pane {
