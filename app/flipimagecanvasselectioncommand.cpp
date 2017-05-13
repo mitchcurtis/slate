@@ -50,10 +50,10 @@ int FlipImageCanvasSelectionCommand::id() const
     return -1;
 }
 
-QDebug operator<<(QDebug debug, const FlipImageCanvasSelectionCommand &command)
+QDebug operator<<(QDebug debug, const FlipImageCanvasSelectionCommand *command)
 {
-    debug.nospace() << "(FlipImageCanvasSelectionCommand area=" << command.mArea
-        << "orientation =" << command.mOrientation
+    debug.nospace() << "(FlipImageCanvasSelectionCommand area=" << command->mArea
+        << "orientation =" << command->mOrientation
         << ")";
     return debug.space();
 }

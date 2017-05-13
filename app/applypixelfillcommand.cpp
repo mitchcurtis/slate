@@ -76,16 +76,16 @@ bool ApplyPixelFillCommand::mergeWith(const UndoCommand *other)
     }
 
     // A unique pixel that we haven't touched yet; add it.
-    qCDebug(lcApplyPixelFillCommand) << "\nmerging:\n    " << *otherCommand << "\nwith:\n    " << *this;
+    qCDebug(lcApplyPixelFillCommand) << "\nmerging:\n    " << otherCommand << "\nwith:\n    " << this;
     mScenePositions.append(otherCommand->mScenePositions);
     return true;
 }
 
-QDebug operator<<(QDebug debug, const ApplyPixelFillCommand &command)
+QDebug operator<<(QDebug debug, const ApplyPixelFillCommand *command)
 {
-    debug.nospace() << "(ApplyPixelFillCommand scenePositions=" << command.mScenePositions
-        << ", previousColours=" << command.mPreviousColour
-        << ", colour=" << command.mColour
+    debug.nospace() << "(ApplyPixelFillCommand scenePositions=" << command->mScenePositions
+        << ", previousColours=" << command->mPreviousColour
+        << ", colour=" << command->mColour
         << ")";
     return debug.space();
 }

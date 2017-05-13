@@ -43,7 +43,7 @@ public:
     bool mergeWith(const UndoCommand *other) override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const ApplyPixelEraserCommand &command);
+    friend QDebug operator<<(QDebug debug, const ApplyPixelEraserCommand *command);
 
     ImageCanvas *mCanvas;
     QVector<QPoint> mScenePositions;

@@ -43,7 +43,7 @@ public:
     bool mergeWith(const UndoCommand *other) override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const ApplyTilePenCommand &command);
+    friend QDebug operator<<(QDebug debug, const ApplyTilePenCommand *command);
 
     TileCanvas *mCanvas;
     QVector<QPoint> mTilePositions;

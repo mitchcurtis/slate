@@ -71,16 +71,16 @@ bool ApplyTileEraserCommand::mergeWith(const UndoCommand *other)
     }
 
     // A unique tile that we haven't touched yet; add it.
-    qCDebug(lcApplyTileEraserCommand) << "\nmerging:\n    " << *otherCommand << "\nwith:\n    " << *this;
+    qCDebug(lcApplyTileEraserCommand) << "\nmerging:\n    " << otherCommand << "\nwith:\n    " << this;
     mTilePositions.append(otherCommand->mTilePositions);
     mPreviousIds.append(otherCommand->mPreviousIds);
     return true;
 }
 
-QDebug operator<<(QDebug debug, const ApplyTileEraserCommand &command)
+QDebug operator<<(QDebug debug, const ApplyTileEraserCommand *command)
 {
-    debug.nospace() << "(ApplyTileEraserCommand tilePositions=" << command.mTilePositions
-        << ", previousIds=" << command.mPreviousIds
+    debug.nospace() << "(ApplyTileEraserCommand tilePositions=" << command->mTilePositions
+        << ", previousIds=" << command->mPreviousIds
         << ")";
     return debug.space();
 }

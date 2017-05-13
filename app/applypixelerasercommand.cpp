@@ -70,16 +70,16 @@ bool ApplyPixelEraserCommand::mergeWith(const UndoCommand *other)
     }
 
     // A unique pixel that we haven't touched yet; add it.
-    qCDebug(lcApplyPixelEraserCommand) << "\nmerging:\n    " << *otherCommand << "\nwith:\n    " << *this;
+    qCDebug(lcApplyPixelEraserCommand) << "\nmerging:\n    " << otherCommand << "\nwith:\n    " << this;
     mScenePositions.append(otherCommand->mScenePositions);
     mPreviousColours.append(otherCommand->mPreviousColours);
     return true;
 }
 
-QDebug operator<<(QDebug debug, const ApplyPixelEraserCommand &command)
+QDebug operator<<(QDebug debug, const ApplyPixelEraserCommand *command)
 {
-    debug.nospace() << "(ApplyPixelEraserCommand scenePositions=" << command.mScenePositions
-        << ", previousColours=" << command.mPreviousColours
+    debug.nospace() << "(ApplyPixelEraserCommand scenePositions=" << command->mScenePositions
+        << ", previousColours=" << command->mPreviousColours
         << ")";
     return debug.space();
 }

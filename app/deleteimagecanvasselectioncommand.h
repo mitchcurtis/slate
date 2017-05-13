@@ -41,7 +41,7 @@ public:
     int id() const override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const DeleteImageCanvasSelectionCommand &command);
+    friend QDebug operator<<(QDebug debug, const DeleteImageCanvasSelectionCommand *command);
 
     ImageCanvas *mCanvas;
     QRect mDeletedArea;

@@ -41,7 +41,7 @@ public:
     int id() const override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const ChangeTileCanvasSizeCommand &command);
+    friend QDebug operator<<(QDebug debug, const ChangeTileCanvasSizeCommand *command);
 
     TilesetProject *mProject;
     QVector<int> mPreviousTiles;

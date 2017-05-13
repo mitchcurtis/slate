@@ -75,17 +75,17 @@ bool ApplyTilePenCommand::mergeWith(const UndoCommand *other)
     }
 
     // A unique tile that we haven't touched yet; add it.
-    qCDebug(lcApplyTilePenCommand) << "\nmerging:\n    " << *otherCommand << "\nwith:\n    " << *this;
+    qCDebug(lcApplyTilePenCommand) << "\nmerging:\n    " << otherCommand << "\nwith:\n    " << this;
     mTilePositions.append(otherCommand->mTilePositions);
     mPreviousIds.append(otherCommand->mPreviousIds);
     return true;
 }
 
-QDebug operator<<(QDebug debug, const ApplyTilePenCommand &command)
+QDebug operator<<(QDebug debug, const ApplyTilePenCommand *command)
 {
-    debug.nospace() << "(ApplyTilePenCommand tilePositions=" << command.mTilePositions
-        << ", previousIds=" << command.mPreviousIds
-        << ", id=" << command.mId
+    debug.nospace() << "(ApplyTilePenCommand tilePositions=" << command->mTilePositions
+        << ", previousIds=" << command->mPreviousIds
+        << ", id=" << command->mId
         << ")";
     return debug.space();
 }

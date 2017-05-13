@@ -40,7 +40,7 @@ public:
     int id() const override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const ChangeImageCanvasSizeCommand &command);
+    friend QDebug operator<<(QDebug debug, const ChangeImageCanvasSizeCommand *command);
 
     ImageProject *mProject;
     QSize mPreviousSize;

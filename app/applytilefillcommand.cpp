@@ -64,11 +64,11 @@ bool ApplyTileFillCommand::mergeWith(const UndoCommand *)
     return false;
 }
 
-QDebug operator<<(QDebug debug, const ApplyTileFillCommand &command)
+QDebug operator<<(QDebug debug, const ApplyTileFillCommand *command)
 {
-    debug.nospace() << "(ApplyTileFillCommand scenePositions=" << command.mTilePositions
-        << ", previousTile=" << command.mPreviousTile
-        << ", tile=" << command.mTile
+    debug.nospace() << "(ApplyTileFillCommand scenePositions=" << command->mTilePositions
+        << ", previousTile=" << command->mPreviousTile
+        << ", tile=" << command->mTile
         << ")";
     return debug.space();
 }

@@ -40,7 +40,7 @@ public:
     int id() const override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const FlipImageCanvasSelectionCommand &command);
+    friend QDebug operator<<(QDebug debug, const FlipImageCanvasSelectionCommand *command);
 
     ImageCanvas *mCanvas;
     Qt::Orientation mOrientation;
