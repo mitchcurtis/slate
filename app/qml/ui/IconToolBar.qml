@@ -196,6 +196,7 @@ Item {
                 onClicked: switchTool(ImageCanvas.FillTool)
             }
 
+            // TODO: https://bugreports.qt.io/browse/QTBUG-60807 affects icon colour
             ToolButton {
                 id: selectionToolButton
                 objectName: "selectionToolButton"
