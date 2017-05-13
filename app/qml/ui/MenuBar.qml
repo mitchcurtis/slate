@@ -22,7 +22,7 @@ Platform.MenuBar {
         Platform.MenuItem {
             objectName: "openMenuButton"
             text: qsTr("Open")
-            onTriggered: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
+            onTriggered: doIfChangesDiscarded(function() { openProjectDialog.open() })
         }
 
         Platform.MenuItem {

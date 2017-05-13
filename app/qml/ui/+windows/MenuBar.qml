@@ -39,7 +39,7 @@ RowLayout {
                 objectName: "openMenuButton"
                 text: qsTr("Open")
                 hoverEnabled: true
-                onClicked: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
+                onClicked: doIfChangesDiscarded(function() { openProjectDialog.open() })
             }
 
             MenuItem {

@@ -88,15 +88,13 @@ ApplicationWindow {
         window.y = Screen.desktopAvailableHeight / 2 - height / 2
     }
 
-    function doIfChangesDiscarded(actionFunction, discardChangesBeforeAction) {
+    function doIfChangesDiscarded(actionFunction) {
         if (!project) {
             // Auto tests can skip this function.
             return;
         }
 
         if (!project.unsavedChanges) {
-            if (!!discardChangesBeforeAction)
-                project.close();
             actionFunction();
             return;
         }
@@ -107,8 +105,6 @@ ApplicationWindow {
         }
 
         function discardChanges() {
-            if (!!discardChangesBeforeAction)
-                project.close()
             actionFunction();
             disconnectSignals();
         }

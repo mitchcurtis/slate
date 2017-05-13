@@ -25,7 +25,7 @@ Item {
 
     Shortcut {
         sequence: settings.openShortcut
-        onActivated: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
+        onActivated: doIfChangesDiscarded(function() { openProjectDialog.open() })
         enabled: canvasHasActiveFocus
     }
 
