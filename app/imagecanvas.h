@@ -156,6 +156,8 @@ public:
 
     void paint(QPainter *painter) override;
 
+    Q_INVOKABLE bool overrideShortcut(const QKeySequence &keySequence);
+
 signals:
     void projectChanged();
     void zoomLevelChanged();

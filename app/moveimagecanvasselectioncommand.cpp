@@ -24,15 +24,18 @@
 
 Q_LOGGING_CATEGORY(lcMoveImageCanvasSelectionCommand, "app.undo.moveImageCanvasSelectionCommand")
 
-MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &previousArea, const QImage &previousAreaImagePortion,
-    const QRect &newArea, bool fromPaste, UndoCommand *parent) :
+MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *canvas,
+        const QRect &previousArea, const QImage &previousAreaImagePortion,
+        const QRect &newArea, bool fromPaste, const QImage &pasteContents, UndoCommand *parent) :
     UndoCommand(parent),
     mCanvas(canvas),
     mPreviousArea(previousArea),
     mPreviousAreaImagePortion(previousAreaImagePortion),
     mNewArea(newArea),
     mNewAreaImagePortion(canvas->mImageProject->image()->copy(newArea)),
-    mFromPaste(fromPaste)
+    mFromPaste(fromPaste),
+    mPasteContents(pasteContents),
+    mUsed(false)
 {
     qCDebug(lcMoveImageCanvasSelectionCommand) << "constructed" << this;
 }
@@ -40,7 +43,7 @@ MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *ca
 void MoveImageCanvasSelectionCommand::undo()
 {
     qCDebug(lcMoveImageCanvasSelectionCommand) << "undoing" << this;
-    mCanvas->paintImageOntoPortionOfImage(mPreviousArea, mPreviousAreaImagePortion);
+    mCanvas->paintImageOntoPortionOfImage(mPreviousArea, mFromPaste ? mPasteContents : mPreviousAreaImagePortion);
     mCanvas->paintImageOntoPortionOfImage(mNewArea, mNewAreaImagePortion);
     // This matches what mspaint does; undoing a selection move causes the selection to be cleared.
     mCanvas->clearSelection();
@@ -51,7 +54,16 @@ void MoveImageCanvasSelectionCommand::redo()
     qCDebug(lcMoveImageCanvasSelectionCommand) << "redoing" << this;
     if (!mFromPaste)
         mCanvas->erasePortionOfImage(mPreviousArea);
-    mCanvas->paintImageOntoPortionOfImage(mNewArea, mPreviousAreaImagePortion);
+    else if (mUsed) {
+        // It is a paste and it has been redone already (moving contents that haven't been applied
+        // to the canvas), so redoing it now means that we should apply the paste contents,
+        // and not the previous area image portion.
+        mCanvas->paintImageOntoPortionOfImage(mPreviousArea, mPreviousAreaImagePortion);
+    }
+
+    mCanvas->paintImageOntoPortionOfImage(mNewArea, mFromPaste ? mPasteContents : mPreviousAreaImagePortion);
+
+    mUsed = true;
 }
 
 int MoveImageCanvasSelectionCommand::id() const

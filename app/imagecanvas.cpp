@@ -683,12 +683,12 @@ void ImageCanvas::confirmSelectionMove(bool andClear)
 {
     Q_ASSERT(mHasMovedSelection);
 
-    const QImage previousImageAreaPortion = !mIsSelectionFromPaste
-        ? mImageProject->image()->copy(mSelectionAreaBeforeFirstMove) : mSelectionContents;
+    const QImage previousImageAreaPortion = mImageProject->image()->copy(mSelectionAreaBeforeFirstMove);
 
     mProject->beginMacro(QLatin1String("MoveSelection"));
     mProject->addChange(new MoveImageCanvasSelectionCommand(
-        this, mSelectionAreaBeforeFirstMove, previousImageAreaPortion, mLastValidSelectionArea, mIsSelectionFromPaste));
+        this, mSelectionAreaBeforeFirstMove, previousImageAreaPortion, mLastValidSelectionArea,
+            mIsSelectionFromPaste, mSelectionContents));
     mProject->endMacro();
 
     if (andClear)
@@ -1489,4 +1489,28 @@ void ImageCanvas::focusOutEvent(QFocusEvent *event)
     }
 
     updateWindowCursorShape();
+}
+
+bool ImageCanvas::overrideShortcut(const QKeySequence &keySequence)
+{
+    if (keySequence == mProject->settings()->undoShortcut() && mHasSelection && !mIsSelectionFromPaste) {
+        if (mHasMovedSelection) {
+            qCDebug(lcCanvasSelection) << "Undo activated while a selection that has previously been moved is active;"
+                << "confirming selection to create move command, and then instantly undoing it";
+            // Create a move command so that the undo can be redone...
+            confirmSelectionMove(true);
+            // ... and then immediately undo it. This is weird, but it has
+            // to be done this way, because using the undo framework to take
+            // care of everything is not an option, as using one macro for several
+            // commands means that undo/redo is disable. See Shortcuts.qml for more info.
+            mProject->undoStack()->undo();
+        } else {
+            // Nothing was ever moved, and this isn't a paste, so we can simply clear the selection.
+            qCDebug(lcCanvasSelection) << "Overriding undo shortcut to cancel selection that hadn't been moved";
+            clearSelection();
+        }
+        return true;
+    }
+
+    return false;
 }
