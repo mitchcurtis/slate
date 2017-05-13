@@ -30,6 +30,7 @@ import "ui" as Ui
 
 /*
     TODO:
+    - rulers, guides
     - disable scroll wheel zooming option
     - fix alt eye dropper cursor icon on mac
     - add tests for image save/load/etc.

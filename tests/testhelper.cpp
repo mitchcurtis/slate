@@ -691,12 +691,12 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     const int tileHeight = isTilesetProject ? args.value("tileHeight", 25).toInt() : 0;
     const int tilesetTilesWide = isTilesetProject ? args.value("tilesetTilesWide", -1).toInt() : 0;
     const int tilesetTilesHigh = isTilesetProject ? args.value("tilesetTilesHigh", -1).toInt() : 0;
-    const bool transparentTilesetBackground = isTilesetProject ? args.value("transparentTilesetBackground", false).toBool() : 0;
+    const bool transparentTilesetBackground = isTilesetProject ? args.value("transparentTilesetBackground", false).toBool() : false;
 
     // image args
     const int imageWidth = !isTilesetProject ? args.value("imageWidth", 256).toInt() : 0;
     const int imageHeight = !isTilesetProject ? args.value("imageHeight", 256).toInt() : 0;
-    const bool transparentImageBackground = !isTilesetProject ? args.value("transparentImageBackground", false).toBool() : 0;
+    const bool transparentImageBackground = !isTilesetProject ? args.value("transparentImageBackground", false).toBool() : false;
 
     if (!project) {
         // Hovering over the canvas with no project open should result in the default cursor being displayed.
@@ -868,7 +868,7 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
 
         if (transparentImageBackground) {
             mouseEventOnCentre(transparentImageBackgroundCheckBox, MouseClick);
-            QCOMPARE(transparentImageBackgroundCheckBox->property("checked").toBool(), false);
+            QCOMPARE(transparentImageBackgroundCheckBox->property("checked").toBool(), transparentImageBackground);
         }
 
         // Confirm creation of the project.

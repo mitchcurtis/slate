@@ -74,6 +74,7 @@ private Q_SLOTS:
     void eraseImageCanvas();
     void selectionToolImageCanvas();
     void cancelSelectionToolImageCanvas();
+    void moveSelectionImageCanvas_data();
     void moveSelectionImageCanvas();
     void deleteSelectionImageCanvas();
     void copyPaste();
@@ -1620,9 +1621,21 @@ void tst_App::cancelSelectionToolImageCanvas()
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
 }
 
+void tst_App::moveSelectionImageCanvas_data()
+{
+    QTest::addColumn<bool>("transparentBackground");
+
+    QTest::addRow("white background") << false;
+    QTest::addRow("transparent background") << true;
+}
+
 void tst_App::moveSelectionImageCanvas()
 {
-    createNewImageProject();
+    QFETCH(bool, transparentBackground);
+
+    createNewImageProject(256, 256, transparentBackground);
+
+    const QColor backgroundColour = transparentBackground ? Qt::transparent : Qt::white;
 
     // Draw a square of black pixels.
     switchTool(ImageCanvas::PenTool);
@@ -1655,8 +1668,8 @@ void tst_App::moveSelectionImageCanvas()
     // The project's actual image contents shouldn't change until the move has been confirmed.
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(18, 18), QColor(Qt::white));
-    QCOMPARE(imageProject->image()->pixelColor(22, 22), QColor(Qt::white));
+    QCOMPARE(imageProject->image()->pixelColor(18, 18), backgroundColour);
+    QCOMPARE(imageProject->image()->pixelColor(22, 22), backgroundColour);
 
     // Clear the selection.
     switchTool(ImageCanvas::PenTool);
@@ -1672,8 +1685,8 @@ void tst_App::moveSelectionImageCanvas()
     triggerShortcut(app.settings()->undoShortcut());
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(18, 18), QColor(Qt::white));
-    QCOMPARE(imageProject->image()->pixelColor(22, 22), QColor(Qt::white));
+    QCOMPARE(imageProject->image()->pixelColor(18, 18), backgroundColour);
+    QCOMPARE(imageProject->image()->pixelColor(22, 22), backgroundColour);
 
     // Select the same area again.
     setCursorPosInPixels(QPoint(0, 0));
