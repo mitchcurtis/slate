@@ -681,7 +681,7 @@ void ImageCanvas::moveSelectionArea()
 
 void ImageCanvas::moveSelectionAreaBy(const QPoint &pixelDistance)
 {
-    // Moving a selection with the key creates a single move command instantly.
+    // Moving a selection with the directional keys creates a single move command instantly.
     beginSelectionMove();
 
     const QRect newSelectionArea = mSelectionArea.translated(pixelDistance.x(), pixelDistance.y());
@@ -1444,26 +1444,8 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
     if (!mProject->hasLoaded())
         return;
 
-    if (event->isAutoRepeat()) {
-//        if (mHasSelection && !mMovingSelection && (event->key() >= Qt::Key_Left && event->key() <= Qt::Key_Down)) {
-//            switch (event->key()) {
-//            case Qt::Key_Left:
-//                moveSelectionAreaBy(QPoint(-1, 0));
-//                break;
-//            case Qt::Key_Right:
-//                moveSelectionAreaBy(QPoint(1, 0));
-//                break;
-//            case Qt::Key_Up:
-//                moveSelectionAreaBy(QPoint(0, -1));
-//                break;
-//            case Qt::Key_Down:
-//                moveSelectionAreaBy(QPoint(0, 1));
-//                break;
-//            }
-//        }
-
+    if (event->isAutoRepeat())
         return;
-    }
 
     if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_3) {
         setTool(static_cast<ImageCanvas::Tool>(PenTool + event->key() - Qt::Key_1));
