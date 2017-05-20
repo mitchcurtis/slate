@@ -679,7 +679,26 @@ void ImageCanvas::moveSelectionArea()
     update();
 }
 
-void ImageCanvas::confirmSelectionMove(bool andClear)
+void ImageCanvas::moveSelectionAreaBy(const QPoint &pixelDistance)
+{
+    // Moving a selection with the key creates a single move command instantly.
+    beginSelectionMove();
+
+    const QRect newSelectionArea = mSelectionArea.translated(pixelDistance.x(), pixelDistance.y());
+    setSelectionArea(boundSelectionArea(newSelectionArea));
+
+    updateSelectionPreviewImage();
+
+    mHasMovedSelection = true;
+
+    setMovingSelection(false);
+    mLastValidSelectionArea = mSelectionArea;
+
+    // setSelectionArea() should do this anyway, but just in case..
+    update();
+}
+
+void ImageCanvas::confirmSelectionMove(ClearSelectionFlag clear)
 {
     Q_ASSERT(mHasMovedSelection);
 
@@ -691,7 +710,7 @@ void ImageCanvas::confirmSelectionMove(bool andClear)
             mIsSelectionFromPaste, mSelectionContents));
     mProject->endMacro();
 
-    if (andClear)
+    if (clear == ClearSelection)
         clearSelection();
 }
 
@@ -1425,8 +1444,26 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
     if (!mProject->hasLoaded())
         return;
 
-    if (event->isAutoRepeat())
+    if (event->isAutoRepeat()) {
+//        if (mHasSelection && !mMovingSelection && (event->key() >= Qt::Key_Left && event->key() <= Qt::Key_Down)) {
+//            switch (event->key()) {
+//            case Qt::Key_Left:
+//                moveSelectionAreaBy(QPoint(-1, 0));
+//                break;
+//            case Qt::Key_Right:
+//                moveSelectionAreaBy(QPoint(1, 0));
+//                break;
+//            case Qt::Key_Up:
+//                moveSelectionAreaBy(QPoint(0, -1));
+//                break;
+//            case Qt::Key_Down:
+//                moveSelectionAreaBy(QPoint(0, 1));
+//                break;
+//            }
+//        }
+
         return;
+    }
 
     if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_3) {
         setTool(static_cast<ImageCanvas::Tool>(PenTool + event->key() - Qt::Key_1));
@@ -1438,6 +1475,21 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
         mProject->addChange(new DeleteImageCanvasSelectionCommand(this, mSelectionArea));
         mProject->endMacro();
         clearSelection();
+    } else if (mHasSelection && !mMovingSelection && (event->key() >= Qt::Key_Left && event->key() <= Qt::Key_Down)) {
+        switch (event->key()) {
+        case Qt::Key_Left:
+            moveSelectionAreaBy(QPoint(-1, 0));
+            break;
+        case Qt::Key_Right:
+            moveSelectionAreaBy(QPoint(1, 0));
+            break;
+        case Qt::Key_Up:
+            moveSelectionAreaBy(QPoint(0, -1));
+            break;
+        case Qt::Key_Down:
+            moveSelectionAreaBy(QPoint(0, 1));
+            break;
+        }
     } else if (event->key() == Qt::Key_Escape && mHasSelection) {
         if (mHasMovedSelection) {
             // We've moved the selection since creating it, so, like mspaint, escape confirms it.
@@ -1498,7 +1550,7 @@ bool ImageCanvas::overrideShortcut(const QKeySequence &keySequence)
             qCDebug(lcCanvasSelection) << "Undo activated while a selection that has previously been moved is active;"
                 << "confirming selection to create move command, and then instantly undoing it";
             // Create a move command so that the undo can be redone...
-            confirmSelectionMove(true);
+            confirmSelectionMove(ClearSelection);
             // ... and then immediately undo it. This is weird, but it has
             // to be done this way, because using the undo framework to take
             // care of everything is not an option, as using one macro for several

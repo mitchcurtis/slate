@@ -76,6 +76,7 @@ private Q_SLOTS:
     void cancelSelectionToolImageCanvas();
     void moveSelectionImageCanvas_data();
     void moveSelectionImageCanvas();
+    void moveSelectionWithKeysImageCanvas();
     void deleteSelectionImageCanvas();
     void copyPaste();
     void flipPastedImage();
@@ -1713,6 +1714,45 @@ void tst_App::moveSelectionImageCanvas()
     triggerShortcut(app.settings()->undoShortcut());
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+}
+
+void tst_App::moveSelectionWithKeysImageCanvas()
+{
+    createNewImageProject(256, 256);
+
+    // Draw a square of black pixels.
+    switchTool(ImageCanvas::PenTool);
+    changeToolSize(5);
+    setCursorPosInPixels(2, 2);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+
+    changeToolSize(1);
+    switchTool(ImageCanvas::SelectionTool);
+
+    // Select an area.
+    setCursorPosInPixels(QPoint(0, 0));
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    setCursorPosInPixels(QPoint(5, 5));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 5, 5));
+
+    // Move the selection somewhere else.
+    QTest::keyClick(window, Qt::Key_Right);
+    QCOMPARE(canvas->selectionArea(), QRect(1, 0, 5, 5));
+
+    // The project's actual image contents shouldn't change until the move has been confirmed.
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+
+    // Clear the selection, confirming the move.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::transparent));
+    QCOMPARE(imageProject->image()->pixelColor(0, 4), QColor(Qt::transparent));
+    QCOMPARE(imageProject->image()->pixelColor(1, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(5, 4), QColor(Qt::black));
 }
 
 void tst_App::deleteSelectionImageCanvas()

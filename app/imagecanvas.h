@@ -240,11 +240,17 @@ protected:
     void centrePanes(bool respectSceneCentred = true);
     bool mouseOverSplitterHandle(const QPoint &mousePos);
 
+    enum ClearSelectionFlag {
+        DontClearSelection,
+        ClearSelection
+    };
+
     void beginSelectionMove();
     void updateSelectionArea();
     void updateSelectionPreviewImage();
     void moveSelectionArea();
-    void confirmSelectionMove(bool andClear = true);
+    void moveSelectionAreaBy(const QPoint &pixelDistance);
+    void confirmSelectionMove(ClearSelectionFlag clearSelection = ClearSelection);
     QRect clampSelectionArea(const QRect &selectionArea) const;
     QRect boundSelectionArea(const QRect &selectionArea) const;
     void clearSelection();
