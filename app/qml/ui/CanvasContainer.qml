@@ -54,6 +54,7 @@ Item {
         z: 1
         visible: canvas && canvas.hasBlankCursor && canvas.useIconCursor
         text: visible && checkedToolButton ? checkedToolButton.iconText : ""
+        color: "#ccc"
     }
 
     Pane {
