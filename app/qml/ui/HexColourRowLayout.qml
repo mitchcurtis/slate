@@ -29,6 +29,7 @@ RowLayout {
         readOnly: true // see tst_app::colourPickerHexField
         inputMask: "HHHHHHHH"
         selectByMouse: true
+        activeFocusOnPress: false
         onAccepted: canvas[selector.currentPenName] = inputColour
 
         property color inputColour: "#" + text
