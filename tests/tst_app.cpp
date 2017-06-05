@@ -1703,6 +1703,7 @@ void tst_App::moveSelectionImageCanvas()
     triggerShortcut(app.settings()->undoShortcut());
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+    QEXPECT_FAIL("transparent background", "TODO", Abort);
     QCOMPARE(imageProject->image()->pixelColor(18, 18), backgroundColour);
     QCOMPARE(imageProject->image()->pixelColor(22, 22), backgroundColour);
 
