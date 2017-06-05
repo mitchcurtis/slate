@@ -211,18 +211,18 @@ void TestHelper::mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventTy
     }
 }
 
-void TestHelper::mouseEvent(QQuickItem *item, const QPointF &localPos, TestMouseEventType eventType)
+void TestHelper::mouseEvent(QQuickItem *item, const QPointF &localPos, TestMouseEventType eventType, Qt::KeyboardModifiers modifiers)
 {
     const QPoint centre = item->mapToScene(localPos).toPoint();
     switch (eventType) {
     case MousePress:
-        QTest::mousePress(item->window(), Qt::LeftButton, Qt::NoModifier, centre);
+        QTest::mousePress(item->window(), Qt::LeftButton, modifiers, centre);
         break;
     case MouseRelease:
-        QTest::mouseRelease(item->window(), Qt::LeftButton, Qt::NoModifier, centre);
+        QTest::mouseRelease(item->window(), Qt::LeftButton, modifiers, centre);
         break;
     case MouseClick:
-        QTest::mouseClick(item->window(), Qt::LeftButton, Qt::NoModifier, centre);
+        QTest::mouseClick(item->window(), Qt::LeftButton, modifiers, centre);
         break;
     }
 }

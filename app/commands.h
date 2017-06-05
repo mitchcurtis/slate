@@ -5,6 +5,7 @@
 enum {
     ApplyPixelEraserCommandId = 1,
     ApplyPixelFillCommandId,
+    ApplyPixelLineCommandId,
     ApplyPixelPenCommandId,
     ApplyTileEraserCommandId,
     ApplyTileFillCommandId,

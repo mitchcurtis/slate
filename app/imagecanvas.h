@@ -201,9 +201,10 @@ protected slots:
 protected:
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
-    friend class ApplyPixelPenCommand;
     friend class ApplyPixelEraserCommand;
     friend class ApplyPixelFillCommand;
+    friend class ApplyPixelLineCommand;
+    friend class ApplyPixelPenCommand;
     friend class MoveImageCanvasSelectionCommand;
     friend class DeleteImageCanvasSelectionCommand;
     friend class FlipImageCanvasSelectionCommand;
@@ -218,7 +219,8 @@ protected:
     virtual PixelCandidateData fillPixelCandidates() const;
 
     virtual void applyCurrentTool();
-    virtual void applyPixelPenTool(const QPoint &scenePos, const QColor &colour);
+    virtual void applyPixelPenTool(const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false);
+    virtual void applyPixelLineTool(const QImage &lineImage, const QPoint &lastPixelPenReleaseScenePosition);
     void paintImageOntoPortionOfImage(const QRect &portion, const QImage &replacementImage);
     void erasePortionOfImage(const QRect &portion);
     void doFlipSelection(const QRect &area, Qt::Orientation orientation);
@@ -260,6 +262,8 @@ protected:
     bool cursorOverSelection() const;
 
     void setAltPressed(bool altPressed);
+
+    void setShiftPressed(bool shiftPressed);
 
     virtual void connectSignals();
     virtual void disconnectSignals();
@@ -308,9 +312,14 @@ protected:
     qreal mCursorSceneFY;
     QColor mCursorPixelColour;
     bool mContainsMouse;
+    // The mouse button that is currently pressed.
     Qt::MouseButton mMouseButtonPressed;
+    // The mouse button that was last pressed (could still be currently pressed).
+    Qt::MouseButton mLastMouseButtonPressed;
+    // The position at which the mouse is currently pressed.
     QPoint mPressPosition;
     QPoint mPressScenePosition;
+    // The scene position at which the mouse was pressed before the most-recent press.
     QPoint mCurrentPaneOffsetBeforePress;
     bool mScrollZoom;
 
@@ -319,6 +328,13 @@ protected:
     int mMaxToolSize;
     QColor mPenForegroundColour;
     QColor mPenBackgroundColour;
+
+    // The scene position at which the mouse was last pressed.
+    // This is used by the pixel line tool to draw the line preview.
+    // It is set by the pixel tool as the last pixel in the command,
+    // and by the pixel line tool command.
+    QPoint mLastPixelPenPressScenePosition;
+    QImage mLinePreviewImage;
 
     bool mPotentiallySelecting;
     bool mHasSelection;
@@ -339,6 +355,7 @@ protected:
     QImage mSelectionPreviewImage;
 
     bool mAltPressed;
+    bool mShiftPressed;
     Tool mToolBeforeAltPressed;
     bool mSpacePressed;
     bool mHasBlankCursor;

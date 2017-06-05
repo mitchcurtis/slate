@@ -41,7 +41,7 @@ void ApplyPixelPenCommand::undo()
 {
     qCDebug(lcApplyPixelPenCommand) << "undoing" << this;
     for (int i = 0; i < mScenePositions.size(); ++i) {
-        mCanvas->applyPixelPenTool(mScenePositions.at(i), mPreviousColours.at(i));
+        mCanvas->applyPixelPenTool(mScenePositions.at(i), mPreviousColours.at(i), i == mScenePositions.size() - 1);
     }
 }
 
@@ -49,7 +49,7 @@ void ApplyPixelPenCommand::redo()
 {
     qCDebug(lcApplyPixelPenCommand) << "redoing" << this;
     for (int i = 0; i < mScenePositions.size(); ++i) {
-        mCanvas->applyPixelPenTool(mScenePositions.at(i), mColour);
+        mCanvas->applyPixelPenTool(mScenePositions.at(i), mColour, i == mScenePositions.size() - 1);
     }
 }
 

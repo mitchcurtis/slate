@@ -115,7 +115,7 @@ private:
     TileCandidateData fillTileCandidates() const;
 
     void applyCurrentTool() override;
-    void applyPixelPenTool(const QPoint &scenePos, const QColor &colour) override;
+    void applyPixelPenTool(const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false) override;
     void applyTilePenTool(const QPoint &tilePos, int id);
 
     void updateCursorPos(const QPoint &eventPos) override;

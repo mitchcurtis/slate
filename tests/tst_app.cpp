@@ -81,6 +81,7 @@ private Q_SLOTS:
     void copyPaste();
     void flipPastedImage();
     void fillImageCanvas();
+    void pixelLineToolImageCanvas();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -1856,6 +1857,76 @@ void tst_App::fillImageCanvas()
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(imageProject->widthInPixels() - 1,
         imageProject->heightInPixels() - 1), QColor(Qt::black));
+}
+
+void tst_App::pixelLineToolImageCanvas()
+{
+    createNewImageProject();
+
+    switchTool(ImageCanvas::PenTool);
+
+    // Draw the start of the line.
+    setCursorPosInPixels(0, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->hasUnsavedChanges(), true);
+
+    // Draw the line itself.
+    setCursorPosInPixels(2, 2);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::keyPress(window, Qt::Key_Shift);
+    // For some reason there must be a delay in order for the shift modifier to work.
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
+    QTest::keyRelease(window, Qt::Key_Shift);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(2, 2), QColor(Qt::black));
+
+    // Undo the line.
+    mouseEventOnCentre(undoButton, MouseClick);
+    // The initial press has to still be there.
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(1, 1), QColor(Qt::white));
+    QCOMPARE(imageProject->image()->pixelColor(2, 2), QColor(Qt::white));
+
+    // Redo the line.
+    mouseEventOnCentre(redoButton, MouseClick);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(2, 2), QColor(Qt::black));
+
+    // Draw another line.
+    setCursorPosInPixels(0, 4);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::keyPress(window, Qt::Key_Shift);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
+    QTest::keyRelease(window, Qt::Key_Shift);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(2, 2), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(1, 3), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(0, 4), QColor(Qt::black));
+
+    // Undo the second line.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(2, 2), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(1, 3), QColor(Qt::white));
+    QCOMPARE(imageProject->image()->pixelColor(0, 4), QColor(Qt::white));
+
+    // Undo the first line.
+    mouseEventOnCentre(undoButton, MouseClick);
+    // The initial press has to still be there.
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(imageProject->image()->pixelColor(1, 1), QColor(Qt::white));
+    QCOMPARE(imageProject->image()->pixelColor(2, 2), QColor(Qt::white));
+
+    // Undo the inital press.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(imageProject->hasUnsavedChanges(), false);
 }
 
 int main(int argc, char *argv[])

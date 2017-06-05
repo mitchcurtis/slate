@@ -30,6 +30,7 @@
 #include "applicationsettings.h"
 #include "applypixelerasercommand.h"
 #include "applypixelfillcommand.h"
+#include "applypixellinecommand.h"
 #include "applypixelpencommand.h"
 #include "deleteimagecanvasselectioncommand.h"
 #include "flipimagecanvasselectioncommand.h"
@@ -64,6 +65,7 @@ ImageCanvas::ImageCanvas() :
     mCursorPixelColour(Qt::black),
     mContainsMouse(false),
     mMouseButtonPressed(Qt::NoButton),
+    mLastMouseButtonPressed(Qt::NoButton),
     mScrollZoom(false),
     mTool(PenTool),
     mToolSize(1),
@@ -76,6 +78,7 @@ ImageCanvas::ImageCanvas() :
     mHasMovedSelection(false),
     mIsSelectionFromPaste(false),
     mAltPressed(false),
+    mShiftPressed(false),
     mToolBeforeAltPressed(PenTool),
     mSpacePressed(false),
     mHasBlankCursor(false)
@@ -476,6 +479,15 @@ void ImageCanvas::setAltPressed(bool altPressed)
     emit altPressedChanged();
 }
 
+void ImageCanvas::setShiftPressed(bool shiftPressed)
+{
+    if (shiftPressed == mShiftPressed)
+        return;
+
+    mShiftPressed = shiftPressed;
+    update();
+}
+
 void ImageCanvas::connectSignals()
 {
     connect(mProject, SIGNAL(loadedChanged()), this, SLOT(onLoadedChanged()));
@@ -575,7 +587,8 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
 
     const bool shouldDrawSelectionPreviewImage = mMovingSelection || mHasMovedSelection || mIsSelectionFromPaste;
     const QImage image = !shouldDrawSelectionPreviewImage ? *mImageProject->image() : mSelectionPreviewImage;
-    painter->drawImage(QRectF(QPointF(0, 0), pane.zoomedSize(image.size())), image, QRectF(0, 0, image.width(), image.height()));
+    const QSize zoomedImageSize = pane.zoomedSize(image.size());
+    painter->drawImage(QRectF(QPointF(0, 0), zoomedImageSize), image, QRectF(0, 0, image.width(), image.height()));
 
     // Draw the selection area.
     QPen pen;
@@ -585,6 +598,24 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     const QRect zoomedSelectionArea(mSelectionArea.topLeft() * pane.zoomLevel(), pane.zoomedSize(mSelectionArea.size()));
     painter->setPen(pen);
     painter->drawRect(zoomedSelectionArea);
+
+    // Draw the pixel-pen-line indicator.
+    if (mTool == PenTool && mShiftPressed) {
+        const QPointF point1 = mLastPixelPenPressScenePosition;
+        const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
+        mLinePreviewImage = QImage(mImageProject->image()->size(), QImage::Format_ARGB32_Premultiplied);
+        mLinePreviewImage.fill(Qt::transparent);
+
+        QPainter linePainter(&mLinePreviewImage);
+        QPen pen;
+        pen.setColor(penColour());
+        pen.setWidth(mToolSize);
+        linePainter.setPen(pen);
+        linePainter.drawLine(QLineF(point1, point2));
+
+        painter->drawImage(QRectF(QPointF(0, 0), zoomedImageSize), mLinePreviewImage,
+            QRectF(0, 0, mLinePreviewImage.width(), mLinePreviewImage.height()));
+    }
 
     painter->restore();
 }
@@ -830,9 +861,14 @@ void ImageCanvas::reset()
     mCursorSceneY = 0;
     mContainsMouse = false;
     mMouseButtonPressed = Qt::NoButton;
+    mLastMouseButtonPressed = Qt::NoButton;
     mPressPosition = QPoint(0, 0);
     mPressScenePosition = QPoint(0, 0);
     mCurrentPaneOffsetBeforePress = QPoint(0, 0);
+
+    mLastPixelPenPressScenePosition = QPoint(0, 0);
+    mLinePreviewImage = QImage();
+
     clearSelection();
     setAltPressed(false);
     mToolBeforeAltPressed = PenTool;
@@ -988,13 +1024,19 @@ void ImageCanvas::applyCurrentTool()
 {
     switch (mTool) {
     case PenTool: {
-        const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
-        if (candidateData.scenePositions.isEmpty()) {
-            return;
-        }
+        if (!mShiftPressed) {
+            const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
+            if (candidateData.scenePositions.isEmpty()) {
+                return;
+            }
 
-        mProject->beginMacro(QLatin1String("PixelPenTool"));
-        mProject->addChange(new ApplyPixelPenCommand(this, candidateData.scenePositions, candidateData.previousColours, penColour()));
+            mProject->beginMacro(QLatin1String("PixelPenTool"));
+            mProject->addChange(new ApplyPixelPenCommand(this, candidateData.scenePositions, candidateData.previousColours, penColour()));
+        } else {
+            mProject->beginMacro(QLatin1String("PixelLineTool"));
+            mProject->addChange(new ApplyPixelLineCommand(this, mLinePreviewImage, *mImageProject->image(), mPressScenePosition, mLastPixelPenPressScenePosition));
+            mProject->endMacro();
+        }
         break;
     }
     case EyeDropperTool: {
@@ -1031,9 +1073,19 @@ void ImageCanvas::applyCurrentTool()
 }
 
 // This function actually operates on the image.
-void ImageCanvas::applyPixelPenTool(const QPoint &scenePos, const QColor &colour)
+void ImageCanvas::applyPixelPenTool(const QPoint &scenePos, const QColor &colour, bool markAsLastRelease)
 {
     mImageProject->image()->setPixelColor(scenePos, colour);
+    if (markAsLastRelease)
+        mLastPixelPenPressScenePosition = scenePos;
+    update();
+}
+
+void ImageCanvas::applyPixelLineTool(const QImage &lineImage, const QPoint &lastPixelPenReleaseScenePosition)
+{
+    mLastPixelPenPressScenePosition = lastPixelPenReleaseScenePosition;
+    QPainter painter(mImageProject->image());
+    painter.drawImage(0, 0, lineImage);
     update();
 }
 
@@ -1178,7 +1230,10 @@ void ImageCanvas::error(const QString &message)
 
 QColor ImageCanvas::penColour() const
 {
-    return mMouseButtonPressed == Qt::LeftButton ? mPenForegroundColour : mPenBackgroundColour;
+    // For some tools, like the line tool, the mouse button won't be pressed at times,
+    // so we take the last mouse button that was pressed.
+    const Qt::MouseButton button = mMouseButtonPressed == Qt::NoButton ? mLastMouseButtonPressed : mMouseButtonPressed;
+    return button == Qt::LeftButton ? mPenForegroundColour : mPenBackgroundColour;
 }
 
 void ImageCanvas::setHasBlankCursor(bool hasCustomCursor)
@@ -1255,6 +1310,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
     event->accept();
 
     mMouseButtonPressed = event->button();
+    mLastMouseButtonPressed = mMouseButtonPressed;
     mPressPosition = event->pos();
     mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
     mCurrentPaneOffsetBeforePress = mCurrentPane->offset();
@@ -1425,6 +1481,9 @@ void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
     if (updateCursorShape) {
         updateWindowCursorShape();
     }
+
+    if (mTool == PenTool && mShiftPressed)
+        update();
 }
 
 void ImageCanvas::hoverLeaveEvent(QHoverEvent *event)
@@ -1484,6 +1543,8 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
         setAltPressed(true);
         mToolBeforeAltPressed = mTool;
         setTool(EyeDropperTool);
+    } else if (event->modifiers().testFlag(Qt::ShiftModifier)) {
+        setShiftPressed(true);
     }
 }
 
@@ -1502,6 +1563,8 @@ void ImageCanvas::keyReleaseEvent(QKeyEvent *event)
         updateWindowCursorShape();
     } else if (mAltPressed && (event->key() == Qt::Key_Alt || event->modifiers().testFlag(Qt::AltModifier))) {
         restoreToolBeforeAltPressed();
+    } else if (event->key() == Qt::Key_Shift || event->modifiers().testFlag(Qt::ShiftModifier)) {
+        setShiftPressed(false);
     }
 }
 

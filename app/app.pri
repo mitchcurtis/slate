@@ -37,7 +37,8 @@ HEADERS += \
     $$PWD/deleteimagecanvasselectioncommand.h \
     $$PWD/flipimagecanvasselectioncommand.h \
     $$PWD/pasteimagecanvascommand.h \
-    $$PWD/applicationsettings.h
+    $$PWD/applicationsettings.h \
+    $$PWD/applypixellinecommand.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -72,7 +73,8 @@ SOURCES += \
     $$PWD/deleteimagecanvasselectioncommand.cpp \
     $$PWD/flipimagecanvasselectioncommand.cpp \
     $$PWD/pasteimagecanvascommand.cpp \
-    $$PWD/applicationsettings.cpp
+    $$PWD/applicationsettings.cpp \
+    $$PWD/applypixellinecommand.cpp
 
 
 RESOURCES += \

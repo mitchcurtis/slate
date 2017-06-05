@@ -500,7 +500,7 @@ QPoint TileCanvas::scenePosToTilePixelPos(const QPoint &scenePos) const
 }
 
 // This function actually operates on the image.
-void TileCanvas::applyPixelPenTool(const QPoint &scenePos, const QColor &colour)
+void TileCanvas::applyPixelPenTool(const QPoint &scenePos, const QColor &colour, bool markAsLastRelease)
 {
     Tile *tile = mTilesetProject->tileAt(scenePos);
     Q_ASSERT_X(tile, Q_FUNC_INFO, qPrintable(QString::fromLatin1(
@@ -508,6 +508,8 @@ void TileCanvas::applyPixelPenTool(const QPoint &scenePos, const QColor &colour)
     const QPoint pixelPos = scenePosToTilePixelPos(scenePos);
     const QPoint tilsetPixelPos = tile->sourceRect().topLeft() + pixelPos;
     mTilesetProject->tileset()->setPixelColor(tilsetPixelPos.x(), tilsetPixelPos.y(), colour);
+    if (markAsLastRelease)
+        mLastPixelPenPressScenePosition = scenePos;
     update();
 }
 
