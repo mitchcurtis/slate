@@ -70,7 +70,7 @@ private Q_SLOTS:
     void tilesetSwatchContextMenu();
     void tilesetSwatchNavigation();
     void cursorShapeAfterClickingLighter();
-//    void colourPickerHexField();
+    void colourPickerHexField();
     void eraseImageCanvas();
     void selectionToolImageCanvas();
     void cancelSelectionToolImageCanvas();
@@ -1414,52 +1414,67 @@ void tst_App::cursorShapeAfterClickingLighter()
     //    QTRY_COMPARE(window->cursor().shape(), Qt::BlankCursor);
 }
 
-//void tst_App::colourPickerHexField()
-//{
-//    createNewProject();
+void tst_App::colourPickerHexField()
+{
+    createNewImageProject();
 
-//    QQuickItem *hexTextField = window->findChild<QQuickItem*>("hexTextField");
-//    QVERIFY(hexTextField);
-//    QCOMPARE(hexTextField->property("text").toString().prepend("#"), canvas->penForegroundColour().name());
+    QQuickItem *hexTextField = window->findChild<QQuickItem*>("hexTextField");
+    QVERIFY(hexTextField);
+    QCOMPARE(hexTextField->property("text").toString().prepend("#"), canvas->penForegroundColour().name());
 
-//    const QColor originalPenColour = canvas->penForegroundColour();
+    const QColor originalPenColour = canvas->penForegroundColour();
 
-//    mouseEventOnCentre(hexTextField, MouseClick);
-//    QCOMPARE(hexTextField->property("activeFocus").toBool(), true);
+    mouseEventOnCentre(hexTextField, MouseClick);
+    QCOMPARE(hexTextField->property("activeFocus").toBool(), true);
 
-//    keySequence(window, QKeySequence::SelectAll);
-//    QTest::keyClick(window, Qt::Key_Backspace);
-//    QCOMPARE(hexTextField->property("text").toString(), QString());
-//    QCOMPARE(canvas->penForegroundColour(), originalPenColour);
+    keySequence(window, QKeySequence::SelectAll);
+    QTest::keyClick(window, Qt::Key_Backspace);
+    QCOMPARE(hexTextField->property("text").toString(), QString());
+    QCOMPARE(canvas->penForegroundColour(), originalPenColour);
 
-//    QTest::keyClick(window, Qt::Key_A);
-//    QCOMPARE(hexTextField->property("text").toString(), QLatin1String("a"));
-//    QCOMPARE(canvas->penForegroundColour(), originalPenColour);
+    QTest::keyClick(window, Qt::Key_A);
+    QCOMPARE(hexTextField->property("text").toString(), QLatin1String("a"));
+    QCOMPARE(canvas->penForegroundColour(), originalPenColour);
 
-//    // Invalid character.
-//    QTest::keyClick(window, Qt::Key_Z);
-//    QCOMPARE(hexTextField->property("text").toString(), QLatin1String("a"));
-//    QCOMPARE(canvas->penForegroundColour(), originalPenColour);
+    // Invalid character.
+    QTest::keyClick(window, Qt::Key_Z);
+    QCOMPARE(hexTextField->property("text").toString(), QLatin1String("a"));
+    QCOMPARE(canvas->penForegroundColour(), originalPenColour);
 
-//    QTest::keyClick(window, Qt::Key_1);
-//    QCOMPARE(hexTextField->property("text").toString(), QLatin1String("a1"));
-//    QCOMPARE(canvas->penForegroundColour(), originalPenColour);
+    QTest::keyClick(window, Qt::Key_1);
+    QCOMPARE(hexTextField->property("text").toString(), QLatin1String("a1"));
+    QCOMPARE(canvas->penForegroundColour(), originalPenColour);
 
-//    QTest::keyClick(window, Qt::Key_2);
-//    QCOMPARE(hexTextField->property("text").toString(), QLatin1String("a12"));
-//    QCOMPARE(canvas->penForegroundColour(), originalPenColour);
+    QTest::keyClick(window, Qt::Key_2);
+    QCOMPARE(hexTextField->property("text").toString(), QLatin1String("a12"));
+    QCOMPARE(canvas->penForegroundColour(), originalPenColour);
 
-//    QTest::keyClick(window, Qt::Key_3);
-//    QTest::keyClick(window, Qt::Key_4);
-//    QTest::keyClick(window, Qt::Key_5);
-//    QCOMPARE(hexTextField->property("text").toString(), QLatin1String("a12345"));
-//    QCOMPARE(canvas->penForegroundColour(), originalPenColour);
+    QTest::keyClick(window, Qt::Key_3);
+    QTest::keyClick(window, Qt::Key_4);
+    QTest::keyClick(window, Qt::Key_5);
+    QCOMPARE(hexTextField->property("text").toString(), QLatin1String("a12345"));
+    QCOMPARE(canvas->penForegroundColour(), originalPenColour);
 
-//    QTest::keyClick(window, Qt::Key_Enter);
-//    // TODO: SaturationLightnessPicker::setColor()'s RGB => HSL transformation
-//    // is altering the colour value that was input.
-//    QCOMPARE(canvas->penForegroundColour(), QColor("a12345"));
-//}
+    QTest::keyClick(window, Qt::Key_Enter);
+    QCOMPARE(canvas->penForegroundColour(), QColor("#a12345"));
+    // Accepting the input should give the canvas focus.
+    QCOMPARE(canvas->hasActiveFocus(), true);
+
+    // Give the text field focus again.
+    mouseEventOnCentre(hexTextField, MouseClick);
+    QCOMPARE(hexTextField->property("activeFocus").toBool(), true);
+
+    // Clear the field.
+    keySequence(window, QKeySequence::SelectAll);
+    QTest::keyClick(window, Qt::Key_Backspace);
+    QCOMPARE(hexTextField->property("text").toString(), QString());
+
+    // Cancel the changes.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->penForegroundColour(), QColor("#a12345"));
+    // Accepting the input should give the canvas focus.
+    QCOMPARE(canvas->hasActiveFocus(), true);
+}
 
 void tst_App::eraseImageCanvas()
 {

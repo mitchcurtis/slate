@@ -26,14 +26,24 @@ RowLayout {
         id: hexTextField
         objectName: "hexTextField"
         text: currentColour.toString().substr(1)
-        readOnly: true // see tst_app::colourPickerHexField
-        inputMask: "HHHHHHHH"
+//        readOnly: true // see tst_app::colourPickerHexField
+        inputMask: "hhhhhhhh"
         selectByMouse: true
-        activeFocusOnPress: false
-        onAccepted: canvas[selector.currentPenName] = inputColour
+        onAccepted: {
+            canvas[selector.currentPenName] = inputColour
+            canvas.forceActiveFocus()
+        }
+        onActiveFocusChanged: if (activeFocus) textBeforeEditing = text
+        onEditingFinished: canvas.forceActiveFocus()
+
+        Keys.onEscapePressed: {
+            text = textBeforeEditing
+            canvas.forceActiveFocus()
+        }
 
         property color inputColour: "#" + text
         property color currentColour: canvas ? canvas[selector.currentPenName] : Qt.rgba(0, 0, 0, 1)
+        property string textBeforeEditing
 
         Layout.fillWidth: true
     }
