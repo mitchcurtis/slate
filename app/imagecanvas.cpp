@@ -944,6 +944,8 @@ void ImageCanvas::paste()
         return;
     }
 
+    setTool(SelectionTool);
+
     const QSize adjustedSize(qMin(clipboardImage.width(), mProject->widthInPixels()),
         qMin(clipboardImage.height(), mProject->heightInPixels()));
     const QRect pastedArea(QPoint(0, 0), adjustedSize);

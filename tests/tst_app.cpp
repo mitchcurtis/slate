@@ -79,6 +79,7 @@ private Q_SLOTS:
     void moveSelectionWithKeysImageCanvas();
     void deleteSelectionImageCanvas();
     void copyPaste();
+    void pasteFromExternalSource();
     void flipPastedImage();
     void fillImageCanvas();
     void pixelLineToolImageCanvas();
@@ -1850,6 +1851,29 @@ void tst_App::copyPaste()
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
     QCOMPARE(imageCanvas->hasSelection(), false);
     QCOMPARE(imageCanvas->selectionArea(), QRect(0, 0, 0, 0));
+}
+
+void tst_App::pasteFromExternalSource()
+{
+    // When pasting while a tool other than the selection tool is active,
+    // the selection tool should be made active.
+    createNewImageProject();
+
+    QCOMPARE(imageCanvas->tool(), ImageCanvas::PenTool);
+
+    QImage image(32, 32, QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::blue);
+    qGuiApp->clipboard()->setImage(image);
+
+    keySequence(window, QKeySequence::Paste);
+    QCOMPARE(imageCanvas->tool(), ImageCanvas::SelectionTool);
+    QCOMPARE(imageCanvas->hasSelection(), true);
+
+    // Confirm the selection.
+    setCursorPosInPixels(33, 33);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::blue));
+    QCOMPARE(imageProject->image()->pixelColor(31, 31), QColor(Qt::blue));
 }
 
 void tst_App::flipPastedImage()
