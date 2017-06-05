@@ -651,6 +651,12 @@ bool ImageCanvas::mouseOverSplitterHandle(const QPoint &mousePos)
     return splitterRegion.contains(mousePos);
 }
 
+bool ImageCanvas::isPanning() const
+{
+    // Pressing the mouse while holding down space (or using middle mouse button) should pan.
+    return mSpacePressed || mMouseButtonPressed == Qt::MiddleButton;
+}
+
 void ImageCanvas::beginSelectionMove()
 {
     qCDebug(lcCanvasSelection) << "beginning selection move... mIsSelectionFromPaste =" << mIsSelectionFromPaste;
@@ -1115,7 +1121,7 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     setCursorY(eventPos.y());
     // Don't change current panes if panning, as the mouse position should
     // be allowed to go outside of the original pane.
-    if (!mSpacePressed) {
+    if (!isPanning()) {
         setCurrentPane(hoveredPane(eventPos));
     }
 
@@ -1168,12 +1174,13 @@ void ImageCanvas::updateWindowCursorShape()
     const bool nothingOverUs = mProject->hasLoaded() && hasActiveFocus() /*&& !mModalPopupsOpen*/ && mContainsMouse;
     const bool splitterHovered = mSplitter.isEnabled() && mSplitter.isHovered();
     const bool overSelection = cursorOverSelection();
-    setHasBlankCursor(nothingOverUs && !mSpacePressed && !splitterHovered && !overSelection);
+    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && !overSelection);
 
     Qt::CursorShape cursorShape = Qt::BlankCursor;
     if (!mHasBlankCursor) {
-        if (mSpacePressed) {
-            cursorShape = mMouseButtonPressed == Qt::LeftButton ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
+        if (isPanning()) {
+            // If panning while space is pressed, the left mouse button is used, otherwise it's the middle mouse button.
+            cursorShape = (mMouseButtonPressed == Qt::LeftButton || mMouseButtonPressed == Qt::MiddleButton) ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
         } else if (overSelection) {
             cursorShape = Qt::SizeAllCursor;
         } else {
@@ -1213,7 +1220,7 @@ void ImageCanvas::updateWindowCursorShape()
             << "Updating window cursor shape... mProject->hasLoaded():" << mProject->hasLoaded()
             << "hasActiveFocus()" << hasActiveFocus()
             << "mContainsMouse" << mContainsMouse
-            << "mSpacePressed" << mSpacePressed
+            << "isPanning()" << isPanning()
             << "mSplitter.isHovered()" << mSplitter.isHovered()
             << "cursor shape" << cursorName;
     }
@@ -1315,8 +1322,8 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
     mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
     mCurrentPaneOffsetBeforePress = mCurrentPane->offset();
     setContainsMouse(true);
-    // Pressing the mouse while holding down space should pan.
-    if (!mSpacePressed) {
+
+    if (!isPanning()) {
         if (mSplitter.isEnabled() && mouseOverSplitterHandle(event->pos())) {
             mSplitter.setPressed(true);
         } else if (mTool != SelectionTool) {
@@ -1352,7 +1359,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
         if (mSplitter.isEnabled() && mSplitter.isPressed()) {
             mSplitter.setPosition(mCursorX / width());
         } else {
-            if (!mSpacePressed) {
+            if (!isPanning()) {
                 if (mTool != SelectionTool) {
                     applyCurrentTool();
                 } else {

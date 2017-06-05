@@ -242,6 +242,8 @@ protected:
     void centrePanes(bool respectSceneCentred = true);
     bool mouseOverSplitterHandle(const QPoint &mousePos);
 
+    bool isPanning() const;
+
     enum ClearSelectionFlag {
         DontClearSelection,
         ClearSelection
