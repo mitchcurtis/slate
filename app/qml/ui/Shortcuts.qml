@@ -132,6 +132,11 @@ Item {
     }
 
     Shortcut {
+        sequence: settings.fillToolShortcut
+        onActivated: canvas.tool = ImageCanvas.FillTool
+    }
+
+    Shortcut {
         sequence: settings.eraserToolShortcut
         onActivated: canvas.tool = ImageCanvas.EraserTool
     }

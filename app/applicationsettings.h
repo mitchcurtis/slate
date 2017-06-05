@@ -50,6 +50,7 @@ class ApplicationSettings : public QSettings
     Q_PROPERTY(QString penToolShortcut READ penToolShortcut WRITE setPenToolShortcut NOTIFY penToolShortcutChanged)
     Q_PROPERTY(QString eyeDropperToolShortcut READ eyeDropperToolShortcut WRITE setEyeDropperToolShortcut NOTIFY eyeDropperToolShortcutChanged)
     Q_PROPERTY(QString eraserToolShortcut READ eraserToolShortcut WRITE setEraserToolShortcut NOTIFY eraserToolShortcutChanged)
+    Q_PROPERTY(QString fillToolShortcut READ fillToolShortcut WRITE setFillToolShortcut NOTIFY fillToolShortcutChanged)
     Q_PROPERTY(QString selectionToolShortcut READ selectionToolShortcut WRITE setSelectionToolShortcut NOTIFY selectionToolShortcutChanged)
     Q_PROPERTY(QString toolModeShortcut READ toolModeShortcut WRITE setToolModeShortcut NOTIFY toolModeShortcutChanged)
     Q_PROPERTY(QString decreaseToolSizeShortcut READ decreaseToolSizeShortcut WRITE setDecreaseToolSizeShortcut NOTIFY decreaseToolSizeShortcutChanged)
@@ -151,6 +152,10 @@ public:
     QString eyeDropperToolShortcut() const;
     void setEyeDropperToolShortcut(const QString &shortcut);
 
+    QString defaultFillToolShortcut() const;
+    QString fillToolShortcut() const;
+    void setFillToolShortcut(const QString &shortcut);
+
     QString defaultEraserToolShortcut() const;
     QString eraserToolShortcut() const;
     void setEraserToolShortcut(const QString &shortcut);
@@ -211,6 +216,7 @@ signals:
     void penToolShortcutChanged();
     void optionsShortcutChanged();
     void eyeDropperToolShortcutChanged();
+    void fillToolShortcutChanged();
     void eraserToolShortcutChanged();
     void selectionToolShortcutChanged();
     void toolModeShortcutChanged();

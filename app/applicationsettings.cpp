@@ -197,6 +197,7 @@ void ApplicationSettings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("optionsShortcut"));
         allShortcuts.append(QLatin1String("penToolShortcut"));
         allShortcuts.append(QLatin1String("eyeDropperToolShortcut"));
+        allShortcuts.append(QLatin1String("fillToolShortcut"));
         allShortcuts.append(QLatin1String("eraserToolShortcut"));
         allShortcuts.append(QLatin1String("selectionToolShortcut"));
         allShortcuts.append(QLatin1String("toolModeShortcut"));
@@ -466,6 +467,21 @@ QString ApplicationSettings::eyeDropperToolShortcut() const
 void ApplicationSettings::setEyeDropperToolShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("eyeDropperToolShortcut", defaultEyeDropperToolShortcut, eyeDropperToolShortcutChanged)
+}
+
+QString ApplicationSettings::defaultFillToolShortcut() const
+{
+    return QLatin1String("G");
+}
+
+QString ApplicationSettings::fillToolShortcut() const
+{
+    GET_SHORTCUT("fillToolShortcut", defaultFillToolShortcut)
+}
+
+void ApplicationSettings::setFillToolShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("fillToolShortcut", defaultFillToolShortcut, fillToolShortcutChanged)
 }
 
 QString ApplicationSettings::defaultEraserToolShortcut() const

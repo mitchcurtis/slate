@@ -172,6 +172,10 @@ Dialog {
                     shortcutDisplayName: qsTr("Eye Dropper Tool")
                 }
                 ShortcutRow {
+                    shortcutName: "fillToolShortcut"
+                    shortcutDisplayName: qsTr("Fill Tool")
+                }
+                ShortcutRow {
                     shortcutName: "eraserToolShortcut"
                     shortcutDisplayName: qsTr("Eraser Tool")
                 }
