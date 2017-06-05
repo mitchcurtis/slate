@@ -54,7 +54,7 @@ int ImageProject::widthInPixels() const
 
 int ImageProject::heightInPixels() const
 {
-    return !mImage.isNull() ? mImage.width() : 0;
+    return !mImage.isNull() ? mImage.height() : 0;
 }
 
 void ImageProject::createNew(int imageWidth, int imageHeight, bool transparentBackground)
