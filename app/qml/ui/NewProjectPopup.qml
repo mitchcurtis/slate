@@ -24,12 +24,15 @@ Dialog {
 
     signal choseTilesetProject
     signal choseImageProject
+    signal choseLayeredImageProject
 
     onAccepted: {
         if (buttonGroup.checkedButton === tilesetProjectButton)
             choseTilesetProject()
-        else
+        else if (buttonGroup.checkedButton === imageProjectButton)
             choseImageProject()
+        else if (buttonGroup.checkedButton === layeredImageProjectButton)
+            choseLayeredImageProject()
     }
 
     contentItem: ColumnLayout {
@@ -79,6 +82,7 @@ Dialog {
         }
 
         ProjectTemplateButton {
+            id: imageProjectButton
             objectName: "imageProjectButton"
             titleText: qsTr("New Image")
             descriptionText: qsTr("Creates a new bitmap image for direct editing, with no layer support.")

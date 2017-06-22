@@ -46,6 +46,7 @@ T.AbstractButton {
                 text: descriptionText
                 wrapMode: Label.Wrap
                 font.pixelSize: fontMetrics.font.pixelSize * 1.25
+                opacity: 0.65
                 Layout.fillWidth: true
             }
         }

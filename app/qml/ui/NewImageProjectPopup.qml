@@ -14,6 +14,8 @@ Dialog {
     bottomPadding: 0
     contentWidth: 400
 
+    // TODO: use the built-in title
+    property string popupTitle: qsTr("New Image Project")
     readonly property int imageWidth: imageWidthSpinBox.value
     readonly property int imageHeight: imageHeightSpinBox.value
     readonly property bool transparentBackground: transparentImageBackgroundCheckBox.checked
@@ -31,7 +33,7 @@ Dialog {
         spacing: 14
 
         Label {
-            text: qsTr("New Image Project")
+            text: title
             font.pixelSize: popup.font.pixelSize * 1.5
             anchors.horizontalCenter: parent.horizontalCenter
         }

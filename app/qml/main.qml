@@ -251,6 +251,7 @@ ApplicationWindow {
 
         onChoseTilesetProject: newTilesetProjectPopup.open()
         onChoseImageProject: newImageProjectPopup.open()
+        onChoseLayeredImageProject: newLayeredImageProjectPopup.open()
         onRejected: if (window.canvas) window.canvas.forceActiveFocus()
     }
 
@@ -262,8 +263,11 @@ ApplicationWindow {
             projectManager.temporaryProject.createNew(p.tilesetPath, p.tileWidth, p.tileHeight,
                 p.tilesetTilesWide, p.tilesetTilesHigh, p.canvasTilesWide, p.canvasTilesHigh,
                 p.transparentBackground);
-        } else {
+        } else if (type === Project.ImageType) {
             var p = newImageProjectPopup;
+            projectManager.temporaryProject.createNew(p.imageWidth, p.imageHeight, p.transparentBackground);
+        } else if (type === Project.LayeredImageType) {
+            var p = newLayeredImageProjectPopup;
             projectManager.temporaryProject.createNew(p.imageWidth, p.imageHeight, p.transparentBackground);
         }
 
@@ -271,6 +275,7 @@ ApplicationWindow {
     }
 
     function loadProject(url) {
+        // TODO: fix this for layered image projects (check file contents)
         var type = url.toString().endsWith(".json") ? Project.TilesetType : Project.ImageType;
 
         projectManager.beginCreation(type);
@@ -294,6 +299,15 @@ ApplicationWindow {
         onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
 
         onAccepted: createNewProject(Project.ImageType)
+    }
+
+    Ui.NewLayeredImageProjectPopup {
+        id: newLayeredImageProjectPopup
+        x: parent.width / 2 - width / 2
+        y: parent.height / 2 - height / 2
+        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
+
+        onAccepted: createNewProject(Project.LayeredImageType)
     }
 
     Ui.OptionsDialog {

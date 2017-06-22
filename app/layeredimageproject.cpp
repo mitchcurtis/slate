@@ -32,8 +32,6 @@ LayeredImageProject::LayeredImageProject() :
 {
     setObjectName(QLatin1String("LayeredImageProject"));
     qCDebug(lcProjectLifecycle) << "constructing" << this;
-
-    addNewLayer(400, 400, false);
 }
 
 LayeredImageProject::~LayeredImageProject()
@@ -142,6 +140,7 @@ void LayeredImageProject::close()
 
     setNewProject(false);
     qDeleteAll(mLayers);
+    mLayers.clear();
     setUrl(QUrl());
     mUndoStack.clear();
     emit projectClosed();

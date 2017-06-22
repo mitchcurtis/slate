@@ -21,8 +21,9 @@
 
 #include <QLoggingCategory>
 
-#include "imageproject.h"
 #include "applicationsettings.h"
+#include "imageproject.h"
+#include "layeredimageproject.h"
 #include "tilesetproject.h"
 
 Q_LOGGING_CATEGORY(lcProjectManager, "app.projectManager")
@@ -79,8 +80,10 @@ void ProjectManager::beginCreation(Project::Type projectType)
 
     if (projectType == Project::ImageType) {
         mTemporaryProject.reset(new ImageProject);
-    } else {
+    } else if (projectType == Project::TilesetType) {
         mTemporaryProject.reset(new TilesetProject);
+    } else if (projectType == Project::LayeredImageType) {
+        mTemporaryProject.reset(new LayeredImageProject);
     }
 
     qCDebug(lcProjectManager) << "beginning creation of" << mTemporaryProject->typeString() << "project (" << mTemporaryProject.data() << ")";
