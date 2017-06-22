@@ -52,7 +52,8 @@ public:
     enum Type {
         UnknownType,
         TilesetType,
-        ImageType
+        ImageType,
+        LayeredImageType
     };
 
     Q_ENUM(Type)

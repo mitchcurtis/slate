@@ -28,6 +28,7 @@
 #include <QLoggingCategory>
 
 #include "changetilecanvassizecommand.h"
+#include "jsonutils.h"
 
 TilesetProject::TilesetProject() :
     Project(),
@@ -129,15 +130,6 @@ void TilesetProject::createNew(QUrl tilesetUrl, int tileWidth, int tileHeight,
     qCDebug(lcProject) << "finished creating new project";
 }
 
-static QJsonValue strictValue(const QJsonObject &object, const QString &key)
-{
-    QString objectString;
-    QDebug(&objectString) << object.toVariantMap();
-    Q_ASSERT_X(object.contains(key), Q_FUNC_INFO, qPrintable(QString::fromLatin1(
-        "json object %1 doesn't contain key %2").arg(objectString).arg(key)));
-    return object[key];
-}
-
 void TilesetProject::load(const QUrl &url)
 {
     qCDebug(lcProject) << "loading project:" << url;
@@ -155,20 +147,20 @@ void TilesetProject::load(const QUrl &url)
 
     QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonFile.readAll());
     QJsonObject rootJson = jsonDoc.object();
-    QJsonObject projectObject = strictValue(rootJson, "project").toObject();
+    QJsonObject projectObject = JsonUtils::strictValue(rootJson, "project").toObject();
 
-    setTilesWide(strictValue(projectObject, "tilesWide").toInt());
-    setTilesHigh(strictValue(projectObject, "tilesHigh").toInt());
-    setTileWidth(strictValue(projectObject, "tileWidth").toInt());
-    setTileHeight(strictValue(projectObject, "tileHeight").toInt());
-    setTilesetUrl(QUrl::fromLocalFile(strictValue(projectObject, "tilesetPath").toString()));
+    setTilesWide(JsonUtils::strictValue(projectObject, "tilesWide").toInt());
+    setTilesHigh(JsonUtils::strictValue(projectObject, "tilesHigh").toInt());
+    setTileWidth(JsonUtils::strictValue(projectObject, "tileWidth").toInt());
+    setTileHeight(JsonUtils::strictValue(projectObject, "tileHeight").toInt());
+    setTilesetUrl(QUrl::fromLocalFile(JsonUtils::strictValue(projectObject, "tilesetPath").toString()));
     mUsingTempImage = false;
 
     Q_ASSERT(!mTileset);
     const QString tilesetPath = mTilesetUrl.toLocalFile();
-    QJsonObject tilesetObject = strictValue(projectObject, "tileset").toObject();
-    const int tilesetTilesWide = strictValue(tilesetObject, "tilesWide").toInt();
-    const int tilesetTilesHigh = strictValue(tilesetObject, "tilesHigh").toInt();
+    QJsonObject tilesetObject = JsonUtils::strictValue(projectObject, "tileset").toObject();
+    const int tilesetTilesWide = JsonUtils::strictValue(tilesetObject, "tilesWide").toInt();
+    const int tilesetTilesHigh = JsonUtils::strictValue(tilesetObject, "tilesHigh").toInt();
     QScopedPointer<Tileset> tempTileset(new Tileset(tilesetPath, tilesetTilesWide, tilesetTilesHigh, this));
     if (tempTileset->isValid()) {
         setTileset(tempTileset.take());

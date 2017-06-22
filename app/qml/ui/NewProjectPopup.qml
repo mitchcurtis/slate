@@ -53,6 +53,7 @@ Dialog {
             onClicked: popup.accept()
 
             Layout.fillWidth: true
+            Layout.fillHeight: true
 
             Label {
                 text: "\uf00a"
@@ -80,13 +81,14 @@ Dialog {
         ProjectTemplateButton {
             objectName: "imageProjectButton"
             titleText: qsTr("New Image")
-            descriptionText: qsTr("Creates a new bitmap image for editing.")
+            descriptionText: qsTr("Creates a new bitmap image for direct editing, with no layer support.")
             radius: popup.background.radius
             iconBackgroundColour: Qt.darker(popup.background.color, 1.15)
 
             onClicked: popup.accept()
 
             Layout.fillWidth: true
+            Layout.fillHeight: true
 
             Label {
                 text: "\uf1c5"
@@ -95,8 +97,40 @@ Dialog {
                 fontSizeMode: Label.Fit
                 verticalAlignment: Label.AlignVCenter
 
-                Layout.fillWidth: true
+                Layout.preferredWidth: height
                 Layout.fillHeight: true
+                Layout.alignment: Qt.AlignCenter
+            }
+        }
+
+        ProjectTemplateButton {
+            id: layeredImageProjectButton
+            objectName: "layeredImageProjectButton"
+            titleText: qsTr("New Layered Image")
+            descriptionText: qsTr("Creates a new layered image project. Several images are drawn on "
+                + "top of each other, and can be exported as a single image.")
+            radius: popup.background.radius
+            iconBackgroundColour: Qt.darker(popup.background.color, 1.15)
+
+            onClicked: popup.accept()
+
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            Repeater {
+                model: 3
+
+                Item {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    Label {
+                        text: "\uf1c5"
+                        font.family: "FontAwesome"
+                        font.pixelSize: 38
+                        anchors.centerIn: parent
+                    }
+                }
             }
         }
     }

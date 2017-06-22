@@ -38,7 +38,10 @@ HEADERS += \
     $$PWD/flipimagecanvasselectioncommand.h \
     $$PWD/pasteimagecanvascommand.h \
     $$PWD/applicationsettings.h \
-    $$PWD/applypixellinecommand.h
+    $$PWD/applypixellinecommand.h \
+    $$PWD/layeredimageproject.h \
+    $$PWD/imagelayer.h \
+    $$PWD/jsonutils.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -74,7 +77,10 @@ SOURCES += \
     $$PWD/flipimagecanvasselectioncommand.cpp \
     $$PWD/pasteimagecanvascommand.cpp \
     $$PWD/applicationsettings.cpp \
-    $$PWD/applypixellinecommand.cpp
+    $$PWD/applypixellinecommand.cpp \
+    $$PWD/layeredimageproject.cpp \
+    $$PWD/imagelayer.cpp \
+    $$PWD/jsonutils.cpp
 
 
 RESOURCES += \
