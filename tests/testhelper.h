@@ -32,6 +32,8 @@
 #include "application.h"
 #include "imagecanvas.h"
 #include "imageproject.h"
+#include "layeredimagecanvas.h"
+#include "layeredimageproject.h"
 #include "tilecanvas.h"
 #include "tilesetproject.h"
 #include "project.h"
@@ -141,6 +143,8 @@ protected:
         int tilesetTilesWide = -1, int tilesetTilesHigh = -1, bool transparentTilesetBackground = false);
     void createNewImageProject(int imageWidth = 256, int imageHeight = 256,
         bool transparentImageBackground = false);
+    void createNewLayeredImageProject(int imageWidth = 256, int imageHeight = 256,
+        bool transparentImageBackground = false);
     void setupTempTilesetProjectDir();
     void switchMode(TileCanvas::Mode mode);
     void switchTool(ImageCanvas::Tool tool);
@@ -161,9 +165,11 @@ protected:
     QPointer<Project> project;
     QPointer<ImageProject> imageProject;
     QPointer<TilesetProject> tilesetProject;
+    QPointer<LayeredImageProject> layeredImageProject;
     QPointer<ImageCanvas> canvas;
     QPointer<ImageCanvas> imageCanvas;
     QPointer<TileCanvas> tileCanvas;
+    QPointer<LayeredImageCanvas> layeredImageCanvas;
 #ifdef NON_NATIVE_MENUS
     QQuickItem *fileToolButton;
     QQuickItem *optionsToolButton;

@@ -81,7 +81,7 @@ ApplicationWindow {
         if (settings.loadLastOnStartup && settings.lastProjectUrl.toString().length > 0) {
             loadProject(settings.lastProjectUrl)
         } else {
-            createNewProject(Project.ImageType)
+            createNewProject(Project.LayeredImageType)
         }
 
         window.title = Qt.binding(function(){ return qtbug53394Title });

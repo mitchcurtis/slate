@@ -83,6 +83,8 @@ private Q_SLOTS:
     void flipPastedImage();
     void fillImageCanvas();
     void pixelLineToolImageCanvas();
+
+    void newLayer();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -1967,6 +1969,11 @@ void tst_App::pixelLineToolImageCanvas()
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(imageProject->hasUnsavedChanges(), false);
+}
+
+void tst_App::newLayer()
+{
+    createNewLayeredImageProject();
 }
 
 int main(int argc, char *argv[])

@@ -30,6 +30,8 @@ class LayeredImageProject : public Project
 {
     Q_OBJECT
     Q_PROPERTY(int currentLayerIndex READ currentLayerIndex WRITE setCurrentLayerIndex NOTIFY currentLayerIndexChanged)
+    Q_PROPERTY(ImageLayer *currentLayer READ currentLayer NOTIFY currentLayerChanged)
+    Q_PROPERTY(int layerCount READ layerCount NOTIFY layerCountChanged)
 
 public:
     LayeredImageProject();
@@ -49,6 +51,8 @@ public:
 
 signals:
     void currentLayerIndexChanged();
+    void currentLayerChanged();
+    void layerCountChanged();
 
     void preLayerAdded(int index);
     void postLayerAdded(int index);
@@ -62,12 +66,14 @@ public slots:
     void close() override;
     void saveAs(const QUrl &url) override;
 
+    void addNewLayer();
+
 private:
     bool isValidIndex(int index) const;
 
     void changeSize(const QSize &size);
     void addNewLayer(int imageWidth, int imageHeight, bool transparent);
-    void addLayer(ImageLayer *imageLayer);
+    void addLayerAboveAll(ImageLayer *imageLayer);
 
     // Lowest index == layer with lowest Z order.
     QVector<ImageLayer*> mLayers;

@@ -28,6 +28,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     projectManager(nullptr),
     imageProject(nullptr),
     tilesetProject(nullptr),
+    layeredImageProject(nullptr),
     imageCanvas(nullptr),
     tileCanvas(nullptr),
 #ifdef NON_NATIVE_MENUS
@@ -90,18 +91,18 @@ void TestHelper::initTestCase()
     // Whenever the project manager's project changes, it means we should
     // reset our errorOccurred spy, as createNewProject() is about to be called on it.
     connect(projectManager.data(), &ProjectManager::temporaryProjectChanged, this, &TestHelper::resetCreationErrorSpy);
-    // The project would have already been created by now, as an image project is always
-    // loaded by default, so we have to manually created the spy now.
+    // The project would have already been created by now, as a layered image project is always
+    // loaded by default, so we have to manually create the spy now.
     resetCreationErrorSpy();
 
-    imageCanvas = window->findChild<ImageCanvas*>("imageCanvas");
-    QVERIFY(imageCanvas);
+    layeredImageCanvas = window->findChild<LayeredImageCanvas*>("layeredImageCanvas");
+    QVERIFY(layeredImageCanvas);
 
     project = projectManager->project();
     QVERIFY(project);
 
-    imageProject = qobject_cast<ImageProject*>(project.data());
-    QVERIFY(imageProject);
+    layeredImageProject = qobject_cast<LayeredImageProject*>(project.data());
+    QVERIFY(layeredImageProject);
 
 #ifdef NON_NATIVE_MENUS
     fileToolButton = window->findChild<QQuickItem*>("fileToolButton");
@@ -683,7 +684,7 @@ void TestHelper::addAllProjectTypes()
 
 void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &args)
 {
-    const bool wasTilesetProject = tilesetProject;
+    const Project::Type previousProjectType = tilesetProject ? Project::TilesetType : (imageProject ? Project::ImageType : Project::LayeredImageType);
     const bool isTilesetProject = projectType == Project::TilesetType;
 
     // tileset args
@@ -731,25 +732,25 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     QVERIFY2(newProjectPopup->property("activeFocus").toBool(),
         qPrintable(QString::fromLatin1("NewProjectPopup doesn't have active focus (%1 does)").arg(window->activeFocusItem()->objectName())));
 
-    if (isTilesetProject) {
-        // Choose the tileset project type.
-        QQuickItem *tilesetProjectButton = newProjectPopup->findChild<QQuickItem*>("tilesetProjectButton");
-        QVERIFY(tilesetProjectButton);
-
-        mouseEventOnCentre(tilesetProjectButton, MouseClick);
-        QCOMPARE(tilesetProjectButton->property("checked").toBool(), true);
+    QString newProjectButtonObjectName;
+    if (projectType == Project::TilesetType) {
+        newProjectButtonObjectName = QLatin1String("tilesetProjectButton");
+    } else if (projectType == Project::ImageType) {
+        newProjectButtonObjectName = QLatin1String("imageProjectButton");
     } else {
-        // Choose the image project type.
-        QQuickItem *imageProjectButton = newProjectPopup->findChild<QQuickItem*>("imageProjectButton");
-        QVERIFY(imageProjectButton);
-
-        mouseEventOnCentre(imageProjectButton, MouseClick);
-        QCOMPARE(imageProjectButton->property("checked").toBool(), true);
+        newProjectButtonObjectName = QLatin1String("layeredImageProjectButton");
     }
+
+    // Click on the appropriate project type button.
+    QQuickItem *tilesetProjectButton = newProjectPopup->findChild<QQuickItem*>(newProjectButtonObjectName);
+    QVERIFY(tilesetProjectButton);
+
+    mouseEventOnCentre(tilesetProjectButton, MouseClick);
+    QCOMPARE(tilesetProjectButton->property("checked").toBool(), true);
 
     QTRY_COMPARE(newProjectPopup->property("visible").toBool(), false);
 
-    if (isTilesetProject) {
+    if (projectType == Project::TilesetType) {
         // Create a temporary directory containing a tileset image for us to use.
         setupTempTilesetProjectDir();
 
@@ -878,7 +879,7 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         QVERIFY(!newImageProjectPopup->property("visible").toBool());
     }
 
-    if (wasTilesetProject != isTilesetProject) {
+    if (previousProjectType != projectType) {
         // The projects and canvases that we had references to should have
         // been destroyed by now.
         QTRY_VERIFY(!project);
@@ -896,17 +897,22 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     canvas = window->findChild<ImageCanvas*>();
     QVERIFY(canvas);
 
-    if (isTilesetProject) {
+    if (projectType == Project::TilesetType) {
         tilesetProject = qobject_cast<TilesetProject*>(project);
         QVERIFY(tilesetProject);
 
         tileCanvas = qobject_cast<TileCanvas*>(canvas);
         QVERIFY(tileCanvas);
-    } else {
+    } else if (projectType == Project::ImageType) {
         imageProject = qobject_cast<ImageProject*>(project);
         QVERIFY(imageProject);
 
         imageCanvas = canvas;
+    } else if (projectType == Project::LayeredImageType) {
+        layeredImageProject = qobject_cast<LayeredImageProject*>(project);
+        QVERIFY(layeredImageProject);
+
+        layeredImageCanvas = qobject_cast<LayeredImageCanvas*>(canvas);;
     }
 
     canvas->forceActiveFocus();
@@ -987,6 +993,15 @@ void TestHelper::createNewImageProject(int imageWidth, int imageHeight, bool tra
     args.insert("imageHeight", imageHeight);
     args.insert("transparentImageBackground", transparentImageBackground);
     createNewProject(Project::ImageType, args);
+}
+
+void TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)
+{
+    QVariantMap args;
+    args.insert("imageWidth", imageWidth);
+    args.insert("imageHeight", imageHeight);
+    args.insert("transparentImageBackground", transparentImageBackground);
+    createNewProject(Project::LayeredImageType, args);
 }
 
 void TestHelper::setupTempTilesetProjectDir()

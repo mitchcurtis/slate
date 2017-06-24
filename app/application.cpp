@@ -25,6 +25,7 @@
 #include "canvaspane.h"
 #include "filevalidator.h"
 #include "imagecanvas.h"
+#include "imagelayer.h"
 #include "imageproject.h"
 #include "keysequenceeditor.h"
 #include "layeredimagecanvas.h"
@@ -83,14 +84,14 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterUncreatableType<LayeredImageProject>("App", 1, 0, "LayeredImageProject",
         QLatin1String("Cannot create objects of type LayeredImageProject"));
 
-
-    // For some reason, only when debugging, I get
-    // QMetaProperty::read: Unable to handle unregistered datatype 'UndoStack*' for property 'Project_QML_108::undoStack'
-    // if I don't do this.
     qRegisterMetaType<ApplicationSettings*>();
+    qRegisterMetaType<ImageLayer*>();
     qRegisterMetaType<Project::Type>();
     qRegisterMetaType<Tile*>();
     qRegisterMetaType<Tileset*>();
+    // For some reason, only when debugging, I get
+    // QMetaProperty::read: Unable to handle unregistered datatype 'UndoStack*' for property 'Project_QML_108::undoStack'
+    // if I don't do this.
     qRegisterMetaType<UndoStack*>();
 
     if (QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf") == -1) {

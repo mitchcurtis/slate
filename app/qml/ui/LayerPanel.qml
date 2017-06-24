@@ -7,7 +7,7 @@ import App 1.0
 
 import "." as Ui
 
-Pane {
+Page {
     id: root
     implicitWidth: 200
     background: Rectangle {
@@ -21,12 +21,10 @@ Pane {
 
     Keys.onEscapePressed: contextMenu.cancelCurrentAction()
 
-    Flickable {
-        id: flickable
+    ListView {
+        id: listView
         anchors.fill: parent
-        contentWidth: width
-        contentHeight: layerColumn.implicitHeight
-        boundsBehavior: Flickable.StopAtBounds
+        boundsBehavior: ListView.StopAtBounds
         visible: project && project.loaded
         clip: true
 
@@ -37,40 +35,59 @@ Pane {
             id: horizontalScrollBar
         }
 
-        ColumnLayout {
-            id: layerColumn
-            width: parent.width
+        model: LayerModel {
+            layeredImageProject: project
+        }
 
-            Repeater {
-                model: LayerModel {
-                    layeredImageProject: project
-                }
+        delegate: ItemDelegate {
+            text: layerName
+            checkable: true
+            checked: project.currentLayerIndex === index
+            width: listView.width
+            onClicked: project.currentLayerIndex = index
 
-//                model: 20
-//                delegate: ItemDelegate {
-//                    text: index
-
-//                    Layout.preferredHeight: implicitHeight
-//                    Layout.fillWidth: true
-//                }
-
-                delegate: ItemDelegate {
-                    text: layerName
-                    checkable: true
-                    checked: project.currentLayerIndex === index
-
-                    Layout.preferredHeight: implicitHeight
-                    Layout.fillWidth: true
-
-                    Rectangle {
-                        id: focusRect
-                        width: 2
-                        height: parent.height
-                        color: Ui.CanvasColours.focusColour
-                        visible: parent.checked
-                    }
-                }
+            Rectangle {
+                id: focusRect
+                width: 2
+                height: parent.height
+                color: Ui.CanvasColours.focusColour
+                visible: parent.checked
             }
+        }
+    }
+
+    footer: RowLayout {
+        Button {
+            objectName: "newLayerButton"
+            text: qsTr("+")
+            flat: true
+            focusPolicy: Qt.NoFocus
+            hoverEnabled: true
+
+            Layout.maximumWidth: implicitHeight
+            Layout.fillWidth: true
+            Layout.leftMargin: 6
+
+            onClicked: project.addNewLayer()
+        }
+
+        Item {
+            Layout.fillWidth: true
+        }
+
+        Button {
+            objectName: "deleteLayerButton"
+            text: qsTr("\uf1f8")
+            flat: true
+            focusPolicy: Qt.NoFocus
+            enabled: project && project.currentLayer && project.layerCount > 1
+            hoverEnabled: true
+
+            Layout.maximumWidth: implicitHeight
+            Layout.fillWidth: true
+            Layout.rightMargin: 6
+
+            onClicked: project.deleteCurrentLayer()
         }
     }
 

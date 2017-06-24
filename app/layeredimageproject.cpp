@@ -51,11 +51,13 @@ int LayeredImageProject::currentLayerIndex() const
 
 void LayeredImageProject::setCurrentLayerIndex(int index)
 {
-    if (index == mCurrentLayerIndex)
+    const int adjustedIndex = qBound(0, index, mLayers.size() - 1);
+    if (adjustedIndex == mCurrentLayerIndex)
         return;
 
-    mCurrentLayerIndex = index;
+    mCurrentLayerIndex = adjustedIndex;
     emit currentLayerIndexChanged();
+    emit currentLayerChanged();
 }
 
 ImageLayer *LayeredImageProject::layerAt(int index)
@@ -148,7 +150,7 @@ void LayeredImageProject::load(const QUrl &url)
         }
 
         ImageLayer *imageLayer = new ImageLayer(this, image);
-        addLayer(imageLayer);
+        addLayerAboveAll(imageLayer);
     }
 
     setUrl(url);
@@ -208,6 +210,11 @@ void LayeredImageProject::saveAs(const QUrl &url)
     //    mHadUnsavedChangesBeforeMacroBegan = false;
 }
 
+void LayeredImageProject::addNewLayer()
+{
+    addNewLayer(widthInPixels(), heightInPixels(), true);
+}
+
 bool LayeredImageProject::isValidIndex(int index) const
 {
     return index >= 0 && index < mLayers.size();
@@ -242,20 +249,24 @@ void LayeredImageProject::addNewLayer(int imageWidth, int imageHeight, bool tran
 
     ImageLayer *imageLayer = new ImageLayer(this, emptyImage);
     imageLayer->setName(QString::fromLatin1("Layer %1").arg(mLayers.size() + 1));
-    addLayer(imageLayer);
+    addLayerAboveAll(imageLayer);
 }
 
-void LayeredImageProject::addLayer(ImageLayer *imageLayer)
+void LayeredImageProject::addLayerAboveAll(ImageLayer *imageLayer)
 {
     if (mLayers.contains(imageLayer)) {
         qWarning() << "Can't add layer" << imageLayer << "to project as we already have it";
         return;
     }
 
-    const int layerIndex = mLayers.size();
+    const int layerIndex = 0;
     preLayerAdded(layerIndex);
 
     mLayers.append(imageLayer);
 
     postLayerAdded(layerIndex);
+
+    emit layerCountChanged();
+
+    setCurrentLayerIndex(mCurrentLayerIndex + 1);
 }
