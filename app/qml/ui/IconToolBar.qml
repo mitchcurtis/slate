@@ -122,6 +122,7 @@ Item {
             checkable: true
             hoverEnabled: true
             enabled: canvas && projectType === Project.TilesetType
+            visible: enabled
 
             ToolTip.text: qsTr("Operate on either pixels or whole tiles")
             ToolTip.visible: hovered
@@ -133,7 +134,9 @@ Item {
             }
         }
 
-        ToolSeparator {}
+        ToolSeparator {
+            visible: modeToolButton.visible
+        }
 
         ButtonGroup {
             id: toolButtonGroup
