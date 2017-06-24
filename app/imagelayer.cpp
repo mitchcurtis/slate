@@ -21,6 +21,8 @@
 
 ImageLayer::ImageLayer(QObject *parent, const QImage &image) :
     QObject(parent),
+    mVisible(true),
+    mOpacity(1.0),
     mImage(image)
 {
 }
@@ -79,4 +81,18 @@ void ImageLayer::setOpacity(const qreal &opacity)
 
     mOpacity = opacity;
     emit opacityChanged();
+}
+
+bool ImageLayer::isVisible() const
+{
+    return mVisible;
+}
+
+void ImageLayer::setVisible(bool visible)
+{
+    if (visible == mVisible)
+        return;
+
+    mVisible = visible;
+    emit visibleChanged();
 }

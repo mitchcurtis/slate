@@ -27,7 +27,8 @@ class ImageLayer : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-//    Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
+    Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
+    Q_PROPERTY(bool visible READ isVisible WRITE setVisible NOTIFY visibleChanged)
 
 public:
     ImageLayer();
@@ -46,14 +47,19 @@ public:
     qreal opacity() const;
     void setOpacity(const qreal &opacity);
 
+    bool isVisible() const;
+    void setVisible(bool visible);
+
 signals:
     void nameChanged();
     void opacityChanged();
+    void visibleChanged();
 
 private:
     QString mName;
-    QImage mImage;
+    bool mVisible;
     qreal mOpacity;
+    QImage mImage;
 };
 
 #endif // IMAGELAYER_H

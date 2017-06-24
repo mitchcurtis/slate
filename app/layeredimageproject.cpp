@@ -28,7 +28,8 @@
 #include "jsonutils.h"
 
 LayeredImageProject::LayeredImageProject() :
-    mCurrentLayerIndex(0)
+    mCurrentLayerIndex(0),
+    mLayersCreated(0)
 {
     setObjectName(QLatin1String("LayeredImageProject"));
     qCDebug(lcProjectLifecycle) << "constructing" << this;
@@ -168,6 +169,7 @@ void LayeredImageProject::close()
     mLayers.clear();
     setUrl(QUrl());
     mUndoStack.clear();
+    mLayersCreated = 0;
     emit projectClosed();
 
     qCDebug(lcProject) << "... closed project";
@@ -215,6 +217,24 @@ void LayeredImageProject::addNewLayer()
     addNewLayer(widthInPixels(), heightInPixels(), true);
 }
 
+void LayeredImageProject::deleteCurrentLayer()
+{
+    if (mLayers.size() <= 1 || !isValidIndex(mCurrentLayerIndex))
+        return;
+
+    const int layerIndex = mCurrentLayerIndex;
+    preLayerRemoved(layerIndex);
+
+    mLayers.remove(layerIndex);
+
+    postLayerRemoved(layerIndex);
+
+    emit layerCountChanged();
+
+    // Keep the same index to select the layer that was above us.
+    setCurrentLayerIndex(layerIndex);
+}
+
 bool LayeredImageProject::isValidIndex(int index) const
 {
     return index >= 0 && index < mLayers.size();
@@ -248,7 +268,7 @@ void LayeredImageProject::addNewLayer(int imageWidth, int imageHeight, bool tran
     emptyImage.fill(transparent ? Qt::transparent : Qt::white);
 
     ImageLayer *imageLayer = new ImageLayer(this, emptyImage);
-    imageLayer->setName(QString::fromLatin1("Layer %1").arg(mLayers.size() + 1));
+    imageLayer->setName(QString::fromLatin1("Layer %1").arg(++mLayersCreated));
     addLayerAboveAll(imageLayer);
 }
 

@@ -60,14 +60,12 @@ QVariant LayerModel::data(const QModelIndex &index, int role) const
     if (!mLayeredImageProject || !index.isValid())
         return QVariant();
 
-    const ImageLayer *layer = mLayeredImageProject->layerAt(index.row());
+    ImageLayer *layer = mLayeredImageProject->layerAt(index.row());
     if (!layer)
         return QVariant();
 
-    if (role == LayerNameRole || role == Qt::DisplayRole) {
-        return layer->name();
-    } else if (role == LayerOpacityRole) {
-        return layer->opacity();
+    if (role == LayerRole) {
+        return QVariant::fromValue(layer);
     }
     return QVariant();
 }
@@ -92,8 +90,7 @@ int LayerModel::columnCount(const QModelIndex &) const
 QHash<int, QByteArray> LayerModel::roleNames() const
 {
     QHash<int, QByteArray> names;
-    names.insert(LayerNameRole, "layerName");
-    names.insert(LayerOpacityRole, "layerOpacity");
+    names.insert(LayerRole, "layer");
     return names;
 }
 

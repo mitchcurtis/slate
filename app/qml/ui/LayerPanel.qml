@@ -1,6 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.2
 import QtQuick.Window 2.0
 
 import App 1.0
@@ -23,6 +23,7 @@ Page {
 
     ListView {
         id: listView
+        objectName: "layerListView"
         anchors.fill: parent
         boundsBehavior: ListView.StopAtBounds
         visible: project && project.loaded
@@ -40,11 +41,22 @@ Page {
         }
 
         delegate: ItemDelegate {
-            text: layerName
+            text: model.layer.name
+            objectName: text
             checkable: true
             checked: project.currentLayerIndex === index
             width: listView.width
+            leftPadding: visibilityCheckBox.width
+            focusPolicy: Qt.NoFocus
             onClicked: project.currentLayerIndex = index
+
+            CheckBox {
+                id: visibilityCheckBox
+                text: model.layer.visible ? "\uf06e" : "\uf070"
+                focusPolicy: Qt.NoFocus
+                indicator: null
+                onClicked: model.layer.visible = !model.layer.visible
+            }
 
             Rectangle {
                 id: focusRect
@@ -54,6 +66,14 @@ Page {
                 visible: parent.checked
             }
         }
+    }
+
+    MenuSeparator {
+        width: parent.width
+        y: footer.y - height
+        padding: 6
+        topPadding: 0
+        bottomPadding: 0
     }
 
     footer: RowLayout {

@@ -85,7 +85,7 @@ private Q_SLOTS:
     void fillImageCanvas();
     void pixelLineToolImageCanvas();
 
-    void newLayer();
+    void addAndRemoveLayers();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -1978,12 +1978,13 @@ void tst_App::pixelLineToolImageCanvas()
     QCOMPARE(imageProject->hasUnsavedChanges(), false);
 }
 
-void tst_App::newLayer()
+void tst_App::addAndRemoveLayers()
 {
     createNewLayeredImageProject();
 
     ImageLayer *expectedCurrentLayer = layeredImageProject->currentLayer();
 
+    // Add a new layer.
     QQuickItem *newLayerButton = window->findChild<QQuickItem*>("newLayerButton");
     QVERIFY(newLayerButton);
     mouseEventOnCentre(newLayerButton, MouseClick);
@@ -1995,6 +1996,38 @@ void tst_App::newLayer()
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
     QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 2"));
     QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
+
+    QQuickItem *layerListView = window->findChild<QQuickItem*>("layerListView");
+    QVERIFY(layerListView);
+
+    {
+        // Ensure that what the user sees is correct.
+        QCOMPARE(layerListView->property("count"), 2);
+
+        QQuickItem *layer1Delegate = findListViewChild("layerListView", QLatin1String("Layer 1"));
+        QVERIFY(layer1Delegate);
+        QCOMPARE(layer1Delegate->property("text").toString(), QLatin1String("Layer 1"));
+
+        // It seems that the ListView sometimes need some extra time to create the second item (e.g. when debugging).
+        QTRY_VERIFY(findListViewChild("layerListView", QLatin1String("Layer 2")));
+        QQuickItem *layer2Delegate = findListViewChild("layerListView", QLatin1String("Layer 2"));
+        QVERIFY(layer2Delegate);
+        QCOMPARE(layer2Delegate->property("text").toString(), QLatin1String("Layer 2"));
+        // The second layer was added last, so it should be at the top of the list.
+        QVERIFY(layer1Delegate->y() > layer2Delegate->z());
+    }
+
+    // Delete the original layer.
+    expectedCurrentLayer = layeredImageProject->layerAt(0);
+
+    QQuickItem *deleteLayerButton = window->findChild<QQuickItem*>("deleteLayerButton");
+    QVERIFY(deleteLayerButton);
+    mouseEventOnCentre(deleteLayerButton, MouseClick);
+
+    QCOMPARE(layeredImageProject->layerCount(), 1);
+    QCOMPARE(layeredImageProject->currentLayer(), expectedCurrentLayer);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+    QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 2"));
 }
 
 int main(int argc, char *argv[])

@@ -67,6 +67,7 @@ public slots:
     void saveAs(const QUrl &url) override;
 
     void addNewLayer();
+    void deleteCurrentLayer();
 
 private:
     bool isValidIndex(int index) const;
@@ -78,6 +79,8 @@ private:
     // Lowest index == layer with lowest Z order.
     QVector<ImageLayer*> mLayers;
     int mCurrentLayerIndex;
+    // Give each layer a unique name based on the layers created so far.
+    int mLayersCreated;
 };
 
 #endif // LAYEREDIMAGEPROJECT_H

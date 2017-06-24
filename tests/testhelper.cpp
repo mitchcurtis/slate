@@ -457,6 +457,31 @@ QQuickItem *TestHelper::findDialogButton(const QObject *dialog, const QString &t
     return findChildWithText(footer, text);
 }
 
+QQuickItem *TestHelper::findListViewChild(QQuickItem *listView, const QString &childObjectName) const
+{
+    QQuickItem *listViewContentItem = listView->property("contentItem").value<QQuickItem*>();
+    if (!listViewContentItem)
+        return nullptr;
+
+    QQuickItem *listViewChild = nullptr;
+    foreach (QQuickItem *child, listViewContentItem->childItems()) {
+        if (child->objectName() == childObjectName) {
+            listViewChild = child;
+            break;
+        }
+    }
+    return listViewChild;
+}
+
+QQuickItem *TestHelper::findListViewChild(const QString &listViewObjectName, const QString &childObjectName) const
+{
+    QQuickItem *listView = window->findChild<QQuickItem*>(listViewObjectName);
+    if (!listView)
+        return nullptr;
+
+    return findListViewChild(listView, childObjectName);
+}
+
 QPoint TestHelper::mapToTile(const QPoint &cursorPos) const
 {
     return cursorPos - tileCanvas->mapToScene(QPointF(0, 0)).toPoint();
@@ -1014,6 +1039,13 @@ void TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
     QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
     QVERIFY(layeredImageProject->currentLayer());
     QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 1"));
+
+    {
+        // Ensure that what the user sees (the delegate) is correct.
+        QQuickItem *layer1Delegate = findListViewChild("layerListView", QLatin1String("Layer 1"));
+        QVERIFY(layer1Delegate);
+        QCOMPARE(layer1Delegate->property("text").toString(), QLatin1String("Layer 1"));
+    }
 }
 
 void TestHelper::setupTempTilesetProjectDir()

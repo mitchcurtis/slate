@@ -32,8 +32,7 @@ class LayerModel : public QAbstractListModel
 
 public:
     enum LayerModelRoles {
-        LayerNameRole = Qt::UserRole,
-        LayerOpacityRole,
+        LayerRole = Qt::UserRole,
     };
 
     explicit LayerModel(QObject *parent = nullptr);
