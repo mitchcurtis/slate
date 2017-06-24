@@ -28,6 +28,7 @@
 
 #include "application.h"
 #include "applypixelpencommand.h"
+#include "imagelayer.h"
 #include "tilecanvas.h"
 #include "project.h"
 #include "testhelper.h"
@@ -1980,6 +1981,20 @@ void tst_App::pixelLineToolImageCanvas()
 void tst_App::newLayer()
 {
     createNewLayeredImageProject();
+
+    ImageLayer *expectedCurrentLayer = layeredImageProject->currentLayer();
+
+    QQuickItem *newLayerButton = window->findChild<QQuickItem*>("newLayerButton");
+    QVERIFY(newLayerButton);
+    mouseEventOnCentre(newLayerButton, MouseClick);
+
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+    // The current layer shouldn't change..
+    QCOMPARE(layeredImageProject->currentLayer(), expectedCurrentLayer);
+    // ..but its index should, as new layers are added above all others.
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+    QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 2"));
+    QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
 }
 
 int main(int argc, char *argv[])

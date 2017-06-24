@@ -20,6 +20,7 @@
 #include "testhelper.h"
 
 #include "projectmanager.h"
+#include "imagelayer.h"
 
 TestHelper::TestHelper(int &argc, char **argv) :
     app(argc, argv, QStringLiteral("Tile Editor Test Suite")),
@@ -1008,6 +1009,11 @@ void TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
     args.insert("imageHeight", imageHeight);
     args.insert("transparentImageBackground", transparentImageBackground);
     createNewProject(Project::LayeredImageType, args);
+
+    QCOMPARE(layeredImageProject->layerCount(), 1);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+    QVERIFY(layeredImageProject->currentLayer());
+    QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 1"));
 }
 
 void TestHelper::setupTempTilesetProjectDir()

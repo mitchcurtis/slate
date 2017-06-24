@@ -262,7 +262,7 @@ void LayeredImageProject::addLayerAboveAll(ImageLayer *imageLayer)
     const int layerIndex = 0;
     preLayerAdded(layerIndex);
 
-    mLayers.append(imageLayer);
+    mLayers.prepend(imageLayer);
 
     postLayerAdded(layerIndex);
 
