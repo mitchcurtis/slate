@@ -185,7 +185,6 @@ signals:
     void errorOccurred(const QString &errorMessage);
 
 public slots:
-    void reset();
     void centreView();
     void zoomIn();
     void zoomOut();
@@ -194,6 +193,7 @@ public slots:
     void paste();
 
 protected slots:
+    virtual void reset();
     virtual void onLoadedChanged();
     void updateWindowCursorShape();
     void onSplitterPositionChanged();
@@ -237,6 +237,8 @@ protected:
     void setCurrentPane(CanvasPane *pane);
     CanvasPane *hoveredPane(const QPoint &pos);
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
+    virtual QImage *currentProjectImage();
+    virtual const QImage *currentProjectImage() const;
     void drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex);
     int paneWidth(int index) const;
     void centrePanes(bool respectSceneCentred = true);

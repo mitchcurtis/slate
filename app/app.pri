@@ -41,7 +41,8 @@ HEADERS += \
     $$PWD/applypixellinecommand.h \
     $$PWD/layeredimageproject.h \
     $$PWD/imagelayer.h \
-    $$PWD/jsonutils.h
+    $$PWD/jsonutils.h \
+    $$PWD/layeredimagecanvas.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -80,7 +81,8 @@ SOURCES += \
     $$PWD/applypixellinecommand.cpp \
     $$PWD/layeredimageproject.cpp \
     $$PWD/imagelayer.cpp \
-    $$PWD/jsonutils.cpp
+    $$PWD/jsonutils.cpp \
+    $$PWD/layeredimagecanvas.cpp
 
 
 RESOURCES += \

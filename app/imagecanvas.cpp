@@ -378,14 +378,14 @@ void ImageCanvas::setCursorPixelColour(const QColor &cursorPixelColour)
 
 bool ImageCanvas::isWithinImage(const QPoint &scenePos) const
 {
-    return scenePos.x() >= 0 && scenePos.x() < mImageProject->image()->width()
-            && scenePos.y() >= 0 && scenePos.y() < mImageProject->image()->height();
+    return scenePos.x() >= 0 && scenePos.x() < currentProjectImage()->width()
+            && scenePos.y() >= 0 && scenePos.y() < currentProjectImage()->height();
 }
 
 QPoint ImageCanvas::clampToImageBounds(const QPoint &scenePos, bool inclusive) const
 {
-    return QPoint(qBound(0, scenePos.x(), mImageProject->image()->width() - (inclusive ? 0 : 1)),
-                  qBound(0, scenePos.y(), mImageProject->image()->height() - (inclusive ? 0 : 1)));
+    return QPoint(qBound(0, scenePos.x(), currentProjectImage()->width() - (inclusive ? 0 : 1)),
+                  qBound(0, scenePos.y(), currentProjectImage()->height() - (inclusive ? 0 : 1)));
 }
 
 bool ImageCanvas::containsMouse() const
@@ -576,7 +576,7 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     if (paneIndex == 0)
         painter->setClipRegion(QRegion(-translateDistance.x(), -translateDistance.y(), paneWidth, height()));
 
-    const QSize zoomedCanvasSize = pane.zoomedSize(mImageProject->image()->size());
+    const QSize zoomedCanvasSize = pane.zoomedSize(currentProjectImage()->size());
     const int zoomedCanvasWidth = qMin(zoomedCanvasSize.width(), paneWidth);
     const int zoomedCanvasHeight = qMin(zoomedCanvasSize.height(), qFloor(height()));
     painter->fillRect(0, 0, zoomedCanvasWidth, zoomedCanvasHeight, mapBackgroundColour());
@@ -586,7 +586,7 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     painter->drawTiledPixmap(0, 0, zoomedCanvasSize.width(), zoomedCanvasSize.height(), mCheckerPixmap);
 
     const bool shouldDrawSelectionPreviewImage = mMovingSelection || mHasMovedSelection || mIsSelectionFromPaste;
-    const QImage image = !shouldDrawSelectionPreviewImage ? *mImageProject->image() : mSelectionPreviewImage;
+    const QImage image = !shouldDrawSelectionPreviewImage ? *currentProjectImage() : mSelectionPreviewImage;
     const QSize zoomedImageSize = pane.zoomedSize(image.size());
     painter->drawImage(QRectF(QPointF(0, 0), zoomedImageSize), image, QRectF(0, 0, image.width(), image.height()));
 
@@ -603,7 +603,7 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     if (mTool == PenTool && mShiftPressed) {
         const QPointF point1 = mLastPixelPenPressScenePosition;
         const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
-        mLinePreviewImage = QImage(mImageProject->image()->size(), QImage::Format_ARGB32_Premultiplied);
+        mLinePreviewImage = QImage(currentProjectImage()->size(), QImage::Format_ARGB32_Premultiplied);
         mLinePreviewImage.fill(Qt::transparent);
 
         QPainter linePainter(&mLinePreviewImage);
@@ -668,7 +668,7 @@ void ImageCanvas::beginSelectionMove()
         // When the selection is moved for the first time in its life,
         // copy the contents within it so that we can moved them around as a preview.
         mSelectionAreaBeforeFirstMove = mSelectionArea;
-        mSelectionContents = mImageProject->image()->copy(mSelectionAreaBeforeFirstMove);
+        mSelectionContents = currentProjectImage()->copy(mSelectionAreaBeforeFirstMove);
         qCDebug(lcCanvasSelection) << "selection is not from a paste; copying project's image contents";
     }
 }
@@ -689,9 +689,9 @@ void ImageCanvas::updateSelectionPreviewImage()
 {
     if (!mIsSelectionFromPaste) {
         // Only if the selection wasn't pasted should we erase the area left behind.
-        mSelectionPreviewImage = Utils::erasePortionOfImage(*mImageProject->image(), mSelectionAreaBeforeFirstMove);
+        mSelectionPreviewImage = Utils::erasePortionOfImage(*currentProjectImage(), mSelectionAreaBeforeFirstMove);
     } else {
-        mSelectionPreviewImage = *mImageProject->image();
+        mSelectionPreviewImage = *currentProjectImage();
     }
 
     // Then, move the dragged contents to their new location.
@@ -739,7 +739,7 @@ void ImageCanvas::confirmSelectionMove(ClearSelectionFlag clear)
 {
     Q_ASSERT(mHasMovedSelection);
 
-    const QImage previousImageAreaPortion = mImageProject->image()->copy(mSelectionAreaBeforeFirstMove);
+    const QImage previousImageAreaPortion = currentProjectImage()->copy(mSelectionAreaBeforeFirstMove);
 
     mProject->beginMacro(QLatin1String("MoveSelection"));
     mProject->addChange(new MoveImageCanvasSelectionCommand(
@@ -928,7 +928,7 @@ void ImageCanvas::copySelection()
         return;
 
     QClipboard *clipboard = QGuiApplication::clipboard();
-    clipboard->setImage(mImageProject->image()->copy(mSelectionArea));
+    clipboard->setImage(currentProjectImage()->copy(mSelectionArea));
 }
 
 void ImageCanvas::paste()
@@ -992,7 +992,7 @@ ImageCanvas::PixelCandidateData ImageCanvas::penEraserPixelCandidates(Tool tool)
     QPoint scenePos(topLeft);
     for (; scenePos.y() < bottomRight.y(); ++scenePos.ry()) {
         for (scenePos.rx() = topLeft.x(); scenePos.x() < bottomRight.x(); ++scenePos.rx()) {
-            const QColor previousColour = mImageProject->image()->pixelColor(scenePos);
+            const QColor previousColour = currentProjectImage()->pixelColor(scenePos);
             // Don't do anything if the colours are the same; this prevents issues
             // with undos not undoing everything across tiles.
             const bool hasEffect = tool == PenTool ? penColour() != previousColour : previousColour != QColor(Qt::transparent);
@@ -1015,13 +1015,13 @@ ImageCanvas::PixelCandidateData ImageCanvas::fillPixelCandidates() const
         return candidateData;
     }
 
-    const QColor previousColour = mImageProject->image()->pixelColor(scenePos);
+    const QColor previousColour = currentProjectImage()->pixelColor(scenePos);
     // Don't do anything if the colours are the same.
     if (previousColour == penColour()) {
         return candidateData;
     }
 
-    QVector<QPoint> scenePositions = imagePixelFloodFill(mImageProject->image(), scenePos, previousColour, penColour());
+    QVector<QPoint> scenePositions = imagePixelFloodFill(currentProjectImage(), scenePos, previousColour, penColour());
     candidateData.scenePositions = scenePositions;
 
     candidateData.previousColours.append(previousColour);
@@ -1042,7 +1042,7 @@ void ImageCanvas::applyCurrentTool()
             mProject->addChange(new ApplyPixelPenCommand(this, candidateData.scenePositions, candidateData.previousColours, penColour()));
         } else {
             mProject->beginMacro(QLatin1String("PixelLineTool"));
-            mProject->addChange(new ApplyPixelLineCommand(this, mLinePreviewImage, *mImageProject->image(), mPressScenePosition, mLastPixelPenPressScenePosition));
+            mProject->addChange(new ApplyPixelLineCommand(this, mLinePreviewImage, *currentProjectImage(), mPressScenePosition, mLastPixelPenPressScenePosition));
             mProject->endMacro();
         }
         break;
@@ -1050,7 +1050,7 @@ void ImageCanvas::applyCurrentTool()
     case EyeDropperTool: {
         const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
         if (isWithinImage(scenePos)) {
-            setPenForegroundColour(mImageProject->image()->pixelColor(scenePos));
+            setPenForegroundColour(currentProjectImage()->pixelColor(scenePos));
         }
         break;
     }
@@ -1083,7 +1083,7 @@ void ImageCanvas::applyCurrentTool()
 // This function actually operates on the image.
 void ImageCanvas::applyPixelPenTool(const QPoint &scenePos, const QColor &colour, bool markAsLastRelease)
 {
-    mImageProject->image()->setPixelColor(scenePos, colour);
+    currentProjectImage()->setPixelColor(scenePos, colour);
     if (markAsLastRelease)
         mLastPixelPenPressScenePosition = scenePos;
     update();
@@ -1092,26 +1092,26 @@ void ImageCanvas::applyPixelPenTool(const QPoint &scenePos, const QColor &colour
 void ImageCanvas::applyPixelLineTool(const QImage &lineImage, const QPoint &lastPixelPenReleaseScenePosition)
 {
     mLastPixelPenPressScenePosition = lastPixelPenReleaseScenePosition;
-    QPainter painter(mImageProject->image());
+    QPainter painter(currentProjectImage());
     painter.drawImage(0, 0, lineImage);
     update();
 }
 
 void ImageCanvas::paintImageOntoPortionOfImage(const QRect &portion, const QImage &replacementImage)
 {
-    *mImageProject->image() = Utils::paintImageOntoPortionOfImage(*mImageProject->image(), portion, replacementImage);
+    *currentProjectImage() = Utils::paintImageOntoPortionOfImage(*currentProjectImage(), portion, replacementImage);
     update();
 }
 
 void ImageCanvas::erasePortionOfImage(const QRect &portion)
 {
-    *mImageProject->image() = Utils::erasePortionOfImage(*mImageProject->image(), portion);
+    *currentProjectImage() = Utils::erasePortionOfImage(*currentProjectImage(), portion);
     update();
 }
 
 void ImageCanvas::doFlipSelection(const QRect &area, Qt::Orientation orientation)
 {
-    const QImage flippedImagePortion = mImageProject->image()->copy(area)
+    const QImage flippedImagePortion = currentProjectImage()->copy(area)
         .mirrored(orientation == Qt::Horizontal, orientation == Qt::Vertical);
     erasePortionOfImage(area);
     paintImageOntoPortionOfImage(area, flippedImagePortion);
@@ -1154,7 +1154,7 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
         setCursorPixelColour(QColor(Qt::black));
     } else {
         const QPoint cursorScenePos = QPoint(mCursorSceneX, mCursorSceneY);
-        setCursorPixelColour(mImageProject->image()->pixelColor(cursorScenePos));
+        setCursorPixelColour(currentProjectImage()->pixelColor(cursorScenePos));
     }
 }
 
@@ -1278,6 +1278,16 @@ QPoint ImageCanvas::eventPosRelativeToCurrentPane(const QPoint &pos)
     }
 
     return pos - QPoint(paneWidth(1), 0);
+}
+
+QImage *ImageCanvas::currentProjectImage()
+{
+    return mImageProject->image();
+}
+
+const QImage *ImageCanvas::currentProjectImage() const
+{
+    return mImageProject->image();
 }
 
 void ImageCanvas::restoreToolBeforeAltPressed()

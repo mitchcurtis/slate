@@ -78,7 +78,6 @@ signals:
 
 public slots:
 //    void createNew(int width, int height, const QColor &penBackgroundColour);
-    void reset();
 //    void save(QUrl url = QUrl());
 //    void saveAs(const QUrl &url);
     void swatchLeft();
@@ -86,6 +85,9 @@ public slots:
     void swatchUp();
     void swatchDown();
     void onTilesetChanged(Tileset *oldTileset, Tileset *newTileset);
+
+protected slots:
+    void reset() override;
 
 protected:
     void connectSignals() override;

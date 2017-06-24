@@ -27,6 +27,7 @@
 #include "imagecanvas.h"
 #include "imageproject.h"
 #include "keysequenceeditor.h"
+#include "layeredimagecanvas.h"
 #include "newprojectvalidator.h"
 #include "project.h"
 #include "projectmanager.h"
@@ -64,6 +65,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterUncreatableType<Project>("App", 1, 0, "Project", QLatin1String("Cannot create objects of type Project"));
     qmlRegisterType<ImageCanvas>("App", 1, 0, "ImageCanvas");
     qmlRegisterType<ImageCanvas>();
+    qmlRegisterType<LayeredImageCanvas>("App", 1, 0, "LayeredImageCanvas");
     qmlRegisterType<TileCanvas>("App", 1, 0, "TileCanvas");
     qmlRegisterType<TileCanvas>();
     qmlRegisterType<Splitter>();

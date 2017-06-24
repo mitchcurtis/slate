@@ -42,5 +42,8 @@
         <file>ui/CanvasContainer.qml</file>
         <file>ui/+windows/MenuBar.qml</file>
         <file>ui/NewLayeredImageProjectPopup.qml</file>
+        <file>ui/ImageTypeCanvas.qml</file>
+        <file>ui/TilesetTypeCanvas.qml</file>
+        <file>ui/LayeredImageTypeCanvas.qml</file>
     </qresource>
 </RCC>
