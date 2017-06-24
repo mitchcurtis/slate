@@ -517,15 +517,15 @@ void TestHelper::setCursorPosInPixels(const QPoint &posInPixels)
 QPoint TestHelper::tilesetTileCentre(int xPosInTiles, int yPosInTiles) const
 {
     return QPoint(
-                xPosInTiles * tilesetProject->tileWidth() + tilesetProject->tileWidth() / 2,
-                yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2);
+        xPosInTiles * tilesetProject->tileWidth() + tilesetProject->tileWidth() / 2,
+        yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2);
 }
 
 QPoint TestHelper::tilesetTileSceneCentre(int xPosInTiles, int yPosInTiles) const
 {
     return tilesetSwatch->mapToScene(QPointF(
-                                         xPosInTiles * tilesetProject->tileWidth() + tilesetProject->tileWidth() / 2,
-                                         yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2)).toPoint();
+         xPosInTiles * tilesetProject->tileWidth() + tilesetProject->tileWidth() / 2,
+         yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2)).toPoint();
 }
 
 void TestHelper::keySequence(QWindow *window, QKeySequence sequence)
@@ -954,6 +954,12 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         QCOMPARE(tilesetSwatch->isVisible(), true);
         QVERIFY(!qFuzzyIsNull(tilesetSwatch->width()));
         QVERIFY(!qFuzzyIsNull(tilesetSwatch->height()));
+
+        // Ensure that the tileset swatch flickable has the correct contentY.
+        QQuickItem *tilesetSwatchFlickable = tilesetSwatch->findChild<QQuickItem*>("tilesetSwatchFlickable");
+        QVERIFY(tilesetSwatchFlickable);
+        QVERIFY(tilesetSwatchFlickable->property("contentY").isValid());
+        QCOMPARE(tilesetSwatchFlickable->property("contentY").toReal(), 0.0);
 
 #ifdef NON_NATIVE_MENUS
         duplicateTileMenuButton = window->findChild<QQuickItem*>("duplicateTileMenuButton");

@@ -1225,6 +1225,12 @@ void tst_App::useTilesetSwatch()
 
     QCOMPARE(tileCanvas->penTile(), tilesetProject->tilesetTileAt(0, 0));
 
+    // Ensure that the tileset swatch flickable has the correct contentY.
+    QQuickItem *tilesetSwatchFlickable = tilesetSwatch->findChild<QQuickItem*>("tilesetSwatchFlickable");
+    QVERIFY(tilesetSwatchFlickable);
+    QVERIFY(tilesetSwatchFlickable->property("contentY").isValid());
+    QCOMPARE(tilesetSwatchFlickable->property("contentY").toReal(), 0.0);
+
     // Select the second tile from the top-left in the swatch.
     QTest::mouseMove(window, tilesetTileSceneCentre(1, 0));
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, tilesetTileSceneCentre(1, 0));

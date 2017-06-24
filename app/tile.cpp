@@ -83,3 +83,11 @@ int Tile::invalidId()
 {
     return -1;
 }
+
+QDebug operator<<(QDebug debug, const Tile *tile)
+{
+    debug.nospace() << "(Tile id=" << tile->id()
+        << ", sourceRect=" << tile->sourceRect()
+        << "tileset=" << tile->tileset()->fileName() << ")";
+    return debug.space();
+}

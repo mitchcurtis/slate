@@ -26,6 +26,7 @@ Pane {
 
     Flickable {
         id: tilesetFlickable
+        objectName: "tilesetSwatchFlickable"
         anchors.fill: parent
         contentWidth: tilesetImage.implicitWidth
         contentHeight: tilesetImage.implicitHeight
@@ -53,7 +54,9 @@ Pane {
         Connections {
             target: tileCanvas
             onPenTileChanged: {
-                if (!tileCanvas.penTile)
+                // Don't try to change the flickable's content position if it doesn't have a size yet,
+                // as this will cause tests to fail as the wrong tile swatch is selected.
+                if (!tileCanvas.penTile || tilesetFlickable.width === 0 || tilesetFlickable.height === 0)
                     return;
 
                 var tileRect = tileCanvas.penTile.sourceRect;

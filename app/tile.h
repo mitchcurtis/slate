@@ -20,6 +20,7 @@
 #ifndef TILE_H
 #define TILE_H
 
+#include <QDebug>
 #include <QImage>
 #include <QObject>
 #include <QPointer>
@@ -53,5 +54,7 @@ private:
     QRect mSourceRect;
     QPointer<const Tileset> mTileset;
 };
+
+QDebug operator<<(QDebug debug, const Tile *tile);
 
 #endif // TILE_H
