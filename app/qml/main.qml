@@ -164,6 +164,8 @@ ApplicationWindow {
         }
 
         ColumnLayout {
+            Layout.alignment: Qt.AlignTop
+
             Ui.ColourPanel {
                 id: colourPanel
                 canvas: window.canvas
@@ -181,9 +183,24 @@ ApplicationWindow {
                     z: canvasContainer.z - 1
                 }
 
-                Layout.preferredWidth: colourPanel.implicitWidth
-                Layout.preferredHeight: window.contentItem.height / 2
-                Layout.fillHeight: true
+                Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
+                Layout.preferredHeight: active ? window.contentItem.height / 2 : 0
+                Layout.fillHeight: active
+            }
+
+            SimpleLoader {
+                objectName: "layersLoader"
+                active: window.projectType === Project.LayeredImageType && window.canvas
+                sourceComponent: Ui.LayerPanel {
+                    objectName: "layerPanel"
+                    layeredImageCanvas: window.canvas
+                    project: window.project
+                    z: canvasContainer.z - 1
+                }
+
+                Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
+                Layout.preferredHeight: active ? window.contentItem.height / 2 : 0
+                Layout.fillHeight: active
             }
         }
     }

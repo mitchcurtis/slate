@@ -45,5 +45,6 @@
         <file>ui/ImageTypeCanvas.qml</file>
         <file>ui/TilesetTypeCanvas.qml</file>
         <file>ui/LayeredImageTypeCanvas.qml</file>
+        <file>ui/LayerPanel.qml</file>
     </qresource>
 </RCC>

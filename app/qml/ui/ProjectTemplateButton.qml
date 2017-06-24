@@ -16,6 +16,7 @@ T.AbstractButton {
     property real radius
     property color iconBackgroundColour
     default property alias contents: contentRowLayout.children
+    property alias contentRowLayoutSpacing: contentRowLayout.spacing
 
     contentItem: RowLayout {
         spacing: root.spacing

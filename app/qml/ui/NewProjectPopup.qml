@@ -115,6 +115,7 @@ Dialog {
                 + "top of each other, and can be exported as a single image.")
             radius: popup.background.radius
             iconBackgroundColour: Qt.darker(popup.background.color, 1.15)
+            contentRowLayoutSpacing: 10
 
             onClicked: popup.accept()
 
