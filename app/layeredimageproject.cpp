@@ -41,8 +41,31 @@ LayeredImageProject::~LayeredImageProject()
 
 ImageLayer *LayeredImageProject::currentLayer()
 {
-    return mCurrentLayerIndex >= 0 && mCurrentLayerIndex < mLayers.size()
-        ? mLayers.at(mCurrentLayerIndex) : nullptr;
+    return isValidIndex(mCurrentLayerIndex) ? mLayers.at(mCurrentLayerIndex) : nullptr;
+}
+
+int LayeredImageProject::currentLayerIndex() const
+{
+    return mCurrentLayerIndex;
+}
+
+void LayeredImageProject::setCurrentLayerIndex(int index)
+{
+    if (index == mCurrentLayerIndex)
+        return;
+
+    mCurrentLayerIndex = index;
+    emit currentLayerIndexChanged();
+}
+
+ImageLayer *LayeredImageProject::layerAt(int index)
+{
+    return isValidIndex(index) ? mLayers.at(index) : nullptr;
+}
+
+int LayeredImageProject::layerCount() const
+{
+    return mLayers.size();
 }
 
 QSize LayeredImageProject::size() const
@@ -182,7 +205,12 @@ void LayeredImageProject::saveAs(const QUrl &url)
 //    }
 //    setUrl(url);
 //    mUndoStack.setClean();
-//    mHadUnsavedChangesBeforeMacroBegan = false;
+    //    mHadUnsavedChangesBeforeMacroBegan = false;
+}
+
+bool LayeredImageProject::isValidIndex(int index) const
+{
+    return index >= 0 && index < mLayers.size();
 }
 
 Project::Type LayeredImageProject::type() const
@@ -213,7 +241,8 @@ void LayeredImageProject::addNewLayer(int imageWidth, int imageHeight, bool tran
     emptyImage.fill(transparent ? Qt::transparent : Qt::white);
 
     ImageLayer *imageLayer = new ImageLayer(this, emptyImage);
-    mLayers.append(imageLayer);
+    imageLayer->setName(QString::fromLatin1("Layer %1").arg(mLayers.size() + 1));
+    addLayer(imageLayer);
 }
 
 void LayeredImageProject::addLayer(ImageLayer *imageLayer)
@@ -223,5 +252,10 @@ void LayeredImageProject::addLayer(ImageLayer *imageLayer)
         return;
     }
 
+    const int layerIndex = mLayers.size();
+    preLayerAdded(layerIndex);
+
     mLayers.append(imageLayer);
+
+    postLayerAdded(layerIndex);
 }

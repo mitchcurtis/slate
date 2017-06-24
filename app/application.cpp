@@ -28,6 +28,8 @@
 #include "imageproject.h"
 #include "keysequenceeditor.h"
 #include "layeredimagecanvas.h"
+#include "layermodel.h"
+#include "layeredimageproject.h"
 #include "newprojectvalidator.h"
 #include "project.h"
 #include "projectmanager.h"
@@ -61,31 +63,35 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     mSettings(new ApplicationSettings),
     mEngine(new QQmlApplicationEngine)
 {
-    qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");
-    qmlRegisterUncreatableType<Project>("App", 1, 0, "Project", QLatin1String("Cannot create objects of type Project"));
-    qmlRegisterType<ImageCanvas>("App", 1, 0, "ImageCanvas");
-    qmlRegisterType<ImageCanvas>();
-    qmlRegisterType<LayeredImageCanvas>("App", 1, 0, "LayeredImageCanvas");
-    qmlRegisterType<TileCanvas>("App", 1, 0, "TileCanvas");
-    qmlRegisterType<TileCanvas>();
-    qmlRegisterType<Splitter>();
-    qmlRegisterUncreatableType<CanvasPane>("App", 1, 0, "CanvasPane", "Can't create instances of CanvasPane");
     qmlRegisterType<FileValidator>("App", 1, 0, "FileValidator");
-    qmlRegisterType<NewProjectValidator>("App", 1, 0, "NewProjectValidator");
-    qmlRegisterType<RectangularCursor>("App", 1, 0, "RectangularCursor");
-    qmlRegisterType<TilesetSwatchImage>("App", 1, 0, "TilesetSwatchImage");
+    qmlRegisterType<ImageCanvas>();
+    qmlRegisterType<ImageCanvas>("App", 1, 0, "ImageCanvas");
     qmlRegisterType<KeySequenceEditor>("App", 1, 0, "KeySequenceEditor");
-    qmlRegisterType<TileGrid>("App", 1, 0, "TileGrid");
+    qmlRegisterType<LayeredImageCanvas>("App", 1, 0, "LayeredImageCanvas");
+    qmlRegisterType<LayerModel>("App", 1, 0, "LayerModel");
+    qmlRegisterType<NewProjectValidator>("App", 1, 0, "NewProjectValidator");
+    qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");
+    qmlRegisterType<RectangularCursor>("App", 1, 0, "RectangularCursor");
     qmlRegisterType<SimpleLoader>("App", 1, 0, "SimpleLoader");
+    qmlRegisterType<Splitter>();
+    qmlRegisterType<TileCanvas>();
+    qmlRegisterType<TileCanvas>("App", 1, 0, "TileCanvas");
+    qmlRegisterType<TileGrid>("App", 1, 0, "TileGrid");
+    qmlRegisterType<TilesetSwatchImage>("App", 1, 0, "TilesetSwatchImage");
+    qmlRegisterUncreatableType<CanvasPane>("App", 1, 0, "CanvasPane", "Can't create instances of CanvasPane");
+    qmlRegisterUncreatableType<Project>("App", 1, 0, "Project", QLatin1String("Cannot create objects of type Project"));
+    qmlRegisterUncreatableType<LayeredImageProject>("App", 1, 0, "LayeredImageProject",
+        QLatin1String("Cannot create objects of type LayeredImageProject"));
+
 
     // For some reason, only when debugging, I get
     // QMetaProperty::read: Unable to handle unregistered datatype 'UndoStack*' for property 'Project_QML_108::undoStack'
     // if I don't do this.
-    qRegisterMetaType<UndoStack*>();
-    qRegisterMetaType<Tile*>();
-    qRegisterMetaType<Tileset*>();
     qRegisterMetaType<ApplicationSettings*>();
     qRegisterMetaType<Project::Type>();
+    qRegisterMetaType<Tile*>();
+    qRegisterMetaType<Tileset*>();
+    qRegisterMetaType<UndoStack*>();
 
     if (QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf") == -1) {
         qWarning() << "Failed to load FontAwesome font";

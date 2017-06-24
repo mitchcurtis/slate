@@ -17,7 +17,7 @@ Pane {
     padding: 0
 
     property LayeredImageCanvas layeredImageCanvas
-    property Project project
+    property LayeredImageProject project
 
     Keys.onEscapePressed: contextMenu.cancelCurrentAction()
 
@@ -42,29 +42,36 @@ Pane {
             width: parent.width
 
             Repeater {
-//                model: project.layerModel
-                model: 20
-                delegate: ItemDelegate {
-                    text: index
-
-                    Layout.preferredHeight: implicitHeight
-                    Layout.fillWidth: true
+                model: LayerModel {
+                    layeredImageProject: project
                 }
 
+//                model: 20
 //                delegate: ItemDelegate {
-//                    text: layerName
+//                    text: index
 
 //                    Layout.preferredHeight: implicitHeight
 //                    Layout.fillWidth: true
 //                }
+
+                delegate: ItemDelegate {
+                    text: layerName
+                    checkable: true
+                    checked: project.currentLayerIndex === index
+
+                    Layout.preferredHeight: implicitHeight
+                    Layout.fillWidth: true
+
+                    Rectangle {
+                        id: focusRect
+                        width: 2
+                        height: parent.height
+                        color: Ui.CanvasColours.focusColour
+                        visible: parent.checked
+                    }
+                }
             }
         }
-    }
-
-    Rectangle {
-        anchors.fill: flickable
-        color: "transparent"
-        border.color: "darkorange"
     }
 
 //    Menu {

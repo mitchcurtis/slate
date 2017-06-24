@@ -26,11 +26,16 @@
 class ImageLayer : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+//    Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
 
 public:
     ImageLayer();
     explicit ImageLayer(QObject *parent, const QImage &image);
     ~ImageLayer();
+
+    QString name() const;
+    void setName(const QString &name);
 
     QImage *image();
     const QImage *image() const;
@@ -38,8 +43,17 @@ public:
     QSize size() const;
     void setSize(const QSize &newSize);
 
+    qreal opacity() const;
+    void setOpacity(const qreal &opacity);
+
+signals:
+    void nameChanged();
+    void opacityChanged();
+
 private:
+    QString mName;
     QImage mImage;
+    qreal mOpacity;
 };
 
 #endif // IMAGELAYER_H

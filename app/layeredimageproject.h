@@ -29,18 +29,31 @@ class ImageLayer;
 class LayeredImageProject : public Project
 {
     Q_OBJECT
+    Q_PROPERTY(int currentLayerIndex READ currentLayerIndex WRITE setCurrentLayerIndex NOTIFY currentLayerIndexChanged)
 
 public:
     LayeredImageProject();
     ~LayeredImageProject();
 
     ImageLayer *currentLayer();
+    int currentLayerIndex() const;
+    void setCurrentLayerIndex(int index);
+    ImageLayer *layerAt(int index);
+    int layerCount() const;
 
     Type type() const override;
     QSize size() const override;
     void setSize(const QSize &newSize) override;
     int widthInPixels() const override;
     int heightInPixels() const override;
+
+signals:
+    void currentLayerIndexChanged();
+
+    void preLayerAdded(int index);
+    void postLayerAdded(int index);
+    void preLayerRemoved(int index);
+    void postLayerRemoved(int index);
 
 public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
@@ -50,6 +63,8 @@ public slots:
     void saveAs(const QUrl &url) override;
 
 private:
+    bool isValidIndex(int index) const;
+
     void changeSize(const QSize &size);
     void addNewLayer(int imageWidth, int imageHeight, bool transparent);
     void addLayer(ImageLayer *imageLayer);

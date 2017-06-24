@@ -23,11 +23,25 @@ ImageLayer::ImageLayer(QObject *parent, const QImage &image) :
     QObject(parent),
     mImage(image)
 {
-    setObjectName(QLatin1String("ImageLayer"));
 }
 
 ImageLayer::~ImageLayer()
 {
+}
+
+QString ImageLayer::name() const
+{
+    return mName;
+}
+
+void ImageLayer::setName(const QString &name)
+{
+    if (name == mName)
+        return;
+
+    mName = name;
+    setObjectName(mName);
+    emit nameChanged();
 }
 
 QSize ImageLayer::size() const
@@ -51,4 +65,18 @@ QImage *ImageLayer::image()
 const QImage *ImageLayer::image() const
 {
     return &mImage;
+}
+
+qreal ImageLayer::opacity() const
+{
+    return mOpacity;
+}
+
+void ImageLayer::setOpacity(const qreal &opacity)
+{
+    if (qFuzzyCompare(opacity, mOpacity))
+        return;
+
+    mOpacity = opacity;
+    emit opacityChanged();
 }
