@@ -41,11 +41,18 @@ signals:
 public slots:
 
 protected slots:
+    void onPostLayerAdded(int index);
+    void onPreLayerRemoved(int index);
+
+    void onLayerVisibleChanged();
+    void onLayerOpacityChanged();
 
 protected:
     void connectSignals() override;
     void disconnectSignals() override;
     QImage *currentProjectImage() override;
+    const QImage *currentProjectImage() const override;
+    QImage contentImage() const override;
 
 private:
 //    friend class ApplyTileFillCommand;

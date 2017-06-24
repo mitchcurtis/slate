@@ -237,8 +237,16 @@ protected:
     void setCurrentPane(CanvasPane *pane);
     CanvasPane *hoveredPane(const QPoint &pos);
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
+    // The image that is currently being drawn on. For regular image canvases, this is
+    // the project's image. For layered image canvases, this is the image belonging to
+    // the current layer.
     virtual QImage *currentProjectImage();
     virtual const QImage *currentProjectImage() const;
+    // Essentially currentProjectImage() for regular image canvas, but may return a
+    // preview image if there is a selection active. For layered image canvases, this
+    // should return all layers flattened into one image, or the same flattened image
+    // as part of a selection preview image.
+    virtual QImage contentImage() const;
     void drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex);
     int paneWidth(int index) const;
     void centrePanes(bool respectSceneCentred = true);
@@ -264,6 +272,7 @@ protected:
     void setHasSelection(bool hasSelection);
     void setMovingSelection(bool movingSelection);
     bool cursorOverSelection() const;
+    bool shouldDrawSelectionPreviewImage() const;
 
     void setAltPressed(bool altPressed);
 

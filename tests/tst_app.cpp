@@ -86,6 +86,7 @@ private Q_SLOTS:
     void pixelLineToolImageCanvas();
 
     void addAndRemoveLayers();
+    void layerVisibility();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -2028,6 +2029,64 @@ void tst_App::addAndRemoveLayers()
     QCOMPARE(layeredImageProject->currentLayer(), expectedCurrentLayer);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 2"));
+}
+
+void tst_App::layerVisibility()
+{
+    createNewLayeredImageProject();
+
+    // Make comparing grabbed image pixels easier.
+    panTopLeftTo(0, 0);
+
+    // Draw a blue square at {10, 10}.
+    setCursorPosInPixels(10, 10);
+    layeredImageCanvas->setPenForegroundColour(Qt::blue);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), Qt::blue);
+
+    // Ensure that the blue square is visible.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithBlueDot = imageGrabber.takeImage();
+    QCOMPARE(grabWithBlueDot.pixelColor(10, 10), Qt::blue);
+
+    // Add a new layer.
+    QQuickItem *newLayerButton = window->findChild<QQuickItem*>("newLayerButton");
+    QVERIFY(newLayerButton);
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+
+    // Make it the current layer.
+    QTRY_VERIFY(findListViewChild("layerListView", "Layer 2"));
+    QQuickItem *layer2Delegate = findListViewChild("layerListView", "Layer 2");
+    QVERIFY(layer2Delegate);
+    mouseEventOnCentre(layer2Delegate, MouseClick);
+    QCOMPARE(layer2Delegate->property("checked").toBool(), true);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+
+    // Draw a red dot at the same position.
+    layeredImageCanvas->setPenForegroundColour(Qt::red);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), Qt::red);
+
+    // Ensure that it's visible.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithRedDot = imageGrabber.takeImage();
+    QCOMPARE(grabWithRedDot.pixelColor(10, 10), Qt::red);
+
+    // Hide the current layer.
+    QQuickItem *layer2VisibilityCheckBox = layer2Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
+    QVERIFY(layer2VisibilityCheckBox);
+    mouseEventOnCentre(layer2VisibilityCheckBox, MouseClick);
+    QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
+
+    // Ensure that the layer has been hidden.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithRedDotHidden = imageGrabber.takeImage();
+    QCOMPARE(grabWithRedDotHidden.pixelColor(10, 10), Qt::blue);
 }
 
 int main(int argc, char *argv[])

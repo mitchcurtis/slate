@@ -558,6 +558,22 @@ void ImageCanvas::paint(QPainter *painter)
     }
 }
 
+QImage *ImageCanvas::currentProjectImage()
+{
+    return mImageProject->image();
+}
+
+const QImage *ImageCanvas::currentProjectImage() const
+{
+    return mImageProject->image();
+}
+
+QImage ImageCanvas::contentImage() const
+{
+    const QImage image = !shouldDrawSelectionPreviewImage() ? *currentProjectImage() : mSelectionPreviewImage;
+    return image;
+}
+
 void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex)
 {
     const int paneWidth = width() * pane.size();
@@ -585,8 +601,7 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     // We use the unbounded canvas size here, otherwise the drawn area is too small past a certain zoom level.
     painter->drawTiledPixmap(0, 0, zoomedCanvasSize.width(), zoomedCanvasSize.height(), mCheckerPixmap);
 
-    const bool shouldDrawSelectionPreviewImage = mMovingSelection || mHasMovedSelection || mIsSelectionFromPaste;
-    const QImage image = !shouldDrawSelectionPreviewImage ? *currentProjectImage() : mSelectionPreviewImage;
+    const QImage image = contentImage();
     const QSize zoomedImageSize = pane.zoomedSize(image.size());
     painter->drawImage(QRectF(QPointF(0, 0), zoomedImageSize), image, QRectF(0, 0, image.width(), image.height()));
 
@@ -849,6 +864,11 @@ void ImageCanvas::setMovingSelection(bool movingSelection)
 bool ImageCanvas::cursorOverSelection() const
 {
     return mHasSelection ? mSelectionArea.contains(QPoint(mCursorSceneX, mCursorSceneY)) : false;
+}
+
+bool ImageCanvas::shouldDrawSelectionPreviewImage() const
+{
+    return mMovingSelection || mHasMovedSelection || mIsSelectionFromPaste;
 }
 
 void ImageCanvas::reset()
@@ -1278,16 +1298,6 @@ QPoint ImageCanvas::eventPosRelativeToCurrentPane(const QPoint &pos)
     }
 
     return pos - QPoint(paneWidth(1), 0);
-}
-
-QImage *ImageCanvas::currentProjectImage()
-{
-    return mImageProject->image();
-}
-
-const QImage *ImageCanvas::currentProjectImage() const
-{
-    return mImageProject->image();
 }
 
 void ImageCanvas::restoreToolBeforeAltPressed()

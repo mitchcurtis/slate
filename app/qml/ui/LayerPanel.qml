@@ -53,6 +53,7 @@ Page {
 
             CheckBox {
                 id: visibilityCheckBox
+                objectName: "layerVisibilityCheckBox"
                 x: 14
                 text: model.layer.visible ? "\uf06e" : "\uf070"
                 focusPolicy: Qt.NoFocus
