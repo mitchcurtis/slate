@@ -2080,6 +2080,7 @@ void tst_App::layerVisibility()
     QQuickItem *layer2VisibilityCheckBox = layer2Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
     QVERIFY(layer2VisibilityCheckBox);
     mouseEventOnCentre(layer2VisibilityCheckBox, MouseClick);
+
     QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
 
     // Ensure that the layer has been hidden.
