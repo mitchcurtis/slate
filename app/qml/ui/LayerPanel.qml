@@ -46,15 +46,19 @@ Page {
             checkable: true
             checked: project.currentLayerIndex === index
             width: listView.width
-            leftPadding: visibilityCheckBox.width
+            leftPadding: visibilityCheckBox.width + 18
             focusPolicy: Qt.NoFocus
+
             onClicked: project.currentLayerIndex = index
 
             CheckBox {
                 id: visibilityCheckBox
+                x: 14
                 text: model.layer.visible ? "\uf06e" : "\uf070"
                 focusPolicy: Qt.NoFocus
                 indicator: null
+                anchors.verticalCenter: parent.verticalCenter
+
                 onClicked: model.layer.visible = !model.layer.visible
             }
 
