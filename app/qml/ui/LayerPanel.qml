@@ -21,6 +21,10 @@ Page {
 
     Keys.onEscapePressed: contextMenu.cancelCurrentAction()
 
+    ButtonGroup {
+        buttons: listView.contentItem.children
+    }
+
     ListView {
         id: listView
         objectName: "layerListView"
