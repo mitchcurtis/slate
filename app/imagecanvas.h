@@ -158,6 +158,12 @@ public:
 
     Q_INVOKABLE bool overrideShortcut(const QKeySequence &keySequence);
 
+    // The image that is currently being drawn on. For regular image canvases, this is
+    // the project's image. For layered image canvases, this is the image belonging to
+    // the current layer.
+    virtual QImage *currentProjectImage();
+    virtual const QImage *currentProjectImage() const;
+
 signals:
     void projectChanged();
     void zoomLevelChanged();
@@ -237,11 +243,6 @@ protected:
     void setCurrentPane(CanvasPane *pane);
     CanvasPane *hoveredPane(const QPoint &pos);
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
-    // The image that is currently being drawn on. For regular image canvases, this is
-    // the project's image. For layered image canvases, this is the image belonging to
-    // the current layer.
-    virtual QImage *currentProjectImage();
-    virtual const QImage *currentProjectImage() const;
     // Essentially currentProjectImage() for regular image canvas, but may return a
     // preview image if there is a selection active. For layered image canvases, this
     // should return all layers flattened into one image, or the same flattened image

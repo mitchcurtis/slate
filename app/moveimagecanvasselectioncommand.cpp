@@ -32,7 +32,7 @@ MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *ca
     mPreviousArea(previousArea),
     mPreviousAreaImagePortion(previousAreaImagePortion),
     mNewArea(newArea),
-    mNewAreaImagePortion(canvas->mImageProject->image()->copy(newArea)),
+    mNewAreaImagePortion(canvas->currentProjectImage()->copy(newArea)),
     mFromPaste(fromPaste),
     mPasteContents(pasteContents),
     mUsed(false)

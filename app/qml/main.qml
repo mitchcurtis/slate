@@ -285,7 +285,7 @@ ApplicationWindow {
             projectManager.temporaryProject.createNew(p.imageWidth, p.imageHeight, p.transparentBackground);
         } else if (type === Project.LayeredImageType) {
             var p = newLayeredImageProjectPopup;
-            projectManager.temporaryProject.createNew(p.imageWidth, p.imageHeight, false);
+            projectManager.temporaryProject.createNew(p.imageWidth, p.imageHeight, p.transparentBackground);
         }
 
         projectManager.completeCreation();

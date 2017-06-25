@@ -1157,7 +1157,7 @@ void tst_App::penWhilePannedAndZoomed_data()
     QTest::addColumn<int>("zoomLevel");
 
     // TODO: test with zoom
-    for (int i = Project::TilesetType; i <= Project::ImageType; ++i) {
+    for (int i = Project::TilesetType; i <= Project::LayeredImageType; ++i) {
         const Project::Type type = static_cast<Project::Type>(i);
         const QString typeAsString = Project::typeToString(type);
         QTest::newRow(qPrintable(QString::fromLatin1("%1, {40, 0}, 1").arg(typeAsString))) << type << 40 << 0 << 1;
@@ -1211,7 +1211,8 @@ void tst_App::penWhilePannedAndZoomed()
         setCursorPosInPixels(100, 100, false);
         QTest::mouseMove(window, cursorWindowPos);
         QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-        QVERIFY(imageProject->hasUnsavedChanges());
+        // Use base class project since this code also covers layered image projects.
+        QVERIFY(project->hasUnsavedChanges());
 
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 //        QVERIFY2(imageProject->tileAt(cursorPos), qPrintable(QString::fromLatin1("No tile at x %1 y %2")
@@ -1651,17 +1652,34 @@ void tst_App::cancelSelectionToolImageCanvas()
 
 void tst_App::moveSelectionImageCanvas_data()
 {
+    QTest::addColumn<Project::Type>("projectType");
     QTest::addColumn<bool>("transparentBackground");
 
-    QTest::addRow("white background") << false;
-    QTest::addRow("transparent background") << true;
+    for (int i = Project::ImageType; i <= Project::LayeredImageType; ++i) {
+        const Project::Type type = static_cast<Project::Type>(i);
+        const QString typeAsString = Project::typeToString(type);
+
+        QTest::newRow(qPrintable(QString::fromLatin1("%1, white background").arg(typeAsString))) << type << false;
+        QTest::newRow(qPrintable(QString::fromLatin1("%1, transparent background").arg(typeAsString))) << type << true;
+    }
 }
 
 void tst_App::moveSelectionImageCanvas()
 {
+    QFETCH(Project::Type, projectType);
     QFETCH(bool, transparentBackground);
 
-    createNewImageProject(256, 256, transparentBackground);
+    if (projectType == Project::ImageType)
+        createNewImageProject(256, 256, transparentBackground);
+    else if (projectType == Project::LayeredImageType)
+        createNewLayeredImageProject(256, 256, transparentBackground);
+    else
+        QFAIL("Test doesn't support this project type");
+
+    if (transparentBackground) {
+        QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::transparent));
+        QCOMPARE(canvas->currentProjectImage()->pixelColor(255, 255), QColor(Qt::transparent));
+    }
 
     const QColor backgroundColour = transparentBackground ? Qt::transparent : Qt::white;
 
@@ -1670,8 +1688,8 @@ void tst_App::moveSelectionImageCanvas()
     changeToolSize(5);
     setCursorPosInPixels(2, 2);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
 
     changeToolSize(1);
     switchTool(ImageCanvas::SelectionTool);
@@ -1694,28 +1712,30 @@ void tst_App::moveSelectionImageCanvas()
     QCOMPARE(canvas->selectionArea(), QRect(18, 18, 5, 5));
 
     // The project's actual image contents shouldn't change until the move has been confirmed.
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(18, 18), backgroundColour);
-    QCOMPARE(imageProject->image()->pixelColor(22, 22), backgroundColour);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
+    QImage iii = *canvas->currentProjectImage();
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(18, 18), backgroundColour);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(22, 22), backgroundColour);
 
     // Clear the selection.
     switchTool(ImageCanvas::PenTool);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::transparent));
-    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::transparent));
-    QCOMPARE(imageProject->image()->pixelColor(18, 18), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(22, 22), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::transparent));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::transparent));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(18, 18), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(22, 22), QColor(Qt::black));
 
     switchTool(ImageCanvas::SelectionTool);
 
     // Undo the selection move.
     QVERIFY(canvas->hasActiveFocus());
     triggerShortcut(app.settings()->undoShortcut());
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
-    QEXPECT_FAIL("transparent background", "TODO", Abort);
-    QCOMPARE(imageProject->image()->pixelColor(18, 18), backgroundColour);
-    QCOMPARE(imageProject->image()->pixelColor(22, 22), backgroundColour);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
+    QEXPECT_FAIL("ImageType, transparent background", "TODO", Abort);
+    QEXPECT_FAIL("LayeredImageType, transparent background", "TODO", Abort);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(18, 18), backgroundColour);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(22, 22), backgroundColour);
 
     // Select the same area again.
     setCursorPosInPixels(QPoint(0, 0));
@@ -1734,14 +1754,14 @@ void tst_App::moveSelectionImageCanvas()
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(0, 2, 5, 5));
     // The project's actual image contents shouldn't change until the move has been confirmed.
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
 
     // "Undo" the selection move. The selection move was never confirmed, so this
     // will take the ImageCanvas-shortcutOverride path.
     triggerShortcut(app.settings()->undoShortcut());
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
 }
 
 void tst_App::moveSelectionWithKeysImageCanvas()
