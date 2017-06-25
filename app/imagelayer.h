@@ -26,9 +26,9 @@
 class ImageLayer : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-    Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
-    Q_PROPERTY(bool visible READ isVisible WRITE setVisible NOTIFY visibleChanged)
+    Q_PROPERTY(QString name READ name NOTIFY nameChanged)
+    Q_PROPERTY(qreal opacity READ opacity NOTIFY opacityChanged)
+    Q_PROPERTY(bool visible READ isVisible NOTIFY visibleChanged)
 
 public:
     ImageLayer();

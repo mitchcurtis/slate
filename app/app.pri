@@ -45,7 +45,10 @@ HEADERS += \
     $$PWD/layeredimagecanvas.h \
     $$PWD/layermodel.h \
     $$PWD/changelayeredimagecanvassizecommand.h \
-    $$PWD/changelayerordercommand.h
+    $$PWD/changelayerordercommand.h \
+    $$PWD/changelayernamecommand.h \
+    $$PWD/changelayervisiblecommand.h \
+    $$PWD/changelayeropacitycommand.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -88,8 +91,10 @@ SOURCES += \
     $$PWD/layeredimagecanvas.cpp \
     $$PWD/layermodel.cpp \
     $$PWD/changelayeredimagecanvassizecommand.cpp \
-    $$PWD/changelayerordercommand.cpp
-
+    $$PWD/changelayerordercommand.cpp \
+    $$PWD/changelayernamecommand.cpp \
+    $$PWD/changelayervisiblecommand.cpp \
+    $$PWD/changelayeropacitycommand.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \

@@ -24,7 +24,10 @@
 #include <QJsonObject>
 
 #include "changelayeredimagecanvassizecommand.h"
+#include "changelayernamecommand.h"
+#include "changelayeropacitycommand.h"
 #include "changelayerordercommand.h"
+#include "changelayervisiblecommand.h"
 #include "imagelayer.h"
 #include "jsonutils.h"
 
@@ -253,6 +256,36 @@ void LayeredImageProject::moveCurrentLayerDown()
 
     beginMacro(QLatin1String("ChangeLayerOrderCommand"));
     addChange(new ChangeLayerOrderCommand(this, mCurrentLayerIndex, mCurrentLayerIndex + 1));
+    endMacro();
+}
+
+void LayeredImageProject::setCurrentLayerName(const QString &name)
+{
+    if (!isValidIndex(mCurrentLayerIndex) || name == currentLayer()->name())
+        return;
+
+    beginMacro(QLatin1String("ChangeLayerNameCommand"));
+    addChange(new ChangeLayerNameCommand(this, mCurrentLayerIndex, currentLayer()->name(), name));
+    endMacro();
+}
+
+void LayeredImageProject::setCurrentLayerVisible(bool visible)
+{
+    if (!isValidIndex(mCurrentLayerIndex) || visible == currentLayer()->isVisible())
+        return;
+
+    beginMacro(QLatin1String("ChangeLayerVisibleCommand"));
+    addChange(new ChangeLayerVisibleCommand(this, mCurrentLayerIndex, currentLayer()->isVisible(), visible));
+    endMacro();
+}
+
+void LayeredImageProject::setCurrentLayerOpacity(qreal opacity)
+{
+    if (!isValidIndex(mCurrentLayerIndex) || opacity == currentLayer()->opacity())
+        return;
+
+    beginMacro(QLatin1String("ChangeLayerOpacityCommand"));
+    addChange(new ChangeLayerOpacityCommand(this, mCurrentLayerIndex, currentLayer()->opacity(), opacity));
     endMacro();
 }
 

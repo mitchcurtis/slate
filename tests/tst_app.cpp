@@ -2146,7 +2146,6 @@ void tst_App::layerVisibility()
     QQuickItem *layer2VisibilityCheckBox = layer2Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
     QVERIFY(layer2VisibilityCheckBox);
     mouseEventOnCentre(layer2VisibilityCheckBox, MouseClick);
-
     QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
 
     // Ensure that the layer has been hidden.
@@ -2154,6 +2153,14 @@ void tst_App::layerVisibility()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabWithRedDotHidden = imageGrabber.takeImage();
     QCOMPARE(grabWithRedDotHidden.pixelColor(10, 10), Qt::blue);
+
+    // Undo the visibility change.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(layeredImageProject->currentLayer()->isVisible(), true);
+    // The canvas should look as it did before it was hidden.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QCOMPARE(imageGrabber.takeImage(), grabWithRedDot);
 }
 
 void tst_App::moveLayerUpAndDown()
@@ -2244,6 +2251,10 @@ void tst_App::renameLayer()
     QTest::keyClick(window, Qt::Key_Enter);
     QCOMPARE(nameTextField->property("text").toString(), QLatin1String("Layer 12"));
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 12"));
+
+    // Undo the name change.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
 }
 
 int main(int argc, char *argv[])

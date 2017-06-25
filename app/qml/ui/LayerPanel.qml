@@ -62,7 +62,7 @@ Page {
                 indicator: null
                 anchors.verticalCenter: parent.verticalCenter
 
-                onClicked: model.layer.visible = !model.layer.visible
+                onClicked: project.setCurrentLayerVisible(!model.layer.visible)
             }
 
             TextField {
@@ -83,7 +83,7 @@ Page {
                 }
                 onAccepted: {
                     focus = false;
-                    model.layer.name = text;
+                    project.setCurrentLayerName(text);
                 }
             }
 
