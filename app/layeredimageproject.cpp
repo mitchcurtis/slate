@@ -254,31 +254,31 @@ void LayeredImageProject::moveCurrentLayerDown()
 
 void LayeredImageProject::setLayerName(int layerIndex, const QString &name)
 {
-    if (!isValidIndex(layerIndex) || name == currentLayer()->name())
+    if (!isValidIndex(layerIndex) || name == layerAt(layerIndex)->name())
         return;
 
     beginMacro(QLatin1String("ChangeLayerNameCommand"));
-    addChange(new ChangeLayerNameCommand(this, layerIndex, currentLayer()->name(), name));
+    addChange(new ChangeLayerNameCommand(this, layerIndex, layerAt(layerIndex)->name(), name));
     endMacro();
 }
 
 void LayeredImageProject::setLayerVisible(int layerIndex, bool visible)
 {
-    if (!isValidIndex(layerIndex) || visible == currentLayer()->isVisible())
+    if (!isValidIndex(layerIndex) || visible == layerAt(layerIndex)->isVisible())
         return;
 
     beginMacro(QLatin1String("ChangeLayerVisibleCommand"));
-    addChange(new ChangeLayerVisibleCommand(this, layerIndex, currentLayer()->isVisible(), visible));
+    addChange(new ChangeLayerVisibleCommand(this, layerIndex, layerAt(layerIndex)->isVisible(), visible));
     endMacro();
 }
 
 void LayeredImageProject::setLayerOpacity(int layerIndex, qreal opacity)
 {
-    if (!isValidIndex(layerIndex) || opacity == currentLayer()->opacity())
+    if (!isValidIndex(layerIndex) || opacity == layerAt(layerIndex)->opacity())
         return;
 
     beginMacro(QLatin1String("ChangeLayerOpacityCommand"));
-    addChange(new ChangeLayerOpacityCommand(this, layerIndex, currentLayer()->opacity(), opacity));
+    addChange(new ChangeLayerOpacityCommand(this, layerIndex, layerAt(layerIndex)->opacity(), opacity));
     endMacro();
 }
 

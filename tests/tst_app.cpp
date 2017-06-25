@@ -2101,7 +2101,17 @@ void tst_App::addAndRemoveLayers()
     QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 2"));
 
-    // TODO: test undo
+    // Undo the deletion.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+    {
+        QQuickItem *layer1Delegate = findListViewChild("layerListView", QLatin1String("Layer 1"));
+        QVERIFY(layer1Delegate);
+        QQuickItem *layer1DelegateNameTextField = layer1Delegate->findChild<QQuickItem*>("layerNameTextField");
+        QVERIFY(layer1DelegateNameTextField);
+        QCOMPARE(layer1DelegateNameTextField->property("text").toString(), QLatin1String("Layer 1"));
+    }
 }
 
 void tst_App::layerVisibility()
