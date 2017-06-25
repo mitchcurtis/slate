@@ -323,8 +323,6 @@ void LayeredImageProject::moveLayer(int fromIndex, int toIndex)
 
     mLayers.move(fromIndex, toIndex);
 
-    qDebug() << "after moving:" << this;
-
     emit postLayerMoved(fromIndex, toIndex);
 
     const int newCurrentIndex = mLayers.indexOf(current);

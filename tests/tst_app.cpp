@@ -2189,8 +2189,6 @@ void tst_App::moveLayerUpAndDown()
     QCOMPARE(moveLayerDownButton->isEnabled(), true);
     QCOMPARE(moveLayerUpButton->isEnabled(), true);
 
-    qDebug() << "before any moving:" << layeredImageProject;
-
     // Move the current layer up.
     mouseEventOnCentre(moveLayerUpButton, MouseClick);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 0);

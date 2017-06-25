@@ -82,10 +82,6 @@ int LayerModel::rowCount(const QModelIndex &) const
 
 int LayerModel::columnCount(const QModelIndex &) const
 {
-//    if (!mLayeredImageProject)
-//        return 0;
-
-//    return roleNames().size();
     return 1;
 }
 
@@ -118,8 +114,15 @@ void LayerModel::onPostLayerRemoved(int)
 
 void LayerModel::onPreLayerMoved(int fromIndex, int toIndex)
 {
-    qDebug() << Q_FUNC_INFO << "moving" << fromIndex << "to" << toIndex;
-    beginMoveRows(QModelIndex(), fromIndex, fromIndex, QModelIndex(), toIndex);
+    // Ahhh... what a mess. The behaviour of beginMoveRows() is super confusing
+    // when moving an item down within the same parent, so we account for that weirdness here.
+    // http://doc.qt.io/qt-5/qabstractitemmodel.html#beginMoveRows
+    const int actualToIndex = toIndex > fromIndex ? toIndex + 1 : toIndex;
+
+    if (!beginMoveRows(QModelIndex(), fromIndex, fromIndex, QModelIndex(), actualToIndex)) {
+        qWarning() << "beginMoveRows() failed when trying to move" << fromIndex << "to" << toIndex
+                   << "- weird stuff might be about to happen since we're not going to cancel the move operation";
+    }
 }
 
 void LayerModel::onPostLayerMoved(int, int)
