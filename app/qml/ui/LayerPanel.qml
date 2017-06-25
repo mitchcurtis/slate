@@ -88,7 +88,7 @@ Page {
     footer: RowLayout {
         Button {
             objectName: "newLayerButton"
-            text: qsTr("+")
+            text: "+"
             flat: true
             focusPolicy: Qt.NoFocus
             hoverEnabled: true
@@ -100,13 +100,41 @@ Page {
             onClicked: project.addNewLayer()
         }
 
+        Button {
+            objectName: "moveLayerDownButton"
+            text: "\uf107"
+            flat: true
+            focusPolicy: Qt.NoFocus
+            hoverEnabled: true
+            enabled: project && project.currentLayerIndex < project.layerCount - 1
+
+            Layout.maximumWidth: implicitHeight
+            Layout.fillWidth: true
+
+            onClicked: project.moveCurrentLayerDown()
+        }
+
+        Button {
+            objectName: "moveLayerUpButton"
+            text: "\uf106"
+            flat: true
+            focusPolicy: Qt.NoFocus
+            hoverEnabled: true
+            enabled: project && project.currentLayerIndex > 0
+
+            Layout.maximumWidth: implicitHeight
+            Layout.fillWidth: true
+
+            onClicked: project.moveCurrentLayerUp()
+        }
+
         Item {
             Layout.fillWidth: true
         }
 
         Button {
             objectName: "deleteLayerButton"
-            text: qsTr("\uf1f8")
+            text: "\uf1f8"
             flat: true
             focusPolicy: Qt.NoFocus
             enabled: project && project.currentLayer && project.layerCount > 1
