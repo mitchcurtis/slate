@@ -62,20 +62,14 @@ Page {
                 indicator: null
                 anchors.verticalCenter: parent.verticalCenter
 
-                onClicked: {
-                    print('clicked', model.layer.visible)
-                    project.setLayerVisible(index, !model.layer.visible)
-                }
+                onClicked: project.setLayerVisible(index, !model.layer.visible)
             }
 
             TextField {
                 id: layerNameTextField
                 objectName: "layerNameTextField"
                 x: parent.leftPadding
-                text: {
-                    print("@@@", index, model.layer, model.layer ? model.layer.name : "")
-                    model.layer.name
-                }
+                text: model.layer.name
                 activeFocusOnPress: false
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.verticalCenterOffset: 6

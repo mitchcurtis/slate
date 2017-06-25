@@ -2053,11 +2053,25 @@ void tst_App::addAndRemoveLayers()
 {
     createNewLayeredImageProject();
 
+    panTopLeftTo(0, 0);
+
     ImageLayer *expectedCurrentLayer = layeredImageProject->currentLayer();
+
+    // Draw a blue square at {10, 10}.
+    setCursorPosInPixels(10, 10);
+    layeredImageCanvas->setPenForegroundColour(Qt::blue);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), Qt::blue);
+
+    // Ensure that the blue square is visible.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithBlueDot = imageGrabber.takeImage();
+    QCOMPARE(grabWithBlueDot.pixelColor(10, 10), Qt::blue);
 
     // Add a new layer.
     mouseEventOnCentre(newLayerButton, MouseClick);
-
     QCOMPARE(layeredImageProject->layerCount(), 2);
     // The current layer shouldn't change..
     QCOMPARE(layeredImageProject->currentLayer(), expectedCurrentLayer);
@@ -2065,6 +2079,22 @@ void tst_App::addAndRemoveLayers()
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
     QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 2"));
     QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
+
+    // Select the new layer.
+    selectLayer("Layer 2", 0);
+
+    // Draw a red dot on the new layer.
+    setCursorPosInPixels(20, 20);
+    layeredImageCanvas->setPenForegroundColour(Qt::red);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(20, 20), Qt::red);
+
+    // Ensure that both dots are visible.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithBothDots = imageGrabber.takeImage();
+    QCOMPARE(grabWithBothDots.pixelColor(10, 10), Qt::blue);
+    QCOMPARE(grabWithBothDots.pixelColor(20, 20), Qt::red);
 
     {
         // Ensure that what the user sees is correct.
@@ -2088,6 +2118,9 @@ void tst_App::addAndRemoveLayers()
         // The second layer was added last, so it should be at the top of the list.
         QVERIFY(layer1Delegate->y() > layer2Delegate->z());
     }
+
+    // Select the original layer.
+    selectLayer("Layer 1", 1);
 
     // Delete the original layer.
     expectedCurrentLayer = layeredImageProject->layerAt(0);
@@ -2139,12 +2172,7 @@ void tst_App::layerVisibility()
     QCOMPARE(layeredImageProject->layerCount(), 2);
 
     // Make it the current layer.
-    QTRY_VERIFY(findListViewChild("layerListView", "Layer 2"));
-    QQuickItem *layer2Delegate = findListViewChild("layerListView", "Layer 2");
-    QVERIFY(layer2Delegate);
-    mouseEventOnCentre(layer2Delegate, MouseClick);
-    QCOMPARE(layer2Delegate->property("checked").toBool(), true);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+    selectLayer("Layer 2", 0);
 
     // Draw a red dot at the same position.
     layeredImageCanvas->setPenForegroundColour(Qt::red);
@@ -2158,6 +2186,9 @@ void tst_App::layerVisibility()
     QCOMPARE(grabWithRedDot.pixelColor(10, 10), Qt::red);
 
     // Hide the current layer.
+    QTRY_VERIFY(findListViewChild("layerListView", "Layer 2"));
+    QQuickItem *layer2Delegate = findListViewChild("layerListView", "Layer 2");
+    QVERIFY(layer2Delegate);
     QQuickItem *layer2VisibilityCheckBox = layer2Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
     QVERIFY(layer2VisibilityCheckBox);
     mouseEventOnCentre(layer2VisibilityCheckBox, MouseClick);
@@ -2194,12 +2225,8 @@ void tst_App::moveLayerUpAndDown()
     QCOMPARE(moveLayerUpButton->isEnabled(), true);
 
     // Make the new layer the current layer.
-    QTRY_VERIFY(findListViewChild("layerListView", "Layer 2"));
-    QQuickItem *layer2Delegate = findListViewChild("layerListView", "Layer 2");
-    QVERIFY(layer2Delegate);
-    mouseEventOnCentre(layer2Delegate, MouseClick);
-    QCOMPARE(layer2Delegate->property("checked").toBool(), true);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+    selectLayer("Layer 2", 0);
+
     // It should be possible to move the highest layer down but not up.
     QCOMPARE(moveLayerDownButton->isEnabled(), true);
     QCOMPARE(moveLayerUpButton->isEnabled(), false);

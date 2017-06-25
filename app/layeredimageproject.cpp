@@ -335,7 +335,7 @@ void LayeredImageProject::addLayer(ImageLayer *imageLayer, int index)
 
     emit preLayerAdded(index);
 
-    mLayers.prepend(imageLayer);
+    mLayers.insert(index, imageLayer);
 
     emit postLayerAdded(index);
 

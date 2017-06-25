@@ -141,6 +141,9 @@ protected:
 
     void triggerOptions();
 
+    // Layer helpers.
+    void selectLayer(const QString &layerName, int layerIndex);
+
     void addAllProjectTypes();
     void addImageProjectTypes();
     void createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());

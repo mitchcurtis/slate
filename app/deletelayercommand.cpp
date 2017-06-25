@@ -39,6 +39,8 @@ void DeleteLayerCommand::undo()
 {
     qCDebug(lcDeleteLayerCommand) << "undoing" << this;
     mProject->addLayer(mLayer, mIndex);
+    // If it was deleted, it was also current, as layers can't be deleted without being current.
+    mProject->setCurrentLayerIndex(mIndex);
 }
 
 void DeleteLayerCommand::redo()

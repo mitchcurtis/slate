@@ -707,6 +707,16 @@ void TestHelper::triggerOptions()
 #endif
 }
 
+void TestHelper::selectLayer(const QString &layerName, int layerIndex)
+{
+    QTRY_VERIFY(findListViewChild("layerListView", layerName));
+    QQuickItem *layerDelegate = findListViewChild("layerListView", layerName);
+    QVERIFY(layerDelegate);
+    mouseEventOnCentre(layerDelegate, MouseClick);
+    QCOMPARE(layerDelegate->property("checked").toBool(), true);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), layerIndex);
+}
+
 void TestHelper::addAllProjectTypes()
 {
     QTest::addColumn<Project::Type>("projectType");
