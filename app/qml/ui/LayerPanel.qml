@@ -74,6 +74,7 @@ Page {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.verticalCenterOffset: 6
                 background.visible: false
+                font.pixelSize: 12
                 visible: false
 
                 Keys.onEscapePressed: {
