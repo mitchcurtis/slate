@@ -118,6 +118,7 @@ void LayerModel::onPostLayerRemoved(int)
 
 void LayerModel::onPreLayerMoved(int fromIndex, int toIndex)
 {
+    qDebug() << Q_FUNC_INFO << "moving" << fromIndex << "to" << toIndex;
     beginMoveRows(QModelIndex(), fromIndex, fromIndex, QModelIndex(), toIndex);
 }
 

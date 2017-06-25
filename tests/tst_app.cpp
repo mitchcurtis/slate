@@ -2188,6 +2188,18 @@ void tst_App::moveLayerUpAndDown()
     // It should be possible to move the middle layer both up and down.
     QCOMPARE(moveLayerDownButton->isEnabled(), true);
     QCOMPARE(moveLayerUpButton->isEnabled(), true);
+
+    qDebug() << "before any moving:" << layeredImageProject;
+
+    // Move the current layer up.
+    mouseEventOnCentre(moveLayerUpButton, MouseClick);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+    QCOMPARE(layeredImageProject->layerAt(0)->name(), layer2Delegate->property("text").toString());
+
+    // Move the current layer down.
+    mouseEventOnCentre(moveLayerDownButton, MouseClick);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+    QCOMPARE(layeredImageProject->layerAt(1)->name(), layer2Delegate->property("text").toString());
 }
 
 int main(int argc, char *argv[])

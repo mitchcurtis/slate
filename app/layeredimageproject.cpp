@@ -323,8 +323,20 @@ void LayeredImageProject::moveLayer(int fromIndex, int toIndex)
 
     mLayers.move(fromIndex, toIndex);
 
+    qDebug() << "after moving:" << this;
+
     emit postLayerMoved(fromIndex, toIndex);
 
     const int newCurrentIndex = mLayers.indexOf(current);
     setCurrentLayerIndex(newCurrentIndex);
+}
+
+QDebug operator<<(QDebug debug, const LayeredImageProject *project)
+{
+    debug.nospace() << "LayeredImageProject currentLayerIndex=" << project->mCurrentLayerIndex
+        << ", layers:";
+    foreach (ImageLayer *layer, project->mLayers) {
+        debug << "\n    name=" << layer->name() << " visible=" << layer->isVisible() << " opacity=" << layer->opacity();
+    }
+    return debug.space();
 }

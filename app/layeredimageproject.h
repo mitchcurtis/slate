@@ -20,6 +20,7 @@
 #ifndef LAYEREDIMAGEPROJECT_H
 #define LAYEREDIMAGEPROJECT_H
 
+#include <QDebug>
 #include <QImage>
 
 #include "project.h"
@@ -83,6 +84,8 @@ private:
     void addNewLayer(int imageWidth, int imageHeight, bool transparent);
     void addLayerAboveAll(ImageLayer *imageLayer);
     void moveLayer(int fromIndex, int toIndex);
+
+    friend QDebug operator<<(QDebug debug, const LayeredImageProject *project);
 
     // Lowest index == layer with lowest Z order.
     QVector<ImageLayer*> mLayers;
