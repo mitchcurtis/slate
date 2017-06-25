@@ -2198,6 +2198,8 @@ void tst_App::moveLayerUpAndDown()
     mouseEventOnCentre(moveLayerDownButton, MouseClick);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
     QCOMPARE(layeredImageProject->layerAt(1)->name(), layer2Delegate->property("text").toString());
+
+    // TODO: draw a different-coloured pixel on each layer and do screen grab comparisons
 }
 
 int main(int argc, char *argv[])
