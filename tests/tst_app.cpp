@@ -2137,7 +2137,7 @@ void tst_App::addAndRemoveLayers()
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
-    verifyLayerName(QLatin1String("Layer 1"), nullptr);
+    verifyLayerName(QLatin1String("Layer 1"));
 
     // Both dots should be visible again.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));

@@ -145,7 +145,7 @@ protected:
     void selectLayer(const QString &layerName, int layerIndex);
     // Finds \a layerName in the layer list view, verifies that it exists and that its name is \a layerName,
     // and returns the delegate for convenience.
-    void verifyLayerName(const QString &layerName, QQuickItem **layerDelegate);
+    void verifyLayerName(const QString &layerName, QQuickItem **layerDelegate = nullptr);
 
     void addAllProjectTypes();
     void addImageProjectTypes();
