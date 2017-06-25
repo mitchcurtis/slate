@@ -44,7 +44,8 @@ HEADERS += \
     $$PWD/jsonutils.h \
     $$PWD/layeredimagecanvas.h \
     $$PWD/layermodel.h \
-    $$PWD/changelayeredimagecanvassizecommand.h
+    $$PWD/changelayeredimagecanvassizecommand.h \
+    $$PWD/changelayerordercommand.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -86,7 +87,8 @@ SOURCES += \
     $$PWD/jsonutils.cpp \
     $$PWD/layeredimagecanvas.cpp \
     $$PWD/layermodel.cpp \
-    $$PWD/changelayeredimagecanvassizecommand.cpp
+    $$PWD/changelayeredimagecanvassizecommand.cpp \
+    $$PWD/changelayerordercommand.cpp
 
 
 RESOURCES += \

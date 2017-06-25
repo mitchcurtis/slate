@@ -24,6 +24,7 @@
 #include <QJsonObject>
 
 #include "changelayeredimagecanvassizecommand.h"
+#include "changelayerordercommand.h"
 #include "imagelayer.h"
 #include "jsonutils.h"
 
@@ -235,6 +236,26 @@ void LayeredImageProject::deleteCurrentLayer()
     setCurrentLayerIndex(layerIndex);
 }
 
+void LayeredImageProject::moveCurrentLayerUp()
+{
+    if (!isValidIndex(mCurrentLayerIndex) || !isValidIndex(mCurrentLayerIndex - 1))
+        return;
+
+    beginMacro(QLatin1String("ChangeLayerOrderCommand"));
+    addChange(new ChangeLayerOrderCommand(this, mCurrentLayerIndex, mCurrentLayerIndex - 1));
+    endMacro();
+}
+
+void LayeredImageProject::moveCurrentLayerDown()
+{
+    if (!isValidIndex(mCurrentLayerIndex) || !isValidIndex(mCurrentLayerIndex + 1))
+        return;
+
+    beginMacro(QLatin1String("ChangeLayerOrderCommand"));
+    addChange(new ChangeLayerOrderCommand(this, mCurrentLayerIndex, mCurrentLayerIndex + 1));
+    endMacro();
+}
+
 bool LayeredImageProject::isValidIndex(int index) const
 {
     return index >= 0 && index < mLayers.size();
@@ -280,13 +301,30 @@ void LayeredImageProject::addLayerAboveAll(ImageLayer *imageLayer)
     }
 
     const int layerIndex = 0;
-    preLayerAdded(layerIndex);
+    emit preLayerAdded(layerIndex);
 
     mLayers.prepend(imageLayer);
 
-    postLayerAdded(layerIndex);
+    emit postLayerAdded(layerIndex);
 
     emit layerCountChanged();
 
     setCurrentLayerIndex(mCurrentLayerIndex + 1);
+}
+
+void LayeredImageProject::moveLayer(int fromIndex, int toIndex)
+{
+    if (!isValidIndex(fromIndex) || !isValidIndex(toIndex))
+        return;
+
+    ImageLayer *current = currentLayer();
+
+    emit preLayerMoved(fromIndex, toIndex);
+
+    mLayers.move(fromIndex, toIndex);
+
+    emit postLayerMoved(fromIndex, toIndex);
+
+    const int newCurrentIndex = mLayers.indexOf(current);
+    setCurrentLayerIndex(newCurrentIndex);
 }

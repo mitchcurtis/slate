@@ -52,6 +52,8 @@ void LayerModel::setLayeredImageProject(LayeredImageProject *layeredImageProject
         connect(mLayeredImageProject, &LayeredImageProject::postLayerAdded, this, &LayerModel::onPostLayerAdded);
         connect(mLayeredImageProject, &LayeredImageProject::preLayerRemoved, this, &LayerModel::onPreLayerRemoved);
         connect(mLayeredImageProject, &LayeredImageProject::postLayerRemoved, this, &LayerModel::onPostLayerRemoved);
+        connect(mLayeredImageProject, &LayeredImageProject::preLayerMoved, this, &LayerModel::onPreLayerMoved);
+        connect(mLayeredImageProject, &LayeredImageProject::postLayerMoved, this, &LayerModel::onPostLayerMoved);
     }
 }
 
@@ -112,4 +114,14 @@ void LayerModel::onPreLayerRemoved(int index)
 void LayerModel::onPostLayerRemoved(int)
 {
     endRemoveRows();
+}
+
+void LayerModel::onPreLayerMoved(int fromIndex, int toIndex)
+{
+    beginMoveRows(QModelIndex(), fromIndex, fromIndex, QModelIndex(), toIndex);
+}
+
+void LayerModel::onPostLayerMoved(int, int)
+{
+    endMoveRows();
 }

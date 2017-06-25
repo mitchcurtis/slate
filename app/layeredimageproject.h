@@ -58,6 +58,8 @@ signals:
     void postLayerAdded(int index);
     void preLayerRemoved(int index);
     void postLayerRemoved(int index);
+    void preLayerMoved(int fromIndex, int toIndex);
+    void postLayerMoved(int fromIndex, int toIndex);
 
 public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
@@ -68,15 +70,19 @@ public slots:
 
     void addNewLayer();
     void deleteCurrentLayer();
+    void moveCurrentLayerUp();
+    void moveCurrentLayerDown();
 
 private:
     friend class ChangeLayeredImageCanvasSizeCommand;
+    friend class ChangeLayerOrderCommand;
 
     bool isValidIndex(int index) const;
 
     void changeSize(const QSize &size);
     void addNewLayer(int imageWidth, int imageHeight, bool transparent);
     void addLayerAboveAll(ImageLayer *imageLayer);
+    void moveLayer(int fromIndex, int toIndex);
 
     // Lowest index == layer with lowest Z order.
     QVector<ImageLayer*> mLayers;

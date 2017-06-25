@@ -53,6 +53,8 @@ public slots:
     void onPostLayerAdded(int index);
     void onPreLayerRemoved(int index);
     void onPostLayerRemoved(int index);
+    void onPreLayerMoved(int fromIndex, int toIndex);
+    void onPostLayerMoved(int fromIndex, int toIndex);
 
 private:
     LayeredImageProject *mLayeredImageProject;
