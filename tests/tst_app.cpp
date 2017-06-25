@@ -2100,6 +2100,8 @@ void tst_App::addAndRemoveLayers()
     QCOMPARE(layeredImageProject->currentLayer(), expectedCurrentLayer);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 2"));
+
+    // TODO: test undo
 }
 
 void tst_App::layerVisibility()

@@ -83,13 +83,16 @@ private:
     friend class ChangeLayerNameCommand;
     friend class ChangeLayerVisibleCommand;
     friend class ChangeLayerOpacityCommand;
+    friend class DeleteLayerCommand;
 
     bool isValidIndex(int index) const;
 
     void changeSize(const QSize &size);
     void addNewLayer(int imageWidth, int imageHeight, bool transparent);
     void addLayerAboveAll(ImageLayer *imageLayer);
+    void addLayer(ImageLayer *imageLayer, int index);
     void moveLayer(int fromIndex, int toIndex);
+    ImageLayer *takeLayer(int index);
 
     friend QDebug operator<<(QDebug debug, const LayeredImageProject *project);
 

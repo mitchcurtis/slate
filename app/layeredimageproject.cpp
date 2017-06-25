@@ -28,6 +28,7 @@
 #include "changelayeropacitycommand.h"
 #include "changelayerordercommand.h"
 #include "changelayervisiblecommand.h"
+#include "deletelayercommand.h"
 #include "imagelayer.h"
 #include "jsonutils.h"
 
@@ -226,17 +227,9 @@ void LayeredImageProject::deleteCurrentLayer()
     if (mLayers.size() <= 1 || !isValidIndex(mCurrentLayerIndex))
         return;
 
-    const int layerIndex = mCurrentLayerIndex;
-    preLayerRemoved(layerIndex);
-
-    mLayers.remove(layerIndex);
-
-    postLayerRemoved(layerIndex);
-
-    emit layerCountChanged();
-
-    // Keep the same index to select the layer that was above us.
-    setCurrentLayerIndex(layerIndex);
+    beginMacro(QLatin1String("DeleteLayerCommand"));
+    addChange(new DeleteLayerCommand(this, mCurrentLayerIndex));
+    endMacro();
 }
 
 void LayeredImageProject::moveCurrentLayerUp()
@@ -328,21 +321,30 @@ void LayeredImageProject::addNewLayer(int imageWidth, int imageHeight, bool tran
 
 void LayeredImageProject::addLayerAboveAll(ImageLayer *imageLayer)
 {
+    addLayer(imageLayer, 0);
+}
+
+void LayeredImageProject::addLayer(ImageLayer *imageLayer, int index)
+{
     if (mLayers.contains(imageLayer)) {
         qWarning() << "Can't add layer" << imageLayer << "to project as we already have it";
         return;
     }
 
-    const int layerIndex = 0;
-    emit preLayerAdded(layerIndex);
+    imageLayer->setParent(this);
+
+    emit preLayerAdded(index);
 
     mLayers.prepend(imageLayer);
 
-    emit postLayerAdded(layerIndex);
+    emit postLayerAdded(index);
 
     emit layerCountChanged();
 
-    setCurrentLayerIndex(mCurrentLayerIndex + 1);
+    if (index <= mCurrentLayerIndex) {
+        // The index is before that of the current layer's, so we must update it.
+        setCurrentLayerIndex(mCurrentLayerIndex + 1);
+    }
 }
 
 void LayeredImageProject::moveLayer(int fromIndex, int toIndex)
@@ -360,6 +362,24 @@ void LayeredImageProject::moveLayer(int fromIndex, int toIndex)
 
     const int newCurrentIndex = mLayers.indexOf(current);
     setCurrentLayerIndex(newCurrentIndex);
+}
+
+ImageLayer *LayeredImageProject::takeLayer(int index)
+{
+    preLayerRemoved(index);
+
+    ImageLayer *layer = mLayers.takeAt(index);
+
+    postLayerRemoved(index);
+
+    emit layerCountChanged();
+
+    // Keep the same index to select the layer that was above us.
+    setCurrentLayerIndex(index);
+
+    layer->setParent(nullptr);
+
+    return layer;
 }
 
 QDebug operator<<(QDebug debug, const LayeredImageProject *project)

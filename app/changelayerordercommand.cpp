@@ -54,7 +54,7 @@ int ChangeLayerOrderCommand::id() const
 
 QDebug operator<<(QDebug debug, const ChangeLayerOrderCommand *command)
 {
-    debug.nospace() << "(ChangeCanvasSizeCommand newIndex=" << command->mNewIndex
+    debug.nospace() << "(ChangeLayerOrderCommand newIndex=" << command->mNewIndex
         << "previousIndex=" << command->mPreviousIndex
         << ")";
     return debug.space();

@@ -54,7 +54,7 @@ int ChangeLayeredImageCanvasSizeCommand::id() const
 
 QDebug operator<<(QDebug debug, const ChangeLayeredImageCanvasSizeCommand *command)
 {
-    debug.nospace() << "(ChangeCanvasSizeCommand size=" << command->mSize
+    debug.nospace() << "(ChangeLayeredImageCanvasSizeCommand size=" << command->mSize
         << "previousSize=" << command->mPreviousSize
         << ")";
     return debug.space();
