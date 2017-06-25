@@ -211,6 +211,9 @@ void TestHelper::mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventTy
     case MouseClick:
         QTest::mouseClick(itemWindow, Qt::LeftButton, Qt::NoModifier, centre);
         break;
+    case MouseDoubleClick:
+        QTest::mouseDClick(itemWindow, Qt::LeftButton, Qt::NoModifier, centre);
+        break;
     }
 }
 
@@ -226,6 +229,9 @@ void TestHelper::mouseEvent(QQuickItem *item, const QPointF &localPos, TestMouse
         break;
     case MouseClick:
         QTest::mouseClick(item->window(), Qt::LeftButton, modifiers, centre);
+        break;
+    case MouseDoubleClick:
+        QTest::mouseDClick(item->window(), Qt::LeftButton, modifiers, centre);
         break;
     }
 }
@@ -1053,7 +1059,10 @@ void TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
         // Ensure that what the user sees (the delegate) is correct.
         QQuickItem *layer1Delegate = findListViewChild("layerListView", QLatin1String("Layer 1"));
         QVERIFY(layer1Delegate);
-        QCOMPARE(layer1Delegate->property("text").toString(), QLatin1String("Layer 1"));
+
+        QQuickItem *nameTextField = layer1Delegate->findChild<QQuickItem*>("layerNameTextField");
+        QVERIFY(nameTextField);
+        QCOMPARE(nameTextField->property("text").toString(), QLatin1String("Layer 1"));
     }
 
     newLayerButton = window->findChild<QQuickItem*>("newLayerButton");

@@ -94,6 +94,7 @@ private Q_SLOTS:
     void addAndRemoveLayers();
     void layerVisibility();
     void moveLayerUpAndDown();
+    void renameLayer();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -2200,6 +2201,49 @@ void tst_App::moveLayerUpAndDown()
     QCOMPARE(layeredImageProject->layerAt(1)->name(), layer2Delegate->property("text").toString());
 
     // TODO: draw a different-coloured pixel on each layer and do screen grab comparisons
+}
+
+void tst_App::renameLayer()
+{
+    createNewLayeredImageProject();
+
+    QTRY_VERIFY(findListViewChild("layerListView", "Layer 1"));
+    QQuickItem *delegate = findListViewChild("layerListView", "Layer 1");
+    QVERIFY(delegate);
+    mouseEventOnCentre(delegate, MouseClick);
+    QCOMPARE(delegate->property("checked").toBool(), true);
+
+    QQuickItem *nameTextField = delegate->findChild<QQuickItem*>("layerNameTextField");
+    QVERIFY(nameTextField);
+
+    // A single click should not give the text field focus.
+    mouseEventOnCentre(nameTextField, MouseClick);
+    QCOMPARE(nameTextField->hasActiveFocus(), false);
+
+    // A double click should.
+    mouseEventOnCentre(nameTextField, MouseDoubleClick);
+    QCOMPARE(nameTextField->hasActiveFocus(), true);
+
+    // Enter some text.
+    QTest::keyClick(window, Qt::Key_Z);
+    QCOMPARE(nameTextField->property("text").toString(), QLatin1String("Layer 1z"));
+    // The layer name shouldn't change until it's confirmed.
+    QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
+
+    // Escape should cancel whatever we were inputting.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(nameTextField->property("text").toString(), QLatin1String("Layer 1"));
+    QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
+
+    // Enter some text and confirm the changes.
+    mouseEventOnCentre(nameTextField, MouseDoubleClick);
+    QCOMPARE(nameTextField->hasActiveFocus(), true);
+    QTest::keyClick(window, Qt::Key_2);
+    QCOMPARE(nameTextField->property("text").toString(), QLatin1String("Layer 12"));
+    QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
+    QTest::keyClick(window, Qt::Key_Enter);
+    QCOMPARE(nameTextField->property("text").toString(), QLatin1String("Layer 12"));
+    QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 12"));
 }
 
 int main(int argc, char *argv[])

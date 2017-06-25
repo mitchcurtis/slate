@@ -19,8 +19,6 @@ Page {
     property LayeredImageCanvas layeredImageCanvas
     property LayeredImageProject project
 
-    Keys.onEscapePressed: contextMenu.cancelCurrentAction()
-
     ButtonGroup {
         buttons: listView.contentItem.children
     }
@@ -45,8 +43,7 @@ Page {
         }
 
         delegate: ItemDelegate {
-            text: model.layer.name
-            objectName: text
+            objectName: model.layer.name
             checkable: true
             checked: project.currentLayerIndex === index
             width: listView.width
@@ -54,6 +51,7 @@ Page {
             focusPolicy: Qt.NoFocus
 
             onClicked: project.currentLayerIndex = index
+            onDoubleClicked: layerNameTextField.forceActiveFocus()
 
             CheckBox {
                 id: visibilityCheckBox
@@ -65,6 +63,47 @@ Page {
                 anchors.verticalCenter: parent.verticalCenter
 
                 onClicked: model.layer.visible = !model.layer.visible
+            }
+
+            TextField {
+                id: layerNameTextField
+                objectName: "layerNameTextField"
+                x: parent.leftPadding
+                text: model.layer.name
+                activeFocusOnPress: false
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: 6
+                background.visible: false
+                background.onVisibleChanged: print(background.visible)
+                visible: false
+
+                Keys.onEscapePressed: {
+                    focus = false;
+                    text = model.layer.name;
+                }
+                onAccepted: {
+                    focus = false;
+                    model.layer.name = text;
+                }
+            }
+
+            // We don't want TextField's editable cursor to be visible,
+            // so we set visible: false to disable the cursor, and instead
+            // render it via this.
+            ShaderEffectSource {
+                sourceItem: layerNameTextField
+                anchors.fill: layerNameTextField
+            }
+
+            // Apparently the one above only works for the top level control item,
+            // so we also need one for the background.
+            ShaderEffectSource {
+                sourceItem: layerNameTextField.background
+                x: layerNameTextField.x + layerNameTextField.background.x
+                y: layerNameTextField.y + layerNameTextField.background.y
+                width: layerNameTextField.background.width
+                height: layerNameTextField.background.height
+                visible: layerNameTextField.activeFocus
             }
 
             Rectangle {

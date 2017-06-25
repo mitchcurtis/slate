@@ -97,6 +97,7 @@ protected:
         MousePress,
         MouseRelease,
         MouseClick,
+        MouseDoubleClick
     };
     void mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType);
     void mouseEvent(QQuickItem *item, const QPointF &localPos, TestMouseEventType eventType,
