@@ -717,6 +717,19 @@ void TestHelper::selectLayer(const QString &layerName, int layerIndex)
     QCOMPARE(layeredImageProject->currentLayerIndex(), layerIndex);
 }
 
+void TestHelper::verifyLayerName(const QString &layerName, QQuickItem **layerDelegate)
+{
+    // It seems that the ListView sometimes need some extra time to create the second item (e.g. when debugging).
+    QTRY_VERIFY(findListViewChild("layerListView", layerName));
+    QQuickItem *delegate = findListViewChild("layerListView", layerName);
+    QVERIFY(delegate);
+    QQuickItem *layerDelegateNameTextField = delegate->findChild<QQuickItem*>("layerNameTextField");
+    QVERIFY(layerDelegateNameTextField);
+    QCOMPARE(layerDelegateNameTextField->property("text").toString(), layerName);
+    if (layerDelegate)
+        *layerDelegate = delegate;
+}
+
 void TestHelper::addAllProjectTypes()
 {
     QTest::addColumn<Project::Type>("projectType");

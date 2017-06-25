@@ -41,6 +41,7 @@ void LayeredImageCanvas::onPostLayerAdded(int index)
     ImageLayer *layer = mLayeredImageProject->layerAt(index);
     connect(layer, &ImageLayer::visibleChanged, this, &LayeredImageCanvas::onLayerVisibleChanged);
     connect(layer, &ImageLayer::opacityChanged, this, &LayeredImageCanvas::onLayerOpacityChanged);
+    update();
 }
 
 void LayeredImageCanvas::onPreLayerRemoved(int index)
@@ -48,6 +49,11 @@ void LayeredImageCanvas::onPreLayerRemoved(int index)
     ImageLayer *layer = mLayeredImageProject->layerAt(index);
     disconnect(layer, &ImageLayer::visibleChanged, this, &LayeredImageCanvas::onLayerVisibleChanged);
     disconnect(layer, &ImageLayer::opacityChanged, this, &LayeredImageCanvas::onLayerOpacityChanged);
+}
+
+void LayeredImageCanvas::onPostLayerRemoved()
+{
+    update();
 }
 
 void LayeredImageCanvas::onLayerVisibleChanged()
@@ -73,6 +79,7 @@ void LayeredImageCanvas::connectSignals()
 
     connect(mLayeredImageProject, &LayeredImageProject::postLayerAdded, this, &LayeredImageCanvas::onPostLayerAdded);
     connect(mLayeredImageProject, &LayeredImageProject::preLayerRemoved, this, &LayeredImageCanvas::onPreLayerRemoved);
+    connect(mLayeredImageProject, &LayeredImageProject::postLayerRemoved, this, &LayeredImageCanvas::onPostLayerRemoved);
 
     // Connect to all existing layers, as onPostLayerAdded() won't get called for them automatically.
     for (int i = 0; i < mLayeredImageProject->layerCount(); ++i) {
@@ -84,6 +91,7 @@ void LayeredImageCanvas::disconnectSignals()
 {
     disconnect(mLayeredImageProject, &LayeredImageProject::postLayerAdded, this, &LayeredImageCanvas::onPostLayerAdded);
     disconnect(mLayeredImageProject, &LayeredImageProject::preLayerRemoved, this, &LayeredImageCanvas::onPreLayerRemoved);
+    disconnect(mLayeredImageProject, &LayeredImageProject::postLayerRemoved, this, &LayeredImageCanvas::onPostLayerRemoved);
 
     mLayeredImageProject = nullptr;
 }

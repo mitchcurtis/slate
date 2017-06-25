@@ -2102,19 +2102,10 @@ void tst_App::addAndRemoveLayers()
         QVERIFY(layerListView);
         QCOMPARE(layerListView->property("count"), 2);
 
-        QQuickItem *layer1Delegate = findListViewChild("layerListView", QLatin1String("Layer 1"));
-        QVERIFY(layer1Delegate);
-        QQuickItem *layer1DelegateNameTextField = layer1Delegate->findChild<QQuickItem*>("layerNameTextField");
-        QVERIFY(layer1DelegateNameTextField);
-        QCOMPARE(layer1DelegateNameTextField->property("text").toString(), QLatin1String("Layer 1"));
-
-        // It seems that the ListView sometimes need some extra time to create the second item (e.g. when debugging).
-        QTRY_VERIFY(findListViewChild("layerListView", QLatin1String("Layer 2")));
-        QQuickItem *layer2Delegate = findListViewChild("layerListView", QLatin1String("Layer 2"));
-        QVERIFY(layer2Delegate);
-        QQuickItem *layer2DelegateNameTextField = layer2Delegate->findChild<QQuickItem*>("layerNameTextField");
-        QVERIFY(layer2DelegateNameTextField);
-        QCOMPARE(layer2DelegateNameTextField->property("text").toString(), QLatin1String("Layer 2"));
+        QQuickItem *layer1Delegate = nullptr;
+        verifyLayerName(QLatin1String("Layer 1"), &layer1Delegate);
+        QQuickItem *layer2Delegate = nullptr;
+        verifyLayerName(QLatin1String("Layer 2"), &layer2Delegate);
         // The second layer was added last, so it should be at the top of the list.
         QVERIFY(layer1Delegate->y() > layer2Delegate->z());
     }
@@ -2128,23 +2119,30 @@ void tst_App::addAndRemoveLayers()
     QQuickItem *deleteLayerButton = window->findChild<QQuickItem*>("deleteLayerButton");
     QVERIFY(deleteLayerButton);
     mouseEventOnCentre(deleteLayerButton, MouseClick);
-
     QCOMPARE(layeredImageProject->layerCount(), 1);
     QCOMPARE(layeredImageProject->currentLayer(), expectedCurrentLayer);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 2"));
 
+    // The blue dot should no longer be visible.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithRedDot = imageGrabber.takeImage();
+    // It's going to be the checkered pattern, so we just make sure it's not blue rather than
+    // trying to compare to something.
+    QVERIFY(grabWithRedDot.pixelColor(10, 10) != Qt::blue);
+    QCOMPARE(grabWithRedDot.pixelColor(20, 20), Qt::red);
+
     // Undo the deletion.
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
-    {
-        QQuickItem *layer1Delegate = findListViewChild("layerListView", QLatin1String("Layer 1"));
-        QVERIFY(layer1Delegate);
-        QQuickItem *layer1DelegateNameTextField = layer1Delegate->findChild<QQuickItem*>("layerNameTextField");
-        QVERIFY(layer1DelegateNameTextField);
-        QCOMPARE(layer1DelegateNameTextField->property("text").toString(), QLatin1String("Layer 1"));
-    }
+    verifyLayerName(QLatin1String("Layer 1"), nullptr);
+
+    // Both dots should be visible again.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QCOMPARE(imageGrabber.takeImage(), grabWithBothDots);
 }
 
 void tst_App::layerVisibility()
@@ -2186,9 +2184,8 @@ void tst_App::layerVisibility()
     QCOMPARE(grabWithRedDot.pixelColor(10, 10), Qt::red);
 
     // Hide the current layer.
-    QTRY_VERIFY(findListViewChild("layerListView", "Layer 2"));
-    QQuickItem *layer2Delegate = findListViewChild("layerListView", "Layer 2");
-    QVERIFY(layer2Delegate);
+    QQuickItem *layer2Delegate = nullptr;
+    verifyLayerName("Layer 2", &layer2Delegate);
     QQuickItem *layer2VisibilityCheckBox = layer2Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
     QVERIFY(layer2VisibilityCheckBox);
     mouseEventOnCentre(layer2VisibilityCheckBox, MouseClick);
@@ -2256,10 +2253,8 @@ void tst_App::renameLayer()
 {
     createNewLayeredImageProject();
 
-    QTRY_VERIFY(findListViewChild("layerListView", "Layer 1"));
-    QQuickItem *delegate = findListViewChild("layerListView", "Layer 1");
-    QVERIFY(delegate);
-    mouseEventOnCentre(delegate, MouseClick);
+    QQuickItem *delegate = nullptr;
+    verifyLayerName("Layer 1", &delegate);
     QCOMPARE(delegate->property("checked").toBool(), true);
 
     QQuickItem *nameTextField = delegate->findChild<QQuickItem*>("layerNameTextField");

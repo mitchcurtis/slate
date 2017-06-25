@@ -43,6 +43,7 @@ public slots:
 protected slots:
     void onPostLayerAdded(int index);
     void onPreLayerRemoved(int index);
+    void onPostLayerRemoved();
 
     void onLayerVisibleChanged();
     void onLayerOpacityChanged();
