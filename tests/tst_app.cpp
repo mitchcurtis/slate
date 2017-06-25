@@ -72,17 +72,23 @@ private Q_SLOTS:
     void tilesetSwatchNavigation();
     void cursorShapeAfterClickingLighter();
     void colourPickerHexField();
+    void eraseImageCanvas_data();
     void eraseImageCanvas();
     void selectionToolImageCanvas();
     void cancelSelectionToolImageCanvas();
     void moveSelectionImageCanvas_data();
     void moveSelectionImageCanvas();
     void moveSelectionWithKeysImageCanvas();
+    void deleteSelectionImageCanvas_data();
     void deleteSelectionImageCanvas();
+    void copyPaste_data();
     void copyPaste();
+    void pasteFromExternalSource_data();
     void pasteFromExternalSource();
     void flipPastedImage();
+    void fillImageCanvas_data();
     void fillImageCanvas();
+    void pixelLineToolImageCanvas_data();
     void pixelLineToolImageCanvas();
 
     void addAndRemoveLayers();
@@ -1488,9 +1494,16 @@ void tst_App::colourPickerHexField()
     QCOMPARE(canvas->hasActiveFocus(), true);
 }
 
+void tst_App::eraseImageCanvas_data()
+{
+    addImageProjectTypes();
+}
+
 void tst_App::eraseImageCanvas()
 {
-    createNewImageProject();
+    QFETCH(Project::Type, projectType);
+
+    createNewProject(projectType);
 
     switchTool(ImageCanvas::EraserTool);
     changeToolSize(1);
@@ -1500,7 +1513,7 @@ void tst_App::eraseImageCanvas()
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 
-    QCOMPARE(imageProject->image()->pixelColor(cursorPos), QColor(Qt::transparent));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(cursorPos), QColor(Qt::transparent));
 }
 
 struct SelectionData
@@ -1803,9 +1816,16 @@ void tst_App::moveSelectionWithKeysImageCanvas()
     QCOMPARE(imageProject->image()->pixelColor(5, 4), QColor(Qt::black));
 }
 
+void tst_App::deleteSelectionImageCanvas_data()
+{
+    addImageProjectTypes();
+}
+
 void tst_App::deleteSelectionImageCanvas()
 {
-    createNewImageProject();
+    QFETCH(Project::Type, projectType);
+
+    createNewProject(projectType);
 
     switchTool(ImageCanvas::SelectionTool);
 
@@ -1821,7 +1841,7 @@ void tst_App::deleteSelectionImageCanvas()
     // The selection should be cleared.
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
 
-    const QImage deletedPortion = imageProject->image()->copy(0, 0, 10, 10);
+    const QImage deletedPortion = canvas->currentProjectImage()->copy(0, 0, 10, 10);
     for (int y = 0; y < deletedPortion.size().height(); ++y) {
         for (int x = 0; x < deletedPortion.size().width(); ++x) {
             QCOMPARE(deletedPortion.pixelColor(x, y), QColor(Qt::transparent));
@@ -1829,9 +1849,16 @@ void tst_App::deleteSelectionImageCanvas()
     }
 }
 
+void tst_App::copyPaste_data()
+{
+    addImageProjectTypes();
+}
+
 void tst_App::copyPaste()
 {
-    createNewImageProject();
+    QFETCH(Project::Type, projectType);
+
+    createNewProject(projectType);
 
     // Make comparing grabbed image pixels easier.
     panTopLeftTo(0, 0);
@@ -1841,8 +1868,8 @@ void tst_App::copyPaste()
     changeToolSize(5);
     setCursorPosInPixels(12, 12);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(imageProject->image()->pixelColor(10, 10), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(14, 14), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(10, 10), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(14, 14), QColor(Qt::black));
 
     changeToolSize(1);
     switchTool(ImageCanvas::SelectionTool);
@@ -1856,14 +1883,14 @@ void tst_App::copyPaste()
     QCOMPARE(canvas->selectionArea(), QRect(10, 10, 5, 5));
 
     keySequence(window, QKeySequence::Copy);
-    QCOMPARE(QGuiApplication::clipboard()->image(), imageProject->image()->copy(10, 10, 5, 5));
+    QCOMPARE(QGuiApplication::clipboard()->image(), canvas->currentProjectImage()->copy(10, 10, 5, 5));
 
     // Paste. The project's image shouldn't change until the paste selection is confirmed.
     keySequence(window, QKeySequence::Paste);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::white));
-    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::white));
-    QCOMPARE(imageCanvas->hasSelection(), true);
-    QCOMPARE(imageCanvas->selectionArea(), QRect(0, 0, 5, 5));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::white));
+    QCOMPARE(canvas->hasSelection(), true);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 5, 5));
     // However, the selection preview image should be visible...
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -1871,40 +1898,47 @@ void tst_App::copyPaste()
 
     // Undo the paste while it's still selected.
     keySequence(window, app.settings()->undoShortcut());
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::white));
-    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::white));
-    QCOMPARE(imageCanvas->hasSelection(), false);
-    QCOMPARE(imageCanvas->selectionArea(), QRect(0, 0, 0, 0));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::white));
+    QCOMPARE(canvas->hasSelection(), false);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
 
     // Redo the paste. There shouldn't be any selection, but the image should have been applied.
     keySequence(window, app.settings()->redoShortcut());
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
-    QCOMPARE(imageCanvas->hasSelection(), false);
-    QCOMPARE(imageCanvas->selectionArea(), QRect(0, 0, 0, 0));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
+    QCOMPARE(canvas->hasSelection(), false);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
+}
+
+void tst_App::pasteFromExternalSource_data()
+{
+    addImageProjectTypes();
 }
 
 void tst_App::pasteFromExternalSource()
 {
     // When pasting while a tool other than the selection tool is active,
     // the selection tool should be made active.
-    createNewImageProject();
+    QFETCH(Project::Type, projectType);
 
-    QCOMPARE(imageCanvas->tool(), ImageCanvas::PenTool);
+    createNewProject(projectType);
+
+    QCOMPARE(canvas->tool(), ImageCanvas::PenTool);
 
     QImage image(32, 32, QImage::Format_ARGB32_Premultiplied);
     image.fill(Qt::blue);
     qGuiApp->clipboard()->setImage(image);
 
     keySequence(window, QKeySequence::Paste);
-    QCOMPARE(imageCanvas->tool(), ImageCanvas::SelectionTool);
-    QCOMPARE(imageCanvas->hasSelection(), true);
+    QCOMPARE(canvas->tool(), ImageCanvas::SelectionTool);
+    QCOMPARE(canvas->hasSelection(), true);
 
     // Confirm the selection.
     setCursorPosInPixels(33, 33);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::blue));
-    QCOMPARE(imageProject->image()->pixelColor(31, 31), QColor(Qt::blue));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::blue));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(31, 31), QColor(Qt::blue));
 }
 
 void tst_App::flipPastedImage()
@@ -1912,9 +1946,16 @@ void tst_App::flipPastedImage()
     // TODO
 }
 
+void tst_App::fillImageCanvas_data()
+{
+    addImageProjectTypes();
+}
+
 void tst_App::fillImageCanvas()
 {
-    createNewImageProject();
+    QFETCH(Project::Type, projectType);
+
+    createNewProject(projectType);
 
     // A fill on a canvas of this size would previously trigger a stack overflow
     // using a recursive algorithm.
@@ -1924,14 +1965,21 @@ void tst_App::fillImageCanvas()
     switchTool(ImageCanvas::FillTool);
     setCursorPosInPixels(0, 0);
     mouseEvent(canvas, cursorWindowPos, MouseClick);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(imageProject->widthInPixels() - 1,
-        imageProject->heightInPixels() - 1), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(project->widthInPixels() - 1,
+                                               project->heightInPixels() - 1), QColor(Qt::black));
+}
+
+void tst_App::pixelLineToolImageCanvas_data()
+{
+    addImageProjectTypes();
 }
 
 void tst_App::pixelLineToolImageCanvas()
 {
-    createNewImageProject();
+    QFETCH(Project::Type, projectType);
+
+    createNewProject(projectType);
 
     switchTool(ImageCanvas::PenTool);
 
@@ -1939,8 +1987,8 @@ void tst_App::pixelLineToolImageCanvas()
     setCursorPosInPixels(0, 0);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->hasUnsavedChanges(), true);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(project->hasUnsavedChanges(), true);
 
     // Draw the line itself.
     setCursorPosInPixels(2, 2);
@@ -1949,22 +1997,22 @@ void tst_App::pixelLineToolImageCanvas()
     // For some reason there must be a delay in order for the shift modifier to work.
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
     QTest::keyRelease(window, Qt::Key_Shift);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(1, 1), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(2, 2), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
 
     // Undo the line.
     mouseEventOnCentre(undoButton, MouseClick);
     // The initial press has to still be there.
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(1, 1), QColor(Qt::white));
-    QCOMPARE(imageProject->image()->pixelColor(2, 2), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
 
     // Redo the line.
     mouseEventOnCentre(redoButton, MouseClick);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(1, 1), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(2, 2), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
 
     // Draw another line.
     setCursorPosInPixels(0, 4);
@@ -1972,31 +2020,31 @@ void tst_App::pixelLineToolImageCanvas()
     QTest::keyPress(window, Qt::Key_Shift);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
     QTest::keyRelease(window, Qt::Key_Shift);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(1, 1), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(2, 2), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(1, 3), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(0, 4), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 3), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 4), QColor(Qt::black));
 
     // Undo the second line.
     mouseEventOnCentre(undoButton, MouseClick);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(1, 1), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(2, 2), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(1, 3), QColor(Qt::white));
-    QCOMPARE(imageProject->image()->pixelColor(0, 4), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 3), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 4), QColor(Qt::white));
 
     // Undo the first line.
     mouseEventOnCentre(undoButton, MouseClick);
     // The initial press has to still be there.
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(imageProject->image()->pixelColor(1, 1), QColor(Qt::white));
-    QCOMPARE(imageProject->image()->pixelColor(2, 2), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
 
     // Undo the inital press.
     mouseEventOnCentre(undoButton, MouseClick);
-    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::white));
-    QCOMPARE(imageProject->hasUnsavedChanges(), false);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(project->hasUnsavedChanges(), false);
 }
 
 void tst_App::addAndRemoveLayers()

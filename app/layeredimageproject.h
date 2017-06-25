@@ -70,6 +70,8 @@ public slots:
     void deleteCurrentLayer();
 
 private:
+    friend class ChangeLayeredImageCanvasSizeCommand;
+
     bool isValidIndex(int index) const;
 
     void changeSize(const QSize &size);

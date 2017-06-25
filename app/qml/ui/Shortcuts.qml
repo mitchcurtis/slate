@@ -9,6 +9,7 @@ Item {
     property ProjectManager projectManager
     property Project project: projectManager.project
     property int projectType: project ? project.type : 0
+    readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
     property ImageCanvas canvas
     readonly property bool canvasHasActiveFocus: canvas ? canvas.activeFocus : false
 
@@ -77,13 +78,13 @@ Item {
     Shortcut {
         sequence: StandardKey.Copy
         onActivated: canvas.copySelection()
-        enabled: projectType === Project.ImageType && canvasHasActiveFocus && canvas.hasSelection
+        enabled: isImageProjectType && canvasHasActiveFocus && canvas.hasSelection
     }
 
     Shortcut {
         sequence: StandardKey.Paste
         onActivated: canvas.paste()
-        enabled: projectType === Project.ImageType && canvasHasActiveFocus
+        enabled: isImageProjectType && canvasHasActiveFocus
     }
 
     Shortcut {

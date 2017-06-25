@@ -29,7 +29,7 @@ PasteImageCanvasCommand::PasteImageCanvasCommand(ImageCanvas *canvas, const QIma
     UndoCommand(parent),
     mCanvas(canvas),
     mNewImage(image),
-    mPreviousImage(canvas->mImageProject->image()->copy(QRect(position, image.size()))),
+    mPreviousImage(canvas->currentProjectImage()->copy(QRect(position, image.size()))),
     mArea(QRect(position, image.size())),
     mUsed(false)
 {

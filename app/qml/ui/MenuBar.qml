@@ -7,6 +7,7 @@ Platform.MenuBar {
     property ProjectManager projectManager
     property Project project: projectManager.project
     property int projectType: project ? project.type : 0
+    readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
     Platform.Menu {
         id: fileMenu
@@ -79,14 +80,14 @@ Platform.MenuBar {
             objectName: "copyMenuButton"
             text: qsTr("Copy")
             onTriggered: canvas.copySelection()
-            enabled: projectType === Project.ImageType && canvas && canvas.hasSelection
+            enabled: isImageProjectType && canvas && canvas.hasSelection
         }
 
         Platform.MenuItem {
             objectName: "pasteMenuButton"
             text: qsTr("Paste")
             onTriggered: canvas.paste()
-            enabled: projectType === Project.ImageType && canvas
+            enabled: isImageProjectType && canvas
         }
 
         Platform.MenuSeparator {}
@@ -95,14 +96,14 @@ Platform.MenuBar {
             objectName: "flipHorizontallyMenuButton"
             text: qsTr("Flip Horizontally")
             onTriggered: canvas.flipSelection(Qt.Horizontal)
-            enabled: projectType === Project.ImageType && canvas && canvas.hasSelection
+            enabled: isImageProjectType && canvas && canvas.hasSelection
         }
 
         Platform.MenuItem {
             objectName: "flipVerticallyMenuButton"
             text: qsTr("Flip Vertically")
             onTriggered: canvas.flipSelection(Qt.Vertical)
-            enabled: projectType === Project.ImageType && canvas && canvas.hasSelection
+            enabled: isImageProjectType && canvas && canvas.hasSelection
         }
     }
 

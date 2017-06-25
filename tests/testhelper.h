@@ -141,6 +141,7 @@ protected:
     void triggerOptions();
 
     void addAllProjectTypes();
+    void addImageProjectTypes();
     void createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
     void createNewTilesetProject(int tileWidth = 25, int tileHeight = 25,
         int tilesetTilesWide = -1, int tilesetTilesHigh = -1, bool transparentTilesetBackground = false);

@@ -11,6 +11,7 @@ RowLayout {
     property ProjectManager projectManager
     property Project project: projectManager.project
     property int projectType: project ? project.type : 0
+    readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
     ToolButton {
         id: fileToolButton
@@ -112,14 +113,14 @@ RowLayout {
                 objectName: "copyMenuButton"
                 text: qsTr("Copy")
                 onClicked: canvas.copySelection()
-                enabled: projectType === Project.ImageType && canvas && canvas.hasSelection
+                enabled: isImageProjectType && canvas && canvas.hasSelection
             }
 
             MenuItem {
                 objectName: "pasteMenuButton"
                 text: qsTr("Paste")
                 onClicked: canvas.paste()
-                enabled: projectType === Project.ImageType && canvas
+                enabled: isImageProjectType && canvas
             }
 
             MenuSeparator {}
@@ -128,14 +129,14 @@ RowLayout {
                 objectName: "flipHorizontallyMenuButton"
                 text: qsTr("Flip Horizontally")
                 onClicked: canvas.flipSelection(Qt.Horizontal)
-                enabled: projectType === Project.ImageType && canvas && canvas.hasSelection
+                enabled: isImageProjectType && canvas && canvas.hasSelection
             }
 
             MenuItem {
                 objectName: "flipVerticallyMenuButton"
                 text: qsTr("Flip Vertically")
                 onClicked: canvas.flipSelection(Qt.Vertical)
-                enabled: projectType === Project.ImageType && canvas && canvas.hasSelection
+                enabled: isImageProjectType && canvas && canvas.hasSelection
             }
         }
     }

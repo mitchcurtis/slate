@@ -23,7 +23,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-//#include "changelayeredimagecanvassizecommand.h"
+#include "changelayeredimagecanvassizecommand.h"
 #include "imagelayer.h"
 #include "jsonutils.h"
 
@@ -81,9 +81,9 @@ void LayeredImageProject::setSize(const QSize &newSize)
     if (newSize == size())
         return;
 
-//    beginMacro(QLatin1String("ChangeLayeredImageCanvasSize"));
-//    addChange(new ChangeLayeredImageCanvasSizeCommand(this, mImage.size(), newSize));
-//    endMacro();
+    beginMacro(QLatin1String("ChangeLayeredImageCanvasSize"));
+    addChange(new ChangeLayeredImageCanvasSizeCommand(this, size(), newSize));
+    endMacro();
 }
 
 int LayeredImageProject::widthInPixels() const

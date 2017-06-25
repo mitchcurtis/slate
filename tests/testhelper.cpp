@@ -708,6 +708,14 @@ void TestHelper::addAllProjectTypes()
     QTest::newRow("ImageType") << Project::ImageType;
 }
 
+void TestHelper::addImageProjectTypes()
+{
+    QTest::addColumn<Project::Type>("projectType");
+
+    QTest::newRow("ImageType") << Project::ImageType;
+    QTest::newRow("LayeredImageType") << Project::LayeredImageType;
+}
+
 void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &args)
 {
     const Project::Type previousProjectType = tilesetProject ? Project::TilesetType : (imageProject ? Project::ImageType : Project::LayeredImageType);
