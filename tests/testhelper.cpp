@@ -63,6 +63,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     penForegroundColourButton(nullptr),
     penBackgroundColourButton(nullptr),
     tilesetSwatch(nullptr),
+    newLayerButton(nullptr),
     tilesetBasename("test-tileset.png")
 {
 }
@@ -1054,6 +1055,15 @@ void TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
         QVERIFY(layer1Delegate);
         QCOMPARE(layer1Delegate->property("text").toString(), QLatin1String("Layer 1"));
     }
+
+    newLayerButton = window->findChild<QQuickItem*>("newLayerButton");
+    QVERIFY(newLayerButton);
+
+    moveLayerUpButton = window->findChild<QQuickItem*>("moveLayerUpButton");
+    QVERIFY(moveLayerUpButton);
+
+    moveLayerDownButton = window->findChild<QQuickItem*>("moveLayerDownButton");
+    QVERIFY(moveLayerDownButton);
 }
 
 void TestHelper::setupTempTilesetProjectDir()

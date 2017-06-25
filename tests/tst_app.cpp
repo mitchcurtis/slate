@@ -93,6 +93,7 @@ private Q_SLOTS:
 
     void addAndRemoveLayers();
     void layerVisibility();
+    void moveLayerUpAndDown();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -2054,8 +2055,6 @@ void tst_App::addAndRemoveLayers()
     ImageLayer *expectedCurrentLayer = layeredImageProject->currentLayer();
 
     // Add a new layer.
-    QQuickItem *newLayerButton = window->findChild<QQuickItem*>("newLayerButton");
-    QVERIFY(newLayerButton);
     mouseEventOnCentre(newLayerButton, MouseClick);
 
     QCOMPARE(layeredImageProject->layerCount(), 2);
@@ -2120,8 +2119,6 @@ void tst_App::layerVisibility()
     QCOMPARE(grabWithBlueDot.pixelColor(10, 10), Qt::blue);
 
     // Add a new layer.
-    QQuickItem *newLayerButton = window->findChild<QQuickItem*>("newLayerButton");
-    QVERIFY(newLayerButton);
     mouseEventOnCentre(newLayerButton, MouseClick);
     QCOMPARE(layeredImageProject->layerCount(), 2);
 
@@ -2156,6 +2153,41 @@ void tst_App::layerVisibility()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabWithRedDotHidden = imageGrabber.takeImage();
     QCOMPARE(grabWithRedDotHidden.pixelColor(10, 10), Qt::blue);
+}
+
+void tst_App::moveLayerUpAndDown()
+{
+    createNewLayeredImageProject();
+
+    QCOMPARE(moveLayerDownButton->isEnabled(), false);
+    QCOMPARE(moveLayerUpButton->isEnabled(), false);
+
+    // Add a new layer.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+    // It should be possible to move the lowest layer up but not down.
+    QCOMPARE(moveLayerDownButton->isEnabled(), false);
+    QCOMPARE(moveLayerUpButton->isEnabled(), true);
+
+    // Make the new layer the current layer.
+    QTRY_VERIFY(findListViewChild("layerListView", "Layer 2"));
+    QQuickItem *layer2Delegate = findListViewChild("layerListView", "Layer 2");
+    QVERIFY(layer2Delegate);
+    mouseEventOnCentre(layer2Delegate, MouseClick);
+    QCOMPARE(layer2Delegate->property("checked").toBool(), true);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+    // It should be possible to move the highest layer down but not up.
+    QCOMPARE(moveLayerDownButton->isEnabled(), true);
+    QCOMPARE(moveLayerUpButton->isEnabled(), false);
+
+    // Add a new layer.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 3);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+    // It should be possible to move the middle layer both up and down.
+    QCOMPARE(moveLayerDownButton->isEnabled(), true);
+    QCOMPARE(moveLayerUpButton->isEnabled(), true);
 }
 
 int main(int argc, char *argv[])

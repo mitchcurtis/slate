@@ -207,6 +207,9 @@ protected:
     QQuickItem *penForegroundColourButton;
     QQuickItem *penBackgroundColourButton;
     QQuickItem *tilesetSwatch;
+    QQuickItem *newLayerButton;
+    QQuickItem *moveLayerUpButton;
+    QQuickItem *moveLayerDownButton;
 
     QScopedPointer<QSignalSpy> creationErrorOccurredSpy;
 
