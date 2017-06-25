@@ -73,9 +73,9 @@ public slots:
     void deleteCurrentLayer();
     void moveCurrentLayerUp();
     void moveCurrentLayerDown();
-    void setCurrentLayerName(const QString &name);
-    void setCurrentLayerVisible(bool visible);
-    void setCurrentLayerOpacity(qreal opacity);
+    void setLayerName(int layerIndex, const QString &name);
+    void setLayerVisible(int layerIndex, bool visible);
+    void setLayerOpacity(int layerIndex, qreal opacity);
 
 private:
     friend class ChangeLayeredImageCanvasSizeCommand;

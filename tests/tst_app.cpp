@@ -2066,22 +2066,25 @@ void tst_App::addAndRemoveLayers()
     QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 2"));
     QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
 
-    QQuickItem *layerListView = window->findChild<QQuickItem*>("layerListView");
-    QVERIFY(layerListView);
-
     {
         // Ensure that what the user sees is correct.
+        QQuickItem *layerListView = window->findChild<QQuickItem*>("layerListView");
+        QVERIFY(layerListView);
         QCOMPARE(layerListView->property("count"), 2);
 
         QQuickItem *layer1Delegate = findListViewChild("layerListView", QLatin1String("Layer 1"));
         QVERIFY(layer1Delegate);
-        QCOMPARE(layer1Delegate->property("text").toString(), QLatin1String("Layer 1"));
+        QQuickItem *layer1DelegateNameTextField = layer1Delegate->findChild<QQuickItem*>("layerNameTextField");
+        QVERIFY(layer1DelegateNameTextField);
+        QCOMPARE(layer1DelegateNameTextField->property("text").toString(), QLatin1String("Layer 1"));
 
         // It seems that the ListView sometimes need some extra time to create the second item (e.g. when debugging).
         QTRY_VERIFY(findListViewChild("layerListView", QLatin1String("Layer 2")));
         QQuickItem *layer2Delegate = findListViewChild("layerListView", QLatin1String("Layer 2"));
         QVERIFY(layer2Delegate);
-        QCOMPARE(layer2Delegate->property("text").toString(), QLatin1String("Layer 2"));
+        QQuickItem *layer2DelegateNameTextField = layer2Delegate->findChild<QQuickItem*>("layerNameTextField");
+        QVERIFY(layer2DelegateNameTextField);
+        QCOMPARE(layer2DelegateNameTextField->property("text").toString(), QLatin1String("Layer 2"));
         // The second layer was added last, so it should be at the top of the list.
         QVERIFY(layer1Delegate->y() > layer2Delegate->z());
     }
@@ -2200,12 +2203,12 @@ void tst_App::moveLayerUpAndDown()
     // Move the current layer up.
     mouseEventOnCentre(moveLayerUpButton, MouseClick);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
-    QCOMPARE(layeredImageProject->layerAt(0)->name(), layer2Delegate->property("text").toString());
+    QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 2"));
 
     // Move the current layer down.
     mouseEventOnCentre(moveLayerDownButton, MouseClick);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
-    QCOMPARE(layeredImageProject->layerAt(1)->name(), layer2Delegate->property("text").toString());
+    QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 2"));
 
     // TODO: draw a different-coloured pixel on each layer and do screen grab comparisons
 }

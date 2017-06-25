@@ -62,7 +62,7 @@ Page {
                 indicator: null
                 anchors.verticalCenter: parent.verticalCenter
 
-                onClicked: project.setCurrentLayerVisible(!model.layer.visible)
+                onClicked: project.setLayerVisible(index, !model.layer.visible)
             }
 
             TextField {
@@ -74,7 +74,6 @@ Page {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.verticalCenterOffset: 6
                 background.visible: false
-                background.onVisibleChanged: print(background.visible)
                 visible: false
 
                 Keys.onEscapePressed: {
@@ -83,7 +82,7 @@ Page {
                 }
                 onAccepted: {
                     focus = false;
-                    project.setCurrentLayerName(text);
+                    project.setLayerName(index, text);
                 }
             }
 
