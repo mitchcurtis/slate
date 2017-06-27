@@ -71,6 +71,7 @@ Page {
                 objectName: "layerNameTextField"
                 x: parent.leftPadding
                 text: model.layer.name
+                font.family: "FontAwesome"
                 activeFocusOnPress: false
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.verticalCenterOffset: 6
@@ -143,6 +144,7 @@ Page {
         Button {
             objectName: "moveLayerDownButton"
             text: "\uf107"
+            font.family: "FontAwesome"
             flat: true
             focusPolicy: Qt.NoFocus
             hoverEnabled: true
@@ -157,6 +159,7 @@ Page {
         Button {
             objectName: "moveLayerUpButton"
             text: "\uf106"
+            font.family: "FontAwesome"
             flat: true
             focusPolicy: Qt.NoFocus
             hoverEnabled: true
@@ -175,6 +178,7 @@ Page {
         Button {
             objectName: "deleteLayerButton"
             text: "\uf1f8"
+            font.family: "FontAwesome"
             flat: true
             focusPolicy: Qt.NoFocus
             enabled: project && project.currentLayer && project.layerCount > 1
