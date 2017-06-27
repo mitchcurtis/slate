@@ -49,6 +49,7 @@ Item {
         z: 1
         visible: canvas && canvas.hasBlankCursor && canvas.useIconCursor
         text: visible && checkedToolButton ? checkedToolButton.iconText : ""
+        font.family: "FontAwesome"
         color: "#ccc"
     }
 

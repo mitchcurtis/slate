@@ -58,6 +58,7 @@ Page {
                 objectName: "layerVisibilityCheckBox"
                 x: 14
                 text: model.layer.visible ? "\uf06e" : "\uf070"
+                font.family: "FontAwesome"
                 focusPolicy: Qt.NoFocus
                 indicator: null
                 anchors.verticalCenter: parent.verticalCenter

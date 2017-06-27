@@ -172,12 +172,14 @@ void tst_App::openClose()
 
         // Check that the cursor goes back to an arrow when there's a modal popup visible,
         // even if the mouse is over the canvas and not the popup.
-        QTest::mouseMove(window, canvas->mapToScene(QPointF(0, 0)).toPoint());
+        QTest::mouseMove(window, canvas->mapToScene(QPointF(10, 10)).toPoint());
         QVERIFY(!canvas->hasActiveFocus());
         QCOMPARE(window->cursor().shape(), Qt::ArrowCursor);
 
         // Close the error message popup.
-        QTest::mouseClick(window, Qt::LeftButton);
+        // QTest::mouseClick(window, Qt::LeftButton) didn't work on mac after a couple of data row runs,
+        // so we use the keyboard to close it instead.
+        QTest::keyClick(window, Qt::Key_Escape);
         QVERIFY(!errorPopup->property("visible").toBool());
     }
 
