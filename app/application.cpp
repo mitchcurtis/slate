@@ -54,7 +54,7 @@ static QGuiApplication *createApplication(int &argc, char **argv, const QString 
     app->setOrganizationName("Mitch Curtis");
     app->setApplicationName(applicationName);
     app->setOrganizationDomain("mitchcurtis");
-    app->setApplicationDisplayName("Slate Tileset Editor");
+    app->setApplicationDisplayName("Slate - Pixel Art Editor");
     app->setApplicationVersion("0.0");
     return app;
 }

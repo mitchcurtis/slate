@@ -23,7 +23,7 @@
 #include "imagelayer.h"
 
 TestHelper::TestHelper(int &argc, char **argv) :
-    app(argc, argv, QStringLiteral("Tile Editor Test Suite")),
+    app(argc, argv, QStringLiteral("Slate Test Suite")),
     window(qobject_cast<QQuickWindow*>(app.qmlEngine()->rootObjects().first())),
     overlay(nullptr),
     projectManager(nullptr),

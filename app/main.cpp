@@ -2,6 +2,6 @@
 
 int main(int argc, char *argv[])
 {
-    Application app(argc, argv, QStringLiteral("Tile Editor"));
+    Application app(argc, argv, QStringLiteral("Slate"));
     return app.run();
 }
