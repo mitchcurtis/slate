@@ -95,6 +95,7 @@ private Q_SLOTS:
     void layerVisibility();
     void moveLayerUpAndDown();
     void renameLayer();
+    void saveAndLoadLayeredImageProject();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -2294,6 +2295,70 @@ void tst_App::renameLayer()
     // Undo the name change.
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
+}
+
+void tst_App::saveAndLoadLayeredImageProject()
+{
+    createNewLayeredImageProject();
+
+    // Make comparing grabbed image pixels easier.
+    panTopLeftTo(0, 0);
+
+    // Draw a blue square.
+    setCursorPosInPixels(10, 10);
+    layeredImageCanvas->setPenForegroundColour(Qt::blue);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), Qt::blue);
+
+    // Add a new layer.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+
+    // Make it the current layer.
+    selectLayer("Layer 2", 0);
+
+    // Draw a red dot.
+    setCursorPosInPixels(20, 20);
+    layeredImageCanvas->setPenForegroundColour(Qt::red);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(20, 20), Qt::red);
+
+    // Ensure that what the user sees is correct.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabBeforeSaving = imageGrabber.takeImage();
+    QCOMPARE(grabBeforeSaving.pixelColor(10, 10), Qt::blue);
+    QCOMPARE(grabBeforeSaving.pixelColor(20, 20), Qt::red);
+
+    // Save.
+    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/layeredimageproject.json");
+    layeredImageProject->saveAs(saveUrl);
+    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(!layeredImageProject->hasUnsavedChanges());
+
+    // Close.
+    triggerCloseProject();
+    QVERIFY(!layeredImageProject->hasLoaded());
+    QCOMPARE(layeredImageProject->layerCount(), 0);
+    // The layer panel shouldn't show any layers.
+    QQuickItem *layerListView = window->findChild<QQuickItem*>("layerListView");
+    QVERIFY(layerListView);
+    QCOMPARE(layerListView->property("count").toInt(), 0);
+QTest::qWait(3000);
+    // Load the saved file.
+    layeredImageProject->load(saveUrl);
+    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+QTest::qWait(10000);
+    panTopLeftTo(0, 0);
+
+    // Ensure that what the user sees is correct.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabAfterSaving = imageGrabber.takeImage();
+    QCOMPARE(grabAfterSaving.pixelColor(10, 10), Qt::blue);
+    QCOMPARE(grabAfterSaving.pixelColor(20, 20), Qt::red);
 }
 
 int main(int argc, char *argv[])

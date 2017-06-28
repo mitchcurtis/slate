@@ -906,6 +906,11 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         mouseEventOnCentre(okButton, MouseClick);
         QVERIFY(!newTilesetProjectPopup->property("visible").toBool());
     } else {
+        // Create a temporary directory that we can save into, etc.
+        if (projectType == Project::LayeredImageType) {
+            setupTempLayeredImageProjectDir();
+        }
+
         // Now the New Image Project popup should be visible.
         QTRY_VERIFY(findPopupFromTypeName("NewImageProjectPopup"));
         const QObject *newImageProjectPopup = findPopupFromTypeName("NewImageProjectPopup");
@@ -1100,16 +1105,28 @@ void TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
 
 void TestHelper::setupTempTilesetProjectDir()
 {
-    tempProjectDir.reset(new QTemporaryDir);
-    QVERIFY2(tempProjectDir->isValid(), qPrintable(tempProjectDir->errorString()));
-
     QStringList toCopy;
     toCopy << tilesetBasename;
     // More stuff here.
 
     QStringList copiedPaths;
+    setupTempProjectDir(toCopy, &copiedPaths);
 
-    foreach (const QString &basename, toCopy) {
+    tempTilesetUrl = QUrl::fromLocalFile(copiedPaths.at(0));
+    // More stuff here.
+}
+
+void TestHelper::setupTempLayeredImageProjectDir()
+{
+    setupTempProjectDir();
+}
+
+void TestHelper::setupTempProjectDir(const QStringList &resourceFilesToCopy, QStringList *filesCopied)
+{
+    tempProjectDir.reset(new QTemporaryDir);
+    QVERIFY2(tempProjectDir->isValid(), qPrintable(tempProjectDir->errorString()));
+
+    foreach (const QString &basename, resourceFilesToCopy) {
         QFile sourceFile(":/resources/" + basename);
         QVERIFY2(sourceFile.open(QIODevice::ReadOnly), qPrintable(QString::fromLatin1(
             "Failed to open %1: %2").arg(sourceFile.fileName()).arg(sourceFile.errorString())));
@@ -1128,11 +1145,9 @@ void TestHelper::setupTempTilesetProjectDir()
         QVERIFY2(copiedFile.open(QIODevice::ReadWrite), qPrintable(QString::fromLatin1(
             "Error opening file at %1: %2").arg(saveFilePath).arg(copiedFile.errorString())));
 
-        copiedPaths << saveFilePath;
+        if (filesCopied)
+            *filesCopied << saveFilePath;
     }
-
-    tempTilesetUrl = QUrl::fromLocalFile(copiedPaths.at(0));
-    // More stuff here.
 }
 
 void TestHelper::switchMode(TileCanvas::Mode mode)

@@ -157,6 +157,9 @@ protected:
     void createNewLayeredImageProject(int imageWidth = 256, int imageHeight = 256,
         bool transparentImageBackground = false);
     void setupTempTilesetProjectDir();
+    void setupTempLayeredImageProjectDir();
+    void setupTempProjectDir(const QStringList &resourceFilesToCopy = QStringList(),
+        QStringList *filesCopied = nullptr);
     void switchMode(TileCanvas::Mode mode);
     void switchTool(ImageCanvas::Tool tool);
     void panTopLeftTo(int x, int y);

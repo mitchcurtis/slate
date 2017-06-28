@@ -19,6 +19,7 @@
 
 #include "layeredimageproject.h"
 
+#include <QBuffer>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -170,8 +171,9 @@ void LayeredImageProject::close()
     qCDebug(lcProject) << "closing project...";
 
     setNewProject(false);
-    qDeleteAll(mLayers);
-    mLayers.clear();
+    while (!mLayers.isEmpty()) {
+        delete takeLayer(0);
+    }
     setUrl(QUrl());
     mUndoStack.clear();
     mLayersCreated = 0;
@@ -188,33 +190,76 @@ void LayeredImageProject::saveAs(const QUrl &url)
     if (url.isEmpty())
         return;
 
-//    const QString filePath = url.toLocalFile();
-//    const QFileInfo projectSaveFileInfo(filePath);
-//    if (mTempDir.isValid()) {
-//        if (projectSaveFileInfo.dir().path() == mTempDir.path()) {
-//            error(QLatin1String("Cannot save project in internal temporary directory"));
-//            return;
-//        }
-//    }
+    const QString filePath = url.toLocalFile();
+    const QFileInfo projectSaveFileInfo(filePath);
+    if (mTempDir.isValid()) {
+        if (projectSaveFileInfo.dir().path() == mTempDir.path()) {
+            error(QLatin1String("Cannot save project in internal temporary directory"));
+            return;
+        }
+    }
 
-//    if (mImage.isNull()) {
-//        error(QString::fromLatin1("Failed to save project: image is null"));
-//        return;
-//    }
+    QFile jsonFile;
+    if (QFile::exists(filePath)) {
+        jsonFile.setFileName(filePath);
+        if (!jsonFile.open(QIODevice::WriteOnly)) {
+            error(QString::fromLatin1("Failed to open project's JSON file at %1").arg(filePath));
+            return;
+        }
+    } else {
+        jsonFile.setFileName(filePath);
+        if (!jsonFile.open(QIODevice::WriteOnly)) {
+            error(QString::fromLatin1("Failed to create project's JSON file at %1").arg(filePath));
+            return;
+        }
+    }
 
-//    if (!mImage.save(filePath)) {
-//        error(QString::fromLatin1("Failed to save project's image to %1").arg(filePath));
-//        return;
-//    }
+    QJsonObject rootJson;
 
-//    if (mFromNew) {
-//        // The project was successfully saved, so it can now save
-//        // to the same URL by default from now on.
-//        setNewProject(false);
-//    }
-//    setUrl(url);
-//    mUndoStack.setClean();
-    //    mHadUnsavedChangesBeforeMacroBegan = false;
+    QJsonObject projectObject;
+
+    QJsonArray layersArray;
+    foreach (ImageLayer *layer, mLayers) {
+        QJsonObject layerObject;
+
+        // TODO: add read and write functions for ImageLayer and save name, etc.
+        // so that we can see why the test is failing
+
+        QByteArray imageData;
+        QBuffer buffer { &imageData };
+        buffer.open(QIODevice::WriteOnly);
+        layer->image()->save(&buffer, "png");
+        const QByteArray base64ImageData = buffer.data().toBase64();
+        layerObject["imageData"] = QString::fromLatin1(base64ImageData);
+
+        layersArray.append(layerObject);
+    }
+
+    projectObject.insert("layers", layersArray);
+
+    rootJson.insert("project", projectObject);
+
+    QJsonDocument jsonDoc(rootJson);
+    const qint64 bytesWritten = jsonFile.write(jsonDoc.toJson());
+    if (bytesWritten == -1) {
+        error(QString::fromLatin1("Failed to save project: couldn't write to JSON project file: %1")
+            .arg(jsonFile.errorString()));
+        return;
+    }
+
+    if (bytesWritten == 0) {
+        error(QString::fromLatin1("Failed to save project: wrote zero bytes to JSON project file"));
+        return;
+    }
+
+    if (mFromNew) {
+        // The project was successfully saved, so it can now save
+        // to the same URL by default from now on.
+        setNewProject(false);
+    }
+    setUrl(url);
+    mUndoStack.setClean();
+    mHadUnsavedChangesBeforeMacroBegan = false;
 }
 
 void LayeredImageProject::addNewLayer()
@@ -387,7 +432,10 @@ QDebug operator<<(QDebug debug, const LayeredImageProject *project)
     debug.nospace() << "LayeredImageProject currentLayerIndex=" << project->mCurrentLayerIndex
         << ", layers:";
     foreach (ImageLayer *layer, project->mLayers) {
-        debug << "\n    name=" << layer->name() << " visible=" << layer->isVisible() << " opacity=" << layer->opacity();
+        debug << "\n    name=" << layer->name()
+              << " visible=" << layer->isVisible()
+              << " opacity=" << layer->opacity()
+              << " image=" << *layer->image();
     }
     return debug.space();
 }
