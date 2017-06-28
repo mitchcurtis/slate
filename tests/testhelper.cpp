@@ -594,16 +594,26 @@ int TestHelper::digitAt(int number, int index)
     return index < digits.size() ? digits.at(index) : 0;
 }
 
-void TestHelper::triggerShortcut(const QString &sequenceAsString)
+void TestHelper::triggerShortcut(const QString &objectName, const QString &sequenceAsString)
 {
     // Move the mouse away first to close ToolTip: https://bugreports.qt.io/browse/QTBUG-60492
     if (canvas)
         QTest::mouseMove(window, canvasSceneCentre());
 
+    QObject *shortcut = window->findChild<QObject*>(objectName);
+    QVERIFY(shortcut);
+    QVERIFY2(shortcut->property("enabled").toBool(), qPrintable(QString::fromLatin1(
+        "Shortcut \"%1\" is not enabled (%2 has active focus; does this shortcut require the canvas to have it?)")
+            .arg(objectName, window->activeFocusItem() ? window->activeFocusItem()->objectName() : QString())));
+
+    QSignalSpy activatedSpy(shortcut, SIGNAL(activated()));
+    QVERIFY(activatedSpy.isValid());
+
     QTest::qWaitForWindowActive(window);
     const int value = QKeySequence(sequenceAsString)[0];
     Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(value & Qt::KeyboardModifierMask);
     QTest::keyClick(window, value & ~mods, mods);
+    QCOMPARE(activatedSpy.count(), 1);
 }
 
 void TestHelper::triggerNewProject()
@@ -612,7 +622,7 @@ void TestHelper::triggerNewProject()
     mouseEventOnCentre(fileToolButton, MouseClick);
     mouseEventOnCentre(newMenuButton, MouseClick);
 #else
-    triggerShortcut(app.settings()->newShortcut());
+    triggerShortcut("newShortcut", app.settings()->newShortcut());
 #endif
 }
 
@@ -622,7 +632,7 @@ void TestHelper::triggerCloseProject()
     mouseEventOnCentre(fileToolButton, MouseClick);
     mouseEventOnCentre(closeMenuButton, MouseClick);
 #else
-    triggerShortcut(app.settings()->closeShortcut());
+    triggerShortcut("closeShortcut", app.settings()->closeShortcut());
 #endif
 }
 
@@ -632,7 +642,7 @@ void TestHelper::triggerSaveProject()
     mouseEventOnCentre(fileToolButton, MouseClick);
     mouseEventOnCentre(saveMenuButton, MouseClick);
 #else
-    triggerShortcut(app.settings()->saveShortcut());
+    triggerShortcut("saveShortcut", app.settings()->saveShortcut());
 #endif
 }
 
@@ -653,7 +663,7 @@ void TestHelper::triggerOpenProject()
     mouseEventOnCentre(fileToolButton, MouseClick);
     mouseEventOnCentre(openMenuButton, MouseClick);
 #else
-    triggerShortcut(app.settings()->openShortcut());
+    triggerShortcut("openShortcut", app.settings()->openShortcut());
 #endif
 }
 
@@ -663,7 +673,7 @@ void TestHelper::triggerRevert()
     mouseEventOnCentre(fileToolButton, MouseClick);
     mouseEventOnCentre(revertMenuButton, MouseClick);
 #else
-    triggerShortcut(app.settings()->revertShortcut());
+    triggerShortcut("revertShortcut", app.settings()->revertShortcut());
 #endif
 }
 
@@ -673,7 +683,7 @@ void TestHelper::triggerCentre()
     mouseEventOnCentre(viewToolButton, MouseClick);
     mouseEventOnCentre(centreMenuButton, MouseClick);
 #else
-    triggerShortcut(app.settings()->centreShortcut());
+    triggerShortcut("centreShortcut", app.settings()->centreShortcut());
 #endif
 }
 
@@ -683,7 +693,7 @@ void TestHelper::triggerGridVisible()
     mouseEventOnCentre(viewToolButton, MouseClick);
     mouseEventOnCentre(showGridMenuButton, MouseClick);
 #else
-    triggerShortcut(app.settings()->gridVisibleShortcut());
+    triggerShortcut("gridVisibleShortcut", app.settings()->gridVisibleShortcut());
 #endif
 }
 
@@ -693,7 +703,7 @@ void TestHelper::triggerSplitScreen()
     mouseEventOnCentre(viewToolButton, MouseClick);
     mouseEventOnCentre(splitScreenMenuButton, MouseClick);
 #else
-    triggerShortcut(app.settings()->splitScreenShortcut());
+    triggerShortcut("splitScreenShortcut", app.settings()->splitScreenShortcut());
 #endif
 }
 
@@ -703,7 +713,7 @@ void TestHelper::triggerOptions()
     mouseEventOnCentre(optionsToolButton, MouseClick);
     mouseEventOnCentre(settingsMenuButton, MouseClick);
 #else
-    triggerShortcut(app.settings()->optionsShortcut());
+    triggerShortcut("optionsShortcut", app.settings()->optionsShortcut());
 #endif
 }
 

@@ -1747,7 +1747,7 @@ void tst_App::moveSelectionImageCanvas()
 
     // Undo the selection move.
     QVERIFY(canvas->hasActiveFocus());
-    triggerShortcut(app.settings()->undoShortcut());
+    triggerShortcut("undoShortcut", app.settings()->undoShortcut());
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
     QEXPECT_FAIL("ImageType, transparent background", "TODO", Abort);
@@ -1777,7 +1777,7 @@ void tst_App::moveSelectionImageCanvas()
 
     // "Undo" the selection move. The selection move was never confirmed, so this
     // will take the ImageCanvas-shortcutOverride path.
-    triggerShortcut(app.settings()->undoShortcut());
+    triggerShortcut("undoShortcut", app.settings()->undoShortcut());
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
 }
@@ -2346,11 +2346,11 @@ void tst_App::saveAndLoadLayeredImageProject()
     QQuickItem *layerListView = window->findChild<QQuickItem*>("layerListView");
     QVERIFY(layerListView);
     QCOMPARE(layerListView->property("count").toInt(), 0);
-QTest::qWait(3000);
+
     // Load the saved file.
     layeredImageProject->load(saveUrl);
     VERIFY_NO_CREATION_ERRORS_OCCURRED();
-QTest::qWait(10000);
+
     panTopLeftTo(0, 0);
 
     // Ensure that what the user sees is correct.

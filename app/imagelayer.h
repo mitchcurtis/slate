@@ -23,6 +23,8 @@
 #include <QImage>
 #include <QObject>
 
+class QJsonObject;
+
 class ImageLayer : public QObject
 {
     Q_OBJECT
@@ -32,7 +34,7 @@ class ImageLayer : public QObject
 
 public:
     ImageLayer();
-    explicit ImageLayer(QObject *parent, const QImage &image);
+    explicit ImageLayer(QObject *parent, const QImage &image = QImage());
     ~ImageLayer();
 
     QString name() const;
@@ -49,6 +51,9 @@ public:
 
     bool isVisible() const;
     void setVisible(bool visible);
+
+    void read(const QJsonObject &jsonObject);
+    void write(QJsonObject &jsonObject);
 
 signals:
     void nameChanged();

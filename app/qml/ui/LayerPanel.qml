@@ -80,12 +80,12 @@ Page {
                 visible: false
 
                 Keys.onEscapePressed: {
-                    focus = false;
                     text = model.layer.name;
+                    layeredImageCanvas.forceActiveFocus();
                 }
                 onAccepted: {
-                    focus = false;
                     project.setLayerName(index, text);
+                    layeredImageCanvas.forceActiveFocus();
                 }
             }
 

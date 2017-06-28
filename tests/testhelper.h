@@ -127,7 +127,7 @@ protected:
     int digitAt(int number, int index);
 
     // Platform-dependent actions
-    void triggerShortcut(const QString &sequenceAsString);
+    void triggerShortcut(const QString &objectName, const QString &sequenceAsString);
     void triggerNewProject();
     void triggerCloseProject();
     void triggerSaveProject();

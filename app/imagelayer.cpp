@@ -19,6 +19,9 @@
 
 #include "imagelayer.h"
 
+#include <QBuffer>
+#include <QJsonObject>
+
 ImageLayer::ImageLayer(QObject *parent, const QImage &image) :
     QObject(parent),
     mVisible(true),
@@ -95,4 +98,29 @@ void ImageLayer::setVisible(bool visible)
 
     mVisible = visible;
     emit visibleChanged();
+}
+
+void ImageLayer::read(const QJsonObject &jsonObject)
+{
+    setName(jsonObject.value("name").toString());
+    setOpacity(jsonObject.value("opacity").toDouble());
+    setVisible(jsonObject.value("visible").toBool());
+
+    const QString base64ImageData = jsonObject.value("imageData").toString();
+    QByteArray imageData = QByteArray::fromBase64(base64ImageData.toLatin1());
+    mImage.loadFromData(imageData, "png");
+}
+
+void ImageLayer::write(QJsonObject &jsonObject)
+{
+    jsonObject["name"] = mName;
+    jsonObject["opacity"] = mOpacity;
+    jsonObject["visible"] = mVisible;
+
+    QByteArray imageData;
+    QBuffer buffer { &imageData };
+    buffer.open(QIODevice::WriteOnly);
+    mImage.save(&buffer, "png");
+    const QByteArray base64ImageData = buffer.data().toBase64();
+    jsonObject["imageData"] = QString::fromLatin1(base64ImageData);
 }

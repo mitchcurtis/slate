@@ -19,7 +19,6 @@
 
 #include "layeredimageproject.h"
 
-#include <QBuffer>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -145,18 +144,13 @@ void LayeredImageProject::load(const QUrl &url)
     QJsonArray layerArray = JsonUtils::strictValue(projectObject, "layers").toArray();
     for (int i = 0; i < layerArray.size(); ++i) {
         QJsonObject layerObject = layerArray.at(i).toObject();
-        const QString base64ImageData = layerObject.value("imageData").toString();
-        QByteArray imageData = QByteArray::fromBase64(base64ImageData.toLatin1());
-
-        QImage image;
-        image.loadFromData(imageData, "png");
-        if (image.isNull()) {
+        ImageLayer *imageLayer = new ImageLayer(this);
+        imageLayer->read(layerObject);
+        if (imageLayer->image()->isNull()) {
             error(QString::fromLatin1("Failed to load image for layer %1").arg(i));
             close();
             return;
         }
-
-        ImageLayer *imageLayer = new ImageLayer(this, image);
         addLayerAboveAll(imageLayer);
     }
 
@@ -221,18 +215,8 @@ void LayeredImageProject::saveAs(const QUrl &url)
     QJsonArray layersArray;
     foreach (ImageLayer *layer, mLayers) {
         QJsonObject layerObject;
-
-        // TODO: add read and write functions for ImageLayer and save name, etc.
-        // so that we can see why the test is failing
-
-        QByteArray imageData;
-        QBuffer buffer { &imageData };
-        buffer.open(QIODevice::WriteOnly);
-        layer->image()->save(&buffer, "png");
-        const QByteArray base64ImageData = buffer.data().toBase64();
-        layerObject["imageData"] = QString::fromLatin1(base64ImageData);
-
-        layersArray.append(layerObject);
+        layer->write(layerObject);
+        layersArray.prepend(layerObject);
     }
 
     projectObject.insert("layers", layersArray);
