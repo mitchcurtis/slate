@@ -246,8 +246,8 @@ ApplicationWindow {
         id: saveAsDialog
         objectName: "saveAsDialog"
         fileMode: Platform.FileDialog.SaveFile
-        nameFilters: projectType === Project.TilesetType ? tilesetFilters : imageFilters
-        defaultSuffix: projectType === Project.TilesetType ? tilesetDefaultSuffix : imageDefaultSuffix
+        nameFilters: projectType === Project.TilesetType || projectType == Project.LayeredImageType ? tilesetFilters : imageFilters
+        defaultSuffix: projectType === Project.TilesetType || projectType == Project.LayeredImageType ? tilesetDefaultSuffix : imageDefaultSuffix
         onAccepted: project.saveAs(file)
     }
 
@@ -292,7 +292,10 @@ ApplicationWindow {
     }
 
     function loadProject(url) {
-        // TODO: fix this for layered image projects (check file contents)
+        // TODO: fix this for layered image projects (check file contents). e.g.
+        // ProjectManager::projectTypeFromUrl() {
+        //      return json.contains("layers") ? Project::LayeredImageProjectType : ...
+        // }
         var type = url.toString().endsWith(".json") ? Project.TilesetType : Project.ImageType;
 
         projectManager.beginCreation(type);
