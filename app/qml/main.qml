@@ -231,13 +231,33 @@ ApplicationWindow {
 
     readonly property var imageFilters: ["PNG files (*.png)", "BMP files (*.bmp)"]
     readonly property string imageDefaultSuffix: "png"
-    readonly property var tilesetFilters: ["JSON files (*.json)"]
-    readonly property string tilesetDefaultSuffix: "json"
+    readonly property var layeredImageFilters: ["SLP files (*.slp)"]
+    readonly property string layeredImageDefaultSuffix: "slp"
+    readonly property var tilesetFilters: ["STP files (*.stp)"]
+    readonly property string tilesetDefaultSuffix: "stp"
+
+    function defaultSuffixForProjectType(projectType) {
+        return projectType === Project.ImageType ? imageDefaultSuffix
+            : projectType === Project.LayeredImageType ? layeredImageDefaultSuffix
+            : tilesetDefaultSuffix;
+    }
+
+    function nameFiltersForProjectType(projectType) {
+        return projectType === Project.ImageType ? imageFilters
+            : projectType === Project.LayeredImageType ? layeredImageFilters
+            : tilesetFilters;
+    }
+
+    function projectTypeForUrl(url) {
+        var urlString = url.toString();
+        return url.toString().endsWith(".stp") ? Project.TilesetType
+            : url.toString().endsWith(".slp") ? Project.LayeredImageType : Project.ImageType;
+    }
 
     Platform.FileDialog {
         id: openProjectDialog
         objectName: "openProjectDialog"
-        nameFilters: ["PNG files (*.png)", "BMP files (*.bmp)", "JSON files (*.json)"]
+        nameFilters: ["PNG files (*.png)", "BMP files (*.bmp)", "SLP files (*.slp)", "STP files (*.stp)"]
         defaultSuffix: imageDefaultSuffix
         onAccepted: loadProject(file)
     }
@@ -246,8 +266,8 @@ ApplicationWindow {
         id: saveAsDialog
         objectName: "saveAsDialog"
         fileMode: Platform.FileDialog.SaveFile
-        nameFilters: projectType === Project.TilesetType || projectType == Project.LayeredImageType ? tilesetFilters : imageFilters
-        defaultSuffix: projectType === Project.TilesetType || projectType == Project.LayeredImageType ? tilesetDefaultSuffix : imageDefaultSuffix
+        nameFilters: nameFiltersForProjectType(projectType)
+        defaultSuffix: defaultSuffixForProjectType(projectType)
         onAccepted: project.saveAs(file)
     }
 
@@ -292,12 +312,7 @@ ApplicationWindow {
     }
 
     function loadProject(url) {
-        // TODO: fix this for layered image projects (check file contents). e.g.
-        // ProjectManager::projectTypeFromUrl() {
-        //      return json.contains("layers") ? Project::LayeredImageProjectType : ...
-        // }
-        var type = url.toString().endsWith(".json") ? Project.TilesetType : Project.ImageType;
-
+        var type = projectTypeForUrl(url);
         projectManager.beginCreation(type);
         projectManager.temporaryProject.load(url);
         projectManager.completeCreation();

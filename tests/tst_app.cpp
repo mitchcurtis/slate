@@ -131,7 +131,7 @@ void tst_App::newProjectWithNewTileset()
     QCOMPARE(*tilesetProject->tileset()->image(), expectedTilesetImage);
 
     // Save the project.
-    const QUrl saveFileName = QUrl::fromLocalFile(tempProjectDir->path() + "/mytileset.json");
+    const QUrl saveFileName = QUrl::fromLocalFile(tempProjectDir->path() + "/mytileset.stp");
     tilesetProject->saveAs(saveFileName);
     VERIFY_NO_CREATION_ERRORS_OCCURRED();
     // Should save the image at the same location as the project.
@@ -160,7 +160,7 @@ void tst_App::openClose()
         QCOMPARE(project->url(), QUrl());
         // There was a project open before we attempted to load the invalid one.
         QCOMPARE(project->hasLoaded(), true);
-        const QString errorMessage = QLatin1String("Tileset project files must have a .json extension ()");
+        const QString errorMessage = QLatin1String("Tileset project files must have a .stp extension ()");
         QCOMPARE(creationErrorOccurredSpy->size(), 1);
         QCOMPARE(creationErrorOccurredSpy->at(0).at(0).toString(), errorMessage);
         const QObject *errorPopup = findPopupFromTypeName("ErrorPopup");
@@ -222,7 +222,7 @@ void tst_App::save()
     QVERIFY(window->title().contains("*"));
 
     // Save our drawing.
-    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/project.json");
+    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/project.stp");
     tilesetProject->saveAs(saveUrl);
     VERIFY_NO_CREATION_ERRORS_OCCURRED();
     QVERIFY(!tilesetProject->hasUnsavedChanges());
@@ -242,7 +242,7 @@ void tst_App::saveAsAndLoad()
     createNewTilesetProject();
 
     // Save the untouched project.
-    const QString originalProjectPath = tempProjectDir->path() + "/project.json";
+    const QString originalProjectPath = tempProjectDir->path() + "/project.stp";
     tilesetProject->saveAs(QUrl::fromLocalFile(originalProjectPath));
     VERIFY_NO_CREATION_ERRORS_OCCURRED();
     QVERIFY(!tilesetProject->hasUnsavedChanges());
@@ -263,7 +263,7 @@ void tst_App::saveAsAndLoad()
     const QImage originalCanvasImage = imageGrabber.takeImage();
 
     // Save the project to a new file.
-    const QString savedProjectPath = tempProjectDir->path() + "/project2.json";
+    const QString savedProjectPath = tempProjectDir->path() + "/project2.stp";
     tilesetProject->saveAs(QUrl::fromLocalFile(savedProjectPath));
     VERIFY_NO_CREATION_ERRORS_OCCURRED();
     QCOMPARE(tilesetProject->url().toLocalFile(), savedProjectPath);
@@ -500,7 +500,7 @@ void tst_App::undoPixels()
     QVERIFY(!window->title().contains("*"));
 
     // Save the project so that we can test hasUnsavedChanges.
-    tilesetProject->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/project.json"));
+    tilesetProject->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/project.stp"));
     VERIFY_NO_CREATION_ERRORS_OCCURRED();
     QVERIFY(!tilesetProject->canSave());
     QVERIFY(!tilesetProject->hasUnsavedChanges());
@@ -2333,7 +2333,7 @@ void tst_App::saveAndLoadLayeredImageProject()
     QCOMPARE(grabBeforeSaving.pixelColor(20, 20), Qt::red);
 
     // Save.
-    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/layeredimageproject.json");
+    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/layeredimageproject.slp");
     layeredImageProject->saveAs(saveUrl);
     VERIFY_NO_CREATION_ERRORS_OCCURRED();
     QVERIFY(!layeredImageProject->hasUnsavedChanges());

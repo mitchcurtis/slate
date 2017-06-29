@@ -136,12 +136,12 @@ void TilesetProject::load(const QUrl &url)
 
     QFile jsonFile(url.toLocalFile());
     if (!jsonFile.open(QIODevice::ReadOnly)) {
-        error(QString::fromLatin1("Tileset project files must have a .json extension (%1)").arg(url.toLocalFile()));
+        error(QString::fromLatin1("Tileset project files must have a .stp extension (%1)").arg(url.toLocalFile()));
         return;
     }
 
-    if (QFileInfo(jsonFile).suffix() != "json") {
-        error(QString::fromLatin1("Failed to open tileset project's JSON file at %1").arg(url.toLocalFile()));
+    if (QFileInfo(jsonFile).suffix() != "stp") {
+        error(QString::fromLatin1("Failed to open tileset project's STP file at %1").arg(url.toLocalFile()));
         return;
     }
 
