@@ -78,6 +78,7 @@ public slots:
     void setLayerOpacity(int layerIndex, qreal opacity);
 
 private:
+    friend class AddLayerCommand;
     friend class ChangeLayeredImageCanvasSizeCommand;
     friend class ChangeLayerOrderCommand;
     friend class ChangeLayerNameCommand;

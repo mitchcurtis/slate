@@ -97,6 +97,7 @@ private Q_SLOTS:
     void renameLayer();
     void saveAndLoadLayeredImageProject();
     void layerVisibilityAfterMoving();
+    void undoAfterAdd();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -2430,6 +2431,17 @@ void tst_App::layerVisibilityAfterMoving()
     const QImage grabWithLayer1Below = imageGrabber.takeImage();
     QCOMPARE(grabWithLayer1Below.pixelColor(0, 0), Qt::white);
     QCOMPARE(grabWithLayer1Below.pixelColor(20, 20), Qt::red);
+}
+
+void tst_App::undoAfterAdd()
+{
+    createNewLayeredImageProject();
+
+    // Add a new layer.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+    QCOMPARE(layeredImageProject->hasUnsavedChanges(), true);
+    QCOMPARE(undoButton->isEnabled(), true);
 }
 
 int main(int argc, char *argv[])

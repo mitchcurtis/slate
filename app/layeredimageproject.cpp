@@ -23,6 +23,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+#include "addlayercommand.h"
 #include "changelayeredimagecanvassizecommand.h"
 #include "changelayernamecommand.h"
 #include "changelayeropacitycommand.h"
@@ -343,9 +344,14 @@ void LayeredImageProject::addNewLayer(int imageWidth, int imageHeight, bool tran
     QImage emptyImage(imageWidth, imageHeight, QImage::Format_ARGB32_Premultiplied);
     emptyImage.fill(transparent ? Qt::transparent : Qt::white);
 
-    ImageLayer *imageLayer = new ImageLayer(this, emptyImage);
+    QScopedPointer<ImageLayer> imageLayer(new ImageLayer(nullptr, emptyImage));
     imageLayer->setName(QString::fromLatin1("Layer %1").arg(++mLayersCreated));
-    addLayerAboveAll(imageLayer);
+
+    beginMacro(QLatin1String("AddLayerCommand"));
+    addChange(new AddLayerCommand(this, imageLayer.data(), 0));
+    endMacro();
+
+    imageLayer.take();
 }
 
 void LayeredImageProject::addLayerAboveAll(ImageLayer *imageLayer)
