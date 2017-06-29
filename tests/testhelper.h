@@ -36,6 +36,7 @@
 #include "layeredimageproject.h"
 #include "tilecanvas.h"
 #include "tilesetproject.h"
+#include "platformdefines.h"
 #include "project.h"
 #include "tilesetproject.h"
 
@@ -73,10 +74,6 @@ public:
 
     QSharedPointer<QQuickItemGrabResult> result;
 };
-
-#ifdef Q_OS_WIN32
-#define NON_NATIVE_MENUS
-#endif
 
 class TestHelper : public QObject
 {

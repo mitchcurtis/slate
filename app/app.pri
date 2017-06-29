@@ -49,7 +49,8 @@ HEADERS += \
     $$PWD/changelayernamecommand.h \
     $$PWD/changelayervisiblecommand.h \
     $$PWD/changelayeropacitycommand.h \
-    $$PWD/deletelayercommand.h
+    $$PWD/deletelayercommand.h \
+    $$PWD/platformdefines.h
 
 SOURCES += \
     $$PWD/application.cpp \

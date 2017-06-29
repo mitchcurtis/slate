@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2017, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,30 +17,13 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#ifndef PLATFORMDEFINES_H
+#define PLATFORMDEFINES_H
 
-#include <QGuiApplication>
-#include <QScopedPointer>
-#include <QtQml>
+#include <QtGlobal>
 
-#include "applicationsettings.h"
-#include "platformdefines.h"
+#ifdef Q_OS_WIN32
+#define NON_NATIVE_MENUS
+#endif
 
-class Application
-{
-public:
-    Application(int &argc, char **argv, const QString &applicationName);
-
-    int run();
-
-    ApplicationSettings *settings() const;
-    QQmlApplicationEngine *qmlEngine() const;
-
-private:
-    QScopedPointer<QGuiApplication> mApplication;
-    QScopedPointer<ApplicationSettings> mSettings;
-    QScopedPointer<QQmlApplicationEngine> mEngine;
-};
-
-#endif // APPLICATION_H
+#endif // PLATFORMDEFINES_H
