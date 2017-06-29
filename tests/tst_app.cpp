@@ -96,6 +96,7 @@ private Q_SLOTS:
     void moveLayerUpAndDown();
     void renameLayer();
     void saveAndLoadLayeredImageProject();
+    void layerVisibilityAfterMoving();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -2359,6 +2360,76 @@ void tst_App::saveAndLoadLayeredImageProject()
     const QImage grabAfterSaving = imageGrabber.takeImage();
     QCOMPARE(grabAfterSaving.pixelColor(10, 10), Qt::blue);
     QCOMPARE(grabAfterSaving.pixelColor(20, 20), Qt::red);
+}
+
+void tst_App::layerVisibilityAfterMoving()
+{
+    createNewLayeredImageProject();
+
+    // Make comparing grabbed image pixels easier.
+    panTopLeftTo(0, 0);
+
+    // Add a new layer.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+
+    // Make it the current layer.
+    selectLayer("Layer 2", 0);
+
+    // Draw a red dot.
+    setCursorPosInPixels(20, 20);
+    layeredImageCanvas->setPenForegroundColour(Qt::red);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(20, 20), Qt::red);
+
+    // Ensure that what the user sees is correct.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabBeforeSaving = imageGrabber.takeImage();
+    QCOMPARE(grabBeforeSaving.pixelColor(0, 0), Qt::white);
+    QCOMPARE(grabBeforeSaving.pixelColor(20, 20), Qt::red);
+
+    // Move it below Layer 1.
+    mouseEventOnCentre(moveLayerDownButton, MouseClick);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+    QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 2"));
+
+    // Hide Layer 1. It should show the red square and a transparent background.
+    QQuickItem *layer1Delegate = nullptr;
+    verifyLayerName("Layer 1", &layer1Delegate);
+    QQuickItem *layer1VisibilityCheckBox = layer1Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
+    QVERIFY(layer1VisibilityCheckBox);
+    mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
+    QCOMPARE(layeredImageProject->layerAt(0)->isVisible(), false);
+
+    // Ensure that the layer has been hidden.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithLayer1Hidden = imageGrabber.takeImage();
+    QCOMPARE(grabWithLayer1Hidden.pixelColor(20, 20), Qt::red);
+
+    // Show Layer 1. It should show only white.
+    mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
+    QCOMPARE(layeredImageProject->currentLayer()->isVisible(), true);
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithLayer1Visible = imageGrabber.takeImage();
+    QCOMPARE(grabWithLayer1Visible.pixelColor(0, 0), Qt::white);
+    QCOMPARE(grabWithLayer1Visible.pixelColor(20, 20), Qt::white);
+
+    // Make Layer 1 the current layer.
+    selectLayer("Layer 1", 0);
+
+    // Move Layer 1 back down. The red square should be visible on a white background.
+    mouseEventOnCentre(moveLayerDownButton, MouseClick);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+    QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithLayer1Below = imageGrabber.takeImage();
+    QCOMPARE(grabWithLayer1Below.pixelColor(0, 0), Qt::white);
+    QCOMPARE(grabWithLayer1Below.pixelColor(20, 20), Qt::red);
 }
 
 int main(int argc, char *argv[])

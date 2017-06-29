@@ -44,6 +44,7 @@ protected slots:
     void onPostLayerAdded(int index);
     void onPreLayerRemoved(int index);
     void onPostLayerRemoved();
+    void onPostLayerMoved();
 
     void onLayerVisibleChanged();
     void onLayerOpacityChanged();
