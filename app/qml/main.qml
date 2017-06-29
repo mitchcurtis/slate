@@ -257,7 +257,7 @@ ApplicationWindow {
     Platform.FileDialog {
         id: openProjectDialog
         objectName: "openProjectDialog"
-        nameFilters: ["PNG files (*.png)", "BMP files (*.bmp)", "SLP files (*.slp)", "STP files (*.stp)"]
+        nameFilters: ["All files (*)", "PNG files (*.png)", "BMP files (*.bmp)", "SLP files (*.slp)", "STP files (*.stp)"]
         defaultSuffix: imageDefaultSuffix
         onAccepted: loadProject(file)
     }
