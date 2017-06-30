@@ -183,7 +183,7 @@ RowLayout {
                 enabled: canvas
                 checkable: true
                 checked: settings.gridVisible
-                onClicked: settings.gridVisible = checked
+                onCheckedChanged: settings.gridVisible = checked
             }
 
             MenuItem {
@@ -192,7 +192,7 @@ RowLayout {
                 enabled: canvas
                 checkable: true
                 checked: settings.splitScreen
-                onClicked: settings.splitScreen = checked
+                onCheckedChanged: settings.splitScreen = checked
             }
 
             MenuItem {
@@ -201,7 +201,7 @@ RowLayout {
                 enabled: canvas && settings.splitScreen
                 checkable: true
                 checked: settings.splitterLocked
-                onClicked: settings.splitterLocked = checked
+                onCheckedChanged: settings.splitterLocked = checked
             }
 
             MenuItem {
@@ -210,7 +210,7 @@ RowLayout {
                 enabled: canvas
                 checkable: true
                 checked: settings.scrollZoom
-                onClicked: settings.scrollZoom = checked
+                onCheckedChanged: settings.scrollZoom = checked
             }
         }
     }

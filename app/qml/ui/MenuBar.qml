@@ -127,7 +127,7 @@ Platform.MenuBar {
             enabled: canvas
             checkable: true
             checked: settings.gridVisible
-            onTriggered: settings.gridVisible = checked
+            onCheckedChanged: settings.gridVisible = checked
         }
 
         Platform.MenuItem {
@@ -136,7 +136,7 @@ Platform.MenuBar {
             enabled: canvas
             checkable: true
             checked: settings.splitScreen
-            onTriggered: settings.splitScreen = checked
+            onCheckedChanged: settings.splitScreen = checked
         }
 
         Platform.MenuItem {
@@ -145,7 +145,7 @@ Platform.MenuBar {
             enabled: canvas && settings.splitScreen
             checkable: true
             checked: settings.splitterLocked
-            onTriggered: settings.splitterLocked = checked
+            onCheckedChanged: settings.splitterLocked = checked
         }
 
         Platform.MenuItem {
@@ -154,7 +154,7 @@ Platform.MenuBar {
             enabled: canvas
             checkable: true
             checked: settings.scrollZoom
-            onTriggered: settings.scrollZoom = checked
+            onCheckedChanged: settings.scrollZoom = checked
         }
     }
 
