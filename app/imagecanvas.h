@@ -59,6 +59,7 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(int cursorSceneX READ cursorSceneX NOTIFY cursorSceneXChanged)
     Q_PROPERTY(int cursorSceneY READ cursorSceneY NOTIFY cursorSceneYChanged)
     Q_PROPERTY(QColor cursorPixelColour READ cursorPixelColour NOTIFY cursorPixelColourChanged)
+    Q_PROPERTY(QColor invertedCursorPixelColour READ invertedCursorPixelColour NOTIFY cursorPixelColourChanged)
     Q_PROPERTY(bool containsMouse READ containsMouse NOTIFY containsMouseChanged)
     Q_PROPERTY(Tool tool READ tool WRITE setTool NOTIFY toolChanged)
     Q_PROPERTY(int toolSize READ toolSize WRITE setToolSize NOTIFY toolSizeChanged)
@@ -100,6 +101,7 @@ public:
     void setCursorSceneY(int y);
 
     QColor cursorPixelColour() const;
+    QColor invertedCursorPixelColour() const;
 
     bool containsMouse() const;
     void setContainsMouse(bool containsMouse);

@@ -5,7 +5,8 @@ Item {
     height: 13
 
     property int size: 1
-    property color colour: "#aa000000"
+    property color colour: defaultColour
+    property color defaultColour: "#aa000000"
 
     Rectangle {
         x: 6

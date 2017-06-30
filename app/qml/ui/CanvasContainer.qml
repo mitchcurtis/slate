@@ -29,6 +29,7 @@ Item {
         x: canvas ? canvas.cursorX - width / 2 : 0
         y: canvas ? canvas.cursorY - height / 2 : 0
         z: 1
+        colour: canvas ? canvas.invertedCursorPixelColour : defaultColour
         visible: canvas && canvas.hasBlankCursor && !canvas.useIconCursor && canvas.useCrosshairCursor
     }
 

@@ -367,6 +367,12 @@ QColor ImageCanvas::cursorPixelColour() const
     return mCursorPixelColour;
 }
 
+QColor ImageCanvas::invertedCursorPixelColour() const
+{
+    // https://stackoverflow.com/a/18142036/904422
+    return (0xFFFFFF - mCursorPixelColour.rgba()) | 0xFF000000;
+}
+
 void ImageCanvas::setCursorPixelColour(const QColor &cursorPixelColour)
 {
     if (cursorPixelColour == mCursorPixelColour)
@@ -1532,6 +1538,23 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
     if (!mProject->hasLoaded())
         return;
 
+    if (mHasSelection && !mMovingSelection && (event->key() >= Qt::Key_Left && event->key() <= Qt::Key_Down)) {
+        switch (event->key()) {
+        case Qt::Key_Left:
+            moveSelectionAreaBy(QPoint(-1, 0));
+            return;
+        case Qt::Key_Right:
+            moveSelectionAreaBy(QPoint(1, 0));
+            return;
+        case Qt::Key_Up:
+            moveSelectionAreaBy(QPoint(0, -1));
+            return;
+        case Qt::Key_Down:
+            moveSelectionAreaBy(QPoint(0, 1));
+            return;
+        }
+    }
+
     if (event->isAutoRepeat())
         return;
 
@@ -1545,21 +1568,6 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
         mProject->addChange(new DeleteImageCanvasSelectionCommand(this, mSelectionArea));
         mProject->endMacro();
         clearSelection();
-    } else if (mHasSelection && !mMovingSelection && (event->key() >= Qt::Key_Left && event->key() <= Qt::Key_Down)) {
-        switch (event->key()) {
-        case Qt::Key_Left:
-            moveSelectionAreaBy(QPoint(-1, 0));
-            break;
-        case Qt::Key_Right:
-            moveSelectionAreaBy(QPoint(1, 0));
-            break;
-        case Qt::Key_Up:
-            moveSelectionAreaBy(QPoint(0, -1));
-            break;
-        case Qt::Key_Down:
-            moveSelectionAreaBy(QPoint(0, 1));
-            break;
-        }
     } else if (event->key() == Qt::Key_Escape && mHasSelection) {
         if (mHasMovedSelection) {
             // We've moved the selection since creating it, so, like mspaint, escape confirms it.
@@ -1567,7 +1575,6 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
         } else {
             clearSelection();
         }
-
     } else if (event->modifiers().testFlag(Qt::AltModifier)) {
         setAltPressed(true);
         mToolBeforeAltPressed = mTool;
