@@ -30,12 +30,10 @@ import "ui" as Ui
 
 /*
     TODO:
+    - Export image option for layered image projects
+    - Ctrl+A selection when selection tool active
     - rulers, guides
-    - disable scroll wheel zooming option
-    - fix alt eye dropper cursor icon on mac
-    - add tests for image save/load/etc.
-    - fix disappearing hue slider indicator
-    - native menubars?
+    - Fill-all-of-this-colour tool
     - fix performance when drawing pixels
     - fix performance when resizing
     - make panels resizable
@@ -43,7 +41,6 @@ import "ui" as Ui
     - add "lighten/darken current colour" feature with convenient keyboard shortcuts.
       it could display a fading indicator like the zoom level does, comparing the
       proposed colour next to the old one. could be a mouse wheel shortcut.
-    - add support for selection marquees (within individual tile bounds)
 */
 
 ApplicationWindow {
