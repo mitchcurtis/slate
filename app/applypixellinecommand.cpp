@@ -23,7 +23,7 @@
 
 #include "commands.h"
 
-Q_LOGGING_CATEGORY(lcApplyPixelLineCommand, "app.undo.applypixellinecommand")
+Q_LOGGING_CATEGORY(lcApplyPixelLineCommand, "app.undo.applyPixelLineCommand")
 
 ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *canvas, const QImage &imageWithLine,
     const QImage &imageWithoutLine, const QPoint &newLastPixelPenReleaseScenePos, const QPoint &oldLastPixelPenReleaseScenePos,
@@ -36,6 +36,11 @@ ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *canvas, const QImage &
     mOldLastPixelPenReleaseScenePos(oldLastPixelPenReleaseScenePos)
 {
     qCDebug(lcApplyPixelLineCommand) << "constructed" << this;
+}
+
+ApplyPixelLineCommand::~ApplyPixelLineCommand()
+{
+    qCDebug(lcApplyPixelLineCommand) << "destructed" << this;
 }
 
 void ApplyPixelLineCommand::undo()

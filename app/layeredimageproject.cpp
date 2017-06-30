@@ -115,7 +115,7 @@ void LayeredImageProject::createNew(int imageWidth, int imageHeight, bool transp
     Q_ASSERT(mUndoStack.count() == 0);
     Q_ASSERT(mLayers.isEmpty());
 
-    addNewLayer(imageWidth, imageHeight, transparentBackground);
+    addNewLayer(imageWidth, imageHeight, transparentBackground, false);
 
     setUrl(QUrl());
     setNewProject(true);
@@ -339,7 +339,7 @@ void LayeredImageProject::changeSize(const QSize &newSize)
     emit sizeChanged();
 }
 
-void LayeredImageProject::addNewLayer(int imageWidth, int imageHeight, bool transparent)
+void LayeredImageProject::addNewLayer(int imageWidth, int imageHeight, bool transparent, bool undoable)
 {
     QImage emptyImage(imageWidth, imageHeight, QImage::Format_ARGB32_Premultiplied);
     emptyImage.fill(transparent ? Qt::transparent : Qt::white);
@@ -347,9 +347,13 @@ void LayeredImageProject::addNewLayer(int imageWidth, int imageHeight, bool tran
     QScopedPointer<ImageLayer> imageLayer(new ImageLayer(nullptr, emptyImage));
     imageLayer->setName(QString::fromLatin1("Layer %1").arg(++mLayersCreated));
 
-    beginMacro(QLatin1String("AddLayerCommand"));
-    addChange(new AddLayerCommand(this, imageLayer.data(), 0));
-    endMacro();
+    if (undoable) {
+        beginMacro(QLatin1String("AddLayerCommand"));
+        addChange(new AddLayerCommand(this, imageLayer.data(), 0));
+        endMacro();
+    } else {
+        addLayer(imageLayer.data(), 0);
+    }
 
     imageLayer.take();
 }

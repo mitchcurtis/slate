@@ -89,7 +89,7 @@ private:
     bool isValidIndex(int index) const;
 
     void changeSize(const QSize &size);
-    void addNewLayer(int imageWidth, int imageHeight, bool transparent);
+    void addNewLayer(int imageWidth, int imageHeight, bool transparent, bool undoable = true);
     void addLayerAboveAll(ImageLayer *imageLayer);
     void addLayer(ImageLayer *imageLayer, int index);
     void moveLayer(int fromIndex, int toIndex);

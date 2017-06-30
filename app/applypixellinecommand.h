@@ -34,6 +34,7 @@ public:
     ApplyPixelLineCommand(ImageCanvas *canvas, const QImage &imageWithLine,
         const QImage &imageWithoutLine, const QPoint &newLastPixelPenReleaseScenePos,
         const QPoint &oldLastPixelPenReleaseScenePos, UndoCommand *parent = nullptr);
+    ~ApplyPixelLineCommand();
 
     void undo() override;
     void redo() override;
