@@ -30,7 +30,6 @@ import "ui" as Ui
 
 /*
     TODO:
-    - Ctrl+A selection when selection tool active
     - rulers, guides
     - Fill-all-of-this-colour tool
     - fix performance when drawing pixels

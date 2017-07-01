@@ -100,6 +100,15 @@ Platform.MenuBar {
         Platform.MenuSeparator {}
 
         Platform.MenuItem {
+            objectName: "selectAllMenuButton"
+            text: qsTr("Select All")
+            onTriggered: canvas.selectAll()
+            enabled: isImageProjectType && canvas
+        }
+
+        Platform.MenuSeparator {}
+
+        Platform.MenuItem {
             objectName: "flipHorizontallyMenuButton"
             text: qsTr("Flip Horizontally")
             onTriggered: canvas.flipSelection(Qt.Horizontal)

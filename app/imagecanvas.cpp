@@ -1001,6 +1001,17 @@ void ImageCanvas::paste()
     update();
 }
 
+void ImageCanvas::selectAll()
+{
+    if (mTool == SelectionTool) {
+        clearOrConfirmSelection();
+    } else {
+        setTool(SelectionTool);
+    }
+
+    setSelectionArea(QRect(0, 0, mProject->widthInPixels(), mProject->heightInPixels()));
+}
+
 void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
     QQuickItem::geometryChanged(newGeometry, oldGeometry);

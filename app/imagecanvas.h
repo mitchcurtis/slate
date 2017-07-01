@@ -199,6 +199,7 @@ public slots:
     void flipSelection(Qt::Orientation orientation);
     void copySelection();
     void paste();
+    void selectAll();
 
 protected slots:
     virtual void reset();

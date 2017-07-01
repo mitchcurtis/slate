@@ -97,6 +97,13 @@ Item {
     }
 
     Shortcut {
+        objectName: "selectAllShortcut"
+        sequence: StandardKey.SelectAll
+        onActivated: canvas.selectAll()
+        enabled: isImageProjectType && canvasHasActiveFocus
+    }
+
+    Shortcut {
         objectName: "gridVisibleShortcut"
         sequence: settings.gridVisibleShortcut
         onActivated: settings.gridVisible = !settings.gridVisible

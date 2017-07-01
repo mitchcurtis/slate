@@ -117,6 +117,15 @@ RowLayout {
             MenuSeparator {}
 
             MenuItem {
+                objectName: "selectAllMenuButton"
+                text: qsTr("Select All")
+                onTriggered: canvas.selectAll()
+                enabled: isImageProjectType && canvas
+            }
+
+            MenuSeparator {}
+
+            MenuItem {
                 objectName: "copyMenuButton"
                 text: qsTr("Copy")
                 onClicked: canvas.copySelection()
