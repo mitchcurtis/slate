@@ -6,7 +6,7 @@ Slate is a bitmap editor available for Linux, Windows and Mac. Using slate, you 
 
 ### Downloads ###
 
-See the [releases](https://github.com/mitchcurtis/slate/releases) page for the available downloads. Currently only Windows binaries are available, but other platforms (Linux, Mac) will show up eventually.
+See the [releases](https://github.com/mitchcurtis/slate/releases) page for the available downloads. Currently only Windows and Mac binaries are available, but other platforms (Linux) will show up eventually.
 
 ### Documentation ###
 - [Getting Started](https://github.com/mitchcurtis/slate/blob/master/doc/getting-started.md)
