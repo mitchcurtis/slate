@@ -60,6 +60,13 @@ RowLayout {
             }
 
             MenuItem {
+                objectName: "exportMenuButton"
+                text: qsTr("Export")
+                enabled: project ? project.loaded && projectType === Project.LayeredImageType : false
+                onClicked: exportDialog.open()
+            }
+
+            MenuItem {
                 objectName: "closeMenuButton"
                 text: qsTr("Close")
                 enabled: project ? project.loaded : false

@@ -22,6 +22,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QPainter>
 
 #include "addlayercommand.h"
 #include "changelayeredimagecanvassizecommand.h"
@@ -72,6 +73,11 @@ ImageLayer *LayeredImageProject::layerAt(int index)
     return isValidIndex(index) ? mLayers.at(index) : nullptr;
 }
 
+const ImageLayer *LayeredImageProject::layerAt(int index) const
+{
+    return isValidIndex(index) ? mLayers.at(index) : nullptr;
+}
+
 int LayeredImageProject::layerCount() const
 {
     return mLayers.size();
@@ -100,6 +106,31 @@ int LayeredImageProject::widthInPixels() const
 int LayeredImageProject::heightInPixels() const
 {
     return size().height();
+}
+
+QImage LayeredImageProject::flattenedImage(std::function<QImage(int)> layerSubstituteFunction) const
+{
+    QImage finalImage(size(), QImage::Format_ARGB32_Premultiplied);
+    finalImage.fill(Qt::transparent);
+
+    QPainter painter(&finalImage);
+    // Work backwards from the last layer so that it gets drawn at the "bottom".
+    for (int i = layerCount() - 1; i >= 0; --i) {
+        const ImageLayer *layer = layerAt(i);
+        if (!layer->isVisible() || qFuzzyIsNull(layer->opacity()))
+            continue;
+
+        QImage layerImage;
+        if (layerSubstituteFunction) {
+            layerImage = layerSubstituteFunction(i);
+        }
+        if (layerImage.isNull()) {
+            layerImage = *layer->image();
+        }
+        painter.drawImage(0, 0, layerImage);
+    }
+
+    return finalImage;
 }
 
 void LayeredImageProject::createNew(int imageWidth, int imageHeight, bool transparentBackground)
@@ -245,6 +276,29 @@ void LayeredImageProject::saveAs(const QUrl &url)
     setUrl(url);
     mUndoStack.setClean();
     mHadUnsavedChangesBeforeMacroBegan = false;
+}
+
+void LayeredImageProject::exportImage(const QUrl &url)
+{
+    if (!hasLoaded())
+        return;
+
+    if (url.isEmpty())
+        return;
+
+    const QString filePath = url.toLocalFile();
+    const QFileInfo projectSaveFileInfo(filePath);
+    if (mTempDir.isValid()) {
+        if (projectSaveFileInfo.dir().path() == mTempDir.path()) {
+            error(QLatin1String("Cannot save project in internal temporary directory"));
+            return;
+        }
+    }
+
+    if (!flattenedImage().save(filePath)) {
+        error(QString::fromLatin1("Failed to save project's image to %1").arg(filePath));
+        return;
+    }
 }
 
 void LayeredImageProject::addNewLayer()

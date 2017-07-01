@@ -41,6 +41,13 @@ Platform.MenuBar {
         }
 
         Platform.MenuItem {
+            objectName: "exportMenuButton"
+            text: qsTr("Export")
+            enabled: project ? project.loaded && projectType === Project.LayeredImageType : false
+            onTriggered: exportDialog.open()
+        }
+
+        Platform.MenuItem {
             objectName: "closeMenuButton"
             text: qsTr("Close")
             enabled: project ? project.loaded : false

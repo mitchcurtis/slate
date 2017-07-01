@@ -42,6 +42,7 @@ public:
     int currentLayerIndex() const;
     void setCurrentLayerIndex(int index);
     ImageLayer *layerAt(int index);
+    const ImageLayer *layerAt(int index) const;
     int layerCount() const;
 
     Type type() const override;
@@ -49,6 +50,8 @@ public:
     void setSize(const QSize &newSize) override;
     int widthInPixels() const override;
     int heightInPixels() const override;
+
+    QImage flattenedImage(std::function<QImage(int)> layerSubstituteFunction = nullptr) const;
 
 signals:
     void currentLayerIndexChanged();
@@ -68,6 +71,7 @@ public slots:
     void load(const QUrl &url) override;
     void close() override;
     void saveAs(const QUrl &url) override;
+    void exportImage(const QUrl &url);
 
     void addNewLayer();
     void deleteCurrentLayer();

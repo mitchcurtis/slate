@@ -30,7 +30,6 @@ import "ui" as Ui
 
 /*
     TODO:
-    - Export image option for layered image projects
     - Ctrl+A selection when selection tool active
     - rulers, guides
     - Fill-all-of-this-colour tool
@@ -266,6 +265,15 @@ ApplicationWindow {
         nameFilters: nameFiltersForProjectType(projectType)
         defaultSuffix: defaultSuffixForProjectType(projectType)
         onAccepted: project.saveAs(file)
+    }
+
+    Platform.FileDialog {
+        id: exportDialog
+        objectName: "exportAsDialog"
+        fileMode: Platform.FileDialog.SaveFile
+        nameFilters: imageFilters
+        defaultSuffix: imageDefaultSuffix
+        onAccepted: project.exportImage(file)
     }
 
     Ui.ErrorPopup {

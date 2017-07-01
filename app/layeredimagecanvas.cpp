@@ -115,24 +115,11 @@ const QImage *LayeredImageCanvas::currentProjectImage() const
 
 QImage LayeredImageCanvas::contentImage() const
 {
-    QImage finalImage(mLayeredImageProject->size(), QImage::Format_ARGB32_Premultiplied);
-    finalImage.fill(Qt::transparent);
-
-    QPainter painter(&finalImage);
-    // Work backwards from the last layer so that it gets drawn at the "bottom".
-    for (int i = mLayeredImageProject->layerCount() - 1; i >= 0; --i) {
-        ImageLayer *layer = mLayeredImageProject->layerAt(i);
-        if (!layer->isVisible() || qFuzzyIsNull(layer->opacity()))
-            continue;
-
+    return mLayeredImageProject->flattenedImage([=](int index) {
         QImage layerImage;
-        if (i == mLayeredImageProject->currentLayerIndex() && shouldDrawSelectionPreviewImage()) {
+        if (index == mLayeredImageProject->currentLayerIndex() && shouldDrawSelectionPreviewImage()) {
             layerImage = mSelectionPreviewImage;
-        } else {
-            layerImage = *layer->image();
         }
-        painter.drawImage(0, 0, layerImage);
-    }
-
-    return finalImage;
+        return layerImage;
+    });
 }
