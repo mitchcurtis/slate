@@ -209,7 +209,7 @@ Item {
                 checkable: true
                 hoverEnabled: true
                 focusPolicy: Qt.TabFocus
-                enabled: projectType === Project.ImageType || projectType === Project.LayeredImageType
+                visible: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
                 icon.source: "qrc:/images/selection.png"
 
