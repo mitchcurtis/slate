@@ -98,7 +98,7 @@ protected:
     };
     void mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType);
     void mouseEvent(QQuickItem *item, const QPointF &localPos, TestMouseEventType eventType,
-        Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers());
+        Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(), int delay = -1);
     void wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees);
 
     QObject *findPopupFromTypeName(const QString &typeName) const;

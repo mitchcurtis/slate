@@ -31,7 +31,7 @@
 #include "applytileerasercommand.h"
 #include "applytilefillcommand.h"
 #include "applytilepencommand.h"
-#include "floodfill.h"
+#include "fillalgorithms.h"
 #include "tileset.h"
 #include "tilesetproject.h"
 
@@ -377,6 +377,12 @@ TileCanvas::PixelCandidateData TileCanvas::fillPixelCandidates() const
 
     candidateData.previousColours.append(previousColour);
     return candidateData;
+}
+
+ImageCanvas::PixelCandidateData TileCanvas::greedyFillPixelCandidates() const
+{
+    // TODO
+    return PixelCandidateData();
 }
 
 TileCanvas::TileCandidateData TileCanvas::fillTileCandidates() const

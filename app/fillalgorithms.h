@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2017, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,8 +17,8 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef FLOODFILL_H
-#define FLOODFILL_H
+#ifndef FILLALGORITHMS_H
+#define FILLALGORITHMS_H
 
 class QColor;
 class QImage;
@@ -32,10 +32,13 @@ class Tile;
 QVector<QPoint> imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour);
 
+QVector<QPoint> imageGreedyPixelFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
+    const QColor &replacementColour);
+
 void tilesetPixelFloodFill(const Tile *tile, const QPoint &pos, const QColor &targetColour,
     const QColor &replacementColour, QVector<QPoint> &filledPositions);
 
 void tilesetTileFloodFill(const TilesetProject *project, const Tile *tile, const QPoint &tilePos, int targetTile,
     int replacementTile, QVector<QPoint> &filledTilePositions);
 
-#endif // FLOODFILL_H
+#endif // FILLALGORITHMS_H

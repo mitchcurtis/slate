@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2017, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,7 +17,7 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "floodfill.h"
+#include "fillalgorithms.h"
 
 #include <QDebug>
 #include <QColor>
@@ -43,6 +43,7 @@ QVector<QPoint> imagePixelFloodFill(const QImage *image, const QPoint &startPos,
     }
 
     if (image->pixelColor(startPos) == replacementColour) {
+        // The pixel at startPos is already the colour that we want to replace it with.
         return filledPositions;
     }
 
@@ -77,6 +78,30 @@ QVector<QPoint> imagePixelFloodFill(const QImage *image, const QPoint &startPos,
         if (imageBounds.contains(south) && !filledPositions.contains(south) && image->pixelColor(south) == targetColour) {
             queue.append(south);
             filledPositions.append(south);
+        }
+    }
+
+    return filledPositions;
+}
+
+QVector<QPoint> imageGreedyPixelFill(const QImage *image, const QPoint &startPos, const QColor &targetColour, const QColor &replacementColour)
+{
+    QVector<QPoint> filledPositions;
+    const QRect imageBounds(0, 0, image->width(), image->height());
+    if (!imageBounds.contains(startPos)) {
+        return filledPositions;
+    }
+
+    if (image->pixelColor(startPos) == replacementColour) {
+        // The pixel at startPos is already the colour that we want to replace it with.
+        return filledPositions;
+    }
+
+    for (int y = 0; y < image->height(); ++y) {
+        for (int x = 0; x < image->width(); ++x) {
+            if (image->pixelColor(x, y) == targetColour) {
+                filledPositions.append(QPoint(x, y));
+            }
         }
     }
 

@@ -88,6 +88,8 @@ private Q_SLOTS:
     void flipPastedImage();
     void fillImageCanvas_data();
     void fillImageCanvas();
+    void greedyPixelFillImageCanvas_data();
+    void greedyPixelFillImageCanvas();
     void pixelLineToolImageCanvas_data();
     void pixelLineToolImageCanvas();
 
@@ -1974,7 +1976,54 @@ void tst_App::fillImageCanvas()
     mouseEvent(canvas, cursorWindowPos, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(project->widthInPixels() - 1,
-                                               project->heightInPixels() - 1), QColor(Qt::black));
+                                                       project->heightInPixels() - 1), QColor(Qt::black));
+}
+
+void tst_App::greedyPixelFillImageCanvas_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::greedyPixelFillImageCanvas()
+{
+    QFETCH(Project::Type, projectType);
+
+    createNewProject(projectType);
+
+    changeCanvasSize(40, 40);
+
+    // Draw 4 separate pixels.
+    setCursorPosInPixels(4, 4);
+    drawPixelAtCursorPos();
+
+    setCursorPosInPixels(35, 4);
+    drawPixelAtCursorPos();
+
+    setCursorPosInPixels(35, 35);
+    drawPixelAtCursorPos();
+
+    setCursorPosInPixels(4, 35);
+    drawPixelAtCursorPos();
+
+    switchTool(ImageCanvas::FillTool);
+    canvas->setPenForegroundColour(Qt::blue);
+    setCursorPosInPixels(4, 4);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::keyPress(window, Qt::Key_Shift);
+    // For some reason there must be a delay in order for the shift modifier to work.
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
+    QTest::keyRelease(window, Qt::Key_Shift);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::blue));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 4), QColor(Qt::blue));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 35), QColor(Qt::blue));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 35), QColor(Qt::blue));
+
+    // Undo it.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 4), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 35), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 35), QColor(Qt::black));
 }
 
 void tst_App::pixelLineToolImageCanvas_data()

@@ -13,6 +13,7 @@ Item {
 
     property Project project
     property int projectType: project ? project.type : 0
+    property bool isTilesetProject: projectType === Project.TilesetType
     property ImageCanvas canvas
     property FontMetrics fontMetrics
 
@@ -154,7 +155,7 @@ Item {
                 checked: true
                 hoverEnabled: true
 
-                ToolTip.text: qsTr("Draw pixels or tiles on the canvas")
+                ToolTip.text: qsTr("Draw pixels%1 on the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
 
                 onClicked: switchTool(ImageCanvas.PenTool)
@@ -167,7 +168,7 @@ Item {
                 checkable: true
                 hoverEnabled: true
 
-                ToolTip.text: qsTr("Select colours or tiles from the canvas")
+                ToolTip.text: qsTr("Select colours%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
 
                 onClicked: switchTool(ImageCanvas.EyeDropperTool)
@@ -180,7 +181,7 @@ Item {
                 checkable: true
                 hoverEnabled: true
 
-                ToolTip.text: qsTr("Erase pixels or tiles from the canvas")
+                ToolTip.text: qsTr("Erase pixels%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
 
                 onClicked: switchTool(ImageCanvas.EraserTool)
@@ -193,7 +194,9 @@ Item {
                 checkable: true
                 hoverEnabled: true
 
-                ToolTip.text: qsTr("Fill a contiguous area with pixels or tiles")
+                ToolTip.text: isTilesetProject
+                    ? qsTr("Fill a contiguous area with pixels or tiles")
+                    : qsTr("Fill a contiguous area with pixels.\nHold Shift to fill all pixels matching the target colour.")
                 ToolTip.visible: hovered
 
                 onClicked: switchTool(ImageCanvas.FillTool)

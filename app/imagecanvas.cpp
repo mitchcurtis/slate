@@ -28,13 +28,14 @@
 #include <QtMath>
 
 #include "applicationsettings.h"
+#include "applygreedypixelfillcommand.h"
 #include "applypixelerasercommand.h"
 #include "applypixelfillcommand.h"
 #include "applypixellinecommand.h"
 #include "applypixelpencommand.h"
 #include "deleteimagecanvasselectioncommand.h"
+#include "fillalgorithms.h"
 #include "flipimagecanvasselectioncommand.h"
-#include "floodfill.h"
 #include "imageproject.h"
 #include "moveimagecanvasselectioncommand.h"
 #include "pasteimagecanvascommand.h"
@@ -1065,6 +1066,28 @@ ImageCanvas::PixelCandidateData ImageCanvas::fillPixelCandidates() const
     return candidateData;
 }
 
+ImageCanvas::PixelCandidateData ImageCanvas::greedyFillPixelCandidates() const
+{
+    PixelCandidateData candidateData;
+
+    const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
+    if (!isWithinImage(scenePos)) {
+        return candidateData;
+    }
+
+    const QColor previousColour = currentProjectImage()->pixelColor(scenePos);
+    // Don't do anything if the colours are the same.
+    if (previousColour == penColour()) {
+        return candidateData;
+    }
+
+    QVector<QPoint> scenePositions = imageGreedyPixelFill(currentProjectImage(), scenePos, previousColour, penColour());
+    candidateData.scenePositions = scenePositions;
+
+    candidateData.previousColours.append(previousColour);
+    return candidateData;
+}
+
 void ImageCanvas::applyCurrentTool()
 {
     switch (mTool) {
@@ -1102,14 +1125,25 @@ void ImageCanvas::applyCurrentTool()
         break;
     }
     case FillTool: {
-        const PixelCandidateData candidateData = fillPixelCandidates();
-        if (candidateData.scenePositions.isEmpty()) {
-            return;
-        }
+        if (!mShiftPressed) {
+            const PixelCandidateData candidateData = fillPixelCandidates();
+            if (candidateData.scenePositions.isEmpty()) {
+                return;
+            }
 
-        mProject->beginMacro(QLatin1String("PixelFillTool"));
-        mProject->addChange(new ApplyPixelFillCommand(this, candidateData.scenePositions,
-            candidateData.previousColours.first(), penColour()));
+            mProject->beginMacro(QLatin1String("PixelFillTool"));
+            mProject->addChange(new ApplyPixelFillCommand(this, candidateData.scenePositions,
+                candidateData.previousColours.first(), penColour()));
+        } else {
+            const PixelCandidateData candidateData = greedyFillPixelCandidates();
+            if (candidateData.scenePositions.isEmpty()) {
+                return;
+            }
+
+            mProject->beginMacro(QLatin1String("GreedyPixelFillTool"));
+            mProject->addChange(new ApplyGreedyPixelFillCommand(this, candidateData.scenePositions,
+                candidateData.previousColours.first(), penColour()));
+        }
         break;
     }
     default:

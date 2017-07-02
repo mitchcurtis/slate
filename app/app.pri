@@ -16,7 +16,7 @@ HEADERS += \
     $$PWD/changetilecanvassizecommand.h \
     $$PWD/commands.h \
     $$PWD/filevalidator.h \
-    $$PWD/floodfill.h \
+    $$PWD/fillalgorithms.h \
     $$PWD/imagecanvas.h \
     $$PWD/imageproject.h \
     $$PWD/keysequenceeditor.h \
@@ -51,7 +51,8 @@ HEADERS += \
     $$PWD/changelayeropacitycommand.h \
     $$PWD/deletelayercommand.h \
     $$PWD/platformdefines.h \
-    $$PWD/addlayercommand.h
+    $$PWD/addlayercommand.h \
+    $$PWD/applygreedypixelfillcommand.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -65,7 +66,7 @@ SOURCES += \
     $$PWD/changeimagecanvassizecommand.cpp \
     $$PWD/changetilecanvassizecommand.cpp \
     $$PWD/filevalidator.cpp \
-    $$PWD/floodfill.cpp \
+    $$PWD/fillalgorithms.cpp \
     $$PWD/imagecanvas.cpp \
     $$PWD/imageproject.cpp \
     $$PWD/keysequenceeditor.cpp \
@@ -99,7 +100,8 @@ SOURCES += \
     $$PWD/changelayervisiblecommand.cpp \
     $$PWD/changelayeropacitycommand.cpp \
     $$PWD/deletelayercommand.cpp \
-    $$PWD/addlayercommand.cpp
+    $$PWD/addlayercommand.cpp \
+    $$PWD/applygreedypixelfillcommand.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \

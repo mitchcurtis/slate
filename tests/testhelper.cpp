@@ -217,21 +217,21 @@ void TestHelper::mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventTy
     }
 }
 
-void TestHelper::mouseEvent(QQuickItem *item, const QPointF &localPos, TestMouseEventType eventType, Qt::KeyboardModifiers modifiers)
+void TestHelper::mouseEvent(QQuickItem *item, const QPointF &localPos, TestMouseEventType eventType, Qt::KeyboardModifiers modifiers, int delay)
 {
     const QPoint centre = item->mapToScene(localPos).toPoint();
     switch (eventType) {
     case MousePress:
-        QTest::mousePress(item->window(), Qt::LeftButton, modifiers, centre);
+        QTest::mousePress(item->window(), Qt::LeftButton, modifiers, centre, delay);
         break;
     case MouseRelease:
-        QTest::mouseRelease(item->window(), Qt::LeftButton, modifiers, centre);
+        QTest::mouseRelease(item->window(), Qt::LeftButton, modifiers, centre, delay);
         break;
     case MouseClick:
-        QTest::mouseClick(item->window(), Qt::LeftButton, modifiers, centre);
+        QTest::mouseClick(item->window(), Qt::LeftButton, modifiers, centre, delay);
         break;
     case MouseDoubleClick:
-        QTest::mouseDClick(item->window(), Qt::LeftButton, modifiers, centre);
+        QTest::mouseDClick(item->window(), Qt::LeftButton, modifiers, centre, delay);
         break;
     }
 }
@@ -356,30 +356,43 @@ int TestHelper::sliderValue(QQuickItem *slider) const
 
 void TestHelper::drawPixelAtCursorPos()
 {
-    const Tile *targetTile = tilesetProject->tileAt(cursorPos);
-    QVERIFY(targetTile);
+    if (tilesetProject) {
+        const Tile *targetTile = tilesetProject->tileAt(cursorPos);
+        QVERIFY(targetTile);
 
-    switchTool(TileCanvas::PenTool);
-    switchMode(TileCanvas::PixelMode);
+        switchTool(TileCanvas::PenTool);
+        switchMode(TileCanvas::PixelMode);
 
-    // Draw on some pixels of the current tile.
-    const QImage originalTileImage = targetTile->tileset()->image()->copy(targetTile->sourceRect());
-    QImage expectedImage = originalTileImage;
-    expectedImage.setPixelColor(tileCanvas->scenePosToTilePixelPos(cursorPos), tileCanvas->penForegroundColour());
+        // Draw on some pixels of the current tile.
+        const QImage originalTileImage = targetTile->tileset()->image()->copy(targetTile->sourceRect());
+        QImage expectedImage = originalTileImage;
+        expectedImage.setPixelColor(tileCanvas->scenePosToTilePixelPos(cursorPos), tileCanvas->penForegroundColour());
 
-    QTest::mouseMove(window, cursorPos);
-    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QVERIFY(targetTile->tileset()->image()->copy(targetTile->sourceRect()) != originalTileImage);
-    targetTile->tileset()->image()->copy(targetTile->sourceRect()).save("C:/Users/Mitch/AppData/Local/Temp/_actual.png");
-    expectedImage.save("C:/Users/Mitch/AppData/Local/Temp/_expected.png");
-    QCOMPARE(targetTile->tileset()->image()->copy(targetTile->sourceRect()), expectedImage);
-    QVERIFY(tilesetProject->hasUnsavedChanges());
-    QVERIFY(window->title().contains("*"));
+        QTest::mouseMove(window, cursorPos);
+        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QVERIFY(targetTile->tileset()->image()->copy(targetTile->sourceRect()) != originalTileImage);
+        QCOMPARE(targetTile->tileset()->image()->copy(targetTile->sourceRect()), expectedImage);
+        QVERIFY(tilesetProject->hasUnsavedChanges());
+        QVERIFY(window->title().contains("*"));
 
-    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(targetTile->tileset()->image()->copy(targetTile->sourceRect()), expectedImage);
-    QVERIFY(tilesetProject->hasUnsavedChanges());
-    QVERIFY(window->title().contains("*"));
+        QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QCOMPARE(targetTile->tileset()->image()->copy(targetTile->sourceRect()), expectedImage);
+        QVERIFY(tilesetProject->hasUnsavedChanges());
+        QVERIFY(window->title().contains("*"));
+    } else {
+        switchTool(TileCanvas::PenTool);
+
+        QTest::mouseMove(window, cursorWindowPos);
+        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QCOMPARE(canvas->currentProjectImage()->pixelColor(cursorPos), canvas->penForegroundColour());
+        QVERIFY(project->hasUnsavedChanges());
+        QVERIFY(window->title().contains("*"));
+
+        QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QCOMPARE(canvas->currentProjectImage()->pixelColor(cursorPos), canvas->penForegroundColour());
+        QVERIFY(project->hasUnsavedChanges());
+        QVERIFY(window->title().contains("*"));
+    }
 }
 
 void TestHelper::drawTileAtCursorPos()

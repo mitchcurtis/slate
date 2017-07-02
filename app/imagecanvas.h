@@ -210,6 +210,7 @@ protected slots:
 protected:
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
+    friend class ApplyGreedyPixelFillCommand;
     friend class ApplyPixelEraserCommand;
     friend class ApplyPixelFillCommand;
     friend class ApplyPixelLineCommand;
@@ -226,6 +227,7 @@ protected:
     };
     virtual PixelCandidateData penEraserPixelCandidates(Tool tool) const;
     virtual PixelCandidateData fillPixelCandidates() const;
+    virtual PixelCandidateData greedyFillPixelCandidates() const;
 
     virtual void applyCurrentTool();
     virtual void applyPixelPenTool(const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false);

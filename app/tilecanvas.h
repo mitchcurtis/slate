@@ -105,6 +105,7 @@ private:
 
     PixelCandidateData penEraserPixelCandidates(Tool tool) const override;
     PixelCandidateData fillPixelCandidates() const override;
+    PixelCandidateData greedyFillPixelCandidates() const override;
 
     struct TileCandidateData
     {
