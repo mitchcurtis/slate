@@ -1225,7 +1225,9 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
         setCursorPixelColour(QColor(Qt::black));
     } else {
         const QPoint cursorScenePos = QPoint(mCursorSceneX, mCursorSceneY);
-        setCursorPixelColour(currentProjectImage()->pixelColor(cursorScenePos));
+        // TODO: this may slow down the application; consider caching it or using
+        // ShaderSourceEffect to pick the colour instead
+        setCursorPixelColour(contentImage().pixelColor(cursorScenePos));
     }
 }
 

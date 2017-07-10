@@ -31,6 +31,8 @@ import "ui" as Ui
 /*
     TODO:
     - rulers, guides
+    - cursor ruler that follows the cursor as it moves to make it easy to
+      line stuff up
     - Fill-all-of-this-colour tool
     - fix performance when drawing pixels
     - fix performance when resizing
