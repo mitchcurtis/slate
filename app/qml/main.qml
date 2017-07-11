@@ -154,6 +154,7 @@ ApplicationWindow {
 
             project: projectManager.project
             checkedToolButton: iconToolBar.toolButtonGroup.checkedButton
+            fontMetrics: fontMetrics
 
             Layout.preferredWidth: window.width / 3
             Layout.fillWidth: true
