@@ -1031,10 +1031,9 @@ ImageCanvas::PixelCandidateData ImageCanvas::penEraserPixelCandidates(Tool tool)
     for (; scenePos.y() < bottomRight.y(); ++scenePos.ry()) {
         for (scenePos.rx() = topLeft.x(); scenePos.x() < bottomRight.x(); ++scenePos.rx()) {
             const QColor previousColour = currentProjectImage()->pixelColor(scenePos);
-            // Don't do anything if the colours are the same; this prevents issues
-            // with undos not undoing everything across tiles.
-            const bool hasEffect = tool == PenTool ? penColour() != previousColour : previousColour != QColor(Qt::transparent);
-            if (hasEffect) {
+            // Let the pen tool draw over the same colour, as the line tool requires
+            // a press point to start from, which we don't get if we make this a no-op.
+            if (tool == PenTool || (tool == EraserTool && previousColour != QColor(Qt::transparent))) {
                 candidateData.scenePositions.append(scenePos);
                 candidateData.previousColours.append(previousColour);
             }
