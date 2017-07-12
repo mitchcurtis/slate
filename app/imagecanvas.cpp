@@ -483,7 +483,10 @@ bool ImageCanvas::isAltPressed() const
 
 bool ImageCanvas::isLineVisible() const
 {
-    return mShiftPressed && mTool == PenTool;
+    // Don't show line info in the status bar if there hasn't been a mouse press yet.
+    // This is the same as what penColour() does.
+    const Qt::MouseButton lastButtonPressed = mMouseButtonPressed == Qt::NoButton ? mLastMouseButtonPressed : mMouseButtonPressed;
+    return mShiftPressed && mTool == PenTool && lastButtonPressed != Qt::NoButton;
 }
 
 int ImageCanvas::lineLength() const
