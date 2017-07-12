@@ -489,12 +489,23 @@ bool ImageCanvas::isLineVisible() const
 int ImageCanvas::lineLength() const
 {
     if (!isLineVisible())
-        return false;
+        return 0;
 
     const QPointF point1 = mLastPixelPenPressScenePosition;
     const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
     const QLineF line(point1, point2);
     return line.length();
+}
+
+qreal ImageCanvas::lineAngle() const
+{
+    if (!isLineVisible())
+        return 0;
+
+    const QPointF point1 = mLastPixelPenPressScenePosition;
+    const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
+    const QLineF line(point1, point2);
+    return line.angle();
 }
 
 void ImageCanvas::setAltPressed(bool altPressed)

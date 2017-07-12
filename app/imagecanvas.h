@@ -72,6 +72,7 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(bool altPressed READ isAltPressed NOTIFY altPressedChanged)
     Q_PROPERTY(bool lineVisible READ isLineVisible NOTIFY lineVisibleChanged)
     Q_PROPERTY(int lineLength READ lineLength NOTIFY lineLengthChanged)
+    Q_PROPERTY(qreal lineAngle READ lineAngle NOTIFY lineLengthChanged)
 
 public:
     enum Tool {
@@ -158,6 +159,7 @@ public:
 
     bool isLineVisible() const;
     int lineLength() const;
+    qreal lineAngle() const;
 
     QPoint scenePosToTilePixelPos(const QPoint &scenePos) const;
 

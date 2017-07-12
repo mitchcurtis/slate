@@ -111,8 +111,8 @@ Pane {
         }
 
         Rectangle {
-            width: 16
-            height: 1
+            implicitWidth: 16
+            implicitHeight: 1
             visible: canvas && canvas.lineVisible
 
             Rectangle {
@@ -143,6 +143,41 @@ Pane {
                 text: Screen.desktopAvailableWidth
             }
         }
+
+        Canvas {
+            implicitWidth: 16
+            implicitHeight: 16
+            visible: canvas && canvas.lineVisible
+
+            onPaint: {
+                var ctx = getContext("2d");
+                ctx.moveTo(0, height - 1);
+                ctx.lineTo(width, height - 1);
+                ctx.strokeStyle = lineLengthLabel.color;
+                ctx.stroke();
+                ctx.closePath();
+
+                ctx.beginPath();
+                ctx.moveTo(0, height - 1);
+                ctx.lineTo(Math.round(width * 0.8), Math.round(height * 0.2));
+                ctx.stroke();
+                ctx.closePath();
+
+                ctx.beginPath();
+                ctx.arc(width * 0.3, height * .8, width / 3, -1.1, -5.8, false);
+                ctx.stroke();
+                ctx.closePath();
+            }
+        }
+
+        Label {
+            text: canvas ? canvas.lineAngle.toFixed(2) : ""
+            visible: canvas && canvas.lineVisible
+        }
+
+//        ToolSeparator {
+//            visible: canvas && canvas.lineVisible
+//        }
 
         Item {
             Layout.fillWidth: true
