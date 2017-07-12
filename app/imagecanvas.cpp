@@ -241,6 +241,8 @@ void ImageCanvas::setCursorSceneX(int x)
         return;
 
     mCursorSceneX = x;
+    if (isLineVisible())
+        emit lineLengthChanged();
     emit cursorSceneXChanged();
 }
 
@@ -255,6 +257,8 @@ void ImageCanvas::setCursorSceneY(int y)
         return;
 
     mCursorSceneY = y;
+    if (isLineVisible())
+        emit lineLengthChanged();
     emit cursorSceneYChanged();
 }
 
@@ -477,6 +481,22 @@ bool ImageCanvas::isAltPressed() const
     return mAltPressed;
 }
 
+bool ImageCanvas::isLineVisible() const
+{
+    return mShiftPressed && mTool == PenTool;
+}
+
+int ImageCanvas::lineLength() const
+{
+    if (!isLineVisible())
+        return false;
+
+    const QPointF point1 = mLastPixelPenPressScenePosition;
+    const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
+    const QLineF line(point1, point2);
+    return line.length();
+}
+
 void ImageCanvas::setAltPressed(bool altPressed)
 {
     if (altPressed == mAltPressed)
@@ -491,7 +511,13 @@ void ImageCanvas::setShiftPressed(bool shiftPressed)
     if (shiftPressed == mShiftPressed)
         return;
 
+    const bool wasLineVisible = isLineVisible();
+
     mShiftPressed = shiftPressed;
+
+    if (isLineVisible() != wasLineVisible)
+        emit lineVisibleChanged();
+
     update();
 }
 
@@ -622,7 +648,7 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     painter->drawRect(zoomedSelectionArea);
 
     // Draw the pixel-pen-line indicator.
-    if (mTool == PenTool && mShiftPressed) {
+    if (isLineVisible()) {
         const QPointF point1 = mLastPixelPenPressScenePosition;
         const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
         mLinePreviewImage = QImage(currentProjectImage()->size(), QImage::Format_ARGB32_Premultiplied);

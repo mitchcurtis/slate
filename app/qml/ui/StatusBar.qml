@@ -1,6 +1,7 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
+import QtQuick.Window 2.2
 
 import App 1.0
 
@@ -83,6 +84,7 @@ Pane {
             id: selectionIcon
             source: "qrc:/images/selection.png"
             anchors.verticalCenter: parent.verticalCenter
+            visible: canvas && canvas.tool === ImageCanvas.SelectionTool
             Layout.rightMargin: 6
         }
 
@@ -95,6 +97,7 @@ Pane {
 
                 return canvas.selectionArea.width + " x " + canvas.selectionArea.height
             }
+            visible: canvas && canvas.tool === ImageCanvas.SelectionTool
             anchors.verticalCenter: parent.verticalCenter
 
             Layout.minimumWidth: selectionAreaMaxTextMetrics.width
@@ -104,6 +107,40 @@ Pane {
                 id: selectionAreaMaxTextMetrics
                 font: selectionSizeLabel.font
                 text: "999 x 999"
+            }
+        }
+
+        Rectangle {
+            width: 16
+            height: 1
+            visible: canvas && canvas.lineVisible
+
+            Rectangle {
+                y: -1
+                width: 1
+                height: 3
+            }
+
+            Rectangle {
+                y: -1
+                width: 1
+                height: 3
+                anchors.right: parent.right
+            }
+        }
+
+        Label {
+            id: lineLengthLabel
+            text: canvas ? canvas.lineLength : ""
+            visible: canvas && canvas.lineVisible
+
+            Layout.minimumWidth: lineLengthMaxTextMetrics.width
+            Layout.maximumWidth: lineLengthMaxTextMetrics.width
+
+            TextMetrics {
+                id: lineLengthMaxTextMetrics
+                font: lineLengthLabel.font
+                text: Screen.desktopAvailableWidth
             }
         }
 

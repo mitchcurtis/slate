@@ -70,6 +70,8 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(QRect selectionArea READ selectionArea NOTIFY selectionAreaChanged)
     Q_PROPERTY(bool hasBlankCursor READ hasBlankCursor NOTIFY hasBlankCursorChanged)
     Q_PROPERTY(bool altPressed READ isAltPressed NOTIFY altPressedChanged)
+    Q_PROPERTY(bool lineVisible READ isLineVisible NOTIFY lineVisibleChanged)
+    Q_PROPERTY(int lineLength READ lineLength NOTIFY lineLengthChanged)
 
 public:
     enum Tool {
@@ -154,6 +156,9 @@ public:
 
     bool isAltPressed() const;
 
+    bool isLineVisible() const;
+    int lineLength() const;
+
     QPoint scenePosToTilePixelPos(const QPoint &scenePos) const;
 
     void paint(QPainter *painter) override;
@@ -190,6 +195,9 @@ signals:
     void hasSelectionChanged();
     void selectionAreaChanged();
     void altPressedChanged();
+    void lineVisibleChanged();
+    void lineLengthChanged();
+
     void errorOccurred(const QString &errorMessage);
 
 public slots:
