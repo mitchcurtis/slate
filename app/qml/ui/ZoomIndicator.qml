@@ -9,36 +9,29 @@ RowLayout {
 
     property CanvasPane pane
     property FontMetrics fontMetrics
-    readonly property real pixelSize: fontMetrics.font.pixelSize * 1.5
-
-    opacity: 0.5
 
     TextMetrics {
         id: maxZoomTextMetrics
-        font.pixelSize: pixelSize
-        text: pane ? pane.maxZoomLevel.toString() : "99"
+        text: pane ? pane.maxZoomLevel.toString() : "999"
     }
 
     Label {
         text: "\uf002"
         font.family: "FontAwesome"
-        font.pixelSize: pixelSize
         color: "#ffffff"
-        horizontalAlignment: Label.AlignHCenter
-        verticalAlignment: Label.AlignVCenter
-        Layout.preferredWidth: 30
     }
 
     Label {
         text: "x"
         color: "#ffffff"
-        font.pixelSize: pixelSize
     }
 
     Label {
         id: zoomLevelText
         text: pane ? pane.zoomLevel : ""
         color: "#ffffff"
-        font.pixelSize: pixelSize
+
+        Layout.minimumWidth: maxZoomTextMetrics.width
+        Layout.maximumWidth: maxZoomTextMetrics.width
     }
 }
