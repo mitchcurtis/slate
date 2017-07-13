@@ -175,10 +175,6 @@ Pane {
             visible: canvas && canvas.lineVisible
         }
 
-//        ToolSeparator {
-//            visible: canvas && canvas.lineVisible
-//        }
-
         Item {
             Layout.fillWidth: true
         }

@@ -458,7 +458,7 @@ CanvasPane *ImageCanvas::firstPane()
 
 CanvasPane *ImageCanvas::secondPane()
 {
-    return mSplitScreen ? &mSecondPane : nullptr;
+    return &mSecondPane;
 }
 
 CanvasPane *ImageCanvas::currentPane()

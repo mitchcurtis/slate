@@ -35,15 +35,10 @@ RowLayout {
         font.pixelSize: pixelSize
     }
 
-    Item {
-        Layout.minimumWidth: maxZoomTextMetrics.width
-
-        Label {
-            id: zoomLevelText
-            text: pane ? pane.zoomLevel : ""
-            color: "#ffffff"
-            font.pixelSize: pixelSize
-            anchors.verticalCenter: parent.verticalCenter
-        }
+    Label {
+        id: zoomLevelText
+        text: pane ? pane.zoomLevel : ""
+        color: "#ffffff"
+        font.pixelSize: pixelSize
     }
 }
