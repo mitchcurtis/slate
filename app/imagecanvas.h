@@ -29,8 +29,9 @@
 
 #include <QtUndo/undostack.h>
 
-#include "splitter.h"
 #include "canvaspane.h"
+#include "ruler.h"
+#include "splitter.h"
 
 Q_DECLARE_LOGGING_CATEGORY(lcCanvas)
 Q_DECLARE_LOGGING_CATEGORY(lcCanvasLifecycle)
@@ -54,6 +55,8 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(CanvasPane *firstPane READ firstPane CONSTANT)
     Q_PROPERTY(CanvasPane *secondPane READ secondPane CONSTANT)
     Q_PROPERTY(CanvasPane *currentPane READ currentPane NOTIFY currentPaneChanged)
+    Q_PROPERTY(QColor rulerForegroundColour READ rulerForegroundColour WRITE setRulerForegroundColour)
+    Q_PROPERTY(QColor rulerBackgroundColour READ rulerBackgroundColour WRITE setRulerBackgroundColour)
     Q_PROPERTY(int cursorX READ cursorX NOTIFY cursorXChanged)
     Q_PROPERTY(int cursorY READ cursorY NOTIFY cursorYChanged)
     Q_PROPERTY(int cursorSceneX READ cursorSceneX NOTIFY cursorSceneXChanged)
@@ -133,6 +136,12 @@ public:
     CanvasPane *secondPane();
     CanvasPane *currentPane();
 
+    QColor rulerForegroundColour() const;
+    void setRulerForegroundColour(const QColor &foregroundColour) const;
+
+    QColor rulerBackgroundColour() const;
+    void setRulerBackgroundColour(const QColor &backgroundColour) const;
+
     QColor mapBackgroundColour() const;
 
     Tool tool() const;
@@ -189,6 +198,8 @@ signals:
     void splitScreenChanged();
     void scrollZoomChanged();
     void currentPaneChanged();
+//    void rulerForegroundColourChanged();
+//    void rulerBackgroundColourChanged();
     void toolChanged();
     void toolSizeChanged();
     void penForegroundColourChanged();
@@ -268,6 +279,8 @@ protected:
     void centrePanes(bool respectSceneCentred = true);
     bool mouseOverSplitterHandle(const QPoint &mousePos);
 
+    void resizeRulers();
+
     bool isPanning() const;
 
     enum ClearSelectionFlag {
@@ -327,6 +340,10 @@ protected:
     CanvasPane mFirstPane;
     CanvasPane mSecondPane;
     CanvasPane *mCurrentPane;
+    Ruler *mFirstHorizontalRuler;
+    Ruler *mFirstVerticalRuler;
+    Ruler *mSecondHorizontalRuler;
+    Ruler *mSecondVerticalRuler;
 
     // The position of the cursor in view coordinates.
     int mCursorX;

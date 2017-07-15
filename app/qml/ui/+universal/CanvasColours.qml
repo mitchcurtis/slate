@@ -27,4 +27,6 @@ QtObject {
     property color panelColour: "#424242"
     property color focusColour: Universal.accent
     property color splitColour: "#444"
+    property color rulerForegroundColour: Universal.foreground
+    property color rulerBackgroundColour: backgroundColour
 }

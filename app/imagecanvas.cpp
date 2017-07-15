@@ -57,6 +57,10 @@ ImageCanvas::ImageCanvas() :
     mSplitScreen(true),
     mSplitter(this),
     mCurrentPane(&mFirstPane),
+    mFirstHorizontalRuler(new Ruler(Qt::Horizontal, this)),
+    mFirstVerticalRuler(new Ruler(Qt::Vertical, this)),
+    mSecondHorizontalRuler(new Ruler(Qt::Horizontal, this)),
+    mSecondVerticalRuler(new Ruler(Qt::Vertical, this)),
     mCursorX(0),
     mCursorY(0),
     mCursorPaneX(0),
@@ -432,6 +436,10 @@ void ImageCanvas::setSplitScreen(bool splitScreen)
 
     mFirstPane.setSize(splitScreen ? 0.5 : 1.0);
 
+    mSecondHorizontalRuler->setVisible(splitScreen);
+    mSecondVerticalRuler->setVisible(splitScreen);
+    resizeRulers();
+
     update();
 
     emit splitScreenChanged();
@@ -464,6 +472,32 @@ CanvasPane *ImageCanvas::secondPane()
 CanvasPane *ImageCanvas::currentPane()
 {
     return mCurrentPane;
+}
+
+QColor ImageCanvas::rulerForegroundColour() const
+{
+    return mFirstHorizontalRuler->foregroundColour();
+}
+
+void ImageCanvas::setRulerForegroundColour(const QColor &foregroundColour) const
+{
+    mFirstHorizontalRuler->setForegroundColour(foregroundColour);
+    mFirstVerticalRuler->setForegroundColour(foregroundColour);
+    mSecondHorizontalRuler->setForegroundColour(foregroundColour);
+    mSecondVerticalRuler->setForegroundColour(foregroundColour);
+}
+
+QColor ImageCanvas::rulerBackgroundColour() const
+{
+    return mFirstHorizontalRuler->backgroundColour();
+}
+
+void ImageCanvas::setRulerBackgroundColour(const QColor &backgroundColour) const
+{
+    mFirstHorizontalRuler->setBackgroundColour(backgroundColour);
+    mFirstVerticalRuler->setBackgroundColour(backgroundColour);
+    mSecondHorizontalRuler->setBackgroundColour(backgroundColour);
+    mSecondVerticalRuler->setBackgroundColour(backgroundColour);
 }
 
 Splitter *ImageCanvas::splitter()
@@ -711,6 +745,20 @@ bool ImageCanvas::mouseOverSplitterHandle(const QPoint &mousePos)
 {
     const QRect splitterRegion(paneWidth(0) - mSplitter.width() / 2, 0, mSplitter.width(), height());
     return splitterRegion.contains(mousePos);
+}
+
+void ImageCanvas::resizeRulers()
+{
+    const bool splitScreen = isSplitScreen();
+    mFirstHorizontalRuler->setSize(QSizeF(splitScreen ? paneWidth(0) : width(), 24));
+    mFirstVerticalRuler->setSize(QSizeF(24, height()));
+
+    if (splitScreen) {
+        const int secondPaneWidth = paneWidth(1);
+        mSecondHorizontalRuler->setX(secondPaneWidth);
+        mSecondHorizontalRuler->setSize(QSizeF(secondPaneWidth, 24));
+        mSecondVerticalRuler->setSize(QSizeF(24, height()));
+    }
 }
 
 bool ImageCanvas::isPanning() const
@@ -1057,6 +1105,7 @@ void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGe
 {
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
     centrePanes();
+    resizeRulers();
 }
 
 ImageCanvas::PixelCandidateData ImageCanvas::penEraserPixelCandidates(Tool tool) const

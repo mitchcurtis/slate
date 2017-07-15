@@ -18,6 +18,8 @@ LayeredImageCanvas {
     splitColour: CanvasColours.splitColour
     splitter.enabled: settings.splitScreen && !settings.splitterLocked
     splitter.width: 32
+    rulerForegroundColour: CanvasColours.rulerForegroundColour
+    rulerBackgroundColour: CanvasColours.rulerBackgroundColour
     scrollZoom: settings.scrollZoom
     anchors.fill: parent
 
