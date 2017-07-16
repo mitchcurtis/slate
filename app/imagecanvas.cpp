@@ -95,8 +95,8 @@ ImageCanvas::ImageCanvas() :
     mSecondPane.setObjectName("secondPane");
     mSplitter.setPosition(mFirstPane.size());
 
-    connect(&mFirstPane, SIGNAL(zoomLevelChanged()), this, SLOT(update()));
-    connect(&mSecondPane, SIGNAL(zoomLevelChanged()), this, SLOT(update()));
+    connect(&mFirstPane, SIGNAL(zoomLevelChanged()), this, SLOT(onZoomLevelChanged()));
+    connect(&mSecondPane, SIGNAL(zoomLevelChanged()), this, SLOT(onZoomLevelChanged()));
     connect(&mSplitter, SIGNAL(positionChanged()), this, SLOT(onSplitterPositionChanged()));
 
     mCheckerPixmap = QPixmap(":/images/checker.png");
@@ -750,14 +750,14 @@ bool ImageCanvas::mouseOverSplitterHandle(const QPoint &mousePos)
 void ImageCanvas::resizeRulers()
 {
     const bool splitScreen = isSplitScreen();
-    mFirstHorizontalRuler->setSize(QSizeF(splitScreen ? paneWidth(0) : width(), 24));
-    mFirstVerticalRuler->setSize(QSizeF(24, height()));
+    mFirstHorizontalRuler->setSize(QSizeF(splitScreen ? paneWidth(0) : width(), 20));
+    mFirstVerticalRuler->setSize(QSizeF(20, height()));
 
     if (splitScreen) {
         const int secondPaneWidth = paneWidth(1);
         mSecondHorizontalRuler->setX(secondPaneWidth);
-        mSecondHorizontalRuler->setSize(QSizeF(secondPaneWidth, 24));
-        mSecondVerticalRuler->setSize(QSizeF(24, height()));
+        mSecondHorizontalRuler->setSize(QSizeF(secondPaneWidth, 20));
+        mSecondVerticalRuler->setSize(QSizeF(20, height()));
     }
 }
 
@@ -1390,6 +1390,16 @@ void ImageCanvas::updateWindowCursorShape()
 
     if (window())
         window()->setCursor(QCursor(cursorShape));
+}
+
+void ImageCanvas::onZoomLevelChanged()
+{
+    mFirstHorizontalRuler->setZoomLevel(mFirstPane.zoomLevel());
+    mFirstVerticalRuler->setZoomLevel(mFirstPane.zoomLevel());
+    mSecondHorizontalRuler->setZoomLevel(mSecondPane.zoomLevel());
+    mSecondVerticalRuler->setZoomLevel(mSecondPane.zoomLevel());
+
+    update();
 }
 
 void ImageCanvas::error(const QString &message)

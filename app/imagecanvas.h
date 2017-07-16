@@ -226,6 +226,7 @@ protected slots:
     virtual void reset();
     virtual void onLoadedChanged();
     void updateWindowCursorShape();
+    void onZoomLevelChanged();
     void onSplitterPositionChanged();
 
 protected:
