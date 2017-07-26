@@ -100,7 +100,8 @@ void Ruler::paint(QPainter *painter)
     const int thickness = 1;
 
     // Largest tickmarks; always visible.
-    const int lvl1Spacing = 50 * mZoomLevel;
+    const int lvl1BaseSpacing = 50;
+    const int lvl1Spacing = lvl1BaseSpacing * mZoomLevel;
     const int lvl1Length = rulerHeight;
 
     // Second-largest tickmarks; also always visible.
@@ -127,16 +128,26 @@ void Ruler::paint(QPainter *painter)
 
     // Translate to account for the corner; we don't want to draw there.
     if (mOrientation == Qt::Horizontal) {
-        painter->translate(rulerHeight, 0);
+//        painter->translate(rulerHeight, 0);
 
 //        qDebug() << mZoomLevel << lvl2Spacing;
 
-        for (int x = 0, i = 0; x < width(); x += lvl2Spacing, ++i) {
+        // - lvl1BaseSpacing to ensure we render a bit outside of ourselves,
+        // rather than leaving some gaps where stuff is missing.
+        const int diffToLvl1 = (mFrom % lvl1BaseSpacing) - lvl1BaseSpacing;
+        const int safeLvl1Value = -(mFrom - diffToLvl1) / mZoomLevel;
+        qDebug() << "-mFrom" << -mFrom << "diffToLvl1" << diffToLvl1 << "safeLvl1Value" << safeLvl1Value;
+
+        painter->translate(diffToLvl1, 0);
+
+        // + lvl1BaseSpacing because we translate to the left above, so we have
+        // to make sure that there isn't a gap on the right-hand side.
+        for (int x = 0, i = 0; x < width() + lvl1BaseSpacing; x += lvl2Spacing, ++i) {
             if (i % 5 == 0) {
                 painter->fillRect(x, rulerHeight - lvl1Length, thickness, lvl1Length, mForegroundColour);
 
                 // + 4 to go slightly past the tick.
-                painter->drawText(x + 4, fontMetrics.ascent(), QString::number((i * lvl2Spacing) / mZoomLevel));
+                painter->drawText(x + 4, fontMetrics.ascent(), QString::number((safeLvl1Value + i * lvl2Spacing) / mZoomLevel));
             } else {
                 painter->fillRect(x, rulerHeight - lvl2Length, thickness, lvl2Length, mForegroundColour);
 
