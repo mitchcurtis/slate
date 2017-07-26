@@ -96,7 +96,9 @@ ImageCanvas::ImageCanvas() :
     mSplitter.setPosition(mFirstPane.size());
 
     connect(&mFirstPane, SIGNAL(zoomLevelChanged()), this, SLOT(onZoomLevelChanged()));
+    connect(&mFirstPane, SIGNAL(offsetChanged()), this, SLOT(onPaneOffsetChanged()));
     connect(&mSecondPane, SIGNAL(zoomLevelChanged()), this, SLOT(onZoomLevelChanged()));
+    connect(&mSecondPane, SIGNAL(offsetChanged()), this, SLOT(onPaneOffsetChanged()));
     connect(&mSplitter, SIGNAL(positionChanged()), this, SLOT(onSplitterPositionChanged()));
 
     mCheckerPixmap = QPixmap(":/images/checker.png");
@@ -1400,6 +1402,14 @@ void ImageCanvas::onZoomLevelChanged()
     mSecondVerticalRuler->setZoomLevel(mSecondPane.zoomLevel());
 
     update();
+}
+
+void ImageCanvas::onPaneOffsetChanged()
+{
+    mFirstHorizontalRuler->setFrom(mFirstPane.offset().x());
+    mFirstVerticalRuler->setFrom(mFirstPane.offset().y());
+    mSecondHorizontalRuler->setFrom(mSecondPane.offset().x());
+    mSecondVerticalRuler->setFrom(mSecondPane.offset().y());
 }
 
 void ImageCanvas::error(const QString &message)

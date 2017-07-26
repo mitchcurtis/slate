@@ -35,6 +35,9 @@ public:
     int zoomLevel() const;
     void setZoomLevel(int zoomLevel);
 
+    int from() const;
+    void setFrom(int from);
+
     QColor foregroundColour() const;
     void setForegroundColour(const QColor &foregroundColour);
 
@@ -51,6 +54,7 @@ signals:
 private:
     Qt::Orientation mOrientation;
     int mZoomLevel;
+    int mFrom;
     QColor mForegroundColour;
     QColor mBackgroundColour;
 };

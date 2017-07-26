@@ -227,6 +227,7 @@ protected slots:
     virtual void onLoadedChanged();
     void updateWindowCursorShape();
     void onZoomLevelChanged();
+    void onPaneOffsetChanged();
     void onSplitterPositionChanged();
 
 protected:

@@ -26,6 +26,7 @@ Ruler::Ruler(Qt::Orientation orientation, QQuickItem *parentItem) :
     QQuickPaintedItem(parentItem),
     mOrientation(orientation),
     mZoomLevel(1),
+    mFrom(0),
     mForegroundColour(QColor(170, 170, 170, 255)),
     mBackgroundColour(QColor(70, 70, 70, 255))
 {
@@ -44,6 +45,21 @@ void Ruler::setZoomLevel(int zoomLevel)
     mZoomLevel = zoomLevel;
     update();
     //    emit zoomLevelChanged();
+}
+
+int Ruler::from() const
+{
+    return mFrom;
+}
+
+void Ruler::setFrom(int from)
+{
+    if (from == mFrom)
+        return;
+
+    mFrom = from;
+    update();
+//    emit fromChanged();
 }
 
 QColor Ruler::foregroundColour() const
@@ -113,7 +129,7 @@ void Ruler::paint(QPainter *painter)
     if (mOrientation == Qt::Horizontal) {
         painter->translate(rulerHeight, 0);
 
-        qDebug() << mZoomLevel << lvl2Spacing;
+//        qDebug() << mZoomLevel << lvl2Spacing;
 
         for (int x = 0, i = 0; x < width(); x += lvl2Spacing, ++i) {
             if (i % 5 == 0) {
