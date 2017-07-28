@@ -147,6 +147,15 @@ Platform.MenuBar {
         }
 
         Platform.MenuItem {
+            objectName: "showRulersMenuButton"
+            text: qsTr("Show Rulers")
+            enabled: canvas
+            checkable: true
+            checked: settings.rulersVisible
+            onCheckedChanged: settings.rulersVisible = checked
+        }
+
+        Platform.MenuItem {
             objectName: "splitScreenMenuButton"
             text: qsTr("Split Screen")
             enabled: canvas
