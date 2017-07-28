@@ -105,6 +105,7 @@ void Ruler::paint(QPainter *painter)
     const int lvl1Length = rulerHeight;
 
     // Second-largest tickmarks; also always visible.
+    const int lvl2BaseSpacing = lvl1BaseSpacing / 5;
     const int lvl2Spacing = lvl1Spacing / 5;
     const int lvl2Length = rulerHeight * 0.4;
 
@@ -126,33 +127,29 @@ void Ruler::paint(QPainter *painter)
     QFontMetrics fontMetrics(font);
 //    const int maxTextWidth = fontMetrics.width(QString::number(width()));
 
-    // Translate to account for the corner; we don't want to draw there.
     if (mOrientation == Qt::Horizontal) {
-//        painter->translate(rulerHeight, 0);
-
-//        qDebug() << mZoomLevel << lvl2Spacing;
-
         // - lvl1BaseSpacing to ensure we render a bit outside of ourselves,
         // rather than leaving some gaps where stuff is missing.
         const int diffToLvl1 = (mFrom % lvl1BaseSpacing) - lvl1BaseSpacing;
-        const int safeLvl1Value = -(mFrom - diffToLvl1) / mZoomLevel;
-        qDebug() << "-mFrom" << -mFrom << "diffToLvl1" << diffToLvl1 << "safeLvl1Value" << safeLvl1Value;
-
-        painter->translate(diffToLvl1, 0);
+        const int safeLvl1Value = -(mFrom - diffToLvl1);
 
         // + lvl1BaseSpacing because we translate to the left above, so we have
         // to make sure that there isn't a gap on the right-hand side.
-        for (int x = 0, i = 0; x < width() + lvl1BaseSpacing; x += lvl2Spacing, ++i) {
-            if (i % 5 == 0) {
+        int number = safeLvl1Value;
+        int tickmarkIndex = 0;
+        // No idea why this zoom level crap is necessary... but it works! :D
+        int startXValue = diffToLvl1 * mZoomLevel - (mZoomLevel > 1 ? mFrom * (mZoomLevel > 2 ? mZoomLevel - 1 : 1) : 0);
+        for (int x = startXValue; x < width() + lvl1BaseSpacing; x += lvl2Spacing, ++tickmarkIndex, number += lvl2BaseSpacing) {
+            if (tickmarkIndex % 5 == 0) {
                 painter->fillRect(x, rulerHeight - lvl1Length, thickness, lvl1Length, mForegroundColour);
 
                 // + 4 to go slightly past the tick.
-                painter->drawText(x + 4, fontMetrics.ascent(), QString::number((safeLvl1Value + i * lvl2Spacing) / mZoomLevel));
+                painter->drawText(x + 4, fontMetrics.ascent(), QString::number(number));
             } else {
                 painter->fillRect(x, rulerHeight - lvl2Length, thickness, lvl2Length, mForegroundColour);
 
                 if (mZoomLevel >= lvl4VisibleAtZoomLevel) {
-                    painter->drawText(x + 4, fontMetrics.ascent(), QString::number((i * lvl2Spacing) / mZoomLevel));
+                    painter->drawText(x + 4, fontMetrics.ascent(), QString::number(number));
                 }
             }
 
