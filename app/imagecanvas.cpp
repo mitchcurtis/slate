@@ -91,8 +91,6 @@ ImageCanvas::ImageCanvas() :
     setEnabled(false);
     setFlag(QQuickItem::ItemIsFocusScope);
 
-    mFirstVerticalRuler->setVisible(false);
-
     mFirstPane.setObjectName("firstPane");
     mSecondPane.setObjectName("secondPane");
     mSplitter.setPosition(mFirstPane.size());
