@@ -183,6 +183,23 @@ void ImageCanvas::setGridColour(const QColor &gridColour)
     emit gridColourChanged();
 }
 
+bool ImageCanvas::rulersVisible() const
+{
+    return mFirstHorizontalRuler->isVisible();
+}
+
+void ImageCanvas::setRulersVisible(bool rulersVisible)
+{
+    if (rulersVisible == mFirstHorizontalRuler->isVisible())
+        return;
+
+    mFirstHorizontalRuler->setVisible(rulersVisible);
+    mFirstVerticalRuler->setVisible(rulersVisible);
+    mSecondHorizontalRuler->setVisible(rulersVisible);
+    mSecondVerticalRuler->setVisible(rulersVisible);
+    emit rulersVisibleChanged();
+}
+
 QColor ImageCanvas::splitColour() const
 {
     return mSplitColour;

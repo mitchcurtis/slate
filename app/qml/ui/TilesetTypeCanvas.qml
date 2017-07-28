@@ -11,6 +11,7 @@ TileCanvas {
     backgroundColour: CanvasColours.backgroundColour
     gridVisible: settings.gridVisible
     gridColour: "#55000000"
+    rulersVisible: settings.rulersVisible
     splitScreen: settings.splitScreen
     splitColour: CanvasColours.splitColour
     splitter.enabled: settings.splitScreen && !settings.splitterLocked

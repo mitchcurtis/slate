@@ -95,9 +95,10 @@ void Ruler::setBackgroundColour(const QColor &backgroundColour)
 
 void Ruler::paint(QPainter *painter)
 {
+    const bool horizontal = mOrientation == Qt::Horizontal;
+
     painter->fillRect(0, 0, width(), height(), mBackgroundColour);
 
-    const bool horizontal = mOrientation == Qt::Horizontal;
     const qreal rulerThickness = horizontal ? height() : width();
     const int tickThickness = 1;
 
@@ -175,6 +176,7 @@ void Ruler::paint(QPainter *painter)
         // TODO: use QTextLayout for more compact vertical text
 
         const int fontDigitWidth = fontMetrics.width(QLatin1Char('9'));
+        const int textX = 3;
         // + lvl1BaseSpacing because we start outside of the left side of item, so we have
         // to make sure that there isn't a gap on the right-hand side.
         int number = safeLvl1Value;
@@ -187,12 +189,12 @@ void Ruler::paint(QPainter *painter)
                 painter->fillRect(rulerThickness - lvl1Length, y, lvl1Length, tickThickness, mForegroundColour);
 
                 // + 4 to go slightly past the tick.
-                painter->drawText(2, y + 4, fontDigitWidth, 100, Qt::TextWordWrap | Qt::TextWrapAnywhere, QString::number(qAbs(number)));
+                painter->drawText(textX, y + 4, fontDigitWidth, 100, Qt::TextWordWrap | Qt::TextWrapAnywhere, QString::number(qAbs(number)));
             } else {
                 painter->fillRect(rulerThickness - lvl2Length, y, lvl2Length, tickThickness, mForegroundColour);
 
                 if (mZoomLevel >= lvl4VisibleAtZoomLevel) {
-                    painter->drawText(2, y + 4, fontDigitWidth, 100, Qt::TextWordWrap | Qt::TextWrapAnywhere, QString::number(number));
+                    painter->drawText(textX, y + 4, fontDigitWidth, 100, Qt::TextWordWrap | Qt::TextWrapAnywhere, QString::number(qAbs(number)));
                 }
             }
 
@@ -211,6 +213,11 @@ void Ruler::paint(QPainter *painter)
             }
         }
     }
+
+    // Draw lines on edges over ticks.
+    const QColor lineColour = mBackgroundColour.lighter(110);
+//    painter->fillRect(0, 0, horizontal ? width() : 1, horizontal ? 1 : height(), lineColour);
+    painter->fillRect(horizontal ? 0 : width() - 1, horizontal ? height() - 1 : 0, horizontal ? width() : 1, horizontal ? 1 : height(), lineColour);
 
     if (mDrawCorner) {
         painter->fillRect(0, 0, rulerThickness, rulerThickness, mBackgroundColour);

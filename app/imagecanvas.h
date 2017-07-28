@@ -48,6 +48,7 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(QColor backgroundColour READ backgroundColour WRITE setBackgroundColour NOTIFY backgroundColourChanged)
     Q_PROPERTY(bool gridVisible READ gridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
     Q_PROPERTY(QColor gridColour READ gridColour WRITE setGridColour NOTIFY gridColourChanged)
+    Q_PROPERTY(bool rulersVisible READ rulersVisible WRITE setRulersVisible NOTIFY rulersVisibleChanged)
     Q_PROPERTY(QColor splitColour READ splitColour WRITE setSplitColour NOTIFY splitColourChanged)
     Q_PROPERTY(bool splitScreen READ isSplitScreen WRITE setSplitScreen NOTIFY splitScreenChanged)
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
@@ -117,6 +118,9 @@ public:
 
     QColor gridColour() const;
     void setGridColour(const QColor &gridColour);
+
+    bool rulersVisible() const;
+    void setRulersVisible(bool rulersVisible);
 
     QColor splitColour() const;
     void setSplitColour(const QColor &splitColour);
@@ -194,6 +198,7 @@ signals:
     void backgroundColourChanged();
     void gridVisibleChanged();
     void gridColourChanged();
+    void rulersVisibleChanged();
     void splitColourChanged();
     void splitScreenChanged();
     void scrollZoomChanged();

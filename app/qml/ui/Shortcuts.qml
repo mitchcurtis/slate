@@ -110,6 +110,12 @@ Item {
     }
 
     Shortcut {
+        objectName: "rulersVisibleShortcut"
+        sequence: settings.rulersVisibleShortcut
+        onActivated: settings.rulersVisible = !settings.rulersVisible
+    }
+
+    Shortcut {
         objectName: "splitScreenShortcut"
         sequence: settings.splitScreenShortcut
         onActivated: settings.splitScreen = !settings.splitScreen

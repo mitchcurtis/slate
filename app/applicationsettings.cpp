@@ -102,6 +102,31 @@ bool ApplicationSettings::defaultGridVisible() const
     return true;
 }
 
+bool ApplicationSettings::areRulersVisible() const
+{
+    return contains("rulersVisible") ? value("rulersVisible").toBool() : defaultRulersVisible();
+}
+
+void ApplicationSettings::setRulersVisible(bool rulersVisible)
+{
+    QVariant existingValue = value("rulersVisible");
+    bool existingBoolValue = defaultRulersVisible();
+    if (contains("rulersVisible")) {
+        existingBoolValue = existingValue.toBool();
+    }
+
+    if (rulersVisible == existingBoolValue)
+        return;
+
+    setValue("rulersVisible", rulersVisible);
+    emit rulersVisibleChanged();
+}
+
+bool ApplicationSettings::defaultRulersVisible() const
+{
+    return true;
+}
+
 bool ApplicationSettings::defaultSplitScreen() const
 {
     return true;
@@ -362,6 +387,21 @@ QString ApplicationSettings::gridVisibleShortcut() const
 void ApplicationSettings::setGridVisibleShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("gridVisibleShortcut", defaultGridVisibleShortcut, gridVisibleShortcutChanged)
+}
+
+QString ApplicationSettings::defaultRulersVisibleShortcut() const
+{
+    return QLatin1String("Ctrl+R");
+}
+
+QString ApplicationSettings::rulersVisibleShortcut() const
+{
+    GET_SHORTCUT("rulersVisibleShortcut", defaultRulersVisibleShortcut)
+}
+
+void ApplicationSettings::setRulersVisibleShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("rulersVisibleShortcut", defaultRulersVisibleShortcut, rulersVisibleShortcutChanged)
 }
 
 QString ApplicationSettings::defaultCentreShortcut() const

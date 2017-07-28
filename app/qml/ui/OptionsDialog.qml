@@ -156,6 +156,10 @@ Dialog {
                     shortcutDisplayName: qsTr("Toggle Grid Visibility")
                 }
                 ShortcutRow {
+                    shortcutName: "rulersVisibleShortcut"
+                    shortcutDisplayName: qsTr("Toggle Ruler Visibility")
+                }
+                ShortcutRow {
                     shortcutName: "splitScreenShortcut"
                     shortcutDisplayName: qsTr("Toggle Split Screen")
                 }
