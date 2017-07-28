@@ -28,7 +28,8 @@ Ruler::Ruler(Qt::Orientation orientation, QQuickItem *parentItem) :
     mZoomLevel(1),
     mFrom(0),
     mForegroundColour(QColor(170, 170, 170, 255)),
-    mBackgroundColour(QColor(70, 70, 70, 255))
+    mBackgroundColour(QColor(70, 70, 70, 255)),
+    mDrawCorner(false)
 {
 }
 
@@ -210,4 +211,23 @@ void Ruler::paint(QPainter *painter)
             }
         }
     }
+
+    if (mDrawCorner) {
+        painter->fillRect(0, 0, rulerThickness, rulerThickness, mBackgroundColour);
+    }
+}
+
+bool Ruler::drawCorner() const
+{
+    return mDrawCorner;
+}
+
+void Ruler::setDrawCorner(bool drawCorner)
+{
+    if (drawCorner == mDrawCorner)
+        return;
+
+    mDrawCorner = drawCorner;
+    update();
+    emit drawCornerChanged();
 }

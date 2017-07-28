@@ -228,6 +228,7 @@ protected slots:
     void updateWindowCursorShape();
     void onZoomLevelChanged();
     void onPaneOffsetChanged();
+    void onPaneSizeChanged();
     void onSplitterPositionChanged();
 
 protected:

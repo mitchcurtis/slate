@@ -28,6 +28,7 @@ class Ruler : public QQuickPaintedItem
 //    Q_PROPERTY(int zoomLevel READ zoomLevel WRITE setZoomLevel NOTIFY zoomLevelChanged)
     Q_PROPERTY(QColor foregroundColour READ foregroundColour WRITE setForegroundColour NOTIFY foregroundColourChanged)
     Q_PROPERTY(QColor backgroundColour READ backgroundColour WRITE setBackgroundColour NOTIFY backgroundColourChanged)
+    Q_PROPERTY(bool drawCorner READ drawCorner WRITE setDrawCorner NOTIFY drawCornerChanged)
 
 public:
     Ruler(Qt::Orientation orientation, QQuickItem *parentItem);
@@ -46,10 +47,14 @@ public:
 
     void paint(QPainter *painter) override;
 
+    bool drawCorner() const;
+    void setDrawCorner(bool drawCorner);
+
 signals:
-//    void zoomLevelChanged();
+    //    void zoomLevelChanged();
     void foregroundColourChanged();
     void backgroundColourChanged();
+    void drawCornerChanged();
 
 private:
     Qt::Orientation mOrientation;
@@ -57,6 +62,7 @@ private:
     int mFrom;
     QColor mForegroundColour;
     QColor mBackgroundColour;
+    bool mDrawCorner;
 };
 
 #endif // RULER_H

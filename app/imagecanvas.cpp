@@ -95,10 +95,15 @@ ImageCanvas::ImageCanvas() :
     mSecondPane.setObjectName("secondPane");
     mSplitter.setPosition(mFirstPane.size());
 
+    mFirstVerticalRuler->setDrawCorner(true);
+    mSecondVerticalRuler->setDrawCorner(true);
+
     connect(&mFirstPane, SIGNAL(zoomLevelChanged()), this, SLOT(onZoomLevelChanged()));
     connect(&mFirstPane, SIGNAL(offsetChanged()), this, SLOT(onPaneOffsetChanged()));
+    connect(&mFirstPane, SIGNAL(sizeChanged()), this, SLOT(onPaneSizeChanged()));
     connect(&mSecondPane, SIGNAL(zoomLevelChanged()), this, SLOT(onZoomLevelChanged()));
     connect(&mSecondPane, SIGNAL(offsetChanged()), this, SLOT(onPaneOffsetChanged()));
+    connect(&mSecondPane, SIGNAL(sizeChanged()), this, SLOT(onPaneSizeChanged()));
     connect(&mSplitter, SIGNAL(positionChanged()), this, SLOT(onSplitterPositionChanged()));
 
     mCheckerPixmap = QPixmap(":/images/checker.png");
@@ -1410,6 +1415,14 @@ void ImageCanvas::onPaneOffsetChanged()
     mFirstVerticalRuler->setFrom(mFirstPane.offset().y());
     mSecondHorizontalRuler->setFrom(mSecondPane.offset().x());
     mSecondVerticalRuler->setFrom(mSecondPane.offset().y());
+    mSecondHorizontalRuler->setX(paneWidth(0));
+    mSecondVerticalRuler->setX(paneWidth(0));
+}
+
+void ImageCanvas::onPaneSizeChanged()
+{
+    mSecondHorizontalRuler->setX(paneWidth(0));
+    mSecondVerticalRuler->setX(paneWidth(0));
 }
 
 void ImageCanvas::error(const QString &message)
