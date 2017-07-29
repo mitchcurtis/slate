@@ -61,6 +61,7 @@ ImageCanvas::ImageCanvas() :
     mFirstVerticalRuler(new Ruler(Qt::Vertical, this)),
     mSecondHorizontalRuler(new Ruler(Qt::Horizontal, this)),
     mSecondVerticalRuler(new Ruler(Qt::Vertical, this)),
+    mPressedRuler(nullptr),
     mCursorX(0),
     mCursorY(0),
     mCursorPaneX(0),
@@ -806,6 +807,30 @@ void ImageCanvas::resizeRulers()
         mSecondVerticalRuler->setX(firstPaneWidth);
         mSecondVerticalRuler->setSize(QSizeF(20, height()));
     }
+}
+
+void ImageCanvas::updatePressedRulers()
+{
+    QPointF cursorPos = QPointF(mCursorX, mCursorY);
+    if (mFirstHorizontalRuler->contains(mapToItem(mFirstHorizontalRuler, cursorPos)))
+        mPressedRuler = mFirstHorizontalRuler;
+    else if (mFirstVerticalRuler->contains(mapToItem(mFirstVerticalRuler, cursorPos)))
+        mPressedRuler = mFirstVerticalRuler;
+    else if (mSecondHorizontalRuler->contains(mapToItem(mSecondHorizontalRuler, cursorPos)))
+        mPressedRuler = mSecondHorizontalRuler;
+    else if (mSecondVerticalRuler->contains(mapToItem(mSecondVerticalRuler, cursorPos)))
+        mPressedRuler = mSecondVerticalRuler;
+    else
+        mPressedRuler = nullptr;
+}
+
+void ImageCanvas::addNewGuide()
+{
+    mProject->beginMacro(QLatin1String("AddGuide"));
+    mProject->addChange(new AddGuideCommand(this, Guide(
+        mPressedRuler->orientation() == Qt::Horizontal ? mCursorSceneY : mCursorSceneX,
+        mPressedRuler->orientation())));
+    mProject->endMacro();
 }
 
 bool ImageCanvas::isPanning() const
@@ -1576,6 +1601,8 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
     if (!isPanning()) {
         if (mSplitter.isEnabled() && mouseOverSplitterHandle(event->pos())) {
             mSplitter.setPressed(true);
+        } else if (rulersVisible()) {
+            updatePressedRulers();
         } else if (mTool != SelectionTool) {
             applyCurrentTool();
         } else {
@@ -1644,7 +1671,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
     // (as setSelectionArea() relies on this to accurately set mHasSelection),
     // but before the press position has been cleared (as
     // updateSelectionArea() needs that information).
-    if (mTool == SelectionTool) {
+    if (mTool == SelectionTool && !mPressedRuler) {
         if (!mMovingSelection) {
             if (mPotentiallySelecting) {
                 // The mouse press that caused mPotentiallySelecting to be set to
@@ -1692,6 +1719,11 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
 
     if (mProject->isComposingMacro()) {
         mProject->endMacro();
+    }
+
+    if (mPressedRuler) {
+        addNewGuide();
+        mPressedRuler = nullptr;
     }
 
     mPressPosition = QPoint(0, 0);

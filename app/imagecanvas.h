@@ -353,6 +353,7 @@ protected:
     Ruler *mFirstVerticalRuler;
     Ruler *mSecondHorizontalRuler;
     Ruler *mSecondVerticalRuler;
+    Ruler *mPressedHorizontalRuler;
 
     // The position of the cursor in view coordinates.
     int mCursorX;

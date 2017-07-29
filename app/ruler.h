@@ -33,6 +33,8 @@ class Ruler : public QQuickPaintedItem
 public:
     Ruler(Qt::Orientation orientation, QQuickItem *parentItem);
 
+    Qt::Orientation orientation() const;
+
     int zoomLevel() const;
     void setZoomLevel(int zoomLevel);
 

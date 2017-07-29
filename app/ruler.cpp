@@ -33,6 +33,11 @@ Ruler::Ruler(Qt::Orientation orientation, QQuickItem *parentItem) :
 {
 }
 
+Qt::Orientation Ruler::orientation() const
+{
+    return mOrientation;
+}
+
 int Ruler::zoomLevel() const
 {
     return mZoomLevel;
