@@ -782,13 +782,16 @@ bool ImageCanvas::mouseOverSplitterHandle(const QPoint &mousePos)
 void ImageCanvas::resizeRulers()
 {
     const bool splitScreen = isSplitScreen();
-    mFirstHorizontalRuler->setSize(QSizeF(splitScreen ? paneWidth(0) : width(), 20));
+    const int firstPaneWidth = paneWidth(0);
+
+    mFirstHorizontalRuler->setSize(QSizeF(splitScreen ? firstPaneWidth : width(), 20));
     mFirstVerticalRuler->setSize(QSizeF(20, height()));
 
     if (splitScreen) {
         const int secondPaneWidth = paneWidth(1);
-        mSecondHorizontalRuler->setX(secondPaneWidth);
+        mSecondHorizontalRuler->setX(firstPaneWidth);
         mSecondHorizontalRuler->setSize(QSizeF(secondPaneWidth, 20));
+        mSecondVerticalRuler->setX(firstPaneWidth);
         mSecondVerticalRuler->setSize(QSizeF(20, height()));
     }
 }
@@ -1372,8 +1375,8 @@ void ImageCanvas::updateWindowCursorShape()
 
         if (isSplitScreen() && !overRuler) {
 //            qDebug() << isSplitScreen() << overRuler << mSecondHorizontalRuler->contains(cursorPos) << mSecondVerticalRuler->contains(cursorPos);
-            qDebug() << "cursorPos" << cursorPos << "-" << mSecondHorizontalRuler->x() << mSecondHorizontalRuler->y() << mSecondHorizontalRuler->width() << mSecondHorizontalRuler->height()
-                     << "-" << mSecondVerticalRuler->x() << mSecondVerticalRuler->y() << mSecondVerticalRuler->width() << mSecondVerticalRuler->height();
+            qDebug() << "cursorPos" << cursorPos << /*"-" << mSecondHorizontalRuler->x() << mSecondHorizontalRuler->y() << mSecondHorizontalRuler->width() << mSecondHorizontalRuler->height()
+                     <<*/ "-" << mSecondVerticalRuler->x() << mSecondVerticalRuler->y() << mSecondVerticalRuler->width() << mSecondVerticalRuler->height();
             overRuler = mSecondHorizontalRuler->contains(cursorPos) || mSecondVerticalRuler->contains(cursorPos);
         }
     }
@@ -1451,16 +1454,14 @@ void ImageCanvas::onPaneOffsetChanged()
 {
     mFirstHorizontalRuler->setFrom(mFirstPane.offset().x());
     mFirstVerticalRuler->setFrom(mFirstPane.offset().y());
+
     mSecondHorizontalRuler->setFrom(mSecondPane.offset().x());
     mSecondVerticalRuler->setFrom(mSecondPane.offset().y());
-    mSecondHorizontalRuler->setX(paneWidth(0));
-    mSecondVerticalRuler->setX(paneWidth(0));
 }
 
 void ImageCanvas::onPaneSizeChanged()
 {
-    mSecondHorizontalRuler->setX(paneWidth(0));
-    mSecondVerticalRuler->setX(paneWidth(0));
+    resizeRulers();
 }
 
 void ImageCanvas::error(const QString &message)
