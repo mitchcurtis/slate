@@ -59,7 +59,11 @@ void Ruler::setFrom(int from)
         return;
 
     mFrom = from;
-    update();
+    if (isVisible()) {
+        // The docs say that redraws only happen if the item is visible, but
+        // commenting out this check results in the second horizontal being drawn...
+        update();
+    }
 //    emit fromChanged();
 }
 
@@ -130,21 +134,36 @@ void Ruler::paint(QPainter *painter)
     QFontMetrics fontMetrics(font);
 //    const int maxTextWidth = fontMetrics.width(QString::number(width()));
 
-    // - lvl1BaseSpacing to ensure we render a bit outside of ourselves,
-    // rather than leaving some gaps where stuff is missing.
-    const int diffToLvl1 = (mFrom % lvl1BaseSpacing) - lvl1BaseSpacing;
-    const int safeLvl1Value = -(mFrom - diffToLvl1);
+    // Find the first number that will be visible on the ruler.
+    int firstVisibleLvl1Number = 0;
+    if (mFrom >= 0) {
+        firstVisibleLvl1Number = -mFrom / mZoomLevel;
+        const int closestLvl1 = firstVisibleLvl1Number % lvl1BaseSpacing;
+        firstVisibleLvl1Number += qAbs(closestLvl1);
+    } else {
+        firstVisibleLvl1Number = -mFrom / mZoomLevel;
+        const int closestLvl1 = qAbs(firstVisibleLvl1Number % lvl1BaseSpacing);
+        firstVisibleLvl1Number += lvl1BaseSpacing - closestLvl1;
+    }
+
+    // Just to be safe, go back one more.
+    firstVisibleLvl1Number -= lvl1BaseSpacing;
 
     if (horizontal) {
         const int textY = fontMetrics.ascent() + 3;
 
         // + lvl1BaseSpacing because we start outside of the left side of item, so we have
         // to make sure that there isn't a gap on the right-hand side.
-        int number = safeLvl1Value;
         int tickmarkIndex = 0;
-        // No idea why this zoom level crap is necessary... but it works! :D
-        const int startXValue = diffToLvl1 * mZoomLevel - (mZoomLevel > 1 ? mFrom * (mZoomLevel > 2 ? mZoomLevel - 1 : 1) : 0);
-        for (int x = startXValue; x < width() + lvl1BaseSpacing; x += lvl2Spacing, ++tickmarkIndex, number += lvl2BaseSpacing) {
+
+        // This is the x position of the first number we draw. The first number is never visible, draw
+        // outside the visible bounds just be ensure there are never gaps with missing ticks/text.
+        int startX = (firstVisibleLvl1Number + (mFrom / mZoomLevel)) * mZoomLevel;
+
+        int number = firstVisibleLvl1Number;
+
+        // Starting at the first number, increment the number's x position by 10 pixels (20 at mZoomLevel == 2, and so on...)
+        for (int x = startX; x < width() + lvl1BaseSpacing; x += lvl2Spacing, ++tickmarkIndex, number += lvl2BaseSpacing) {
             if (tickmarkIndex % 5 == 0) {
                 painter->fillRect(x, rulerThickness - lvl1Length, tickThickness, lvl1Length, mForegroundColour);
 
@@ -177,14 +196,16 @@ void Ruler::paint(QPainter *painter)
 
         const int fontDigitWidth = fontMetrics.width(QLatin1Char('9'));
         const int textX = 3;
-        // + lvl1BaseSpacing because we start outside of the left side of item, so we have
-        // to make sure that there isn't a gap on the right-hand side.
-        int number = safeLvl1Value;
-        int tickmarkIndex = 0;
-        // No idea why this zoom level crap is necessary... but it works! :D
-        const int startYValue = diffToLvl1 * mZoomLevel - (mZoomLevel > 1 ? mFrom * (mZoomLevel > 2 ? mZoomLevel - 1 : 1) : 0);
 
-        for (int y = startYValue; y < height() + lvl1BaseSpacing; y += lvl2Spacing, ++tickmarkIndex, number += lvl2BaseSpacing) {
+        int tickmarkIndex = 0;
+
+        // This is the x position of the first number we draw. The first number is never visible, draw
+        // outside the visible bounds just be ensure there are never gaps with missing ticks/text.
+        int startY = (firstVisibleLvl1Number + (mFrom / mZoomLevel)) * mZoomLevel;
+
+        int number = firstVisibleLvl1Number;
+
+        for (int y = startY; y < height() + lvl1BaseSpacing; y += lvl2Spacing, ++tickmarkIndex, number += lvl2BaseSpacing) {
             if (tickmarkIndex % 5 == 0) {
                 painter->fillRect(rulerThickness - lvl1Length, y, lvl1Length, tickThickness, mForegroundColour);
 

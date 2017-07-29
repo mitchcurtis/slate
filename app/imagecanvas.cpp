@@ -95,8 +95,15 @@ ImageCanvas::ImageCanvas() :
     mSecondPane.setObjectName("secondPane");
     mSplitter.setPosition(mFirstPane.size());
 
+    mFirstHorizontalRuler->setObjectName("firstHorizontalRuler");
+    mFirstVerticalRuler->setObjectName("firstVerticalRuler");
     mFirstVerticalRuler->setDrawCorner(true);
+
+    mSecondHorizontalRuler->setObjectName("secondHorizontalRuler");
+    mSecondVerticalRuler->setObjectName("secondVerticalRuler");
     mSecondVerticalRuler->setDrawCorner(true);
+
+    updateRulerVisibility();
 
     connect(&mFirstPane, SIGNAL(zoomLevelChanged()), this, SLOT(onZoomLevelChanged()));
     connect(&mFirstPane, SIGNAL(offsetChanged()), this, SLOT(onPaneOffsetChanged()));
@@ -460,8 +467,7 @@ void ImageCanvas::setSplitScreen(bool splitScreen)
 
     mFirstPane.setSize(splitScreen ? 0.5 : 1.0);
 
-    mSecondHorizontalRuler->setVisible(splitScreen);
-    mSecondVerticalRuler->setVisible(splitScreen);
+    updateRulerVisibility();
     resizeRulers();
 
     update();
@@ -777,6 +783,12 @@ bool ImageCanvas::mouseOverSplitterHandle(const QPoint &mousePos)
 {
     const QRect splitterRegion(paneWidth(0) - mSplitter.width() / 2, 0, mSplitter.width(), height());
     return splitterRegion.contains(mousePos);
+}
+
+void ImageCanvas::updateRulerVisibility()
+{
+    mSecondHorizontalRuler->setVisible(mSplitScreen);
+    mSecondVerticalRuler->setVisible(mSplitScreen);
 }
 
 void ImageCanvas::resizeRulers()

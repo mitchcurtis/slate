@@ -287,6 +287,7 @@ protected:
     void centrePanes(bool respectSceneCentred = true);
     bool mouseOverSplitterHandle(const QPoint &mousePos);
 
+    void updateRulerVisibility();
     void resizeRulers();
 
     bool isPanning() const;
