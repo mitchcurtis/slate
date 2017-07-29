@@ -1374,10 +1374,13 @@ void ImageCanvas::updateWindowCursorShape()
         overRuler = mFirstHorizontalRuler->contains(cursorPos) || mFirstVerticalRuler->contains(cursorPos);
 
         if (isSplitScreen() && !overRuler) {
-//            qDebug() << isSplitScreen() << overRuler << mSecondHorizontalRuler->contains(cursorPos) << mSecondVerticalRuler->contains(cursorPos);
-            qDebug() << "cursorPos" << cursorPos << /*"-" << mSecondHorizontalRuler->x() << mSecondHorizontalRuler->y() << mSecondHorizontalRuler->width() << mSecondHorizontalRuler->height()
-                     <<*/ "-" << mSecondVerticalRuler->x() << mSecondVerticalRuler->y() << mSecondVerticalRuler->width() << mSecondVerticalRuler->height();
-            overRuler = mSecondHorizontalRuler->contains(cursorPos) || mSecondVerticalRuler->contains(cursorPos);
+            QPointF mappedCursorPos = mSecondHorizontalRuler->mapFromItem(this, cursorPos);
+            overRuler = mSecondHorizontalRuler->contains(mappedCursorPos);
+
+            if (!overRuler) {
+                mappedCursorPos = mSecondVerticalRuler->mapFromItem(this, cursorPos);
+                overRuler = mSecondVerticalRuler->contains(mappedCursorPos);
+            }
         }
     }
 
