@@ -123,7 +123,7 @@ void Ruler::paint(QPainter *painter)
     const int lvl4VisibleAtZoomLevel = 5;
 
     QFont font(painter->font());
-    font.setPixelSize(10);
+    font.setPixelSize(8);
     painter->setFont(font);
     painter->setPen(mForegroundColour);
 
@@ -136,7 +136,7 @@ void Ruler::paint(QPainter *painter)
     const int safeLvl1Value = -(mFrom - diffToLvl1);
 
     if (horizontal) {
-        const int textY = fontMetrics.ascent() + 1;
+        const int textY = fontMetrics.ascent() + 3;
 
         // + lvl1BaseSpacing because we start outside of the left side of item, so we have
         // to make sure that there isn't a gap on the right-hand side.
