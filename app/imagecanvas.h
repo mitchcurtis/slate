@@ -289,6 +289,9 @@ protected:
 
     void updateRulerVisibility();
     void resizeRulers();
+    void updatePressedRulers();
+
+    void addNewGuide();
 
     bool isPanning() const;
 
@@ -353,7 +356,7 @@ protected:
     Ruler *mFirstVerticalRuler;
     Ruler *mSecondHorizontalRuler;
     Ruler *mSecondVerticalRuler;
-    Ruler *mPressedHorizontalRuler;
+    Ruler *mPressedRuler;
 
     // The position of the cursor in view coordinates.
     int mCursorX;
