@@ -53,7 +53,8 @@ HEADERS += \
     $$PWD/deletelayercommand.h \
     $$PWD/platformdefines.h \
     $$PWD/addlayercommand.h \
-    $$PWD/applygreedypixelfillcommand.h
+    $$PWD/applygreedypixelfillcommand.h \
+    $$PWD/guide.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -103,7 +104,8 @@ SOURCES += \
     $$PWD/changelayeropacitycommand.cpp \
     $$PWD/deletelayercommand.cpp \
     $$PWD/addlayercommand.cpp \
-    $$PWD/applygreedypixelfillcommand.cpp
+    $$PWD/applygreedypixelfillcommand.cpp \
+    $$PWD/guide.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \

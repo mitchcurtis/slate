@@ -28,6 +28,8 @@
 
 #include <QtUndo/undostack.h>
 
+#include "guide.h"
+
 Q_DECLARE_LOGGING_CATEGORY(lcProject)
 Q_DECLARE_LOGGING_CATEGORY(lcProjectLifecycle)
 
@@ -79,6 +81,11 @@ public:
     virtual int widthInPixels() const;
     virtual int heightInPixels() const;
 
+    QVector<Guide> guides() const;
+    virtual void addGuide(const Guide &guide);
+    virtual void moveGuide(const Guide &guide, int to);
+    virtual void removeGuide(const Guide &guide);
+
     UndoStack *undoStack();
 
     bool isComposingMacro() const;
@@ -127,6 +134,8 @@ protected:
     UndoStack mUndoStack;
     bool mComposingMacro;
     bool mHadUnsavedChangesBeforeMacroBegan;
+
+    QVector<Guide> mGuides;
 };
 
 #endif // PROJECT_H

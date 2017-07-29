@@ -737,6 +737,14 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
             QRectF(0, 0, mLinePreviewImage.width(), mLinePreviewImage.height()));
     }
 
+    foreach (const Guide &guide, mProject->guides()) {
+        painter->setPen(Qt::cyan);
+        if (guide.orientation() == Qt::Vertical)
+            painter->drawLine(guide.position(), 0, 1, height());
+        else
+            painter->drawLine(0, guide.position(), height(), 1);
+    }
+
     painter->restore();
 }
 
@@ -1357,11 +1365,24 @@ void ImageCanvas::updateWindowCursorShape()
     if (!mProject)
         return;
 
+    bool overRuler = false;
+    if (rulersVisible()) {
+        const QPointF cursorPos(mCursorX, mCursorY);
+        overRuler = mFirstHorizontalRuler->contains(cursorPos) || mFirstVerticalRuler->contains(cursorPos);
+
+        if (isSplitScreen() && !overRuler) {
+//            qDebug() << isSplitScreen() << overRuler << mSecondHorizontalRuler->contains(cursorPos) << mSecondVerticalRuler->contains(cursorPos);
+            qDebug() << "cursorPos" << cursorPos << "-" << mSecondHorizontalRuler->x() << mSecondHorizontalRuler->y() << mSecondHorizontalRuler->width() << mSecondHorizontalRuler->height()
+                     << "-" << mSecondVerticalRuler->x() << mSecondVerticalRuler->y() << mSecondVerticalRuler->width() << mSecondVerticalRuler->height();
+            overRuler = mSecondHorizontalRuler->contains(cursorPos) || mSecondVerticalRuler->contains(cursorPos);
+        }
+    }
+
     // Hide the window's cursor when we're in the spotlight; otherwise, use the non-custom arrow cursor.
     const bool nothingOverUs = mProject->hasLoaded() && hasActiveFocus() /*&& !mModalPopupsOpen*/ && mContainsMouse;
     const bool splitterHovered = mSplitter.isEnabled() && mSplitter.isHovered();
     const bool overSelection = cursorOverSelection();
-    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && !overSelection);
+    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && !overSelection && !overRuler);
 
     Qt::CursorShape cursorShape = Qt::BlankCursor;
     if (!mHasBlankCursor) {
@@ -1687,20 +1708,9 @@ void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
     if (!mProject->hasLoaded())
         return;
 
-    bool updateCursorShape = false;
-    const bool wasSplitterHovered = mSplitter.isHovered();
     mSplitter.setHovered(mouseOverSplitterHandle(event->pos()));
-    if (mSplitter.isHovered() != wasSplitterHovered) {
-        updateCursorShape = true;
-    }
 
-    if (mHasSelection) {
-        updateCursorShape |= true;
-    }
-
-    if (updateCursorShape) {
-        updateWindowCursorShape();
-    }
+    updateWindowCursorShape();
 
     if (mTool == PenTool && mShiftPressed)
         update();

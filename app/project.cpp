@@ -222,6 +222,33 @@ int Project::heightInPixels() const
     return 0;
 }
 
+QVector<Guide> Project::guides() const
+{
+    return mGuides;
+}
+
+void Project::addGuide(const Guide &guide)
+{
+    if (mGuides.contains(guide))
+        return;
+
+    mGuides.append(guide);
+}
+
+void Project::moveGuide(const Guide &guide, int to)
+{
+    auto it = std::find(mGuides.begin(), mGuides.end(), guide);
+    if (it == mGuides.end())
+        return;
+
+    it->setPosition(to);
+}
+
+void Project::removeGuide(const Guide &guide)
+{
+    mGuides.removeOne(guide);
+}
+
 QSize Project::size() const
 {
     return QSize(0, 0);
