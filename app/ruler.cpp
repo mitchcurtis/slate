@@ -158,7 +158,7 @@ void Ruler::paint(QPainter *painter)
 
         // This is the x position of the first number we draw. The first number is never visible, draw
         // outside the visible bounds just be ensure there are never gaps with missing ticks/text.
-        int startX = (firstVisibleLvl1Number + (mFrom / mZoomLevel)) * mZoomLevel;
+        int startX = (firstVisibleLvl1Number + (qreal(mFrom) / mZoomLevel)) * mZoomLevel;
 
         int number = firstVisibleLvl1Number;
 
@@ -201,7 +201,7 @@ void Ruler::paint(QPainter *painter)
 
         // This is the x position of the first number we draw. The first number is never visible, draw
         // outside the visible bounds just be ensure there are never gaps with missing ticks/text.
-        int startY = (firstVisibleLvl1Number + (mFrom / mZoomLevel)) * mZoomLevel;
+        int startY = (firstVisibleLvl1Number + (qreal(mFrom) / mZoomLevel)) * mZoomLevel;
 
         int number = firstVisibleLvl1Number;
 
