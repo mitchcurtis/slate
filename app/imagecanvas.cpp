@@ -27,6 +27,7 @@
 #include <QQuickWindow>
 #include <QtMath>
 
+#include "addguidecommand.h"
 #include "applicationsettings.h"
 #include "applygreedypixelfillcommand.h"
 #include "applypixelerasercommand.h"
@@ -827,7 +828,7 @@ void ImageCanvas::updatePressedRulers()
 void ImageCanvas::addNewGuide()
 {
     mProject->beginMacro(QLatin1String("AddGuide"));
-    mProject->addChange(new AddGuideCommand(this, Guide(
+    mProject->addChange(new AddGuideCommand(mProject, Guide(
         mPressedRuler->orientation() == Qt::Horizontal ? mCursorSceneY : mCursorSceneX,
         mPressedRuler->orientation())));
     mProject->endMacro();

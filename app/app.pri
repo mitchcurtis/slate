@@ -54,7 +54,8 @@ HEADERS += \
     $$PWD/platformdefines.h \
     $$PWD/addlayercommand.h \
     $$PWD/applygreedypixelfillcommand.h \
-    $$PWD/guide.h
+    $$PWD/guide.h \
+    $$PWD/addguidecommand.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -105,7 +106,8 @@ SOURCES += \
     $$PWD/deletelayercommand.cpp \
     $$PWD/addlayercommand.cpp \
     $$PWD/applygreedypixelfillcommand.cpp \
-    $$PWD/guide.cpp
+    $$PWD/guide.cpp \
+    $$PWD/addguidecommand.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \
