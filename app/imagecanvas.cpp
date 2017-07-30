@@ -63,6 +63,7 @@ ImageCanvas::ImageCanvas() :
     mSecondHorizontalRuler(new Ruler(Qt::Horizontal, this)),
     mSecondVerticalRuler(new Ruler(Qt::Vertical, this)),
     mPressedRuler(nullptr),
+    mPressedGuideIndex(-1),
     mCursorX(0),
     mCursorY(0),
     mCursorPaneX(0),
@@ -745,12 +746,27 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
             QRectF(0, 0, mLinePreviewImage.width(), mLinePreviewImage.height()));
     }
 
+    painter->restore();
+
+    // We need to draw the guides separately because ...
+    painter->save();
+
+    // Draw the existing guides.
+    painter->setPen(Qt::cyan);
     foreach (const Guide &guide, mProject->guides()) {
-        painter->setPen(Qt::cyan);
         if (guide.orientation() == Qt::Vertical)
             painter->drawLine(guide.position(), 0, 1, height());
         else
             painter->drawLine(0, guide.position(), height(), 1);
+    }
+
+    // Draw the guide that's being dragged, if any.
+    if (mPressedRuler) {
+        const bool horizontal = mPressedRuler->orientation() == Qt::Horizontal;
+        qDebug() << (horizontal ? 0 : mCursorX) << (horizontal ? mCursorY : 0) <<
+                    (horizontal ? width() : 1) << (horizontal ? 1 : height());
+        painter->drawLine(horizontal ? 0 : mCursorX, horizontal ? mCursorY : 0,
+            horizontal ? width() : mCursorX, horizontal ? mCursorY : height());
     }
 
     painter->restore();
@@ -832,6 +848,14 @@ void ImageCanvas::addNewGuide()
         mPressedRuler->orientation() == Qt::Horizontal ? mCursorSceneY : mCursorSceneX,
         mPressedRuler->orientation())));
     mProject->endMacro();
+}
+
+void ImageCanvas::moveGuide()
+{
+}
+
+void ImageCanvas::removeGuide()
+{
 }
 
 bool ImageCanvas::isPanning() const
@@ -1047,6 +1071,10 @@ void ImageCanvas::reset()
     mSplitter.setPosition(mFirstPane.size());
     mSplitter.setPressed(false);
     mSplitter.setHovered(false);
+
+    mPressedRuler = nullptr;
+    mPressedGuideIndex = -1;
+
     setCursorX(0);
     setCursorY(0);
     mCursorPaneX = 0;
@@ -1636,6 +1664,8 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
     if (mMouseButtonPressed) {
         if (mSplitter.isEnabled() && mSplitter.isPressed()) {
             mSplitter.setPosition(mCursorX / width());
+        } else if (mPressedRuler || mPressedGuideIndex != -1) {
+            update();
         } else {
             if (!isPanning()) {
                 if (mTool != SelectionTool) {
