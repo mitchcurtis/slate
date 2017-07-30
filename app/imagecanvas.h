@@ -50,6 +50,7 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(bool gridVisible READ gridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
     Q_PROPERTY(QColor gridColour READ gridColour WRITE setGridColour NOTIFY gridColourChanged)
     Q_PROPERTY(bool rulersVisible READ rulersVisible WRITE setRulersVisible NOTIFY rulersVisibleChanged)
+    Q_PROPERTY(bool guidesVisible READ guidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
     Q_PROPERTY(QColor splitColour READ splitColour WRITE setSplitColour NOTIFY splitColourChanged)
     Q_PROPERTY(bool splitScreen READ isSplitScreen WRITE setSplitScreen NOTIFY splitScreenChanged)
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
@@ -122,6 +123,9 @@ public:
 
     bool rulersVisible() const;
     void setRulersVisible(bool rulersVisible);
+
+    bool guidesVisible() const;
+    void setGuidesVisible(bool guidesVisible);
 
     QColor splitColour() const;
     void setSplitColour(const QColor &splitColour);
@@ -203,6 +207,7 @@ signals:
     void gridVisibleChanged();
     void gridColourChanged();
     void rulersVisibleChanged();
+    void guidesVisibleChanged();
     void splitColourChanged();
     void splitScreenChanged();
     void scrollZoomChanged();
@@ -369,6 +374,7 @@ protected:
     Ruler *mSecondHorizontalRuler;
     Ruler *mSecondVerticalRuler;
     Ruler *mPressedRuler;
+    bool mGuidesVisible;
     int mGuidePositionBeforePress;
     int mPressedGuideIndex;
 

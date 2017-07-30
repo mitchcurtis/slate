@@ -65,6 +65,7 @@ ImageCanvas::ImageCanvas() :
     mSecondHorizontalRuler(new Ruler(Qt::Horizontal, this)),
     mSecondVerticalRuler(new Ruler(Qt::Vertical, this)),
     mPressedRuler(nullptr),
+    mGuidesVisible(false),
     mGuidePositionBeforePress(0),
     mPressedGuideIndex(-1),
     mCursorX(0),
@@ -209,6 +210,21 @@ void ImageCanvas::setRulersVisible(bool rulersVisible)
     mSecondHorizontalRuler->setVisible(rulersVisible && mSplitScreen);
     mSecondVerticalRuler->setVisible(rulersVisible && mSplitScreen);
     emit rulersVisibleChanged();
+}
+
+bool ImageCanvas::guidesVisible() const
+{
+    return mGuidesVisible;
+}
+
+void ImageCanvas::setGuidesVisible(bool guidesVisible)
+{
+    if (guidesVisible == mGuidesVisible)
+        return;
+
+    mGuidesVisible = guidesVisible;
+    update();
+    emit guidesVisibleChanged();
 }
 
 QColor ImageCanvas::splitColour() const
@@ -770,18 +786,20 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
             QRectF(0, 0, mLinePreviewImage.width(), mLinePreviewImage.height()));
     }
 
-    // Draw the existing guides.
-    QVector<Guide> guides = mProject->guides();
-    for (int i = 0; i < guides.size(); ++i) {
-        const Guide guide = guides.at(i);
-        drawGuide(painter, pane, paneIndex, guide, i);
-    }
+    if (mGuidesVisible) {
+        // Draw the existing guides.
+        QVector<Guide> guides = mProject->guides();
+        for (int i = 0; i < guides.size(); ++i) {
+            const Guide guide = guides.at(i);
+            drawGuide(painter, pane, paneIndex, guide, i);
+        }
 
-    // Draw the guide that's being dragged from the ruler, if any.
-    if (mPressedRuler) {
-        const bool horizontal = mPressedRuler->orientation() == Qt::Horizontal;
-        const Guide guide(horizontal ? mCursorSceneY : mCursorSceneX, mPressedRuler->orientation());
-        drawGuide(painter, pane, paneIndex, guide, -1);
+        // Draw the guide that's being dragged from the ruler, if any.
+        if (mPressedRuler) {
+            const bool horizontal = mPressedRuler->orientation() == Qt::Horizontal;
+            const Guide guide(horizontal ? mCursorSceneY : mCursorSceneX, mPressedRuler->orientation());
+            drawGuide(painter, pane, paneIndex, guide, -1);
+        }
     }
 
     painter->restore();
@@ -1732,7 +1750,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
             return;
         }
 
-        if (rulersVisible()) {
+        if (rulersVisible() && guidesVisible()) {
             updatePressedRuler();
             if (mPressedRuler)
                 return;

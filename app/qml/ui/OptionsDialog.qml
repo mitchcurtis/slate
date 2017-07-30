@@ -160,6 +160,10 @@ Dialog {
                     shortcutDisplayName: qsTr("Toggle Ruler Visibility")
                 }
                 ShortcutRow {
+                    shortcutName: "guidesVisibleShortcut"
+                    shortcutDisplayName: qsTr("Toggle Guide Visibility")
+                }
+                ShortcutRow {
                     shortcutName: "splitScreenShortcut"
                     shortcutDisplayName: qsTr("Toggle Split Screen")
                 }

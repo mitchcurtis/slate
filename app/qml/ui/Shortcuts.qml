@@ -116,6 +116,12 @@ Item {
     }
 
     Shortcut {
+        objectName: "guidesVisibleShortcut"
+        sequence: settings.guidesVisibleShortcut
+        onActivated: settings.guidesVisible = !settings.guidesVisible
+    }
+
+    Shortcut {
         objectName: "splitScreenShortcut"
         sequence: settings.splitScreenShortcut
         onActivated: settings.splitScreen = !settings.splitScreen

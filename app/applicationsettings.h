@@ -30,6 +30,7 @@ class ApplicationSettings : public QSettings
     Q_PROPERTY(QUrl lastProjectUrl READ lastProjectUrl WRITE setLastProjectUrl NOTIFY lastProjectUrlChanged)
     Q_PROPERTY(bool gridVisible READ isGridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
     Q_PROPERTY(bool rulersVisible READ areRulersVisible WRITE setRulersVisible NOTIFY rulersVisibleChanged)
+    Q_PROPERTY(bool guidesVisible READ areGuidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
     Q_PROPERTY(bool splitScreen READ isSplitScreen WRITE setSplitScreen NOTIFY splitScreenChanged)
     Q_PROPERTY(bool splitterLocked READ isSplitterLocked WRITE setSplitterLocked NOTIFY splitterLockedChanged)
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
@@ -44,6 +45,7 @@ class ApplicationSettings : public QSettings
     Q_PROPERTY(QString redoShortcut READ redoShortcut WRITE setRedoShortcut NOTIFY redoShortcutChanged)
     Q_PROPERTY(QString gridVisibleShortcut READ gridVisibleShortcut WRITE setGridVisibleShortcut NOTIFY gridVisibleShortcutChanged)
     Q_PROPERTY(QString rulersVisibleShortcut READ rulersVisibleShortcut WRITE setRulersVisibleShortcut NOTIFY rulersVisibleShortcutChanged)
+    Q_PROPERTY(QString guidesVisibleShortcut READ guidesVisibleShortcut WRITE setGuidesVisibleShortcut NOTIFY guidesVisibleShortcutChanged)
     Q_PROPERTY(QString centreShortcut READ centreShortcut WRITE setCentreShortcut NOTIFY centreShortcutChanged)
     Q_PROPERTY(QString zoomInShortcut READ zoomInShortcut WRITE setZoomInShortcut NOTIFY zoomInShortcutChanged)
     Q_PROPERTY(QString zoomOutShortcut READ zoomOutShortcut WRITE setZoomOutShortcut NOTIFY zoomOutShortcutChanged)
@@ -79,6 +81,10 @@ public:
     bool areRulersVisible() const;
     void setRulersVisible(bool rulersVisible);
     bool defaultRulersVisible() const;
+
+    bool areGuidesVisible() const;
+    void setGuidesVisible(bool guidesVisible);
+    bool defaultGuidesVisible() const;
 
     bool defaultSplitScreen() const;
     bool isSplitScreen() const;
@@ -133,6 +139,10 @@ public:
     QString defaultRulersVisibleShortcut() const;
     QString rulersVisibleShortcut() const;
     void setRulersVisibleShortcut(const QString &shortcut);
+
+    QString defaultGuidesVisibleShortcut() const;
+    QString guidesVisibleShortcut() const;
+    void setGuidesVisibleShortcut(const QString &shortcut);
 
     QString defaultCentreShortcut() const;
     QString centreShortcut() const;
@@ -207,6 +217,7 @@ signals:
     void lastProjectUrlChanged();
     void gridVisibleChanged();
     void rulersVisibleChanged();
+    void guidesVisibleChanged();
     void splitScreenChanged();
     void splitterLockedChanged();
     void scrollZoomChanged();
@@ -221,6 +232,7 @@ signals:
     void redoShortcutChanged();
     void gridVisibleShortcutChanged();
     void rulersVisibleShortcutChanged();
+    void guidesVisibleShortcutChanged();
     void centreShortcutChanged();
     void zoomInShortcutChanged();
     void zoomOutShortcutChanged();

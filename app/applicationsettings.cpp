@@ -127,6 +127,31 @@ bool ApplicationSettings::defaultRulersVisible() const
     return true;
 }
 
+bool ApplicationSettings::areGuidesVisible() const
+{
+    return contains("guidesVisible") ? value("guidesVisible").toBool() : defaultGuidesVisible();
+}
+
+void ApplicationSettings::setGuidesVisible(bool guidesVisible)
+{
+    QVariant existingValue = value("guidesVisible");
+    bool existingBoolValue = defaultGuidesVisible();
+    if (contains("guidesVisible")) {
+        existingBoolValue = existingValue.toBool();
+    }
+
+    if (guidesVisible == existingBoolValue)
+        return;
+
+    setValue("guidesVisible", guidesVisible);
+    emit guidesVisibleChanged();
+}
+
+bool ApplicationSettings::defaultGuidesVisible() const
+{
+    return true;
+}
+
 bool ApplicationSettings::defaultSplitScreen() const
 {
     return true;
@@ -218,6 +243,8 @@ void ApplicationSettings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("zoomInShortcut"));
         allShortcuts.append(QLatin1String("zoomOutShortcut"));
         allShortcuts.append(QLatin1String("gridVisibleShortcut"));
+        allShortcuts.append(QLatin1String("rulersVisibleShortcut"));
+        allShortcuts.append(QLatin1String("guidesVisibleShortcut"));
         allShortcuts.append(QLatin1String("splitScreenShortcut"));
         allShortcuts.append(QLatin1String("optionsShortcut"));
         allShortcuts.append(QLatin1String("penToolShortcut"));
@@ -402,6 +429,21 @@ QString ApplicationSettings::rulersVisibleShortcut() const
 void ApplicationSettings::setRulersVisibleShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("rulersVisibleShortcut", defaultRulersVisibleShortcut, rulersVisibleShortcutChanged)
+}
+
+QString ApplicationSettings::defaultGuidesVisibleShortcut() const
+{
+    return QLatin1String("Ctrl+;");
+}
+
+QString ApplicationSettings::guidesVisibleShortcut() const
+{
+    GET_SHORTCUT("guidesVisibleShortcut", defaultGuidesVisibleShortcut)
+}
+
+void ApplicationSettings::setGuidesVisibleShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("guidesVisibleShortcut", defaultGuidesVisibleShortcut, guidesVisibleShortcutChanged)
 }
 
 QString ApplicationSettings::defaultCentreShortcut() const

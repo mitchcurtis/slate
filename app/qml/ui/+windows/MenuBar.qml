@@ -212,6 +212,15 @@ RowLayout {
             }
 
             MenuItem {
+                objectName: "showGuidesMenuButton"
+                text: qsTr("Show Guides")
+                enabled: canvas
+                checkable: true
+                checked: settings.guidesVisible
+                onCheckedChanged: settings.guidesVisible = checked
+            }
+
+            MenuItem {
                 objectName: "splitScreenMenuButton"
                 text: qsTr("Split Screen")
                 enabled: canvas
