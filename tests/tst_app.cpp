@@ -1045,16 +1045,13 @@ void tst_App::panes()
     // Remove split.
     triggerSplitScreen();
     QVERIFY(!app.settings()->isSplitScreen());
-    QVERIFY(!tileCanvas->secondPane());
-    QVERIFY(tileCanvas->firstPane());
     QCOMPARE(tileCanvas->firstPane()->size(), 1.0);
+    QCOMPARE(tileCanvas->secondPane()->size(), 0.0);
 
     // Add it back again.
     triggerSplitScreen();
     QVERIFY(app.settings()->isSplitScreen());
-    QVERIFY(tileCanvas->firstPane());
     QCOMPARE(tileCanvas->firstPane()->size(), 0.5);
-    QVERIFY(tileCanvas->secondPane());
     QCOMPARE(tileCanvas->secondPane()->size(), 0.5);
 }
 

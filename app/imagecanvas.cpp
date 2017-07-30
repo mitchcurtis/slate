@@ -469,6 +469,7 @@ void ImageCanvas::setSplitScreen(bool splitScreen)
     }
 
     mFirstPane.setSize(splitScreen ? 0.5 : 1.0);
+    mSecondPane.setSize(splitScreen ? 0.5 : 0.0);
 
     updateRulerVisibility();
     resizeRulers();

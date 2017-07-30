@@ -79,6 +79,8 @@ void TestHelper::initTestCase()
     QVERIFY(app.settings()->isGridVisible());
     app.settings()->setSplitScreen(app.settings()->defaultSplitScreen());
     QVERIFY(app.settings()->isSplitScreen());
+    app.settings()->setRulersVisible(false);
+    QVERIFY(!app.settings()->areRulersVisible());
 
     // However, this should never change.
     QVERIFY(!app.settings()->loadLastOnStartup());
