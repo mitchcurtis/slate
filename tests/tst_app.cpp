@@ -99,7 +99,7 @@ private Q_SLOTS:
     void renameLayer();
     void saveAndLoadLayeredImageProject();
     void layerVisibilityAfterMoving();
-    void undoAfterAdd();
+    void undoAfterAddLayer();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -2479,7 +2479,7 @@ void tst_App::layerVisibilityAfterMoving()
     QCOMPARE(grabWithLayer1Below.pixelColor(20, 20), Qt::red);
 }
 
-void tst_App::undoAfterAdd()
+void tst_App::undoAfterAddLayer()
 {
     createNewLayeredImageProject();
 
