@@ -892,14 +892,17 @@ Ruler *ImageCanvas::rulerAtCursorPos()
     QPointF cursorPos = QPointF(mCursorX, mCursorY);
     Ruler *ruler = nullptr;
 
-    if (mFirstHorizontalRuler->contains(mapToItem(mFirstHorizontalRuler, cursorPos)))
+    if (mFirstHorizontalRuler->contains(mapToItem(mFirstHorizontalRuler, cursorPos))) {
         ruler = mFirstHorizontalRuler;
-    else if (mFirstVerticalRuler->contains(mapToItem(mFirstVerticalRuler, cursorPos)))
+    } else if (mFirstVerticalRuler->contains(mapToItem(mFirstVerticalRuler, cursorPos))) {
         ruler = mFirstVerticalRuler;
-    else if (mSecondHorizontalRuler->contains(mapToItem(mSecondHorizontalRuler, cursorPos)))
+    } else if (mSecondHorizontalRuler->isVisible()
+        && mSecondHorizontalRuler->contains(mapToItem(mSecondHorizontalRuler, cursorPos))) {
         ruler = mSecondHorizontalRuler;
-    else if (mSecondVerticalRuler->contains(mapToItem(mSecondVerticalRuler, cursorPos)))
+    } else if (mSecondVerticalRuler->isVisible()
+        && mSecondVerticalRuler->contains(mapToItem(mSecondVerticalRuler, cursorPos))) {
         ruler = mSecondVerticalRuler;
+    }
 
     return ruler;
 }
