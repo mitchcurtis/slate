@@ -1865,10 +1865,21 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
         mProject->endMacro();
     }
 
-    if (mPressedRuler && !rulerAtCursorPos()) {
+    Ruler *hoveredRuler = rulerAtCursorPos();
+    if (mPressedRuler && !hoveredRuler) {
+        // A ruler was pressed but isn't hovered; create a new guide.
         addNewGuide();
     } else if (mPressedGuideIndex != -1) {
-        moveGuide();
+        if (hoveredRuler) {
+            if (hoveredRuler->orientation() == mProject->guides().at(mPressedGuideIndex).orientation()) {
+                // A ruler wasn't pressed but a guide is, and now a ruler is hovered;
+                // the user has dragged a guide onto a ruler with the correct orientation, so remove it.
+                removeGuide();
+            }
+        } else {
+            moveGuide();
+        }
+
         mPressedGuideIndex = -1;
         updateWindowCursorShape();
     }

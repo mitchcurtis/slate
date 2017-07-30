@@ -2198,6 +2198,20 @@ void tst_App::rulersAndGuides()
     QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
     QTest::mouseMove(window, cursorWindowPos);
     QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
+
+    // Delete it by dragging it onto the ruler.
+    setCursorPosInPixels(QPoint(50, rulerThickness + 20));
+    QTest::mouseMove(window, cursorWindowPos);
+
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->pressedGuideIndex(), 0);
+    QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
+
+    setCursorPosInPixels(QPoint(50, rulerThickness / 2));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(project->guides().isEmpty(), true);
+    QCOMPARE(window->cursor().shape(), Qt::ArrowCursor);
 }
 
 void tst_App::addAndRemoveLayers()
