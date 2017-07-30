@@ -45,6 +45,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     revertMenuButton(nullptr),
     centreMenuButton(nullptr),
     showGridMenuButton(nullptr),
+    showRulersMenuButton(nullptr),
     splitScreenMenuButton(nullptr),
     duplicateTileMenuButton(nullptr),
     rotateTileLeftMenuButton(nullptr),
@@ -144,6 +145,9 @@ void TestHelper::initTestCase()
 
     showGridMenuButton = window->findChild<QQuickItem*>("showGridMenuButton");
     QVERIFY(showGridMenuButton);
+
+    showRulersMenuButton = window->findChild<QQuickItem*>("showRulersMenuButton");
+    QVERIFY(showRulersMenuButton);
 
     splitScreenMenuButton = window->findChild<QQuickItem*>("splitScreenMenuButton");
     QVERIFY(splitScreenMenuButton);

@@ -196,6 +196,7 @@ protected:
     QQuickItem *revertMenuButton;
     QQuickItem *centreMenuButton;
     QQuickItem *showGridMenuButton;
+    QQuickItem *showRulersMenuButton;
     QQuickItem *splitScreenMenuButton;
     QQuickItem *duplicateTileMenuButton;
     QQuickItem *rotateTileLeftMenuButton;
