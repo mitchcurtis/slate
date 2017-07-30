@@ -206,8 +206,8 @@ void ImageCanvas::setRulersVisible(bool rulersVisible)
 
     mFirstHorizontalRuler->setVisible(rulersVisible);
     mFirstVerticalRuler->setVisible(rulersVisible);
-    mSecondHorizontalRuler->setVisible(rulersVisible);
-    mSecondVerticalRuler->setVisible(rulersVisible);
+    mSecondHorizontalRuler->setVisible(rulersVisible && mSplitScreen);
+    mSecondVerticalRuler->setVisible(rulersVisible && mSplitScreen);
     emit rulersVisibleChanged();
 }
 
