@@ -132,7 +132,7 @@ void tst_App::newProjectWithNewTileset()
 
     // Draw a pixel on that tile.
     switchMode(TileCanvas::PixelMode);
-    setCursorPosInPixels(10, 10);
+    setCursorPosInScenePixels(10, 10);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(*tilesetProject->tileset()->image(), expectedTilesetImage);
 
@@ -221,7 +221,7 @@ void tst_App::save()
     switchMode(TileCanvas::TileMode);
 
     // QTBUG-53466
-    setCursorPosInPixels(10, 10);
+    setCursorPosInScenePixels(10, 10);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QVERIFY(tilesetProject->tileAt(QPoint(0, 0)));
     QVERIFY(tilesetProject->hasUnsavedChanges());
@@ -547,7 +547,7 @@ void tst_App::undoPixels()
     QVERIFY(window->title().contains("*"));
 
     lastImage = *tilesetProject->tileAt(cursorPos)->tileset()->image();
-    setCursorPosInPixels(cursorPos + QPoint(0, 1));
+    setCursorPosInScenePixels(cursorPos + QPoint(0, 1));
     QTest::mouseMove(window, cursorWindowPos);
     QVERIFY(*tilesetProject->tileAt(cursorPos)->tileset()->image() != lastImage);
 
@@ -606,7 +606,7 @@ void tst_App::undoLargePixelPen()
     changeToolSize(toolSize);
 
     // Draw a large square.
-    setCursorPosInPixels(toolSize, toolSize / 2);
+    setCursorPosInScenePixels(toolSize, toolSize / 2);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 
@@ -660,7 +660,7 @@ void tst_App::undoTiles()
     QVERIFY(!window->title().contains("*"));
 
     // Check that undoing merged commands (drawing the same tile at the same position) works.
-    setCursorPosInPixels(cursorPos.x(), cursorPos.y() + 1);
+    setCursorPosInScenePixels(cursorPos.x(), cursorPos.y() + 1);
     Tile *lastTile = tilesetProject->tileAt(cursorPos);
     QTest::mouseMove(window, cursorWindowPos);
     QCOMPARE(tilesetProject->tileAt(cursorPos), lastTile);
@@ -725,7 +725,7 @@ void tst_App::undoWithDuplicates()
 
     switchMode(TileCanvas::PixelMode);
 
-    setCursorPosInPixels(0, 1);
+    setCursorPosInScenePixels(0, 1);
     const QImage originalImage = *tilesetProject->tileAt(cursorPos)->tileset()->image();
     QImage lastImage = originalImage;
     QTest::mouseMove(window, cursorWindowPos);
@@ -735,20 +735,20 @@ void tst_App::undoWithDuplicates()
     QVERIFY(*tilesetProject->tileAt(cursorPos)->tileset()->image() != lastImage);
 
     lastImage = *tilesetProject->tileAt(cursorPos)->tileset()->image();
-    setCursorPosInPixels(0, 2);
+    setCursorPosInScenePixels(0, 2);
     QTest::mouseMove(window, cursorWindowPos);
     QCOMPARE(tilesetProject->tileAt(cursorPos)->pixelColor(cursorPos), tileCanvas->penForegroundColour());
     QVERIFY(*tilesetProject->tileAt(cursorPos)->tileset()->image() != lastImage);
 
     // Go back over the same pixels.
     lastImage = *tilesetProject->tileAt(cursorPos)->tileset()->image();
-    setCursorPosInPixels(0, 1);
+    setCursorPosInScenePixels(0, 1);
     QTest::mouseMove(window, cursorWindowPos);
     tilesetProject->tileAt(cursorPos)->tileset()->image()->save("C:/dev/cur.png");
     lastImage.save("C:/dev/last.png");
     QCOMPARE(*tilesetProject->tileAt(cursorPos)->tileset()->image(), lastImage);
 
-    setCursorPosInPixels(0, 2);
+    setCursorPosInScenePixels(0, 2);
     QTest::mouseMove(window, cursorWindowPos);
     QCOMPARE(*tilesetProject->tileAt(cursorPos)->tileset()->image(), lastImage);
 
@@ -779,15 +779,15 @@ void tst_App::undoWithDuplicates()
 
     int x = 0;
     const int y = tilesetProject->tileHeight() / 2;
-    setCursorPosInPixels(0, y);
+    setCursorPosInScenePixels(0, y);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     for (; x < tilesetProject->tileWidth(); ++x) {
-        setCursorPosInPixels(x, y);
+        setCursorPosInScenePixels(x, y);
         QTest::mouseMove(window, cursorWindowPos);
         QCOMPARE(tilesetProject->tileAt(cursorPos)->pixelColor(cursorPos), tileCanvas->penForegroundColour());
     }
     // The last pixel is on the next tile.
-    setCursorPosInPixels(++x, y);
+    setCursorPosInScenePixels(++x, y);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(tilesetProject->tileAt(cursorPos)->pixelColor(cursorPos - QPoint(tilesetProject->tileWidth(), 0)), tileCanvas->penForegroundColour());
@@ -857,7 +857,7 @@ void tst_App::undoImageCanvasSizeChange()
     QCOMPARE(imageProject->widthInPixels(), 256);
     QCOMPARE(imageProject->heightInPixels(), 256);
 
-    setCursorPosInPixels(250, 250);
+    setCursorPosInScenePixels(250, 250);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(imageProject->image()->pixelColor(cursorPos), imageCanvas->penForegroundColour());
@@ -900,16 +900,16 @@ void tst_App::undoPixelFill()
     QVERIFY(window->title().contains("*"));
 
     // Draw a block of tiles.
-    setCursorPosInPixels(0, 0);
+    setCursorPosInScenePixels(0, 0);
     drawPixelAtCursorPos();
 
-    setCursorPosInPixels(1, 0);
+    setCursorPosInScenePixels(1, 0);
     drawPixelAtCursorPos();
 
-    setCursorPosInPixels(1, 1);
+    setCursorPosInScenePixels(1, 1);
     drawPixelAtCursorPos();
 
-    setCursorPosInPixels(0, 1);
+    setCursorPosInScenePixels(0, 1);
     drawPixelAtCursorPos();
 
     const Tile *targetTile = tilesetProject->tileAt(cursorPos);
@@ -924,7 +924,7 @@ void tst_App::undoPixelFill()
     // We do it from the top right because there was a bug where fills
     // wouldn't go downwards.
     switchTool(TileCanvas::FillTool);
-    setCursorPosInPixels(1, 0);
+    setCursorPosInScenePixels(1, 0);
     const QColor red = QColor(Qt::red);
     tileCanvas->setPenForegroundColour(red);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -1036,7 +1036,7 @@ void tst_App::panes()
     QVERIFY(window->title().contains("*"));
     QVERIFY(tilesetProject->tileAt(cursorPos) != lastTile);
 
-    setCursorPosInPixels(tileCanvas->width() / 2 + tilesetProject->tileWidth() * 1.5, 1);
+    setCursorPosInScenePixels(tileCanvas->width() / 2 + tilesetProject->tileWidth() * 1.5, 1);
     cursorPos.setX(cursorPos.x() - tileCanvas->width() / 2);
     lastTile = tilesetProject->tileAt(cursorPos);
     QVERIFY(!lastTile);
@@ -1222,7 +1222,7 @@ void tst_App::penWhilePannedAndZoomed()
         // Draw a pixel on.
         // TOOD: x=100 y=100 is a quick, hard-coded, hacky coordinate.
         // If the test fails, it's probably because of this not being big enough/too big. Do it properly.
-        setCursorPosInPixels(100, 100, false);
+        setCursorPosInScenePixels(100, 100, false);
         QTest::mouseMove(window, cursorWindowPos);
         QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
         // Use base class project since this code also covers layered image projects.
@@ -1517,7 +1517,7 @@ void tst_App::eraseImageCanvas()
     changeToolSize(1);
 
     // Make sure that the edges of the canvas can be erased.
-    setCursorPosInPixels(project->widthInPixels() - 1, 0);
+    setCursorPosInScenePixels(project->widthInPixels() - 1, 0);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 
@@ -1592,14 +1592,14 @@ void tst_App::selectionToolImageCanvas()
 
     foreach (const SelectionData &data, selectionData) {
         // Pressing outside the canvas should make the selection start at {0, 0}.
-        setCursorPosInPixels(data.pressScenePos);
+        setCursorPosInScenePixels(data.pressScenePos);
         QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
         const QPoint boundExpectedPressPos = QPoint(qBound(0, data.pressScenePos.x(), project->widthInPixels()),
             qBound(0, data.pressScenePos.y(), project->heightInPixels()));
         const QRect expectedPressArea = QRect(boundExpectedPressPos, QSize(0, 0));
         QVERIFY2(canvas->selectionArea() == expectedPressArea, selectionAreaFailureMessage(canvas, data, expectedPressArea));
 
-        setCursorPosInPixels(data.releaseScenePos);
+        setCursorPosInScenePixels(data.releaseScenePos);
         QTest::mouseMove(window, cursorWindowPos);
         QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
 
@@ -1620,9 +1620,9 @@ void tst_App::cancelSelectionToolImageCanvas()
     switchTool(ImageCanvas::SelectionTool);
 
     // Select an area.
-    setCursorPosInPixels(QPoint(0, 0));
+    setCursorPosInScenePixels(QPoint(0, 0));
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    setCursorPosInPixels(QPoint(10, 10));
+    setCursorPosInScenePixels(QPoint(10, 10));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 10, 10));
@@ -1635,20 +1635,20 @@ void tst_App::cancelSelectionToolImageCanvas()
     QCOMPARE(project->hasUnsavedChanges(), false);
 
     // Select an area.
-    setCursorPosInPixels(QPoint(0, 0));
+    setCursorPosInScenePixels(QPoint(0, 0));
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    setCursorPosInPixels(QPoint(10, 10));
+    setCursorPosInScenePixels(QPoint(10, 10));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 10, 10));
     // Hover to the centre of it
-    setCursorPosInPixels(QPoint(5, 5));
+    setCursorPosInScenePixels(QPoint(5, 5));
     QTest::mouseMove(window, cursorWindowPos);
     // The cursor shape should change.
     QCOMPARE(window->cursor().shape(), Qt::SizeAllCursor);
 
     // Pressing outside of the selection should clear it.
-    setCursorPosInPixels(QPoint(20, 20));
+    setCursorPosInScenePixels(QPoint(20, 20));
     QTest::mouseMove(window, cursorWindowPos);
     QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -1659,9 +1659,9 @@ void tst_App::cancelSelectionToolImageCanvas()
     QCOMPARE(project->hasUnsavedChanges(), false);
 
     // Select an area.
-    setCursorPosInPixels(QPoint(0, 0));
+    setCursorPosInScenePixels(QPoint(0, 0));
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    setCursorPosInPixels(QPoint(10, 10));
+    setCursorPosInScenePixels(QPoint(10, 10));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 10, 10));
@@ -1707,7 +1707,7 @@ void tst_App::moveSelectionImageCanvas()
     // Draw a square of black pixels.
     switchTool(ImageCanvas::PenTool);
     changeToolSize(5);
-    setCursorPosInPixels(2, 2);
+    setCursorPosInScenePixels(2, 2);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
@@ -1716,18 +1716,18 @@ void tst_App::moveSelectionImageCanvas()
     switchTool(ImageCanvas::SelectionTool);
 
     // Select an area.
-    setCursorPosInPixels(QPoint(0, 0));
+    setCursorPosInScenePixels(QPoint(0, 0));
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    setCursorPosInPixels(QPoint(5, 5));
+    setCursorPosInScenePixels(QPoint(5, 5));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 5, 5));
 
     // Drag the selection somewhere else.
-    setCursorPosInPixels(QPoint(2, 2));
+    setCursorPosInScenePixels(QPoint(2, 2));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    setCursorPosInPixels(QPoint(20, 20));
+    setCursorPosInScenePixels(QPoint(20, 20));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(18, 18, 5, 5));
@@ -1759,18 +1759,18 @@ void tst_App::moveSelectionImageCanvas()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(22, 22), backgroundColour);
 
     // Select the same area again.
-    setCursorPosInPixels(QPoint(0, 0));
+    setCursorPosInScenePixels(QPoint(0, 0));
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    setCursorPosInPixels(QPoint(5, 5));
+    setCursorPosInScenePixels(QPoint(5, 5));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 5, 5));
 
     // Drag the selection half way down past its original position.
-    setCursorPosInPixels(QPoint(2, 2));
+    setCursorPosInScenePixels(QPoint(2, 2));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    setCursorPosInPixels(QPoint(2, 4));
+    setCursorPosInScenePixels(QPoint(2, 4));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(0, 2, 5, 5));
@@ -1792,7 +1792,7 @@ void tst_App::moveSelectionWithKeysImageCanvas()
     // Draw a square of black pixels.
     switchTool(ImageCanvas::PenTool);
     changeToolSize(5);
-    setCursorPosInPixels(2, 2);
+    setCursorPosInScenePixels(2, 2);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
@@ -1801,9 +1801,9 @@ void tst_App::moveSelectionWithKeysImageCanvas()
     switchTool(ImageCanvas::SelectionTool);
 
     // Select an area.
-    setCursorPosInPixels(QPoint(0, 0));
+    setCursorPosInScenePixels(QPoint(0, 0));
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    setCursorPosInPixels(QPoint(5, 5));
+    setCursorPosInScenePixels(QPoint(5, 5));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 5, 5));
@@ -1838,9 +1838,9 @@ void tst_App::deleteSelectionImageCanvas()
     switchTool(ImageCanvas::SelectionTool);
 
     // Select an area.
-    setCursorPosInPixels(QPoint(0, 0));
+    setCursorPosInScenePixels(QPoint(0, 0));
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    setCursorPosInPixels(QPoint(10, 10));
+    setCursorPosInScenePixels(QPoint(10, 10));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 10, 10));
@@ -1874,7 +1874,7 @@ void tst_App::copyPaste()
     // Draw a square of black pixels.
     switchTool(ImageCanvas::PenTool);
     changeToolSize(5);
-    setCursorPosInPixels(12, 12);
+    setCursorPosInScenePixels(12, 12);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(10, 10), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(14, 14), QColor(Qt::black));
@@ -1883,9 +1883,9 @@ void tst_App::copyPaste()
     switchTool(ImageCanvas::SelectionTool);
 
     // Select an area.
-    setCursorPosInPixels(QPoint(10, 10));
+    setCursorPosInScenePixels(QPoint(10, 10));
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    setCursorPosInPixels(QPoint(15, 15));
+    setCursorPosInScenePixels(QPoint(15, 15));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(10, 10, 5, 5));
@@ -1943,7 +1943,7 @@ void tst_App::pasteFromExternalSource()
     QCOMPARE(canvas->hasSelection(), true);
 
     // Confirm the selection.
-    setCursorPosInPixels(33, 33);
+    setCursorPosInScenePixels(33, 33);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::blue));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(31, 31), QColor(Qt::blue));
@@ -1971,7 +1971,7 @@ void tst_App::fillImageCanvas()
 
     // Fill the canvas with black.
     switchTool(ImageCanvas::FillTool);
-    setCursorPosInPixels(0, 0);
+    setCursorPosInScenePixels(0, 0);
     mouseEvent(canvas, cursorWindowPos, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(project->widthInPixels() - 1,
@@ -1992,21 +1992,21 @@ void tst_App::greedyPixelFillImageCanvas()
     changeCanvasSize(40, 40);
 
     // Draw 4 separate pixels.
-    setCursorPosInPixels(4, 4);
+    setCursorPosInScenePixels(4, 4);
     drawPixelAtCursorPos();
 
-    setCursorPosInPixels(35, 4);
+    setCursorPosInScenePixels(35, 4);
     drawPixelAtCursorPos();
 
-    setCursorPosInPixels(35, 35);
+    setCursorPosInScenePixels(35, 35);
     drawPixelAtCursorPos();
 
-    setCursorPosInPixels(4, 35);
+    setCursorPosInScenePixels(4, 35);
     drawPixelAtCursorPos();
 
     switchTool(ImageCanvas::FillTool);
     canvas->setPenForegroundColour(Qt::blue);
-    setCursorPosInPixels(4, 4);
+    setCursorPosInScenePixels(4, 4);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::keyPress(window, Qt::Key_Shift);
     // For some reason there must be a delay in order for the shift modifier to work.
@@ -2039,14 +2039,14 @@ void tst_App::pixelLineToolImageCanvas()
     switchTool(ImageCanvas::PenTool);
 
     // Draw the start of the line.
-    setCursorPosInPixels(0, 0);
+    setCursorPosInScenePixels(0, 0);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(project->hasUnsavedChanges(), true);
 
     // Draw the line itself.
-    setCursorPosInPixels(2, 2);
+    setCursorPosInScenePixels(2, 2);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::keyPress(window, Qt::Key_Shift);
     // For some reason there must be a delay in order for the shift modifier to work.
@@ -2070,7 +2070,7 @@ void tst_App::pixelLineToolImageCanvas()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
 
     // Draw another line.
-    setCursorPosInPixels(0, 4);
+    setCursorPosInScenePixels(0, 4);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::keyPress(window, Qt::Key_Shift);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
@@ -2116,16 +2116,35 @@ void tst_App::rulersAndGuides()
     triggerRulersVisible();
     QCOMPARE(app.settings()->areRulersVisible(), true);
 
-    // A guide should only be added when it placed outside of the ruler.
-    setCursorPosInPixels(50, 10);
+    // A guide should only be added when dropped outside of the ruler.
+    setCursorPosInPixels(QPoint(50, 10));
     QTest::mouseMove(window, cursorWindowPos);
-    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(!canvas->pressedRuler());
 
-    setCursorPosInPixels(50, 18);
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(canvas->pressedRuler());
+
+    setCursorPosInPixels(QPoint(50, 18));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(!canvas->pressedRuler());
     QCOMPARE(project->guides().size(), 0);
     QCOMPARE(project->undoStack()->canUndo(), false);
+
+    // Drop a horizontal guide onto the top of the canvas.
+    setCursorPosInPixels(QPoint(50, 10));
+    QTest::mouseMove(window, cursorWindowPos);
+    QVERIFY(!canvas->pressedRuler());
+
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(canvas->pressedRuler());
+
+    setCursorPosInScenePixels(QPoint(0, 0));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(!canvas->pressedRuler());
+    QCOMPARE(project->guides().size(), 1);
+    QCOMPARE(project->undoStack()->canUndo(), true);
 }
 
 void tst_App::addAndRemoveLayers()
@@ -2137,7 +2156,7 @@ void tst_App::addAndRemoveLayers()
     ImageLayer *expectedCurrentLayer = layeredImageProject->currentLayer();
 
     // Draw a blue square at {10, 10}.
-    setCursorPosInPixels(10, 10);
+    setCursorPosInScenePixels(10, 10);
     layeredImageCanvas->setPenForegroundColour(Qt::blue);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -2163,7 +2182,7 @@ void tst_App::addAndRemoveLayers()
     selectLayer("Layer 2", 0);
 
     // Draw a red dot on the new layer.
-    setCursorPosInPixels(20, 20);
+    setCursorPosInScenePixels(20, 20);
     layeredImageCanvas->setPenForegroundColour(Qt::red);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(20, 20), Qt::red);
@@ -2232,7 +2251,7 @@ void tst_App::layerVisibility()
     panTopLeftTo(0, 0);
 
     // Draw a blue square at {10, 10}.
-    setCursorPosInPixels(10, 10);
+    setCursorPosInScenePixels(10, 10);
     layeredImageCanvas->setPenForegroundColour(Qt::blue);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -2381,7 +2400,7 @@ void tst_App::saveAndLoadLayeredImageProject()
     panTopLeftTo(0, 0);
 
     // Draw a blue square.
-    setCursorPosInPixels(10, 10);
+    setCursorPosInScenePixels(10, 10);
     layeredImageCanvas->setPenForegroundColour(Qt::blue);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -2395,7 +2414,7 @@ void tst_App::saveAndLoadLayeredImageProject()
     selectLayer("Layer 2", 0);
 
     // Draw a red dot.
-    setCursorPosInPixels(20, 20);
+    setCursorPosInScenePixels(20, 20);
     layeredImageCanvas->setPenForegroundColour(Qt::red);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -2452,7 +2471,7 @@ void tst_App::layerVisibilityAfterMoving()
     selectLayer("Layer 2", 0);
 
     // Draw a red dot.
-    setCursorPosInPixels(20, 20);
+    setCursorPosInScenePixels(20, 20);
     layeredImageCanvas->setPenForegroundColour(Qt::red);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);

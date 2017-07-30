@@ -113,9 +113,10 @@ protected:
     QPointF canvasCentre() const;
     QPoint canvasSceneCentre() const;
     QPoint firstPaneSceneCentre() const;
-    void setCursorPosInTiles(int xPosInTiles, int yPosInTiles);
-    void setCursorPosInPixels(int xPosInPixels, int yPosInPixels, bool assertWithinWindow = true);
     void setCursorPosInPixels(const QPoint &posInPixels);
+    void setCursorPosInTiles(int xPosInTiles, int yPosInTiles);
+    void setCursorPosInScenePixels(int xPosInScenePixels, int yPosInScenePixels, bool assertWithinWindow = true);
+    void setCursorPosInScenePixels(const QPoint &posInScenePixels);
     QPoint tilesetTileCentre(int xPosInTiles, int yPosInTiles) const;
     QPoint tilesetTileSceneCentre(int xPosInTiles, int yPosInTiles) const;
     // Replace with result of QTBUG-53381 (if it ever gets added).

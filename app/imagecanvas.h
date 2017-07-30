@@ -135,6 +135,9 @@ public:
     bool scrollZoom() const;
     void setScrollZoom(bool scrollZoom);
 
+    Ruler *pressedRuler() const;
+    int pressedGuideIndex() const;
+
     Splitter *splitter();
 
     CanvasPane *firstPane();

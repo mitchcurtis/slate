@@ -539,15 +539,21 @@ QPoint TestHelper::firstPaneSceneCentre() const
     return canvas->mapToScene(QPointF((canvas->firstPane()->size() * canvas->width()) / 2, canvas->height() / 2)).toPoint();
 }
 
+void TestHelper::setCursorPosInPixels(const QPoint &posInPixels)
+{
+    cursorPos = posInPixels;
+    cursorWindowPos = canvas->mapToScene(QPointF(posInPixels.x(), posInPixels.y())).toPoint();
+}
+
 void TestHelper::setCursorPosInTiles(int xPosInTiles, int yPosInTiles)
 {
     cursorPos = tileCanvasCentre(xPosInTiles, yPosInTiles);
     cursorWindowPos = tileSceneCentre(xPosInTiles, yPosInTiles);
 }
 
-void TestHelper::setCursorPosInPixels(int xPosInPixels, int yPosInPixels, bool verifyWithinWindow)
+void TestHelper::setCursorPosInScenePixels(int xPosInScenePixels, int yPosInScenePixels, bool verifyWithinWindow)
 {
-    cursorPos = QPoint(xPosInPixels, yPosInPixels);
+    cursorPos = QPoint(xPosInScenePixels, yPosInScenePixels);
     cursorWindowPos = canvas->mapToScene(cursorPos).toPoint() + canvas->firstPane()->offset();
     if (verifyWithinWindow) {
         QVERIFY2(cursorWindowPos.x() >= 0 && cursorWindowPos.y() >= 0,
@@ -555,10 +561,10 @@ void TestHelper::setCursorPosInPixels(int xPosInPixels, int yPosInPixels, bool v
     }
 }
 
-void TestHelper::setCursorPosInPixels(const QPoint &posInPixels)
+void TestHelper::setCursorPosInScenePixels(const QPoint &posInScenePixels)
 {
-    cursorPos = posInPixels;
-    cursorWindowPos = canvas->mapToScene(QPointF(posInPixels.x(), posInPixels.y())).toPoint()
+    cursorPos = posInScenePixels;
+    cursorWindowPos = canvas->mapToScene(QPointF(posInScenePixels.x(), posInScenePixels.y())).toPoint()
             + canvas->firstPane()->offset();
 }
 

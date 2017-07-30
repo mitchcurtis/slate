@@ -491,6 +491,16 @@ void ImageCanvas::setScrollZoom(bool scrollZoom)
     emit scrollZoomChanged();
 }
 
+Ruler *ImageCanvas::pressedRuler() const
+{
+    return mPressedRuler;
+}
+
+int ImageCanvas::pressedGuideIndex() const
+{
+    return mPressedGuideIndex;
+}
+
 CanvasPane *ImageCanvas::firstPane()
 {
     return &mFirstPane;
@@ -1777,7 +1787,6 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
 
     if (mPressedRuler && !rulerAtCursorPos()) {
         addNewGuide();
-        mPressedRuler = nullptr;
     }
 
     mPressPosition = QPoint(0, 0);
@@ -1785,6 +1794,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
     mCurrentPaneOffsetBeforePress = QPoint(0, 0);
     updateWindowCursorShape();
     mSplitter.setPressed(false);
+    mPressedRuler = nullptr;
 }
 
 void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
