@@ -796,16 +796,16 @@ void ImageCanvas::drawGuide(QPainter *painter, const CanvasPane &pane, int paneI
     const bool draggingExistingGuide = mPressedGuideIndex != -1 && mPressedGuideIndex == guideIndex;
     const bool vertical = guide.orientation() == Qt::Vertical;
     const int guidePosition = draggingExistingGuide ? (vertical ? mCursorSceneX : mCursorSceneY) : guide.position();
-    const int zoomedGuidePosition = guidePosition * pane.zoomLevel();
+    const qreal zoomedGuidePosition = guidePosition * pane.zoomLevel() + painter->pen().widthF() / 2.0;
 
     if (vertical) {
         // Don't need to account for the vertical offset anymore, as vertical guides go across the whole height of the pane.
         painter->translate(0, -pane.offset().y());
-        painter->drawLine(zoomedGuidePosition, 0, zoomedGuidePosition, height());
+        painter->drawLine(QLineF(zoomedGuidePosition, 0, zoomedGuidePosition, height()));
     } else {
         // Don't need to account for the horizontal offset anymore, as horizontal guides go across the whole width of the pane.
         painter->translate(-pane.offset().x(), 0);
-        painter->drawLine(0, zoomedGuidePosition, paneWidth(paneIndex), zoomedGuidePosition);
+        painter->drawLine(QLineF(0, zoomedGuidePosition, paneWidth(paneIndex), zoomedGuidePosition));
     }
     painter->restore();
 }
