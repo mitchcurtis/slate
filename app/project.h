@@ -125,6 +125,9 @@ protected:
 
     QUrl createTemporaryImage(int width, int height, const QColor &colour);
 
+    void readGuides(const QJsonObject &projectJson);
+    void writeGuides(QJsonObject &projectJson) const;
+
     ApplicationSettings *mSettings;
 
     bool mFromNew;

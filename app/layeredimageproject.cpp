@@ -186,6 +186,8 @@ void LayeredImageProject::load(const QUrl &url)
         addLayerAboveAll(imageLayer);
     }
 
+    readGuides(projectObject);
+
     setUrl(url);
     emit projectLoaded();
 
@@ -252,6 +254,8 @@ void LayeredImageProject::saveAs(const QUrl &url)
     }
 
     projectObject.insert("layers", layersArray);
+
+    writeGuides(projectObject);
 
     rootJson.insert("project", projectObject);
 

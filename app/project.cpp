@@ -21,6 +21,8 @@
 
 #include <QDateTime>
 #include <QImage>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QLoggingCategory>
 #include <QMetaEnum>
 
@@ -192,6 +194,33 @@ QUrl Project::createTemporaryImage(int width, int height, const QColor &colour)
     qCDebug(lcProject) << "Successfully created temporary image:" << fileName;
     mUsingTempImage = true;
     return QUrl::fromLocalFile(fileName);
+}
+
+void Project::readGuides(const QJsonObject &projectJson)
+{
+    mGuides.clear();
+
+    QJsonArray guidesArray = projectJson.value(QLatin1String("guides")).toArray();
+    for (int i = 0; i < guidesArray.size(); ++i) {
+        QJsonObject guideObject = guidesArray.at(i).toObject();
+        const int position = guideObject.value(QLatin1String("position")).toInt();
+        const Qt::Orientation orientation = static_cast<Qt::Orientation>(
+            guideObject.value(QLatin1String("orientation")).toInt());
+        mGuides.append(Guide(position, orientation));
+    }
+}
+
+void Project::writeGuides(QJsonObject &projectJson) const
+{
+    QJsonArray guidesArray;
+    for (int i = 0; i < mGuides.size(); ++i) {
+        QJsonObject guideObject;
+        const Guide guide = mGuides.at(i);
+        guideObject[QLatin1String("position")] = guide.position();
+        guideObject[QLatin1String("orientation")] = guide.orientation();
+        guidesArray.append(guideObject);
+    }
+    projectJson[QLatin1String("guides")] = guidesArray;
 }
 
 ApplicationSettings *Project::settings() const
