@@ -746,29 +746,36 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
             QRectF(0, 0, mLinePreviewImage.width(), mLinePreviewImage.height()));
     }
 
-    painter->restore();
-
-    // We need to draw the guides separately because ...
-    painter->save();
-
     // Draw the existing guides.
-    painter->setPen(Qt::cyan);
     foreach (const Guide &guide, mProject->guides()) {
-        if (guide.orientation() == Qt::Vertical)
-            painter->drawLine(guide.position(), 0, 1, height());
-        else
-            painter->drawLine(0, guide.position(), height(), 1);
+        drawGuide(painter, pane, paneIndex, guide);
     }
 
     // Draw the guide that's being dragged, if any.
     if (mPressedRuler) {
         const bool horizontal = mPressedRuler->orientation() == Qt::Horizontal;
-        qDebug() << (horizontal ? 0 : mCursorX) << (horizontal ? mCursorY : 0) <<
-                    (horizontal ? width() : 1) << (horizontal ? 1 : height());
-        painter->drawLine(horizontal ? 0 : mCursorX, horizontal ? mCursorY : 0,
-            horizontal ? width() : mCursorX, horizontal ? mCursorY : height());
+        drawGuide(painter, pane, paneIndex, Guide(horizontal ? mCursorSceneY : mCursorSceneX, mPressedRuler->orientation()));
     }
 
+    painter->restore();
+}
+
+void ImageCanvas::drawGuide(QPainter *painter, const CanvasPane &pane, int paneIndex, const Guide &guide)
+{
+    painter->save();
+    painter->setPen(Qt::cyan);
+
+    const int zoomedGuidePosition = guide.position() * pane.zoomLevel();
+
+    if (guide.orientation() == Qt::Vertical) {
+        // Don't need to account for the vertical offset anymore, as vertical guides go across the whole height of the pane.
+        painter->translate(0, -pane.offset().y());
+        painter->drawLine(zoomedGuidePosition, 0, zoomedGuidePosition, height());
+    } else {
+        // Don't need to account for the horizontal offset anymore, as horizontal guides go across the whole width of the pane.
+        painter->translate(-pane.offset().x(), 0);
+        painter->drawLine(0, zoomedGuidePosition, paneWidth(paneIndex), zoomedGuidePosition);
+    }
     painter->restore();
 }
 

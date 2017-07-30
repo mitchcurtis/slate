@@ -36,6 +36,7 @@
 Q_DECLARE_LOGGING_CATEGORY(lcCanvas)
 Q_DECLARE_LOGGING_CATEGORY(lcCanvasLifecycle)
 
+class Guide;
 class ImageProject;
 class Project;
 class Tile;
@@ -283,6 +284,7 @@ protected:
     // as part of a selection preview image.
     virtual QImage contentImage() const;
     void drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex);
+    void drawGuide(QPainter *painter, const CanvasPane &pane, int paneIndex, const Guide &guide);
     int paneWidth(int index) const;
     void centrePanes(bool respectSceneCentred = true);
     bool mouseOverSplitterHandle(const QPoint &mousePos);
