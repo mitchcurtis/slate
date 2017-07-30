@@ -109,6 +109,7 @@ signals:
     void sizeChanged();
     void errorOccurred(const QString &errorMessage);
     void settingsChanged();
+    void guidesChanged();
 
 public slots:
     virtual void load(const QUrl &url);

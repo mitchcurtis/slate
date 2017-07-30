@@ -2165,24 +2165,39 @@ void tst_App::rulersAndGuides()
     QCOMPARE(project->guides().first().position(), 10);
     QCOMPARE(project->undoStack()->canUndo(), true);
 
+    // The cursor should change when over an existing guide.
+    // For some reason it is necessary to move the mouse away like this...
+    // works fine in actual application usage.
+    QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
+    QTest::mouseMove(window, cursorWindowPos);
+    QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
+
     // Move it.
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->pressedGuideIndex(), 0);
+    QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
 
     setCursorPosInPixels(QPoint(50, rulerThickness + 20));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(project->guides().first().position(), 20);
+    QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
 
     // Undo.
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(project->guides().size(), 1);
     QCOMPARE(project->guides().first().position(), 10);
+    QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
+    QTest::mouseMove(window, cursorWindowPos);
+    QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
 
     // Redo.
     mouseEventOnCentre(redoButton, MouseClick);
     QCOMPARE(project->guides().size(), 1);
     QCOMPARE(project->guides().first().position(), 20);
+    QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
+    QTest::mouseMove(window, cursorWindowPos);
+    QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
 }
 
 void tst_App::addAndRemoveLayers()

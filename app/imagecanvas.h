@@ -239,6 +239,7 @@ protected slots:
     void onPaneOffsetChanged();
     void onPaneSizeChanged();
     void onSplitterPositionChanged();
+    void onGuidesChanged();
 
 protected:
     void componentComplete() override;
@@ -288,19 +289,21 @@ protected:
     // as part of a selection preview image.
     virtual QImage contentImage() const;
     void drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex);
-    void drawGuide(QPainter *painter, const CanvasPane &pane, int paneIndex, const Guide &guide);
+    void drawGuide(QPainter *painter, const CanvasPane &pane, int paneIndex, const Guide &guide, int guideIndex);
     int paneWidth(int index) const;
     void centrePanes(bool respectSceneCentred = true);
     bool mouseOverSplitterHandle(const QPoint &mousePos);
 
     void updateRulerVisibility();
     void resizeRulers();
-    void updatePressedRulers();
+    void updatePressedRuler();
     Ruler *rulerAtCursorPos();
 
     void addNewGuide();
     void moveGuide();
     void removeGuide();
+    void updatePressedGuide();
+    int guideIndexAtCursorPos();
 
     bool isPanning() const;
 
@@ -366,6 +369,7 @@ protected:
     Ruler *mSecondHorizontalRuler;
     Ruler *mSecondVerticalRuler;
     Ruler *mPressedRuler;
+    int mGuidePositionBeforePress;
     int mPressedGuideIndex;
 
     // The position of the cursor in view coordinates.

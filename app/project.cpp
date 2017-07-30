@@ -233,6 +233,8 @@ void Project::addGuide(const Guide &guide)
         return;
 
     mGuides.append(guide);
+
+    emit guidesChanged();
 }
 
 void Project::moveGuide(const Guide &guide, int to)
@@ -242,11 +244,15 @@ void Project::moveGuide(const Guide &guide, int to)
         return;
 
     it->setPosition(to);
+
+    emit guidesChanged();
 }
 
 void Project::removeGuide(const Guide &guide)
 {
-    mGuides.removeOne(guide);
+    if (mGuides.removeOne(guide)) {
+        emit guidesChanged();
+    }
 }
 
 QSize Project::size() const

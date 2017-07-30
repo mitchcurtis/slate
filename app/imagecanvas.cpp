@@ -34,11 +34,13 @@
 #include "applypixelfillcommand.h"
 #include "applypixellinecommand.h"
 #include "applypixelpencommand.h"
+#include "deleteguidecommand.h"
 #include "deleteimagecanvasselectioncommand.h"
 #include "fillalgorithms.h"
 #include "flipimagecanvasselectioncommand.h"
 #include "imageproject.h"
 #include "moveimagecanvasselectioncommand.h"
+#include "moveguidecommand.h"
 #include "pasteimagecanvascommand.h"
 #include "project.h"
 #include "tileset.h"
@@ -63,6 +65,7 @@ ImageCanvas::ImageCanvas() :
     mSecondHorizontalRuler(new Ruler(Qt::Horizontal, this)),
     mSecondVerticalRuler(new Ruler(Qt::Vertical, this)),
     mPressedRuler(nullptr),
+    mGuidePositionBeforePress(0),
     mPressedGuideIndex(-1),
     mCursorX(0),
     mCursorY(0),
@@ -617,6 +620,7 @@ void ImageCanvas::connectSignals()
     connect(mProject, SIGNAL(projectCreated()), this, SLOT(update()));
     connect(mProject, SIGNAL(projectClosed()), this, SLOT(reset()));
     connect(mProject, SIGNAL(sizeChanged()), this, SLOT(update()));
+    connect(mProject, SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
 
     connect(window(), SIGNAL(activeFocusItemChanged()), this, SLOT(updateWindowCursorShape()));
     // More hacks. Doing this because activeFocusItemChanged() doesn't seem to get called
@@ -634,6 +638,7 @@ void ImageCanvas::disconnectSignals()
     mProject->disconnect(SIGNAL(projectCreated()), this, SLOT(update()));
     mProject->disconnect(SIGNAL(projectClosed()), this, SLOT(reset()));
     mProject->disconnect(SIGNAL(sizeChanged()), this, SLOT(update()));
+    mProject->disconnect(SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
 
     if (window()) {
         window()->disconnect(SIGNAL(activeFocusItemChanged()), this, SLOT(checkIfPopupsOpen()));
@@ -766,27 +771,34 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     }
 
     // Draw the existing guides.
-    foreach (const Guide &guide, mProject->guides()) {
-        drawGuide(painter, pane, paneIndex, guide);
+    QVector<Guide> guides = mProject->guides();
+    for (int i = 0; i < guides.size(); ++i) {
+        const Guide guide = guides.at(i);
+        drawGuide(painter, pane, paneIndex, guide, i);
     }
 
-    // Draw the guide that's being dragged, if any.
+    // Draw the guide that's being dragged from the ruler, if any.
     if (mPressedRuler) {
         const bool horizontal = mPressedRuler->orientation() == Qt::Horizontal;
-        drawGuide(painter, pane, paneIndex, Guide(horizontal ? mCursorSceneY : mCursorSceneX, mPressedRuler->orientation()));
+        const Guide guide(horizontal ? mCursorSceneY : mCursorSceneX, mPressedRuler->orientation());
+        drawGuide(painter, pane, paneIndex, guide, -1);
     }
 
     painter->restore();
 }
 
-void ImageCanvas::drawGuide(QPainter *painter, const CanvasPane &pane, int paneIndex, const Guide &guide)
+void ImageCanvas::drawGuide(QPainter *painter, const CanvasPane &pane, int paneIndex, const Guide &guide, int guideIndex)
 {
     painter->save();
     painter->setPen(Qt::cyan);
 
-    const int zoomedGuidePosition = guide.position() * pane.zoomLevel();
+    // If this is an existing guide that is currently being dragged, draw it in its dragged position.
+    const bool draggingExistingGuide = mPressedGuideIndex != -1 && mPressedGuideIndex == guideIndex;
+    const bool vertical = guide.orientation() == Qt::Vertical;
+    const int guidePosition = draggingExistingGuide ? (vertical ? mCursorSceneX : mCursorSceneY) : guide.position();
+    const int zoomedGuidePosition = guidePosition * pane.zoomLevel();
 
-    if (guide.orientation() == Qt::Vertical) {
+    if (vertical) {
         // Don't need to account for the vertical offset anymore, as vertical guides go across the whole height of the pane.
         painter->translate(0, -pane.offset().y());
         painter->drawLine(zoomedGuidePosition, 0, zoomedGuidePosition, height());
@@ -852,7 +864,7 @@ void ImageCanvas::resizeRulers()
     }
 }
 
-void ImageCanvas::updatePressedRulers()
+void ImageCanvas::updatePressedRuler()
 {
     mPressedRuler = rulerAtCursorPos();
 }
@@ -881,14 +893,59 @@ void ImageCanvas::addNewGuide()
         mPressedRuler->orientation() == Qt::Horizontal ? mCursorSceneY : mCursorSceneX,
         mPressedRuler->orientation())));
     mProject->endMacro();
+
+    // The update for these guide commands happens in onGuidesChanged.
 }
 
 void ImageCanvas::moveGuide()
 {
+    const Guide guide = mProject->guides().at(mPressedGuideIndex);
+
+    mProject->beginMacro(QLatin1String("MoveGuide"));
+    mProject->addChange(new MoveGuideCommand(mProject, guide,
+        guide.orientation() == Qt::Horizontal ? mCursorSceneY : mCursorSceneX));
+    mProject->endMacro();
 }
 
 void ImageCanvas::removeGuide()
 {
+    const Guide guide = mProject->guides().at(mPressedGuideIndex);
+
+    mProject->beginMacro(QLatin1String("DeleteGuide"));
+    mProject->addChange(new DeleteGuideCommand(mProject, guide));
+    mProject->endMacro();
+}
+
+void ImageCanvas::updatePressedGuide()
+{
+    mPressedGuideIndex = guideIndexAtCursorPos();
+
+    if (mPressedGuideIndex != -1)
+        mGuidePositionBeforePress = mProject->guides().at(mPressedGuideIndex).position();
+}
+
+int ImageCanvas::guideIndexAtCursorPos()
+{
+    const QVector<Guide> guides = mProject->guides();
+    for (int i = 0; i < guides.size(); ++i) {
+        const Guide guide = guides.at(i);
+        if (guide.orientation() == Qt::Horizontal) {
+            if (mCursorSceneY == guide.position()) {
+                return i;
+            }
+        } else {
+            if (mCursorSceneX == guide.position()) {
+                return i;
+            }
+        }
+    }
+
+    return -1;
+}
+
+void ImageCanvas::onGuidesChanged()
+{
+    update();
 }
 
 bool ImageCanvas::isPanning() const
@@ -1106,6 +1163,7 @@ void ImageCanvas::reset()
     mSplitter.setHovered(false);
 
     mPressedRuler = nullptr;
+    mGuidePositionBeforePress = 0;
     mPressedGuideIndex = -1;
 
     setCursorX(0);
@@ -1469,6 +1527,7 @@ void ImageCanvas::updateWindowCursorShape()
 
     bool overRuler = false;
     if (rulersVisible()) {
+        // TODO: use rulerAtCursorPos()?
         const QPointF cursorPos(mCursorX, mCursorY);
         overRuler = mFirstHorizontalRuler->contains(cursorPos) || mFirstVerticalRuler->contains(cursorPos);
 
@@ -1483,11 +1542,16 @@ void ImageCanvas::updateWindowCursorShape()
         }
     }
 
+    bool overGuide = false;
+    if (!overRuler) {
+        overGuide = guideIndexAtCursorPos() != -1;
+    }
+
     // Hide the window's cursor when we're in the spotlight; otherwise, use the non-custom arrow cursor.
     const bool nothingOverUs = mProject->hasLoaded() && hasActiveFocus() /*&& !mModalPopupsOpen*/ && mContainsMouse;
     const bool splitterHovered = mSplitter.isEnabled() && mSplitter.isHovered();
     const bool overSelection = cursorOverSelection();
-    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && !overSelection && !overRuler);
+    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && !overSelection && !overRuler && !overGuide);
 
     Qt::CursorShape cursorShape = Qt::BlankCursor;
     if (!mHasBlankCursor) {
@@ -1496,6 +1560,8 @@ void ImageCanvas::updateWindowCursorShape()
             cursorShape = (mMouseButtonPressed == Qt::LeftButton || mMouseButtonPressed == Qt::MiddleButton) ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
         } else if (overSelection) {
             cursorShape = Qt::SizeAllCursor;
+        } else if (overGuide) {
+            cursorShape = mPressedGuideIndex != -1 ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
         } else {
             cursorShape = mSplitter.isEnabled() && mSplitter.isHovered() ? Qt::SplitHCursor : Qt::ArrowCursor;
         }
@@ -1663,20 +1729,34 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
     if (!isPanning()) {
         if (mSplitter.isEnabled() && mouseOverSplitterHandle(event->pos())) {
             mSplitter.setPressed(true);
-        } else if (rulersVisible()) {
-            updatePressedRulers();
-        } else if (mTool != SelectionTool) {
-            applyCurrentTool();
-        } else {
-            if (!cursorOverSelection()) {
-                mPotentiallySelecting = true;
-                updateSelectionArea();
-            } else {
-                // The user has just clicked the selection. We don't actually
-                // move anything on press events; we wait until mouseMoveEvent()
-                // and then start moving the selection and its contents.
-                beginSelectionMove();
+            return;
+        }
+
+        if (rulersVisible()) {
+            updatePressedRuler();
+            if (mPressedRuler)
+                return;
+
+            updatePressedGuide();
+            if (mPressedGuideIndex != -1) {
+                updateWindowCursorShape();
+                return;
             }
+        }
+
+        if (mTool != SelectionTool) {
+            applyCurrentTool();
+            return;
+        }
+
+        if (!cursorOverSelection()) {
+            mPotentiallySelecting = true;
+            updateSelectionArea();
+        } else {
+            // The user has just clicked the selection. We don't actually
+            // move anything on press events; we wait until mouseMoveEvent()
+            // and then start moving the selection and its contents.
+            beginSelectionMove();
         }
     } else {
         updateWindowCursorShape();
@@ -1787,6 +1867,10 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
 
     if (mPressedRuler && !rulerAtCursorPos()) {
         addNewGuide();
+    } else if (mPressedGuideIndex != -1) {
+        moveGuide();
+        mPressedGuideIndex = -1;
+        updateWindowCursorShape();
     }
 
     mPressPosition = QPoint(0, 0);
@@ -1795,6 +1879,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
     updateWindowCursorShape();
     mSplitter.setPressed(false);
     mPressedRuler = nullptr;
+    mGuidePositionBeforePress = 0;
 }
 
 void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
