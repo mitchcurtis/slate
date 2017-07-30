@@ -617,10 +617,6 @@ int TestHelper::digitAt(int number, int index)
 
 void TestHelper::triggerShortcut(const QString &objectName, const QString &sequenceAsString)
 {
-    // Move the mouse away first to close ToolTip: https://bugreports.qt.io/browse/QTBUG-60492
-    if (canvas)
-        QTest::mouseMove(window, canvasSceneCentre());
-
     QObject *shortcut = window->findChild<QObject*>(objectName);
     QVERIFY(shortcut);
     QVERIFY2(shortcut->property("enabled").toBool(), qPrintable(QString::fromLatin1(
@@ -777,6 +773,7 @@ void TestHelper::addAllProjectTypes()
 
     QTest::newRow("TilesetType") << Project::TilesetType;
     QTest::newRow("ImageType") << Project::ImageType;
+    QTest::newRow("LayeredImageType") << Project::LayeredImageType;
 }
 
 void TestHelper::addImageProjectTypes()
@@ -1039,7 +1036,10 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     QVERIFY(settings);
     settings->resetShortcutsToDefaults();
 
-    settings->setRulersVisible(false);
+    if (settings->areRulersVisible()) {
+        triggerRulersVisible();
+        QCOMPARE(settings->areRulersVisible(), false);
+    }
 
     cursorPos = QPoint();
     cursorWindowPos = QPoint();

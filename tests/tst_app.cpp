@@ -2116,35 +2116,73 @@ void tst_App::rulersAndGuides()
     triggerRulersVisible();
     QCOMPARE(app.settings()->areRulersVisible(), true);
 
+    QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
+    QVERIFY(firstHorizontalRuler);
+    const qreal rulerThickness = firstHorizontalRuler->height();
+
+    // Pan so that the top left of the canvas is at the rulers' corners.
+    panTopLeftTo(rulerThickness, rulerThickness);
+
     // A guide should only be added when dropped outside of the ruler.
-    setCursorPosInPixels(QPoint(50, 10));
+    setCursorPosInPixels(QPoint(50, rulerThickness / 2));
     QTest::mouseMove(window, cursorWindowPos);
     QVERIFY(!canvas->pressedRuler());
 
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QVERIFY(canvas->pressedRuler());
 
-    setCursorPosInPixels(QPoint(50, 18));
+    setCursorPosInPixels(QPoint(50, rulerThickness - 2));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QVERIFY(!canvas->pressedRuler());
     QCOMPARE(project->guides().size(), 0);
     QCOMPARE(project->undoStack()->canUndo(), false);
 
-    // Drop a horizontal guide onto the top of the canvas.
-    setCursorPosInPixels(QPoint(50, 10));
+    // Drop a horizontal guide onto the canvas.
+    setCursorPosInPixels(QPoint(50, rulerThickness / 2));
     QTest::mouseMove(window, cursorWindowPos);
     QVERIFY(!canvas->pressedRuler());
 
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QVERIFY(canvas->pressedRuler());
 
-    setCursorPosInScenePixels(QPoint(0, 0));
+    setCursorPosInPixels(QPoint(50, rulerThickness + 10));
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QVERIFY(!canvas->pressedRuler());
     QCOMPARE(project->guides().size(), 1);
+    QCOMPARE(project->guides().first().position(), 10);
     QCOMPARE(project->undoStack()->canUndo(), true);
+
+    // Undo.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(project->guides().size(), 0);
+    QCOMPARE(project->undoStack()->canUndo(), false);
+
+    // Redo.
+    mouseEventOnCentre(redoButton, MouseClick);
+    QCOMPARE(project->guides().size(), 1);
+    QCOMPARE(project->guides().first().position(), 10);
+    QCOMPARE(project->undoStack()->canUndo(), true);
+
+    // Move it.
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->pressedGuideIndex(), 0);
+
+    setCursorPosInPixels(QPoint(50, rulerThickness + 20));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(project->guides().first().position(), 20);
+
+    // Undo.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(project->guides().size(), 1);
+    QCOMPARE(project->guides().first().position(), 10);
+
+    // Redo.
+    mouseEventOnCentre(redoButton, MouseClick);
+    QCOMPARE(project->guides().size(), 1);
+    QCOMPARE(project->guides().first().position(), 20);
 }
 
 void tst_App::addAndRemoveLayers()
