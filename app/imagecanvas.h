@@ -238,6 +238,7 @@ protected slots:
     void onSplitterPositionChanged();
 
 protected:
+    void componentComplete() override;
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
     friend class ApplyGreedyPixelFillCommand;
@@ -292,6 +293,7 @@ protected:
     void updateRulerVisibility();
     void resizeRulers();
     void updatePressedRulers();
+    Ruler *rulerAtCursorPos();
 
     void addNewGuide();
     void moveGuide();

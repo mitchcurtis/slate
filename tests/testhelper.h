@@ -134,6 +134,7 @@ protected:
 
     void triggerCentre();
     void triggerGridVisible();
+    void triggerRulersVisible();
     void triggerSplitScreen();
 
     void triggerOptions();

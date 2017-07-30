@@ -106,8 +106,6 @@ ImageCanvas::ImageCanvas() :
     mSecondVerticalRuler->setObjectName("secondVerticalRuler");
     mSecondVerticalRuler->setDrawCorner(true);
 
-    updateRulerVisibility();
-
     connect(&mFirstPane, SIGNAL(zoomLevelChanged()), this, SLOT(onZoomLevelChanged()));
     connect(&mFirstPane, SIGNAL(offsetChanged()), this, SLOT(onPaneOffsetChanged()));
     connect(&mFirstPane, SIGNAL(sizeChanged()), this, SLOT(onPaneSizeChanged()));
@@ -650,6 +648,16 @@ void ImageCanvas::onSplitterPositionChanged()
     update();
 }
 
+void ImageCanvas::componentComplete()
+{
+    QQuickPaintedItem::componentComplete();
+    // For some reason, we need to force this stuff to update when creating a
+    // tileset project after a layered image project.
+    updateRulerVisibility();
+    resizeRulers();
+    update();
+}
+
 void ImageCanvas::paint(QPainter *painter)
 {
     if (!mProject || !mProject->hasLoaded()) {
@@ -836,17 +844,24 @@ void ImageCanvas::resizeRulers()
 
 void ImageCanvas::updatePressedRulers()
 {
+    mPressedRuler = rulerAtCursorPos();
+}
+
+Ruler *ImageCanvas::rulerAtCursorPos()
+{
     QPointF cursorPos = QPointF(mCursorX, mCursorY);
+    Ruler *ruler = nullptr;
+
     if (mFirstHorizontalRuler->contains(mapToItem(mFirstHorizontalRuler, cursorPos)))
-        mPressedRuler = mFirstHorizontalRuler;
+        ruler = mFirstHorizontalRuler;
     else if (mFirstVerticalRuler->contains(mapToItem(mFirstVerticalRuler, cursorPos)))
-        mPressedRuler = mFirstVerticalRuler;
+        ruler = mFirstVerticalRuler;
     else if (mSecondHorizontalRuler->contains(mapToItem(mSecondHorizontalRuler, cursorPos)))
-        mPressedRuler = mSecondHorizontalRuler;
+        ruler = mSecondHorizontalRuler;
     else if (mSecondVerticalRuler->contains(mapToItem(mSecondVerticalRuler, cursorPos)))
-        mPressedRuler = mSecondVerticalRuler;
-    else
-        mPressedRuler = nullptr;
+        ruler = mSecondVerticalRuler;
+
+    return ruler;
 }
 
 void ImageCanvas::addNewGuide()
@@ -1760,7 +1775,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
         mProject->endMacro();
     }
 
-    if (mPressedRuler) {
+    if (mPressedRuler && !rulerAtCursorPos()) {
         addNewGuide();
         mPressedRuler = nullptr;
     }

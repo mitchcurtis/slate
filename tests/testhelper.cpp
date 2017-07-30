@@ -712,6 +712,16 @@ void TestHelper::triggerGridVisible()
 #endif
 }
 
+void TestHelper::triggerRulersVisible()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(viewToolButton, MouseClick);
+    mouseEventOnCentre(showRulersMenuButton, MouseClick);
+#else
+    triggerShortcut("rulersVisibleShortcut", app.settings()->rulersVisibleShortcut());
+#endif
+}
+
 void TestHelper::triggerSplitScreen()
 {
 #ifdef NON_NATIVE_MENUS
@@ -1022,6 +1032,8 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     ApplicationSettings *settings = settingsAsVariant.value<ApplicationSettings*>();
     QVERIFY(settings);
     settings->resetShortcutsToDefaults();
+
+    settings->setRulersVisible(false);
 
     cursorPos = QPoint();
     cursorWindowPos = QPoint();

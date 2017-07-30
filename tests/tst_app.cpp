@@ -92,6 +92,8 @@ private Q_SLOTS:
     void greedyPixelFillImageCanvas();
     void pixelLineToolImageCanvas_data();
     void pixelLineToolImageCanvas();
+    void rulersAndGuides_data();
+    void rulersAndGuides();
 
     void addAndRemoveLayers();
     void layerVisibility();
@@ -2098,6 +2100,32 @@ void tst_App::pixelLineToolImageCanvas()
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(project->hasUnsavedChanges(), false);
+}
+
+void tst_App::rulersAndGuides_data()
+{
+    addAllProjectTypes();
+}
+
+void tst_App::rulersAndGuides()
+{
+    QFETCH(Project::Type, projectType);
+
+    createNewProject(projectType);
+
+    triggerRulersVisible();
+    QCOMPARE(app.settings()->areRulersVisible(), true);
+
+    // A guide should only be added when it placed outside of the ruler.
+    setCursorPosInPixels(50, 10);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+
+    setCursorPosInPixels(50, 18);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(project->guides().size(), 0);
+    QCOMPARE(project->undoStack()->canUndo(), false);
 }
 
 void tst_App::addAndRemoveLayers()
