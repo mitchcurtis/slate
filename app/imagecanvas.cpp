@@ -1564,7 +1564,7 @@ void ImageCanvas::updateWindowCursorShape()
     }
 
     bool overGuide = false;
-    if (!overRuler) {
+    if (guidesVisible() && !overRuler) {
         overGuide = guideIndexAtCursorPos() != -1;
     }
 
