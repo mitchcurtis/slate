@@ -770,8 +770,8 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
 
     // Draw the pixel-pen-line indicator.
     if (isLineVisible()) {
-        const QPointF point1 = mLastPixelPenPressScenePosition;
-        const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
+        const QPointF point1 = mLastPixelPenPressScenePosition - QPointF(mToolSize / 2, mToolSize / 2);
+        const QPointF point2 = QPointF(mCursorSceneX - mToolSize / 2, mCursorSceneY - mToolSize / 2);
         mLinePreviewImage = QImage(currentProjectImage()->size(), QImage::Format_ARGB32_Premultiplied);
         mLinePreviewImage.fill(Qt::transparent);
 
