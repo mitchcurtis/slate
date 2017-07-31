@@ -1263,6 +1263,9 @@ void ImageCanvas::paste()
 {
     qCDebug(lcCanvasSelection) << "pasting selection from clipboard";
 
+    QRect pastedArea = mSelectionArea;
+    const bool fromExternalSource = !mHasSelection;
+
     clearOrConfirmSelection();
 
     QClipboard *clipboard = QGuiApplication::clipboard();
@@ -1276,7 +1279,10 @@ void ImageCanvas::paste()
 
     const QSize adjustedSize(qMin(clipboardImage.width(), mProject->widthInPixels()),
         qMin(clipboardImage.height(), mProject->heightInPixels()));
-    const QRect pastedArea(QPoint(0, 0), adjustedSize);
+    if (fromExternalSource) {
+        // If the paste was from an external source, we just paste it at 0, 0.
+        pastedArea = QRect(0, 0, adjustedSize.width(), adjustedSize.height());
+    }
     if (adjustedSize != clipboardImage.size())
         clipboardImage = clipboardImage.copy(pastedArea);
 
