@@ -46,7 +46,9 @@ private Q_SLOTS:
     void newProjectWithNewTileset();
     void openClose_data();
     void openClose();
-    void save();
+    void saveTilesetProject();
+    void saveAsAndLoadTilesetProject();
+    void saveAsAndLoad_data();
     void saveAsAndLoad();
     void keyboardShortcuts();
     void optionsCancelled();
@@ -208,7 +210,7 @@ void tst_App::openClose()
     createNewProject(projectType);
 }
 
-void tst_App::save()
+void tst_App::saveTilesetProject()
 {
     createNewTilesetProject();
 
@@ -243,7 +245,7 @@ void tst_App::save()
     QTRY_VERIFY_WITH_TIMEOUT(!window->title().contains("*"), 10);
 }
 
-void tst_App::saveAsAndLoad()
+void tst_App::saveAsAndLoadTilesetProject()
 {
     createNewTilesetProject();
 
@@ -330,6 +332,92 @@ void tst_App::saveAsAndLoad()
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     QVERIFY(imageGrabber.takeImage() != closedCanvasImage);
+}
+
+void tst_App::saveAsAndLoad_data()
+{
+    addActualProjectTypes();
+}
+
+void tst_App::saveAsAndLoad()
+{
+    // Ensure that things that are common to all project types are saved,
+    // like guides, pane offset and zoom, etc.
+
+    QFETCH(Project::Type, projectType);
+    QFETCH(QString, projectExtension);
+
+    createNewProject(projectType);
+
+    if (!canvas->rulersVisible()) {
+        triggerRulersVisible();
+        QCOMPARE(canvas->rulersVisible(), true);
+    }
+
+    if (!canvas->guidesVisible()) {
+        triggerGuidesVisible();
+        QCOMPARE(canvas->guidesVisible(), true);
+    }
+
+    QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
+    QVERIFY(firstHorizontalRuler);
+    const qreal rulerThickness = firstHorizontalRuler->height();
+
+    // TODO: fix this failure so that we can test it properly
+//    panTopLeftTo(rulerThickness, rulerThickness);
+    canvas->firstPane()->setOffset(QPoint(rulerThickness, rulerThickness));
+
+    // Drop a horizontal guide onto the canvas.
+    setCursorPosInPixels(QPoint(50, rulerThickness / 2));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    setCursorPosInPixels(QPoint(50, rulerThickness + 10));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(project->guides().size(), 1);
+    QCOMPARE(project->guides().first().position(), 10);
+
+    // Zoom in.
+    setCursorPosInPixels(QPoint(0, 0));
+    const int expectedZoomLevel = 5;
+    CanvasPane *currentPane = canvas->currentPane();
+    for (int i = 0; currentPane->zoomLevel() < expectedZoomLevel && i < expectedZoomLevel; ++i)
+        wheelEvent(canvas, cursorWindowPos, 1);
+    QCOMPARE(currentPane->zoomLevel(), expectedZoomLevel);
+
+    QCOMPARE(canvas->isSplitScreen(), true);
+    QTRY_COMPARE(canvas->firstPane()->size(), 0.5);
+    QCOMPARE(canvas->secondPane()->size(), 0.5);
+
+    // Store the original offsets, etc.
+    const QPoint firstPaneOffset = canvas->firstPane()->offset();
+    const int firstPaneZoomLevel = canvas->firstPane()->zoomLevel();
+    const qreal firstPaneSize = canvas->firstPane()->size();
+    const QPoint secondPaneOffset = canvas->secondPane()->offset();
+    const int secondPaneZoomLevel = canvas->secondPane()->zoomLevel();
+    const qreal secondPaneSize = canvas->secondPane()->size();
+
+    // Save the project.
+    const QString savedProjectPath = tempProjectDir->path() + "/saveAsAndLoad-project." + projectExtension;
+    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
+    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QCOMPARE(project->url().toLocalFile(), savedProjectPath);
+
+    // Close the project.
+    triggerCloseProject();
+    QVERIFY(!project->hasLoaded());
+
+    // Load the saved file.
+    project->load(QUrl::fromLocalFile(savedProjectPath));
+    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QCOMPARE(project->guides().size(), 1);
+    QCOMPARE(project->guides().first().position(), 10);
+    QCOMPARE(canvas->firstPane()->offset(), firstPaneOffset);
+    QCOMPARE(canvas->firstPane()->zoomLevel(), firstPaneZoomLevel);
+    QCOMPARE(canvas->firstPane()->size(), firstPaneSize);
+    QCOMPARE(canvas->secondPane()->offset(), secondPaneOffset);
+    QCOMPARE(canvas->secondPane()->zoomLevel(), secondPaneZoomLevel);
+    QCOMPARE(canvas->secondPane()->size(), secondPaneSize);
 }
 
 void tst_App::keyboardShortcuts()

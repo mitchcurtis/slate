@@ -24,6 +24,8 @@
 #include <QPoint>
 #include <QSize>
 
+class QJsonObject;
+
 class CanvasPane : public QObject
 {
     Q_OBJECT
@@ -51,6 +53,9 @@ public:
 
     bool isSceneCentered() const;
     void setSceneCentered(bool isSceneCentered);
+
+    void read(const QJsonObject &json);
+    void write(QJsonObject &json) const;
 
     void reset();
 

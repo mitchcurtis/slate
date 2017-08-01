@@ -19,6 +19,8 @@
 
 #include "canvaspane.h"
 
+#include <QJsonObject>
+
 CanvasPane::CanvasPane(QObject *parent) :
     QObject(parent),
     mSize(0.5),
@@ -95,6 +97,23 @@ bool CanvasPane::isSceneCentered() const
 void CanvasPane::setSceneCentered(bool centreScene)
 {
     mSceneCentered = centreScene;
+}
+
+void CanvasPane::read(const QJsonObject &json)
+{
+    setSize(json.value(QLatin1String("size")).toDouble());
+    setZoomLevel(json.value(QLatin1String("zoomLevel")).toInt());
+    setOffset(QPoint(json.value(QLatin1String("offsetX")).toInt(), json.value(QLatin1String("offsetY")).toInt()));
+    setSceneCentered(json.value(QLatin1String("sceneCentered")).toBool());
+}
+
+void CanvasPane::write(QJsonObject &json) const
+{
+    json[QLatin1String("size")] = mSize;
+    json[QLatin1String("zoomLevel")] = mZoomLevel;
+    json[QLatin1String("offsetX")] = mOffset.x();
+    json[QLatin1String("offsetY")] = mOffset.y();
+    json[QLatin1String("sceneCentered")] = mSceneCentered;
 }
 
 void CanvasPane::reset()

@@ -136,6 +136,7 @@ protected:
     void triggerCentre();
     void triggerGridVisible();
     void triggerRulersVisible();
+    void triggerGuidesVisible();
     void triggerSplitScreen();
 
     void triggerOptions();
@@ -148,6 +149,7 @@ protected:
 
     void addAllProjectTypes();
     void addImageProjectTypes();
+    void addActualProjectTypes();
     void createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
     void createNewTilesetProject(int tileWidth = 25, int tileHeight = 25,
         int tilesetTilesWide = -1, int tilesetTilesHigh = -1, bool transparentTilesetBackground = false);
@@ -197,6 +199,7 @@ protected:
     QQuickItem *centreMenuButton;
     QQuickItem *showGridMenuButton;
     QQuickItem *showRulersMenuButton;
+    QQuickItem *showGuidesMenuButton;
     QQuickItem *splitScreenMenuButton;
     QQuickItem *duplicateTileMenuButton;
     QQuickItem *rotateTileLeftMenuButton;

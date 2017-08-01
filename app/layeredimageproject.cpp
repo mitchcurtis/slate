@@ -21,7 +21,6 @@
 
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QJsonObject>
 #include <QPainter>
 
 #include "addlayercommand.h"
@@ -187,6 +186,7 @@ void LayeredImageProject::load(const QUrl &url)
     }
 
     readGuides(projectObject);
+    mCachedProjectJson = projectObject;
 
     setUrl(url);
     emit projectLoaded();
@@ -256,6 +256,7 @@ void LayeredImageProject::saveAs(const QUrl &url)
     projectObject.insert("layers", layersArray);
 
     writeGuides(projectObject);
+    emit readyForWritingToJson(&projectObject);
 
     rootJson.insert("project", projectObject);
 

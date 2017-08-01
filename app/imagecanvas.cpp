@@ -153,6 +153,17 @@ void ImageCanvas::setProject(Project *project)
     if (mProject) {
         connectSignals();
 
+        // Read the pane data that was stored in the project, if there is any.
+        // New projects or projects that don't have their own Slate extension
+        // won't have any JSON data.
+        QJsonObject *cachedProjectJson = project->cachedProjectJson();
+        if (cachedProjectJson->contains("firstPane")) {
+            mFirstPane.read(cachedProjectJson->value("firstPane").toObject());
+        }
+        if (cachedProjectJson->contains("firstPane")) {
+            mSecondPane.read(cachedProjectJson->value("secondPane").toObject());
+        }
+
         setAcceptedMouseButtons(Qt::AllButtons);
         setAcceptHoverEvents(true);
         setCursor(Qt::BlankCursor);
@@ -637,6 +648,8 @@ void ImageCanvas::connectSignals()
     connect(mProject, SIGNAL(projectClosed()), this, SLOT(reset()));
     connect(mProject, SIGNAL(sizeChanged()), this, SLOT(update()));
     connect(mProject, SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
+    connect(mProject, SIGNAL(readyForWritingToJson(QJsonObject*)),
+        this, SLOT(onReadyForWritingToJson(QJsonObject*)));
 
     connect(window(), SIGNAL(activeFocusItemChanged()), this, SLOT(updateWindowCursorShape()));
     // More hacks. Doing this because activeFocusItemChanged() doesn't seem to get called
@@ -655,6 +668,8 @@ void ImageCanvas::disconnectSignals()
     mProject->disconnect(SIGNAL(projectClosed()), this, SLOT(reset()));
     mProject->disconnect(SIGNAL(sizeChanged()), this, SLOT(update()));
     mProject->disconnect(SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
+    mProject->disconnect(SIGNAL(readyForWritingToJson(QJsonObject*)),
+        this, SLOT(onReadyForWritingToJson(QJsonObject*)));
 
     if (window()) {
         window()->disconnect(SIGNAL(activeFocusItemChanged()), this, SLOT(checkIfPopupsOpen()));
@@ -967,6 +982,17 @@ int ImageCanvas::guideIndexAtCursorPos()
 void ImageCanvas::onGuidesChanged()
 {
     update();
+}
+
+void ImageCanvas::onReadyForWritingToJson(QJsonObject *projectJson)
+{
+    QJsonObject firstPaneJson;
+    mFirstPane.write(firstPaneJson);
+    (*projectJson)["firstPane"] = firstPaneJson;
+
+    QJsonObject secondPaneJson;
+    mSecondPane.write(secondPaneJson);
+    (*projectJson)["secondPane"] = secondPaneJson;
 }
 
 bool ImageCanvas::isPanning() const

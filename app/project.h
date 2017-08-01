@@ -20,6 +20,7 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
+#include <QJsonObject>
 #include <QLoggingCategory>
 #include <QObject>
 #include <QSize>
@@ -97,6 +98,8 @@ public:
     ApplicationSettings *settings() const;
     void setSettings(ApplicationSettings *settings);
 
+    QJsonObject *cachedProjectJson();
+
 signals:
     void projectCreated();
     void projectLoaded();
@@ -110,6 +113,7 @@ signals:
     void errorOccurred(const QString &errorMessage);
     void settingsChanged();
     void guidesChanged();
+    void readyForWritingToJson(QJsonObject *projectJson);
 
 public slots:
     virtual void load(const QUrl &url);
@@ -134,6 +138,12 @@ protected:
     QUrl mUrl;
     QTemporaryDir mTempDir;
     bool mUsingTempImage;
+    // Caching the project's json object allows the project to save and shared
+    // e.g. pane info without having to know about the canvas. This member is
+    // written to once after loading, and then the readyForWritingToJson()
+    // signal is emitted when saving to allow the canvas (and anyone else
+    // who may be interested) a chance to save data specific to the project.
+    QJsonObject mCachedProjectJson;
 
     UndoStack mUndoStack;
     bool mComposingMacro;

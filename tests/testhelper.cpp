@@ -46,6 +46,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     centreMenuButton(nullptr),
     showGridMenuButton(nullptr),
     showRulersMenuButton(nullptr),
+    showGuidesMenuButton(nullptr),
     splitScreenMenuButton(nullptr),
     duplicateTileMenuButton(nullptr),
     rotateTileLeftMenuButton(nullptr),
@@ -148,6 +149,9 @@ void TestHelper::initTestCase()
 
     showRulersMenuButton = window->findChild<QQuickItem*>("showRulersMenuButton");
     QVERIFY(showRulersMenuButton);
+
+    showGuidesMenuButton = window->findChild<QQuickItem*>("showGuidesMenuButton");
+    QVERIFY(showGuidesMenuButton);
 
     splitScreenMenuButton = window->findChild<QQuickItem*>("splitScreenMenuButton");
     QVERIFY(splitScreenMenuButton);
@@ -728,6 +732,16 @@ void TestHelper::triggerRulersVisible()
 #endif
 }
 
+void TestHelper::triggerGuidesVisible()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(viewToolButton, MouseClick);
+    mouseEventOnCentre(showGuidesMenuButton, MouseClick);
+#else
+    triggerShortcut("guidesVisibleShortcut", app.settings()->guidesVisibleShortcut());
+#endif
+}
+
 void TestHelper::triggerSplitScreen()
 {
 #ifdef NON_NATIVE_MENUS
@@ -786,6 +800,15 @@ void TestHelper::addImageProjectTypes()
 
     QTest::newRow("ImageType") << Project::ImageType;
     QTest::newRow("LayeredImageType") << Project::LayeredImageType;
+}
+
+void TestHelper::addActualProjectTypes()
+{
+    QTest::addColumn<Project::Type>("projectType");
+    QTest::addColumn<QString>("projectExtension");
+
+    QTest::newRow("TilesetType") << Project::TilesetType << "stp";
+    QTest::newRow("LayeredImageType") << Project::LayeredImageType << "slp";
 }
 
 void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &args)
@@ -1259,6 +1282,7 @@ void TestHelper::panBy(int xDistance, int yDistance)
     //        QVERIFY(currentImage != originalImage);
     //        QImage lastImage = currentImage;
 
+    QTest::qWait(2000);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, pressPos);
     QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
     QCOMPARE(canvas->currentPane()->offset(), originalOffset);
@@ -1269,6 +1293,7 @@ void TestHelper::panBy(int xDistance, int yDistance)
     //        QVERIFY(currentImage != lastImage);
     //        lastImage = currentImage;
 
+    QTest::qWait(2000);
     QTest::mouseMove(window, pressPos + QPoint(xDistance, yDistance));
     QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
     QCOMPARE(canvas->currentPane()->offset(), expectedOffset);
@@ -1278,10 +1303,12 @@ void TestHelper::panBy(int xDistance, int yDistance)
     //        QVERIFY(currentImage != lastImage);
     //        lastImage = currentImage;
 
+    QTest::qWait(2000);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, pressPos + QPoint(xDistance, yDistance));
     QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
     QCOMPARE(canvas->currentPane()->offset(), expectedOffset);
 
+    QTest::qWait(2000);
     QTest::keyRelease(window, Qt::Key_Space);
     QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
     QCOMPARE(canvas->currentPane()->offset(), expectedOffset);

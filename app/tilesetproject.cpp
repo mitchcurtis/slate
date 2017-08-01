@@ -183,6 +183,9 @@ void TilesetProject::load(const QUrl &url)
         }
     }
 
+    readGuides(projectObject);
+    mCachedProjectJson = projectObject;
+
     setUrl(url);
     emit projectLoaded();
 
@@ -286,6 +289,9 @@ void TilesetProject::saveAs(const QUrl &url)
         tileArray.append(QJsonValue(tile));
     }
     projectObject.insert("tiles", tileArray);
+
+    writeGuides(projectObject);
+    emit readyForWritingToJson(&projectObject);
 
     rootJson.insert("project", projectObject);
 

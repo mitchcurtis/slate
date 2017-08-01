@@ -245,6 +245,7 @@ protected slots:
     void onPaneSizeChanged();
     void onSplitterPositionChanged();
     void onGuidesChanged();
+    void onReadyForWritingToJson(QJsonObject* projectJson);
 
 protected:
     void componentComplete() override;

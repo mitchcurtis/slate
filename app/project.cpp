@@ -237,6 +237,11 @@ void Project::setSettings(ApplicationSettings *settings)
     emit settingsChanged();
 }
 
+QJsonObject *Project::cachedProjectJson()
+{
+    return &mCachedProjectJson;
+}
+
 void Project::setSize(const QSize &)
 {
 }
