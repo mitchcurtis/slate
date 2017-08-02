@@ -51,6 +51,8 @@ public:
     Q_INVOKABLE void beginCreation(Project::Type projectType);
     Q_INVOKABLE bool completeCreation();
 
+    Q_INVOKABLE Project::Type projectTypeForUrl(const QUrl &url) const;
+
 signals:
     void projectChanged();
     void temporaryProjectChanged();

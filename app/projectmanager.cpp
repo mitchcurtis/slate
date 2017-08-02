@@ -127,7 +127,7 @@ bool ProjectManager::completeCreation()
         // a chance to disconnect any connections to it.
         // When projectChanged() is emitted, it will cause
         // e.g. the canvas to call disconnectSignals(),
-        // which will succeed because connectonGuard will
+        // which will succeed because connectionGuard will
         // be alive until the end of this block.
         qCDebug(lcProjectManager) << "nullified ProjectManager::project; about to emit projectChanged()";
         emit projectChanged();
@@ -159,6 +159,13 @@ bool ProjectManager::completeCreation()
     qCDebug(lcProjectManager) << "emitted projectChanged()";
 
     return true;
+}
+
+Project::Type ProjectManager::projectTypeForUrl(const QUrl &url) const
+{
+    const QString urlString = url.toString();
+    return urlString.endsWith(".stp") ? Project::TilesetType
+        : urlString.endsWith(".slp") ? Project::LayeredImageType : Project::ImageType;
 }
 
 void ProjectManager::creationFailed(const QString &errorMessage)

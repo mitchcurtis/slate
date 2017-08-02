@@ -813,7 +813,6 @@ void TestHelper::addActualProjectTypes()
 
 void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &args)
 {
-    const Project::Type previousProjectType = tilesetProject ? Project::TilesetType : (imageProject ? Project::ImageType : Project::LayeredImageType);
     const bool isTilesetProject = projectType == Project::TilesetType;
 
     // tileset args
@@ -1013,110 +1012,7 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         QVERIFY(!newImageProjectPopup->property("visible").toBool());
     }
 
-    if (previousProjectType != projectType) {
-        // The projects and canvases that we had references to should have
-        // been destroyed by now.
-        QTRY_VERIFY(!project);
-        QVERIFY(!imageProject);
-        QVERIFY(!tilesetProject);
-
-        QVERIFY(!canvas);
-        QVERIFY(!imageCanvas);
-        QVERIFY(!tileCanvas);
-    }
-
-    project = window->contentItem()->findChild<Project*>();
-    QVERIFY(project);
-
-    canvas = window->findChild<ImageCanvas*>();
-    QVERIFY(canvas);
-
-    if (projectType == Project::TilesetType) {
-        tilesetProject = qobject_cast<TilesetProject*>(project);
-        QVERIFY(tilesetProject);
-
-        tileCanvas = qobject_cast<TileCanvas*>(canvas);
-        QVERIFY(tileCanvas);
-    } else if (projectType == Project::ImageType) {
-        imageProject = qobject_cast<ImageProject*>(project);
-        QVERIFY(imageProject);
-
-        imageCanvas = canvas;
-    } else if (projectType == Project::LayeredImageType) {
-        layeredImageProject = qobject_cast<LayeredImageProject*>(project);
-        QVERIFY(layeredImageProject);
-
-        layeredImageCanvas = qobject_cast<LayeredImageCanvas*>(canvas);;
-    }
-
-    canvas->forceActiveFocus();
-//    QTRY_VERIFY(canvas->hasActiveFocus());
-
-    QCOMPARE(project->url(), QUrl());
-    QVERIFY(project->hasLoaded());
-    QVERIFY(project->isNewProject());
-
-    // Reset any settings that have changed back to their defaults.
-    QVariant settingsAsVariant = qmlEngine(canvas)->rootContext()->contextProperty("settings");
-    QVERIFY(settingsAsVariant.isValid());
-    ApplicationSettings *settings = settingsAsVariant.value<ApplicationSettings*>();
-    QVERIFY(settings);
-    settings->resetShortcutsToDefaults();
-
-    if (settings->areRulersVisible()) {
-        triggerRulersVisible();
-        QCOMPARE(settings->areRulersVisible(), false);
-    }
-
-    cursorPos = QPoint();
-    cursorWindowPos = QPoint();
-
-    // Sanity check.
-    QCOMPARE(canvas->window(), canvasSizeButton->window());
-    QCOMPARE(canvas->splitter()->position(), 0.5);
-    QVERIFY(!canvas->splitter()->isPressed());
-    QVERIFY(!canvas->splitter()->isHovered());
-
-#ifdef NON_NATIVE_MENUS
-    QVERIFY(newMenuButton->isEnabled());
-    QVERIFY(saveMenuButton->isEnabled());
-    QVERIFY(saveAsMenuButton->isEnabled());
-    QVERIFY(openMenuButton->isEnabled());
-    QVERIFY(closeMenuButton->isEnabled());
-    QVERIFY(settingsMenuButton->isEnabled());
-#endif
-
-    if (isTilesetProject) {
-        // Establish references to TilesetProject-specific properties.
-        tilesetSwatch = window->findChild<QQuickItem*>("tilesetSwatch");
-        QVERIFY(tilesetSwatch);
-        QCOMPARE(tilesetSwatch->isVisible(), true);
-        QVERIFY(!qFuzzyIsNull(tilesetSwatch->width()));
-        QVERIFY(!qFuzzyIsNull(tilesetSwatch->height()));
-
-        // Ensure that the tileset swatch flickable has the correct contentY.
-        QQuickItem *tilesetSwatchFlickable = tilesetSwatch->findChild<QQuickItem*>("tilesetSwatchFlickable");
-        QVERIFY(tilesetSwatchFlickable);
-        QVERIFY(tilesetSwatchFlickable->property("contentY").isValid());
-        QCOMPARE(tilesetSwatchFlickable->property("contentY").toReal(), 0.0);
-
-#ifdef NON_NATIVE_MENUS
-        duplicateTileMenuButton = window->findChild<QQuickItem*>("duplicateTileMenuButton");
-        QVERIFY(duplicateTileMenuButton);
-
-        rotateTileLeftMenuButton = window->findChild<QQuickItem*>("rotateTileLeftMenuButton");
-        QVERIFY(rotateTileLeftMenuButton);
-
-        rotateTileRightMenuButton = window->findChild<QQuickItem*>("rotateTileRightMenuButton");
-        QVERIFY(rotateTileRightMenuButton);
-#endif
-
-        QVERIFY(imageGrabber.requestImage(tileCanvas));
-        QTRY_VERIFY(imageGrabber.isReady());
-        QCOMPARE(imageGrabber.takeImage().pixelColor(16, 16), tileCanvas->mapBackgroundColour());
-    } else {
-        QVERIFY(window->findChild<QQuickItem*>("selectionToolButton"));
-    }
+    updateVariables(true, projectType);
 }
 
 void TestHelper::createNewTilesetProject(int tileWidth, int tileHeight, int tilesetTilesWide, int tilesetTilesHigh,
@@ -1171,6 +1067,132 @@ void TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
 
     moveLayerDownButton = window->findChild<QQuickItem*>("moveLayerDownButton");
     QVERIFY(moveLayerDownButton);
+}
+
+void TestHelper::loadProject(const QUrl &url)
+{
+    if (creationErrorOccurredSpy)
+        creationErrorOccurredSpy->clear();
+
+    QWindow *window = qobject_cast<QWindow*>(app.qmlEngine()->rootObjects().first());
+    QVERIFY(window);
+
+    QVERIFY(QMetaObject::invokeMethod(window, "loadProject", Qt::DirectConnection, Q_ARG(QVariant, url)));
+    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+
+    updateVariables(false, projectManager->projectTypeForUrl(url));
+}
+
+void TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType)
+{
+    // The projects and canvases that we had references to should have
+    // been destroyed by now.
+    QTRY_VERIFY(!project);
+    QVERIFY(!imageProject);
+    QVERIFY(!tilesetProject);
+
+    QTRY_VERIFY(!canvas);
+    QVERIFY(!imageCanvas);
+    QVERIFY(!tileCanvas);
+
+    project = window->contentItem()->findChild<Project*>();
+    QVERIFY(project);
+
+    canvas = window->findChild<ImageCanvas*>();
+    QVERIFY(canvas);
+
+    if (newProjectType == Project::TilesetType) {
+        tilesetProject = qobject_cast<TilesetProject*>(project);
+        QVERIFY(tilesetProject);
+
+        tileCanvas = qobject_cast<TileCanvas*>(canvas);
+        QVERIFY(tileCanvas);
+    } else if (newProjectType == Project::ImageType) {
+        imageProject = qobject_cast<ImageProject*>(project);
+        QVERIFY(imageProject);
+
+        imageCanvas = canvas;
+    } else if (newProjectType == Project::LayeredImageType) {
+        layeredImageProject = qobject_cast<LayeredImageProject*>(project);
+        QVERIFY(layeredImageProject);
+
+        layeredImageCanvas = qobject_cast<LayeredImageCanvas*>(canvas);;
+    }
+
+    canvas->forceActiveFocus();
+//    QTRY_VERIFY(canvas->hasActiveFocus());
+
+    QVERIFY(project->hasLoaded());
+
+    if (isNewProject) {
+        QCOMPARE(project->url(), QUrl());
+        QVERIFY(project->isNewProject());
+
+        // Reset any settings that have changed back to their defaults.
+        QVariant settingsAsVariant = qmlEngine(canvas)->rootContext()->contextProperty("settings");
+        QVERIFY(settingsAsVariant.isValid());
+        ApplicationSettings *settings = settingsAsVariant.value<ApplicationSettings*>();
+        QVERIFY(settings);
+        settings->resetShortcutsToDefaults();
+
+        if (settings->areRulersVisible()) {
+            triggerRulersVisible();
+            QCOMPARE(settings->areRulersVisible(), false);
+        }
+
+        cursorPos = QPoint();
+        cursorWindowPos = QPoint();
+    }
+
+    // Sanity check.
+    QTRY_COMPARE(canvas->window(), canvasSizeButton->window());
+    QVERIFY(!canvas->splitter()->isPressed());
+    QVERIFY(!canvas->splitter()->isHovered());
+
+    if (isNewProject) {
+        QCOMPARE(canvas->splitter()->position(), 0.5);
+    }
+
+#ifdef NON_NATIVE_MENUS
+    QVERIFY(newMenuButton->isEnabled());
+    QVERIFY(saveMenuButton->isEnabled());
+    QVERIFY(saveAsMenuButton->isEnabled());
+    QVERIFY(openMenuButton->isEnabled());
+    QVERIFY(closeMenuButton->isEnabled());
+    QVERIFY(settingsMenuButton->isEnabled());
+#endif
+
+    if (newProjectType == Project::TilesetType) {
+        // Establish references to TilesetProject-specific properties.
+        tilesetSwatch = window->findChild<QQuickItem*>("tilesetSwatch");
+        QVERIFY(tilesetSwatch);
+        QCOMPARE(tilesetSwatch->isVisible(), true);
+        QVERIFY(!qFuzzyIsNull(tilesetSwatch->width()));
+        QVERIFY(!qFuzzyIsNull(tilesetSwatch->height()));
+
+        // Ensure that the tileset swatch flickable has the correct contentY.
+        QQuickItem *tilesetSwatchFlickable = tilesetSwatch->findChild<QQuickItem*>("tilesetSwatchFlickable");
+        QVERIFY(tilesetSwatchFlickable);
+        QVERIFY(tilesetSwatchFlickable->property("contentY").isValid());
+        QCOMPARE(tilesetSwatchFlickable->property("contentY").toReal(), 0.0);
+
+#ifdef NON_NATIVE_MENUS
+        duplicateTileMenuButton = window->findChild<QQuickItem*>("duplicateTileMenuButton");
+        QVERIFY(duplicateTileMenuButton);
+
+        rotateTileLeftMenuButton = window->findChild<QQuickItem*>("rotateTileLeftMenuButton");
+        QVERIFY(rotateTileLeftMenuButton);
+
+        rotateTileRightMenuButton = window->findChild<QQuickItem*>("rotateTileRightMenuButton");
+        QVERIFY(rotateTileRightMenuButton);
+#endif
+
+        QVERIFY(imageGrabber.requestImage(tileCanvas));
+        QTRY_VERIFY(imageGrabber.isReady());
+        QCOMPARE(imageGrabber.takeImage().pixelColor(16, 16), tileCanvas->mapBackgroundColour());
+    } else {
+        QVERIFY(window->findChild<QQuickItem*>("selectionToolButton"));
+    }
 }
 
 void TestHelper::setupTempTilesetProjectDir()
@@ -1282,7 +1304,6 @@ void TestHelper::panBy(int xDistance, int yDistance)
     //        QVERIFY(currentImage != originalImage);
     //        QImage lastImage = currentImage;
 
-    QTest::qWait(2000);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, pressPos);
     QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
     QCOMPARE(canvas->currentPane()->offset(), originalOffset);
@@ -1293,7 +1314,6 @@ void TestHelper::panBy(int xDistance, int yDistance)
     //        QVERIFY(currentImage != lastImage);
     //        lastImage = currentImage;
 
-    QTest::qWait(2000);
     QTest::mouseMove(window, pressPos + QPoint(xDistance, yDistance));
     QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
     QCOMPARE(canvas->currentPane()->offset(), expectedOffset);
@@ -1303,12 +1323,10 @@ void TestHelper::panBy(int xDistance, int yDistance)
     //        QVERIFY(currentImage != lastImage);
     //        lastImage = currentImage;
 
-    QTest::qWait(2000);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, pressPos + QPoint(xDistance, yDistance));
     QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
     QCOMPARE(canvas->currentPane()->offset(), expectedOffset);
 
-    QTest::qWait(2000);
     QTest::keyRelease(window, Qt::Key_Space);
     QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
     QCOMPARE(canvas->currentPane()->offset(), expectedOffset);

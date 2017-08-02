@@ -246,12 +246,6 @@ ApplicationWindow {
             : tilesetFilters;
     }
 
-    function projectTypeForUrl(url) {
-        var urlString = url.toString();
-        return url.toString().endsWith(".stp") ? Project.TilesetType
-            : url.toString().endsWith(".slp") ? Project.LayeredImageType : Project.ImageType;
-    }
-
     Platform.FileDialog {
         id: openProjectDialog
         objectName: "openProjectDialog"
@@ -319,8 +313,7 @@ ApplicationWindow {
     }
 
     function loadProject(url) {
-        var type = projectTypeForUrl(url);
-        projectManager.beginCreation(type);
+        projectManager.beginCreation(projectManager.projectTypeForUrl(url));
         projectManager.temporaryProject.load(url);
         projectManager.completeCreation();
     }

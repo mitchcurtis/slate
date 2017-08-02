@@ -150,6 +150,7 @@ protected:
     void addAllProjectTypes();
     void addImageProjectTypes();
     void addActualProjectTypes();
+
     void createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
     void createNewTilesetProject(int tileWidth = 25, int tileHeight = 25,
         int tilesetTilesWide = -1, int tilesetTilesHigh = -1, bool transparentTilesetBackground = false);
@@ -157,10 +158,14 @@ protected:
         bool transparentImageBackground = false);
     void createNewLayeredImageProject(int imageWidth = 256, int imageHeight = 256,
         bool transparentImageBackground = false);
+    void loadProject(const QUrl &url);
+    void updateVariables(bool isNewProject, Project::Type newProjectType);
+
     void setupTempTilesetProjectDir();
     void setupTempLayeredImageProjectDir();
     void setupTempProjectDir(const QStringList &resourceFilesToCopy = QStringList(),
         QStringList *filesCopied = nullptr);
+
     void switchMode(TileCanvas::Mode mode);
     void switchTool(ImageCanvas::Tool tool);
     void panTopLeftTo(int x, int y);

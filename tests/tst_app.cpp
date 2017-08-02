@@ -408,8 +408,7 @@ void tst_App::saveAsAndLoad()
     QVERIFY(!project->hasLoaded());
 
     // Load the saved file.
-    project->load(QUrl::fromLocalFile(savedProjectPath));
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    loadProject(QUrl::fromLocalFile(savedProjectPath));
     QCOMPARE(project->guides().size(), 1);
     QCOMPARE(project->guides().first().position(), 10);
     QCOMPARE(canvas->firstPane()->offset(), firstPaneOffset);
