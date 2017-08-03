@@ -765,9 +765,9 @@ void TestHelper::triggerSplitterLocked()
 
 void TestHelper::setSplitterLocked(bool splitterLocked)
 {
-    if (canvas->splitter()->isEnabled() != splitterLocked) {
+    if (canvas->splitter()->isEnabled() != !splitterLocked) {
         triggerSplitterLocked();
-        QCOMPARE(canvas->splitter()->isEnabled(), splitterLocked);
+        QCOMPARE(canvas->splitter()->isEnabled(), !splitterLocked);
     }
 }
 

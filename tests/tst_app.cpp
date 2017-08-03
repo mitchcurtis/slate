@@ -389,18 +389,16 @@ void tst_App::saveAsAndLoad()
 
     setSplitterLocked(false);
 
-    // TODO
     // Resize the first pane to make it smaller.
-    setCursorPosInPixels(QPoint(canvas->width() / 2, canvas->height() / 2));
-    QTest::mouseMove(window, cursorWindowPos);
-    QCOMPARE(window->cursor().shape(), Qt::SizeAllCursor);
-    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    setCursorPosInPixels(QPoint(canvas->width() / 4, canvas->height() / 2));
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    const QPoint splitterCentre(canvas->width() / 2, canvas->height() / 2);
+    QTest::mouseMove(window, splitterCentre);
+    QCOMPARE(window->cursor().shape(), Qt::SplitHCursor);
 
-    QTRY_COMPARE(canvas->firstPane()->size(), 0.25);
-    QCOMPARE(canvas->secondPane()->size(), 0.75);
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, splitterCentre);
+    QTest::mouseMove(window, QPoint(canvas->width() / 4, canvas->height() / 2));
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, QPoint(canvas->width() / 4, canvas->height() / 2));
+    QVERIFY(qAbs(canvas->firstPane()->size() - 0.25) < 0.001);
+    QVERIFY(qAbs(canvas->secondPane()->size() - 0.75) < 0.001);
 
     // Store the original offsets, etc.
     const QPoint firstPaneOffset = canvas->firstPane()->offset();
