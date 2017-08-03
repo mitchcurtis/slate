@@ -246,6 +246,7 @@ void ApplicationSettings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("rulersVisibleShortcut"));
         allShortcuts.append(QLatin1String("guidesVisibleShortcut"));
         allShortcuts.append(QLatin1String("splitScreenShortcut"));
+        allShortcuts.append(QLatin1String("splitterLockedShortcut"));
         allShortcuts.append(QLatin1String("optionsShortcut"));
         allShortcuts.append(QLatin1String("penToolShortcut"));
         allShortcuts.append(QLatin1String("eyeDropperToolShortcut"));
@@ -504,6 +505,21 @@ QString ApplicationSettings::splitScreenShortcut() const
 void ApplicationSettings::setSplitScreenShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("splitScreenShortcut", defaultSplitScreenShortcut, splitScreenShortcutChanged)
+}
+
+QString ApplicationSettings::defaultSplitterLockedShortcut() const
+{
+    return QLatin1String("Ctrl+Alt+E");
+}
+
+QString ApplicationSettings::splitterLockedShortcut() const
+{
+    GET_SHORTCUT("splitterLockedShortcut", defaultSplitterLockedShortcut)
+}
+
+void ApplicationSettings::setSplitterLockedShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("splitterLockedShortcut", defaultSplitterLockedShortcut, splitterLockedShortcutChanged)
 }
 
 QString ApplicationSettings::defaultOptionsShortcut() const

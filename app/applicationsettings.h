@@ -50,6 +50,7 @@ class ApplicationSettings : public QSettings
     Q_PROPERTY(QString zoomInShortcut READ zoomInShortcut WRITE setZoomInShortcut NOTIFY zoomInShortcutChanged)
     Q_PROPERTY(QString zoomOutShortcut READ zoomOutShortcut WRITE setZoomOutShortcut NOTIFY zoomOutShortcutChanged)
     Q_PROPERTY(QString splitScreenShortcut READ splitScreenShortcut WRITE setSplitScreenShortcut NOTIFY splitScreenShortcutChanged)
+    Q_PROPERTY(QString splitterLockedShortcut READ splitterLockedShortcut WRITE setSplitterLockedShortcut NOTIFY splitterLockedShortcutChanged)
     Q_PROPERTY(QString optionsShortcut READ optionsShortcut WRITE setOptionsShortcut NOTIFY optionsShortcutChanged)
     Q_PROPERTY(QString penToolShortcut READ penToolShortcut WRITE setPenToolShortcut NOTIFY penToolShortcutChanged)
     Q_PROPERTY(QString eyeDropperToolShortcut READ eyeDropperToolShortcut WRITE setEyeDropperToolShortcut NOTIFY eyeDropperToolShortcutChanged)
@@ -160,6 +161,10 @@ public:
     QString splitScreenShortcut() const;
     void setSplitScreenShortcut(const QString &shortcut);
 
+    QString defaultSplitterLockedShortcut() const;
+    QString splitterLockedShortcut() const;
+    void setSplitterLockedShortcut(const QString &shortcut);
+
     QString defaultOptionsShortcut() const;
     QString optionsShortcut() const;
     void setOptionsShortcut(const QString &shortcut);
@@ -237,6 +242,7 @@ signals:
     void zoomInShortcutChanged();
     void zoomOutShortcutChanged();
     void splitScreenShortcutChanged();
+    void splitterLockedShortcutChanged();
     void penToolShortcutChanged();
     void optionsShortcutChanged();
     void eyeDropperToolShortcutChanged();

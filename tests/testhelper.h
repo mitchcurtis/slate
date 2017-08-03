@@ -138,6 +138,8 @@ protected:
     void triggerRulersVisible();
     void triggerGuidesVisible();
     void triggerSplitScreen();
+    void triggerSplitterLocked();
+    void setSplitterLocked(bool splitterLocked);
 
     void triggerOptions();
 
@@ -206,6 +208,7 @@ protected:
     QQuickItem *showRulersMenuButton;
     QQuickItem *showGuidesMenuButton;
     QQuickItem *splitScreenMenuButton;
+    QQuickItem *splitterLockedMenuButton;
     QQuickItem *duplicateTileMenuButton;
     QQuickItem *rotateTileLeftMenuButton;
     QQuickItem *rotateTileRightMenuButton;

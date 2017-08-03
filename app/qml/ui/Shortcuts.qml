@@ -129,6 +129,13 @@ Item {
     }
 
     Shortcut {
+        objectName: "splitterLockedShortcut"
+        sequence: settings.splitterLockedShortcut
+        onActivated: settings.splitterLocked = !settings.splitterLocked
+        enabled: canvasHasActiveFocus
+    }
+
+    Shortcut {
         objectName: "centreShortcut"
         sequence: settings.centreShortcut
         onActivated: canvas.centreView()

@@ -48,6 +48,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     showRulersMenuButton(nullptr),
     showGuidesMenuButton(nullptr),
     splitScreenMenuButton(nullptr),
+    splitterLockedMenuButton(nullptr),
     duplicateTileMenuButton(nullptr),
     rotateTileLeftMenuButton(nullptr),
     rotateTileRightMenuButton(nullptr),
@@ -750,6 +751,24 @@ void TestHelper::triggerSplitScreen()
 #else
     triggerShortcut("splitScreenShortcut", app.settings()->splitScreenShortcut());
 #endif
+}
+
+void TestHelper::triggerSplitterLocked()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(viewToolButton, MouseClick);
+    mouseEventOnCentre(splitterLockedMenuButton, MouseClick);
+#else
+    triggerShortcut("splitterLockedShortcut", app.settings()->splitterLockedShortcut());
+#endif
+}
+
+void TestHelper::setSplitterLocked(bool splitterLocked)
+{
+    if (canvas->splitter()->isEnabled() != splitterLocked) {
+        triggerSplitterLocked();
+        QCOMPARE(canvas->splitter()->isEnabled(), splitterLocked);
+    }
 }
 
 void TestHelper::triggerOptions()

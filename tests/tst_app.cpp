@@ -386,8 +386,21 @@ void tst_App::saveAsAndLoad()
     QCOMPARE(currentPane->zoomLevel(), expectedZoomLevel);
 
     QCOMPARE(canvas->isSplitScreen(), true);
-    QTRY_COMPARE(canvas->firstPane()->size(), 0.5);
-    QCOMPARE(canvas->secondPane()->size(), 0.5);
+
+    setSplitterLocked(false);
+
+    // TODO
+    // Resize the first pane to make it smaller.
+    setCursorPosInPixels(QPoint(canvas->width() / 2, canvas->height() / 2));
+    QTest::mouseMove(window, cursorWindowPos);
+    QCOMPARE(window->cursor().shape(), Qt::SizeAllCursor);
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    setCursorPosInPixels(QPoint(canvas->width() / 4, canvas->height() / 2));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+
+    QTRY_COMPARE(canvas->firstPane()->size(), 0.25);
+    QCOMPARE(canvas->secondPane()->size(), 0.75);
 
     // Store the original offsets, etc.
     const QPoint firstPaneOffset = canvas->firstPane()->offset();
