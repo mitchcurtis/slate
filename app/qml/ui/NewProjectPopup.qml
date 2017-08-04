@@ -58,26 +58,8 @@ Dialog {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            Label {
-                text: "\uf00a"
-                font.family: "FontAwesome"
-                font.pixelSize: 200
-                fontSizeMode: Label.Fit
-                verticalAlignment: Label.AlignVCenter
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-            }
-
-            Label {
-                text: "\uf1c5"
-                font.family: "FontAwesome"
-                font.pixelSize: 200
-                fontSizeMode: Label.Fit
-                verticalAlignment: Label.AlignVCenter
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+            Image {
+                source: "qrc:/images/tileset-project.png"
             }
         }
 
@@ -94,16 +76,8 @@ Dialog {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            Label {
-                text: "\uf1c5"
-                font.family: "FontAwesome"
-                font.pixelSize: 200
-                fontSizeMode: Label.Fit
-                verticalAlignment: Label.AlignVCenter
-
-                Layout.preferredWidth: height
-                Layout.fillHeight: true
-                Layout.alignment: Qt.AlignCenter
+            Image {
+                source: "qrc:/images/image-project.png"
             }
         }
 
@@ -122,20 +96,8 @@ Dialog {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            Repeater {
-                model: 3
-
-                Item {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-
-                    Label {
-                        text: "\uf1c5"
-                        font.family: "FontAwesome"
-                        font.pixelSize: 38
-                        anchors.centerIn: parent
-                    }
-                }
+            Image {
+                source: "qrc:/images/layered-image-project.png"
             }
         }
     }

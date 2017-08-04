@@ -39,14 +39,13 @@ T.AbstractButton {
         ColumnLayout {
             Label {
                 text: titleText
-                font.pixelSize: fontMetrics.font.pixelSize * 2
+                font.pixelSize: fontMetrics.font.pixelSize * 1.5
                 Layout.topMargin: 20
             }
 
             Label {
                 text: descriptionText
                 wrapMode: Label.Wrap
-                font.pixelSize: fontMetrics.font.pixelSize * 1.25
                 opacity: 0.65
                 Layout.fillWidth: true
             }
