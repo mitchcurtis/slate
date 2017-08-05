@@ -46,6 +46,7 @@ Dialog {
         ProjectTemplateButton {
             id: tilesetProjectButton
             objectName: "tilesetProjectButton"
+            icon.source: "qrc:/images/tileset-project.png"
             titleText: qsTr("New Tileset")
             descriptionText: qsTr("Creates a new tileset bitmap image for editing. "
                + "Paint tiles from an image onto a grid. "
@@ -57,15 +58,12 @@ Dialog {
 
             Layout.fillWidth: true
             Layout.fillHeight: true
-
-            Image {
-                source: "qrc:/images/tileset-project.png"
-            }
         }
 
         ProjectTemplateButton {
             id: imageProjectButton
             objectName: "imageProjectButton"
+            icon.source: "qrc:/images/image-project.png"
             titleText: qsTr("New Image")
             descriptionText: qsTr("Creates a new bitmap image for direct editing, with no layer support.")
             radius: popup.background.radius
@@ -75,30 +73,22 @@ Dialog {
 
             Layout.fillWidth: true
             Layout.fillHeight: true
-
-            Image {
-                source: "qrc:/images/image-project.png"
-            }
         }
 
         ProjectTemplateButton {
             id: layeredImageProjectButton
             objectName: "layeredImageProjectButton"
+            icon.source: "qrc:/images/layered-image-project.png"
             titleText: qsTr("New Layered Image")
             descriptionText: qsTr("Creates a new layered image project. Several images are drawn on "
                 + "top of each other, and can be exported as a single image.")
             radius: popup.background.radius
             iconBackgroundColour: Qt.darker(popup.background.color, 1.15)
-            contentRowLayoutSpacing: 10
 
             onClicked: popup.accept()
 
             Layout.fillWidth: true
             Layout.fillHeight: true
-
-            Image {
-                source: "qrc:/images/layered-image-project.png"
-            }
         }
     }
 }

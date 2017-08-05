@@ -1,7 +1,7 @@
 import QtQuick 2.6
-import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.1
-import QtQuick.Templates 2.1 as T
+import QtQuick.Layouts 1.3
+import QtQuick.Controls 2.3
+import QtQuick.Templates 2.3 as T
 
 T.AbstractButton {
     id: root
@@ -15,8 +15,6 @@ T.AbstractButton {
     property string descriptionText
     property real radius
     property color iconBackgroundColour
-    default property alias contents: contentRowLayout.children
-    property alias contentRowLayoutSpacing: contentRowLayout.spacing
 
     contentItem: RowLayout {
         spacing: root.spacing
@@ -28,11 +26,9 @@ T.AbstractButton {
             Layout.preferredWidth: root.implicitHeight
             Layout.fillHeight: true
 
-            RowLayout {
-                id: contentRowLayout
-                anchors.fill: parent
-                anchors.margins: 20
-                spacing: 30
+            Image {
+                source: root.icon.source
+                anchors.centerIn: parent
             }
         }
 
