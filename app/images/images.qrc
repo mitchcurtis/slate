@@ -16,5 +16,8 @@
         <file>image-project.png</file>
         <file>layered-image-project.png</file>
         <file>tileset-project.png</file>
+        <file>tileset-project@2x.png</file>
+        <file>image-project@2x.png</file>
+        <file>layered-image-project@2x.png</file>
     </qresource>
 </RCC>

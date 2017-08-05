@@ -44,13 +44,12 @@ Dialog {
         }
 
         ProjectTemplateButton {
-            id: tilesetProjectButton
-            objectName: "tilesetProjectButton"
-            icon.source: "qrc:/images/tileset-project.png"
-            titleText: qsTr("New Tileset")
-            descriptionText: qsTr("Creates a new tileset bitmap image for editing. "
-               + "Paint tiles from an image onto a grid. "
-               + "An accompanying project file is created to save the contents of the grid.")
+            id: layeredImageProjectButton
+            objectName: "layeredImageProjectButton"
+            icon.source: "qrc:/images/layered-image-project.png"
+            titleText: qsTr("New Layered Image")
+            descriptionText: qsTr("Creates a new layered image project. Several images are drawn on "
+                + "top of each other, and can be exported as a single image.")
             radius: popup.background.radius
             iconBackgroundColour: Qt.darker(popup.background.color, 1.15)
 
@@ -76,12 +75,13 @@ Dialog {
         }
 
         ProjectTemplateButton {
-            id: layeredImageProjectButton
-            objectName: "layeredImageProjectButton"
-            icon.source: "qrc:/images/layered-image-project.png"
-            titleText: qsTr("New Layered Image")
-            descriptionText: qsTr("Creates a new layered image project. Several images are drawn on "
-                + "top of each other, and can be exported as a single image.")
+            id: tilesetProjectButton
+            objectName: "tilesetProjectButton"
+            icon.source: "qrc:/images/tileset-project.png"
+            titleText: qsTr("New Tileset")
+            descriptionText: qsTr("Creates a new tileset bitmap image for editing. "
+               + "Paint tiles from an image onto a grid. "
+               + "An accompanying project file is created to save the contents of the grid.")
             radius: popup.background.radius
             iconBackgroundColour: Qt.darker(popup.background.color, 1.15)
 

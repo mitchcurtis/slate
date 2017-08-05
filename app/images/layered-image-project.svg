@@ -16,9 +16,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="layered-image-project.svg"
-   inkscape:export-filename="C:\dev\slate\app\images\image-project.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-filename="C:\dev\slate\app\images\image-project@2x.png"
+   inkscape:export-xdpi="180"
+   inkscape:export-ydpi="180">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -28,9 +28,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4"
-     inkscape:cx="-50.540516"
-     inkscape:cy="66.069638"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="12.003913"
+     inkscape:cy="60.414465"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -39,10 +39,10 @@
      fit-margin-right="6"
      fit-margin-bottom="6"
      units="px"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="1680"
+     inkscape:window-height="1001"
+     inkscape:window-x="0"
+     inkscape:window-y="1"
      inkscape:window-maximized="1"
      objecttolerance="10000"
      inkscape:object-nodes="false">
