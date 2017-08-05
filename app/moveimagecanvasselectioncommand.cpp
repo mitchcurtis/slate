@@ -42,9 +42,19 @@ MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *ca
 
 void MoveImageCanvasSelectionCommand::undo()
 {
-    qCDebug(lcMoveImageCanvasSelectionCommand) << "undoing" << this;
-    mCanvas->paintImageOntoPortionOfImage(mPreviousArea, mFromPaste ? mPasteContents : mPreviousAreaImagePortion);
-    mCanvas->paintImageOntoPortionOfImage(mNewArea, mNewAreaImagePortion);
+    if (mFromPaste) {
+        qCDebug(lcMoveImageCanvasSelectionCommand) << "undoing" << this << "- painting original/source/previous area"
+            << mPreviousArea << "of canvas with paste contents" << mPasteContents << "...";
+        mCanvas->paintImageOntoPortionOfImage(mPreviousArea, mPasteContents);
+    } else {
+        qCDebug(lcMoveImageCanvasSelectionCommand) << "undoing" << this << "- painting original/source/previous area"
+            << mPreviousArea << "of canvas with" << mPreviousAreaImagePortion << "...";
+        mCanvas->paintImageOntoPortionOfImage(mPreviousArea, mPreviousAreaImagePortion);
+    }
+
+    qCDebug(lcMoveImageCanvasSelectionCommand) << "... and replacing new/destination/undone area"
+        << mNewArea << "of canvas with" << mNewAreaImagePortion << "...";
+    mCanvas->replacePortionOfImage(mNewArea, mNewAreaImagePortion);
     // This matches what mspaint does; undoing a selection move causes the selection to be cleared.
     mCanvas->clearSelection();
 }

@@ -38,6 +38,15 @@ QImage Utils::paintImageOntoPortionOfImage(const QImage &image, const QRect &por
     return newImage;
 }
 
+QImage Utils::replacePortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
+{
+    QImage newImage = image;
+    QPainter painter(&newImage);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.drawImage(portion.topLeft(), replacementImage);
+    return newImage;
+}
+
 QImage Utils::erasePortionOfImage(const QImage &image, const QRect &portion)
 {
     QImage newImage = image;

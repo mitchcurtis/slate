@@ -1011,9 +1011,14 @@ void ImageCanvas::beginSelectionMove()
     if (mSelectionAreaBeforeFirstMove.isEmpty()) {
         // When the selection is moved for the first time in its life,
         // copy the contents within it so that we can moved them around as a preview.
+        qCDebug(lcCanvasSelection) << "copying currentProjectImage()" << *currentProjectImage() << "into mSelectionContents";
         mSelectionAreaBeforeFirstMove = mSelectionArea;
         mSelectionContents = currentProjectImage()->copy(mSelectionAreaBeforeFirstMove);
-        qCDebug(lcCanvasSelection) << "selection is not from a paste; copying project's image contents";
+        // Technically we don't need to call this until the selection has actually moved,
+        // but updateCursorPos() calls pixelColor() on the result of contentImage(), which will be an invalid
+        // image until we've updated the selection preview image (since shouldDrawSelectionPreviewImage() will
+        // return true due to mMovingSelection being true).
+        updateSelectionPreviewImage();
     }
 }
 
@@ -1031,16 +1036,24 @@ void ImageCanvas::updateSelectionArea()
 
 void ImageCanvas::updateSelectionPreviewImage()
 {
+    qCDebug(lcCanvasSelection) << "updating selection preview image...";
+
     if (!mIsSelectionFromPaste) {
         // Only if the selection wasn't pasted should we erase the area left behind.
         mSelectionPreviewImage = Utils::erasePortionOfImage(*currentProjectImage(), mSelectionAreaBeforeFirstMove);
+        qCDebug(lcCanvasSelection) << "... selection is not from paste; erasing area left behind"
+            << "- new selection preview image:" << mSelectionPreviewImage;
     } else {
         mSelectionPreviewImage = *currentProjectImage();
+        qCDebug(lcCanvasSelection) << "... selection is from a paste; not touching existing canvas content"
+            << "- new selection preview image:" << mSelectionPreviewImage;
     }
 
     // Then, move the dragged contents to their new location.
     // Doing this last ensures that the drag contents are painted over the transparency,
     // and not the other way around.
+    qCDebug(lcCanvasSelection) << "painting selection contents" << mSelectionContents
+       << "within selection area" << mSelectionArea << "over top of current project image" << mSelectionPreviewImage;
     mSelectionPreviewImage = Utils::paintImageOntoPortionOfImage(mSelectionPreviewImage, mSelectionArea, mSelectionContents);
 }
 
@@ -1062,6 +1075,8 @@ void ImageCanvas::moveSelectionArea()
 
 void ImageCanvas::moveSelectionAreaBy(const QPoint &pixelDistance)
 {
+    qCDebug(lcCanvasSelection) << "moving selection area by" << pixelDistance;
+
     // Moving a selection with the directional keys creates a single move command instantly.
     beginSelectionMove();
 
@@ -1504,6 +1519,12 @@ void ImageCanvas::applyPixelLineTool(const QImage &lineImage, const QPoint &last
 void ImageCanvas::paintImageOntoPortionOfImage(const QRect &portion, const QImage &replacementImage)
 {
     *currentProjectImage() = Utils::paintImageOntoPortionOfImage(*currentProjectImage(), portion, replacementImage);
+    update();
+}
+
+void ImageCanvas::replacePortionOfImage(const QRect &portion, const QImage &replacementImage)
+{
+    *currentProjectImage() = Utils::replacePortionOfImage(*currentProjectImage(), portion, replacementImage);
     update();
 }
 

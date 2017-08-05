@@ -1851,8 +1851,6 @@ void tst_App::moveSelectionImageCanvas()
     triggerShortcut("undoShortcut", app.settings()->undoShortcut());
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
-    QEXPECT_FAIL("ImageType, transparent background", "TODO", Abort);
-    QEXPECT_FAIL("LayeredImageType, transparent background", "TODO", Abort);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(18, 18), backgroundColour);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(22, 22), backgroundColour);
 

@@ -274,6 +274,7 @@ protected:
     virtual void applyPixelPenTool(const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false);
     virtual void applyPixelLineTool(const QImage &lineImage, const QPoint &lastPixelPenReleaseScenePosition);
     void paintImageOntoPortionOfImage(const QRect &portion, const QImage &replacementImage);
+    void replacePortionOfImage(const QRect &portion, const QImage &replacementImage);
     void erasePortionOfImage(const QRect &portion);
     void doFlipSelection(const QRect &area, Qt::Orientation orientation);
 
