@@ -26,7 +26,6 @@
 #include <QLoggingCategory>
 
 #include "canvaspane.h"
-#include "clipboard.h"
 #include "filevalidator.h"
 #include "imagecanvas.h"
 #include "imagelayer.h"
@@ -69,12 +68,6 @@ static QGuiApplication *createApplication(int &argc, char **argv, const QString 
     return app;
 }
 
-
-QObject *clipboardSingletonTypeProvider(QQmlEngine *, QJSEngine *)
-{
-    return new Clipboard();
-}
-
 Application::Application(int &argc, char **argv, const QString &applicationName) :
     mApplication(createApplication(argc, argv, applicationName)),
     mSettings(new ApplicationSettings),
@@ -99,9 +92,6 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterUncreatableType<Project>("App", 1, 0, "Project", QLatin1String("Cannot create objects of type Project"));
     qmlRegisterUncreatableType<LayeredImageProject>("App", 1, 0, "LayeredImageProject",
         QLatin1String("Cannot create objects of type LayeredImageProject"));
-    qmlRegisterSingletonType<Clipboard>("App", 1, 0, "Clipboard", clipboardSingletonTypeProvider);
-    qmlRegisterUncreatableType<ClipboardImage>("App", 1, 0, "ClipboardImage",
-        QLatin1String("Cannot create objects of type ClipboardImage"));
 
     qRegisterMetaType<ApplicationSettings*>();
     qRegisterMetaType<ImageLayer*>();

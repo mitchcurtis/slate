@@ -88,8 +88,6 @@ private Q_SLOTS:
     void copyPaste();
     void pasteFromExternalSource_data();
     void pasteFromExternalSource();
-    void newProjectSizeFromClipboard_data();
-    void newProjectSizeFromClipboard();
     void flipPastedImage();
     void fillImageCanvas_data();
     void fillImageCanvas();
@@ -2050,77 +2048,6 @@ void tst_App::pasteFromExternalSource()
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::blue));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(31, 31), QColor(Qt::blue));
-}
-
-void tst_App::newProjectSizeFromClipboard_data()
-{
-    QTest::addColumn<Project::Type>("projectType");
-    QTest::addColumn<QImage>("clipboardImage");
-
-    QImage clipboardImage(100, 200, QImage::Format_ARGB32_Premultiplied);
-    clipboardImage.fill(Qt::red);
-
-    QTest::newRow("ImageType, 100x200") << Project::ImageType << clipboardImage;
-    QTest::newRow("ImageType, (none)") << Project::ImageType << QImage();
-    QTest::newRow("LayeredImageType, 100x200") << Project::LayeredImageType << clipboardImage;
-    QTest::newRow("LayeredImageType, (none)") << Project::LayeredImageType << QImage();
-}
-
-void tst_App::newProjectSizeFromClipboard()
-{
-    // If there is an image in the clipboard, use it to suggest a project size.
-    QFETCH(Project::Type, projectType);
-    QFETCH(QImage, clipboardImage);
-
-    qGuiApp->clipboard()->setImage(clipboardImage);
-
-    triggerNewProject();
-
-    const QObject *newProjectPopup = findPopupFromTypeName("NewProjectPopup");
-    QVERIFY(newProjectPopup);
-    QVERIFY(newProjectPopup->property("visible").toBool());
-    // TODO: remove this when https://bugreports.qt.io/browse/QTBUG-53420 is fixed
-    newProjectPopup->property("contentItem").value<QQuickItem*>()->forceActiveFocus();
-    QVERIFY2(newProjectPopup->property("activeFocus").toBool(),
-        qPrintable(QString::fromLatin1("NewProjectPopup doesn't have active focus (%1 does)").arg(window->activeFocusItem()->objectName())));
-
-    QString newProjectButtonObjectName;
-    if (projectType == Project::ImageType) {
-        newProjectButtonObjectName = QLatin1String("imageProjectButton");
-    } else {
-        newProjectButtonObjectName = QLatin1String("layeredImageProjectButton");
-    }
-
-    // Click on the appropriate project type button.
-    QQuickItem *tilesetProjectButton = newProjectPopup->findChild<QQuickItem*>(newProjectButtonObjectName);
-    QVERIFY(tilesetProjectButton);
-
-    mouseEventOnCentre(tilesetProjectButton, MouseClick);
-    QCOMPARE(tilesetProjectButton->property("checked").toBool(), true);
-
-    QTRY_COMPARE(newProjectPopup->property("visible").toBool(), false);
-
-    // Now the new project popup should be visible.
-    QTRY_VERIFY(findPopupFromTypeName("NewImageProjectPopup"));
-    const QObject *newImageProjectPopup = findPopupFromTypeName("NewImageProjectPopup");
-    QVERIFY(newImageProjectPopup->property("visible").toBool());
-
-    // Ensure that the width and height values much the clipboard data.
-    QQuickItem *imageWidthSpinBox = newImageProjectPopup->findChild<QQuickItem*>("imageWidthSpinBox");
-    QVERIFY(imageWidthSpinBox);
-    if (!clipboardImage.isNull()) {
-        QCOMPARE(imageWidthSpinBox->property("value").toInt(), clipboardImage.width());
-    } else {
-        QCOMPARE(imageWidthSpinBox->property("value").toInt(), 256);
-    }
-
-    QQuickItem *imageHeightSpinBox = newImageProjectPopup->findChild<QQuickItem*>("imageHeightSpinBox");
-    QVERIFY(imageHeightSpinBox);
-    if (!clipboardImage.isNull()) {
-        QCOMPARE(imageHeightSpinBox->property("value").toInt(), clipboardImage.width());
-    } else {
-        QCOMPARE(imageHeightSpinBox->property("value").toInt(), 256);
-    }
 }
 
 void tst_App::flipPastedImage()

@@ -84,10 +84,6 @@ ApplicationWindow {
         window.title = Qt.binding(function(){ return qtbug53394Title });
         window.x = Screen.desktopAvailableWidth / 2 - width / 2
         window.y = Screen.desktopAvailableHeight / 2 - height / 2
-
-        // Force the Clipboard singleton instance to be constructed
-        // on startup, because it's slow: https://bugreports.qt.io/browse/QTBUG-62344
-        Clipboard.image();
     }
 
     function doIfChangesDiscarded(actionFunction) {
