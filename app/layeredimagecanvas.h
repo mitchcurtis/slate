@@ -45,9 +45,9 @@ protected slots:
     void onPreLayerRemoved(int index);
     void onPostLayerRemoved();
     void onPostLayerMoved();
-
     void onLayerVisibleChanged();
     void onLayerOpacityChanged();
+    void onPreCurrentLayerChanged();
 
 protected:
     void connectSignals() override;

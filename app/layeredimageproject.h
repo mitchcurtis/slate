@@ -31,7 +31,7 @@ class LayeredImageProject : public Project
 {
     Q_OBJECT
     Q_PROPERTY(int currentLayerIndex READ currentLayerIndex WRITE setCurrentLayerIndex NOTIFY currentLayerIndexChanged)
-    Q_PROPERTY(ImageLayer *currentLayer READ currentLayer NOTIFY currentLayerChanged)
+    Q_PROPERTY(ImageLayer *currentLayer READ currentLayer NOTIFY postCurrentLayerChanged)
     Q_PROPERTY(int layerCount READ layerCount NOTIFY layerCountChanged)
 
 public:
@@ -55,7 +55,8 @@ public:
 
 signals:
     void currentLayerIndexChanged();
-    void currentLayerChanged();
+    void preCurrentLayerChanged();
+    void postCurrentLayerChanged();
     void layerCountChanged();
 
     void preLayerAdded(int index);

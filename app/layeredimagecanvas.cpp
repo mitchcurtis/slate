@@ -75,6 +75,17 @@ void LayeredImageCanvas::onLayerOpacityChanged()
         update();
 }
 
+void LayeredImageCanvas::onPreCurrentLayerChanged()
+{
+    // TODO: move paste branch into clearOrConfirmSelection();?
+    if (mHasMovedSelection)
+        confirmSelectionMove();
+    else if (mIsSelectionFromPaste)
+        confirmPasteSelection();
+    else
+        clearSelection();
+}
+
 void LayeredImageCanvas::connectSignals()
 {
     ImageCanvas::connectSignals();
@@ -86,6 +97,7 @@ void LayeredImageCanvas::connectSignals()
     connect(mLayeredImageProject, &LayeredImageProject::preLayerRemoved, this, &LayeredImageCanvas::onPreLayerRemoved);
     connect(mLayeredImageProject, &LayeredImageProject::postLayerRemoved, this, &LayeredImageCanvas::onPostLayerRemoved);
     connect(mLayeredImageProject, &LayeredImageProject::postLayerMoved, this, &LayeredImageCanvas::onPostLayerMoved);
+    connect(mLayeredImageProject, &LayeredImageProject::preCurrentLayerChanged, this, &LayeredImageCanvas::onPreCurrentLayerChanged);
 
     // Connect to all existing layers, as onPostLayerAdded() won't get called for them automatically.
     for (int i = 0; i < mLayeredImageProject->layerCount(); ++i) {
@@ -99,6 +111,7 @@ void LayeredImageCanvas::disconnectSignals()
     disconnect(mLayeredImageProject, &LayeredImageProject::preLayerRemoved, this, &LayeredImageCanvas::onPreLayerRemoved);
     disconnect(mLayeredImageProject, &LayeredImageProject::postLayerRemoved, this, &LayeredImageCanvas::onPostLayerRemoved);
     disconnect(mLayeredImageProject, &LayeredImageProject::postLayerMoved, this, &LayeredImageCanvas::onPostLayerMoved);
+    disconnect(mLayeredImageProject, &LayeredImageProject::preCurrentLayerChanged, this, &LayeredImageCanvas::onPreCurrentLayerChanged);
 
     mLayeredImageProject = nullptr;
 }

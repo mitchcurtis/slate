@@ -333,6 +333,8 @@ protected:
     void setMovingSelection(bool movingSelection);
     bool cursorOverSelection() const;
     bool shouldDrawSelectionPreviewImage() const;
+    void confirmPasteSelection();
+    void setSelectionFromPaste(bool isSelectionFromPaste);
 
     void setAltPressed(bool altPressed);
 

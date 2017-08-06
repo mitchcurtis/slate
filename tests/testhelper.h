@@ -133,6 +133,8 @@ protected:
     void triggerOpenProject();
     void triggerRevert();
 
+    void triggerPaste();
+
     void triggerCentre();
     void triggerGridVisible();
     void triggerRulersVisible();
@@ -242,6 +244,8 @@ protected:
 
     QPoint cursorPos;
     QPoint cursorWindowPos;
+
+    QImage mCheckerImage;
 };
 
 #endif // TESTHELPER_H

@@ -193,6 +193,10 @@ void TestHelper::initTestCase()
 
     penBackgroundColourButton = window->findChild<QQuickItem*>("penBackgroundColourButton");
     QVERIFY(penBackgroundColourButton);
+
+    QPixmap checkerPixmap = QPixmap(":/images/checker.png");
+    QCOMPARE(checkerPixmap.isNull(), false);
+    mCheckerImage = checkerPixmap.toImage();
 }
 
 void TestHelper::resetCreationErrorSpy()
@@ -701,6 +705,11 @@ void TestHelper::triggerRevert()
 #else
     triggerShortcut("revertShortcut", app.settings()->revertShortcut());
 #endif
+}
+
+void TestHelper::triggerPaste()
+{
+    triggerShortcut("pasteShortcut", QKeySequence(QKeySequence::Paste).toString());
 }
 
 void TestHelper::triggerCentre()

@@ -1172,7 +1172,7 @@ void ImageCanvas::clearSelection()
     setHasSelection(false);
     setMovingSelection(false);
     mHasMovedSelection = false;
-    mIsSelectionFromPaste = false;
+    setSelectionFromPaste(false);
     mSelectionAreaBeforeFirstMove = QRect(0, 0, 0, 0);
     mSelectionAreaBeforeLastMove = QRect(0, 0, 0, 0);
     mLastValidSelectionArea = QRect(0, 0, 0, 0);
@@ -1213,6 +1213,17 @@ bool ImageCanvas::cursorOverSelection() const
 bool ImageCanvas::shouldDrawSelectionPreviewImage() const
 {
     return mMovingSelection || mHasMovedSelection || mIsSelectionFromPaste;
+}
+
+void ImageCanvas::confirmPasteSelection()
+{
+    paintImageOntoPortionOfImage(mSelectionAreaBeforeFirstMove, mSelectionContents);
+    clearSelection();
+}
+
+void ImageCanvas::setSelectionFromPaste(bool isSelectionFromPaste)
+{
+    mIsSelectionFromPaste = isSelectionFromPaste;
 }
 
 void ImageCanvas::reset()
@@ -1333,7 +1344,7 @@ void ImageCanvas::paste()
 
     // Setting a selection area is only done when a paste is first created,
     // not when it's redone, so we do it here instead of in the command.
-    mIsSelectionFromPaste = true;
+    setSelectionFromPaste(true);
     qCDebug(lcCanvasSelection) << "setting selection contents to clipboard image with area" << pastedArea;
     mSelectionContents = clipboardImage;
 
@@ -1911,13 +1922,13 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
                         if (mIsSelectionFromPaste) {
                             // Pasting an image creates a selection, and clicking outside of that selection
                             // without moving it should apply the paste.
-                            paintImageOntoPortionOfImage(mSelectionAreaBeforeFirstMove, mSelectionContents);
+                            confirmPasteSelection();
+                        } else {
+                            // Since we hadn't done anything to the selection that we might have had
+                            // before (that this event cycle is interrupting), releasing the mouse
+                            // should cancel it.
+                            clearSelection();
                         }
-
-                        // Since we hadn't done anything to the selection that we might have had
-                        // before (that this event cycle is interrupting), releasing the mouse
-                        // should cancel it.
-                        clearSelection();
                     }
                 } else {
                     // We have moved the selection since creating it, but we're not
@@ -2049,6 +2060,9 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
         if (mHasMovedSelection) {
             // We've moved the selection since creating it, so, like mspaint, escape confirms it.
             confirmSelectionMove();
+        } else if (mIsSelectionFromPaste) {
+            // Pressing escape to clear a pasted selection should apply that selection, like mspaint.
+            confirmPasteSelection();
         } else {
             clearSelection();
         }

@@ -20,6 +20,7 @@
 #include <QClipboard>
 #include <QCursor>
 #include <QGuiApplication>
+#include <QPainter>
 #include <QQmlEngine>
 #include <QSharedPointer>
 #include <QtTest>
@@ -104,6 +105,7 @@ private Q_SLOTS:
     void saveAndLoadLayeredImageProject();
     void layerVisibilityAfterMoving();
     void undoAfterAddLayer();
+    void selectionConfirmedWhenSwitchingLayers();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -2700,6 +2702,46 @@ void tst_App::undoAfterAddLayer()
     QCOMPARE(layeredImageProject->layerCount(), 2);
     QCOMPARE(layeredImageProject->hasUnsavedChanges(), true);
     QCOMPARE(undoButton->isEnabled(), true);
+}
+
+// https://github.com/mitchcurtis/slate/issues/6
+void tst_App::selectionConfirmedWhenSwitchingLayers()
+{
+    // Copy an image onto the clipboard.
+    QImage clipboardContents(100, 200, QImage::Format_ARGB32_Premultiplied);
+    clipboardContents.fill(Qt::red);
+    qGuiApp->clipboard()->setImage(clipboardContents);
+
+    // Create a new layered image project with the dimensions of the clipboard contents.
+    createNewLayeredImageProject(100, 200);
+
+    panTopLeftTo(0, 0);
+
+    // Create a new layer and make it the active layer
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+    QCOMPARE(layeredImageProject->hasUnsavedChanges(), true);
+    QCOMPARE(undoButton->isEnabled(), true);
+    // Sanity check that the names are correct. Newly added layers go to the top,
+    // and hence have a lower index.
+    QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 2"));
+    QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
+    QCOMPARE(layeredImageProject->layerAt(1)->isVisible(), true);
+
+    selectLayer("Layer 2", 0);
+
+    // Paste the image into that layer
+    triggerPaste();
+    QCOMPARE(canvas->hasSelection(), true);
+
+    // Switching layers should cause the selection to be confirmed.
+    selectLayer("Layer 1", 1);
+    QCOMPARE(canvas->hasSelection(), false);
+
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage snapshotAfterSwitchingLayers = imageGrabber.takeImage();
+    QCOMPARE(snapshotAfterSwitchingLayers.pixelColor(0, 0), Qt::red);
 }
 
 int main(int argc, char *argv[])

@@ -62,9 +62,11 @@ void LayeredImageProject::setCurrentLayerIndex(int index)
     if (adjustedIndex == mCurrentLayerIndex)
         return;
 
+    emit preCurrentLayerChanged();
+
     mCurrentLayerIndex = adjustedIndex;
     emit currentLayerIndexChanged();
-    emit currentLayerChanged();
+    emit postCurrentLayerChanged();
 }
 
 ImageLayer *LayeredImageProject::layerAt(int index)
