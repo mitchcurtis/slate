@@ -23,10 +23,10 @@ Dialog {
     onAboutToShow: {
         // Reset input controls to default values.
         imageWidthSpinBox.value = imageWidthSpinBox.defaultValue;
-        // QTBUG-60356
-        imageWidthSpinBox.contentItem.forceActiveFocus();
         imageHeightSpinBox.value = imageHeightSpinBox.defaultValue;
         transparentImageBackgroundCheckBox.checked = transparentImageBackgroundCheckBox.defaultValue;
+
+        imageWidthSpinBox.contentItem.forceActiveFocus();
     }
 
     contentItem: ColumnLayout {
