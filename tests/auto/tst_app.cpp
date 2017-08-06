@@ -63,6 +63,8 @@ private Q_SLOTS:
     void loadInvalidProjects_data();
     void loadInvalidProjects();
     void recentFiles();
+    void newProjectSizeFromClipboard_data();
+    void newProjectSizeFromClipboard();
 
     // Tools, misc.
     void animationPlayback_data();
@@ -662,6 +664,77 @@ void tst_App::recentFiles()
             Q_RETURN_ARG(QObject*, recentFileMenuItem), Q_ARG(int, 0)));
         QVERIFY(!recentFileMenuItem);
     }
+}
+
+void tst_App::newProjectSizeFromClipboard_data()
+{
+    QTest::addColumn<Project::Type>("projectType");
+    QTest::addColumn<QImage>("clipboardImage");
+
+    QImage clipboardImage(100, 200, QImage::Format_ARGB32_Premultiplied);
+    clipboardImage.fill(Qt::red);
+
+    QTest::newRow("ImageType, 100x200") << Project::ImageType << clipboardImage;
+    QTest::newRow("ImageType, (none)") << Project::ImageType << QImage();
+    QTest::newRow("LayeredImageType, 100x200") << Project::LayeredImageType << clipboardImage;
+    QTest::newRow("LayeredImageType, (none)") << Project::LayeredImageType << QImage();
+}
+
+void tst_App::newProjectSizeFromClipboard()
+{
+    // If there is an image in the clipboard, use it to suggest a project size.
+    QFETCH(Project::Type, projectType);
+    QFETCH(QImage, clipboardImage);
+
+    qGuiApp->clipboard()->setImage(clipboardImage);
+
+    // Don't want to use createNewLayeredImageProject() here, because we need to test the new project popup.
+    QVERIFY2(triggerNewProject(), failureMessage);
+
+    const QObject *newProjectPopup = findPopupFromTypeName("NewProjectPopup");
+    QVERIFY(newProjectPopup);
+    QTRY_VERIFY(newProjectPopup->property("opened").toBool());
+    QVERIFY2(newProjectPopup->property("activeFocus").toBool(),
+        qPrintable(QString::fromLatin1("NewProjectPopup doesn't have active focus (%1 does)")
+            .arg(window->activeFocusItem()->objectName())));
+
+    QString newProjectButtonObjectName;
+    if (projectType == Project::ImageType)
+        newProjectButtonObjectName = QLatin1String("imageProjectButton");
+    else
+        newProjectButtonObjectName = QLatin1String("layeredImageProjectButton");
+
+    // Click on the appropriate project type button.
+    QQuickItem *tilesetProjectButton = newProjectPopup->findChild<QQuickItem*>(newProjectButtonObjectName);
+    QVERIFY(tilesetProjectButton);
+
+    mouseEventOnCentre(tilesetProjectButton, MouseClick);
+    QCOMPARE(tilesetProjectButton->property("checked").toBool(), true);
+
+    QTRY_COMPARE(newProjectPopup->property("visible").toBool(), false);
+
+    // Now the new project popup should be visible.
+    QTRY_VERIFY(findPopupFromTypeName("NewImageProjectPopup"));
+    const QObject *newImageProjectPopup = findPopupFromTypeName("NewImageProjectPopup");
+    QTRY_VERIFY(newImageProjectPopup->property("opened").toBool());
+
+    // Ensure that the width and height values much the clipboard data.
+    QQuickItem *imageWidthSpinBox = newImageProjectPopup->findChild<QQuickItem*>("imageWidthSpinBox");
+    QVERIFY(imageWidthSpinBox);
+    if (!clipboardImage.isNull())
+        QCOMPARE(imageWidthSpinBox->property("value").toInt(), clipboardImage.width());
+    else
+        QCOMPARE(imageWidthSpinBox->property("value").toInt(), 256);
+
+    QQuickItem *imageHeightSpinBox = newImageProjectPopup->findChild<QQuickItem*>("imageHeightSpinBox");
+    QVERIFY(imageHeightSpinBox);
+    if (!clipboardImage.isNull())
+        QCOMPARE(imageHeightSpinBox->property("value").toInt(), clipboardImage.height());
+    else
+        QCOMPARE(imageHeightSpinBox->property("value").toInt(), 256);
+
+    QTest::keyClick(window, Qt::Key_Escape);
+    QTRY_VERIFY(!newImageProjectPopup->property("visible").toBool());
 }
 
 void tst_App::animationPlayback_data()

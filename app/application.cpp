@@ -29,6 +29,7 @@
 #include "buildinfo.h"
 #include "canvaspane.h"
 #include "canvaspaneitem.h"
+#include "clipboard.h"
 #include "filevalidator.h"
 #include "imagecanvas.h"
 #include "imagelayer.h"
@@ -80,6 +81,11 @@ static QObject *buildInfoSingletonProvider(QQmlEngine *, QJSEngine *)
     return new BuildInfo;
 }
 
+QObject *clipboardSingletonTypeProvider(QQmlEngine *, QJSEngine *)
+{
+    return new Clipboard;
+}
+
 Application::Application(int &argc, char **argv, const QString &applicationName) :
     mApplication(createApplication(argc, argv, applicationName)),
     mSettings(new ApplicationSettings),
@@ -109,6 +115,8 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterType<TilesetSwatchImage>("App", 1, 0, "TilesetSwatchImage");
     qmlRegisterUncreatableType<AnimationPlayback>("App", 1, 0, "AnimationPlayback", QLatin1String("Cannot create objects of type AnimationPlayback"));
     qmlRegisterUncreatableType<CanvasPane>("App", 1, 0, "CanvasPane", "Can't create instances of CanvasPane");
+    qmlRegisterUncreatableType<ClipboardImage>("App", 1, 0, "ClipboardImage",
+        QLatin1String("Cannot create objects of type ClipboardImage"));
     qmlRegisterUncreatableType<Project>("App", 1, 0, "Project", QLatin1String("Cannot create objects of type Project"));
     qmlRegisterUncreatableType<LayeredImageProject>("App", 1, 0, "LayeredImageProject",
         QLatin1String("Cannot create objects of type LayeredImageProject"));
@@ -117,7 +125,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterUncreatableType<TexturedFillParameters>("App", 1, 0, "TexturedFillParameters",
         QLatin1String("Cannot create objects of type TexturedFillParameters"));
     qmlRegisterSingletonType<BuildInfo>("App", 1, 0, "BuildInfo", buildInfoSingletonProvider);
-
+    qmlRegisterSingletonType<Clipboard>("App", 1, 0, "Clipboard", clipboardSingletonTypeProvider);
     qRegisterMetaType<ApplicationSettings*>();
     qRegisterMetaType<ImageLayer*>();
     qRegisterMetaType<Project::Type>();

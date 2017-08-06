@@ -20,11 +20,12 @@ Dialog {
 
     onAboutToShow: {
         // Reset input controls to default values.
-        imageWidthSpinBox.value = imageWidthSpinBox.defaultValue;
-        imageHeightSpinBox.value = imageHeightSpinBox.defaultValue;
-        transparentImageBackgroundCheckBox.checked = transparentImageBackgroundCheckBox.defaultValue;
+        var useClipboardImageSize = Clipboard.image().width > 0 && Clipboard.image().height > 0
+        imageWidthSpinBox.value = useClipboardImageSize ? Clipboard.image().width : imageWidthSpinBox.defaultValue
+        imageHeightSpinBox.value = useClipboardImageSize ? Clipboard.image().height : imageHeightSpinBox.defaultValue
+        transparentImageBackgroundCheckBox.checked = transparentImageBackgroundCheckBox.defaultValue
 
-        imageWidthSpinBox.contentItem.forceActiveFocus();
+        imageWidthSpinBox.contentItem.forceActiveFocus()
     }
 
     contentItem: GridLayout {
