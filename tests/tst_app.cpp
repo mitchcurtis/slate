@@ -2028,6 +2028,7 @@ void tst_App::pasteFromExternalSource()
 {
     // When pasting while a tool other than the selection tool is active,
     // the selection tool should be made active.
+
     QFETCH(Project::Type, projectType);
 
     createNewProject(projectType);

@@ -18,8 +18,6 @@ Popup {
         if (visible && project) {
             widthSpinBox.value = project.size.width;
             heightSpinBox.value = project.size.height;
-            // Note: the actual editor won't get focus automatically until
-            // https://bugreports.qt.io/browse/QTBUG-60356 is fixed
             widthSpinBox.contentItem.forceActiveFocus();
         }
     }
