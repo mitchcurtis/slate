@@ -57,7 +57,8 @@ HEADERS += \
     $$PWD/guide.h \
     $$PWD/addguidecommand.h \
     $$PWD/moveguidecommand.h \
-    $$PWD/deleteguidecommand.h
+    $$PWD/deleteguidecommand.h \
+    $$PWD/clipboard.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -111,7 +112,8 @@ SOURCES += \
     $$PWD/guide.cpp \
     $$PWD/addguidecommand.cpp \
     $$PWD/moveguidecommand.cpp \
-    $$PWD/deleteguidecommand.cpp
+    $$PWD/deleteguidecommand.cpp \
+    $$PWD/clipboard.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \
