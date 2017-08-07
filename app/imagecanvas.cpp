@@ -1297,9 +1297,17 @@ void ImageCanvas::flipSelection(Qt::Orientation orientation)
     if (!mHasSelection)
         return;
 
-    mProject->beginMacro(QLatin1String("FlipSelection"));
-    mProject->addChange(new FlipImageCanvasSelectionCommand(this, mSelectionArea, orientation));
-    mProject->endMacro();
+    // Just like mspaint, flipping a pasted selection has no effect on the undo stack -
+    // undoing will simply remove the pasted selection and its contents.
+    if (!mIsSelectionFromPaste) {
+        mProject->beginMacro(QLatin1String("FlipSelection"));
+        mProject->addChange(new FlipImageCanvasSelectionCommand(this, mSelectionArea, orientation));
+        mProject->endMacro();
+    } else {
+        mSelectionContents = mSelectionContents.mirrored(orientation == Qt::Horizontal, orientation == Qt::Vertical);
+        updateSelectionPreviewImage();
+        update();
+    }
 }
 
 void ImageCanvas::copySelection()

@@ -43,6 +43,8 @@ class ApplicationSettings : public QSettings
     Q_PROPERTY(QString revertShortcut READ revertShortcut WRITE setRevertShortcut NOTIFY revertShortcutChanged)
     Q_PROPERTY(QString undoShortcut READ undoShortcut WRITE setUndoShortcut NOTIFY undoShortcutChanged)
     Q_PROPERTY(QString redoShortcut READ redoShortcut WRITE setRedoShortcut NOTIFY redoShortcutChanged)
+    Q_PROPERTY(QString flipHorizontallyShortcut READ flipHorizontallyShortcut WRITE setFlipHorizontallyShortcut NOTIFY flipHorizontallyShortcutChanged)
+    Q_PROPERTY(QString flipVerticallyShortcut READ flipVerticallyShortcut WRITE setFlipVerticallyShortcut NOTIFY flipVerticallyShortcutChanged)
     Q_PROPERTY(QString gridVisibleShortcut READ gridVisibleShortcut WRITE setGridVisibleShortcut NOTIFY gridVisibleShortcutChanged)
     Q_PROPERTY(QString rulersVisibleShortcut READ rulersVisibleShortcut WRITE setRulersVisibleShortcut NOTIFY rulersVisibleShortcutChanged)
     Q_PROPERTY(QString guidesVisibleShortcut READ guidesVisibleShortcut WRITE setGuidesVisibleShortcut NOTIFY guidesVisibleShortcutChanged)
@@ -128,6 +130,14 @@ public:
     QString defaultUndoShortcut() const;
     QString undoShortcut() const;
     void setUndoShortcut(const QString &shortcut);
+
+    QString defaultFlipHorizontallyShortcut() const;
+    QString flipHorizontallyShortcut() const;
+    void setFlipHorizontallyShortcut(const QString &shortcut);
+
+    QString defaultFlipVerticallyShortcut() const;
+    QString flipVerticallyShortcut() const;
+    void setFlipVerticallyShortcut(const QString &shortcut);
 
     QString defaultRedoShortcut() const;
     QString redoShortcut() const;
@@ -235,6 +245,8 @@ signals:
     void revertShortcutChanged();
     void undoShortcutChanged();
     void redoShortcutChanged();
+    void flipHorizontallyShortcutChanged();
+    void flipVerticallyShortcutChanged();
     void gridVisibleShortcutChanged();
     void rulersVisibleShortcutChanged();
     void guidesVisibleShortcutChanged();

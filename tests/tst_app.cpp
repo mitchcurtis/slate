@@ -2052,7 +2052,25 @@ void tst_App::pasteFromExternalSource()
 
 void tst_App::flipPastedImage()
 {
-    // TODO
+    createNewImageProject();
+
+    panTopLeftTo(0, 0);
+
+    QImage image(32, 32, QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::blue);
+    image.setPixelColor(1, 1, Qt::red);
+    qGuiApp->clipboard()->setImage(image);
+
+    triggerPaste();
+    QCOMPARE(canvas->tool(), ImageCanvas::SelectionTool);
+    QCOMPARE(canvas->hasSelection(), true);
+
+    // TODO: maybe just make the damn square bigger..
+    triggerFlipVertically();
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage snapshotFlippedVertically = imageGrabber.takeImage();
+    QCOMPARE(snapshotFlippedVertically.pixelColor(1, 28), Qt::red);
 }
 
 void tst_App::fillImageCanvas_data()

@@ -140,6 +140,18 @@ Dialog {
                     shortcutDisplayName: qsTr("Redo Action")
                 }
                 ShortcutRow {
+                    shortcutName: "flipHorizontallyShortcut"
+                    shortcutDisplayName: qsTr("Flip Horizontally")
+                }
+                ShortcutRow {
+                    shortcutName: "flipVerticallyShortcut"
+                    shortcutDisplayName: qsTr("Flip Vertically")
+                }
+                ShortcutRow {
+                    shortcutName: "redoShortcut"
+                    shortcutDisplayName: qsTr("Redo Action")
+                }
+                ShortcutRow {
                     shortcutName: "centreShortcut"
                     shortcutDisplayName: qsTr("Centre View")
                 }

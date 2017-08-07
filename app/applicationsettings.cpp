@@ -239,6 +239,8 @@ void ApplicationSettings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("revertShortcut"));
         allShortcuts.append(QLatin1String("undoShortcut"));
         allShortcuts.append(QLatin1String("redoShortcut"));
+        allShortcuts.append(QLatin1String("flipHorizontallyShortcut"));
+        allShortcuts.append(QLatin1String("flipVerticallyShortcut"));
         allShortcuts.append(QLatin1String("centreShortcut"));
         allShortcuts.append(QLatin1String("zoomInShortcut"));
         allShortcuts.append(QLatin1String("zoomOutShortcut"));
@@ -385,6 +387,36 @@ QString ApplicationSettings::undoShortcut() const
 void ApplicationSettings::setUndoShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("undoShortcut", defaultUndoShortcut, undoShortcutChanged)
+}
+
+QString ApplicationSettings::defaultFlipHorizontallyShortcut() const
+{
+    return QLatin1String("Ctrl+Shift+H");
+}
+
+QString ApplicationSettings::flipHorizontallyShortcut() const
+{
+    GET_SHORTCUT("flipHorizontallyShortcut", defaultFlipHorizontallyShortcut)
+}
+
+void ApplicationSettings::setFlipHorizontallyShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("flipHorizontallyShortcut", defaultFlipHorizontallyShortcut, flipHorizontallyShortcutChanged)
+}
+
+QString ApplicationSettings::defaultFlipVerticallyShortcut() const
+{
+    return QLatin1String("Ctrl+Shift+V");
+}
+
+QString ApplicationSettings::flipVerticallyShortcut() const
+{
+    GET_SHORTCUT("flipVerticallyShortcut", defaultFlipVerticallyShortcut)
+}
+
+void ApplicationSettings::setFlipVerticallyShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("flipVerticallyShortcut", defaultFlipVerticallyShortcut, flipVerticallyShortcutChanged)
 }
 
 QString ApplicationSettings::defaultRedoShortcut() const

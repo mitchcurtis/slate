@@ -104,6 +104,20 @@ Item {
     }
 
     Shortcut {
+        objectName: "flipHorizontallyShortcut"
+        sequence: settings.flipHorizontallyShortcut
+        onActivated: canvas.flipSelection(Qt.Horizontal)
+        enabled: isImageProjectType && canvasHasActiveFocus && canvas.hasSelection
+    }
+
+    Shortcut {
+        objectName: "flipVerticallyShortcut"
+        sequence: settings.flipVerticallyShortcut
+        onActivated: canvas.flipSelection(Qt.Vertical)
+        enabled: isImageProjectType && canvasHasActiveFocus && canvas.hasSelection
+    }
+
+    Shortcut {
         objectName: "gridVisibleShortcut"
         sequence: settings.gridVisibleShortcut
         onActivated: settings.gridVisible = !settings.gridVisible

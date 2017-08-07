@@ -712,6 +712,26 @@ void TestHelper::triggerPaste()
     triggerShortcut("pasteShortcut", QKeySequence(QKeySequence::Paste).toString());
 }
 
+void TestHelper::triggerFlipHorizontally()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(editToolButton, MouseClick);
+    mouseEventOnCentre(flipHorizontallyMenuButton, MouseClick);
+#else
+    triggerShortcut("flipHorizontallyShortcut", app.settings()->flipHorizontallyShortcut());
+#endif
+}
+
+void TestHelper::triggerFlipVertically()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(editToolButton, MouseClick);
+    mouseEventOnCentre(flipVerticallyMenuButton, MouseClick);
+#else
+    triggerShortcut("flipVerticallyShortcut", app.settings()->flipVerticallyShortcut());
+#endif
+}
+
 void TestHelper::triggerCentre()
 {
 #ifdef NON_NATIVE_MENUS

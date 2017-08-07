@@ -134,6 +134,8 @@ protected:
     void triggerRevert();
 
     void triggerPaste();
+    void triggerFlipHorizontally();
+    void triggerFlipVertically();
 
     void triggerCentre();
     void triggerGridVisible();
