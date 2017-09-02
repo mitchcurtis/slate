@@ -20,6 +20,7 @@ Page {
     property LayeredImageProject project
 
     ButtonGroup {
+        objectName: "layerPanelButtonGroup"
         buttons: listView.contentItem.children
     }
 

@@ -40,6 +40,7 @@ Dialog {
 
         ButtonGroup {
             id: buttonGroup
+            objectName: "newProjectPopupButtonGroup"
             buttons: popup.contentItem.children
         }
 

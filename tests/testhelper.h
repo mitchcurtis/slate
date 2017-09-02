@@ -198,6 +198,7 @@ protected:
     QPointer<LayeredImageCanvas> layeredImageCanvas;
 #ifdef NON_NATIVE_MENUS
     QQuickItem *fileToolButton;
+    QQuickItem *editToolButton;
     QQuickItem *optionsToolButton;
     QQuickItem *viewToolButton;
     QQuickItem *newMenuButton;
@@ -205,8 +206,10 @@ protected:
     QQuickItem *openMenuButton;
     QQuickItem *saveMenuButton;
     QQuickItem *saveAsMenuButton;
-    QQuickItem *settingsMenuButton;
     QQuickItem *revertMenuButton;
+    QQuickItem *flipHorizontallyMenuButton;
+    QQuickItem *flipVerticallyMenuButton;
+    QQuickItem *settingsMenuButton;
     QQuickItem *centreMenuButton;
     QQuickItem *showGridMenuButton;
     QQuickItem *showRulersMenuButton;

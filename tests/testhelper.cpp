@@ -34,6 +34,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     tileCanvas(nullptr),
 #ifdef NON_NATIVE_MENUS
     fileToolButton(nullptr),
+    editToolButton(nullptr),
     optionsToolButton(nullptr),
     viewToolButton(nullptr),
     newMenuButton(nullptr),
@@ -41,8 +42,10 @@ TestHelper::TestHelper(int &argc, char **argv) :
     openMenuButton(nullptr),
     saveMenuButton(nullptr),
     saveAsMenuButton(nullptr),
-    settingsMenuButton(nullptr),
     revertMenuButton(nullptr),
+    flipHorizontallyMenuButton(nullptr),
+    flipVerticallyMenuButton(nullptr),
+    settingsMenuButton(nullptr),
     centreMenuButton(nullptr),
     showGridMenuButton(nullptr),
     showRulersMenuButton(nullptr),
@@ -115,6 +118,9 @@ void TestHelper::initTestCase()
     fileToolButton = window->findChild<QQuickItem*>("fileToolButton");
     QVERIFY(fileToolButton);
 
+    editToolButton = window->findChild<QQuickItem*>("editToolButton");
+    QVERIFY(editToolButton);
+
     optionsToolButton = window->findChild<QQuickItem*>("optionsToolButton");
     QVERIFY(optionsToolButton);
 
@@ -136,11 +142,17 @@ void TestHelper::initTestCase()
     saveAsMenuButton = window->findChild<QQuickItem*>("saveAsMenuButton");
     QVERIFY(saveAsMenuButton);
 
-    settingsMenuButton = window->findChild<QQuickItem*>("settingsMenuButton");
-    QVERIFY(settingsMenuButton);
-
     revertMenuButton = window->findChild<QQuickItem*>("revertMenuButton");
     QVERIFY(revertMenuButton);
+
+    flipHorizontallyMenuButton = window->findChild<QQuickItem*>("flipHorizontallyMenuButton");
+    QVERIFY(flipHorizontallyMenuButton);
+
+    flipVerticallyMenuButton = window->findChild<QQuickItem*>("flipVerticallyMenuButton");
+    QVERIFY(flipVerticallyMenuButton);
+
+    settingsMenuButton = window->findChild<QQuickItem*>("settingsMenuButton");
+    QVERIFY(settingsMenuButton);
 
     centreMenuButton = window->findChild<QQuickItem*>("centreMenuButton");
     QVERIFY(centreMenuButton);

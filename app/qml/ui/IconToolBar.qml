@@ -141,6 +141,7 @@ Item {
 
         ButtonGroup {
             id: toolButtonGroup
+            objectName: "iconToolBarButtonGroup"
             buttons: toolLayout.children
         }
 
