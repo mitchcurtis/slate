@@ -49,6 +49,8 @@ signals:
     void layeredImageProjectChanged();
 
 public slots:
+    void onPreLayersCleared();
+    void onPostLayersCleared();
     void onPreLayerAdded(int index);
     void onPostLayerAdded(int index);
     void onPreLayerRemoved(int index);

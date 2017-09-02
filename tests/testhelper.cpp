@@ -168,6 +168,9 @@ void TestHelper::initTestCase()
 
     splitScreenMenuButton = window->findChild<QQuickItem*>("splitScreenMenuButton");
     QVERIFY(splitScreenMenuButton);
+
+    splitterLockedMenuButton = window->findChild<QQuickItem*>("splitterLockedMenuButton");
+    QVERIFY(splitterLockedMenuButton);
 #endif
 
     canvasSizeButton = window->findChild<QQuickItem*>("canvasSizeButton");
@@ -1214,12 +1217,14 @@ void TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
     }
 
 #ifdef NON_NATIVE_MENUS
-    QVERIFY(newMenuButton->isEnabled());
-    QVERIFY(saveMenuButton->isEnabled());
-    QVERIFY(saveAsMenuButton->isEnabled());
-    QVERIFY(openMenuButton->isEnabled());
-    QVERIFY(closeMenuButton->isEnabled());
-    QVERIFY(settingsMenuButton->isEnabled());
+    QCOMPARE(newMenuButton->isEnabled(), true);
+    // Projects that have just been loaded can't be saved...
+    QCOMPARE(saveMenuButton->isEnabled(), isNewProject);
+    // ... but they can be saved as another project.
+    QCOMPARE(saveAsMenuButton->isEnabled(), true);
+    QCOMPARE(openMenuButton->isEnabled(), true);
+    QCOMPARE(closeMenuButton->isEnabled(), true);
+    QCOMPARE(settingsMenuButton->isEnabled(), true);
 #endif
 
     if (newProjectType == Project::TilesetType) {

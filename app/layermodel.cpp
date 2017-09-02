@@ -19,8 +19,12 @@
 
 #include "layermodel.h"
 
+#include <QLoggingCategory>
+
 #include "imagelayer.h"
 #include "layeredimageproject.h"
+
+Q_LOGGING_CATEGORY(lcLayerModel, "app.layerModel")
 
 LayerModel::LayerModel(QObject *parent) :
     QAbstractListModel(parent),
@@ -48,6 +52,8 @@ void LayerModel::setLayeredImageProject(LayeredImageProject *layeredImageProject
     emit layeredImageProjectChanged();
 
     if (mLayeredImageProject) {
+        connect(mLayeredImageProject, &LayeredImageProject::preLayersCleared, this, &LayerModel::onPreLayersCleared);
+        connect(mLayeredImageProject, &LayeredImageProject::postLayersCleared, this, &LayerModel::onPostLayersCleared);
         connect(mLayeredImageProject, &LayeredImageProject::preLayerAdded, this, &LayerModel::onPreLayerAdded);
         connect(mLayeredImageProject, &LayeredImageProject::postLayerAdded, this, &LayerModel::onPostLayerAdded);
         connect(mLayeredImageProject, &LayeredImageProject::preLayerRemoved, this, &LayerModel::onPreLayerRemoved);
@@ -92,23 +98,41 @@ QHash<int, QByteArray> LayerModel::roleNames() const
     return names;
 }
 
+void LayerModel::onPreLayersCleared()
+{
+    qCDebug(lcLayerModel) << "about to call beginResetModel()";
+    beginResetModel();
+    qCDebug(lcLayerModel) << "called beginResetModel()";
+}
+
+void LayerModel::onPostLayersCleared()
+{
+    qCDebug(lcLayerModel) << "about to call endResetModel()";
+    endResetModel();
+    qCDebug(lcLayerModel) << "called endResetModel()";
+}
+
 void LayerModel::onPreLayerAdded(int index)
 {
+    qCDebug(lcLayerModel) << "index" << index;
     beginInsertRows(QModelIndex(), index, index);
 }
 
-void LayerModel::onPostLayerAdded(int)
+void LayerModel::onPostLayerAdded(int index)
 {
+    qCDebug(lcLayerModel) << "index" << index;
     endInsertRows();
 }
 
 void LayerModel::onPreLayerRemoved(int index)
 {
+    qCDebug(lcLayerModel) << "index" << index;
     beginRemoveRows(QModelIndex(), index, index);
 }
 
-void LayerModel::onPostLayerRemoved(int)
+void LayerModel::onPostLayerRemoved(int index)
 {
+    qCDebug(lcLayerModel) << "index" << index;
     endRemoveRows();
 }
 

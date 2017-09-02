@@ -201,9 +201,22 @@ void LayeredImageProject::close()
     qCDebug(lcProject) << "closing project...";
 
     setNewProject(false);
+
+    // Workaround for QTBUG-62946; when it's fixed we can remove the new code
+    // and go back to the old code
+    emit preLayersCleared();
     while (!mLayers.isEmpty()) {
-        delete takeLayer(0);
+        delete mLayers.takeAt(0);
     }
+    emit layerCountChanged();
+    emit postLayersCleared();
+    setCurrentLayerIndex(0);
+
+    // Old code:
+//    while (!mLayers.isEmpty()) {
+//        delete takeLayer(0);
+//    }
+
     setUrl(QUrl());
     mUndoStack.clear();
     mLayersCreated = 0;

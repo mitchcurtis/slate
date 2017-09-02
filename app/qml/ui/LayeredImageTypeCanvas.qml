@@ -27,9 +27,9 @@ LayeredImageCanvas {
 
     readonly property int currentPaneZoomLevel: layeredCanvas.currentPane ? layeredCanvas.currentPane.zoomLevel : 1
     readonly property point currentPaneOffset: layeredCanvas.currentPane ? layeredCanvas.currentPane.offset : Qt.point(0, 0)
-    readonly property bool useCrosshairCursor: layeredCanvas.tool === TileCanvas.SelectionTool
+    readonly property bool useCrosshairCursor: layeredCanvas.tool === ImageCanvas.SelectionTool
         || (layeredCanvas.toolSize < 4 && layeredCanvas.currentPaneZoomLevel <= 3)
-    readonly property bool useIconCursor: layeredCanvas.tool === TileCanvas.EyeDropperTool
+    readonly property bool useIconCursor: layeredCanvas.tool === ImageCanvas.EyeDropperTool
 
     onErrorOccurred: errorPopup.showError(errorMessage)
 }

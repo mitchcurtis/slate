@@ -59,6 +59,8 @@ signals:
     void postCurrentLayerChanged();
     void layerCountChanged();
 
+    void preLayersCleared();
+    void postLayersCleared();
     void preLayerAdded(int index);
     void postLayerAdded(int index);
     void preLayerRemoved(int index);
