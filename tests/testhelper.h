@@ -197,10 +197,10 @@ protected:
     QPointer<TileCanvas> tileCanvas;
     QPointer<LayeredImageCanvas> layeredImageCanvas;
 #ifdef NON_NATIVE_MENUS
-    QQuickItem *fileToolButton;
-    QQuickItem *editToolButton;
-    QQuickItem *optionsToolButton;
-    QQuickItem *viewToolButton;
+    QQuickItem *fileMenuBarItem;
+    QQuickItem *editMenuBarItem;
+    QQuickItem *optionsMenuBarItem;
+    QQuickItem *viewMenuBarItem;
     QQuickItem *newMenuButton;
     QQuickItem *closeMenuButton;
     QQuickItem *openMenuButton;
@@ -220,7 +220,7 @@ protected:
     QQuickItem *rotateTileLeftMenuButton;
     QQuickItem *rotateTileRightMenuButton;
 #else
-    QObject *fileToolButton;
+    QObject *fileMenuBarItem;
 #endif
     QQuickItem *canvasSizeButton;
     QQuickItem *modeToolButton;

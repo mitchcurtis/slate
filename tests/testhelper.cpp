@@ -33,10 +33,10 @@ TestHelper::TestHelper(int &argc, char **argv) :
     imageCanvas(nullptr),
     tileCanvas(nullptr),
 #ifdef NON_NATIVE_MENUS
-    fileToolButton(nullptr),
-    editToolButton(nullptr),
-    optionsToolButton(nullptr),
-    viewToolButton(nullptr),
+    fileMenuBarItem(nullptr),
+    editMenuBarItem(nullptr),
+    optionsMenuBarItem(nullptr),
+    viewMenuBarItem(nullptr),
     newMenuButton(nullptr),
     closeMenuButton(nullptr),
     openMenuButton(nullptr),
@@ -115,17 +115,17 @@ void TestHelper::initTestCase()
     QVERIFY(layeredImageProject);
 
 #ifdef NON_NATIVE_MENUS
-    fileToolButton = window->findChild<QQuickItem*>("fileToolButton");
-    QVERIFY(fileToolButton);
+    fileMenuBarItem = window->findChild<QQuickItem*>("fileMenuBarItem");
+    QVERIFY(fileMenuBarItem);
 
-    editToolButton = window->findChild<QQuickItem*>("editToolButton");
-    QVERIFY(editToolButton);
+    editMenuBarItem = window->findChild<QQuickItem*>("editMenuBarItem");
+    QVERIFY(editMenuBarItem);
 
-    optionsToolButton = window->findChild<QQuickItem*>("optionsToolButton");
-    QVERIFY(optionsToolButton);
+    optionsMenuBarItem = window->findChild<QQuickItem*>("optionsMenuBarItem");
+    QVERIFY(optionsMenuBarItem);
 
-    viewToolButton = window->findChild<QQuickItem*>("viewToolButton");
-    QVERIFY(viewToolButton);
+    viewMenuBarItem = window->findChild<QQuickItem*>("viewMenuBarItem");
+    QVERIFY(viewMenuBarItem);
 
     newMenuButton = window->findChild<QQuickItem*>("newMenuButton");
     QVERIFY(newMenuButton);
@@ -664,7 +664,7 @@ void TestHelper::triggerShortcut(const QString &objectName, const QString &seque
 void TestHelper::triggerNewProject()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(fileToolButton, MouseClick);
+    mouseEventOnCentre(fileMenuBarItem, MouseClick);
     mouseEventOnCentre(newMenuButton, MouseClick);
 #else
     triggerShortcut("newShortcut", app.settings()->newShortcut());
@@ -674,7 +674,7 @@ void TestHelper::triggerNewProject()
 void TestHelper::triggerCloseProject()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(fileToolButton, MouseClick);
+    mouseEventOnCentre(fileMenuBarItem, MouseClick);
     mouseEventOnCentre(closeMenuButton, MouseClick);
 #else
     triggerShortcut("closeShortcut", app.settings()->closeShortcut());
@@ -684,7 +684,7 @@ void TestHelper::triggerCloseProject()
 void TestHelper::triggerSaveProject()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(fileToolButton, MouseClick);
+    mouseEventOnCentre(fileMenuBarItem, MouseClick);
     mouseEventOnCentre(saveMenuButton, MouseClick);
 #else
     triggerShortcut("saveShortcut", app.settings()->saveShortcut());
@@ -694,7 +694,7 @@ void TestHelper::triggerSaveProject()
 void TestHelper::triggerSaveProjectAs()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(fileToolButton, MouseClick);
+    mouseEventOnCentre(fileMenuBarItem, MouseClick);
     mouseEventOnCentre(saveAsMenuButton, MouseClick);
 #else
     QFAIL("TODO: no saveas shortcut");
@@ -705,7 +705,7 @@ void TestHelper::triggerSaveProjectAs()
 void TestHelper::triggerOpenProject()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(fileToolButton, MouseClick);
+    mouseEventOnCentre(fileMenuBarItem, MouseClick);
     mouseEventOnCentre(openMenuButton, MouseClick);
 #else
     triggerShortcut("openShortcut", app.settings()->openShortcut());
@@ -715,7 +715,7 @@ void TestHelper::triggerOpenProject()
 void TestHelper::triggerRevert()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(fileToolButton, MouseClick);
+    mouseEventOnCentre(fileMenuBarItem, MouseClick);
     mouseEventOnCentre(revertMenuButton, MouseClick);
 #else
     triggerShortcut("revertShortcut", app.settings()->revertShortcut());
@@ -730,7 +730,7 @@ void TestHelper::triggerPaste()
 void TestHelper::triggerFlipHorizontally()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(editToolButton, MouseClick);
+    mouseEventOnCentre(editMenuBarItem, MouseClick);
     mouseEventOnCentre(flipHorizontallyMenuButton, MouseClick);
 #else
     triggerShortcut("flipHorizontallyShortcut", app.settings()->flipHorizontallyShortcut());
@@ -740,7 +740,7 @@ void TestHelper::triggerFlipHorizontally()
 void TestHelper::triggerFlipVertically()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(editToolButton, MouseClick);
+    mouseEventOnCentre(editMenuBarItem, MouseClick);
     mouseEventOnCentre(flipVerticallyMenuButton, MouseClick);
 #else
     triggerShortcut("flipVerticallyShortcut", app.settings()->flipVerticallyShortcut());
@@ -750,7 +750,7 @@ void TestHelper::triggerFlipVertically()
 void TestHelper::triggerCentre()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(viewToolButton, MouseClick);
+    mouseEventOnCentre(viewMenuBarItem, MouseClick);
     mouseEventOnCentre(centreMenuButton, MouseClick);
 #else
     triggerShortcut("centreShortcut", app.settings()->centreShortcut());
@@ -760,7 +760,7 @@ void TestHelper::triggerCentre()
 void TestHelper::triggerGridVisible()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(viewToolButton, MouseClick);
+    mouseEventOnCentre(viewMenuBarItem, MouseClick);
     mouseEventOnCentre(showGridMenuButton, MouseClick);
 #else
     triggerShortcut("gridVisibleShortcut", app.settings()->gridVisibleShortcut());
@@ -770,7 +770,7 @@ void TestHelper::triggerGridVisible()
 void TestHelper::triggerRulersVisible()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(viewToolButton, MouseClick);
+    mouseEventOnCentre(viewMenuBarItem, MouseClick);
     mouseEventOnCentre(showRulersMenuButton, MouseClick);
 #else
     triggerShortcut("rulersVisibleShortcut", app.settings()->rulersVisibleShortcut());
@@ -780,7 +780,7 @@ void TestHelper::triggerRulersVisible()
 void TestHelper::triggerGuidesVisible()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(viewToolButton, MouseClick);
+    mouseEventOnCentre(viewMenuBarItem, MouseClick);
     mouseEventOnCentre(showGuidesMenuButton, MouseClick);
 #else
     triggerShortcut("guidesVisibleShortcut", app.settings()->guidesVisibleShortcut());
@@ -790,7 +790,7 @@ void TestHelper::triggerGuidesVisible()
 void TestHelper::triggerSplitScreen()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(viewToolButton, MouseClick);
+    mouseEventOnCentre(viewMenuBarItem, MouseClick);
     mouseEventOnCentre(splitScreenMenuButton, MouseClick);
 #else
     triggerShortcut("splitScreenShortcut", app.settings()->splitScreenShortcut());
@@ -800,7 +800,7 @@ void TestHelper::triggerSplitScreen()
 void TestHelper::triggerSplitterLocked()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(viewToolButton, MouseClick);
+    mouseEventOnCentre(viewMenuBarItem, MouseClick);
     mouseEventOnCentre(splitterLockedMenuButton, MouseClick);
 #else
     triggerShortcut("splitterLockedShortcut", app.settings()->splitterLockedShortcut());
@@ -818,7 +818,7 @@ void TestHelper::setSplitterLocked(bool splitterLocked)
 void TestHelper::triggerOptions()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(optionsToolButton, MouseClick);
+    mouseEventOnCentre(optionsMenuBarItem, MouseClick);
     mouseEventOnCentre(settingsMenuButton, MouseClick);
 #else
     triggerShortcut("optionsShortcut", app.settings()->optionsShortcut());

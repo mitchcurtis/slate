@@ -1,33 +1,23 @@
 import QtQuick 2.6
 import QtQuick.Layouts 1.2
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.3
 
 import App 1.0
 
-RowLayout {
-    spacing: 10
-
+MenuBar {
     property ImageCanvas canvas
     property ProjectManager projectManager
     property Project project: projectManager.project
     property int projectType: project ? project.type : 0
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
-    ToolButton {
-        id: fileToolButton
-        objectName: "fileToolButton"
-        text: qsTr("File")
-        hoverEnabled: true
+    // The only reason we use the verbose syntax is so that we can
+    // easily test menu interaction.
+    MenuBarItem {
+        objectName: "fileMenuBarItem"
         focusPolicy: Qt.TabFocus
-
-        // QTBUG-54916
-        Layout.preferredWidth: implicitWidth == implicitHeight ? implicitHeight + 1 : implicitWidth
-
-        onClicked: fileMenu.open()
-
-        Menu {
-            id: fileMenu
-            y: fileToolButton.height
+        menu: Menu {
+            title: qsTr("File")
 
             MenuItem {
                 objectName: "newMenuButton"
@@ -84,21 +74,11 @@ RowLayout {
         }
     }
 
-    ToolButton {
-        id: editToolButton
-        objectName: "editToolButton"
-        text: qsTr("Edit")
-        hoverEnabled: true
+    MenuBarItem {
+        objectName: "editMenuBarItem"
         focusPolicy: Qt.TabFocus
-
-        // QTBUG-54916
-        Layout.preferredWidth: implicitWidth == implicitHeight ? implicitHeight + 1 : implicitWidth
-
-        onClicked: editMenu.open()
-
-        Menu {
-            id: editMenu
-            y: editToolButton.height
+        menu: Menu {
+            title: qsTr("Edit")
 
             MenuItem {
                 objectName: "undoMenuButton"
@@ -157,18 +137,11 @@ RowLayout {
         }
     }
 
-    ToolButton {
-        id: viewToolButton
-        objectName: "viewToolButton"
-        text: qsTr("View")
-        hoverEnabled: true
+    MenuBarItem {
+        objectName: "viewMenuBarItem"
         focusPolicy: Qt.TabFocus
-        Layout.preferredWidth: implicitWidth <= implicitHeight ? implicitWidth + 1 : implicitWidth
-        onClicked: viewMenu.open()
-
-        Menu {
-            id: viewMenu
-            y: viewToolButton.height
+        menu: Menu {
+            title: qsTr("View")
 
             MenuItem {
                 objectName: "centreMenuButton"
@@ -249,17 +222,11 @@ RowLayout {
         }
     }
 
-    ToolButton {
-        id: toolsToolButton
-        objectName: "optionsToolButton"
-        text: qsTr("Tools")
-        hoverEnabled: true
+    MenuBarItem {
+        objectName: "optionsMenuBarItem"
         focusPolicy: Qt.TabFocus
-        onClicked: settingsMenu.open()
-
-        Menu {
-            id: settingsMenu
-            y: toolsToolButton.height
+        menu: Menu {
+            title: qsTr("Tools")
 
             MenuItem {
                 objectName: "settingsMenuButton"
@@ -267,15 +234,5 @@ RowLayout {
                 onClicked: optionsDialog.open()
             }
         }
-    }
-
-    Label {
-        text: "Slate"
-        color: "#ffffff"
-        opacity: 0.1
-        style: Text.Sunken
-        font.family: "arial"
-        font.pixelSize: Qt.application.font.pixelSize * 1.5
-        Layout.leftMargin: 8
     }
 }

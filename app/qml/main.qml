@@ -144,6 +144,25 @@ ApplicationWindow {
         canvas: window.canvas
     }
 
+    menuBar: Ui.MenuBar {
+        id: menuBar
+        projectManager: window.projectManager
+        canvas: window.canvas
+    }
+
+    header: Ui.ToolBar {
+        objectName: "toolBar"
+
+        Ui.IconToolBar {
+            id: iconToolBar
+            project: window.project
+            canvas: window.canvas
+            fontMetrics: fontMetrics
+
+            Layout.fillWidth: true
+        }
+    }
+
     RowLayout {
         anchors.fill: parent
         spacing: 0
@@ -199,30 +218,6 @@ ApplicationWindow {
                 Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
                 Layout.preferredHeight: active ? window.contentItem.height / 2 : 0
                 Layout.fillHeight: active
-            }
-        }
-    }
-
-    header: Ui.ToolBar {
-        objectName: "toolBar"
-
-        ColumnLayout {
-            anchors.fill: parent
-            spacing: 0
-
-            Ui.MenuBar {
-                id: menuBar
-                projectManager: window.projectManager
-                canvas: window.canvas
-            }
-
-            Ui.IconToolBar {
-                id: iconToolBar
-                project: window.project
-                canvas: window.canvas
-                fontMetrics: fontMetrics
-
-                Layout.fillWidth: true
             }
         }
     }
