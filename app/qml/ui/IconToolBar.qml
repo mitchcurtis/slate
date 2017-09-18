@@ -50,6 +50,9 @@ Item {
             case TileCanvas.SelectionTool:
                 toolButtonGroup.checkedButton = selectionToolButton;
                 break;
+            case TileCanvas.CropTool:
+                toolButtonGroup.checkedButton = cropToolButton;
+                break;
             }
         }
     }
@@ -203,7 +206,6 @@ Item {
                 onClicked: switchTool(ImageCanvas.FillTool)
             }
 
-            // TODO: https://bugreports.qt.io/browse/QTBUG-60807 affects icon colour
             ToolButton {
                 id: selectionToolButton
                 objectName: "selectionToolButton"
@@ -218,6 +220,19 @@ Item {
                 ToolTip.visible: hovered
 
                 onClicked: switchTool(ImageCanvas.SelectionTool)
+            }
+
+            Ui.IconToolButton {
+                id: cropToolButton
+                objectName: "cropToolButton"
+                iconText: "\uf125"
+                checkable: true
+                hoverEnabled: true
+
+                ToolTip.text: qsTr("Crop the canvas")
+                ToolTip.visible: hovered
+
+                onClicked: switchTool(ImageCanvas.CropTool)
             }
 
             ToolSeparator {}

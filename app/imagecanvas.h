@@ -86,7 +86,8 @@ public:
         EyeDropperTool,
         EraserTool,
         FillTool,
-        SelectionTool
+        SelectionTool,
+        CropTool
     };
 
     Q_ENUM(Tool)

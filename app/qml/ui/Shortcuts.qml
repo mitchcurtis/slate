@@ -40,6 +40,13 @@ Item {
     }
 
     Shortcut {
+        objectName: "exportShortcut"
+        sequence: settings.exportShortcut
+        onActivated: exportDialog.open()
+        enabled: project ? project.loaded && projectType === Project.LayeredImageType : false
+    }
+
+    Shortcut {
         objectName: "closeShortcut"
         sequence: settings.closeShortcut
         onActivated: doIfChangesDiscarded(function() { project.close() })

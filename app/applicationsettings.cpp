@@ -235,6 +235,7 @@ void ApplicationSettings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("newShortcut"));
         allShortcuts.append(QLatin1String("openShortcut"));
         allShortcuts.append(QLatin1String("saveShortcut"));
+        allShortcuts.append(QLatin1String("exportShortcut"));
         allShortcuts.append(QLatin1String("closeShortcut"));
         allShortcuts.append(QLatin1String("revertShortcut"));
         allShortcuts.append(QLatin1String("undoShortcut"));
@@ -342,6 +343,21 @@ QString ApplicationSettings::saveShortcut() const
 void ApplicationSettings::setSaveShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("saveShortcut", defaultSaveShortcut, saveShortcutChanged)
+}
+
+QString ApplicationSettings::defaultExportShortcut() const
+{
+    return QLatin1String("Ctrl+Shift+E");
+}
+
+QString ApplicationSettings::exportShortcut() const
+{
+    GET_SHORTCUT("exportShortcut", defaultExportShortcut)
+}
+
+void ApplicationSettings::setExportShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("exportShortcut", defaultExportShortcut, exportShortcutChanged)
 }
 
 QString ApplicationSettings::defaultCloseShortcut() const
