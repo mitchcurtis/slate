@@ -167,6 +167,17 @@ Item {
             }
 
             Platform.MenuItem {
+                objectName: "lockGuidesMenuButton"
+                text: qsTr("Lock Guides")
+                enabled: canvas
+                checkable: true
+                checked: settings.guidesLocked
+                onCheckedChanged: settings.guidesLocked = checked
+            }
+
+            Platform.MenuSeparator {}
+
+            Platform.MenuItem {
                 objectName: "splitScreenMenuButton"
                 text: qsTr("Split Screen")
                 enabled: canvas

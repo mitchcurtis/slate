@@ -31,6 +31,7 @@ class ApplicationSettings : public QSettings
     Q_PROPERTY(bool gridVisible READ isGridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
     Q_PROPERTY(bool rulersVisible READ areRulersVisible WRITE setRulersVisible NOTIFY rulersVisibleChanged)
     Q_PROPERTY(bool guidesVisible READ areGuidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
+    Q_PROPERTY(bool guidesLocked READ areGuidesLocked WRITE setGuidesLocked NOTIFY guidesLockedChanged)
     Q_PROPERTY(bool splitScreen READ isSplitScreen WRITE setSplitScreen NOTIFY splitScreenChanged)
     Q_PROPERTY(bool splitterLocked READ isSplitterLocked WRITE setSplitterLocked NOTIFY splitterLockedChanged)
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
@@ -89,6 +90,10 @@ public:
     bool areGuidesVisible() const;
     void setGuidesVisible(bool guidesVisible);
     bool defaultGuidesVisible() const;
+
+    bool areGuidesLocked() const;
+    void setGuidesLocked(bool guidesLocked);
+    bool defaultGuidesLocked() const;
 
     bool defaultSplitScreen() const;
     bool isSplitScreen() const;
@@ -238,6 +243,7 @@ signals:
     void gridVisibleChanged();
     void rulersVisibleChanged();
     void guidesVisibleChanged();
+    void guidesLockedChanged();
     void splitScreenChanged();
     void splitterLockedChanged();
     void scrollZoomChanged();

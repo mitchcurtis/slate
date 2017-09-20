@@ -66,6 +66,7 @@ ImageCanvas::ImageCanvas() :
     mSecondVerticalRuler(new Ruler(Qt::Vertical, this)),
     mPressedRuler(nullptr),
     mGuidesVisible(false),
+    mGuidesLocked(false),
     mGuidePositionBeforePress(0),
     mPressedGuideIndex(-1),
     mCursorX(0),
@@ -236,6 +237,20 @@ void ImageCanvas::setGuidesVisible(bool guidesVisible)
     mGuidesVisible = guidesVisible;
     update();
     emit guidesVisibleChanged();
+}
+
+bool ImageCanvas::guidesLocked() const
+{
+    return mGuidesLocked;
+}
+
+void ImageCanvas::setGuidesLocked(bool guidesLocked)
+{
+    if (guidesLocked == mGuidesLocked)
+        return;
+
+    mGuidesLocked = guidesLocked;
+    emit guidesLockedChanged();
 }
 
 QColor ImageCanvas::splitColour() const
@@ -1636,7 +1651,7 @@ void ImageCanvas::updateWindowCursorShape()
     }
 
     bool overGuide = false;
-    if (guidesVisible() && !overRuler) {
+    if (guidesVisible() && !guidesLocked() && !overRuler) {
         overGuide = guideIndexAtCursorPos() != -1;
     }
 
@@ -1834,10 +1849,12 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
             if (mPressedRuler)
                 return;
 
-            updatePressedGuide();
-            if (mPressedGuideIndex != -1) {
-                updateWindowCursorShape();
-                return;
+            if (!guidesLocked()) {
+                updatePressedGuide();
+                if (mPressedGuideIndex != -1) {
+                    updateWindowCursorShape();
+                    return;
+                }
             }
         }
 

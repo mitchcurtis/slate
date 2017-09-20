@@ -16,6 +16,7 @@ LayeredImageCanvas {
     gridColour: "#55000000"
     rulersVisible: settings.rulersVisible
     guidesVisible: settings.guidesVisible
+    guidesLocked: settings.guidesLocked
     splitScreen: settings.splitScreen
     splitColour: CanvasColours.splitColour
     splitter.enabled: settings.splitScreen && !settings.splitterLocked

@@ -152,6 +152,31 @@ bool ApplicationSettings::defaultGuidesVisible() const
     return true;
 }
 
+bool ApplicationSettings::areGuidesLocked() const
+{
+    return contains("guidesLocked") ? value("guidesLocked").toBool() : defaultGuidesLocked();
+}
+
+void ApplicationSettings::setGuidesLocked(bool guidesLocked)
+{
+    QVariant existingValue = value("guidesLocked");
+    bool existingBoolValue = defaultGuidesLocked();
+    if (contains("guidesLocked")) {
+        existingBoolValue = existingValue.toBool();
+    }
+
+    if (guidesLocked == existingBoolValue)
+        return;
+
+    setValue("guidesLocked", guidesLocked);
+    emit guidesLockedChanged();
+}
+
+bool ApplicationSettings::defaultGuidesLocked() const
+{
+    return false;
+}
+
 bool ApplicationSettings::defaultSplitScreen() const
 {
     return true;

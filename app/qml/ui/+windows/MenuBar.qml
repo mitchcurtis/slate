@@ -194,6 +194,17 @@ MenuBar {
             }
 
             MenuItem {
+                objectName: "lockGuidesMenuButton"
+                text: qsTr("Lock Guides")
+                enabled: canvas
+                checkable: true
+                checked: settings.guidesLocked
+                onCheckedChanged: settings.guidesLocked = checked
+            }
+
+            MenuSeparator {}
+
+            MenuItem {
                 objectName: "splitScreenMenuButton"
                 text: qsTr("Split Screen")
                 enabled: canvas
