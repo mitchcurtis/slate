@@ -383,11 +383,7 @@ void tst_App::saveAsAndLoad()
 
     // Zoom in.
     setCursorPosInPixels(QPoint(0, 0));
-    const int expectedZoomLevel = 5;
-    CanvasPane *currentPane = canvas->currentPane();
-    for (int i = 0; currentPane->zoomLevel() < expectedZoomLevel && i < expectedZoomLevel; ++i)
-        wheelEvent(canvas, cursorWindowPos, 1);
-    QCOMPARE(currentPane->zoomLevel(), expectedZoomLevel);
+    zoomTo(5);
 
     QCOMPARE(canvas->isSplitScreen(), true);
 
@@ -406,10 +402,10 @@ void tst_App::saveAsAndLoad()
 
     // Store the original offsets, etc.
     const QPoint firstPaneOffset = canvas->firstPane()->offset();
-    const int firstPaneZoomLevel = canvas->firstPane()->zoomLevel();
+    const int firstPaneZoomLevel = canvas->firstPane()->integerZoomLevel();
     const qreal firstPaneSize = canvas->firstPane()->size();
     const QPoint secondPaneOffset = canvas->secondPane()->offset();
-    const int secondPaneZoomLevel = canvas->secondPane()->zoomLevel();
+    const int secondPaneZoomLevel = canvas->secondPane()->integerZoomLevel();
     const qreal secondPaneSize = canvas->secondPane()->size();
 
     // Save the project.
@@ -427,10 +423,10 @@ void tst_App::saveAsAndLoad()
     QCOMPARE(project->guides().size(), 1);
     QCOMPARE(project->guides().first().position(), 10);
     QCOMPARE(canvas->firstPane()->offset(), firstPaneOffset);
-    QCOMPARE(canvas->firstPane()->zoomLevel(), firstPaneZoomLevel);
+    QCOMPARE(canvas->firstPane()->integerZoomLevel(), firstPaneZoomLevel);
     QCOMPARE(canvas->firstPane()->size(), firstPaneSize);
     QCOMPARE(canvas->secondPane()->offset(), secondPaneOffset);
-    QCOMPARE(canvas->secondPane()->zoomLevel(), secondPaneZoomLevel);
+    QCOMPARE(canvas->secondPane()->integerZoomLevel(), secondPaneZoomLevel);
     QCOMPARE(canvas->secondPane()->size(), secondPaneSize);
 }
 
@@ -1237,9 +1233,7 @@ void tst_App::zoomAndPan()
     panBy(50, 0);
 
     // Test zoom.
-    QPoint zoomPos = tileSceneCentre(5, 5);
-    wheelEvent(tileCanvas, zoomPos, 1);
-    QCOMPARE(tileCanvas->currentPane()->zoomLevel(), 2);
+    zoomTo(2, tileSceneCentre(5, 5));
 }
 
 void tst_App::zoomAndCentre()
@@ -1253,16 +1247,12 @@ void tst_App::zoomAndCentre()
     QCOMPARE(currentPane, tileCanvas->firstPane());
 
     // Zoom in.
-    QPoint zoomPos = tileSceneCentre(5, 5);
-    const int expectedZoomLevel = 5;
-    for (int i = 0; currentPane->zoomLevel() < expectedZoomLevel && i < expectedZoomLevel; ++i)
-        wheelEvent(tileCanvas, zoomPos, 1);
-    QCOMPARE(currentPane->zoomLevel(), expectedZoomLevel);
+    zoomTo(5, tileSceneCentre(5, 5));
 
     triggerCentre();
     const QPoint expectedOffset(
-        currentPane->size() * tileCanvas->width() / 2 - (tilesetProject->widthInPixels() * currentPane->zoomLevel()) / 2,
-        tileCanvas->height() / 2 - (tilesetProject->heightInPixels() * currentPane->zoomLevel()) / 2);
+        currentPane->size() * tileCanvas->width() / 2 - (tilesetProject->widthInPixels() * currentPane->integerZoomLevel()) / 2,
+        tileCanvas->height() / 2 - (tilesetProject->heightInPixels() * currentPane->integerZoomLevel()) / 2);
     // A one pixel difference was introduced here at some point.. not sure why, but it's not important.
     const int xDiff = qAbs(currentPane->offset().x() - expectedOffset.x());
     const int yDiff = qAbs(currentPane->offset().y() - expectedOffset.y());
@@ -1302,15 +1292,15 @@ void tst_App::penWhilePannedAndZoomed()
     panBy(xDistance, yDistance);
 
     if (zoomLevel > 1) {
-        for (int i = 0; i < zoomLevel - canvas->currentPane()->zoomLevel(); ++i) {
+        for (int i = 0; i < zoomLevel - canvas->currentPane()->integerZoomLevel(); ++i) {
             wheelEvent(canvas, tileSceneCentre(5, 5), 1);
         }
-        QCOMPARE(canvas->currentPane()->zoomLevel(), zoomLevel);
+        QCOMPARE(canvas->currentPane()->integerZoomLevel(), zoomLevel);
     } else if (zoomLevel < 1) {
-        for (int i = 0; i < qAbs(zoomLevel - canvas->currentPane()->zoomLevel()); ++i) {
+        for (int i = 0; i < qAbs(zoomLevel - canvas->currentPane()->integerZoomLevel()); ++i) {
             wheelEvent(canvas, tileSceneCentre(5, 5), -1);
         }
-        QCOMPARE(canvas->currentPane()->zoomLevel(), zoomLevel);
+        QCOMPARE(canvas->currentPane()->integerZoomLevel(), zoomLevel);
     }
 
     if (projectType == Project::TilesetType) {

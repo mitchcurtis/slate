@@ -30,7 +30,8 @@ class CanvasPane : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(qreal size READ size WRITE setSize NOTIFY sizeChanged)
-    Q_PROPERTY(int zoomLevel READ zoomLevel WRITE setZoomLevel NOTIFY zoomLevelChanged)
+//    Q_PROPERTY(qreal zoomLevel READ zoomLevel WRITE setZoomLevel NOTIFY zoomLevelChanged)
+    Q_PROPERTY(int integerZoomLevel READ integerZoomLevel NOTIFY zoomLevelChanged)
     Q_PROPERTY(int maxZoomLevel READ maxZoomLevel CONSTANT)
     Q_PROPERTY(QPoint offset READ offset WRITE setOffset NOTIFY offsetChanged)
 
@@ -40,8 +41,9 @@ public:
     qreal size() const;
     void setSize(const qreal &size);
 
-    int zoomLevel() const;
-    void setZoomLevel(int zoomLevel);
+    qreal zoomLevel() const;
+    int integerZoomLevel() const;
+    void setZoomLevel(qreal zoomLevel);
     int maxZoomLevel() const;
 
     QSize zoomedSize(const QSize &size) const;
@@ -66,7 +68,7 @@ signals:
 
 private:
     qreal mSize;
-    int mZoomLevel;
+    qreal mZoomLevel;
     int mMaxZoomLevel;
     // From the top left of the canvas.
     QPoint mOffset;

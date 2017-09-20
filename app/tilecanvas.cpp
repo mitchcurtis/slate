@@ -556,8 +556,9 @@ void TileCanvas::updateCursorPos(const QPoint &eventPos)
     }
 
     // We need the position as floating point numbers so that pen sizes > 1 work properly.
-    mCursorSceneFX = qreal(mCursorPaneX - mCurrentPane->offset().x()) / mTilesetProject->tileWidth() / mCurrentPane->zoomLevel() * mTilesetProject->tileWidth();
-    mCursorSceneFY = qreal(mCursorPaneY - mCurrentPane->offset().y()) / mTilesetProject->tileHeight() / mCurrentPane->zoomLevel() * mTilesetProject->tileHeight();
+    const int zoomLevel = mCurrentPane->integerZoomLevel();
+    mCursorSceneFX = qreal(mCursorPaneX - mCurrentPane->offset().x()) / mTilesetProject->tileWidth() / zoomLevel * mTilesetProject->tileWidth();
+    mCursorSceneFY = qreal(mCursorPaneY - mCurrentPane->offset().y()) / mTilesetProject->tileHeight() / zoomLevel * mTilesetProject->tileHeight();
     mCursorSceneX = mCursorSceneFX;
     mCursorSceneY = mCursorSceneFY;
 

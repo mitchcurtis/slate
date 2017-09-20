@@ -28,7 +28,7 @@ RowLayout {
 
     Label {
         id: zoomLevelText
-        text: pane ? pane.zoomLevel : ""
+        text: pane ? pane.integerZoomLevel : ""
         color: "#ffffff"
 
         Layout.minimumWidth: maxZoomTextMetrics.width

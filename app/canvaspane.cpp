@@ -20,11 +20,12 @@
 #include "canvaspane.h"
 
 #include <QJsonObject>
+#include <QtMath>
 
 CanvasPane::CanvasPane(QObject *parent) :
     QObject(parent),
     mSize(0.5),
-    mZoomLevel(1),
+    mZoomLevel(1.0),
     mMaxZoomLevel(30),
     mSceneCentered(true)
 {
@@ -45,15 +46,20 @@ void CanvasPane::setSize(const qreal &size)
     emit sizeChanged();
 }
 
-int CanvasPane::zoomLevel() const
+qreal CanvasPane::zoomLevel() const
 {
     return mZoomLevel;
 }
 
-void CanvasPane::setZoomLevel(int zoomLevel)
+int CanvasPane::integerZoomLevel() const
 {
-    const int adjustedLevel = qBound(1, zoomLevel, mMaxZoomLevel);
-    if (adjustedLevel == mZoomLevel)
+    return qFloor(mZoomLevel);
+}
+
+void CanvasPane::setZoomLevel(qreal zoomLevel)
+{
+    const qreal adjustedLevel = qBound(1.0, zoomLevel, qreal(mMaxZoomLevel));
+    if (qFuzzyCompare(adjustedLevel, mZoomLevel))
         return;
 
     mZoomLevel = adjustedLevel;
@@ -67,7 +73,7 @@ int CanvasPane::maxZoomLevel() const
 
 QSize CanvasPane::zoomedSize(const QSize &size) const
 {
-    return size * mZoomLevel;
+    return size * integerZoomLevel();
 }
 
 QPoint CanvasPane::offset() const
@@ -86,7 +92,7 @@ void CanvasPane::setOffset(const QPoint &offset)
 
 QPoint CanvasPane::zoomedOffset() const
 {
-    return mOffset * zoomLevel();
+    return mOffset * integerZoomLevel();
 }
 
 bool CanvasPane::isSceneCentered() const
@@ -110,7 +116,9 @@ void CanvasPane::read(const QJsonObject &json)
 void CanvasPane::write(QJsonObject &json) const
 {
     json[QLatin1String("size")] = mSize;
-    json[QLatin1String("zoomLevel")] = mZoomLevel;
+    // It's only important that the zoom level is a real while zooming
+    // to ensure that zooming is not too quick.
+    json[QLatin1String("zoomLevel")] = integerZoomLevel();
     json[QLatin1String("offsetX")] = mOffset.x();
     json[QLatin1String("offsetY")] = mOffset.y();
     json[QLatin1String("sceneCentered")] = mSceneCentered;
@@ -119,7 +127,7 @@ void CanvasPane::write(QJsonObject &json) const
 void CanvasPane::reset()
 {
     setSize(0.5);
-    setZoomLevel(1);
+    setZoomLevel(1.0);
     setOffset(QPoint(0, 0));
     setSceneCentered(true);
 }
