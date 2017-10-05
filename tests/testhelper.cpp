@@ -1339,6 +1339,23 @@ void TestHelper::switchTool(ImageCanvas::Tool tool)
     QCOMPARE(canvas->tool(), tool);
 }
 
+void TestHelper::setPenForegroundColour(QString argbString)
+{
+    QQuickItem *hexTextField = window->findChild<QQuickItem*>("hexTextField");
+    QVERIFY(hexTextField);
+
+    argbString.replace("#", QString());
+
+    hexTextField->forceActiveFocus();
+    QMetaObject::invokeMethod(hexTextField, "selectAll", Qt::DirectConnection);
+
+    for (int i = 0; i < argbString.length(); ++i) {
+        QTest::keyClick(window, argbString.at(i).toLatin1());
+    }
+    QTest::keyClick(window, Qt::Key_Return);
+    QCOMPARE(hexTextField->property("text").toString(), argbString);
+}
+
 void TestHelper::panTopLeftTo(int x, int y)
 {
     const QPoint panDistance = QPoint(x, y) - canvas->firstPane()->offset();

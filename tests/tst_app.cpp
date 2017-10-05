@@ -75,6 +75,7 @@ private Q_SLOTS:
     void tilesetSwatchNavigation();
     void cursorShapeAfterClickingLighter();
     void colourPickerHexField();
+    void colourPickerHexFieldTranslucent();
     void eraseImageCanvas_data();
     void eraseImageCanvas();
     void selectionToolImageCanvas();
@@ -95,6 +96,8 @@ private Q_SLOTS:
     void greedyPixelFillImageCanvas();
     void pixelLineToolImageCanvas_data();
     void pixelLineToolImageCanvas();
+    void pixelLineToolTransparent_data();
+    void pixelLineToolTransparent();
     void rulersAndGuides_data();
     void rulersAndGuides();
 
@@ -1599,6 +1602,11 @@ void tst_App::colourPickerHexField()
     QCOMPARE(canvas->hasActiveFocus(), true);
 }
 
+void tst_App::colourPickerHexFieldTranslucent()
+{
+    setPenForegroundColour("#88ff0000");
+}
+
 void tst_App::eraseImageCanvas_data()
 {
     addImageProjectTypes();
@@ -2223,6 +2231,54 @@ void tst_App::pixelLineToolImageCanvas()
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(project->hasUnsavedChanges(), false);
+}
+
+void tst_App::pixelLineToolTransparent_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::pixelLineToolTransparent()
+{
+    QFETCH(Project::Type, projectType);
+
+    createNewProject(projectType);
+
+    switchTool(ImageCanvas::PenTool);
+
+    const QColor translucentRed = QColor::fromRgba(0x88ff0000);
+    setPenForegroundColour("#88ff0000");
+
+    // Draw the start of the line.
+    setCursorPosInScenePixels(0, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
+    QCOMPARE(project->hasUnsavedChanges(), true);
+
+    // Draw the line itself.
+    setCursorPosInScenePixels(2, 2);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::keyPress(window, Qt::Key_Shift);
+    // For some reason there must be a delay in order for the shift modifier to work.
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
+    QTest::keyRelease(window, Qt::Key_Shift);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), translucentRed);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);
+
+    // Undo the line.
+    mouseEventOnCentre(undoButton, MouseClick);
+    // The initial press has to still be there.
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
+
+    // Redo the line.
+    mouseEventOnCentre(redoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), translucentRed);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);\
 }
 
 void tst_App::rulersAndGuides_data()

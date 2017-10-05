@@ -32,7 +32,7 @@ class ApplyPixelLineCommand : public UndoCommand
 
 public:
     ApplyPixelLineCommand(ImageCanvas *canvas, const QImage &imageWithLine,
-        const QImage &imageWithoutLine, const QPoint &newLastPixelPenReleaseScenePos,
+        const QImage &imageWithoutLine, const QRect &lineRect, const QPoint &newLastPixelPenReleaseScenePos,
         const QPoint &oldLastPixelPenReleaseScenePos, UndoCommand *parent = nullptr);
     ~ApplyPixelLineCommand();
 
@@ -48,6 +48,7 @@ private:
     ImageCanvas *mCanvas;
     QImage mImageWithLine;
     QImage mImageWithoutLine;
+    QRect mLineRect;
     QPoint mNewLastPixelPenReleaseScenePos;
     QPoint mOldLastPixelPenReleaseScenePos;
 };

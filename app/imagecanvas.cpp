@@ -754,7 +754,12 @@ const QImage *ImageCanvas::currentProjectImage() const
 
 QImage ImageCanvas::contentImage() const
 {
-    const QImage image = !shouldDrawSelectionPreviewImage() ? *currentProjectImage() : mSelectionPreviewImage;
+    QImage image = !shouldDrawSelectionPreviewImage() ? *currentProjectImage() : mSelectionPreviewImage;
+    // Draw the pixel-pen-line indicator over the content.
+    if (isLineVisible()) {
+        QPainter linePainter(&image);
+        drawLine(&linePainter);
+    }
     return image;
 }
 
@@ -785,6 +790,7 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     // We use the unbounded canvas size here, otherwise the drawn area is too small past a certain zoom level.
     painter->drawTiledPixmap(0, 0, zoomedCanvasSize.width(), zoomedCanvasSize.height(), mCheckerPixmap);
 
+    // TODO: LayeredImageCanvas needs to be able to do its own rendering here
     const QImage image = contentImage();
     const QSize zoomedImageSize = pane.zoomedSize(image.size());
     painter->drawImage(QRectF(QPointF(0, 0), zoomedImageSize), image, QRectF(0, 0, image.width(), image.height()));
@@ -797,24 +803,6 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     const QRect zoomedSelectionArea(mSelectionArea.topLeft() * pane.integerZoomLevel(), pane.zoomedSize(mSelectionArea.size()));
     painter->setPen(pen);
     painter->drawRect(zoomedSelectionArea);
-
-    // Draw the pixel-pen-line indicator.
-    if (isLineVisible()) {
-        const QPointF point1 = mLastPixelPenPressScenePosition;
-        const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
-        mLinePreviewImage = QImage(currentProjectImage()->size(), QImage::Format_ARGB32_Premultiplied);
-        mLinePreviewImage.fill(Qt::transparent);
-
-        QPainter linePainter(&mLinePreviewImage);
-        QPen pen;
-        pen.setColor(penColour());
-        pen.setWidth(mToolSize);
-        linePainter.setPen(pen);
-        linePainter.drawLine(QLineF(point1, point2));
-
-        painter->drawImage(QRectF(QPointF(0, 0), zoomedImageSize), mLinePreviewImage,
-            QRectF(0, 0, mLinePreviewImage.width(), mLinePreviewImage.height()));
-    }
 
     if (mGuidesVisible) {
         // Draw the existing guides.
@@ -831,6 +819,27 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
             drawGuide(painter, pane, paneIndex, guide, -1);
         }
     }
+
+    painter->restore();
+}
+
+void ImageCanvas::drawLine(QPainter *painter) const
+{
+    painter->save();
+
+    const QPointF point1 = linePoint1();
+    const QPointF point2 = linePoint2();
+    QPen pen;
+    pen.setColor(penColour());
+    pen.setWidth(mToolSize);
+    painter->setPen(pen);
+
+    QLineF line(point1, point2);
+    // Draw the line on top of what has already been painted using a special composition mode.
+    // This ensures that e.g. a translucent red overwrites whatever pixels it
+    // lies on, rather than blending with them.
+    painter->setCompositionMode(QPainter::CompositionMode_Source);
+    painter->drawLine(line);
 
     painter->restore();
 }
@@ -1270,6 +1279,8 @@ void ImageCanvas::reset()
     mLastPixelPenPressScenePosition = QPoint(0, 0);
     mLinePreviewImage = QImage();
 
+    mCropArea = QRect();
+
     clearSelection();
     setAltPressed(false);
     mToolBeforeAltPressed = PenTool;
@@ -1483,8 +1494,20 @@ void ImageCanvas::applyCurrentTool()
             mProject->beginMacro(QLatin1String("PixelPenTool"));
             mProject->addChange(new ApplyPixelPenCommand(this, candidateData.scenePositions, candidateData.previousColours, penColour()));
         } else {
+            // The undo command for lines needs the project image before and after
+            // the line was drawn on it.
+            const QRect lineRect = normalisedLineRect();
+            const QImage imageWithoutLine = currentProjectImage()->copy(lineRect);
+
+            QImage imageWithLine = *currentProjectImage();
+            QPainter painter(&imageWithLine);
+            drawLine(&painter);
+            painter.end();
+            imageWithLine = imageWithLine.copy(lineRect);
+
             mProject->beginMacro(QLatin1String("PixelLineTool"));
-            mProject->addChange(new ApplyPixelLineCommand(this, mLinePreviewImage, *currentProjectImage(), mPressScenePosition, mLastPixelPenPressScenePosition));
+            mProject->addChange(new ApplyPixelLineCommand(this, imageWithLine, imageWithoutLine, lineRect,
+                mPressScenePosition, mLastPixelPenPressScenePosition));
             mProject->endMacro();
         }
         break;
@@ -1542,11 +1565,12 @@ void ImageCanvas::applyPixelPenTool(const QPoint &scenePos, const QColor &colour
     update();
 }
 
-void ImageCanvas::applyPixelLineTool(const QImage &lineImage, const QPoint &lastPixelPenReleaseScenePosition)
+void ImageCanvas::applyPixelLineTool(const QImage &lineImage, const QRect &lineRect, const QPoint &lastPixelPenReleaseScenePosition)
 {
     mLastPixelPenPressScenePosition = lastPixelPenReleaseScenePosition;
     QPainter painter(currentProjectImage());
-    painter.drawImage(0, 0, lineImage);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.drawImage(lineRect, lineImage);
     update();
 }
 
@@ -1574,6 +1598,21 @@ void ImageCanvas::doFlipSelection(const QRect &area, Qt::Orientation orientation
         .mirrored(orientation == Qt::Horizontal, orientation == Qt::Vertical);
     erasePortionOfImage(area);
     paintImageOntoPortionOfImage(area, flippedImagePortion);
+}
+
+QPointF ImageCanvas::linePoint1() const
+{
+    return mLastPixelPenPressScenePosition;
+}
+
+QPointF ImageCanvas::linePoint2() const
+{
+    return QPointF(mCursorSceneX, mCursorSceneY);
+}
+
+QRect ImageCanvas::normalisedLineRect() const
+{
+    return QRect(linePoint1().toPoint(), linePoint2().toPoint()).normalized();
 }
 
 void ImageCanvas::updateCursorPos(const QPoint &eventPos)
@@ -2140,6 +2179,9 @@ void ImageCanvas::focusOutEvent(QFocusEvent *event)
     if (mAltPressed) {
         restoreToolBeforeAltPressed();
     }
+
+    // When e.g. a dialog opens, we shouldn't keep drawing the line preview.
+    setShiftPressed(false);
 
     updateWindowCursorShape();
 }

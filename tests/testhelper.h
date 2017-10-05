@@ -174,6 +174,7 @@ protected:
 
     void switchMode(TileCanvas::Mode mode);
     void switchTool(ImageCanvas::Tool tool);
+    void setPenForegroundColour(QString argbString);
     void panTopLeftTo(int x, int y);
     void panBy(int xDistance, int yDistance);
     void zoomTo(int zoomLevel);

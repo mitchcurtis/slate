@@ -37,20 +37,9 @@ GridLayout {
             id: hueSlider
             implicitHeight: saturationLightnessPicker.height
 
-            // I know that this is ugly, but I'm just so sick of binding loops that I can't be bothered anymore.
-            property bool ignoreChanges: false
-
-            onColorChanged: {
-                ignoreChanges = true;
-                canvas[hexColourRowLayout.colourSelector.currentPenName] = saturationLightnessPicker.color
-                ignoreChanges = false;
-            }
+            onHuePicked: canvas[hexColourRowLayout.colourSelector.currentPenName] = saturationLightnessPicker.color
 
             function updateOurColour() {
-                if (hueSlider.ignoreChanges) {
-                    return;
-                }
-
                 hueSlider.hue = canvas[hexColourRowLayout.colourSelector.currentPenName].hslHue;
             }
 
@@ -70,10 +59,6 @@ GridLayout {
             alpha: transparencySlider.value
 
             function updateOurColour() {
-                if (saturationLightnessPicker.ignoreChanges) {
-                    return;
-                }
-
                 saturationLightnessPicker.color = canvas[hexColourRowLayout.colourSelector.currentPenName];
             }
 
@@ -88,15 +73,11 @@ GridLayout {
                 onCurrentPenNameChanged: saturationLightnessPicker.updateOurColour()
             }
 
-            property bool ignoreChanges: false
-
-            onColorChanged: {
+            onColorPicked: {
                 if (!canvas)
                     return;
 
-                ignoreChanges = true;
                 canvas[hexColourRowLayout.colourSelector.currentPenName] = saturationLightnessPicker.color
-                ignoreChanges = false;
             }
         }
     }

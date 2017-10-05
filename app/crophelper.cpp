@@ -20,3 +20,26 @@
 #include "crophelper.h"
 
 //#include <QClipboard>
+
+CropHelper::CropHelper() :
+    mProject(nullptr)
+{
+}
+
+CropHelper::~CropHelper()
+{
+}
+
+QRect CropHelper::cropArea() const
+{
+    return mCropArea;
+}
+
+void CropHelper::setCropArea(const QRect &cropArea)
+{
+    if (cropArea == mCropArea)
+        return;
+
+    mCropArea = cropArea;
+    emit cropAreaChanged();
+}

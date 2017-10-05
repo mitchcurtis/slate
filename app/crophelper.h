@@ -21,36 +21,39 @@
 #define CROPHELPER_H
 
 #include <QObject>
+#include <QRect>
 
-//class CropHelper : public QObject
-//{
-//    Q_OBJECT
+class QMouseEvent;
+class QHoverEvent;
+
+class Project;
+
+class CropHelper : public QObject
+{
+    Q_OBJECT
 //    Q_PROPERTY(Project *project READ project WRITE setProject NOTIFY projectChanged)
-//    Q_PROPERTY(QRect selectionArea READ selectionArea NOTIFY selectionAreaChanged)
+    Q_PROPERTY(QRect cropArea READ cropArea NOTIFY cropAreaChanged)
 
-//public:
-//    ImageCanvas();
-//    ~ImageCanvas();
+public:
+    CropHelper();
+    ~CropHelper();
 
-//    bool hasSelection() const;
+    QRect cropArea() const;
+    void setCropArea(const QRect &selectionArea);
 
-//    QRect cropArea() const;
-//    void setCropArea(const QRect &selectionArea);
+signals:
+    void cropAreaChanged();
 
-//signals:
-//    void cropAreaChanged();
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void hoverEnterEvent(QHoverEvent *event);
+    void hoverMoveEvent(QHoverEvent *event);
+    void hoverLeaveEvent(QHoverEvent *event);
 
-//    void mousePressEvent(QMouseEvent *event) override;
-//    void mouseMoveEvent(QMouseEvent *event) override;
-//    void mouseReleaseEvent(QMouseEvent *event) override;
-//    void hoverEnterEvent(QHoverEvent *event) override;
-//    void hoverMoveEvent(QHoverEvent *event) override;
-//    void hoverLeaveEvent(QHoverEvent *event) override;
-
-//    Project *mProject;
-
-//private:
-//    ImageProject *mImageProject;
-//};
+private:
+    Project *mProject;
+    QRect mCropArea;
+};
 
 #endif // CROPHELPER_H

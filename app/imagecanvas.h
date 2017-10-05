@@ -278,11 +278,15 @@ protected:
 
     virtual void applyCurrentTool();
     virtual void applyPixelPenTool(const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false);
-    virtual void applyPixelLineTool(const QImage &lineImage, const QPoint &lastPixelPenReleaseScenePosition);
+    virtual void applyPixelLineTool(const QImage &lineImage, const QRect &lineRect, const QPoint &lastPixelPenReleaseScenePosition);
     void paintImageOntoPortionOfImage(const QRect &portion, const QImage &replacementImage);
     void replacePortionOfImage(const QRect &portion, const QImage &replacementImage);
     void erasePortionOfImage(const QRect &portion);
     void doFlipSelection(const QRect &area, Qt::Orientation orientation);
+
+    QPointF linePoint1() const;
+    QPointF linePoint2() const;
+    QRect normalisedLineRect() const;
 
     virtual void updateCursorPos(const QPoint &eventPos);
     void error(const QString &message);
@@ -302,6 +306,7 @@ protected:
     // as part of a selection preview image.
     virtual QImage contentImage() const;
     void drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex);
+    void drawLine(QPainter *painter) const;
     void drawGuide(QPainter *painter, const CanvasPane &pane, int paneIndex, const Guide &guide, int guideIndex);
     int paneWidth(int index) const;
     void centrePanes(bool respectSceneCentred = true);
@@ -424,6 +429,7 @@ protected:
     // It is set by the pixel tool as the last pixel in the command,
     // and by the pixel line tool command.
     QPoint mLastPixelPenPressScenePosition;
+    // An image as large as the rectangle that contains the line that is being previewed.
     QImage mLinePreviewImage;
 
     bool mPotentiallySelecting;
@@ -443,6 +449,8 @@ protected:
     // The entire image as it would look if the selection (that is currently being dragged)
     // was dropped where it is now.
     QImage mSelectionPreviewImage;
+
+    QRect mCropArea;
 
     bool mAltPressed;
     bool mShiftPressed;

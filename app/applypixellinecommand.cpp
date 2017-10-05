@@ -26,12 +26,13 @@
 Q_LOGGING_CATEGORY(lcApplyPixelLineCommand, "app.undo.applyPixelLineCommand")
 
 ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *canvas, const QImage &imageWithLine,
-    const QImage &imageWithoutLine, const QPoint &newLastPixelPenReleaseScenePos, const QPoint &oldLastPixelPenReleaseScenePos,
-    UndoCommand *parent) :
+    const QImage &imageWithoutLine, const QRect &lineRect,
+    const QPoint &newLastPixelPenReleaseScenePos, const QPoint &oldLastPixelPenReleaseScenePos, UndoCommand *parent) :
     UndoCommand(parent),
     mCanvas(canvas),
     mImageWithLine(imageWithLine),
     mImageWithoutLine(imageWithoutLine),
+    mLineRect(lineRect),
     mNewLastPixelPenReleaseScenePos(newLastPixelPenReleaseScenePos),
     mOldLastPixelPenReleaseScenePos(oldLastPixelPenReleaseScenePos)
 {
@@ -46,13 +47,13 @@ ApplyPixelLineCommand::~ApplyPixelLineCommand()
 void ApplyPixelLineCommand::undo()
 {
     qCDebug(lcApplyPixelLineCommand) << "undoing" << this;
-    mCanvas->applyPixelLineTool(mImageWithoutLine, mOldLastPixelPenReleaseScenePos);
+    mCanvas->applyPixelLineTool(mImageWithoutLine, mLineRect, mOldLastPixelPenReleaseScenePos);
 }
 
 void ApplyPixelLineCommand::redo()
 {
     qCDebug(lcApplyPixelLineCommand) << "redoing" << this;
-    mCanvas->applyPixelLineTool(mImageWithLine, mNewLastPixelPenReleaseScenePos);
+    mCanvas->applyPixelLineTool(mImageWithLine, mLineRect, mNewLastPixelPenReleaseScenePos);
 }
 
 int ApplyPixelLineCommand::id() const
@@ -68,7 +69,8 @@ bool ApplyPixelLineCommand::mergeWith(const UndoCommand *)
 QDebug operator<<(QDebug debug, const ApplyPixelLineCommand *command)
 {
     debug.nospace() << "(ApplyPixelLineCommand"
-        << " newLastPixelPenReleaseScenePos=" << command->mNewLastPixelPenReleaseScenePos
+        << " lineRect" << command->mLineRect
+        << ", newLastPixelPenReleaseScenePos=" << command->mNewLastPixelPenReleaseScenePos
         << ", oldLastPixelPenReleaseScenePos=" << command->mOldLastPixelPenReleaseScenePos
         << ")";
     return debug.space();

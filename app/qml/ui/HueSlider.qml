@@ -8,6 +8,8 @@ Rectangle {
 
     property real hue: 0
 
+    signal huePicked()
+
     gradient: Gradient {
         GradientStop {
             position: 0
@@ -60,6 +62,7 @@ Rectangle {
         onMouseYChanged: {
             if (containsMouse && pressed) {
                 hue = mouseY / height;
+                root.huePicked();
             }
         }
     }

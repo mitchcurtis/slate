@@ -130,8 +130,14 @@ QImage LayeredImageCanvas::contentImage() const
 {
     return mLayeredImageProject->flattenedImage([=](int index) {
         QImage layerImage;
-        if (index == mLayeredImageProject->currentLayerIndex() && shouldDrawSelectionPreviewImage()) {
-            layerImage = mSelectionPreviewImage;
+        if (index == mLayeredImageProject->currentLayerIndex()) {
+            if (shouldDrawSelectionPreviewImage()) {
+                layerImage = mSelectionPreviewImage;
+            } else if (isLineVisible()) {
+                layerImage = *mLayeredImageProject->currentLayer()->image();
+                QPainter linePainter(&layerImage);
+                drawLine(&linePainter);
+            }
         }
         return layerImage;
     });
