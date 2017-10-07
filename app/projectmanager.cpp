@@ -109,8 +109,12 @@ bool ProjectManager::completeCreation()
         disconnect(mProject.data(), &Project::urlChanged, this, &ProjectManager::projectUrlChanged);
     }
 
+    QUrl oldProjectUrl;
+
     if (mProject) {
         // There was a project before the one we're creating.
+
+        oldProjectUrl = mProject->url();
 
         QScopedPointer<Project> connectionGuard;
         mProject.swap(connectionGuard);
@@ -150,6 +154,9 @@ bool ProjectManager::completeCreation()
         mProject->setSettings(mSettings);
 
         connect(mProject.data(), &Project::urlChanged, this, &ProjectManager::projectUrlChanged);
+
+        if (mProject->url() != oldProjectUrl)
+            projectUrlChanged();
     }
 
     qCDebug(lcProjectManager) << "creation of" << mProject->typeString() << "project succeeded; about to emit projectChanged()";
