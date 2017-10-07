@@ -69,16 +69,13 @@ bool ApplyPixelPenCommand::mergeWith(const UndoCommand *other)
         return false;
     }
 
-    // Duplicate pixel; we can just discard the other command.
-    if (otherCommand->mScenePositions.size() == 1 && mScenePositions.contains(otherCommand->mScenePositions.first())) {
+    // Duplicate scene positions; we can just discard the other command.
+    if (otherCommand->mScenePositions == mScenePositions) {
+        qCDebug(lcApplyPixelPenCommand) << "merging duplicate pixel pen commands";
         return true;
     }
 
-    // A unique pixel that we haven't touched yet; add it.
-    qCDebug(lcApplyPixelPenCommand) << "\nmerging:\n    " << otherCommand << "\nwith:\n    " << this;
-    mScenePositions.append(otherCommand->mScenePositions);
-    mPreviousColours.append(otherCommand->mPreviousColours);
-    return true;
+    return false;
 }
 
 QDebug operator<<(QDebug debug, const ApplyPixelPenCommand *command)

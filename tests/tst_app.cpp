@@ -62,6 +62,7 @@ private Q_SLOTS:
     void undoImageCanvasSizeChange();
     void undoPixelFill();
     void undoTileFill();
+    void undoThickPen();
     void colours();
     void panes();
     void altEyedropper();
@@ -1076,6 +1077,51 @@ void tst_App::undoTileFill()
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(tilesetProject->tileAtTilePos(QPoint(0, 0)), targetTile);
     QCOMPARE(tilesetProject->tileAtTilePos(QPoint(1, 0)), targetTile);
+}
+
+void tst_App::undoThickPen()
+{
+    createNewImageProject();
+
+    changeToolSize(2);
+
+    // First, try a single click.
+    setCursorPosInScenePixels(QPoint(1, 1));
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 1), QColor(Qt::black));
+
+    // Undo it.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 0), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 1), QColor(Qt::white));
+
+    // Next, try dragging.
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 1), QColor(Qt::black));
+
+    setCursorPosInScenePixels(QPoint(1, 2));
+//    QTest::qWait(2000);
+    QTest::mouseMove(window, cursorWindowPos);
+//    QTest::qWait(2000);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+//    QTest::qWait(30000);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 2), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 2), QColor(Qt::black));
+
+    // Undo it.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 0), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 2), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 2), QColor(Qt::white));
 }
 
 void tst_App::colours()
