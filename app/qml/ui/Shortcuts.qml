@@ -10,6 +10,7 @@ Item {
     property Project project: projectManager.project
     property int projectType: project ? project.type : 0
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
+    property Item canvasContainer
     property ImageCanvas canvas
     readonly property bool canvasHasActiveFocus: canvas ? canvas.activeFocus : false
 
@@ -21,15 +22,16 @@ Item {
     Shortcut {
         objectName: "newShortcut"
         sequence: settings.newShortcut
-        onActivated: doIfChangesDiscarded(function() { newProjectPopup.open() })
+        onActivated: doIfChangesDiscarded(function() { newProjectPopup.open() }, true)
         enabled: canvasHasActiveFocus
     }
 
     Shortcut {
         objectName: "openShortcut"
         sequence: settings.openShortcut
-        onActivated: doIfChangesDiscarded(function() { openProjectDialog.open() })
-        enabled: canvasHasActiveFocus
+        onActivated: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
+        // There could be no project open, so the canvas won't exist and hence its container will have focus.
+        enabled: canvasHasActiveFocus || canvasContainer.activeFocus
     }
 
     Shortcut {

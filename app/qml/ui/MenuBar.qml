@@ -19,13 +19,13 @@ Item {
             Platform.MenuItem {
                 objectName: "newMenuButton"
                 text: qsTr("New")
-                onTriggered: doIfChangesDiscarded(function() { newProjectPopup.open() })
+                onTriggered: doIfChangesDiscarded(function() { newProjectPopup.open() }, true)
             }
 
             Platform.MenuItem {
                 objectName: "openMenuButton"
                 text: qsTr("Open")
-                onTriggered: doIfChangesDiscarded(function() { openProjectDialog.open() })
+                onTriggered: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
             }
 
             Platform.MenuItem {

@@ -88,7 +88,14 @@ ApplicationWindow {
         window.y = Screen.desktopAvailableHeight / 2 - height / 2
     }
 
-    function doIfChangesDiscarded(actionFunction) {
+    function doIfChangesDiscarded(actionFunction, skipChangesConfirmationIfNoProject) {
+        if (!!skipChangesConfirmationIfNoProject && !project) {
+            // If there's no project open, some features should be able to
+            // be performed immediately, such as Open.
+            actionFunction();
+            return;
+        }
+
         if (!project) {
             // Auto tests can skip this function.
             return;
@@ -144,6 +151,7 @@ ApplicationWindow {
     Ui.Shortcuts {
         window: window
         projectManager: window.projectManager
+        canvasContainer: canvasContainer
         canvas: window.canvas
     }
 
