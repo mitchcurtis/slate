@@ -169,7 +169,7 @@ GridLayout {
         id: lightnessRowLayout
 
         Button {
-            objectName: "lighterButton"
+            objectName: "darkerButton"
             text: qsTr("-")
             autoRepeat: true
             flat: true
@@ -178,11 +178,11 @@ GridLayout {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
 
-            onClicked: saturationLightnessPicker.increaseLightness()
+            onClicked: saturationLightnessPicker.decreaseLightness()
         }
 
         Button {
-            objectName: "darkerButton"
+            objectName: "lighterButton"
             text: qsTr("+")
             autoRepeat: true
             flat: true
@@ -191,7 +191,7 @@ GridLayout {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
 
-            onClicked: saturationLightnessPicker.decreaseLightness()
+            onClicked: saturationLightnessPicker.increaseLightness()
         }
     }
 
