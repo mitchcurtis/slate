@@ -82,8 +82,6 @@ GridLayout {
         }
     }
 
-    property real changeAmount: 0.01
-
     Image {
         id: opacityLabel
         source: "qrc:/images/opacity.png"
@@ -180,7 +178,7 @@ GridLayout {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
 
-            onClicked: saturationLightnessPicker.lightness -= changeAmount
+            onClicked: saturationLightnessPicker.decreaseLightness()
         }
 
         Button {
@@ -193,7 +191,7 @@ GridLayout {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
 
-            onClicked: saturationLightnessPicker.lightness += changeAmount
+            onClicked: saturationLightnessPicker.increaseLightness()
         }
     }
 
@@ -236,7 +234,7 @@ GridLayout {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
 
-            onClicked: saturationLightnessPicker.saturation -= changeAmount
+            onClicked: saturationLightnessPicker.decreaseSaturation()
         }
 
         Button {
@@ -249,7 +247,7 @@ GridLayout {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
 
-            onClicked: saturationLightnessPicker.saturation += changeAmount
+            onClicked: saturationLightnessPicker.increaseSaturation()
         }
     }
 
