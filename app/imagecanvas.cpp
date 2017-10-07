@@ -1276,6 +1276,9 @@ void ImageCanvas::reset()
     mPressScenePosition = QPoint(0, 0);
     mCurrentPaneOffsetBeforePress = QPoint(0, 0);
 
+    setPenForegroundColour(Qt::black);
+    setPenBackgroundColour(Qt::white);
+
     mLastPixelPenPressScenePosition = QPoint(0, 0);
     mLinePreviewImage = QImage();
 

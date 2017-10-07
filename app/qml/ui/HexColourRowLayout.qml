@@ -30,7 +30,7 @@ RowLayout {
         inputMask: "hhhhhhhh"
         selectByMouse: true
         onAccepted: {
-            canvas[selector.currentPenName] = inputColour
+            canvas[selector.currentPenPropertyName] = inputColour
             canvas.forceActiveFocus()
         }
         onActiveFocusChanged: if (activeFocus) textBeforeEditing = text
@@ -42,7 +42,7 @@ RowLayout {
         }
 
         property color inputColour: "#" + text
-        property color currentColour: canvas ? canvas[selector.currentPenName] : Qt.rgba(0, 0, 0, 1)
+        property color currentColour: canvas ? canvas[selector.currentPenPropertyName] : Qt.rgba(0, 0, 0, 1)
         property string textBeforeEditing
 
         Layout.fillWidth: true

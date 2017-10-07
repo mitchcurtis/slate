@@ -14,6 +14,7 @@ GridLayout {
     rowSpacing: 0
 
     property ImageCanvas canvas
+    property Project project
 
     readonly property real spinBoxFactor: 1000
     readonly property real spinBoxStepSize: 10
@@ -37,16 +38,21 @@ GridLayout {
             id: hueSlider
             implicitHeight: saturationLightnessPicker.height
 
-            onHuePicked: canvas[hexColourRowLayout.colourSelector.currentPenName] = saturationLightnessPicker.color
+            onHuePicked: canvas[hexColourRowLayout.colourSelector.currentPenPropertyName] = saturationLightnessPicker.color
 
             function updateOurColour() {
-                hueSlider.hue = canvas[hexColourRowLayout.colourSelector.currentPenName].hslHue;
+                hueSlider.hue = project && canvas ? canvas[hexColourRowLayout.colourSelector.currentPenPropertyName].hslHue : 0;
             }
 
             Connections {
                 target: canvas
                 onPenForegroundColourChanged: hueSlider.updateOurColour()
                 onPenBackgroundColourChanged: hueSlider.updateOurColour()
+            }
+
+            Connections {
+                target: root
+                onProjectChanged: hueSlider.updateOurColour()
             }
         }
         SaturationLightnessPicker {
@@ -59,7 +65,7 @@ GridLayout {
             alpha: transparencySlider.value
 
             function updateOurColour() {
-                saturationLightnessPicker.color = canvas[hexColourRowLayout.colourSelector.currentPenName];
+                saturationLightnessPicker.color = canvas[hexColourRowLayout.colourSelector.currentPenPropertyName];
             }
 
             Connections {
@@ -77,7 +83,7 @@ GridLayout {
                 if (!canvas)
                     return;
 
-                canvas[hexColourRowLayout.colourSelector.currentPenName] = saturationLightnessPicker.color
+                canvas[hexColourRowLayout.colourSelector.currentPenPropertyName] = saturationLightnessPicker.color
             }
         }
     }
@@ -100,7 +106,7 @@ GridLayout {
     Slider {
         id: transparencySlider
         objectName: "transparencySlider"
-        value: canvas ? canvas[hexColourRowLayout.colourSelector.currentPenName].a : 1
+        value: canvas ? canvas[hexColourRowLayout.colourSelector.currentPenPropertyName].a : 1
         focusPolicy: Qt.NoFocus
 
         Layout.fillWidth: true
@@ -113,7 +119,7 @@ GridLayout {
                 return;
 
             ignoreChanges = true;
-            canvas[hexColourRowLayout.colourSelector.currentPenName].a = transparencySlider.value;
+            canvas[hexColourRowLayout.colourSelector.currentPenPropertyName].a = transparencySlider.value;
             ignoreChanges = false;
         }
 
@@ -121,7 +127,7 @@ GridLayout {
             if (ignoreChanges)
                 return;
 
-            transparencySlider.value = canvas[hexColourRowLayout.colourSelector.currentPenName].a;
+            transparencySlider.value = canvas[hexColourRowLayout.colourSelector.currentPenPropertyName].a;
         }
 
         Connections {
@@ -178,6 +184,11 @@ GridLayout {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
 
+            ToolTip.text: qsTr("Darken the %1 colour").arg(hexColourRowLayout.colourSelector.currentPenName)
+            ToolTip.visible: hovered
+            ToolTip.delay: toolTipDelay
+            ToolTip.timeout: toolTipTimeout
+
             onClicked: saturationLightnessPicker.decreaseLightness()
         }
 
@@ -190,6 +201,11 @@ GridLayout {
 
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
+
+            ToolTip.text: qsTr("Lighten the %1 colour").arg(hexColourRowLayout.colourSelector.currentPenName)
+            ToolTip.visible: hovered
+            ToolTip.delay: toolTipDelay
+            ToolTip.timeout: toolTipTimeout
 
             onClicked: saturationLightnessPicker.increaseLightness()
         }
@@ -234,6 +250,11 @@ GridLayout {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
 
+            ToolTip.text: qsTr("Desaturate the %1 colour").arg(hexColourRowLayout.colourSelector.currentPenName)
+            ToolTip.visible: hovered
+            ToolTip.delay: toolTipDelay
+            ToolTip.timeout: toolTipTimeout
+
             onClicked: saturationLightnessPicker.decreaseSaturation()
         }
 
@@ -246,6 +267,11 @@ GridLayout {
 
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
+
+            ToolTip.text: qsTr("Saturate the %1 colour").arg(hexColourRowLayout.colourSelector.currentPenName)
+            ToolTip.visible: hovered
+            ToolTip.delay: toolTipDelay
+            ToolTip.timeout: toolTipTimeout
 
             onClicked: saturationLightnessPicker.increaseSaturation()
         }

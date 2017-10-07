@@ -15,6 +15,7 @@ Rectangle {
     clip: true
 
     property ImageCanvas canvas
+    property alias project: picker.project
 
     HslSimplePicker {
         id: picker

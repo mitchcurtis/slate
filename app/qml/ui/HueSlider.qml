@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.3
 
 Rectangle {
     id: root
+    objectName: "hueSlider"
     implicitWidth: 30
     implicitHeight: 200
 

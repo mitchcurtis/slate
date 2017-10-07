@@ -121,6 +121,8 @@ Dialog {
 
                     ToolTip.text: qsTr("Click to choose the path to a tileset image")
                     ToolTip.visible: hovered
+                    ToolTip.delay: toolTipDelay
+                    ToolTip.timeout: toolTipTimeout
                 }
             }
 

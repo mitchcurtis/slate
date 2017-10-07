@@ -57,9 +57,10 @@ signals:
     void projectChanged();
     void temporaryProjectChanged();
     void applicationSettingsChanged();
+    void creationFailed(const QString &errorMessage);
 
 private slots:
-    void creationFailed(const QString &errorMessage);
+    void onCreationFailed(const QString &errorMessage);
     void projectUrlChanged();
 
 private:

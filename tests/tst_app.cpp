@@ -1138,6 +1138,10 @@ void tst_App::colours()
     QCOMPARE(canvas->penForegroundColour(), QColor(Qt::black));
     QCOMPARE(canvas->penBackgroundColour(), QColor(Qt::white));
 
+    QQuickItem *hueSlider = window->findChild<QQuickItem*>("hueSlider");
+    QVERIFY(hueSlider);
+    QCOMPARE(hueSlider->property("hue").toReal(), 0);
+
     // First try changing the foreground colour.
     mouseEvent(penForegroundColourButton, QPoint(1, 1), MouseClick);
 
@@ -1171,25 +1175,29 @@ void tst_App::colours()
     mouseEventOnCentre(penForegroundColourButton, MouseClick);
     QCOMPARE(hexTextField->property("text").toString().prepend("#"), canvas->penForegroundColour().name());
 
+    // TODO: fix issue where hue slider handle is missing
+    // For now, we work around it.
+    mouseEvent(hueSlider, QPointF(hueSlider->width() / 2, hueSlider->height() / 2), MouseClick);
+
     // Test that the "Lighter" button works.
     QColor oldColour = canvas->penForegroundColour();
     mouseEventOnCentre(lighterButton, MouseClick);
-    QVERIFY(canvas->penForegroundColour().lightness() > oldColour.lightness());
+    QVERIFY(canvas->penForegroundColour().lightnessF() > oldColour.lightnessF());
 
     // Test that the "Darker" button works.
     oldColour = canvas->penForegroundColour();
     mouseEventOnCentre(darkerButton, MouseClick);
-    QVERIFY(canvas->penForegroundColour().lightness() < oldColour.lightness());
+    QVERIFY(canvas->penForegroundColour().lightnessF() < oldColour.lightnessF());
 
     // Test that the "Saturate" button works.
     oldColour = canvas->penForegroundColour();
     mouseEventOnCentre(saturateButton, MouseClick);
-    QVERIFY(canvas->penForegroundColour().saturation() > oldColour.saturation());
+    QVERIFY(canvas->penForegroundColour().saturationF() > oldColour.saturationF());
 
     // Test that the "Desaturate" button works.
     oldColour = canvas->penForegroundColour();
     mouseEventOnCentre(desaturateButton, MouseClick);
-    QVERIFY(canvas->penForegroundColour().saturation() < oldColour.saturation());
+    QVERIFY(canvas->penForegroundColour().saturationF() < oldColour.saturationF());
 }
 
 void tst_App::panes()

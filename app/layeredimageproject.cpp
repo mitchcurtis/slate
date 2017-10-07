@@ -160,14 +160,20 @@ void LayeredImageProject::load(const QUrl &url)
 {
     qCDebug(lcProject) << "loading project:" << url;
 
-    QFile jsonFile(url.toLocalFile());
+    const QString filePath = url.toLocalFile();
+    if (!QFileInfo::exists(filePath)) {
+        error(QString::fromLatin1("Layered image project does not exist:\n\n%1").arg(filePath));
+        return;
+    }
+
+    QFile jsonFile(filePath);
     if (!jsonFile.open(QIODevice::ReadOnly)) {
-        error(QString::fromLatin1("Layered image project files must have a .slp extension (%1)").arg(url.toLocalFile()));
+        error(QString::fromLatin1("Layered image project files must have a .slp extension:\n\n%1").arg(filePath));
         return;
     }
 
     if (QFileInfo(jsonFile).suffix() != "slp") {
-        error(QString::fromLatin1("Failed to open layered image project's SLP file at %1").arg(url.toLocalFile()));
+        error(QString::fromLatin1("Failed to open layered image project's .slp file:\n\n%1").arg(filePath));
         return;
     }
 
@@ -180,7 +186,7 @@ void LayeredImageProject::load(const QUrl &url)
         ImageLayer *imageLayer = new ImageLayer(this);
         imageLayer->read(layerObject);
         if (imageLayer->image()->isNull()) {
-            error(QString::fromLatin1("Failed to load image for layer %1").arg(i));
+            error(QString::fromLatin1("Failed to load image for layer:\n\n%1").arg(i));
             close();
             return;
         }
@@ -246,13 +252,13 @@ void LayeredImageProject::saveAs(const QUrl &url)
     if (QFile::exists(filePath)) {
         jsonFile.setFileName(filePath);
         if (!jsonFile.open(QIODevice::WriteOnly)) {
-            error(QString::fromLatin1("Failed to open project's JSON file at %1").arg(filePath));
+            error(QString::fromLatin1("Failed to open project's JSON file:\n\n%1").arg(filePath));
             return;
         }
     } else {
         jsonFile.setFileName(filePath);
         if (!jsonFile.open(QIODevice::WriteOnly)) {
-            error(QString::fromLatin1("Failed to create project's JSON file at %1").arg(filePath));
+            error(QString::fromLatin1("Failed to create project's JSON file:\n\n%1").arg(filePath));
             return;
         }
     }
@@ -278,13 +284,13 @@ void LayeredImageProject::saveAs(const QUrl &url)
     QJsonDocument jsonDoc(rootJson);
     const qint64 bytesWritten = jsonFile.write(jsonDoc.toJson());
     if (bytesWritten == -1) {
-        error(QString::fromLatin1("Failed to save project: couldn't write to JSON project file: %1")
+        error(QString::fromLatin1("Failed to save project - couldn't write to JSON project file:\n\n%1")
             .arg(jsonFile.errorString()));
         return;
     }
 
     if (bytesWritten == 0) {
-        error(QString::fromLatin1("Failed to save project: wrote zero bytes to JSON project file"));
+        error(QString::fromLatin1("Failed to save project - wrote zero bytes to JSON project file"));
         return;
     }
 
@@ -316,7 +322,7 @@ void LayeredImageProject::exportImage(const QUrl &url)
     }
 
     if (!flattenedImage().save(filePath)) {
-        error(QString::fromLatin1("Failed to save project's image to %1").arg(filePath));
+        error(QString::fromLatin1("Failed to save project's image to:\n\n%1").arg(filePath));
         return;
     }
 }

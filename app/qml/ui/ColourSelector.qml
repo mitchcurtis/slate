@@ -10,7 +10,8 @@ Item {
 
     property ImageCanvas canvas
 
-    property string currentPenName: penBackgroundColourButton.checked ? "penBackgroundColour" : "penForegroundColour"
+    property string currentPenName: penBackgroundColourButton.checked ? qsTr("background") : qsTr("foreground")
+    property string currentPenPropertyName: penBackgroundColourButton.checked ? "penBackgroundColour" : "penForegroundColour"
 
     ButtonGroup {
         id: buttonGroup
@@ -28,6 +29,8 @@ Item {
 
         ToolTip.text: qsTr("Set the background colour")
         ToolTip.visible: hovered
+        ToolTip.delay: toolTipDelay
+        ToolTip.timeout: toolTipTimeout
     }
 
     ColourButton {
@@ -40,5 +43,7 @@ Item {
 
         ToolTip.text: qsTr("Set the foreground colour")
         ToolTip.visible: hovered
+        ToolTip.delay: toolTipDelay
+        ToolTip.timeout: toolTipTimeout
     }
 }

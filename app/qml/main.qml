@@ -64,6 +64,8 @@ ApplicationWindow {
     property alias newProjectPopup: newProjectPopup
     property alias openProjectDialog: openProjectDialog
     property alias saveChangesDialog: discardChangesDialog
+    property int toolTipDelay: 500
+    property int toolTipTimeout: 2000
 
     onClosing: {
         close.accepted = false;
@@ -124,6 +126,7 @@ ApplicationWindow {
     ProjectManager {
         id: projectManager
         applicationSettings: settings
+        onCreationFailed: errorPopup.showError(errorMessage)
 
         function saveOrSaveAs() {
             if (project.url.toString().length > 0) {
@@ -186,6 +189,7 @@ ApplicationWindow {
             Ui.ColourPanel {
                 id: colourPanel
                 canvas: window.canvas
+                project: window.project
             }
 
             SimpleLoader {

@@ -1,12 +1,15 @@
 import QtQuick 2.6
 import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.3
 
-Popup {
+Dialog {
     id: control
     objectName: "errorPopup"
     modal: true
     focus: true
+    title: "Error"
+    width: 500
+    standardButtons: Dialog.Ok
 
     property string text
     property string icon
@@ -22,7 +25,9 @@ Popup {
         }
     }
 
-    contentItem: RowLayout {
+    RowLayout {
+        anchors.fill: parent
+
         Label {
             id: iconText
             text: icon
@@ -31,6 +36,9 @@ Popup {
         Label {
             text: control.text
             anchors.verticalCenter: parent.verticalCenter
+            wrapMode: Label.WrapAtWordBoundaryOrAnywhere
+
+            Layout.fillWidth: true
         }
     }
 }

@@ -88,7 +88,7 @@ void ProjectManager::beginCreation(Project::Type projectType)
 
     qCDebug(lcProjectManager) << "beginning creation of" << mTemporaryProject->typeString() << "project (" << mTemporaryProject.data() << ")";
 
-    connect(mTemporaryProject.data(), &Project::errorOccurred, this, &ProjectManager::creationFailed);
+    connect(mTemporaryProject.data(), &Project::errorOccurred, this, &ProjectManager::onCreationFailed);
 
     emit temporaryProjectChanged();
 }
@@ -97,13 +97,13 @@ void ProjectManager::beginCreation(Project::Type projectType)
 // beginCreation(), swaps project with temporaryProject and destroys the temporary project.
 bool ProjectManager::completeCreation()
 {
+    if (mProjectCreationFailed)
+        return false;
+
     if (!mTemporaryProject) {
         qWarning() << "No project was being created";
         return false;
     }
-
-    if (mProjectCreationFailed)
-        return false;
 
     if (mProject) {
         disconnect(mProject.data(), &Project::urlChanged, this, &ProjectManager::projectUrlChanged);
@@ -175,15 +175,15 @@ Project::Type ProjectManager::projectTypeForUrl(const QUrl &url) const
         : urlString.endsWith(".slp") ? Project::LayeredImageType : Project::ImageType;
 }
 
-void ProjectManager::creationFailed(const QString &errorMessage)
+void ProjectManager::onCreationFailed(const QString &errorMessage)
 {
     qCDebug(lcProjectManager) << "creation of" << mTemporaryProject->typeString() << "project failed;" << errorMessage;
-
-    disconnect(mProject.data(), &Project::urlChanged, this, &ProjectManager::projectUrlChanged);
 
     mProjectCreationFailed = true;
     mTemporaryProject.reset();
     emit temporaryProjectChanged();
+
+    emit creationFailed(errorMessage);
 }
 
 void ProjectManager::projectUrlChanged()
