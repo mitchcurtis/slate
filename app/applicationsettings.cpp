@@ -432,7 +432,7 @@ void ApplicationSettings::setUndoShortcut(const QString &shortcut)
 
 QString ApplicationSettings::defaultFlipHorizontallyShortcut() const
 {
-    return QLatin1String("Ctrl+Shift+H");
+    return QLatin1String("H");
 }
 
 QString ApplicationSettings::flipHorizontallyShortcut() const
@@ -447,7 +447,7 @@ void ApplicationSettings::setFlipHorizontallyShortcut(const QString &shortcut)
 
 QString ApplicationSettings::defaultFlipVerticallyShortcut() const
 {
-    return QLatin1String("Ctrl+Shift+V");
+    return QLatin1String("V");
 }
 
 QString ApplicationSettings::flipVerticallyShortcut() const
