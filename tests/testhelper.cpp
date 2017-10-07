@@ -209,6 +209,18 @@ void TestHelper::initTestCase()
     penBackgroundColourButton = window->findChild<QQuickItem*>("penBackgroundColourButton");
     QVERIFY(penBackgroundColourButton);
 
+    lighterButton = window->findChild<QQuickItem*>("lighterButton");
+    QVERIFY(lighterButton);
+
+    darkerButton = window->findChild<QQuickItem*>("darkerButton");
+    QVERIFY(darkerButton);
+
+    saturateButton = window->findChild<QQuickItem*>("saturateButton");
+    QVERIFY(saturateButton);
+
+    desaturateButton = window->findChild<QQuickItem*>("desaturateButton");
+    QVERIFY(desaturateButton);
+
     QPixmap checkerPixmap = QPixmap(":/images/checker.png");
     QCOMPARE(checkerPixmap.isNull(), false);
     mCheckerImage = checkerPixmap.toImage();

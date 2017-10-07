@@ -237,6 +237,10 @@ protected:
     QQuickItem *redoButton;
     QQuickItem *penForegroundColourButton;
     QQuickItem *penBackgroundColourButton;
+    QQuickItem *lighterButton;
+    QQuickItem *darkerButton;
+    QQuickItem *saturateButton;
+    QQuickItem *desaturateButton;
     QQuickItem *tilesetSwatch;
     QQuickItem *newLayerButton;
     QQuickItem *moveLayerUpButton;

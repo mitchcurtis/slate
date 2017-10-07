@@ -178,7 +178,7 @@ GridLayout {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
 
-            onClicked: saturationLightnessPicker.decreaseLightness()
+            onClicked: saturationLightnessPicker.increaseLightness()
         }
 
         Button {
@@ -191,7 +191,7 @@ GridLayout {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
 
-            onClicked: saturationLightnessPicker.increaseLightness()
+            onClicked: saturationLightnessPicker.decreaseLightness()
         }
     }
 

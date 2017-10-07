@@ -63,6 +63,7 @@ private Q_SLOTS:
     void undoPixelFill();
     void undoTileFill();
     void undoThickPen();
+    void colours_data();
     void colours();
     void panes();
     void altEyedropper();
@@ -1124,11 +1125,18 @@ void tst_App::undoThickPen()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 2), QColor(Qt::white));
 }
 
+void tst_App::colours_data()
+{
+    addAllProjectTypes();
+}
+
 void tst_App::colours()
 {
-    createNewTilesetProject();
-    QCOMPARE(tileCanvas->penForegroundColour(), QColor(Qt::black));
-    QCOMPARE(tileCanvas->penBackgroundColour(), QColor(Qt::white));
+    QFETCH(Project::Type, projectType);
+
+    createNewProject(projectType);
+    QCOMPARE(canvas->penForegroundColour(), QColor(Qt::black));
+    QCOMPARE(canvas->penBackgroundColour(), QColor(Qt::white));
 
     // First try changing the foreground colour.
     mouseEvent(penForegroundColourButton, QPoint(1, 1), MouseClick);
@@ -1139,9 +1147,9 @@ void tst_App::colours()
     // Choose a colour.
     mouseEventOnCentre(saturationLightnessPicker, MouseClick);
     const QColor expectedColour = QColor("#c04141");
-    fuzzyColourCompare(tileCanvas->penForegroundColour(), expectedColour);
+    fuzzyColourCompare(canvas->penForegroundColour(), expectedColour);
     // Background colour shouldn't be affected.
-    QCOMPARE(tileCanvas->penBackgroundColour(), QColor(Qt::white));
+    QCOMPARE(canvas->penBackgroundColour(), QColor(Qt::white));
 
     // Now try changing the background colour.
     mouseEvent(penBackgroundColourButton,
@@ -1150,18 +1158,38 @@ void tst_App::colours()
     // Choose a colour.
     mouseEvent(saturationLightnessPicker, QPointF(saturationLightnessPicker->width() * 0.25,
         saturationLightnessPicker->height() * 0.25), MouseClick);
-    QVERIFY(tileCanvas->penBackgroundColour() != QColor(Qt::white));
+    QVERIFY(canvas->penBackgroundColour() != QColor(Qt::white));
     // Foreground colour shouldn't be affected.
-    fuzzyColourCompare(tileCanvas->penForegroundColour(), expectedColour);
+    fuzzyColourCompare(canvas->penForegroundColour(), expectedColour);
 
     // Hex field should represent background colour when selected.
     QQuickItem *hexTextField = window->findChild<QQuickItem*>("hexTextField");
     QVERIFY(hexTextField);
-    QCOMPARE(hexTextField->property("text").toString().prepend("#"), tileCanvas->penBackgroundColour().name());
+    QCOMPARE(hexTextField->property("text").toString().prepend("#"), canvas->penBackgroundColour().name());
 
     // Hex field should represent foreground colour when selected.
     mouseEventOnCentre(penForegroundColourButton, MouseClick);
-    QCOMPARE(hexTextField->property("text").toString().prepend("#"), tileCanvas->penForegroundColour().name());
+    QCOMPARE(hexTextField->property("text").toString().prepend("#"), canvas->penForegroundColour().name());
+
+    // Test that the "Lighter" button works.
+    QColor oldColour = canvas->penForegroundColour();
+    mouseEventOnCentre(lighterButton, MouseClick);
+    QVERIFY(canvas->penForegroundColour().lightness() > oldColour.lightness());
+
+    // Test that the "Darker" button works.
+    oldColour = canvas->penForegroundColour();
+    mouseEventOnCentre(darkerButton, MouseClick);
+    QVERIFY(canvas->penForegroundColour().lightness() < oldColour.lightness());
+
+    // Test that the "Saturate" button works.
+    oldColour = canvas->penForegroundColour();
+    mouseEventOnCentre(saturateButton, MouseClick);
+    QVERIFY(canvas->penForegroundColour().saturation() > oldColour.saturation());
+
+    // Test that the "Desaturate" button works.
+    oldColour = canvas->penForegroundColour();
+    mouseEventOnCentre(desaturateButton, MouseClick);
+    QVERIFY(canvas->penForegroundColour().saturation() < oldColour.saturation());
 }
 
 void tst_App::panes()
