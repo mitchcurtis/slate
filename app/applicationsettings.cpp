@@ -522,7 +522,12 @@ void ApplicationSettings::setGuidesVisibleShortcut(const QString &shortcut)
 
 QString ApplicationSettings::defaultCentreShortcut() const
 {
+#ifdef Q_OS_MACOS
+    // Cmd+Space is taken by Spotlight.
+    return QLatin1String("Meta+Space");
+#else
     return QLatin1String("Ctrl+Space");
+#endif
 }
 
 QString ApplicationSettings::centreShortcut() const
