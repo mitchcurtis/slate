@@ -20,6 +20,7 @@
 #include "imageproject.h"
 
 #include "changeimagecanvassizecommand.h"
+#include "changeimagesizecommand.h"
 
 ImageProject::ImageProject()
 {
@@ -160,6 +161,18 @@ void ImageProject::saveAs(const QUrl &url)
     mHadUnsavedChangesBeforeMacroBegan = false;
 }
 
+void ImageProject::resize(int width, int height)
+{
+    const QSize newSize(width, height);
+    if (newSize == size())
+        return;
+
+    beginMacro(QLatin1String("ChangeImageSize"));
+    const QImage resized = mImage.scaled(newSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    addChange(new ChangeImageSizeCommand(this, mImage, resized));
+    endMacro();
+}
+
 QImage *ImageProject::image()
 {
     return &mImage;
@@ -170,7 +183,7 @@ Project::Type ImageProject::type() const
     return ImageType;
 }
 
-void ImageProject::changeSize(const QSize &newSize)
+void ImageProject::doSetSize(const QSize &newSize)
 {
     if (newSize.width() <= 0 || newSize.height() <= 0) {
         error(QString::fromLatin1("Cannot set project size to: %1 x %2").arg(newSize.width(), newSize.height()));
@@ -180,5 +193,13 @@ void ImageProject::changeSize(const QSize &newSize)
     Q_ASSERT(newSize != size());
     Q_ASSERT(!mImage.isNull());
     mImage = mImage.copy(0, 0, newSize.width(), newSize.height());
+    emit sizeChanged();
+}
+
+void ImageProject::doResize(const QImage &newImage)
+{
+    Q_ASSERT(!mImage.isNull());
+    Q_ASSERT(newImage.size() != size());
+    mImage = newImage;
     emit sizeChanged();
 }

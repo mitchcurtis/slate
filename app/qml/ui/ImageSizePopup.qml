@@ -6,14 +6,12 @@ import App 1.0
 
 Popup {
     id: popup
-    objectName: "canvasSizePopup"
+    objectName: "imageSizePopup"
     modal: true
     dim: false
-    focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnReleaseOutside
 
     property Project project
-    readonly property bool isTilesetProject: project && project.type === Project.TilesetType
 
     onVisibleChanged: {
         if (visible && project) {
@@ -26,7 +24,7 @@ Popup {
     contentItem: ColumnLayout {
         Label {
             id: titleLabel
-            text: qsTr("Choose a size for the canvas")
+            text: qsTr("Choose a size for the image")
         }
 
         Item {
@@ -37,38 +35,32 @@ Popup {
             columns: 2
 
             Label {
-                text: qsTr("Canvas width")
+                text: qsTr("Image width")
             }
 
             SpinBox {
                 id: widthSpinBox
-                objectName: "changeCanvasWidthSpinBox"
+                objectName: "changeImageWidthSpinBox"
                 from: 1
                 to: 1000
                 editable: true
                 stepSize: 1
 
-                ToolTip.text: isTilesetProject ? tilesetText : imageText
-
-                readonly property string tilesetText: qsTr("Number of horizontal tiles")
-                readonly property string imageText: qsTr("Canvas width in pixels")
+                ToolTip.text: qsTr("Image width in pixels")
             }
             Label {
-                text: qsTr("Canvas height")
+                text: qsTr("Image height")
             }
 
             SpinBox {
                 id: heightSpinBox
-                objectName: "changeCanvasHeightSpinBox"
+                objectName: "changeImageHeightSpinBox"
                 from: 1
                 to: 1000
                 editable: true
                 stepSize: 1
 
-                ToolTip.text: isTilesetProject ? tilesetText : imageText
-
-                readonly property string tilesetText: qsTr("Number of vertical tiles")
-                readonly property string imageText: qsTr("Canvas height in pixels")
+                ToolTip.text: qsTr("Image height in pixels")
             }
 
             Item {
@@ -84,15 +76,15 @@ Popup {
                 }
 
                 Button {
-                    objectName: "canvasSizePopupOkButton"
+                    objectName: "imageSizePopupOkButton"
                     text: "OK"
                     onClicked: {
-                        project.size = Qt.size(widthSpinBox.value, heightSpinBox.value);
+                        project.resize(widthSpinBox.value, heightSpinBox.value);
                         popup.visible = false;
                     }
                 }
                 Button {
-                    objectName: "canvasSizePopupCancelButton"
+                    objectName: "imageSizePopupCancelButton"
                     text: "Cancel"
                     onClicked: popup.visible = false
                 }

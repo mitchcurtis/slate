@@ -11,6 +11,9 @@ MenuBar {
     property int projectType: project ? project.type : 0
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
+    property var canvasSizePopup
+    property var imageSizePopup
+
     // The only reason we use the verbose syntax is so that we can
     // easily test menu interaction.
     MenuBarItem {
@@ -133,6 +136,28 @@ MenuBar {
                 text: qsTr("Flip Vertically")
                 onClicked: canvas.flipSelection(Qt.Vertical)
                 enabled: isImageProjectType && canvas && canvas.hasSelection
+            }
+        }
+    }
+
+    MenuBarItem {
+        objectName: "imageMenuBarItem"
+        focusPolicy: Qt.TabFocus
+        menu: Menu {
+            title: qsTr("Image")
+
+            MenuItem {
+                objectName: "changeCanvasSizeMenuButton"
+                text: qsTr("Canvas Size...")
+                enabled: canvas
+                onClicked: canvasSizePopup.open()
+            }
+
+            MenuItem {
+                objectName: "changeImageSizeMenuButton"
+                text: qsTr("Image Size...")
+                enabled: canvas && projectType === Project.ImageType
+                onClicked: imageSizePopup.open()
             }
         }
     }

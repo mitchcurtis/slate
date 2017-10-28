@@ -48,10 +48,14 @@ public slots:
     void close() override;
     void saveAs(const QUrl &url) override;
 
+    void resize(int width, int height);
+
 private:
     friend class ChangeImageCanvasSizeCommand;
+    friend class ChangeImageSizeCommand;
 
-    void changeSize(const QSize &size);
+    void doSetSize(const QSize &size);
+    void doResize(const QImage &newImage);
 
     QUrl mImageUrl;
     QImage mImage;

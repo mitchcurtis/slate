@@ -180,6 +180,7 @@ protected:
     void zoomTo(int zoomLevel);
     void zoomTo(int zoomLevel, const QPoint &pos);
     void changeCanvasSize(int width, int height);
+    void changeImageSize(int width, int height);
     void changeToolSize(int size);
     int sliderValue(QQuickItem *slider) const;
     void drawPixelAtCursorPos();
@@ -226,6 +227,7 @@ protected:
     QObject *fileMenuBarItem;
 #endif
     QQuickItem *canvasSizeButton;
+    QQuickItem *imageSizeButton;
     QQuickItem *modeToolButton;
     QQuickItem *penToolButton;
     QQuickItem *eyeDropperToolButton;

@@ -57,6 +57,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     rotateTileRightMenuButton(nullptr),
 #endif
     canvasSizeButton(nullptr),
+    imageSizeButton(nullptr),
     modeToolButton(nullptr),
     penToolButton(nullptr),
     eyeDropperToolButton(nullptr),
@@ -175,6 +176,9 @@ void TestHelper::initTestCase()
 
     canvasSizeButton = window->findChild<QQuickItem*>("canvasSizeButton");
     QVERIFY(canvasSizeButton);
+
+    imageSizeButton = window->findChild<QQuickItem*>("imageSizeButton");
+    QVERIFY(imageSizeButton);
 
     modeToolButton = window->findChild<QQuickItem*>("modeToolButton");
     QVERIFY(modeToolButton);
@@ -335,6 +339,61 @@ void TestHelper::changeCanvasSize(int width, int height)
     QVERIFY(okButton);
     mouseEventOnCentre(okButton, MouseClick);
     QVERIFY(!canvasSizePopup->property("visible").toBool());
+    QCOMPARE(project->size().width(), width);
+    QCOMPARE(project->size().height(), height);
+    QCOMPARE(widthSpinBox->property("value").toInt(), width);
+    QCOMPARE(heightSpinBox->property("value").toInt(), height);
+}
+
+void TestHelper::changeImageSize(int width, int height)
+{
+    // Open the image size popup.
+    mouseEventOnCentre(imageSizeButton, MouseClick);
+    const QObject *imageSizePopup = findPopupFromTypeName("ImageSizePopup");
+    QVERIFY(imageSizePopup);
+    QVERIFY(imageSizePopup->property("visible").toBool());
+
+    // Change the values and then cancel.
+    // TODO: use actual input events...
+    QQuickItem *widthSpinBox = imageSizePopup->findChild<QQuickItem*>("changeImageWidthSpinBox");
+    QVERIFY(widthSpinBox);
+    // We want it to be easy to change the values with the keyboard..
+    QVERIFY(widthSpinBox->hasActiveFocus());
+    const int originalWidthSpinBoxValue = widthSpinBox->property("value").toInt();
+    QVERIFY(widthSpinBox->setProperty("value", originalWidthSpinBoxValue + 1));
+    QCOMPARE(widthSpinBox->property("value").toInt(), originalWidthSpinBoxValue + 1);
+
+    QQuickItem *heightSpinBox = imageSizePopup->findChild<QQuickItem*>("changeImageHeightSpinBox");
+    const int originalHeightSpinBoxValue = heightSpinBox->property("value").toInt();
+    QVERIFY(heightSpinBox);
+    QVERIFY(heightSpinBox->setProperty("value", originalHeightSpinBoxValue - 1));
+    QCOMPARE(heightSpinBox->property("value").toInt(), originalHeightSpinBoxValue - 1);
+
+    QQuickItem *cancelButton = imageSizePopup->findChild<QQuickItem*>("imageSizePopupCancelButton");
+    QVERIFY(cancelButton);
+    mouseEventOnCentre(cancelButton, MouseClick);
+    QVERIFY(!imageSizePopup->property("visible").toBool());
+    QCOMPARE(project->size().width(), originalWidthSpinBoxValue);
+    QCOMPARE(project->size().height(), originalHeightSpinBoxValue);
+
+    // Open the popup again.
+    mouseEventOnCentre(imageSizeButton, MouseClick);
+    QVERIFY(imageSizePopup);
+    QVERIFY(imageSizePopup->property("visible").toBool());
+    // The old values should be restored.
+    QCOMPARE(widthSpinBox->property("value").toInt(), originalWidthSpinBoxValue);
+    QCOMPARE(heightSpinBox->property("value").toInt(), originalHeightSpinBoxValue);
+
+    // Change the values and then press OK.
+    QVERIFY(widthSpinBox->setProperty("value", width));
+    QCOMPARE(widthSpinBox->property("value").toInt(), width);
+    QVERIFY(heightSpinBox->setProperty("value", height));
+    QCOMPARE(heightSpinBox->property("value").toInt(), height);
+
+    QQuickItem *okButton = imageSizePopup->findChild<QQuickItem*>("imageSizePopupOkButton");
+    QVERIFY(okButton);
+    mouseEventOnCentre(okButton, MouseClick);
+    QVERIFY(!imageSizePopup->property("visible").toBool());
     QCOMPARE(project->size().width(), width);
     QCOMPARE(project->size().height(), height);
     QCOMPARE(widthSpinBox->property("value").toInt(), width);

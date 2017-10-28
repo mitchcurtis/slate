@@ -38,13 +38,13 @@ ChangeLayeredImageCanvasSizeCommand::ChangeLayeredImageCanvasSizeCommand(Layered
 void ChangeLayeredImageCanvasSizeCommand::undo()
 {
     qCDebug(lcChangeLayeredImageCanvasSizeCommand) << "undoing" << this;
-    mProject->changeSize(mPreviousSize);
+    mProject->doSetSize(mPreviousSize);
 }
 
 void ChangeLayeredImageCanvasSizeCommand::redo()
 {
     qCDebug(lcChangeLayeredImageCanvasSizeCommand) << "redoing" << this;
-    mProject->changeSize(mSize);
+    mProject->doSetSize(mSize);
 }
 
 int ChangeLayeredImageCanvasSizeCommand::id() const

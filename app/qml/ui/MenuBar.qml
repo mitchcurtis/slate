@@ -10,6 +10,9 @@ Item {
     property int projectType: project ? project.type : 0
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
+    property var canvasSizePopup
+    property var imageSizePopup
+
     Platform.MenuBar {
         Platform.Menu {
             id: fileMenu
@@ -122,6 +125,25 @@ Item {
                 text: qsTr("Flip Vertically")
                 onTriggered: canvas.flipSelection(Qt.Vertical)
                 enabled: isImageProjectType && canvas && canvas.hasSelection
+            }
+        }
+
+        Platform.Menu {
+            objectName: "imageMenuBarItem"
+                title: qsTr("Image")
+
+            Platform.MenuItem {
+                objectName: "changeCanvasSizeMenuButton"
+                text: qsTr("Canvas Size...")
+                enabled: canvas
+                onTriggered: canvasSizePopup.open()
+            }
+
+            Platform.MenuItem {
+                objectName: "changeImageSizeMenuButton"
+                text: qsTr("Image Size...")
+                enabled: canvas && projectType === Project.ImageType
+                onTriggered: imageSizePopup.open()
             }
         }
 

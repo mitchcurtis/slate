@@ -38,13 +38,13 @@ ChangeImageCanvasSizeCommand::ChangeImageCanvasSizeCommand(ImageProject *project
 void ChangeImageCanvasSizeCommand::undo()
 {
     qCDebug(lcChangeImageCanvasSizeCommand) << "undoing" << this;
-    mProject->changeSize(mPreviousSize);
+    mProject->doSetSize(mPreviousSize);
 }
 
 void ChangeImageCanvasSizeCommand::redo()
 {
     qCDebug(lcChangeImageCanvasSizeCommand) << "redoing" << this;
-    mProject->changeSize(mSize);
+    mProject->doSetSize(mSize);
 }
 
 int ChangeImageCanvasSizeCommand::id() const

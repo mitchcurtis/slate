@@ -16,6 +16,8 @@ Item {
     property bool isTilesetProject: projectType === Project.TilesetType
     property ImageCanvas canvas
     property FontMetrics fontMetrics
+    property Popup canvasSizePopup
+    property Popup imageSizePopup
 
     property alias toolButtonGroup: toolButtonGroup
 
@@ -71,19 +73,27 @@ Item {
             hoverEnabled: true
             focusPolicy: Qt.TabFocus
 
-            icon.source: "qrc:/images/change-size.png"
+            icon.source: "qrc:/images/change-canvas-size.png"
 
             ToolTip.text: qsTr("Change the size of the canvas")
             ToolTip.visible: hovered && !canvasSizePopup.visible
 
-            onClicked: canvasSizePopup.visible = !canvasSizePopup.visible
+            onClicked: canvasSizePopup.open()
+        }
 
-            CanvasSizePopup {
-                id: canvasSizePopup
-                x: parent.x
-                y: parent.height + 10
-                project: root.project
-            }
+        ToolButton {
+            id: imageSizeButton
+            objectName: "imageSizeButton"
+            enabled: project ? project.loaded && !isTilesetProject : false
+            hoverEnabled: true
+            focusPolicy: Qt.TabFocus
+
+            icon.source: "qrc:/images/change-image-size.png"
+
+            ToolTip.text: qsTr("Change the size of the image")
+            ToolTip.visible: hovered && !canvasSizePopup.visible
+
+            onClicked: imageSizePopup.open()
         }
 
         ToolSeparator {}

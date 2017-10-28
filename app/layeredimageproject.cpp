@@ -24,6 +24,7 @@
 #include <QPainter>
 
 #include "addlayercommand.h"
+#include "changelayeredimagesizecommand.h"
 #include "changelayeredimagecanvassizecommand.h"
 #include "changelayernamecommand.h"
 #include "changelayeropacitycommand.h"
@@ -327,6 +328,26 @@ void LayeredImageProject::exportImage(const QUrl &url)
     }
 }
 
+void LayeredImageProject::resize(int width, int height)
+{
+    const QSize newSize(width, height);
+    if (newSize == size())
+        return;
+
+    QVector<QImage> previousImages;
+    QVector<QImage> newImages;
+    foreach (ImageLayer *layer, mLayers) {
+        previousImages.append(*layer->image());
+
+        const QImage resized = layer->image()->scaled(newSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+        newImages.append(resized);
+    }
+
+    beginMacro(QLatin1String("ChangeLayeredImageSize"));
+    addChange(new ChangeLayeredImageSizeCommand(this, previousImages, newImages));
+    endMacro();
+}
+
 void LayeredImageProject::addNewLayer()
 {
     addNewLayer(widthInPixels(), heightInPixels(), true);
@@ -402,7 +423,7 @@ Project::Type LayeredImageProject::type() const
     return LayeredImageType;
 }
 
-void LayeredImageProject::changeSize(const QSize &newSize)
+void LayeredImageProject::doSetSize(const QSize &newSize)
 {
     if (newSize.width() <= 0 || newSize.height() <= 0) {
         error(QString::fromLatin1("Cannot set project size to: %1 x %2").arg(newSize.width(), newSize.height()));
@@ -414,6 +435,22 @@ void LayeredImageProject::changeSize(const QSize &newSize)
 
     foreach (ImageLayer *layer, mLayers) {
         layer->setSize(newSize);
+    }
+
+    emit sizeChanged();
+}
+
+void LayeredImageProject::doResize(const QVector<QImage> &newImages)
+{
+    Q_ASSERT(newImages.size() == mLayers.size());
+
+    for (int i = 0; i < newImages.size(); ++i) {
+        const QImage newImage = newImages.at(i);
+        Q_ASSERT(!newImage.isNull());
+        Q_ASSERT(newImage.size() != size());
+
+        ImageLayer *layer = mLayers.at(i);
+        *layer->image() = newImage;
     }
 
     emit sizeChanged();

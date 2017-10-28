@@ -47,5 +47,6 @@
         <file>ui/LayeredImageTypeCanvas.qml</file>
         <file>ui/LayerPanel.qml</file>
         <file>ui/StatusBar.qml</file>
+        <file>ui/ImageSizePopup.qml</file>
     </qresource>
 </RCC>

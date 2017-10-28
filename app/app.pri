@@ -12,7 +12,9 @@ HEADERS += \
     $$PWD/applytilefillcommand.h \
     $$PWD/applytilepencommand.h \
     $$PWD/canvaspane.h \
+    $$PWD/changeimagesizecommand.h \
     $$PWD/changeimagecanvassizecommand.h \
+    $$PWD/changelayeredimagesizecommand.h \
     $$PWD/changetilecanvassizecommand.h \
     $$PWD/commands.h \
     $$PWD/filevalidator.h \
@@ -69,6 +71,8 @@ SOURCES += \
     $$PWD/applytilefillcommand.cpp \
     $$PWD/applytilepencommand.cpp \
     $$PWD/canvaspane.cpp \
+    $$PWD/changeimagesizecommand.cpp \
+    $$PWD/changelayeredimagesizecommand.cpp \
     $$PWD/changeimagecanvassizecommand.cpp \
     $$PWD/changetilecanvassizecommand.cpp \
     $$PWD/filevalidator.cpp \

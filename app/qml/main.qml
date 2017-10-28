@@ -159,6 +159,8 @@ ApplicationWindow {
         id: menuBar
         projectManager: window.projectManager
         canvas: window.canvas
+        canvasSizePopup: canvasSizePopup
+        imageSizePopup: imageSizePopup
     }
 
     header: Ui.ToolBar {
@@ -169,6 +171,8 @@ ApplicationWindow {
             project: window.project
             canvas: window.canvas
             fontMetrics: fontMetrics
+            canvasSizePopup: canvasSizePopup
+            imageSizePopup: imageSizePopup
 
             Layout.fillWidth: true
         }
@@ -372,5 +376,21 @@ ApplicationWindow {
         Label {
             text: qsTr("The action you're about to perform could discard changes.\n\nContinue anyway?")
         }
+    }
+
+    Ui.CanvasSizePopup {
+        id: canvasSizePopup
+        x: parent.width / 2 - width / 2
+        y: parent.height / 2 - height / 2
+        project: projectManager.project
+        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
+    }
+
+    Ui.ImageSizePopup {
+        id: imageSizePopup
+        x: parent.width / 2 - width / 2
+        y: parent.height / 2 - height / 2
+        project: projectManager.project
+        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }
 }

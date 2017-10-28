@@ -60,6 +60,7 @@ private Q_SLOTS:
     void undoWithDuplicates();
     void undoTilesetCanvasSizeChange();
     void undoImageCanvasSizeChange();
+    void undoImageSizeChange();
     void undoPixelFill();
     void undoTileFill();
     void undoThickPen();
@@ -959,6 +960,32 @@ void tst_App::undoImageCanvasSizeChange()
 
     QCOMPARE(imageProject->widthInPixels(), 256);
     QCOMPARE(imageProject->heightInPixels(), 256);
+
+    setCursorPosInScenePixels(250, 250);
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(imageProject->image()->pixelColor(cursorPos), imageCanvas->penForegroundColour());
+
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
+
+    changeCanvasSize(200, 200);
+
+    // Ensure that the canvas was repainted after the size change.
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QVERIFY(imageGrabber.takeImage() != preSizeChangeCanvasSnapshot);
+
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(imageProject->image()->size(), QSize(256, 256));
+}
+
+void tst_App::undoImageSizeChange()
+{
+    createNewImageProject();
+
+    changeToolSize(4);
 
     setCursorPosInScenePixels(250, 250);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);

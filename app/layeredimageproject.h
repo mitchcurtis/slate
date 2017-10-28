@@ -75,6 +75,7 @@ public slots:
     void close() override;
     void saveAs(const QUrl &url) override;
     void exportImage(const QUrl &url);
+    void resize(int width, int height);
 
     void addNewLayer();
     void deleteCurrentLayer();
@@ -87,6 +88,7 @@ public slots:
 private:
     friend class AddLayerCommand;
     friend class ChangeLayeredImageCanvasSizeCommand;
+    friend class ChangeLayeredImageSizeCommand;
     friend class ChangeLayerOrderCommand;
     friend class ChangeLayerNameCommand;
     friend class ChangeLayerVisibleCommand;
@@ -95,7 +97,9 @@ private:
 
     bool isValidIndex(int index) const;
 
-    void changeSize(const QSize &size);
+    void doSetSize(const QSize &size);
+    void doResize(const QVector<QImage> &newImages);
+
     void addNewLayer(int imageWidth, int imageHeight, bool transparent, bool undoable = true);
     void addLayerAboveAll(ImageLayer *imageLayer);
     void addLayer(ImageLayer *imageLayer, int index);
