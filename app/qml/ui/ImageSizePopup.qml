@@ -9,6 +9,7 @@ Popup {
     objectName: "imageSizePopup"
     modal: true
     dim: false
+    focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnReleaseOutside
 
     property Project project

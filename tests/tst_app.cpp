@@ -61,6 +61,7 @@ private Q_SLOTS:
     void undoTilesetCanvasSizeChange();
     void undoImageCanvasSizeChange();
     void undoImageSizeChange();
+    void undoLayeredImageSizeChange();
     void undoPixelFill();
     void undoTileFill();
     void undoThickPen();
@@ -983,28 +984,116 @@ void tst_App::undoImageCanvasSizeChange()
 
 void tst_App::undoImageSizeChange()
 {
-    createNewImageProject();
+    createNewImageProject(12, 12);
 
     changeToolSize(4);
 
-    setCursorPosInScenePixels(250, 250);
+    setCursorPosInScenePixels(2, 2);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(imageProject->image()->pixelColor(cursorPos), imageCanvas->penForegroundColour());
+    QCOMPARE(imageProject->image()->pixelColor(QPoint(0, 0)), imageCanvas->penForegroundColour());
+    QCOMPARE(imageProject->image()->pixelColor(QPoint(3, 3)), imageCanvas->penForegroundColour());
 
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
 
-    changeCanvasSize(200, 200);
+    changeImageSize(6, 6);
+
+    // The contents should have been scaled down by 50%.
+    QCOMPARE(imageProject->image()->pixelColor(QPoint(0, 0)), imageCanvas->penForegroundColour());
+    QCOMPARE(imageProject->image()->pixelColor(QPoint(1, 1)), imageCanvas->penForegroundColour());
+    QCOMPARE(imageProject->image()->pixelColor(QPoint(2, 2)), Qt::white);
+
+    // Move the mouse back so the image comparison works.
+    setCursorPosInScenePixels(2, 2);
+    QTest::mouseMove(window, cursorWindowPos);
 
     // Ensure that the canvas was repainted after the size change.
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
-    QVERIFY(imageGrabber.takeImage() != preSizeChangeCanvasSnapshot);
+    const QImage preUndoSnapshot = imageGrabber.takeImage();
+    QVERIFY(preUndoSnapshot != preSizeChangeCanvasSnapshot);
 
+    // Undo the size change.
     mouseEventOnCentre(undoButton, MouseClick);
-    QCOMPARE(imageProject->image()->size(), QSize(256, 256));
+
+    QCOMPARE(imageProject->image()->size(), QSize(12, 12));
+    QCOMPARE(imageProject->image()->pixelColor(QPoint(0, 0)), imageCanvas->penForegroundColour());
+    QCOMPARE(imageProject->image()->pixelColor(QPoint(3, 3)), imageCanvas->penForegroundColour());
+
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage postUndoSnapshot = imageGrabber.takeImage();
+    QCOMPARE(postUndoSnapshot, preSizeChangeCanvasSnapshot);
+}
+
+void tst_App::undoLayeredImageSizeChange()
+{
+    createNewLayeredImageProject(12, 12);
+
+    changeToolSize(4);
+
+    setCursorPosInScenePixels(2, 2);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), Qt::black);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(3, 3), Qt::black);
+
+    // Add a new layer.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+    ImageLayer *layer1 = layeredImageProject->layerAt(1);
+    ImageLayer *layer2 = layeredImageProject->layerAt(0);
+
+    // Select the new layer.
+    selectLayer("Layer 2", 0);
+
+    // Draw on the new layer.
+    setCursorPosInScenePixels(6, 2);
+    layeredImageCanvas->setPenForegroundColour(Qt::red);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layer2->image()->pixelColor(4, 0), Qt::red);
+    QCOMPARE(layer2->image()->pixelColor(7, 3), Qt::red);
+
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
+
+    changeImageSize(6, 6);
+
+    // The contents of both layers should have been scaled down by 50%.
+    QCOMPARE(layer1->image()->pixelColor(QPoint(0, 0)), Qt::black);
+    QCOMPARE(layer1->image()->pixelColor(QPoint(1, 1)), Qt::black);
+    QCOMPARE(layer1->image()->pixelColor(QPoint(0, 2)), Qt::white);
+
+    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 0)), Qt::red);
+    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 1)), Qt::red);
+    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 2)), Qt::transparent);
+
+    // Move the mouse back so the image comparison works.
+    setCursorPosInScenePixels(2, 2);
+    QTest::mouseMove(window, cursorWindowPos);
+
+    // Ensure that the canvas was repainted after the size change.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage preUndoSnapshot = imageGrabber.takeImage();
+    QVERIFY(preUndoSnapshot != preSizeChangeCanvasSnapshot);
+
+    // Undo the size change.
+    mouseEventOnCentre(undoButton, MouseClick);
+
+    QCOMPARE(layer1->image()->size(), QSize(12, 12));
+    QCOMPARE(layer1->image()->pixelColor(0, 0), Qt::black);
+    QCOMPARE(layer1->image()->pixelColor(3, 3), Qt::black);
+
+    QCOMPARE(layer2->image()->pixelColor(4, 0), Qt::red);
+    QCOMPARE(layer2->image()->pixelColor(7, 3), Qt::red);
+
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage postUndoSnapshot = imageGrabber.takeImage();
+    QCOMPARE(postUndoSnapshot, preSizeChangeCanvasSnapshot);
 }
 
 void tst_App::undoPixelFill()

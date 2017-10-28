@@ -444,10 +444,12 @@ void LayeredImageProject::doResize(const QVector<QImage> &newImages)
 {
     Q_ASSERT(newImages.size() == mLayers.size());
 
+    const QSize previousSize = size();
+
     for (int i = 0; i < newImages.size(); ++i) {
         const QImage newImage = newImages.at(i);
         Q_ASSERT(!newImage.isNull());
-        Q_ASSERT(newImage.size() != size());
+        Q_ASSERT(newImage.size() != previousSize);
 
         ImageLayer *layer = mLayers.at(i);
         *layer->image() = newImage;
