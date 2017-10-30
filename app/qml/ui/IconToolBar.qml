@@ -91,7 +91,7 @@ Item {
             icon.source: "qrc:/images/change-image-size.png"
 
             ToolTip.text: qsTr("Change the size of the image")
-            ToolTip.visible: hovered && !canvasSizePopup.visible
+            ToolTip.visible: hovered && !imageSizePopup.visible
 
             onClicked: imageSizePopup.open()
         }
