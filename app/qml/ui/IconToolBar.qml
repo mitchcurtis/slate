@@ -238,7 +238,7 @@ Item {
                 iconText: "\uf125"
                 checkable: true
                 hoverEnabled: true
-//                visible: false // TODO: implement crop
+                visible: false // TODO: implement crop
 
                 ToolTip.text: qsTr("Crop the canvas")
                 ToolTip.visible: hovered
