@@ -103,6 +103,20 @@ Dialog {
                 Layout.column: 2
 
                 ToolTip.text: qsTr("Image width in pixels")
+
+                onValueModified: valueUpdated(value)
+
+                Connections {
+                    target: widthSpinBox.contentItem
+                    onTextEdited: widthSpinBox.valueUpdated(widthSpinBox.valueFromText(widthSpinBox.contentItem.text, widthSpinBox.locale))
+                }
+
+                function valueUpdated(value) {
+                    if (preserveAspectRatioButton.checked) {
+                        var aspectRatio = project.size.width / project.size.height
+                        heightSpinBox.value = value / aspectRatio
+                    }
+                }
             }
 
             Label {
@@ -123,6 +137,20 @@ Dialog {
                 Layout.column: 2
 
                 ToolTip.text: qsTr("Image height in pixels")
+
+                onValueModified: valueUpdated(value)
+
+                Connections {
+                    target: heightSpinBox.contentItem
+                    onTextEdited: heightSpinBox.valueUpdated(heightSpinBox.valueFromText(heightSpinBox.contentItem.text, heightSpinBox.locale))
+                }
+
+                function valueUpdated(value) {
+                    if (preserveAspectRatioButton.checked) {
+                        var aspectRatio = project.size.width / project.size.height
+                        widthSpinBox.value = value * aspectRatio
+                    }
+                }
             }
 
             Label {
