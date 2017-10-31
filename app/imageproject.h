@@ -48,7 +48,7 @@ public slots:
     void close() override;
     void saveAs(const QUrl &url) override;
 
-    void resize(int width, int height);
+    void resize(int width, int height, bool smooth);
 
 private:
     friend class ChangeImageCanvasSizeCommand;

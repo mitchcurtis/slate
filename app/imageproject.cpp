@@ -161,14 +161,15 @@ void ImageProject::saveAs(const QUrl &url)
     mHadUnsavedChangesBeforeMacroBegan = false;
 }
 
-void ImageProject::resize(int width, int height)
+void ImageProject::resize(int width, int height, bool smooth)
 {
     const QSize newSize(width, height);
     if (newSize == size())
         return;
 
     beginMacro(QLatin1String("ChangeImageSize"));
-    const QImage resized = mImage.scaled(newSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    const QImage resized = mImage.scaled(newSize, Qt::IgnoreAspectRatio,
+        smooth ? Qt::SmoothTransformation : Qt::FastTransformation);
     addChange(new ChangeImageSizeCommand(this, mImage, resized));
     endMacro();
 }

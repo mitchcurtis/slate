@@ -1,12 +1,13 @@
 import QtQuick 2.6
 import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.3
 
 import App 1.0
 
-Popup {
+Dialog {
     id: popup
     objectName: "canvasSizePopup"
+    title: qsTr("Choose a size for the canvas")
     modal: true
     dim: false
     focus: true
@@ -24,11 +25,6 @@ Popup {
     }
 
     contentItem: ColumnLayout {
-        Label {
-            id: titleLabel
-            text: qsTr("Choose a size for the canvas")
-        }
-
         Item {
             Layout.preferredHeight: 4
         }
@@ -75,28 +71,28 @@ Popup {
                 Layout.minimumHeight: 10
                 Layout.columnSpan: 2
             }
+        }
+    }
 
-            RowLayout {
-                Layout.columnSpan: 2
+    footer: DialogButtonBox {
+        Button {
+            objectName: "canvasSizePopupOkButton"
+            text: "OK"
 
-                Item {
-                    Layout.fillWidth: true
-                }
+            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
 
-                Button {
-                    objectName: "canvasSizePopupOkButton"
-                    text: "OK"
-                    onClicked: {
-                        project.size = Qt.size(widthSpinBox.value, heightSpinBox.value);
-                        popup.visible = false;
-                    }
-                }
-                Button {
-                    objectName: "canvasSizePopupCancelButton"
-                    text: "Cancel"
-                    onClicked: popup.visible = false
-                }
+            onClicked: {
+                project.size = Qt.size(widthSpinBox.value, heightSpinBox.value);
+                popup.visible = false;
             }
+        }
+        Button {
+            objectName: "canvasSizePopupCancelButton"
+            text: "Cancel"
+
+            DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
+
+            onClicked: popup.visible = false
         }
     }
 }
