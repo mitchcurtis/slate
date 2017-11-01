@@ -47,6 +47,8 @@ class ApplicationSettings : public QSettings
     Q_PROPERTY(QString redoShortcut READ redoShortcut WRITE setRedoShortcut NOTIFY redoShortcutChanged)
     Q_PROPERTY(QString flipHorizontallyShortcut READ flipHorizontallyShortcut WRITE setFlipHorizontallyShortcut NOTIFY flipHorizontallyShortcutChanged)
     Q_PROPERTY(QString flipVerticallyShortcut READ flipVerticallyShortcut WRITE setFlipVerticallyShortcut NOTIFY flipVerticallyShortcutChanged)
+    Q_PROPERTY(QString resizeCanvasShortcut READ resizeCanvasShortcut WRITE setResizeCanvasShortcut NOTIFY resizeCanvasShortcutChanged)
+    Q_PROPERTY(QString resizeImageShortcut READ resizeImageShortcut WRITE setResizeImageShortcut NOTIFY resizeImageShortcutChanged)
     Q_PROPERTY(QString gridVisibleShortcut READ gridVisibleShortcut WRITE setGridVisibleShortcut NOTIFY gridVisibleShortcutChanged)
     Q_PROPERTY(QString rulersVisibleShortcut READ rulersVisibleShortcut WRITE setRulersVisibleShortcut NOTIFY rulersVisibleShortcutChanged)
     Q_PROPERTY(QString guidesVisibleShortcut READ guidesVisibleShortcut WRITE setGuidesVisibleShortcut NOTIFY guidesVisibleShortcutChanged)
@@ -141,6 +143,10 @@ public:
     QString undoShortcut() const;
     void setUndoShortcut(const QString &shortcut);
 
+    QString defaultRedoShortcut() const;
+    QString redoShortcut() const;
+    void setRedoShortcut(const QString &shortcut);
+
     QString defaultFlipHorizontallyShortcut() const;
     QString flipHorizontallyShortcut() const;
     void setFlipHorizontallyShortcut(const QString &shortcut);
@@ -149,9 +155,13 @@ public:
     QString flipVerticallyShortcut() const;
     void setFlipVerticallyShortcut(const QString &shortcut);
 
-    QString defaultRedoShortcut() const;
-    QString redoShortcut() const;
-    void setRedoShortcut(const QString &shortcut);
+    QString defaultResizeCanvasShortcut() const;
+    QString resizeCanvasShortcut() const;
+    void setResizeCanvasShortcut(const QString &shortcut);
+
+    QString defaultResizeImageShortcut() const;
+    QString resizeImageShortcut() const;
+    void setResizeImageShortcut(const QString &shortcut);
 
     QString defaultGridVisibleShortcut() const;
     QString gridVisibleShortcut() const;
@@ -259,6 +269,8 @@ signals:
     void redoShortcutChanged();
     void flipHorizontallyShortcutChanged();
     void flipVerticallyShortcutChanged();
+    void resizeCanvasShortcutChanged();
+    void resizeImageShortcutChanged();
     void gridVisibleShortcutChanged();
     void rulersVisibleShortcutChanged();
     void guidesVisibleShortcutChanged();

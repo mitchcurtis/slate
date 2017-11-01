@@ -267,6 +267,8 @@ void ApplicationSettings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("redoShortcut"));
         allShortcuts.append(QLatin1String("flipHorizontallyShortcut"));
         allShortcuts.append(QLatin1String("flipVerticallyShortcut"));
+        allShortcuts.append(QLatin1String("resizeCanvasShortcut"));
+        allShortcuts.append(QLatin1String("resizeImageShortcut"));
         allShortcuts.append(QLatin1String("centreShortcut"));
         allShortcuts.append(QLatin1String("zoomInShortcut"));
         allShortcuts.append(QLatin1String("zoomOutShortcut"));
@@ -430,6 +432,21 @@ void ApplicationSettings::setUndoShortcut(const QString &shortcut)
     SET_SHORTCUT("undoShortcut", defaultUndoShortcut, undoShortcutChanged)
 }
 
+QString ApplicationSettings::defaultRedoShortcut() const
+{
+    return QKeySequence(QKeySequence::Redo).toString();
+}
+
+QString ApplicationSettings::redoShortcut() const
+{
+    GET_SHORTCUT("redoShortcut", defaultRedoShortcut)
+}
+
+void ApplicationSettings::setRedoShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("redoShortcut", defaultRedoShortcut, redoShortcutChanged)
+}
+
 QString ApplicationSettings::defaultFlipHorizontallyShortcut() const
 {
     return QLatin1String("H");
@@ -460,19 +477,34 @@ void ApplicationSettings::setFlipVerticallyShortcut(const QString &shortcut)
     SET_SHORTCUT("flipVerticallyShortcut", defaultFlipVerticallyShortcut, flipVerticallyShortcutChanged)
 }
 
-QString ApplicationSettings::defaultRedoShortcut() const
+QString ApplicationSettings::defaultResizeCanvasShortcut() const
 {
-    return QKeySequence(QKeySequence::Redo).toString();
+    return QLatin1String("Ctrl+Shift+C");
 }
 
-QString ApplicationSettings::redoShortcut() const
+QString ApplicationSettings::resizeCanvasShortcut() const
 {
-    GET_SHORTCUT("redoShortcut", defaultRedoShortcut)
+    GET_SHORTCUT("resizeCanvasShortcut", defaultResizeCanvasShortcut)
 }
 
-void ApplicationSettings::setRedoShortcut(const QString &shortcut)
+void ApplicationSettings::setResizeCanvasShortcut(const QString &shortcut)
 {
-    SET_SHORTCUT("redoShortcut", defaultRedoShortcut, redoShortcutChanged)
+    SET_SHORTCUT("resizeCanvasShortcut", defaultResizeCanvasShortcut, resizeCanvasShortcutChanged)
+}
+
+QString ApplicationSettings::defaultResizeImageShortcut() const
+{
+    return QLatin1String("Ctrl+Shift+I");
+}
+
+QString ApplicationSettings::resizeImageShortcut() const
+{
+    GET_SHORTCUT("resizeImageShortcut", defaultResizeImageShortcut)
+}
+
+void ApplicationSettings::setResizeImageShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("resizeImageShortcut", defaultResizeImageShortcut, resizeImageShortcutChanged)
 }
 
 QString ApplicationSettings::defaultGridVisibleShortcut() const

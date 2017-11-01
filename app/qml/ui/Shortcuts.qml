@@ -127,6 +127,20 @@ Item {
     }
 
     Shortcut {
+        objectName: "resizeCanvasShortcut"
+        sequence: settings.resizeCanvasShortcut
+        onActivated: canvasSizePopup.open()
+        enabled: canvasHasActiveFocus && canvas.hasSelection
+    }
+
+    Shortcut {
+        objectName: "resizeImageShortcut"
+        sequence: settings.resizeImageShortcut
+        onActivated: imageSizePopup.open()
+        enabled: isImageProjectType && canvasHasActiveFocus && canvas.hasSelection
+    }
+
+    Shortcut {
         objectName: "gridVisibleShortcut"
         sequence: settings.gridVisibleShortcut
         onActivated: settings.gridVisible = !settings.gridVisible

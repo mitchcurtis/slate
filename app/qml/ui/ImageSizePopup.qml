@@ -106,10 +106,10 @@ Dialog {
 
                 onValueModified: valueUpdated(value)
 
-                Connections {
-                    target: widthSpinBox.contentItem
-                    onTextEdited: widthSpinBox.valueUpdated(widthSpinBox.valueFromText(widthSpinBox.contentItem.text, widthSpinBox.locale))
-                }
+//                Connections {
+//                    target: widthSpinBox.contentItem
+//                    onTextEdited: widthSpinBox.valueUpdated(widthSpinBox.valueFromText(widthSpinBox.contentItem.text, widthSpinBox.locale))
+//                }
 
                 function valueUpdated(value) {
                     if (preserveAspectRatioButton.checked) {
@@ -140,10 +140,10 @@ Dialog {
 
                 onValueModified: valueUpdated(value)
 
-                Connections {
-                    target: heightSpinBox.contentItem
-                    onTextEdited: heightSpinBox.valueUpdated(heightSpinBox.valueFromText(heightSpinBox.contentItem.text, heightSpinBox.locale))
-                }
+//                Connections {
+//                    target: heightSpinBox.contentItem
+//                    onTextEdited: heightSpinBox.valueUpdated(heightSpinBox.valueFromText(heightSpinBox.contentItem.text, heightSpinBox.locale))
+//                }
 
                 function valueUpdated(value) {
                     if (preserveAspectRatioButton.checked) {
@@ -178,6 +178,15 @@ Dialog {
                 Layout.fillHeight: true
             }
         }
+    }
+
+    Rectangle {
+        x: footer.x
+        y: footer.y
+        width: footer.width
+        height: footer.height
+        color: "transparent"
+        border.color: "darkorange"
     }
 
     footer: DialogButtonBox {

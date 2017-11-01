@@ -148,8 +148,12 @@ Dialog {
                     shortcutDisplayName: qsTr("Flip Vertically")
                 }
                 ShortcutRow {
-                    shortcutName: "redoShortcut"
-                    shortcutDisplayName: qsTr("Redo Action")
+                    shortcutName: "resizeCanvasShortcut"
+                    shortcutDisplayName: qsTr("Resize Canvas")
+                }
+                ShortcutRow {
+                    shortcutName: "resizeImageShortcut"
+                    shortcutDisplayName: qsTr("Resize Image")
                 }
                 ShortcutRow {
                     shortcutName: "centreShortcut"

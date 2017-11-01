@@ -135,6 +135,7 @@ Item {
             Platform.MenuItem {
                 objectName: "changeCanvasSizeMenuButton"
                 text: qsTr("Canvas Size...")
+                shortcut: settings.resizeCanvasShortcut
                 enabled: canvas
                 onTriggered: canvasSizePopup.open()
             }
@@ -142,6 +143,7 @@ Item {
             Platform.MenuItem {
                 objectName: "changeImageSizeMenuButton"
                 text: qsTr("Image Size...")
+                shortcut: settings.resizeImageShortcut
                 enabled: canvas && projectType === Project.ImageType
                 onTriggered: imageSizePopup.open()
             }
