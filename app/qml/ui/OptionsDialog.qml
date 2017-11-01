@@ -81,159 +81,164 @@ Dialog {
             }
         }
 
-        ListView {
-            id: shortcutListView
-            clip: true
+        Item {
+            id: shortcutListViewContainer
 
-            ScrollBar.vertical: ScrollBar {
-                id: verticalScrollBar
-                Binding {
-                    target: verticalScrollBar
-                    property: "active"
-                    value: verticalScrollBar.hovered
-                }
-            }
+            ListView {
+                id: shortcutListView
+                anchors.fill: parent
+                anchors.rightMargin: ScrollBar.vertical.width
+                clip: true
 
-            Rectangle {
-                width: parent.width
-                height: 1
-                anchors.top: parent.top
-                color: "#1a000000"
-            }
+                ScrollBar.vertical: ScrollBar {
+                    id: verticalScrollBar
+                    parent: shortcutListView.parent
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                }
 
-            Rectangle {
-                width: parent.width
-                height: 1
-                anchors.bottom: parent.bottom
-                color: "#1a000000"
-            }
+                Rectangle {
+                    width: parent.width
+                    height: 1
+                    anchors.top: parent.top
+                    color: "#1a000000"
+                }
 
-            model: ObjectModel {
-                id: shortcutModel
+                Rectangle {
+                    width: parent.width
+                    height: 1
+                    anchors.bottom: parent.bottom
+                    color: "#1a000000"
+                }
 
-                ShortcutRow {
-                    shortcutName: "newShortcut"
-                    shortcutDisplayName: qsTr("New Project")
-                }
-                ShortcutRow {
-                    shortcutName: "closeShortcut"
-                    shortcutDisplayName: qsTr("Close Project")
-                }
-                ShortcutRow {
-                    shortcutName: "saveShortcut"
-                    shortcutDisplayName: qsTr("Save Project")
-                }
-                ShortcutRow {
-                    shortcutName: "closeShortcut"
-                    shortcutDisplayName: qsTr("Close Project")
-                }
-                ShortcutRow {
-                    shortcutName: "revertShortcut"
-                    shortcutDisplayName: qsTr("Revert To Last Save")
-                }
-                ShortcutRow {
-                    shortcutName: "undoShortcut"
-                    shortcutDisplayName: qsTr("Undo Action")
-                }
-                ShortcutRow {
-                    shortcutName: "redoShortcut"
-                    shortcutDisplayName: qsTr("Redo Action")
-                }
-                ShortcutRow {
-                    shortcutName: "flipHorizontallyShortcut"
-                    shortcutDisplayName: qsTr("Flip Horizontally")
-                }
-                ShortcutRow {
-                    shortcutName: "flipVerticallyShortcut"
-                    shortcutDisplayName: qsTr("Flip Vertically")
-                }
-                ShortcutRow {
-                    shortcutName: "resizeCanvasShortcut"
-                    shortcutDisplayName: qsTr("Resize Canvas")
-                }
-                ShortcutRow {
-                    shortcutName: "resizeImageShortcut"
-                    shortcutDisplayName: qsTr("Resize Image")
-                }
-                ShortcutRow {
-                    shortcutName: "centreShortcut"
-                    shortcutDisplayName: qsTr("Centre View")
-                }
-                ShortcutRow {
-                    shortcutName: "zoomInShortcut"
-                    shortcutDisplayName: qsTr("Zoom In")
-                }
-                ShortcutRow {
-                    shortcutName: "zoomOutShortcut"
-                    shortcutDisplayName: qsTr("Zoom Out")
-                }
-                ShortcutRow {
-                    shortcutName: "gridVisibleShortcut"
-                    shortcutDisplayName: qsTr("Toggle Grid Visibility")
-                }
-                ShortcutRow {
-                    shortcutName: "rulersVisibleShortcut"
-                    shortcutDisplayName: qsTr("Toggle Ruler Visibility")
-                }
-                ShortcutRow {
-                    shortcutName: "guidesVisibleShortcut"
-                    shortcutDisplayName: qsTr("Toggle Guide Visibility")
-                }
-                ShortcutRow {
-                    shortcutName: "splitScreenShortcut"
-                    shortcutDisplayName: qsTr("Toggle Split Screen")
-                }
-                ShortcutRow {
-                    shortcutName: "optionsShortcut"
-                    shortcutDisplayName: qsTr("Options")
-                }
-                ShortcutRow {
-                    shortcutName: "penToolShortcut"
-                    shortcutDisplayName: qsTr("Pen Tool")
-                }
-                ShortcutRow {
-                    shortcutName: "eyeDropperToolShortcut"
-                    shortcutDisplayName: qsTr("Eye Dropper Tool")
-                }
-                ShortcutRow {
-                    shortcutName: "fillToolShortcut"
-                    shortcutDisplayName: qsTr("Fill Tool")
-                }
-                ShortcutRow {
-                    shortcutName: "eraserToolShortcut"
-                    shortcutDisplayName: qsTr("Eraser Tool")
-                }
-                ShortcutRow {
-                    shortcutName: "selectionToolShortcut"
-                    shortcutDisplayName: qsTr("Selection Tool")
-                }
-                ShortcutRow {
-                    shortcutName: "toolModeShortcut"
-                    shortcutDisplayName: qsTr("Toggle Tool Mode")
-                }
-                ShortcutRow {
-                    shortcutName: "decreaseToolSizeShortcut"
-                    shortcutDisplayName: qsTr("Decrease Tool Size")
-                }
-                ShortcutRow {
-                    shortcutName: "increaseToolSizeShortcut"
-                    shortcutDisplayName: qsTr("Increase Tool Size")
-                }
-                ShortcutRow {
-                    shortcutName: "swatchLeftShortcut"
-                    shortcutDisplayName: qsTr("Move Swatch Selection Left")
-                }
-                ShortcutRow {
-                    shortcutName: "swatchRightShortcut"
-                    shortcutDisplayName: qsTr("Move Swatch Selection Right")
-                }
-                ShortcutRow {
-                    shortcutName: "swatchUpShortcut"
-                    shortcutDisplayName: qsTr("Move Swatch Selection Up")
-                }
-                ShortcutRow {
-                    shortcutName: "swatchDownShortcut"
-                    shortcutDisplayName: qsTr("Move Swatch Selection Down")
+                model: ObjectModel {
+                    id: shortcutModel
+
+                    ShortcutRow {
+                        shortcutName: "newShortcut"
+                        shortcutDisplayName: qsTr("New Project")
+                    }
+                    ShortcutRow {
+                        shortcutName: "closeShortcut"
+                        shortcutDisplayName: qsTr("Close Project")
+                    }
+                    ShortcutRow {
+                        shortcutName: "saveShortcut"
+                        shortcutDisplayName: qsTr("Save Project")
+                    }
+                    ShortcutRow {
+                        shortcutName: "closeShortcut"
+                        shortcutDisplayName: qsTr("Close Project")
+                    }
+                    ShortcutRow {
+                        shortcutName: "revertShortcut"
+                        shortcutDisplayName: qsTr("Revert To Last Save")
+                    }
+                    ShortcutRow {
+                        shortcutName: "undoShortcut"
+                        shortcutDisplayName: qsTr("Undo Action")
+                    }
+                    ShortcutRow {
+                        shortcutName: "redoShortcut"
+                        shortcutDisplayName: qsTr("Redo Action")
+                    }
+                    ShortcutRow {
+                        shortcutName: "flipHorizontallyShortcut"
+                        shortcutDisplayName: qsTr("Flip Horizontally")
+                    }
+                    ShortcutRow {
+                        shortcutName: "flipVerticallyShortcut"
+                        shortcutDisplayName: qsTr("Flip Vertically")
+                    }
+                    ShortcutRow {
+                        shortcutName: "resizeCanvasShortcut"
+                        shortcutDisplayName: qsTr("Resize Canvas")
+                    }
+                    ShortcutRow {
+                        shortcutName: "resizeImageShortcut"
+                        shortcutDisplayName: qsTr("Resize Image")
+                    }
+                    ShortcutRow {
+                        shortcutName: "centreShortcut"
+                        shortcutDisplayName: qsTr("Centre View")
+                    }
+                    ShortcutRow {
+                        shortcutName: "zoomInShortcut"
+                        shortcutDisplayName: qsTr("Zoom In")
+                    }
+                    ShortcutRow {
+                        shortcutName: "zoomOutShortcut"
+                        shortcutDisplayName: qsTr("Zoom Out")
+                    }
+                    ShortcutRow {
+                        shortcutName: "gridVisibleShortcut"
+                        shortcutDisplayName: qsTr("Toggle Grid Visibility")
+                    }
+                    ShortcutRow {
+                        shortcutName: "rulersVisibleShortcut"
+                        shortcutDisplayName: qsTr("Toggle Ruler Visibility")
+                    }
+                    ShortcutRow {
+                        shortcutName: "guidesVisibleShortcut"
+                        shortcutDisplayName: qsTr("Toggle Guide Visibility")
+                    }
+                    ShortcutRow {
+                        shortcutName: "splitScreenShortcut"
+                        shortcutDisplayName: qsTr("Toggle Split Screen")
+                    }
+                    ShortcutRow {
+                        shortcutName: "optionsShortcut"
+                        shortcutDisplayName: qsTr("Options")
+                    }
+                    ShortcutRow {
+                        shortcutName: "penToolShortcut"
+                        shortcutDisplayName: qsTr("Pen Tool")
+                    }
+                    ShortcutRow {
+                        shortcutName: "eyeDropperToolShortcut"
+                        shortcutDisplayName: qsTr("Eye Dropper Tool")
+                    }
+                    ShortcutRow {
+                        shortcutName: "fillToolShortcut"
+                        shortcutDisplayName: qsTr("Fill Tool")
+                    }
+                    ShortcutRow {
+                        shortcutName: "eraserToolShortcut"
+                        shortcutDisplayName: qsTr("Eraser Tool")
+                    }
+                    ShortcutRow {
+                        shortcutName: "selectionToolShortcut"
+                        shortcutDisplayName: qsTr("Selection Tool")
+                    }
+                    ShortcutRow {
+                        shortcutName: "toolModeShortcut"
+                        shortcutDisplayName: qsTr("Toggle Tool Mode")
+                    }
+                    ShortcutRow {
+                        shortcutName: "decreaseToolSizeShortcut"
+                        shortcutDisplayName: qsTr("Decrease Tool Size")
+                    }
+                    ShortcutRow {
+                        shortcutName: "increaseToolSizeShortcut"
+                        shortcutDisplayName: qsTr("Increase Tool Size")
+                    }
+                    ShortcutRow {
+                        shortcutName: "swatchLeftShortcut"
+                        shortcutDisplayName: qsTr("Move Swatch Selection Left")
+                    }
+                    ShortcutRow {
+                        shortcutName: "swatchRightShortcut"
+                        shortcutDisplayName: qsTr("Move Swatch Selection Right")
+                    }
+                    ShortcutRow {
+                        shortcutName: "swatchUpShortcut"
+                        shortcutDisplayName: qsTr("Move Swatch Selection Up")
+                    }
+                    ShortcutRow {
+                        shortcutName: "swatchDownShortcut"
+                        shortcutDisplayName: qsTr("Move Swatch Selection Down")
+                    }
                 }
             }
         }
