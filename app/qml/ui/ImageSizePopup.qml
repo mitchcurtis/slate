@@ -106,6 +106,7 @@ Dialog {
 
                 onValueModified: valueUpdated(value)
 
+                // https://bugreports.qt.io/browse/QTBUG-64151
 //                Connections {
 //                    target: widthSpinBox.contentItem
 //                    onTextEdited: widthSpinBox.valueUpdated(widthSpinBox.valueFromText(widthSpinBox.contentItem.text, widthSpinBox.locale))
@@ -140,6 +141,7 @@ Dialog {
 
                 onValueModified: valueUpdated(value)
 
+                // https://bugreports.qt.io/browse/QTBUG-64151
 //                Connections {
 //                    target: heightSpinBox.contentItem
 //                    onTextEdited: heightSpinBox.valueUpdated(heightSpinBox.valueFromText(heightSpinBox.contentItem.text, heightSpinBox.locale))
