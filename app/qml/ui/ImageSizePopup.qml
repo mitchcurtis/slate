@@ -180,36 +180,46 @@ Dialog {
                 Layout.fillHeight: true
             }
         }
-    }
 
-    Rectangle {
-        x: footer.x
-        y: footer.y
-        width: footer.width
-        height: footer.height
-        color: "transparent"
-        border.color: "darkorange"
-    }
+        RowLayout {
+            Button {
+                objectName: "imageSizePopupOkButton"
+                text: qsTr("OK")
 
-    footer: DialogButtonBox {
-        Button {
-            objectName: "imageSizePopupOkButton"
-            text: "OK"
+                onClicked: {
+                    project.resize(widthSpinBox.value, heightSpinBox.value, smoothCheckBox.checked);
+                    dialog.visible = false;
+                }
+            }
+            Button {
+                objectName: "imageSizePopupCancelButton"
+                text: qsTr("Cancel")
 
-            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
-
-            onClicked: {
-                project.resize(widthSpinBox.value, heightSpinBox.value, smoothCheckBox.checked);
-                dialog.visible = false;
+                onClicked: dialog.visible = false
             }
         }
-        Button {
-            objectName: "imageSizePopupCancelButton"
-            text: "Cancel"
-
-            DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
-
-            onClicked: dialog.visible = false
-        }
     }
+
+    // https://bugreports.qt.io/browse/QTBUG-64174
+//    footer: DialogButtonBox {
+//        Button {
+//            objectName: "imageSizePopupOkButton"
+//            text: qsTr("OK")
+
+//            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+
+//            onClicked: {
+//                project.resize(widthSpinBox.value, heightSpinBox.value, smoothCheckBox.checked);
+//                dialog.visible = false;
+//            }
+//        }
+//        Button {
+//            objectName: "imageSizePopupCancelButton"
+//            text: qsTr("Cancel")
+
+//            DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
+
+//            onClicked: dialog.visible = false
+//        }
+//    }
 }
