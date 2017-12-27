@@ -438,6 +438,7 @@ void TestHelper::changeToolSize(int size)
          ++sliderHandlePos.rx()) {
         QTest::mouseMove(toolSizeSlider->window(), sliderHandlePos, 5);
     }
+    --sliderHandlePos.rx();
     QTest::mouseRelease(toolSizeSlider->window(), Qt::LeftButton, Qt::NoModifier, sliderHandlePos);
     QCOMPARE(toolSizeSlider->property("pressed").toBool(), false);
     QCOMPARE(sliderValue(toolSizeSlider), size);
@@ -725,7 +726,7 @@ void TestHelper::triggerShortcut(const QString &objectName, const QString &seque
     QSignalSpy activatedSpy(shortcut, SIGNAL(activated()));
     QVERIFY(activatedSpy.isValid());
 
-    QTest::qWaitForWindowActive(window);
+    QVERIFY(QTest::qWaitForWindowActive(window));
     const int value = QKeySequence(sequenceAsString)[0];
     Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(value & Qt::KeyboardModifierMask);
     QTest::keyClick(window, value & ~mods, mods);

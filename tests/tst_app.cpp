@@ -113,6 +113,7 @@ private Q_SLOTS:
     void layerVisibilityAfterMoving();
     void undoAfterAddLayer();
     void selectionConfirmedWhenSwitchingLayers();
+    void autoExport();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -3021,6 +3022,64 @@ void tst_App::selectionConfirmedWhenSwitchingLayers()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage snapshotAfterSwitchingLayers = imageGrabber.takeImage();
     QCOMPARE(snapshotAfterSwitchingLayers.pixelColor(0, 0), Qt::red);
+}
+
+void tst_App::autoExport()
+{
+    // Create a new layered image project with the dimensions of the clipboard contents.
+    createNewLayeredImageProject(10, 10);
+
+    panTopLeftTo(0, 0);
+
+    QCOMPARE(layeredImageProject->isAutoExportEnabled(), false);
+
+    // Don't have a shortcut for it yet, so have to change it manually, but we can still
+    // check that the menus update accordingly.
+#ifdef NON_NATIVE_MENUS
+    // TODO: can we just use the QObject-based code below instead?
+    QQuickItem *autoExportMenuButton = window->findChild<QQuickItem*>("autoExportMenuButton");
+    QVERIFY(autoExportMenuButton);
+#else
+    QObject *autoExportMenuButton = window->findChild<QObject*>("autoExportMenuButton");
+    QVERIFY(autoExportMenuButton);
+#endif
+    QCOMPARE(autoExportMenuButton->property("checked"), false);
+
+    layeredImageProject->setAutoExportEnabled(true);
+    QCOMPARE(autoExportMenuButton->property("checked"), true);
+
+    QCOMPARE(layeredImageProject->canSave(), true);
+
+    // Save the project so that the auto-export is triggered.
+    const QString savedProjectPath = tempProjectDir->path() + "/autoExport-project.slp";
+    layeredImageProject->saveAs(QUrl::fromLocalFile(savedProjectPath));
+
+    // The image file should exist now.
+    const QString autoExportFilePath = LayeredImageProject::autoExportFilePath(layeredImageProject->url());
+    QVERIFY(QFile::exists(autoExportFilePath));
+
+    QImage exportedImage(autoExportFilePath);
+    QVERIFY(!exportedImage.isNull());
+
+    QImage expectedExportedImage(10, 10, QImage::Format_ARGB32);
+    expectedExportedImage.fill(Qt::white);
+    QCOMPARE(exportedImage, expectedExportedImage);
+
+    // Disable auto-export.
+    layeredImageProject->setAutoExportEnabled(false);
+    QCOMPARE(autoExportMenuButton->property("checked"), false);
+
+    // Draw something.
+    setCursorPosInScenePixels(2, 2);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(2, 2), Qt::black);
+
+    // Save again.
+    layeredImageProject->saveAs(QUrl::fromLocalFile(savedProjectPath));
+
+    // No export should have happened and so the exported image shouldn't have changed.
+    exportedImage = QImage(autoExportFilePath);
+    QCOMPARE(exportedImage, expectedExportedImage);
 }
 
 int main(int argc, char *argv[])

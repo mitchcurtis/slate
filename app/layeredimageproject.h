@@ -33,6 +33,7 @@ class LayeredImageProject : public Project
     Q_PROPERTY(int currentLayerIndex READ currentLayerIndex WRITE setCurrentLayerIndex NOTIFY currentLayerIndexChanged)
     Q_PROPERTY(ImageLayer *currentLayer READ currentLayer NOTIFY postCurrentLayerChanged)
     Q_PROPERTY(int layerCount READ layerCount NOTIFY layerCountChanged)
+    Q_PROPERTY(bool autoExportEnabled READ isAutoExportEnabled WRITE setAutoExportEnabled NOTIFY autoExportEnabledChanged)
 
 public:
     LayeredImageProject();
@@ -53,11 +54,16 @@ public:
 
     QImage flattenedImage(std::function<QImage(int)> layerSubstituteFunction = nullptr) const;
 
+    bool isAutoExportEnabled() const;
+    void setAutoExportEnabled(bool autoExportEnabled);
+    static QString autoExportFilePath(const QUrl &projectUrl);
+
 signals:
     void currentLayerIndexChanged();
     void preCurrentLayerChanged();
     void postCurrentLayerChanged();
     void layerCountChanged();
+    void autoExportEnabledChanged();
 
     void preLayersCleared();
     void postLayersCleared();
@@ -74,7 +80,7 @@ public slots:
     void load(const QUrl &url) override;
     void close() override;
     void saveAs(const QUrl &url) override;
-    void exportImage(const QUrl &url);
+    bool exportImage(const QUrl &url);
     void resize(int width, int height);
 
     void addNewLayer();
@@ -113,6 +119,7 @@ private:
     int mCurrentLayerIndex;
     // Give each layer a unique name based on the layers created so far.
     int mLayersCreated;
+    bool mAutoExportEnabled;
 };
 
 #endif // LAYEREDIMAGEPROJECT_H

@@ -36,7 +36,8 @@
 
 LayeredImageProject::LayeredImageProject() :
     mCurrentLayerIndex(0),
-    mLayersCreated(0)
+    mLayersCreated(0),
+    mAutoExportEnabled(false)
 {
     setObjectName(QLatin1String("LayeredImageProject"));
     qCDebug(lcProjectLifecycle) << "constructing" << this;
@@ -135,6 +136,32 @@ QImage LayeredImageProject::flattenedImage(std::function<QImage(int)> layerSubst
     return finalImage;
 }
 
+bool LayeredImageProject::isAutoExportEnabled() const
+{
+    return mAutoExportEnabled;
+}
+
+void LayeredImageProject::setAutoExportEnabled(bool autoExportEnabled)
+{
+    if (autoExportEnabled == mAutoExportEnabled)
+        return;
+
+    mAutoExportEnabled = autoExportEnabled;
+    emit autoExportEnabledChanged();
+}
+
+QString LayeredImageProject::autoExportFilePath(const QUrl &projectUrl)
+{
+    const QString filePath = projectUrl.toLocalFile();
+    QString path = filePath;
+    const int lastPeriodIndex = filePath.lastIndexOf(QLatin1Char('.'));
+    if (lastPeriodIndex != -1)
+        path.replace(lastPeriodIndex + 1, filePath.size() - lastPeriodIndex - 1, QLatin1String("png"));
+    else
+        path.append(QLatin1String("png"));
+    return path;
+}
+
 void LayeredImageProject::createNew(int imageWidth, int imageHeight, bool transparentBackground)
 {
     if (hasLoaded()) {
@@ -195,6 +222,9 @@ void LayeredImageProject::load(const QUrl &url)
     }
 
     readGuides(projectObject);
+
+    mAutoExportEnabled = projectObject.value("autoExportEnabled").toBool(false);
+
     mCachedProjectJson = projectObject;
 
     setUrl(url);
@@ -280,6 +310,13 @@ void LayeredImageProject::saveAs(const QUrl &url)
     writeGuides(projectObject);
     emit readyForWritingToJson(&projectObject);
 
+    if (mAutoExportEnabled) {
+        projectObject.insert("autoExportEnabled", mAutoExportEnabled);
+
+        if (!exportImage(QUrl::fromLocalFile(autoExportFilePath(url))))
+            return;
+    }
+
     rootJson.insert("project", projectObject);
 
     QJsonDocument jsonDoc(rootJson);
@@ -305,27 +342,30 @@ void LayeredImageProject::saveAs(const QUrl &url)
     mHadUnsavedChangesBeforeMacroBegan = false;
 }
 
-void LayeredImageProject::exportImage(const QUrl &url)
+// Returns true because the auto-export feature in saveAs() needs to know whether or not it should return early.
+bool LayeredImageProject::exportImage(const QUrl &url)
 {
     if (!hasLoaded())
-        return;
+        return false;
 
     if (url.isEmpty())
-        return;
+        return false;
 
     const QString filePath = url.toLocalFile();
     const QFileInfo projectSaveFileInfo(filePath);
     if (mTempDir.isValid()) {
         if (projectSaveFileInfo.dir().path() == mTempDir.path()) {
             error(QLatin1String("Cannot save project in internal temporary directory"));
-            return;
+            return false;
         }
     }
 
     if (!flattenedImage().save(filePath)) {
         error(QString::fromLatin1("Failed to save project's image to:\n\n%1").arg(filePath));
-        return;
+        return false;
     }
+
+    return true;
 }
 
 void LayeredImageProject::resize(int width, int height)
@@ -543,7 +583,7 @@ ImageLayer *LayeredImageProject::takeLayer(int index)
 QDebug operator<<(QDebug debug, const LayeredImageProject *project)
 {
     debug.nospace() << "LayeredImageProject currentLayerIndex=" << project->mCurrentLayerIndex
-        << ", layers:";
+                    << ", layers:";
     foreach (ImageLayer *layer, project->mLayers) {
         debug << "\n    name=" << layer->name()
               << " visible=" << layer->isVisible()

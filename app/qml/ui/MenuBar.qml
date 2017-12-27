@@ -46,10 +46,20 @@ Item {
             }
 
             Platform.MenuItem {
+                id: exportMenuButton
                 objectName: "exportMenuButton"
                 text: qsTr("Export")
-                enabled: project ? project.loaded && projectType === Project.LayeredImageType : false
+                enabled: project && project.loaded && projectType === Project.LayeredImageType
                 onTriggered: exportDialog.open()
+            }
+
+            Platform.MenuItem {
+                objectName: "autoExportMenuButton"
+                text: qsTr("Auto Export")
+                checkable: true
+                checked: enabled && project.autoExportEnabled
+                enabled: exportMenuButton.enabled
+                onTriggered: project.autoExportEnabled = !project.autoExportEnabled
             }
 
             Platform.MenuItem {
