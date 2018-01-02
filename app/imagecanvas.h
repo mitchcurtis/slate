@@ -293,6 +293,7 @@ protected:
     QColor penColour() const;
     void setHasBlankCursor(bool hasBlankCursor);
     void restoreToolBeforeAltPressed();
+    virtual bool areToolsForbidden() const;
     void setCursorPixelColour(const QColor &cursorPixelColour);
     bool isWithinImage(const QPoint &scenePos) const;
     QPoint clampToImageBounds(const QPoint &scenePos, bool inclusive = true) const;

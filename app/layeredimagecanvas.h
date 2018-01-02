@@ -48,6 +48,7 @@ protected slots:
     void onLayerVisibleChanged();
     void onLayerOpacityChanged();
     void onPreCurrentLayerChanged();
+    void onPostCurrentLayerChanged();
 
 protected:
     void connectSignals() override;
@@ -55,6 +56,8 @@ protected:
     QImage *currentProjectImage() override;
     const QImage *currentProjectImage() const override;
     QImage contentImage() const override;
+
+    bool areToolsForbidden() const override;
 
 private:
 //    friend class ApplyTileFillCommand;

@@ -1486,6 +1486,9 @@ ImageCanvas::PixelCandidateData ImageCanvas::greedyFillPixelCandidates() const
 
 void ImageCanvas::applyCurrentTool()
 {
+    if (areToolsForbidden())
+        return;
+
     switch (mTool) {
     case PenTool: {
         if (!mShiftPressed) {
@@ -1701,23 +1704,25 @@ void ImageCanvas::updateWindowCursorShape()
     const bool nothingOverUs = mProject->hasLoaded() && hasActiveFocus() /*&& !mModalPopupsOpen*/ && mContainsMouse;
     const bool splitterHovered = mSplitter.isEnabled() && mSplitter.isHovered();
     const bool overSelection = cursorOverSelection();
-    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && !overSelection && !overRuler && !overGuide);
+    const bool toolsForbidden = areToolsForbidden();
+    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && !overSelection && !overRuler && !overGuide && !toolsForbidden);
 
     Qt::CursorShape cursorShape = Qt::BlankCursor;
     if (!mHasBlankCursor) {
         if (isPanning()) {
             // If panning while space is pressed, the left mouse button is used, otherwise it's the middle mouse button.
             cursorShape = (mMouseButtonPressed == Qt::LeftButton || mMouseButtonPressed == Qt::MiddleButton) ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
-        } else if (overSelection) {
-            cursorShape = Qt::SizeAllCursor;
         } else if (overGuide) {
             cursorShape = mPressedGuideIndex != -1 ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
+        } else if (overSelection) {
+            cursorShape = Qt::SizeAllCursor;
+        } else if (splitterHovered) {
+            cursorShape = Qt::SplitHCursor;
+        } else if (toolsForbidden) {
+            cursorShape = Qt::ForbiddenCursor;
         } else {
-            cursorShape = mSplitter.isEnabled() && mSplitter.isHovered() ? Qt::SplitHCursor : Qt::ArrowCursor;
+            cursorShape = Qt::ArrowCursor;
         }
-        setCursor(Qt::ArrowCursor);
-    } else {
-        setCursor(Qt::BlankCursor);
     }
 
     if (lcCanvasCursorShape().isDebugEnabled()) {
@@ -1741,6 +1746,8 @@ void ImageCanvas::updateWindowCursorShape()
             break;
         case Qt::SizeAllCursor:
             cursorName = "SizeAllCursor";
+        case Qt::ForbiddenCursor:
+            cursorName = "ForbiddenCursor";
         default:
             break;
         }
@@ -1751,6 +1758,7 @@ void ImageCanvas::updateWindowCursorShape()
             << "mContainsMouse" << mContainsMouse
             << "isPanning()" << isPanning()
             << "mSplitter.isHovered()" << mSplitter.isHovered()
+            << "areToolsForbidden()" << toolsForbidden
             << "cursor shape" << cursorName;
     }
 
@@ -1835,6 +1843,11 @@ void ImageCanvas::restoreToolBeforeAltPressed()
 {
     setAltPressed(false);
     setTool(mToolBeforeAltPressed);
+}
+
+bool ImageCanvas::areToolsForbidden() const
+{
+    return false;
 }
 
 void ImageCanvas::wheelEvent(QWheelEvent *event)

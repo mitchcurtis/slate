@@ -114,6 +114,7 @@ private Q_SLOTS:
     void undoAfterAddLayer();
     void selectionConfirmedWhenSwitchingLayers();
     void autoExport();
+    void disableToolsWhenLayerHidden();
 };
 
 tst_App::tst_App(int &argc, char **argv) :
@@ -3080,6 +3081,67 @@ void tst_App::autoExport()
     // No export should have happened and so the exported image shouldn't have changed.
     exportedImage = QImage(autoExportFilePath);
     QCOMPARE(exportedImage, expectedExportedImage);
+}
+
+void tst_App::disableToolsWhenLayerHidden()
+{
+    createNewLayeredImageProject();
+
+    // The cursor should be normal.
+    setCursorPosInScenePixels(0, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
+
+    QQuickItem *layer1Delegate = nullptr;
+    verifyLayerName("Layer 1", &layer1Delegate);
+    QQuickItem *layer1VisibilityCheckBox = layer1Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
+    QVERIFY(layer1VisibilityCheckBox);
+
+    const QVector<ImageCanvas::Tool> tools {
+        ImageCanvas::PenTool,
+        ImageCanvas::EyeDropperTool,
+        ImageCanvas::EraserTool,
+        ImageCanvas::FillTool,
+        ImageCanvas::SelectionTool/*,
+        ImageCanvas::CropTool TODO: not implemented yet*/
+    };
+
+    foreach (ImageCanvas::Tool tool, tools) {
+        // Hide the layer.
+        mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
+        QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
+
+        // Switch tool.
+        switchTool(tool);
+
+        // The cursor should be disabled for each tool.
+        setCursorPosInScenePixels(0, 0);
+        QTest::mouseMove(window, cursorWindowPos);
+        if (window->cursor().shape() != Qt::ForbiddenCursor) {
+            QString message;
+            QDebug debug(&message);
+            debug.nospace() << "Expected Qt::ForbiddenCursor for tool " << tool << ", but got " << window->cursor().shape();
+            QFAIL(qPrintable(message));
+        }
+
+        // Make the layer visible again.
+        mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
+        QCOMPARE(layeredImageProject->currentLayer()->isVisible(), true);
+
+        // The cursor should not be ForbiddenCursor now.
+        QVERIFY(window->cursor().shape() != Qt::ForbiddenCursor);
+    }
+
+    // Hide the layer.
+    mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
+    QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
+
+    // Ensure that we can't actually do anything when the cursor is disabled.
+    switchTool(ImageCanvas::PenTool);
+    setCursorPosInScenePixels(10, 10);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), Qt::white);
 }
 
 int main(int argc, char *argv[])

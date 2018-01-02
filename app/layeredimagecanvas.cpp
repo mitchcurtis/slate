@@ -64,6 +64,10 @@ void LayeredImageCanvas::onPostLayerMoved()
 void LayeredImageCanvas::onLayerVisibleChanged()
 {
     update();
+
+    ImageLayer *layer = qobject_cast<ImageLayer*>(sender());
+    if (layer == mLayeredImageProject->currentLayer())
+        updateWindowCursorShape();
 }
 
 void LayeredImageCanvas::onLayerOpacityChanged()
@@ -86,6 +90,11 @@ void LayeredImageCanvas::onPreCurrentLayerChanged()
         clearSelection();
 }
 
+void LayeredImageCanvas::onPostCurrentLayerChanged()
+{
+    updateWindowCursorShape();
+}
+
 void LayeredImageCanvas::connectSignals()
 {
     ImageCanvas::connectSignals();
@@ -98,6 +107,7 @@ void LayeredImageCanvas::connectSignals()
     connect(mLayeredImageProject, &LayeredImageProject::postLayerRemoved, this, &LayeredImageCanvas::onPostLayerRemoved);
     connect(mLayeredImageProject, &LayeredImageProject::postLayerMoved, this, &LayeredImageCanvas::onPostLayerMoved);
     connect(mLayeredImageProject, &LayeredImageProject::preCurrentLayerChanged, this, &LayeredImageCanvas::onPreCurrentLayerChanged);
+    connect(mLayeredImageProject, &LayeredImageProject::postCurrentLayerChanged, this, &LayeredImageCanvas::onPostCurrentLayerChanged);
 
     // Connect to all existing layers, as onPostLayerAdded() won't get called for them automatically.
     for (int i = 0; i < mLayeredImageProject->layerCount(); ++i) {
@@ -112,6 +122,7 @@ void LayeredImageCanvas::disconnectSignals()
     disconnect(mLayeredImageProject, &LayeredImageProject::postLayerRemoved, this, &LayeredImageCanvas::onPostLayerRemoved);
     disconnect(mLayeredImageProject, &LayeredImageProject::postLayerMoved, this, &LayeredImageCanvas::onPostLayerMoved);
     disconnect(mLayeredImageProject, &LayeredImageProject::preCurrentLayerChanged, this, &LayeredImageCanvas::onPreCurrentLayerChanged);
+    disconnect(mLayeredImageProject, &LayeredImageProject::postCurrentLayerChanged, this, &LayeredImageCanvas::onPostCurrentLayerChanged);
 
     mLayeredImageProject = nullptr;
 }
@@ -141,4 +152,12 @@ QImage LayeredImageCanvas::contentImage() const
         }
         return layerImage;
     });
+}
+
+bool LayeredImageCanvas::areToolsForbidden() const
+{
+    // For layered image projects, tools cannot be used on the current layer
+    // while it is hidden.
+    ImageLayer *currentLayer = mLayeredImageProject->currentLayer();
+    return currentLayer && !currentLayer->isVisible();
 }
