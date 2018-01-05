@@ -52,7 +52,7 @@ int ChangeLayeredImageSizeCommand::id() const
     return -1;
 }
 
-QDebug operator<<(QDebug debug, const ChangeLayeredImageSizeCommand */*command*/)
+QDebug operator<<(QDebug debug, const ChangeLayeredImageSizeCommand *)
 {
     debug.nospace() << "(ChangeLayeredImageSizeCommand)";
     return debug.space();

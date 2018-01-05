@@ -1005,7 +1005,7 @@ void tst_App::undoImageSizeChange()
     // The contents should have been scaled down by 50%.
     QCOMPARE(imageProject->image()->pixelColor(QPoint(0, 0)), imageCanvas->penForegroundColour());
     QCOMPARE(imageProject->image()->pixelColor(QPoint(1, 1)), imageCanvas->penForegroundColour());
-    QCOMPARE(imageProject->image()->pixelColor(QPoint(2, 2)), Qt::white);
+    QCOMPARE(imageProject->image()->pixelColor(QPoint(2, 2)), QColor(Qt::white));
 
     // Move the mouse back so the image comparison works.
     setCursorPosInScenePixels(2, 2);
@@ -1038,8 +1038,8 @@ void tst_App::undoLayeredImageSizeChange()
 
     setCursorPosInScenePixels(2, 2);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), Qt::black);
-    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(3, 3), Qt::black);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(3, 3), QColor(Qt::black));
 
     // Add a new layer.
     mouseEventOnCentre(newLayerButton, MouseClick);
@@ -1054,8 +1054,8 @@ void tst_App::undoLayeredImageSizeChange()
     setCursorPosInScenePixels(6, 2);
     layeredImageCanvas->setPenForegroundColour(Qt::red);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layer2->image()->pixelColor(4, 0), Qt::red);
-    QCOMPARE(layer2->image()->pixelColor(7, 3), Qt::red);
+    QCOMPARE(layer2->image()->pixelColor(4, 0), QColor(Qt::red));
+    QCOMPARE(layer2->image()->pixelColor(7, 3), QColor(Qt::red));
 
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -1064,13 +1064,13 @@ void tst_App::undoLayeredImageSizeChange()
     changeImageSize(6, 6);
 
     // The contents of both layers should have been scaled down by 50%.
-    QCOMPARE(layer1->image()->pixelColor(QPoint(0, 0)), Qt::black);
-    QCOMPARE(layer1->image()->pixelColor(QPoint(1, 1)), Qt::black);
-    QCOMPARE(layer1->image()->pixelColor(QPoint(0, 2)), Qt::white);
+    QCOMPARE(layer1->image()->pixelColor(QPoint(0, 0)), QColor(Qt::black));
+    QCOMPARE(layer1->image()->pixelColor(QPoint(1, 1)), QColor(Qt::black));
+    QCOMPARE(layer1->image()->pixelColor(QPoint(0, 2)), QColor(Qt::white));
 
-    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 0)), Qt::red);
-    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 1)), Qt::red);
-    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 2)), Qt::transparent);
+    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 0)), QColor(Qt::red));
+    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 1)), QColor(Qt::red));
+    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 2)), QColor(Qt::transparent));
 
     // Move the mouse back so the image comparison works.
     setCursorPosInScenePixels(2, 2);
@@ -1086,11 +1086,11 @@ void tst_App::undoLayeredImageSizeChange()
     mouseEventOnCentre(undoButton, MouseClick);
 
     QCOMPARE(layer1->image()->size(), QSize(12, 12));
-    QCOMPARE(layer1->image()->pixelColor(0, 0), Qt::black);
-    QCOMPARE(layer1->image()->pixelColor(3, 3), Qt::black);
+    QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(layer1->image()->pixelColor(3, 3), QColor(Qt::black));
 
-    QCOMPARE(layer2->image()->pixelColor(4, 0), Qt::red);
-    QCOMPARE(layer2->image()->pixelColor(7, 3), Qt::red);
+    QCOMPARE(layer2->image()->pixelColor(4, 0), QColor(Qt::red));
+    QCOMPARE(layer2->image()->pixelColor(7, 3), QColor(Qt::red));
 
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -1258,7 +1258,7 @@ void tst_App::colours()
 
     QQuickItem *hueSlider = window->findChild<QQuickItem*>("hueSlider");
     QVERIFY(hueSlider);
-    QCOMPARE(hueSlider->property("hue").toReal(), 0);
+    QCOMPARE(hueSlider->property("hue").toReal(), 0.0);
 
     // First try changing the foreground colour.
     mouseEvent(penForegroundColourButton, QPoint(1, 1), MouseClick);
@@ -2265,7 +2265,7 @@ void tst_App::flipPastedImage()
     image.fill(Qt::blue);
 
     QPainter painter(&image);
-    painter.fillRect(0, 0, image.width() / 2, 10, Qt::red);
+    painter.fillRect(0, 0, image.width() / 2, 10, QColor(Qt::red));
     qGuiApp->clipboard()->setImage(image);
 
     triggerPaste();
@@ -2276,13 +2276,13 @@ void tst_App::flipPastedImage()
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage snapshotFlippedVertically = imageGrabber.takeImage();
-    QCOMPARE(snapshotFlippedVertically.pixelColor(image.width() * 0.25, image.height() - 5), Qt::red);
+    QCOMPARE(snapshotFlippedVertically.pixelColor(image.width() * 0.25, image.height() - 5), QColor(Qt::red));
 
     triggerFlipHorizontally();
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage snapshotFlippedHorizontally = imageGrabber.takeImage();
-    QCOMPARE(snapshotFlippedHorizontally.pixelColor(image.width() * 0.75, image.height() - 5), Qt::red);
+    QCOMPARE(snapshotFlippedHorizontally.pixelColor(image.width() * 0.75, image.height() - 5), QColor(Qt::red));
 }
 
 void tst_App::fillImageCanvas_data()
@@ -2606,13 +2606,13 @@ void tst_App::addAndRemoveLayers()
     layeredImageCanvas->setPenForegroundColour(Qt::blue);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), Qt::blue);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), QColor(Qt::blue));
 
     // Ensure that the blue square is visible.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabWithBlueDot = imageGrabber.takeImage();
-    QCOMPARE(grabWithBlueDot.pixelColor(10, 10), Qt::blue);
+    QCOMPARE(grabWithBlueDot.pixelColor(10, 10), QColor(Qt::blue));
 
     // Add a new layer.
     mouseEventOnCentre(newLayerButton, MouseClick);
@@ -2631,20 +2631,20 @@ void tst_App::addAndRemoveLayers()
     setCursorPosInScenePixels(20, 20);
     layeredImageCanvas->setPenForegroundColour(Qt::red);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(20, 20), Qt::red);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(20, 20), QColor(Qt::red));
 
     // Ensure that both dots are visible.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabWithBothDots = imageGrabber.takeImage();
-    QCOMPARE(grabWithBothDots.pixelColor(10, 10), Qt::blue);
-    QCOMPARE(grabWithBothDots.pixelColor(20, 20), Qt::red);
+    QCOMPARE(grabWithBothDots.pixelColor(10, 10), QColor(Qt::blue));
+    QCOMPARE(grabWithBothDots.pixelColor(20, 20), QColor(Qt::red));
 
     {
         // Ensure that what the user sees is correct.
         QQuickItem *layerListView = window->findChild<QQuickItem*>("layerListView");
         QVERIFY(layerListView);
-        QCOMPARE(layerListView->property("count"), 2);
+        QCOMPARE(layerListView->property("count").toInt(), 2);
 
         QQuickItem *layer1Delegate = nullptr;
         verifyLayerName(QLatin1String("Layer 1"), &layer1Delegate);
@@ -2674,8 +2674,8 @@ void tst_App::addAndRemoveLayers()
     const QImage grabWithRedDot = imageGrabber.takeImage();
     // It's going to be the checkered pattern, so we just make sure it's not blue rather than
     // trying to compare to something.
-    QVERIFY(grabWithRedDot.pixelColor(10, 10) != Qt::blue);
-    QCOMPARE(grabWithRedDot.pixelColor(20, 20), Qt::red);
+    QVERIFY(grabWithRedDot.pixelColor(10, 10) != QColor(Qt::blue));
+    QCOMPARE(grabWithRedDot.pixelColor(20, 20), QColor(Qt::red));
 
     // Undo the deletion.
     mouseEventOnCentre(undoButton, MouseClick);
@@ -2701,13 +2701,13 @@ void tst_App::layerVisibility()
     layeredImageCanvas->setPenForegroundColour(Qt::blue);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), Qt::blue);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), QColor(Qt::blue));
 
     // Ensure that the blue square is visible.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabWithBlueDot = imageGrabber.takeImage();
-    QCOMPARE(grabWithBlueDot.pixelColor(10, 10), Qt::blue);
+    QCOMPARE(grabWithBlueDot.pixelColor(10, 10), QColor(Qt::blue));
 
     // Add a new layer.
     mouseEventOnCentre(newLayerButton, MouseClick);
@@ -2719,13 +2719,13 @@ void tst_App::layerVisibility()
     // Draw a red dot at the same position.
     layeredImageCanvas->setPenForegroundColour(Qt::red);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), Qt::red);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), QColor(Qt::red));
 
     // Ensure that it's visible.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabWithRedDot = imageGrabber.takeImage();
-    QCOMPARE(grabWithRedDot.pixelColor(10, 10), Qt::red);
+    QCOMPARE(grabWithRedDot.pixelColor(10, 10), QColor(Qt::red));
 
     // Hide the current layer.
     QQuickItem *layer2Delegate = nullptr;
@@ -2739,7 +2739,7 @@ void tst_App::layerVisibility()
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabWithRedDotHidden = imageGrabber.takeImage();
-    QCOMPARE(grabWithRedDotHidden.pixelColor(10, 10), Qt::blue);
+    QCOMPARE(grabWithRedDotHidden.pixelColor(10, 10), QColor(Qt::blue));
 
     // Undo the visibility change.
     mouseEventOnCentre(undoButton, MouseClick);
@@ -2852,7 +2852,7 @@ void tst_App::saveAndLoadLayeredImageProject()
     layeredImageCanvas->setPenForegroundColour(Qt::blue);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), Qt::blue);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), QColor(Qt::blue));
 
     // Add a new layer.
     mouseEventOnCentre(newLayerButton, MouseClick);
@@ -2866,14 +2866,14 @@ void tst_App::saveAndLoadLayeredImageProject()
     layeredImageCanvas->setPenForegroundColour(Qt::red);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(20, 20), Qt::red);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(20, 20), QColor(Qt::red));
 
     // Ensure that what the user sees is correct.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabBeforeSaving = imageGrabber.takeImage();
-    QCOMPARE(grabBeforeSaving.pixelColor(10, 10), Qt::blue);
-    QCOMPARE(grabBeforeSaving.pixelColor(20, 20), Qt::red);
+    QCOMPARE(grabBeforeSaving.pixelColor(10, 10), QColor(Qt::blue));
+    QCOMPARE(grabBeforeSaving.pixelColor(20, 20), QColor(Qt::red));
 
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/layeredimageproject.slp");
@@ -2900,8 +2900,8 @@ void tst_App::saveAndLoadLayeredImageProject()
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabAfterSaving = imageGrabber.takeImage();
-    QCOMPARE(grabAfterSaving.pixelColor(10, 10), Qt::blue);
-    QCOMPARE(grabAfterSaving.pixelColor(20, 20), Qt::red);
+    QCOMPARE(grabAfterSaving.pixelColor(10, 10), QColor(Qt::blue));
+    QCOMPARE(grabAfterSaving.pixelColor(20, 20), QColor(Qt::red));
 }
 
 void tst_App::layerVisibilityAfterMoving()
@@ -2923,14 +2923,14 @@ void tst_App::layerVisibilityAfterMoving()
     layeredImageCanvas->setPenForegroundColour(Qt::red);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(20, 20), Qt::red);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(20, 20), QColor(Qt::red));
 
     // Ensure that what the user sees is correct.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabBeforeSaving = imageGrabber.takeImage();
-    QCOMPARE(grabBeforeSaving.pixelColor(0, 0), Qt::white);
-    QCOMPARE(grabBeforeSaving.pixelColor(20, 20), Qt::red);
+    QCOMPARE(grabBeforeSaving.pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(grabBeforeSaving.pixelColor(20, 20), QColor(Qt::red));
 
     // Move it below Layer 1.
     mouseEventOnCentre(moveLayerDownButton, MouseClick);
@@ -2949,7 +2949,7 @@ void tst_App::layerVisibilityAfterMoving()
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabWithLayer1Hidden = imageGrabber.takeImage();
-    QCOMPARE(grabWithLayer1Hidden.pixelColor(20, 20), Qt::red);
+    QCOMPARE(grabWithLayer1Hidden.pixelColor(20, 20), QColor(Qt::red));
 
     // Show Layer 1. It should show only white.
     mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
@@ -2957,8 +2957,8 @@ void tst_App::layerVisibilityAfterMoving()
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabWithLayer1Visible = imageGrabber.takeImage();
-    QCOMPARE(grabWithLayer1Visible.pixelColor(0, 0), Qt::white);
-    QCOMPARE(grabWithLayer1Visible.pixelColor(20, 20), Qt::white);
+    QCOMPARE(grabWithLayer1Visible.pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(grabWithLayer1Visible.pixelColor(20, 20), QColor(Qt::white));
 
     // Make Layer 1 the current layer.
     selectLayer("Layer 1", 0);
@@ -2970,8 +2970,8 @@ void tst_App::layerVisibilityAfterMoving()
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabWithLayer1Below = imageGrabber.takeImage();
-    QCOMPARE(grabWithLayer1Below.pixelColor(0, 0), Qt::white);
-    QCOMPARE(grabWithLayer1Below.pixelColor(20, 20), Qt::red);
+    QCOMPARE(grabWithLayer1Below.pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(grabWithLayer1Below.pixelColor(20, 20), QColor(Qt::red));
 }
 
 void tst_App::undoAfterAddLayer()
@@ -3022,7 +3022,7 @@ void tst_App::selectionConfirmedWhenSwitchingLayers()
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage snapshotAfterSwitchingLayers = imageGrabber.takeImage();
-    QCOMPARE(snapshotAfterSwitchingLayers.pixelColor(0, 0), Qt::red);
+    QCOMPARE(snapshotAfterSwitchingLayers.pixelColor(0, 0), QColor(Qt::red));
 }
 
 void tst_App::autoExport()
@@ -3044,10 +3044,10 @@ void tst_App::autoExport()
     QObject *autoExportMenuButton = window->findChild<QObject*>("autoExportMenuButton");
     QVERIFY(autoExportMenuButton);
 #endif
-    QCOMPARE(autoExportMenuButton->property("checked"), false);
+    QCOMPARE(autoExportMenuButton->property("checked").toBool(), false);
 
     layeredImageProject->setAutoExportEnabled(true);
-    QCOMPARE(autoExportMenuButton->property("checked"), true);
+    QCOMPARE(autoExportMenuButton->property("checked").toBool(), true);
 
     QCOMPARE(layeredImageProject->canSave(), true);
 
@@ -3068,12 +3068,12 @@ void tst_App::autoExport()
 
     // Disable auto-export.
     layeredImageProject->setAutoExportEnabled(false);
-    QCOMPARE(autoExportMenuButton->property("checked"), false);
+    QCOMPARE(autoExportMenuButton->property("checked").toBool(), false);
 
     // Draw something.
     setCursorPosInScenePixels(2, 2);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(2, 2), Qt::black);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(2, 2), QColor(Qt::black));
 
     // Save again.
     layeredImageProject->saveAs(QUrl::fromLocalFile(savedProjectPath));
@@ -3141,7 +3141,7 @@ void tst_App::disableToolsWhenLayerHidden()
     setCursorPosInScenePixels(10, 10);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), Qt::white);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), QColor(Qt::white));
 }
 
 int main(int argc, char *argv[])

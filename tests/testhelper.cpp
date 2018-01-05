@@ -1496,5 +1496,5 @@ void TestHelper::zoomTo(int zoomLevel, const QPoint &pos)
     CanvasPane *currentPane = canvas->currentPane();
     for (int i = 0; currentPane->zoomLevel() < zoomLevel; ++i)
         wheelEvent(canvas, pos, 1);
-    QCOMPARE(currentPane->integerZoomLevel(), qreal(zoomLevel));
+    QCOMPARE(currentPane->integerZoomLevel(), zoomLevel);
 }
