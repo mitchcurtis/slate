@@ -221,6 +221,9 @@ void LayeredImageProject::load(const QUrl &url)
         addLayerAboveAll(imageLayer);
     }
 
+    if (projectObject.contains("currentLayerIndex"))
+        setCurrentLayerIndex(projectObject.value("currentLayerIndex").toInt());
+
     readGuides(projectObject);
 
     mAutoExportEnabled = projectObject.value("autoExportEnabled").toBool(false);
@@ -306,6 +309,7 @@ void LayeredImageProject::saveAs(const QUrl &url)
     }
 
     projectObject.insert("layers", layersArray);
+    projectObject.insert("currentLayerIndex", mCurrentLayerIndex);
 
     writeGuides(projectObject);
     emit readyForWritingToJson(&projectObject);

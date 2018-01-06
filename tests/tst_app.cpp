@@ -2840,8 +2840,6 @@ void tst_App::renameLayer()
 
 void tst_App::saveAndLoadLayeredImageProject()
 {
-    QSKIP("QTBUG-62946");
-
     createNewLayeredImageProject();
 
     // Make comparing grabbed image pixels easier.
@@ -2875,6 +2873,9 @@ void tst_App::saveAndLoadLayeredImageProject()
     QCOMPARE(grabBeforeSaving.pixelColor(10, 10), QColor(Qt::blue));
     QCOMPARE(grabBeforeSaving.pixelColor(20, 20), QColor(Qt::red));
 
+    // Select a layer with a non-zero index so that we can check that it's saved.
+    selectLayer("Layer 1", 1);
+
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/layeredimageproject.slp");
     layeredImageProject->saveAs(saveUrl);
@@ -2892,6 +2893,8 @@ void tst_App::saveAndLoadLayeredImageProject()
 
     // Load the saved file.
     layeredImageProject->load(saveUrl);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+    QCOMPARE(layeredImageProject->currentLayer()->name(), "Layer 1");
     VERIFY_NO_CREATION_ERRORS_OCCURRED();
 
     panTopLeftTo(0, 0);
