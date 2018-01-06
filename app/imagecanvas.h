@@ -187,8 +187,6 @@ public:
     int lineLength() const;
     qreal lineAngle() const;
 
-    QPoint scenePosToTilePixelPos(const QPoint &scenePos) const;
-
     void paint(QPainter *painter) override;
 
     Q_INVOKABLE bool overrideShortcut(const QKeySequence &keySequence);

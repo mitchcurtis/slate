@@ -1371,7 +1371,13 @@ void ImageCanvas::paste()
     if (fromExternalSource) {
         // If the paste was from an external source, we just paste it at 0, 0.
         pastedArea = QRect(0, 0, adjustedSize.width(), adjustedSize.height());
+        // TODO: #16 - pastes too far to the top left for some reason
+//        if (mCurrentPane->offset().x() < 0)
+//            pastedArea.moveLeft(qAbs(mCurrentPane->offset().x()) / mCurrentPane->zoomLevel());
+//        if (mCurrentPane->offset().y() < 0)
+//            pastedArea.moveTop(qAbs(mCurrentPane->offset().y()) / mCurrentPane->zoomLevel());
     }
+    // Crop the clipboard image if it's larger than the canvas,
     if (adjustedSize != clipboardImage.size())
         clipboardImage = clipboardImage.copy(pastedArea);
 

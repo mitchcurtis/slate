@@ -20,7 +20,10 @@
 #include "canvaspane.h"
 
 #include <QJsonObject>
+#include <QLoggingCategory>
 #include <QtMath>
+
+Q_LOGGING_CATEGORY(lcCanvasPane, "app.canvasPane")
 
 CanvasPane::CanvasPane(QObject *parent) :
     QObject(parent),
@@ -85,6 +88,8 @@ void CanvasPane::setOffset(const QPoint &offset)
 {
     if (offset == mOffset)
         return;
+
+    qCDebug(lcCanvasPane) << "setting offset of" << objectName() << "to" << offset;
 
     mOffset = offset;
     emit offsetChanged();
