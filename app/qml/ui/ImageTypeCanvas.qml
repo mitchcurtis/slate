@@ -7,10 +7,7 @@ ImageCanvas {
     id: imageCanvas
     objectName: "imageCanvas"
     focus: true
-    // Items in Loaders are deleteLater()'d, so we have to make sure
-    // that we're still the active item before setting a project that might
-    // now be something different than what we're designed for.
-    project: loader.item === imageCanvas ? canvasContainer.project : null
+    project: args.project
     backgroundColour: CanvasColours.backgroundColour
     gridVisible: settings.gridVisible
     gridColour: "#55000000"

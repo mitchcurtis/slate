@@ -186,7 +186,7 @@ ApplicationWindow {
             id: canvasContainer
             focus: true
 
-            project: projectManager.project
+            projectManager: window.projectManager
             checkedToolButton: iconToolBar.toolButtonGroup.checkedButton
             fontMetrics: fontMetrics
 

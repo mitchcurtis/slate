@@ -31,11 +31,10 @@ class ProjectManager : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(Project *project READ project NOTIFY projectChanged)
-
     Q_PROPERTY(Project *temporaryProject READ temporaryProject NOTIFY temporaryProjectChanged)
-
     Q_PROPERTY(ApplicationSettings *applicationSettings READ applicationSettings
         WRITE setApplicationSettings NOTIFY applicationSettingsChanged)
+    Q_PROPERTY(bool ready READ isReady NOTIFY readyChanged)
 
 public:
     explicit ProjectManager(QObject *parent = 0);
@@ -48,6 +47,9 @@ public:
     ApplicationSettings *applicationSettings() const;
     void setApplicationSettings(ApplicationSettings *applicationSettings);
 
+    bool isReady() const;
+    void setReady(bool ready);
+
     Q_INVOKABLE void beginCreation(Project::Type projectType);
     Q_INVOKABLE bool completeCreation();
 
@@ -57,6 +59,7 @@ signals:
     void projectChanged();
     void temporaryProjectChanged();
     void applicationSettingsChanged();
+    void readyChanged();
     void creationFailed(const QString &errorMessage);
 
 private slots:
@@ -72,6 +75,8 @@ private:
     bool mProjectCreationFailed;
 
     ApplicationSettings *mSettings;
+
+    bool mReady;
 };
 
 #endif // PROJECTMANAGER_H

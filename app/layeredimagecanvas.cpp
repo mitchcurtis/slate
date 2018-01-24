@@ -28,12 +28,12 @@
 LayeredImageCanvas::LayeredImageCanvas() :
     mLayeredImageProject(nullptr)
 {
-    qCDebug(lcCanvasLifecycle) << "constructing" << this;
+    qCDebug(lcCanvasLifecycle) << "constructing LayeredImageCanvas" << this;
 }
 
 LayeredImageCanvas::~LayeredImageCanvas()
 {
-    qCDebug(lcCanvasLifecycle) << "destructing" << this;
+    qCDebug(lcCanvasLifecycle) << "destructing LayeredImageCanvas" << this;
 }
 
 void LayeredImageCanvas::onPostLayerAdded(int index)

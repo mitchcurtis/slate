@@ -7,7 +7,7 @@ TileCanvas {
     id: tileCanvas
     objectName: "tileCanvas"
     focus: true
-    project: loader.item === tileCanvas ? canvasContainer.project : null
+    project: args.project
     backgroundColour: CanvasColours.backgroundColour
     gridVisible: settings.gridVisible
     gridColour: "#55000000"

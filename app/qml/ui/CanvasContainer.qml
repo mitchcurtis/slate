@@ -8,7 +8,8 @@ Item {
     id: canvasContainer
     objectName: "canvasContainer"
 
-    property Project project
+    property ProjectManager projectManager
+    property Project project: projectManager.project
     property ImageCanvas canvas: loader.item
     property var checkedToolButton
     property FontMetrics fontMetrics
@@ -19,6 +20,13 @@ Item {
         source: project && project.typeString.length > 0 ? project.typeString + "Canvas.qml" : ""
         focus: true
         anchors.fill: parent
+
+        property QtObject args: QtObject {
+            // We want this property to be updated before "source" above, as we need
+            // the canvas to disconnect its signals to e.g. the window before the new canvas is created,
+            // otherwise e.g. focus changes can cause crashes, as the code would access a dangling project pointer.
+            property Project project: projectManager.ready ? canvasContainer.project : null
+        }
     }
 
     CrosshairCursor {

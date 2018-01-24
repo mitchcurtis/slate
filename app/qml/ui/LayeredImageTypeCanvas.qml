@@ -7,10 +7,7 @@ LayeredImageCanvas {
     id: layeredCanvas
     objectName: "layeredImageCanvas"
     focus: true
-    // Items in Loaders are deleteLater()'d, so we have to make sure
-    // that we're still the active item before setting a project that might
-    // now be something different than what we're designed for.
-    project: loader.item === layeredCanvas ? canvasContainer.project : null
+    project: args.project
     backgroundColour: CanvasColours.backgroundColour
     gridVisible: settings.gridVisible
     gridColour: "#55000000"

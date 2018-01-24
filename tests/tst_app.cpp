@@ -45,6 +45,8 @@ public:
 
 private Q_SLOTS:
     void newProjectWithNewTileset();
+    void repeatedNewProject_data();
+    void repeatedNewProject();
     void openClose_data();
     void openClose();
     void saveTilesetProject();
@@ -117,6 +119,8 @@ private Q_SLOTS:
     void disableToolsWhenLayerHidden();
 };
 
+typedef QVector<Project::Type> ProjectTypeVector;
+
 tst_App::tst_App(int &argc, char **argv) :
     TestHelper(argc, argv)
 {
@@ -158,6 +162,25 @@ void tst_App::newProjectWithNewTileset()
     QCOMPARE(tilesetProject->tilesetUrl(), QUrl::fromLocalFile(tilesetPath));
     QVERIFY(QFile::exists(tilesetPath));
     QCOMPARE(*tilesetProject->tileset()->image(), expectedTilesetImage);
+}
+
+void tst_App::repeatedNewProject_data()
+{
+    QTest::addColumn<ProjectTypeVector>("projectTypes");
+
+    QTest::newRow("TilesetType, ImageType") << (ProjectTypeVector() << Project::TilesetType << Project::ImageType);
+    QTest::newRow("ImageType, LayeredImageType") << (ProjectTypeVector() << Project::ImageType << Project::LayeredImageType);
+    QTest::newRow("LayeredImageType, TilesetType") << (ProjectTypeVector() << Project::LayeredImageType << Project::TilesetType);
+}
+
+void tst_App::repeatedNewProject()
+{
+    QFETCH(ProjectTypeVector, projectTypes);
+
+    foreach (auto projectType, projectTypes) {
+        // Shouldn't crash on repeated opening of new projects.
+        createNewProject(projectType);
+    }
 }
 
 void tst_App::openClose_data()

@@ -126,12 +126,12 @@ ImageCanvas::ImageCanvas() :
 
     installEventFilter(this);
 
-    qCDebug(lcCanvasLifecycle) << "constructing" << this;
+    qCDebug(lcCanvasLifecycle) << "constructing ImageCanvas" << this;
 }
 
 ImageCanvas::~ImageCanvas()
 {
-    qCDebug(lcCanvasLifecycle) << "destructing" << this;
+    qCDebug(lcCanvasLifecycle) << "destructing ImageCanvas" << this;
 }
 
 Project *ImageCanvas::project() const
@@ -141,6 +141,8 @@ Project *ImageCanvas::project() const
 
 void ImageCanvas::setProject(Project *project)
 {
+    qCDebug(lcCanvas) << "setting project" << project << "on canvas" << this;
+
     if (project == mProject)
         return;
 
@@ -658,6 +660,8 @@ void ImageCanvas::setShiftPressed(bool shiftPressed)
 
 void ImageCanvas::connectSignals()
 {
+    qCDebug(lcCanvas) << "connecting signals for" << this << "as we have a new project" << mProject;
+
     connect(mProject, SIGNAL(loadedChanged()), this, SLOT(onLoadedChanged()));
     connect(mProject, SIGNAL(projectCreated()), this, SLOT(update()));
     connect(mProject, SIGNAL(projectClosed()), this, SLOT(reset()));
@@ -667,17 +671,14 @@ void ImageCanvas::connectSignals()
         this, SLOT(onReadyForWritingToJson(QJsonObject*)));
 
     connect(window(), SIGNAL(activeFocusItemChanged()), this, SLOT(updateWindowCursorShape()));
-    // More hacks. Doing this because activeFocusItemChanged() doesn't seem to get called
-    // when the last new project popup has finished its exit transition.
-    // TODO: still necessary?
-//    QQuickItem *overlay = window()->property("overlay").value<QQuickItem*>();
-//    connect(overlay, SIGNAL(childrenChanged()), this, SLOT(updateWindowCursorShape()));
 
     centrePanes();
 }
 
 void ImageCanvas::disconnectSignals()
 {
+    qCDebug(lcCanvas) << "disconnecting signals for" << this;
+
     mProject->disconnect(SIGNAL(loadedChanged()), this, SLOT(onLoadedChanged()));
     mProject->disconnect(SIGNAL(projectCreated()), this, SLOT(update()));
     mProject->disconnect(SIGNAL(projectClosed()), this, SLOT(reset()));
@@ -687,9 +688,7 @@ void ImageCanvas::disconnectSignals()
         this, SLOT(onReadyForWritingToJson(QJsonObject*)));
 
     if (window()) {
-        window()->disconnect(SIGNAL(activeFocusItemChanged()), this, SLOT(checkIfPopupsOpen()));
-        QQuickItem *overlay = window()->property("overlay").value<QQuickItem*>();
-        disconnect(overlay, SIGNAL(childrenChanged()), this, SLOT(checkIfPopupsOpen()));
+        window()->disconnect(SIGNAL(activeFocusItemChanged()), this, SLOT(updateWindowCursorShape()));
     }
 }
 
@@ -1758,7 +1757,7 @@ void ImageCanvas::updateWindowCursorShape()
             break;
         }
 
-        qCDebug(lcCanvasCursorShape)
+        qCDebug(lcCanvasCursorShape) << this
             << "Updating window cursor shape... mProject->hasLoaded():" << mProject->hasLoaded()
             << "hasActiveFocus()" << hasActiveFocus()
             << "mContainsMouse" << mContainsMouse

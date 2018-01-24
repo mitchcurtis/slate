@@ -33,7 +33,8 @@ ProjectManager::ProjectManager(QObject *parent) :
     mProject(nullptr),
     mTemporaryProject(nullptr),
     mProjectCreationFailed(false),
-    mSettings(nullptr)
+    mSettings(nullptr),
+    mReady(false)
 {
 }
 
@@ -63,6 +64,20 @@ void ProjectManager::setApplicationSettings(ApplicationSettings *settings)
 
     mSettings = settings;
     emit applicationSettingsChanged();
+}
+
+bool ProjectManager::isReady() const
+{
+    return mReady;
+}
+
+void ProjectManager::setReady(bool ready)
+{
+    if (ready == mReady)
+        return;
+
+    mReady = ready;
+    emit readyChanged();
 }
 
 // Provides a temporary project for client code to use
@@ -119,7 +134,7 @@ bool ProjectManager::completeCreation()
         QScopedPointer<Project> connectionGuard;
         mProject.swap(connectionGuard);
 
-        // By emitting projectChanged here, we prevent some QML
+        // By emitting readyChanged here, we prevent some QML
         // types whose destruction order is undefined from
         // trying to set a project that's not meant for them.
         // For example, the old project (that's currently still open)
@@ -129,10 +144,12 @@ bool ProjectManager::completeCreation()
         // By storing the old project in connectionGuard, we're
         // giving classes that keep a pointer to the project
         // a chance to disconnect any connections to it.
-        // When projectChanged() is emitted, it will cause
+        // When readyChanged() is emitted, it will cause
         // e.g. the canvas to call disconnectSignals(),
         // which will succeed because connectionGuard will
         // be alive until the end of this block.
+        setReady(false);
+
         qCDebug(lcProjectManager) << "nullified ProjectManager::project; about to emit projectChanged()";
         emit projectChanged();
     }
@@ -164,6 +181,8 @@ bool ProjectManager::completeCreation()
     emit projectChanged();
 
     qCDebug(lcProjectManager) << "emitted projectChanged()";
+
+    setReady(true);
 
     return true;
 }
