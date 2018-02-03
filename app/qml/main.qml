@@ -22,6 +22,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Window 2.2
 import QtQuick.Controls 2.1
 
+import Qt.labs.settings 1.0
 import Qt.labs.platform 1.0 as Platform
 
 import App 1.0
@@ -123,6 +124,13 @@ ApplicationWindow {
         saveChangesDialog.accepted.connect(discardChanges);
         saveChangesDialog.rejected.connect(dontDiscardChanges);
         saveChangesDialog.open();
+    }
+
+    Settings {
+        property alias windowX: window.x
+        property alias windowY: window.y
+        property alias windowWidth: window.width
+        property alias windowHeight: window.height
     }
 
     Connections {
