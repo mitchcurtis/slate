@@ -58,6 +58,7 @@ typedef QApplication QtApplicationType;
 static QGuiApplication *createApplication(int &argc, char **argv, const QString &applicationName)
 {
     qputenv("QT_QUICK_CONTROLS_HOVER", "1");
+    QLoggingCategory::setFilterRules("app.* = false");
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QtApplicationType *app = new QtApplicationType(argc, argv);
     app->setOrganizationName("Mitch Curtis");
