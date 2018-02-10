@@ -32,6 +32,7 @@
 #include "imagelayer.h"
 #include "tilecanvas.h"
 #include "project.h"
+#include "projectmanager.h"
 #include "testhelper.h"
 #include "tileset.h"
 #include "utils.h"
@@ -198,20 +199,30 @@ void tst_App::openClose()
     if (projectType == Project::TilesetType) {
         // Test an invalid tileset URL.
         QTest::ignoreMessage(QtWarningMsg, "QFSFileEngine::open: No file name specified");
-        project->load(QUrl("doesnotexist"));
+        const QUrl badUrl("doesnotexist");
+
+        QSignalSpy creationFailedSpy(projectManager.data(), SIGNAL(creationFailed(QString)));
+        QVERIFY(creationFailedSpy.isValid());
+
+        projectManager->beginCreation(Project::TilesetType);
+        projectManager->temporaryProject()->load(badUrl);
+        projectManager->completeCreation();
+
+        // The spy was reset, so we use creationFailed() to check the error.
+        QCOMPARE(creationErrorOccurredSpy->size(), 0);
+
         QCOMPARE(project->url(), QUrl());
         // There was a project open before we attempted to load the invalid one.
         QCOMPARE(project->hasLoaded(), true);
         const QString errorMessage = QLatin1String("Tileset project files must have a .stp extension ()");
-        QCOMPARE(creationErrorOccurredSpy->size(), 1);
-        QCOMPARE(creationErrorOccurredSpy->at(0).at(0).toString(), errorMessage);
+        QCOMPARE(creationFailedSpy.size(), 1);
+        QCOMPARE(creationFailedSpy.at(0).at(0).toString(), errorMessage);
         const QObject *errorPopup = findPopupFromTypeName("ErrorPopup");
         QVERIFY(errorPopup);
         QVERIFY(errorPopup->property("visible").toBool());
         QCOMPARE(errorPopup->property("text").toString(), errorMessage);
         QVERIFY(errorPopup->property("focus").isValid());
         QVERIFY(errorPopup->property("focus").toBool());
-        creationErrorOccurredSpy->clear();
 
         // Check that the cursor goes back to an arrow when there's a modal popup visible,
         // even if the mouse is over the canvas and not the popup.
