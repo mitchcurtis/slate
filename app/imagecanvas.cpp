@@ -1419,6 +1419,8 @@ void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGe
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
     centrePanes();
     resizeRulers();
+    if (mProject)
+        updateCursorPos(QPoint(mCursorX, mCursorY));
 }
 
 ImageCanvas::PixelCandidateData ImageCanvas::penEraserPixelCandidates(Tool tool) const

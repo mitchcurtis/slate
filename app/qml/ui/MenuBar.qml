@@ -160,6 +160,10 @@ Item {
         }
 
         Platform.Menu {
+            id: animationMenu
+            objectName: "animationMenu"
+            title: qsTr("Animation")
+
             Platform.MenuItem {
                 id: animationPlaybackMenuButton
                 objectName: "animationPlaybackMenuButton"

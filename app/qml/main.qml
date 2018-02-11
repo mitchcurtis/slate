@@ -187,17 +187,27 @@ ApplicationWindow {
         anchors.fill: parent
         spacing: 0
 
-        Ui.CanvasContainer {
-            id: canvasContainer
-            focus: true
+        ColumnLayout {
+            Ui.CanvasContainer {
+                id: canvasContainer
+                focus: true
 
-            projectManager: window.projectManager
-            checkedToolButton: iconToolBar.toolButtonGroup.checkedButton
-            fontMetrics: fontMetrics
+                projectManager: window.projectManager
+                checkedToolButton: iconToolBar.toolButtonGroup.checkedButton
+                fontMetrics: fontMetrics
 
-            Layout.preferredWidth: window.width / 3
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+                Layout.preferredWidth: window.width / 3
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+
+            Ui.AnimationPanel {
+                id: animationPanel
+                visible: window.projectType === Project.LayeredImageType && window.canvas && window.project.usingAnimation
+
+                Layout.fillWidth: true
+                Layout.maximumHeight: visible ? implicitHeight : 0
+            }
         }
 
         ColumnLayout {

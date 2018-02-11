@@ -48,5 +48,6 @@
         <file>ui/LayerPanel.qml</file>
         <file>ui/StatusBar.qml</file>
         <file>ui/ImageSizePopup.qml</file>
+        <file>ui/AnimationPanel.qml</file>
     </qresource>
 </RCC>

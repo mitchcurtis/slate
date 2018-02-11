@@ -40,6 +40,7 @@
 #include "rectangularcursor.h"
 #include "simpleloader.h"
 #include "splitter.h"
+#include "spriteimageprovider.h"
 #include "tile.h"
 #include "tilecanvas.h"
 #include "tilegrid.h"
@@ -107,6 +108,8 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     if (QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf") == -1) {
         qWarning() << "Failed to load FontAwesome font";
     }
+
+    mEngine->addImageProvider("sprite", new SpriteImageProvider);
 
     mEngine->rootContext()->setContextProperty("settings", mSettings.data());
     qCDebug(lcApplication) << "Loading main.qml...";
