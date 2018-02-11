@@ -37,7 +37,9 @@
 LayeredImageProject::LayeredImageProject() :
     mCurrentLayerIndex(0),
     mLayersCreated(0),
-    mAutoExportEnabled(false)
+    mAutoExportEnabled(false),
+    mUsingAnimation(false),
+    mHasUsedAnimation(false)
 {
     setObjectName(QLatin1String("LayeredImageProject"));
     qCDebug(lcProjectLifecycle) << "constructing" << this;
@@ -162,6 +164,29 @@ QString LayeredImageProject::autoExportFilePath(const QUrl &projectUrl)
     return path;
 }
 
+bool LayeredImageProject::isUsingAnimation() const
+{
+    return mUsingAnimation;
+}
+
+void LayeredImageProject::setUsingAnimation(bool isUsingAnimation)
+{
+    if (isUsingAnimation == mUsingAnimation)
+        return;
+
+    mUsingAnimation = isUsingAnimation;
+
+    if (mUsingAnimation)
+        mHasUsedAnimation = true;
+
+    emit usingAnimationChanged();
+}
+
+AnimationPlayback *LayeredImageProject::animationPlayback()
+{
+    return &mAnimationPlayback;
+}
+
 void LayeredImageProject::createNew(int imageWidth, int imageHeight, bool transparentBackground)
 {
     if (hasLoaded()) {
@@ -228,6 +253,12 @@ void LayeredImageProject::load(const QUrl &url)
 
     mAutoExportEnabled = projectObject.value("autoExportEnabled").toBool(false);
 
+    mUsingAnimation = projectObject.value("usingAnimation").toBool(false);
+    mHasUsedAnimation = projectObject.value("hasUsedAnimation").toBool(false);
+    if (mHasUsedAnimation) {
+        mAnimationPlayback.read(projectObject.value("animationPlayback").toObject());
+    }
+
     mCachedProjectJson = projectObject;
 
     setUrl(url);
@@ -260,6 +291,10 @@ void LayeredImageProject::close()
     setUrl(QUrl());
     mUndoStack.clear();
     mLayersCreated = 0;
+    mAutoExportEnabled = false;
+    mUsingAnimation = false;
+    mHasUsedAnimation = false;
+    mAnimationPlayback.reset();
     emit projectClosed();
 
     qCDebug(lcProject) << "... closed project";
@@ -315,10 +350,21 @@ void LayeredImageProject::saveAs(const QUrl &url)
     emit readyForWritingToJson(&projectObject);
 
     if (mAutoExportEnabled) {
-        projectObject.insert("autoExportEnabled", mAutoExportEnabled);
+        projectObject.insert("autoExportEnabled", true);
 
         if (!exportImage(QUrl::fromLocalFile(autoExportFilePath(url))))
             return;
+    }
+
+    if (mUsingAnimation)
+        projectObject.insert("usingAnimation", true);
+
+    if (mHasUsedAnimation) {
+        projectObject.insert("hasUsedAnimation", true);
+
+        QJsonObject animationObject;
+        mAnimationPlayback.write(animationObject);
+        projectObject.insert("animationPlayback", animationObject);
     }
 
     rootJson.insert("project", projectObject);

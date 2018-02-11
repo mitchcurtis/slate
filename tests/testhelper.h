@@ -250,6 +250,7 @@ protected:
     QQuickItem *newLayerButton;
     QQuickItem *moveLayerUpButton;
     QQuickItem *moveLayerDownButton;
+    QQuickItem *animationPlayPauseButton;
 
     QScopedPointer<QSignalSpy> creationErrorOccurredSpy;
 

@@ -60,7 +60,8 @@ HEADERS += \
     $$PWD/addguidecommand.h \
     $$PWD/moveguidecommand.h \
     $$PWD/deleteguidecommand.h \
-    $$PWD/crophelper.h
+    $$PWD/crophelper.h \
+    $$PWD/animationplayback.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -117,7 +118,8 @@ SOURCES += \
     $$PWD/addguidecommand.cpp \
     $$PWD/moveguidecommand.cpp \
     $$PWD/deleteguidecommand.cpp \
-    $$PWD/crophelper.cpp
+    $$PWD/crophelper.cpp \
+    $$PWD/animationplayback.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \

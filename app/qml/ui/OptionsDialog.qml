@@ -188,6 +188,10 @@ Dialog {
                         shortcutDisplayName: qsTr("Toggle Split Screen")
                     }
                     ShortcutRow {
+                        shortcutName: "animationPlaybackShortcut"
+                        shortcutDisplayName: qsTr("Animation Playback")
+                    }
+                    ShortcutRow {
                         shortcutName: "optionsShortcut"
                         shortcutDisplayName: qsTr("Options")
                     }

@@ -194,6 +194,13 @@ Item {
     }
 
     Shortcut {
+        objectName: "animationPlaybackShortcut"
+        sequence: settings.animationPlaybackShortcut
+        onActivated: project.usingAnimation = !project.usingAnimation
+        enabled:  isImageProjectType && canvasHasActiveFocus
+    }
+
+    Shortcut {
         objectName: "optionsShortcut"
         sequence: settings.optionsShortcut
         onActivated: optionsDialog.open()

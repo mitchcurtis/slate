@@ -173,6 +173,37 @@ MenuBar {
     }
 
     MenuBarItem {
+        objectName: "animationMenuBarItem"
+        focusPolicy: Qt.TabFocus
+        menu: Menu {
+            title: qsTr("Animation")
+
+            MenuItem {
+                objectName: "animationPlaybackMenuButton"
+                text: qsTr("Animation Playback")
+                enabled: isImageProjectType && canvas
+                checkable: true
+                checked: isImageProjectType && project.usingAnimation
+                onClicked: project.usingAnimation = checked
+            }
+
+            MenuItem {
+                objectName: "animationPlayMenuButton"
+                text: !project.animationPlayback.playing ? qsTr("Play") : qsTr("Pause")
+                enabled: animationPlaybackMenuButton.checked
+                onClicked: project.animationPlayback.playing = !project.animationPlayback.playing
+            }
+
+            MenuItem {
+                objectName: "animationRestartMenuButton"
+                text: qsTr("Restart")
+                enabled: animationPlaybackMenuButton.checked
+                onClicked: project.animationPlayback.restart()
+            }
+        }
+    }
+
+    MenuBarItem {
         objectName: "viewMenuBarItem"
         focusPolicy: Qt.TabFocus
         menu: Menu {
@@ -207,7 +238,7 @@ MenuBar {
                 enabled: canvas
                 checkable: true
                 checked: settings.gridVisible
-                onCheckedChanged: settings.gridVisible = checked
+                onClicked: settings.gridVisible = checked
             }
 
             MenuItem {
@@ -216,7 +247,7 @@ MenuBar {
                 enabled: canvas
                 checkable: true
                 checked: settings.rulersVisible
-                onCheckedChanged: settings.rulersVisible = checked
+                onClicked: settings.rulersVisible = checked
             }
 
             MenuItem {
@@ -225,7 +256,7 @@ MenuBar {
                 enabled: canvas
                 checkable: true
                 checked: settings.guidesVisible
-                onCheckedChanged: settings.guidesVisible = checked
+                onClicked: settings.guidesVisible = checked
             }
 
             MenuItem {
@@ -234,7 +265,7 @@ MenuBar {
                 enabled: canvas
                 checkable: true
                 checked: settings.guidesLocked
-                onCheckedChanged: settings.guidesLocked = checked
+                onClicked: settings.guidesLocked = checked
             }
 
             MenuSeparator {}
@@ -245,7 +276,7 @@ MenuBar {
                 enabled: canvas
                 checkable: true
                 checked: settings.splitScreen
-                onCheckedChanged: settings.splitScreen = checked
+                onClicked: settings.splitScreen = checked
             }
 
             MenuItem {
@@ -254,7 +285,7 @@ MenuBar {
                 enabled: canvas && settings.splitScreen
                 checkable: true
                 checked: settings.splitterLocked
-                onCheckedChanged: settings.splitterLocked = checked
+                onClicked: settings.splitterLocked = checked
             }
 
             MenuItem {
@@ -263,18 +294,7 @@ MenuBar {
                 enabled: canvas
                 checkable: true
                 checked: settings.scrollZoom
-                onCheckedChanged: settings.scrollZoom = checked
-            }
-
-            MenuSeparator {}
-
-            MenuItem {
-                objectName: "animationPlaybackMenuButton"
-                text: qsTr("Animation Playback")
-                enabled: isImageProjectType && canvas
-                checkable: true
-                checked: settings.splitterLocked
-                onCheckedChanged: project.splitterLocked = checked
+                onClicked: settings.scrollZoom = checked
             }
         }
     }

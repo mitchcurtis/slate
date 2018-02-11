@@ -72,6 +72,9 @@ TestHelper::TestHelper(int &argc, char **argv) :
     penBackgroundColourButton(nullptr),
     tilesetSwatch(nullptr),
     newLayerButton(nullptr),
+    moveLayerDownButton(nullptr),
+    moveLayerUpButton(nullptr),
+    animationPlayPauseButton(nullptr),
     tilesetBasename("test-tileset.png")
 {
 }
@@ -722,7 +725,7 @@ int TestHelper::digitAt(int number, int index)
 void TestHelper::triggerShortcut(const QString &objectName, const QString &sequenceAsString)
 {
     QObject *shortcut = window->findChild<QObject*>(objectName);
-    QVERIFY(shortcut);
+    QVERIFY2(shortcut, qPrintable(QString::fromLatin1("Shortcut \"%1\" could not be found").arg(objectName)));
     QVERIFY2(shortcut->property("enabled").toBool(), qPrintable(QString::fromLatin1(
         "Shortcut \"%1\" is not enabled (%2 has active focus; does this shortcut require the canvas to have it?)")
             .arg(objectName, window->activeFocusItem() ? window->activeFocusItem()->objectName() : QString())));
@@ -897,15 +900,15 @@ void TestHelper::triggerAnimationPlayback()
     mouseEventOnCentre(viewMenuBarItem, MouseClick);
     mouseEventOnCentre(animationPlaybackMenuButton, MouseClick);
 #else
-    triggerShortcut("animationPlayback", app.settings()->animationPlaybackShortcut());
+    triggerShortcut("animationPlaybackShortcut", app.settings()->animationPlaybackShortcut());
 #endif
 }
 
 void TestHelper::setAnimationPlayback(bool usingAnimation)
 {
-    if (project->isUsingAnimation() != usingAnimation) {
+    if (layeredImageProject->isUsingAnimation() != usingAnimation) {
         triggerAnimationPlayback();
-        QCOMPARE(canvas->splitter()->isEnabled(), usingAnimation);
+        QCOMPARE(layeredImageProject->isUsingAnimation(), usingAnimation);
     }
 }
 
@@ -1224,6 +1227,9 @@ void TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
 
     moveLayerDownButton = window->findChild<QQuickItem*>("moveLayerDownButton");
     QVERIFY(moveLayerDownButton);
+
+    animationPlayPauseButton = window->findChild<QQuickItem*>("animationPlayPauseButton");
+    QVERIFY(animationPlayPauseButton);
 }
 
 void TestHelper::loadProject(const QUrl &url)

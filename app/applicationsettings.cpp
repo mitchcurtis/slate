@@ -632,6 +632,21 @@ void ApplicationSettings::setSplitterLockedShortcut(const QString &shortcut)
     SET_SHORTCUT("splitterLockedShortcut", defaultSplitterLockedShortcut, splitterLockedShortcutChanged)
 }
 
+QString ApplicationSettings::defaultAnimationPlaybackShortcut() const
+{
+    return QLatin1String("A");
+}
+
+QString ApplicationSettings::animationPlaybackShortcut() const
+{
+    GET_SHORTCUT("animationPlaybackShortcut", defaultAnimationPlaybackShortcut)
+}
+
+void ApplicationSettings::setAnimationPlaybackShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("animationPlaybackShortcut", defaultAnimationPlaybackShortcut, animationPlaybackShortcutChanged)
+}
+
 QString ApplicationSettings::defaultOptionsShortcut() const
 {
     return QLatin1String("Ctrl+Alt+T");

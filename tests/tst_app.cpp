@@ -54,8 +54,7 @@ private Q_SLOTS:
     void saveAsAndLoadTilesetProject();
     void saveAsAndLoad_data();
     void saveAsAndLoad();
-    void animationStuffSaved_data();
-    void animationStuffSaved();
+    void animationPlayback();
     void keyboardShortcuts();
     void optionsCancelled();
     void showGrid();
@@ -473,40 +472,38 @@ void tst_App::saveAsAndLoad()
     QCOMPARE(canvas->secondPane()->size(), secondPaneSize);
 }
 
-void tst_App::animationStuffSaved_data()
+void tst_App::animationPlayback()
 {
-    addImageProjectTypes();
-}
+    createNewLayeredImageProject();
+    QCOMPARE(layeredImageProject->isUsingAnimation(), false);
 
-void tst_App::animationStuffSaved()
-{
-    QFETCH(Project::Type, projectType);
+    setAnimationPlayback(true);
 
-    createNewProject(projectType);
-    QCOMPARE(imageProject->isUsingAnimation(), false);
+    mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+    QCOMPARE(layeredImageProject->animationPlayback()->isPlaying(), true);
+    QCOMPARE(layeredImageProject->animationPlayback()->currentFrameIndex(), 0);
 
-    triggerAnimationPlayback();
-    QCOMPARE(imageProject->isUsingAnimation(), true);
+    // Let it play a bit.
+    QTRY_VERIFY(layeredImageProject->animationPlayback()->currentFrameIndex() > 0);
 
     // Save.
-    const QString extension = projectType == Project::ImageType ? "png" : "slp";
-    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QString::fromLatin1("/animationStuffSaved.%1").arg(extension));
-    imageProject->saveAs(saveUrl);
+    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animationStuffSaved.slp"));
+    layeredImageProject->saveAs(saveUrl);
     VERIFY_NO_CREATION_ERRORS_OCCURRED();
-    QVERIFY(!imageProject->hasUnsavedChanges());
+    QVERIFY(!layeredImageProject->hasUnsavedChanges());
 
     // Close.
     triggerCloseProject();
-    QVERIFY(!imageProject->hasLoaded());
-    QCOMPARE(imageProject->isUsingAnimation(), false);
+    QVERIFY(!layeredImageProject->hasLoaded());
+    QCOMPARE(layeredImageProject->isUsingAnimation(), false);
     // TODO: The animation playback panel shouldn't show any <TODO>.
 //    QQuickItem *layerListView = window->findChild<QQuickItem*>("layerListView");
 //    QVERIFY(layerListView);
 //    QCOMPARE(layerListView->property("count").toInt(), 0);
 
     // Load the saved file.
-    imageProject->load(saveUrl);
-    QCOMPARE(imageProject->isUsingAnimation(), true);
+    layeredImageProject->load(saveUrl);
+    QCOMPARE(layeredImageProject->isUsingAnimation(), true);
     VERIFY_NO_CREATION_ERRORS_OCCURRED();
 }
 

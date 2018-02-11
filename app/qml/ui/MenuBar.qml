@@ -160,6 +160,32 @@ Item {
         }
 
         Platform.Menu {
+            Platform.MenuItem {
+                id: animationPlaybackMenuButton
+                objectName: "animationPlaybackMenuButton"
+                text: qsTr("Animation Playback")
+                enabled: isImageProjectType && canvas
+                checkable: true
+                checked: isImageProjectType && project.usingAnimation
+                onTriggered: project.usingAnimation = checked
+            }
+
+            Platform.MenuItem {
+                objectName: "animationPlayMenuButton"
+                text: !project.animationPlayback.playing ? qsTr("Play") : qsTr("Pause")
+                enabled: animationPlaybackMenuButton.checked
+                onTriggered: project.animationPlayback.playing = !project.animationPlayback.playing
+            }
+
+            Platform.MenuItem {
+                objectName: "animationRestartMenuButton"
+                text: qsTr("Restart")
+                enabled: animationPlaybackMenuButton.checked
+                onTriggered: project.animationPlayback.restart()
+            }
+        }
+
+        Platform.Menu {
             id: viewMenu
             objectName: "viewMenu"
             title: qsTr("View")
@@ -179,7 +205,7 @@ Item {
                 enabled: canvas
                 checkable: true
                 checked: settings.gridVisible
-                onCheckedChanged: settings.gridVisible = checked
+                onTriggered: settings.gridVisible = checked
             }
 
             Platform.MenuItem {
@@ -188,7 +214,7 @@ Item {
                 enabled: canvas
                 checkable: true
                 checked: settings.rulersVisible
-                onCheckedChanged: settings.rulersVisible = checked
+                onTriggered: settings.rulersVisible = checked
             }
 
             Platform.MenuItem {
@@ -197,7 +223,7 @@ Item {
                 enabled: canvas
                 checkable: true
                 checked: settings.guidesVisible
-                onCheckedChanged: settings.guidesVisible = checked
+                onTriggered: settings.guidesVisible = checked
             }
 
             Platform.MenuItem {
@@ -206,7 +232,7 @@ Item {
                 enabled: canvas
                 checkable: true
                 checked: settings.guidesLocked
-                onCheckedChanged: settings.guidesLocked = checked
+                onTriggered: settings.guidesLocked = checked
             }
 
             Platform.MenuSeparator {}
@@ -217,7 +243,7 @@ Item {
                 enabled: canvas
                 checkable: true
                 checked: settings.splitScreen
-                onCheckedChanged: settings.splitScreen = checked
+                onTriggered: settings.splitScreen = checked
             }
 
             Platform.MenuItem {
@@ -226,7 +252,7 @@ Item {
                 enabled: canvas && settings.splitScreen
                 checkable: true
                 checked: settings.splitterLocked
-                onCheckedChanged: settings.splitterLocked = checked
+                onTriggered: settings.splitterLocked = checked
             }
 
             Platform.MenuItem {
@@ -235,8 +261,9 @@ Item {
                 enabled: canvas
                 checkable: true
                 checked: settings.scrollZoom
-                onCheckedChanged: settings.scrollZoom = checked
+                onTriggered: settings.scrollZoom = checked
             }
+
         }
 
         Platform.Menu {

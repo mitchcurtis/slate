@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QImage>
 
+#include "animationplayback.h"
 #include "project.h"
 
 class ImageLayer;
@@ -34,6 +35,8 @@ class LayeredImageProject : public Project
     Q_PROPERTY(ImageLayer *currentLayer READ currentLayer NOTIFY postCurrentLayerChanged)
     Q_PROPERTY(int layerCount READ layerCount NOTIFY layerCountChanged)
     Q_PROPERTY(bool autoExportEnabled READ isAutoExportEnabled WRITE setAutoExportEnabled NOTIFY autoExportEnabledChanged)
+    Q_PROPERTY(bool usingAnimation READ isUsingAnimation WRITE setUsingAnimation NOTIFY usingAnimationChanged)
+    Q_PROPERTY(AnimationPlayback *animationPlayback READ animationPlayback CONSTANT FINAL)
 
 public:
     LayeredImageProject();
@@ -58,12 +61,18 @@ public:
     void setAutoExportEnabled(bool autoExportEnabled);
     static QString autoExportFilePath(const QUrl &projectUrl);
 
+    bool isUsingAnimation() const;
+    void setUsingAnimation(bool isUsingAnimation);
+
+    AnimationPlayback *animationPlayback();
+
 signals:
     void currentLayerIndexChanged();
     void preCurrentLayerChanged();
     void postCurrentLayerChanged();
     void layerCountChanged();
     void autoExportEnabledChanged();
+    void usingAnimationChanged();
 
     void preLayersCleared();
     void postLayersCleared();
@@ -120,6 +129,9 @@ private:
     // Give each layer a unique name based on the layers created so far.
     int mLayersCreated;
     bool mAutoExportEnabled;
+    bool mUsingAnimation;
+    bool mHasUsedAnimation;
+    AnimationPlayback mAnimationPlayback;
 };
 
 #endif // LAYEREDIMAGEPROJECT_H

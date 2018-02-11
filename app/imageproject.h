@@ -22,12 +22,14 @@
 
 #include <QImage>
 
+#include "animationplayback.h"
 #include "project.h"
 
 class ImageProject : public Project
 {
     Q_OBJECT
-    Q_PROPERTY(bool usingAnimation READ isUsingAnimation WRITE setUsingAnimation NOTIFY usingAnimationChanged)
+    Q_PROPERTY(bool usingAnimation READ isUsingAnimation WRITE setUsingAnimation NOTIFY usingAnimationChanged FINAL)
+    Q_PROPERTY(AnimationPlayback *animationPlayback READ animationPlayback CONSTANT FINAL)
 
 public:
     ImageProject();
@@ -44,6 +46,8 @@ public:
 
     bool isUsingAnimation() const;
     void setUsingAnimation(bool isUsingAnimation);
+
+    AnimationPlayback *animationPlayback();
 
 signals:
     void usingAnimationChanged();
@@ -67,7 +71,7 @@ private:
     QUrl mImageUrl;
     QImage mImage;
     bool mUsingAnimation;
-    bool mHasUsedAnimation;
+    AnimationPlayback mAnimationPlayback;
 };
 
 

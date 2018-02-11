@@ -23,6 +23,13 @@
 #include <QSettings>
 #include <QUrl>
 
+/*
+    When adding a new configurable shortcut, update the following:
+
+    - OptionsDialog.qml
+    - Shortcuts.qml
+*/
+
 class ApplicationSettings : public QSettings
 {
     Q_OBJECT
@@ -57,6 +64,7 @@ class ApplicationSettings : public QSettings
     Q_PROPERTY(QString zoomOutShortcut READ zoomOutShortcut WRITE setZoomOutShortcut NOTIFY zoomOutShortcutChanged)
     Q_PROPERTY(QString splitScreenShortcut READ splitScreenShortcut WRITE setSplitScreenShortcut NOTIFY splitScreenShortcutChanged)
     Q_PROPERTY(QString splitterLockedShortcut READ splitterLockedShortcut WRITE setSplitterLockedShortcut NOTIFY splitterLockedShortcutChanged)
+    Q_PROPERTY(QString animationPlaybackShortcut READ animationPlaybackShortcut WRITE setAnimationPlaybackShortcut NOTIFY animationPlaybackShortcutChanged)
     Q_PROPERTY(QString optionsShortcut READ optionsShortcut WRITE setOptionsShortcut NOTIFY optionsShortcutChanged)
     Q_PROPERTY(QString penToolShortcut READ penToolShortcut WRITE setPenToolShortcut NOTIFY penToolShortcutChanged)
     Q_PROPERTY(QString eyeDropperToolShortcut READ eyeDropperToolShortcut WRITE setEyeDropperToolShortcut NOTIFY eyeDropperToolShortcutChanged)
@@ -195,6 +203,10 @@ public:
     QString splitterLockedShortcut() const;
     void setSplitterLockedShortcut(const QString &shortcut);
 
+    QString defaultAnimationPlaybackShortcut() const;
+    QString animationPlaybackShortcut() const;
+    void setAnimationPlaybackShortcut(const QString &shortcut);
+
     QString defaultOptionsShortcut() const;
     QString optionsShortcut() const;
     void setOptionsShortcut(const QString &shortcut);
@@ -279,6 +291,7 @@ signals:
     void zoomOutShortcutChanged();
     void splitScreenShortcutChanged();
     void splitterLockedShortcutChanged();
+    void animationPlaybackShortcutChanged();
     void penToolShortcutChanged();
     void optionsShortcutChanged();
     void eyeDropperToolShortcutChanged();

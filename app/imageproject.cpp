@@ -23,8 +23,7 @@
 #include "changeimagesizecommand.h"
 
 ImageProject::ImageProject() :
-    mUsingAnimation(false),
-    mHasUsedAnimation(false)
+    mUsingAnimation(false)
 {
     setObjectName(QLatin1String("imageProject"));
     qCDebug(lcProjectLifecycle) << "constructing" << this;
@@ -119,6 +118,8 @@ void ImageProject::close()
     mUsingTempImage = false;
     setUrl(QUrl());
     mUndoStack.clear();
+    mUsingAnimation = false;
+    mAnimationPlayback.reset();
     emit projectClosed();
 
     qCDebug(lcProject) << "... closed project";
@@ -205,6 +206,11 @@ void ImageProject::doResize(const QImage &newImage)
     Q_ASSERT(newImage.size() != size());
     mImage = newImage;
     emit sizeChanged();
+}
+
+AnimationPlayback *ImageProject::animationPlayback()
+{
+    return &mAnimationPlayback;
 }
 
 bool ImageProject::isUsingAnimation() const
