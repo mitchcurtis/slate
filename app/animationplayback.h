@@ -73,12 +73,16 @@ signals:
 private:
     void setCurrentFrameIndex(int currentFrameIndex);
 
+    void timerEvent(QTimerEvent *event) override;
+
     int mFps;
     int mFrameCount;
     int mFrameWidth;
     int mFrameHeight;
     int mCurrentFrameIndex;
     bool mPlaying;
+
+    int mTimerId;
 };
 
 #endif // ANIMATIONPLAYBACK_H

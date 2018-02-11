@@ -138,6 +138,11 @@ QImage LayeredImageProject::flattenedImage(std::function<QImage(int)> layerSubst
     return finalImage;
 }
 
+QImage LayeredImageProject::exportedImage() const
+{
+    return flattenedImage();
+}
+
 bool LayeredImageProject::isAutoExportEnabled() const
 {
     return mAutoExportEnabled;
@@ -176,8 +181,16 @@ void LayeredImageProject::setUsingAnimation(bool isUsingAnimation)
 
     mUsingAnimation = isUsingAnimation;
 
-    if (mUsingAnimation)
-        mHasUsedAnimation = true;
+    if (mUsingAnimation) {
+        if (!mHasUsedAnimation) {
+            const QSize imageSize = size();
+            mAnimationPlayback.setFrameCount(imageSize.width() >= 8 ? 4 : 1);
+            mAnimationPlayback.setFrameWidth(imageSize.width() / mAnimationPlayback.frameCount());
+            mAnimationPlayback.setFrameHeight(imageSize.height());
+
+            mHasUsedAnimation = true;
+        }
+    }
 
     emit usingAnimationChanged();
 }

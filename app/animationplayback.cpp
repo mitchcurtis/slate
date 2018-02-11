@@ -19,7 +19,11 @@
 
 #include "animationplayback.h"
 
+#include <QDebug>
 #include <QJsonObject>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcAnimationPlayback, "app.animationPlayback")
 
 AnimationPlayback::AnimationPlayback(QObject *parent) :
     QObject(parent)
@@ -98,7 +102,19 @@ void AnimationPlayback::setPlaying(bool playing)
     if (playing == mPlaying)
         return;
 
+    if (mPlaying) {
+        qCDebug(lcAnimationPlayback) << "pausing";
+        killTimer(mTimerId);
+        mTimerId = -1;
+    }
+
     mPlaying = playing;
+
+    if (mPlaying) {
+        qCDebug(lcAnimationPlayback) << "playing";
+        mTimerId = startTimer(1000 / mFps);
+    }
+
     emit playingChanged();
 }
 
@@ -109,6 +125,19 @@ void AnimationPlayback::setCurrentFrameIndex(int currentFrameIndex)
 
     mCurrentFrameIndex = currentFrameIndex;
     emit currentFrameIndexChanged();
+}
+
+void AnimationPlayback::timerEvent(QTimerEvent *)
+{
+    Q_ASSERT(mPlaying);
+
+    int newFrameIndex = mCurrentFrameIndex + 1;
+    if (newFrameIndex >= mFrameCount)
+        newFrameIndex = 0;
+
+    qCDebug(lcAnimationPlayback) << "timer triggered; new frame index is" << newFrameIndex;
+
+    setCurrentFrameIndex(newFrameIndex);
 }
 
 void AnimationPlayback::read(const QJsonObject &json)
@@ -131,9 +160,10 @@ void AnimationPlayback::write(QJsonObject &json) const
 void AnimationPlayback::reset()
 {
     setFps(4);
-    setFrameCount(0);
+    setFrameCount(4);
     setFrameWidth(32);
     setFrameHeight(32);
-    setCurrentFrameIndex(-1);
+    setCurrentFrameIndex(0);
     setPlaying(false);
+    mTimerId = -1;
 }

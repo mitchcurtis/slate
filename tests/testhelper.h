@@ -248,8 +248,8 @@ protected:
     QQuickItem *desaturateButton;
     QQuickItem *tilesetSwatch;
     QQuickItem *newLayerButton;
-    QQuickItem *moveLayerUpButton;
     QQuickItem *moveLayerDownButton;
+    QQuickItem *moveLayerUpButton;
     QQuickItem *animationPlayPauseButton;
 
     QScopedPointer<QSignalSpy> creationErrorOccurredSpy;

@@ -56,6 +56,7 @@ public:
     int heightInPixels() const override;
 
     QImage flattenedImage(std::function<QImage(int)> layerSubstituteFunction = nullptr) const;
+    QImage exportedImage() const override;
 
     bool isAutoExportEnabled() const;
     void setAutoExportEnabled(bool autoExportEnabled);

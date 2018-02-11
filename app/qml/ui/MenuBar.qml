@@ -176,7 +176,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "animationPlayMenuButton"
-                text: !project.animationPlayback.playing ? qsTr("Play") : qsTr("Pause")
+                text: enabled && !project.animationPlayback.playing ? qsTr("Play") : qsTr("Pause")
                 enabled: animationPlaybackMenuButton.checked
                 onTriggered: project.animationPlayback.playing = !project.animationPlayback.playing
             }

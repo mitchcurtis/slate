@@ -49,6 +49,8 @@ public:
 
     AnimationPlayback *animationPlayback();
 
+    QImage exportedImage() const override;
+
 signals:
     void usingAnimationChanged();
 

@@ -40,6 +40,7 @@
 #include "rectangularcursor.h"
 #include "simpleloader.h"
 #include "splitter.h"
+#include "spriteimage.h"
 #include "spriteimageprovider.h"
 #include "tile.h"
 #include "tilecanvas.h"
@@ -85,11 +86,13 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");
     qmlRegisterType<RectangularCursor>("App", 1, 0, "RectangularCursor");
     qmlRegisterType<SimpleLoader>("App", 1, 0, "SimpleLoader");
+    qmlRegisterType<SpriteImage>("App", 1, 0, "SpriteImage");
     qmlRegisterType<Splitter>();
     qmlRegisterType<TileCanvas>();
     qmlRegisterType<TileCanvas>("App", 1, 0, "TileCanvas");
     qmlRegisterType<TileGrid>("App", 1, 0, "TileGrid");
     qmlRegisterType<TilesetSwatchImage>("App", 1, 0, "TilesetSwatchImage");
+    qmlRegisterUncreatableType<AnimationPlayback>("App", 1, 0, "AnimationPlayback", QLatin1String("Cannot create objects of type AnimationPlayback"));
     qmlRegisterUncreatableType<CanvasPane>("App", 1, 0, "CanvasPane", "Can't create instances of CanvasPane");
     qmlRegisterUncreatableType<Project>("App", 1, 0, "Project", QLatin1String("Cannot create objects of type Project"));
     qmlRegisterUncreatableType<LayeredImageProject>("App", 1, 0, "LayeredImageProject",

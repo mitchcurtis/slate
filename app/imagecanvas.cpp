@@ -789,7 +789,6 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     // We use the unbounded canvas size here, otherwise the drawn area is too small past a certain zoom level.
     painter->drawTiledPixmap(0, 0, zoomedCanvasSize.width(), zoomedCanvasSize.height(), mCheckerPixmap);
 
-    // TODO: LayeredImageCanvas needs to be able to do its own rendering here
     const QImage image = contentImage();
     const QSize zoomedImageSize = pane.zoomedSize(image.size());
     painter->drawImage(QRectF(QPointF(0, 0), zoomedImageSize), image, QRectF(0, 0, image.width(), image.height()));

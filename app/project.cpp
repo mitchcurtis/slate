@@ -289,6 +289,11 @@ void Project::removeGuide(const Guide &guide)
     }
 }
 
+QImage Project::exportedImage() const
+{
+    return QImage();
+}
+
 QSize Project::size() const
 {
     return QSize(0, 0);

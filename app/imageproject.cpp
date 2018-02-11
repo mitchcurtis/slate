@@ -213,6 +213,11 @@ AnimationPlayback *ImageProject::animationPlayback()
     return &mAnimationPlayback;
 }
 
+QImage ImageProject::exportedImage() const
+{
+    return mImage;
+}
+
 bool ImageProject::isUsingAnimation() const
 {
     return mUsingAnimation;

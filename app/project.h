@@ -87,6 +87,9 @@ public:
     virtual void moveGuide(const Guide &guide, int to);
     virtual void removeGuide(const Guide &guide);
 
+    // Used by animation system (only image projects need to implement this).
+    virtual QImage exportedImage() const;
+
     UndoStack *undoStack();
 
     bool isComposingMacro() const;

@@ -62,7 +62,8 @@ HEADERS += \
     $$PWD/deleteguidecommand.h \
     $$PWD/crophelper.h \
     $$PWD/animationplayback.h \
-    $$PWD/spriteimageprovider.h
+    $$PWD/spriteimageprovider.h \
+    $$PWD/spriteimage.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -121,7 +122,8 @@ SOURCES += \
     $$PWD/deleteguidecommand.cpp \
     $$PWD/crophelper.cpp \
     $$PWD/animationplayback.cpp \
-    $$PWD/spriteimageprovider.cpp
+    $$PWD/spriteimageprovider.cpp \
+    $$PWD/spriteimage.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \

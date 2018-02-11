@@ -204,6 +204,7 @@ ApplicationWindow {
             Ui.AnimationPanel {
                 id: animationPanel
                 visible: window.projectType === Project.LayeredImageType && window.canvas && window.project.usingAnimation
+                project: visible ? window.project : null
 
                 Layout.fillWidth: true
                 Layout.maximumHeight: visible ? implicitHeight : 0
