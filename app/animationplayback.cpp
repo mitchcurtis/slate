@@ -26,7 +26,8 @@
 Q_LOGGING_CATEGORY(lcAnimationPlayback, "app.animationPlayback")
 
 AnimationPlayback::AnimationPlayback(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    mTimerId(-1)
 {
     reset();
 }
@@ -104,8 +105,10 @@ void AnimationPlayback::setPlaying(bool playing)
 
     if (mPlaying) {
         qCDebug(lcAnimationPlayback) << "pausing";
-        killTimer(mTimerId);
-        mTimerId = -1;
+        if (mTimerId != -1) {
+            killTimer(mTimerId);
+            mTimerId = -1;
+        }
     }
 
     mPlaying = playing;
