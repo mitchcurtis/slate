@@ -143,7 +143,7 @@ Panel {
         // Necessary for when there is no loaded project so that the separator
         // doesn't go halfway up the panel.
         Item {
-            Layout.fillHeight: true
+            Layout.fillHeight: listView.count == 0
         }
 
         MenuSeparator {
