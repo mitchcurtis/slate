@@ -29,7 +29,8 @@
 Q_LOGGING_CATEGORY(lcSpriteImage, "app.spriteImage")
 
 SpriteImage::SpriteImage() :
-    mProject(nullptr)
+    mProject(nullptr),
+    mAnimationPlayback(nullptr)
 {
 }
 

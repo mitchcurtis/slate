@@ -33,6 +33,7 @@ GridLayout {
         Layout.columnSpan: 2
         Layout.topMargin: 8
         Layout.bottomMargin: 8
+        Layout.alignment: Qt.AlignRight
 
         HueSlider {
             id: hueSlider
@@ -58,8 +59,8 @@ GridLayout {
         SaturationLightnessPicker {
             id: saturationLightnessPicker
             objectName: "saturationLightnessPicker"
-            implicitWidth: 134
-            implicitHeight: 134
+            implicitWidth: 156
+            implicitHeight: 156
             focusPolicy: Qt.NoFocus
             hue: hueSlider.hue
             alpha: transparencySlider.value

@@ -6,22 +6,26 @@ import App 1.0
 
 import "." as Ui
 
-Rectangle {
-    id: panel
+Panel {
+    id: root
+    title: qsTr("Colour")
     objectName: "colourPanel"
-    implicitWidth: picker.implicitWidth
-    implicitHeight: picker.implicitHeight + picker.anchors.topMargin + picker.anchors.bottomMargin
-    color: Ui.CanvasColours.panelColour
     clip: true
+    padding: 16
+    topPadding: 0
 
     property ImageCanvas canvas
     property alias project: picker.project
 
-    HslSimplePicker {
-        id: picker
-        canvas: panel.canvas
-        anchors.fill: parent
-        anchors.margins: 16
-        anchors.bottomMargin: 2
+    contentItem: Flickable {
+        implicitWidth: picker.implicitWidth
+        implicitHeight: picker.implicitHeight
+
+        ScrollBar.vertical: ScrollBar {}
+
+        HslSimplePicker {
+            id: picker
+            canvas: root.canvas
+        }
     }
 }

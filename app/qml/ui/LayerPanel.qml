@@ -1,3 +1,22 @@
+/*
+    Copyright 2018, Mitch Curtis
+
+    This file is part of Slate.
+
+    Slate is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Slate is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Slate. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import QtQuick 2.7
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.2
@@ -7,13 +26,10 @@ import App 1.0
 
 import "." as Ui
 
-Page {
+Panel {
     id: root
+    title: qsTr("Layers")
     implicitWidth: 200
-    background: Rectangle {
-        color: Ui.CanvasColours.panelColour
-    }
-
     padding: 0
 
     property LayeredImageCanvas layeredImageCanvas
@@ -24,110 +40,130 @@ Page {
         buttons: listView.contentItem.children
     }
 
-    ListView {
-        id: listView
-        objectName: "layerListView"
-        anchors.fill: parent
-        boundsBehavior: ListView.StopAtBounds
-        visible: project && project.loaded
-        clip: true
+    contentItem: ColumnLayout {
+        visible: root.expanded
+        spacing: 0
 
-        ScrollBar.vertical: ScrollBar {
-            id: verticalScrollBar
-        }
-        ScrollBar.horizontal: ScrollBar {
-            id: horizontalScrollBar
-        }
+        // Ensure that ~ a couple of items are always visible.
+        Layout.minimumHeight: root.expanded ? 80 : 0
+        Layout.maximumHeight: root.expanded ? -1 : 0
 
-        model: LayerModel {
-            layeredImageProject: project
-        }
+        ListView {
+            id: listView
+            objectName: "layerListView"
+            boundsBehavior: ListView.StopAtBounds
+            visible: project && project.loaded
+            clip: true
 
-        delegate: ItemDelegate {
-            objectName: model.layer.name
-            checkable: true
-            checked: project.currentLayerIndex === index
-            width: listView.width
-            leftPadding: visibilityCheckBox.width + 18
-            focusPolicy: Qt.NoFocus
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
-            onClicked: project.currentLayerIndex = index
-            onDoubleClicked: layerNameTextField.forceActiveFocus()
+            ScrollBar.vertical: ScrollBar {
+                id: verticalScrollBar
+            }
+            ScrollBar.horizontal: ScrollBar {
+                id: horizontalScrollBar
+            }
 
-            CheckBox {
-                id: visibilityCheckBox
-                objectName: "layerVisibilityCheckBox"
-                x: 14
-                text: model.layer.visible ? "\uf06e" : "\uf070"
-                font.family: "FontAwesome"
+            model: LayerModel {
+                layeredImageProject: project
+            }
+
+            delegate: ItemDelegate {
+                objectName: model.layer.name
+                checkable: true
+                checked: project.currentLayerIndex === index
+                width: listView.width
+                leftPadding: visibilityCheckBox.width + 18
                 focusPolicy: Qt.NoFocus
-                indicator: null
-                anchors.verticalCenter: parent.verticalCenter
 
-                onClicked: project.setLayerVisible(index, !model.layer.visible)
-            }
+                onClicked: project.currentLayerIndex = index
+                onDoubleClicked: layerNameTextField.forceActiveFocus()
 
-            TextField {
-                id: layerNameTextField
-                objectName: "layerNameTextField"
-                x: parent.leftPadding
-                text: model.layer.name
-                font.family: "FontAwesome"
-                activeFocusOnPress: false
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.verticalCenterOffset: 6
-                background.visible: false
-                font.pixelSize: 12
-                visible: false
+                CheckBox {
+                    id: visibilityCheckBox
+                    objectName: "layerVisibilityCheckBox"
+                    x: 14
+                    text: model.layer.visible ? "\uf06e" : "\uf070"
+                    font.family: "FontAwesome"
+                    focusPolicy: Qt.NoFocus
+                    indicator: null
+                    anchors.verticalCenter: parent.verticalCenter
 
-                Keys.onEscapePressed: {
-                    text = model.layer.name;
-                    layeredImageCanvas.forceActiveFocus();
+                    onClicked: project.setLayerVisible(index, !model.layer.visible)
                 }
-                onAccepted: {
-                    project.setLayerName(index, text);
-                    layeredImageCanvas.forceActiveFocus();
+
+                TextField {
+                    id: layerNameTextField
+                    objectName: "layerNameTextField"
+                    x: parent.leftPadding
+                    text: model.layer.name
+                    font.family: "FontAwesome"
+                    activeFocusOnPress: false
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: 6
+                    background.visible: false
+                    font.pixelSize: 12
+                    visible: false
+
+                    Keys.onEscapePressed: {
+                        text = model.layer.name;
+                        layeredImageCanvas.forceActiveFocus();
+                    }
+                    onAccepted: {
+                        project.setLayerName(index, text);
+                        layeredImageCanvas.forceActiveFocus();
+                    }
                 }
-            }
 
-            // We don't want TextField's editable cursor to be visible,
-            // so we set visible: false to disable the cursor, and instead
-            // render it via this.
-            ShaderEffectSource {
-                sourceItem: layerNameTextField
-                anchors.fill: layerNameTextField
-            }
+                // We don't want TextField's editable cursor to be visible,
+                // so we set visible: false to disable the cursor, and instead
+                // render it via this.
+                ShaderEffectSource {
+                    sourceItem: layerNameTextField
+                    anchors.fill: layerNameTextField
+                }
 
-            // Apparently the one above only works for the top level control item,
-            // so we also need one for the background.
-            ShaderEffectSource {
-                sourceItem: layerNameTextField.background
-                x: layerNameTextField.x + layerNameTextField.background.x
-                y: layerNameTextField.y + layerNameTextField.background.y
-                width: layerNameTextField.background.width
-                height: layerNameTextField.background.height
-                visible: layerNameTextField.activeFocus
-            }
+                // Apparently the one above only works for the top level control item,
+                // so we also need one for the background.
+                ShaderEffectSource {
+                    sourceItem: layerNameTextField.background
+                    x: layerNameTextField.x + layerNameTextField.background.x
+                    y: layerNameTextField.y + layerNameTextField.background.y
+                    width: layerNameTextField.background.width
+                    height: layerNameTextField.background.height
+                    visible: layerNameTextField.activeFocus
+                }
 
-            Rectangle {
-                id: focusRect
-                width: 2
-                height: parent.height
-                color: Ui.CanvasColours.focusColour
-                visible: parent.checked
+                Rectangle {
+                    id: focusRect
+                    width: 2
+                    height: parent.height
+                    color: Ui.CanvasColours.focusColour
+                    visible: parent.checked
+                }
             }
         }
-    }
 
-    MenuSeparator {
-        width: parent.width
-        y: footer.y - height
-        padding: 6
-        topPadding: 0
-        bottomPadding: 0
+        // Necessary for when there is no loaded project so that the separator
+        // doesn't go halfway up the panel.
+        Item {
+            Layout.fillHeight: true
+        }
+
+        MenuSeparator {
+            padding: 6
+            topPadding: 0
+            bottomPadding: 0
+
+            Layout.fillWidth: true
+        }
     }
 
     footer: RowLayout {
+        id: footerRowLayout
+        visible: root.expanded
+
         Button {
             objectName: "newLayerButton"
             text: "+"
@@ -137,6 +173,7 @@ Page {
 
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
+            Layout.fillHeight: true
             Layout.leftMargin: 6
 
             onClicked: project.addNewLayer()
@@ -153,6 +190,7 @@ Page {
 
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
+            Layout.fillHeight: true
 
             onClicked: project.moveCurrentLayerDown()
         }
@@ -168,12 +206,14 @@ Page {
 
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
+            Layout.fillHeight: true
 
             onClicked: project.moveCurrentLayerUp()
         }
 
         Item {
             Layout.fillWidth: true
+            Layout.fillHeight: true
         }
 
         Button {
@@ -187,6 +227,7 @@ Page {
 
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
+            Layout.fillHeight: true
             Layout.rightMargin: 6
 
             onClicked: project.deleteCurrentLayer()

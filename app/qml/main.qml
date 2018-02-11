@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2018, Mitch Curtis
 
     This file is part of Slate.
 
@@ -187,29 +187,17 @@ ApplicationWindow {
         anchors.fill: parent
         spacing: 0
 
-        ColumnLayout {
-            Ui.CanvasContainer {
-                id: canvasContainer
-                focus: true
+        Ui.CanvasContainer {
+            id: canvasContainer
+            focus: true
 
-                projectManager: window.projectManager
-                checkedToolButton: iconToolBar.toolButtonGroup.checkedButton
-                fontMetrics: fontMetrics
+            projectManager: window.projectManager
+            checkedToolButton: iconToolBar.toolButtonGroup.checkedButton
+            fontMetrics: fontMetrics
 
-                Layout.preferredWidth: window.width / 3
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-            }
-
-            Ui.AnimationPanel {
-                id: animationPanel
-                visible: window.project && window.project.loaded && window.projectType === Project.LayeredImageType
-                    && window.project.usingAnimation
-                project: visible ? window.project : null
-
-                Layout.fillWidth: true
-                Layout.maximumHeight: visible ? implicitHeight : 0
-            }
+            Layout.preferredWidth: window.width / 3
+            Layout.fillWidth: true
+            Layout.fillHeight: true
         }
 
         ColumnLayout {
@@ -219,6 +207,9 @@ ApplicationWindow {
                 id: colourPanel
                 canvas: window.canvas
                 project: window.project
+
+                Layout.maximumHeight: expanded ? -1 : header.implicitHeight
+                Layout.fillHeight: expanded
             }
 
             SimpleLoader {
@@ -234,7 +225,6 @@ ApplicationWindow {
                 }
 
                 Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
-                Layout.preferredHeight: active ? window.contentItem.height / 2 : 0
                 Layout.fillHeight: active
             }
 
@@ -249,8 +239,19 @@ ApplicationWindow {
                 }
 
                 Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
-                Layout.preferredHeight: active ? window.contentItem.height / 2 : 0
-                Layout.fillHeight: active
+                Layout.maximumHeight: active ? (item.expanded ? -1 : item.header.implicitHeight) : 0
+                Layout.fillHeight: active && item.expanded
+            }
+
+            Ui.AnimationPanel {
+                id: animationPanel
+                visible: window.project && window.project.loaded && window.projectType === Project.LayeredImageType
+                    && window.project.usingAnimation
+                project: visible ? window.project : null
+
+                Layout.preferredWidth: visible ? colourPanel.implicitWidth : 0
+                Layout.maximumHeight: visible ? (expanded ? -1 : header.implicitHeight) : 0
+                Layout.fillHeight: expanded
             }
         }
     }
