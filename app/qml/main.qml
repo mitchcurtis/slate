@@ -203,7 +203,8 @@ ApplicationWindow {
 
             Ui.AnimationPanel {
                 id: animationPanel
-                visible: window.projectType === Project.LayeredImageType && window.canvas && window.project.usingAnimation
+                visible: window.project && window.project.loaded && window.projectType === Project.LayeredImageType
+                    && window.project.usingAnimation
                 project: visible ? window.project : null
 
                 Layout.fillWidth: true
