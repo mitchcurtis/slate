@@ -225,7 +225,8 @@ ApplicationWindow {
                 }
 
                 Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
-                Layout.fillHeight: active
+                Layout.maximumHeight: active ? (item.expanded ? -1 : item.header.implicitHeight) : 0
+                Layout.fillHeight: active && item.expanded
             }
 
             SimpleLoader {

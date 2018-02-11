@@ -7,14 +7,10 @@ import App 1.0
 
 import "." as Ui
 
-Pane {
+Panel {
     id: root
+    title: qsTr("Tileset Swatch")
     implicitWidth: tilesetImage.implicitWidth
-    background: Rectangle {
-        color: Ui.CanvasColours.panelColour
-    }
-
-    padding: 0
 
     property TileCanvas tileCanvas
     property Project project

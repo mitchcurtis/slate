@@ -29,7 +29,6 @@ import "." as Ui
 Panel {
     id: root
     title: qsTr("Layers")
-    implicitWidth: 200
     padding: 0
 
     property LayeredImageCanvas layeredImageCanvas
@@ -43,10 +42,6 @@ Panel {
     contentItem: ColumnLayout {
         visible: root.expanded
         spacing: 0
-
-        // Ensure that ~ a couple of items are always visible.
-        Layout.minimumHeight: root.expanded ? 80 : 0
-        Layout.maximumHeight: root.expanded ? -1 : 0
 
         ListView {
             id: listView

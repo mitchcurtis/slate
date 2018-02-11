@@ -32,7 +32,7 @@ Page {
             text: expanded ? "\uf146" : "\uf0fe"
             font.family: "FontAwesome"
             anchors.verticalCenter: parent.verticalCenter
-            focus: Qt.NoFocus
+            focusPolicy: Qt.NoFocus
 
             Layout.preferredWidth: implicitHeight
 
