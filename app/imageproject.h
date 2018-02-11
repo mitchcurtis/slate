@@ -27,6 +27,7 @@
 class ImageProject : public Project
 {
     Q_OBJECT
+    Q_PROPERTY(bool usingAnimation READ isUsingAnimation WRITE setUsingAnimation NOTIFY usingAnimationChanged)
 
 public:
     ImageProject();
@@ -40,6 +41,12 @@ public:
     void setSize(const QSize &newSize) override;
     int widthInPixels() const override;
     int heightInPixels() const override;
+
+    bool isUsingAnimation() const;
+    void setUsingAnimation(bool isUsingAnimation);
+
+signals:
+    void usingAnimationChanged();
 
 public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
@@ -59,6 +66,9 @@ private:
 
     QUrl mImageUrl;
     QImage mImage;
+    bool mUsingAnimation;
+    bool mHasUsedAnimation;
 };
+
 
 #endif // IMAGEPROJECT_H

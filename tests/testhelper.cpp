@@ -52,6 +52,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     showGuidesMenuButton(nullptr),
     splitScreenMenuButton(nullptr),
     splitterLockedMenuButton(nullptr),
+    animationPlaybackMenuButton(nullptr),
     duplicateTileMenuButton(nullptr),
     rotateTileLeftMenuButton(nullptr),
     rotateTileRightMenuButton(nullptr),
@@ -172,6 +173,9 @@ void TestHelper::initTestCase()
 
     splitterLockedMenuButton = window->findChild<QQuickItem*>("splitterLockedMenuButton");
     QVERIFY(splitterLockedMenuButton);
+
+    animationPlaybackMenuButton = window->findChild<QQuickItem*>("animationPlaybackMenuButton");
+    QVERIFY(animationPlaybackMenuButton);
 #endif
 
     canvasSizeButton = window->findChild<QQuickItem*>("canvasSizeButton");
@@ -884,6 +888,24 @@ void TestHelper::setSplitterLocked(bool splitterLocked)
     if (canvas->splitter()->isEnabled() != !splitterLocked) {
         triggerSplitterLocked();
         QCOMPARE(canvas->splitter()->isEnabled(), !splitterLocked);
+    }
+}
+
+void TestHelper::triggerAnimationPlayback()
+{
+#ifdef NON_NATIVE_MENUS
+    mouseEventOnCentre(viewMenuBarItem, MouseClick);
+    mouseEventOnCentre(animationPlaybackMenuButton, MouseClick);
+#else
+    triggerShortcut("animationPlayback", app.settings()->animationPlaybackShortcut());
+#endif
+}
+
+void TestHelper::setAnimationPlayback(bool usingAnimation)
+{
+    if (project->isUsingAnimation() != usingAnimation) {
+        triggerAnimationPlayback();
+        QCOMPARE(canvas->splitter()->isEnabled(), usingAnimation);
     }
 }
 

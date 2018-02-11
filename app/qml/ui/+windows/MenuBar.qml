@@ -265,6 +265,17 @@ MenuBar {
                 checked: settings.scrollZoom
                 onCheckedChanged: settings.scrollZoom = checked
             }
+
+            MenuSeparator {}
+
+            MenuItem {
+                objectName: "animationPlaybackMenuButton"
+                text: qsTr("Animation Playback")
+                enabled: isImageProjectType && canvas
+                checkable: true
+                checked: settings.splitterLocked
+                onCheckedChanged: project.splitterLocked = checked
+            }
         }
     }
 

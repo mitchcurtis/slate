@@ -22,7 +22,9 @@
 #include "changeimagecanvassizecommand.h"
 #include "changeimagesizecommand.h"
 
-ImageProject::ImageProject()
+ImageProject::ImageProject() :
+    mUsingAnimation(false),
+    mHasUsedAnimation(false)
 {
     setObjectName(QLatin1String("imageProject"));
     qCDebug(lcProjectLifecycle) << "constructing" << this;
@@ -203,4 +205,18 @@ void ImageProject::doResize(const QImage &newImage)
     Q_ASSERT(newImage.size() != size());
     mImage = newImage;
     emit sizeChanged();
+}
+
+bool ImageProject::isUsingAnimation() const
+{
+    return mUsingAnimation;
+}
+
+void ImageProject::setUsingAnimation(bool usingAnimation)
+{
+    if (usingAnimation == mUsingAnimation)
+        return;
+
+    mUsingAnimation = usingAnimation;
+    emit usingAnimationChanged();
 }

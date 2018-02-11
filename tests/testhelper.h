@@ -144,6 +144,8 @@ protected:
     void triggerSplitScreen();
     void triggerSplitterLocked();
     void setSplitterLocked(bool splitterLocked);
+    void triggerAnimationPlayback();
+    void setAnimationPlayback(bool usingAnimation);
 
     void triggerOptions();
 
@@ -220,6 +222,7 @@ protected:
     QQuickItem *showGuidesMenuButton;
     QQuickItem *splitScreenMenuButton;
     QQuickItem *splitterLockedMenuButton;
+    QQuickItem *animationPlaybackMenuButton;
     QQuickItem *duplicateTileMenuButton;
     QQuickItem *rotateTileLeftMenuButton;
     QQuickItem *rotateTileRightMenuButton;
