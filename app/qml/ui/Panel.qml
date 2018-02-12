@@ -14,8 +14,11 @@ Page {
     }
 
     property bool expanded: true
+    property Popup settingsPopup: null
 
     header: RowLayout {
+        spacing: 0
+
         Label {
             text: root.title
             font.bold: true
@@ -26,6 +29,18 @@ Page {
 
         Item {
             Layout.fillWidth: true
+        }
+
+        ToolButton {
+            text: "\uf013"
+            font.family: "FontAwesome"
+            anchors.verticalCenter: parent.verticalCenter
+            focusPolicy: Qt.NoFocus
+            visible: settingsPopup
+
+            Layout.preferredWidth: implicitHeight
+
+            onClicked: settingsPopup.open()
         }
 
         ToolButton {

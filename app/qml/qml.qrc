@@ -50,5 +50,6 @@
         <file>ui/ImageSizePopup.qml</file>
         <file>ui/AnimationPanel.qml</file>
         <file>ui/Panel.qml</file>
+        <file>ui/AnimationSettingsPopup.qml</file>
     </qresource>
 </RCC>

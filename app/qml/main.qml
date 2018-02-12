@@ -208,6 +208,7 @@ ApplicationWindow {
                 canvas: window.canvas
                 project: window.project
 
+                Layout.minimumHeight: expanded ? header.implicitHeight + 200 : -1
                 Layout.maximumHeight: expanded ? -1 : header.implicitHeight
                 Layout.fillHeight: expanded
             }
@@ -239,7 +240,9 @@ ApplicationWindow {
                     z: canvasContainer.z - 1
                 }
 
+                // TODO: fix this miss
                 Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
+                Layout.minimumHeight: active && item.expanded ? item.header.implicitHeight + item.footer.implicitHeight + 100 : -1
                 Layout.maximumHeight: active ? (item.expanded ? -1 : item.header.implicitHeight) : 0
                 Layout.fillHeight: active && item.expanded
             }
@@ -251,6 +254,7 @@ ApplicationWindow {
                 project: visible ? window.project : null
 
                 Layout.preferredWidth: visible ? colourPanel.implicitWidth : 0
+                Layout.minimumHeight: expanded ? header.implicitHeight + 200 : -1
                 Layout.maximumHeight: visible ? (expanded ? -1 : header.implicitHeight) : 0
                 Layout.fillHeight: expanded
             }
