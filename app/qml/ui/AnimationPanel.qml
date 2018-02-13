@@ -44,57 +44,80 @@ Panel {
         animationPlayback: root.animationPlayback
     }
 
-    contentItem: Flickable {
-        implicitWidth: animationPlayPauseButton.implicitWidth
-        implicitHeight: animationPlayPauseButton.implicitHeight
-        interactive: animationPlayPauseButton.implicitWidth > width || animationPlayPauseButton.implicitHeight > height
+    contentItem: ColumnLayout {
+        spacing: 0
 
-        Button {
-            id: animationPlayPauseButton
-            objectName: "animationPlayPauseButton"
-            focusPolicy: Qt.NoFocus
-            width: Math.max(parent.width, implicitWidth)
-            height: Math.max(parent.height, implicitHeight)
+        Flickable {
+            implicitWidth: animationPlayPauseButton.implicitWidth
+            implicitHeight: animationPlayPauseButton.implicitHeight
+            interactive: animationPlayPauseButton.implicitWidth > width || animationPlayPauseButton.implicitHeight > height
 
-            onClicked: animationPlayback.playing = !animationPlayback.playing
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
-            background: null
-            contentItem: Item {
-                implicitWidth: spriteImage.implicitWidth
-                implicitHeight: spriteImage.implicitHeight
+            Button {
+                id: animationPlayPauseButton
+                objectName: "animationPlayPauseButton"
+                focusPolicy: Qt.NoFocus
+                padding: 4
+                width: Math.max(parent.width, implicitWidth)
+                height: Math.max(parent.height, implicitHeight)
 
-                SpriteImage {
-                    id: spriteImage
-                    project: root.project
-                    animationPlayback: root.animationPlayback
-                    x: (parent.width - width) / 2
-                    y: (parent.height - height) / 2
-                }
+                onClicked: animationPlayback.playing = !animationPlayback.playing
 
-                Rectangle {
-                    anchors.fill: parent
-                    color: "#44000000"
-                    opacity: animationPlayPauseButton.hovered ? 1 : 0
+                background: null
+                contentItem: Item {
+                    implicitWidth: spriteImage.implicitWidth
+                    implicitHeight: spriteImage.implicitHeight
+                    clip: true
 
-                    Behavior on opacity {
-                        OpacityAnimator {
-                            duration: 150
-                        }
+                    SpriteImage {
+                        id: spriteImage
+                        project: root.project
+                        animationPlayback: root.animationPlayback
+                        scale: animationScaleSlider.value
+                        smooth: false
+                        anchors.centerIn: parent
                     }
 
-                    Label {
-                        id: playPauseIcon
-                        text: root.enabled && animationPlayback.playing ? "\uf04c" : "\uf04b"
-                        font.family: "FontAwesome"
-                        font.pixelSize: 30
-                        fontSizeMode: Label.Fit
-                        horizontalAlignment: Label.AlignHCenter
-                        verticalAlignment: Label.AlignVCenter
+                    Rectangle {
                         anchors.fill: parent
-                        anchors.margins: 4
+                        color: "#44000000"
+                        opacity: animationPlayPauseButton.hovered ? 1 : 0
+
+                        Behavior on opacity {
+                            OpacityAnimator {
+                                duration: 150
+                            }
+                        }
+
+                        Label {
+                            id: playPauseIcon
+                            text: root.enabled && animationPlayback.playing ? "\uf04c" : "\uf04b"
+                            font.family: "FontAwesome"
+                            font.pixelSize: 30
+                            fontSizeMode: Label.Fit
+                            horizontalAlignment: Label.AlignHCenter
+                            verticalAlignment: Label.AlignVCenter
+                            anchors.fill: parent
+                            anchors.margins: 4
+                        }
                     }
                 }
             }
+        }
+
+        Slider {
+            id: animationScaleSlider
+            objectName: "animationScaleSlider"
+            from: 0.5
+            value: 1
+            to: 10
+            leftPadding: 0
+            rightPadding: 0
+            focusPolicy: Qt.NoFocus
+
+            Layout.fillWidth: true
         }
     }
 }
