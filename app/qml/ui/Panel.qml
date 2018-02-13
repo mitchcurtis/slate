@@ -46,6 +46,7 @@ Page {
             font.family: "FontAwesome"
             focusPolicy: Qt.NoFocus
 
+            Layout.leftMargin: -8
             Layout.preferredWidth: implicitHeight
 
             onClicked: expanded = !expanded
