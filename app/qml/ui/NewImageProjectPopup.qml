@@ -35,7 +35,7 @@ Dialog {
         Label {
             text: title
             font.pixelSize: popup.font.pixelSize * 1.5
-            anchors.horizontalCenter: parent.horizontalCenter
+            Layout.alignment: Qt.AlignHCenter
         }
 
         GridLayout {

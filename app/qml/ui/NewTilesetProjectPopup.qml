@@ -68,7 +68,8 @@ Dialog {
         Label {
             text: qsTr("New Tileset Project")
             font.pixelSize: fontMetrics.font.pixelSize * 1.5
-            anchors.horizontalCenter: parent.horizontalCenter
+
+            Layout.alignment: Qt.AlignHCenter
         }
 
         GridLayout {
@@ -97,7 +98,6 @@ Dialog {
                 ErrorLabel {
                     objectName: "invalidFileIcon"
                     opacity: !valid
-                    anchors.verticalCenter: parent.verticalCenter
 
                     valid: validator.fileValid
                     errorMessage: validator.fileErrorMessage
@@ -134,7 +134,6 @@ Dialog {
                 ErrorLabel {
                     objectName: "invalidTileWidthIcon"
                     opacity: validator.fileValid && !validator.tileWidthValid
-                    anchors.verticalCenter: parent.verticalCenter
 
                     errorMessage: validator.tileWidthErrorMessage
                 }
@@ -162,7 +161,6 @@ Dialog {
                 ErrorLabel {
                     objectName: "invalidTileHeightIcon"
                     opacity: validator.fileValid && !validator.tileHeightValid
-                    anchors.verticalCenter: parent.verticalCenter
 
                     errorMessage: validator.tileHeightErrorMessage
                 }

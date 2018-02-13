@@ -31,11 +31,9 @@ Dialog {
         Label {
             id: iconText
             text: icon
-            anchors.verticalCenter: parent.verticalCenter
         }
         Label {
             text: control.text
-            anchors.verticalCenter: parent.verticalCenter
             wrapMode: Label.WrapAtWordBoundaryOrAnywhere
 
             Layout.fillWidth: true

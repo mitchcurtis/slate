@@ -51,7 +51,7 @@ Dialog {
 
             SpinBox {
                 from: 1
-                value: root.animationPlayback.frameWidth
+                value: animationPlayback ? animationPlayback.frameWidth : 0
                 to: 512
                 focusPolicy: Qt.NoFocus
 
@@ -74,7 +74,7 @@ Dialog {
 
             SpinBox {
                 from: 1
-                value: root.animationPlayback.frameHeight
+                value: animationPlayback ? animationPlayback.frameHeight : 0
                 to: 512
                 focusPolicy: Qt.NoFocus
 
@@ -94,7 +94,7 @@ Dialog {
 
             SpinBox {
                 from: 1
-                value: root.enabled ? animationPlayback.frameCount : 0
+                value: animationPlayback ? animationPlayback.frameCount : 0
                 to: 1000
                 focusPolicy: Qt.NoFocus
 

@@ -43,7 +43,6 @@ Pane {
             font.family: "FontAwesome"
             font.pixelSize: fontMetrics.font.pixelSize * 1.2
             horizontalAlignment: Label.AlignHCenter
-            anchors.verticalCenter: parent.verticalCenter
 
             Layout.preferredWidth: Math.max(26, implicitWidth)
         }
@@ -60,7 +59,6 @@ Pane {
 
                 return canvas.cursorSceneX + ", " + canvas.cursorSceneY;
             }
-            anchors.verticalCenter: parent.verticalCenter
 
             Layout.minimumWidth: cursorMaxTextMetrics.width
             Layout.maximumWidth: cursorMaxTextMetrics.width
@@ -74,7 +72,6 @@ Pane {
 
         ToolSeparator {
             padding: 0
-            anchors.verticalCenter: parent.verticalCenter
 
             Layout.fillHeight: true
             Layout.maximumHeight: 24
@@ -83,8 +80,8 @@ Pane {
         Image {
             id: selectionIcon
             source: "qrc:/images/selection.png"
-            anchors.verticalCenter: parent.verticalCenter
             visible: canvas && canvas.tool === ImageCanvas.SelectionTool
+
             Layout.rightMargin: 6
         }
 
@@ -98,7 +95,6 @@ Pane {
                 return canvas.selectionArea.width + " x " + canvas.selectionArea.height
             }
             visible: canvas && canvas.tool === ImageCanvas.SelectionTool
-            anchors.verticalCenter: parent.verticalCenter
 
             Layout.minimumWidth: selectionAreaMaxTextMetrics.width
             Layout.maximumWidth: selectionAreaMaxTextMetrics.width
@@ -183,7 +179,6 @@ Pane {
             objectName: "firstPaneZoomIndicator"
             pane: canvas ? canvas.firstPane : null
             fontMetrics: statusBarPane.fontMetrics
-            anchors.verticalCenter: parent.verticalCenter
         }
     }
 

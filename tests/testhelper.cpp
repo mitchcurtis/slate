@@ -71,6 +71,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     penForegroundColourButton(nullptr),
     penBackgroundColourButton(nullptr),
     tilesetSwatch(nullptr),
+    tilesetSwatchFlickable(nullptr),
     newLayerButton(nullptr),
     moveLayerDownButton(nullptr),
     moveLayerUpButton(nullptr),
@@ -684,7 +685,7 @@ QPoint TestHelper::tilesetTileCentre(int xPosInTiles, int yPosInTiles) const
 
 QPoint TestHelper::tilesetTileSceneCentre(int xPosInTiles, int yPosInTiles) const
 {
-    return tilesetSwatch->mapToScene(QPointF(
+    return tilesetSwatchFlickable->mapToScene(QPointF(
          xPosInTiles * tilesetProject->tileWidth() + tilesetProject->tileWidth() / 2,
          yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2)).toPoint();
 }
@@ -1336,7 +1337,7 @@ void TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
         QVERIFY(!qFuzzyIsNull(tilesetSwatch->height()));
 
         // Ensure that the tileset swatch flickable has the correct contentY.
-        QQuickItem *tilesetSwatchFlickable = tilesetSwatch->findChild<QQuickItem*>("tilesetSwatchFlickable");
+        tilesetSwatchFlickable = tilesetSwatch->findChild<QQuickItem*>("tilesetSwatchFlickable");
         QVERIFY(tilesetSwatchFlickable);
         QVERIFY(tilesetSwatchFlickable->property("contentY").isValid());
         QCOMPARE(tilesetSwatchFlickable->property("contentY").toReal(), 0.0);

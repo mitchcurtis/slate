@@ -45,12 +45,13 @@ Panel {
     }
 
     contentItem: Flickable {
-        implicitWidth: spritePlayPauseButton.implicitWidth
-        implicitHeight: spritePlayPauseButton.implicitHeight
-        interactive: spritePlayPauseButton.implicitWidth > width || spritePlayPauseButton.implicitHeight > height
+        implicitWidth: animationPlayPauseButton.implicitWidth
+        implicitHeight: animationPlayPauseButton.implicitHeight
+        interactive: animationPlayPauseButton.implicitWidth > width || animationPlayPauseButton.implicitHeight > height
 
         Button {
-            id: spritePlayPauseButton
+            id: animationPlayPauseButton
+            objectName: "animationPlayPauseButton"
             focusPolicy: Qt.NoFocus
             width: Math.max(parent.width, implicitWidth)
             height: Math.max(parent.height, implicitHeight)
@@ -73,7 +74,7 @@ Panel {
                 Rectangle {
                     anchors.fill: parent
                     color: "#44000000"
-                    opacity: spritePlayPauseButton.hovered ? 1 : 0
+                    opacity: animationPlayPauseButton.hovered ? 1 : 0
 
                     Behavior on opacity {
                         OpacityAnimator {

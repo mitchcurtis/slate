@@ -22,7 +22,6 @@ Page {
         Label {
             text: root.title
             font.bold: true
-            anchors.verticalCenter: parent.verticalCenter
 
             Layout.leftMargin: 16
         }
@@ -34,7 +33,6 @@ Page {
         ToolButton {
             text: "\uf013"
             font.family: "FontAwesome"
-            anchors.verticalCenter: parent.verticalCenter
             focusPolicy: Qt.NoFocus
             visible: settingsPopup
 
@@ -46,7 +44,6 @@ Page {
         ToolButton {
             text: expanded ? "\uf146" : "\uf0fe"
             font.family: "FontAwesome"
-            anchors.verticalCenter: parent.verticalCenter
             focusPolicy: Qt.NoFocus
 
             Layout.preferredWidth: implicitHeight

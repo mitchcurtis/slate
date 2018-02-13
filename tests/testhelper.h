@@ -247,6 +247,7 @@ protected:
     QQuickItem *saturateButton;
     QQuickItem *desaturateButton;
     QQuickItem *tilesetSwatch;
+    QQuickItem *tilesetSwatchFlickable;
     QQuickItem *newLayerButton;
     QQuickItem *moveLayerDownButton;
     QQuickItem *moveLayerUpButton;
