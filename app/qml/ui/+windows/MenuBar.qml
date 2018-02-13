@@ -193,13 +193,6 @@ MenuBar {
                 enabled: animationPlaybackMenuButton.checked
                 onClicked: project.animationPlayback.playing = !project.animationPlayback.playing
             }
-
-            MenuItem {
-                objectName: "animationRestartMenuButton"
-                text: qsTr("Restart")
-                enabled: animationPlaybackMenuButton.checked
-                onClicked: project.animationPlayback.restart()
-            }
         }
     }
 

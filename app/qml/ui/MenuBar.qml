@@ -171,6 +171,7 @@ Item {
                 enabled: isImageProjectType && canvas
                 checkable: true
                 checked: isImageProjectType && project.usingAnimation
+                // TODO: https://bugreports.qt.io/browse/QTBUG-66386 needs to be fixed before this will work
                 onTriggered: project.usingAnimation = checked
             }
 
@@ -179,13 +180,6 @@ Item {
                 text: enabled && !project.animationPlayback.playing ? qsTr("Play") : qsTr("Pause")
                 enabled: animationPlaybackMenuButton.checked
                 onTriggered: project.animationPlayback.playing = !project.animationPlayback.playing
-            }
-
-            Platform.MenuItem {
-                objectName: "animationRestartMenuButton"
-                text: qsTr("Restart")
-                enabled: animationPlaybackMenuButton.checked
-                onTriggered: project.animationPlayback.restart()
             }
         }
 
