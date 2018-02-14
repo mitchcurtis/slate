@@ -1,6 +1,6 @@
 # Slate - Pixel Art Editor
 
-Slate is a bitmap editor available for Linux, Windows and Mac. Using Slate, you can:
+Slate is a bitmap editor available for Linux, Windows and Mac. With Slate, you can:
 
 - Edit images directly
 - Use layers
