@@ -75,7 +75,7 @@ Panel {
                         id: spriteImage
                         project: root.project
                         animationPlayback: root.animationPlayback
-                        scale: animationPlayback.scale
+                        scale: animationPlayback ? animationPlayback.scale : 1.0
                         smooth: false
                         anchors.centerIn: parent
                     }
@@ -124,7 +124,7 @@ Panel {
             }
 
             ProgressBar {
-                value: animationPlayback.currentFrameIndex / (animationPlayback.frameCount - 1)
+                value: animationPlayback ? animationPlayback.currentFrameIndex / (animationPlayback.frameCount - 1) : 0
 
                 Layout.fillWidth: true
             }
@@ -132,7 +132,7 @@ Panel {
             ToolButton {
                 text: "\ue800"
                 checkable: true
-                checked: animationPlayback.loop
+                checked: animationPlayback ? animationPlayback.loop : false
                 focusPolicy: Qt.NoFocus
                 font.family: fontLoader.name
                 onClicked: animationPlayback.loop = checked
