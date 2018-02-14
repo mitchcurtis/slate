@@ -479,6 +479,68 @@ void tst_App::animationPlayback()
 
     setAnimationPlayback(true);
 
+    // Open the settings popup to modify the settings slightly.
+    QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
+    QVERIFY(animationPanelSettingsToolButton);
+    mouseEventOnCentre(animationPanelSettingsToolButton, MouseClick);
+
+    QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
+    QVERIFY(animationSettingsPopup);
+    QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), true);
+
+    // Increase FPS.
+    QQuickItem *animationFpsSpinBox = window->findChild<QQuickItem*>("animationFpsSpinBox");
+    QVERIFY(animationFpsSpinBox);
+    QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4);
+
+    mouseEvent(animationFpsSpinBox, QPoint(animationFpsSpinBox->width() - 10,
+        animationFpsSpinBox->height() / 2), MouseClick);
+    QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
+
+    // Increase frame width.
+    QQuickItem *animationFrameWidthSpinBox = window->findChild<QQuickItem*>("animationFrameWidthSpinBox");
+    QVERIFY(animationFrameWidthSpinBox);
+    QCOMPARE(animationFrameWidthSpinBox->property("value").toInt(), 256 / 4);
+
+    mouseEvent(animationFrameWidthSpinBox, QPoint(animationFrameWidthSpinBox->width() - 10,
+        animationFrameWidthSpinBox->height() / 2), MouseClick);
+    QCOMPARE(animationFrameWidthSpinBox->property("value").toInt(), 256 / 4 + 1);
+
+    // Increase frame height.
+    QQuickItem *animationFrameHeightSpinBox = window->findChild<QQuickItem*>("animationFrameHeightSpinBox");
+    QVERIFY(animationFrameHeightSpinBox);
+    QCOMPARE(animationFrameHeightSpinBox->property("value").toInt(), 256);
+
+    mouseEvent(animationFrameHeightSpinBox, QPoint(animationFrameHeightSpinBox->width() - 10,
+        animationFrameHeightSpinBox->height() / 2), MouseClick);
+    QCOMPARE(animationFrameHeightSpinBox->property("value").toInt(), 256 + 1);
+
+    // Increase frame count.
+    QQuickItem *animationFrameCountSpinBox = window->findChild<QQuickItem*>("animationFrameCountSpinBox");
+    QVERIFY(animationFrameCountSpinBox);
+    QCOMPARE(animationFrameCountSpinBox->property("value").toInt(), 4);
+
+    mouseEvent(animationFrameCountSpinBox, QPoint(animationFrameCountSpinBox->width() - 10,
+        animationFrameCountSpinBox->height() / 2), MouseClick);
+    QCOMPARE(animationFrameCountSpinBox->property("value").toInt(), 4 + 1);
+
+    // Click in the middle of the slider to increase the sacle.
+    QQuickItem *animationPreviewScaleSlider = window->findChild<QQuickItem*>("animationPreviewScaleSlider");
+    QVERIFY(animationPreviewScaleSlider);
+    mouseEventOnCentre(animationPreviewScaleSlider, MouseClick);
+    const qreal modifiedScaleValue = layeredImageProject->animationPlayback()->scale();
+    QVERIFY(modifiedScaleValue > 1.0);
+
+    // Accept and close the settings popup.
+    QQuickItem *saveButton = findDialogButton(animationSettingsPopup, "Save");
+    QVERIFY(saveButton);
+    mouseEventOnCentre(saveButton, MouseClick);
+    QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);
+    QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
+    QCOMPARE(layeredImageProject->animationPlayback()->frameWidth(), 256 / 4 + 1);
+    QCOMPARE(layeredImageProject->animationPlayback()->frameHeight(), 256 + 1);
+    QCOMPARE(layeredImageProject->animationPlayback()->frameCount(), 4 + 1);
+
     mouseEventOnCentre(animationPlayPauseButton, MouseClick);
     QCOMPARE(layeredImageProject->animationPlayback()->isPlaying(), true);
     QCOMPARE(layeredImageProject->animationPlayback()->currentFrameIndex(), 0);
@@ -496,15 +558,16 @@ void tst_App::animationPlayback()
     triggerCloseProject();
     QVERIFY(!layeredImageProject->hasLoaded());
     QCOMPARE(layeredImageProject->isUsingAnimation(), false);
-    // TODO: The animation playback panel shouldn't show any <TODO>.
-//    QQuickItem *layerListView = window->findChild<QQuickItem*>("layerListView");
-//    QVERIFY(layerListView);
-//    QCOMPARE(layerListView->property("count").toInt(), 0);
 
-    // Load the saved file.
+    // Load the saved file and check that our custom settings were remembered.
     layeredImageProject->load(saveUrl);
-    QCOMPARE(layeredImageProject->isUsingAnimation(), true);
     VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QCOMPARE(layeredImageProject->isUsingAnimation(), true);
+    QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
+    QCOMPARE(layeredImageProject->animationPlayback()->frameWidth(), 256 / 4 + 1);
+    QCOMPARE(layeredImageProject->animationPlayback()->frameHeight(), 256 + 1);
+    QCOMPARE(layeredImageProject->animationPlayback()->frameCount(), 4 + 1);
+    QCOMPARE(layeredImageProject->animationPlayback()->scale(), modifiedScaleValue);
 }
 
 void tst_App::keyboardShortcuts()

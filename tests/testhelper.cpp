@@ -564,20 +564,6 @@ QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
     return popup;
 }
 
-static QQuickItem *findChildWithText(QQuickItem *item, const QString &text)
-{
-    foreach (QQuickItem *child, item->childItems()) {
-        if (child->property("text").toString() == text)
-            return child;
-        else {
-            QQuickItem *match = findChildWithText(child, text);
-            if (match)
-                return match;
-        }
-    }
-    return nullptr;
-}
-
 QQuickItem *TestHelper::findDialogButton(const QObject *dialog, const QString &text)
 {
     QQuickItem *footer = dialog->property("footer").value<QQuickItem*>();
@@ -610,6 +596,20 @@ QQuickItem *TestHelper::findListViewChild(const QString &listViewObjectName, con
         return nullptr;
 
     return findListViewChild(listView, childObjectName);
+}
+
+QQuickItem *TestHelper::findChildWithText(QQuickItem *item, const QString &text)
+{
+    foreach (QQuickItem *child, item->childItems()) {
+        if (child->property("text").toString() == text)
+            return child;
+        else {
+            QQuickItem *match = findChildWithText(child, text);
+            if (match)
+                return match;
+        }
+    }
+    return nullptr;
 }
 
 QPoint TestHelper::mapToTile(const QPoint &cursorPos) const

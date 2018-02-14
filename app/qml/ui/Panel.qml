@@ -31,6 +31,7 @@ Page {
         }
 
         ToolButton {
+            objectName: root.objectName + "SettingsToolButton"
             text: "\uf013"
             font.family: "FontAwesome"
             focusPolicy: Qt.NoFocus
@@ -42,6 +43,7 @@ Page {
         }
 
         ToolButton {
+            objectName: root.objectName + "HideShowToolButton"
             text: expanded ? "\uf146" : "\uf0fe"
             font.family: "FontAwesome"
             focusPolicy: Qt.NoFocus

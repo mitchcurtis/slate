@@ -130,13 +130,46 @@ void AnimationPlayback::setCurrentFrameIndex(int currentFrameIndex)
     emit currentFrameIndexChanged();
 }
 
+qreal AnimationPlayback::scale() const
+{
+    return mScale;
+}
+
+void AnimationPlayback::setScale(const qreal &scale)
+{
+    if (qFuzzyCompare(scale, mScale))
+        return;
+
+    mScale = scale;
+    emit scaleChanged();
+}
+
+bool AnimationPlayback::shouldLoop() const
+{
+    return mLoop;
+}
+
+void AnimationPlayback::setLoop(bool loop)
+{
+    if (loop == mLoop)
+        return;
+
+    mLoop = loop;
+    emit loopChanged();
+}
+
 void AnimationPlayback::timerEvent(QTimerEvent *)
 {
     Q_ASSERT(mPlaying);
 
     int newFrameIndex = mCurrentFrameIndex + 1;
-    if (newFrameIndex >= mFrameCount)
+    if (newFrameIndex >= mFrameCount) {
         newFrameIndex = 0;
+
+        if (!mLoop) {
+            setPlaying(false);
+        }
+    }
 
     qCDebug(lcAnimationPlayback) << "timer triggered; new frame index is" << newFrameIndex;
 
@@ -149,6 +182,8 @@ void AnimationPlayback::read(const QJsonObject &json)
     setFrameCount(json.value(QLatin1String("frameCount")).toInt());
     setFrameWidth(json.value(QLatin1String("frameWidth")).toInt());
     setFrameHeight(json.value(QLatin1String("frameHeight")).toInt());
+    setScale(json.value(QLatin1String("scale")).toDouble());
+    setLoop(json.value(QLatin1String("loop")).toBool());
     setPlaying(false);
 }
 
@@ -158,6 +193,8 @@ void AnimationPlayback::write(QJsonObject &json) const
     json[QLatin1String("frameCount")] = mFrameCount;
     json[QLatin1String("frameWidth")] = mFrameWidth;
     json[QLatin1String("frameHeight")] = mFrameHeight;
+    json[QLatin1String("scale")] = mScale;
+    json[QLatin1String("loop")] = mLoop;
 }
 
 void AnimationPlayback::reset()
@@ -168,5 +205,7 @@ void AnimationPlayback::reset()
     setFrameHeight(32);
     setCurrentFrameIndex(0);
     setPlaying(false);
+    setScale(1.0);
+    setLoop(true);
     mTimerId = -1;
 }

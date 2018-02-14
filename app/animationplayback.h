@@ -29,12 +29,16 @@ class QJsonObject;
 class AnimationPlayback : public QObject
 {
     Q_OBJECT
+    // Serialised.
     Q_PROPERTY(int fps READ fps WRITE setFps NOTIFY fpsChanged FINAL)
     Q_PROPERTY(int frameCount READ frameCount WRITE setFrameCount NOTIFY frameCountChanged FINAL)
     Q_PROPERTY(int frameWidth READ frameWidth WRITE setFrameWidth NOTIFY frameWidthChanged FINAL)
     Q_PROPERTY(int frameHeight READ frameHeight WRITE setFrameHeight NOTIFY frameHeightChanged FINAL)
     Q_PROPERTY(int currentFrameIndex READ currentFrameIndex NOTIFY currentFrameIndexChanged FINAL)
+    Q_PROPERTY(qreal scale READ scale WRITE setScale NOTIFY scaleChanged FINAL)
+    Q_PROPERTY(bool loop READ shouldLoop WRITE setLoop NOTIFY loopChanged)
 
+    // Not serialised.
     Q_PROPERTY(bool playing READ isPlaying WRITE setPlaying NOTIFY playingChanged)
 
 public:
@@ -54,8 +58,14 @@ public:
 
     int currentFrameIndex() const;
 
+    qreal scale() const;
+    void setScale(const qreal &scale);
+
     bool isPlaying() const;
     void setPlaying(bool playing);
+
+    bool shouldLoop() const;
+    void setLoop(bool shouldLoop);
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
@@ -68,6 +78,8 @@ signals:
     void frameWidthChanged();
     void frameHeightChanged();
     void currentFrameIndexChanged();
+    void scaleChanged();
+    void loopChanged();
     void playingChanged();
 
 private:
@@ -80,7 +92,9 @@ private:
     int mFrameWidth;
     int mFrameHeight;
     int mCurrentFrameIndex;
+    qreal mScale;
     bool mPlaying;
+    bool mLoop;
 
     int mTimerId;
 };

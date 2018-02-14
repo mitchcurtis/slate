@@ -75,7 +75,7 @@ Panel {
                         id: spriteImage
                         project: root.project
                         animationPlayback: root.animationPlayback
-                        scale: animationScaleSlider.value
+                        scale: animationPlayback.scale
                         smooth: false
                         anchors.centerIn: parent
                     }
@@ -107,17 +107,36 @@ Panel {
             }
         }
 
-        Slider {
-            id: animationScaleSlider
-            objectName: "animationScaleSlider"
-            from: 0.5
-            value: 1
-            to: 10
-            leftPadding: 0
-            rightPadding: 0
-            focusPolicy: Qt.NoFocus
+        RowLayout {
+            // TODO: - play/pause icon to avoid having to click the preview (when not looping), which dims the image
+            // - seek slider?
+            // - loop toggle
+            // We only use one icon from typicons.
+            FontLoader {
+                id: fontLoader
+                source: "qrc:/fonts/typicons.ttf"
+            }
 
-            Layout.fillWidth: true
+            ToolButton {
+                text: root.enabled && animationPlayback.playing ? "\uf04c" : "\uf04b"
+                font.family: "FontAwesome"
+                onClicked: animationPlayback.playing = !animationPlayback.playing
+            }
+
+            ProgressBar {
+                value: animationPlayback.currentFrameIndex / (animationPlayback.frameCount - 1)
+
+                Layout.fillWidth: true
+            }
+
+            ToolButton {
+                text: "\ue800"
+                checkable: true
+                checked: animationPlayback.loop
+                focusPolicy: Qt.NoFocus
+                font.family: fontLoader.name
+                onClicked: animationPlayback.loop = checked
+            }
         }
     }
 }

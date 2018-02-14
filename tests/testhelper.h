@@ -105,6 +105,7 @@ protected:
     QQuickItem *findDialogButton(const QObject *dialog, const QString &text);
     QQuickItem *findListViewChild(QQuickItem *listView, const QString &childObjectName) const;
     QQuickItem *findListViewChild(const QString &listViewObjectName, const QString &childObjectName) const;
+    static QQuickItem *findChildWithText(QQuickItem *item, const QString &text);
 
     // Returns the position of the cursor in a tile's local coordinates.
     QPoint mapToTile(const QPoint &cursorPos) const;
