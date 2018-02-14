@@ -1,10 +1,19 @@
 # Slate - Pixel Art Editor
 
-Slate is a bitmap editor available for Linux, Windows and Mac. Using slate, you can edit images directly, use layers and create seamless 2D tilesets for games. Slate was built for pixel art,  and its goal is to simplify the creation of sprites and tilesets by offering a user-friendly, customisable interface.  
+Slate is a bitmap editor available for Linux, Windows and Mac. Using Slate, you can:
+
+- Edit images directly
+- Use layers
+- Create seamless 2D tilesets
+- Preview sprite sheet animations
+
+Slate was built for pixel art, and its goal is to simplify the creation of sprites and tilesets by offering a user-friendly, customisable interface.
 
 ![Screenshot of Slate v0.0.0 on Windows](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.0.0-windows.png "Screenshot of Slate v0.0.0 on Windows")
 
 ![Screenshot of Slate v0.0.8 on Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.0.8-mac.png "Screenshot of Slate v0.0.8 on Mac")
+
+![Screenshot of Slate v0.0.10 on Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.0.10-mac.png "Screenshot of Slate v0.0.10 on Mac")
 
 ### Downloads ###
 
