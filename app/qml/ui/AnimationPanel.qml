@@ -120,6 +120,7 @@ Panel {
             ToolButton {
                 text: root.enabled && animationPlayback.playing ? "\uf04c" : "\uf04b"
                 font.family: "FontAwesome"
+                focusPolicy: Qt.NoFocus
                 onClicked: animationPlayback.playing = !animationPlayback.playing
             }
 

@@ -47,16 +47,14 @@ void SpriteImage::paint(QPainter *painter)
     // The defaults...
     const int frameWidth = mAnimationPlayback->frameWidth();
     const int frameHeight = mAnimationPlayback->frameHeight();
-//    const int framesWide = frameWidth / mAnimationPlayback->frameCount();
-    const int column = mAnimationPlayback->currentFrameIndex();
-    const int row = 0;
-//    if (mAnimationPlayback->frameCount() * mAnimationPlayback->frameWidth() > exportedImage.width()) {
-//        // There are several rows to this image.
-//        column = frame % framesWide;
-//        frameWidth = mSprite.width() / framesWide;
-//        row = frame / framesWide;
-//        frameHeight = mSprite.height() / (mFrameCount / framesWide);
-//    }
+    const int framesWide = exportedImage.width() / frameWidth;
+    int column = mAnimationPlayback->currentFrameIndex();
+    int row = 0;
+    if (mAnimationPlayback->frameCount() > framesWide) {
+        // There are several rows to this image.
+        column = mAnimationPlayback->currentFrameIndex() % framesWide;
+        row = mAnimationPlayback->currentFrameIndex() / framesWide;
+    }
     copy = exportedImage.copy(column * frameWidth, row * frameHeight, frameWidth, frameHeight);
     Q_ASSERT(!copy.isNull());
 

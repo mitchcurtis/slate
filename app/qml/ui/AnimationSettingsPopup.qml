@@ -57,6 +57,7 @@ Dialog {
             from: 1
             value: animationPlayback ? animationPlayback.fps : 0
             to: 60
+            editable: true
             focusPolicy: Qt.NoFocus
 
             Layout.preferredWidth: controlWidth
@@ -79,6 +80,7 @@ Dialog {
             from: 1
             value: animationPlayback ? animationPlayback.frameWidth : 0
             to: 512
+            editable: true
             focusPolicy: Qt.NoFocus
 
             Layout.preferredWidth: controlWidth
@@ -97,6 +99,7 @@ Dialog {
             from: 1
             value: animationPlayback ? animationPlayback.frameHeight : 0
             to: 512
+            editable: true
             focusPolicy: Qt.NoFocus
 
             Layout.preferredWidth: controlWidth
@@ -115,6 +118,7 @@ Dialog {
             from: 1
             value: animationPlayback ? animationPlayback.frameCount : 0
             to: 1000
+            editable: true
             focusPolicy: Qt.NoFocus
 
             Layout.preferredWidth: controlWidth

@@ -172,7 +172,8 @@ Item {
                 checkable: true
                 checked: isImageProjectType && project.usingAnimation
                 // TODO: https://bugreports.qt.io/browse/QTBUG-66386 needs to be fixed before this will work
-                onTriggered: project.usingAnimation = checked
+//                onTriggered: project.usingAnimation = checked
+                onCheckedChanged: project.usingAnimation = checked
             }
 
             Platform.MenuItem {
