@@ -179,6 +179,7 @@ MenuBar {
             title: qsTr("Animation")
 
             MenuItem {
+                id: animationPlaybackMenuButton
                 objectName: "animationPlaybackMenuButton"
                 text: qsTr("Animation Playback")
                 enabled: isImageProjectType && canvas
