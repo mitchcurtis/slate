@@ -190,7 +190,7 @@ MenuBar {
 
             MenuItem {
                 objectName: "animationPlayMenuButton"
-                text: !project.animationPlayback.playing ? qsTr("Play") : qsTr("Pause")
+                text: enabled && !project.animationPlayback.playing ? qsTr("Play") : qsTr("Pause")
                 enabled: animationPlaybackMenuButton.checked
                 onClicked: project.animationPlayback.playing = !project.animationPlayback.playing
             }

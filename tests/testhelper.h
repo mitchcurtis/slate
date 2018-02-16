@@ -206,6 +206,7 @@ protected:
 #ifdef NON_NATIVE_MENUS
     QQuickItem *fileMenuBarItem;
     QQuickItem *editMenuBarItem;
+    QQuickItem *animationMenuBarItem;
     QQuickItem *optionsMenuBarItem;
     QQuickItem *viewMenuBarItem;
     QQuickItem *newMenuButton;

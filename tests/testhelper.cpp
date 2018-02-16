@@ -35,6 +35,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
 #ifdef NON_NATIVE_MENUS
     fileMenuBarItem(nullptr),
     editMenuBarItem(nullptr),
+    animationMenuBarItem(nullptr),
     optionsMenuBarItem(nullptr),
     viewMenuBarItem(nullptr),
     newMenuButton(nullptr),
@@ -126,6 +127,9 @@ void TestHelper::initTestCase()
 
     editMenuBarItem = window->findChild<QQuickItem*>("editMenuBarItem");
     QVERIFY(editMenuBarItem);
+
+    animationMenuBarItem = window->findChild<QQuickItem*>("animationMenuBarItem");
+    QVERIFY(animationMenuBarItem);
 
     optionsMenuBarItem = window->findChild<QQuickItem*>("optionsMenuBarItem");
     QVERIFY(optionsMenuBarItem);
@@ -898,7 +902,7 @@ void TestHelper::setSplitterLocked(bool splitterLocked)
 void TestHelper::triggerAnimationPlayback()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(viewMenuBarItem, MouseClick);
+    mouseEventOnCentre(animationMenuBarItem, MouseClick);
     mouseEventOnCentre(animationPlaybackMenuButton, MouseClick);
 #else
     triggerShortcut("animationPlaybackShortcut", app.settings()->animationPlaybackShortcut());
