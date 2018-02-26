@@ -114,7 +114,7 @@ Panel {
             // We only use one icon from typicons.
             FontLoader {
                 id: fontLoader
-                source: "qrc:/fonts/typicons.ttf"
+                source: "qrc:/fonts/Typicons.ttf"
             }
 
             ToolButton {
