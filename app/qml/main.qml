@@ -49,7 +49,8 @@ ApplicationWindow {
     title: qtbug53394Title
     visible: true
 
-//    onActiveFocusItemChanged: print(activeFocusItem)
+    // Leave this uncommented until the cursor/focus issue is fixed
+    onActiveFocusItemChanged: print(activeFocusItem)
 
     property string qtbug53394Title: project && project.loaded
         ? ((project.url.toString().length > 0 ? project.displayUrl : "Untitled") + (project.unsavedChanges ? "*" : ""))

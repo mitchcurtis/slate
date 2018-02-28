@@ -59,7 +59,6 @@ typedef QApplication QtApplicationType;
 
 static QGuiApplication *createApplication(int &argc, char **argv, const QString &applicationName)
 {
-    qputenv("QT_QUICK_CONTROLS_HOVER", "1");
     QLoggingCategory::setFilterRules("app.* = false");
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QtApplicationType *app = new QtApplicationType(argc, argv);
@@ -103,9 +102,6 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qRegisterMetaType<Project::Type>();
     qRegisterMetaType<Tile*>();
     qRegisterMetaType<Tileset*>();
-    // For some reason, only when debugging, I get
-    // QMetaProperty::read: Unable to handle unregistered datatype 'UndoStack*' for property 'Project_QML_108::undoStack'
-    // if I don't do this.
     qRegisterMetaType<UndoStack*>();
 
     if (QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf") == -1) {

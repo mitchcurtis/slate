@@ -273,7 +273,7 @@ Item {
             title: qsTr("Tools")
 
             Platform.MenuItem {
-                objectName: "settingsMenuButton"
+                objectName: "optionsMenuButton"
                 text: qsTr("Options")
                 onTriggered: optionsDialog.open()
             }

@@ -32,19 +32,11 @@ Panel {
 
         ScrollBar.vertical: ScrollBar {
             id: verticalScrollBar
-            Binding {
-                target: verticalScrollBar
-                property: "active"
-                value: verticalScrollBar.hovered
-            }
+            active: horizontalScrollBar.active
         }
         ScrollBar.horizontal: ScrollBar {
             id: horizontalScrollBar
-            Binding {
-                target: horizontalScrollBar
-                property: "active"
-                value: horizontalScrollBar.hovered
-            }
+            active: verticalScrollBar.active
         }
 
         Connections {
@@ -168,13 +160,8 @@ Panel {
         objectName: "tilesetContextMenu"
         x: rightClickedTile ? rightClickedTileScenePos.x : 0
         y: rightClickedTile ? rightClickedTileScenePos.y : 0
-        parent: root
         modal: true
         dim: false
-
-        // TODO: add these back when they're re-added
-//        allowHorizontalFlip: true
-//        allowVerticalFlip: true
 
         property string currentAction
         property var rightClickedTile

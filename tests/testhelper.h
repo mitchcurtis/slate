@@ -207,7 +207,7 @@ protected:
     QQuickItem *fileMenuBarItem;
     QQuickItem *editMenuBarItem;
     QQuickItem *animationMenuBarItem;
-    QQuickItem *optionsMenuBarItem;
+    QQuickItem *toolsMenuBarItem;
     QQuickItem *viewMenuBarItem;
     QQuickItem *newMenuButton;
     QQuickItem *closeMenuButton;
@@ -217,7 +217,7 @@ protected:
     QQuickItem *revertMenuButton;
     QQuickItem *flipHorizontallyMenuButton;
     QQuickItem *flipVerticallyMenuButton;
-    QQuickItem *settingsMenuButton;
+    QQuickItem *optionsMenuButton;
     QQuickItem *centreMenuButton;
     QQuickItem *showGridMenuButton;
     QQuickItem *showRulersMenuButton;

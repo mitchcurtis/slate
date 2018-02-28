@@ -36,7 +36,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     fileMenuBarItem(nullptr),
     editMenuBarItem(nullptr),
     animationMenuBarItem(nullptr),
-    optionsMenuBarItem(nullptr),
+    toolsMenuBarItem(nullptr),
     viewMenuBarItem(nullptr),
     newMenuButton(nullptr),
     closeMenuButton(nullptr),
@@ -46,7 +46,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     revertMenuButton(nullptr),
     flipHorizontallyMenuButton(nullptr),
     flipVerticallyMenuButton(nullptr),
-    settingsMenuButton(nullptr),
+    optionsMenuButton(nullptr),
     centreMenuButton(nullptr),
     showGridMenuButton(nullptr),
     showRulersMenuButton(nullptr),
@@ -131,8 +131,8 @@ void TestHelper::initTestCase()
     animationMenuBarItem = window->findChild<QQuickItem*>("animationMenuBarItem");
     QVERIFY(animationMenuBarItem);
 
-    optionsMenuBarItem = window->findChild<QQuickItem*>("optionsMenuBarItem");
-    QVERIFY(optionsMenuBarItem);
+    toolsMenuBarItem = window->findChild<QQuickItem*>("toolsMenuBarItem");
+    QVERIFY(toolsMenuBarItem);
 
     viewMenuBarItem = window->findChild<QQuickItem*>("viewMenuBarItem");
     QVERIFY(viewMenuBarItem);
@@ -161,8 +161,8 @@ void TestHelper::initTestCase()
     flipVerticallyMenuButton = window->findChild<QQuickItem*>("flipVerticallyMenuButton");
     QVERIFY(flipVerticallyMenuButton);
 
-    settingsMenuButton = window->findChild<QQuickItem*>("settingsMenuButton");
-    QVERIFY(settingsMenuButton);
+    optionsMenuButton = window->findChild<QQuickItem*>("optionsMenuButton");
+    QVERIFY(optionsMenuButton);
 
     centreMenuButton = window->findChild<QQuickItem*>("centreMenuButton");
     QVERIFY(centreMenuButton);
@@ -920,8 +920,8 @@ void TestHelper::setAnimationPlayback(bool usingAnimation)
 void TestHelper::triggerOptions()
 {
 #ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(optionsMenuBarItem, MouseClick);
-    mouseEventOnCentre(settingsMenuButton, MouseClick);
+    mouseEventOnCentre(toolsMenuBarItem, MouseClick);
+    mouseEventOnCentre(optionsMenuButton, MouseClick);
 #else
     triggerShortcut("optionsShortcut", app.settings()->optionsShortcut());
 #endif
@@ -1329,7 +1329,7 @@ void TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
     QCOMPARE(saveAsMenuButton->isEnabled(), true);
     QCOMPARE(openMenuButton->isEnabled(), true);
     QCOMPARE(closeMenuButton->isEnabled(), true);
-    QCOMPARE(settingsMenuButton->isEnabled(), true);
+    QCOMPARE(optionsMenuButton->isEnabled(), true);
 #endif
 
     if (newProjectType == Project::TilesetType) {

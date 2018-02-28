@@ -14,296 +14,269 @@ MenuBar {
     property var canvasSizePopup
     property var imageSizePopup
 
-    // The only reason we use the verbose syntax is so that we can
-    // easily test menu interaction.
-    MenuBarItem {
-        objectName: "fileMenuBarItem"
-        focusPolicy: Qt.TabFocus
-        menu: Menu {
-            title: qsTr("File")
+    delegate: MenuBarItem {
+        focusPolicy: Qt.NoFocus
+        objectName: menu.title.toLowerCase() + "MenuBarItem"
+    }
 
-            MenuItem {
-                objectName: "newMenuButton"
-                text: qsTr("New")
-                hoverEnabled: true
-                onClicked: doIfChangesDiscarded(function() { newProjectPopup.open() })
-            }
+    Menu {
+        title: qsTr("File")
 
-            MenuItem {
-                objectName: "openMenuButton"
-                text: qsTr("Open")
-                hoverEnabled: true
-                onClicked: doIfChangesDiscarded(function() { openProjectDialog.open() })
-            }
+        MenuItem {
+            objectName: "newMenuButton"
+            text: qsTr("New")
+            onClicked: doIfChangesDiscarded(function() { newProjectPopup.open() })
+        }
 
-            MenuItem {
-                objectName: "saveMenuButton"
-                text: qsTr("Save")
-                enabled: project ? project.canSave : false
-                hoverEnabled: true
-                onClicked: projectManager.saveOrSaveAs()
-            }
+        MenuItem {
+            objectName: "openMenuButton"
+            text: qsTr("Open")
+            onClicked: doIfChangesDiscarded(function() { openProjectDialog.open() })
+        }
 
-            MenuItem {
-                objectName: "saveAsMenuButton"
-                text: qsTr("Save As")
-                enabled: project ? project.loaded : false
-                hoverEnabled: true
-                onClicked: saveAsDialog.open()
-            }
+        MenuItem {
+            objectName: "saveMenuButton"
+            text: qsTr("Save")
+            enabled: project ? project.canSave : false
+            onClicked: projectManager.saveOrSaveAs()
+        }
 
-            MenuItem {
-                id: exportMenuButton
-                objectName: "exportMenuButton"
-                text: qsTr("Export")
-                enabled: project && project.loaded && projectType === Project.LayeredImageType
-                onClicked: exportDialog.open()
-            }
+        MenuItem {
+            objectName: "saveAsMenuButton"
+            text: qsTr("Save As")
+            enabled: project ? project.loaded : false
+            onClicked: saveAsDialog.open()
+        }
 
-            MenuItem {
-                objectName: "autoExportMenuButton"
-                text: qsTr("Auto Export")
-                checkable: true
-                checked: enabled && project.autoExportEnabled
-                enabled: exportMenuButton.enabled
-                onClicked: project.autoExportEnabled = !project.autoExportEnabled
-            }
+        MenuItem {
+            id: exportMenuButton
+            objectName: "exportMenuButton"
+            text: qsTr("Export")
+            enabled: project && project.loaded && projectType === Project.LayeredImageType
+            onClicked: exportDialog.open()
+        }
 
-            MenuItem {
-                objectName: "closeMenuButton"
-                text: qsTr("Close")
-                enabled: project ? project.loaded : false
-                hoverEnabled: true
-                onClicked: doIfChangesDiscarded(function() { project.close() })
-            }
+        MenuItem {
+            objectName: "autoExportMenuButton"
+            text: qsTr("Auto Export")
+            checkable: true
+            checked: enabled && project.autoExportEnabled
+            enabled: exportMenuButton.enabled
+            onClicked: project.autoExportEnabled = !project.autoExportEnabled
+        }
 
-            MenuItem {
-                objectName: "revertMenuButton"
-                text: qsTr("Revert")
-                enabled: project ? project.loaded && project.unsavedChanges : false
-                hoverEnabled: true
-                onClicked: project.revert()
-            }
+        MenuItem {
+            objectName: "closeMenuButton"
+            text: qsTr("Close")
+            enabled: project ? project.loaded : false
+            onClicked: doIfChangesDiscarded(function() { project.close() })
+        }
+
+        MenuItem {
+            objectName: "revertMenuButton"
+            text: qsTr("Revert")
+            enabled: project ? project.loaded && project.unsavedChanges : false
+            onClicked: project.revert()
         }
     }
 
-    MenuBarItem {
-        objectName: "editMenuBarItem"
-        focusPolicy: Qt.TabFocus
-        menu: Menu {
-            title: qsTr("Edit")
+    Menu {
+        title: qsTr("Edit")
 
-            MenuItem {
-                objectName: "undoMenuButton"
-                text: qsTr("Undo")
-                onClicked: project.undoStack.undo()
-                enabled: project ? project.undoStack.canUndo : false
-            }
+        MenuItem {
+            objectName: "undoMenuButton"
+            text: qsTr("Undo")
+            onClicked: project.undoStack.undo()
+            enabled: project ? project.undoStack.canUndo : false
+        }
 
-            MenuItem {
-                objectName: "redoMenuButton"
-                text: qsTr("Redo")
-                onClicked: project.undoStack.redo()
-                enabled: project ? project.undoStack.canRedo : false
-            }
+        MenuItem {
+            objectName: "redoMenuButton"
+            text: qsTr("Redo")
+            onClicked: project.undoStack.redo()
+            enabled: project ? project.undoStack.canRedo : false
+        }
 
-            MenuSeparator {}
+        MenuSeparator {}
 
-            MenuItem {
-                objectName: "selectAllMenuButton"
-                text: qsTr("Select All")
-                onTriggered: canvas.selectAll()
-                enabled: isImageProjectType && canvas
-            }
+        MenuItem {
+            objectName: "selectAllMenuButton"
+            text: qsTr("Select All")
+            onTriggered: canvas.selectAll()
+            enabled: isImageProjectType && canvas
+        }
 
-            MenuSeparator {}
+        MenuSeparator {}
 
-            MenuItem {
-                objectName: "copyMenuButton"
-                text: qsTr("Copy")
-                onClicked: canvas.copySelection()
-                enabled: isImageProjectType && canvas && canvas.hasSelection
-            }
+        MenuItem {
+            objectName: "copyMenuButton"
+            text: qsTr("Copy")
+            onClicked: canvas.copySelection()
+            enabled: isImageProjectType && canvas && canvas.hasSelection
+        }
 
-            MenuItem {
-                objectName: "pasteMenuButton"
-                text: qsTr("Paste")
-                onClicked: canvas.paste()
-                enabled: isImageProjectType && canvas
-            }
+        MenuItem {
+            objectName: "pasteMenuButton"
+            text: qsTr("Paste")
+            onClicked: canvas.paste()
+            enabled: isImageProjectType && canvas
+        }
 
-            MenuSeparator {}
+        MenuSeparator {}
 
-            MenuItem {
-                objectName: "flipHorizontallyMenuButton"
-                text: qsTr("Flip Horizontally")
-                onClicked: canvas.flipSelection(Qt.Horizontal)
-                enabled: isImageProjectType && canvas && canvas.hasSelection
-            }
+        MenuItem {
+            objectName: "flipHorizontallyMenuButton"
+            text: qsTr("Flip Horizontally")
+            onClicked: canvas.flipSelection(Qt.Horizontal)
+            enabled: isImageProjectType && canvas && canvas.hasSelection
+        }
 
-            MenuItem {
-                objectName: "flipVerticallyMenuButton"
-                text: qsTr("Flip Vertically")
-                onClicked: canvas.flipSelection(Qt.Vertical)
-                enabled: isImageProjectType && canvas && canvas.hasSelection
-            }
+        MenuItem {
+            objectName: "flipVerticallyMenuButton"
+            text: qsTr("Flip Vertically")
+            onClicked: canvas.flipSelection(Qt.Vertical)
+            enabled: isImageProjectType && canvas && canvas.hasSelection
         }
     }
 
-    MenuBarItem {
-        objectName: "imageMenuBarItem"
-        focusPolicy: Qt.TabFocus
-        menu: Menu {
-            title: qsTr("Image")
+    Menu {
+        title: qsTr("Image")
 
-            MenuItem {
-                objectName: "changeCanvasSizeMenuButton"
-                text: qsTr("Canvas Size...")
-                enabled: canvas
-                onClicked: canvasSizePopup.open()
-            }
+        MenuItem {
+            objectName: "changeCanvasSizeMenuButton"
+            text: qsTr("Canvas Size...")
+            enabled: canvas
+            onClicked: canvasSizePopup.open()
+        }
 
-            MenuItem {
-                objectName: "changeImageSizeMenuButton"
-                text: qsTr("Image Size...")
-                enabled: canvas && projectType === Project.ImageType
-                onClicked: imageSizePopup.open()
-            }
+        MenuItem {
+            objectName: "changeImageSizeMenuButton"
+            text: qsTr("Image Size...")
+            enabled: canvas && projectType === Project.ImageType
+            onClicked: imageSizePopup.open()
         }
     }
 
-    MenuBarItem {
-        objectName: "animationMenuBarItem"
-        focusPolicy: Qt.TabFocus
-        menu: Menu {
-            title: qsTr("Animation")
+    Menu {
+        title: qsTr("Animation")
 
-            MenuItem {
-                id: animationPlaybackMenuButton
-                objectName: "animationPlaybackMenuButton"
-                text: qsTr("Animation Playback")
-                enabled: isImageProjectType && canvas
-                checkable: true
-                checked: isImageProjectType && project.usingAnimation
-                onClicked: project.usingAnimation = checked
-            }
+        MenuItem {
+            id: animationPlaybackMenuButton
+            objectName: "animationPlaybackMenuButton"
+            text: qsTr("Animation Playback")
+            enabled: isImageProjectType && canvas
+            checkable: true
+            checked: isImageProjectType && project.usingAnimation
+            onClicked: project.usingAnimation = checked
+        }
 
-            MenuItem {
-                objectName: "animationPlayMenuButton"
-                text: enabled && !project.animationPlayback.playing ? qsTr("Play") : qsTr("Pause")
-                enabled: animationPlaybackMenuButton.checked
-                onClicked: project.animationPlayback.playing = !project.animationPlayback.playing
-            }
+        MenuItem {
+            objectName: "animationPlayMenuButton"
+            text: enabled && !project.animationPlayback.playing ? qsTr("Play") : qsTr("Pause")
+            enabled: animationPlaybackMenuButton.checked
+            onClicked: project.animationPlayback.playing = !project.animationPlayback.playing
         }
     }
 
-    MenuBarItem {
-        objectName: "viewMenuBarItem"
-        focusPolicy: Qt.TabFocus
-        menu: Menu {
-            title: qsTr("View")
+    Menu {
+        title: qsTr("View")
 
-            MenuItem {
-                objectName: "centreMenuButton"
-                text: qsTr("Centre")
-                enabled: canvas
-                onClicked: canvas.centreView()
-            }
+        MenuItem {
+            objectName: "centreMenuButton"
+            text: qsTr("Centre")
+            enabled: canvas
+            onClicked: canvas.centreView()
+        }
 
-            MenuItem {
-                objectName: "zoomInMenuButton"
-                text: qsTr("Zoom In")
-                enabled: canvas
-                onClicked: canvas.zoomIn()
-            }
+        MenuItem {
+            objectName: "zoomInMenuButton"
+            text: qsTr("Zoom In")
+            enabled: canvas
+            onClicked: canvas.zoomIn()
+        }
 
-            MenuItem {
-                objectName: "zoomOutMenuButton"
-                text: qsTr("Zoom Out")
-                enabled: canvas
-                onClicked: canvas.zoomOut()
-            }
+        MenuItem {
+            objectName: "zoomOutMenuButton"
+            text: qsTr("Zoom Out")
+            enabled: canvas
+            onClicked: canvas.zoomOut()
+        }
 
-            MenuSeparator {}
+        MenuSeparator {}
 
-            MenuItem {
-                objectName: "showGridMenuButton"
-                text: qsTr("Show Grid")
-                enabled: canvas
-                checkable: true
-                checked: settings.gridVisible
-                onClicked: settings.gridVisible = checked
-            }
+        MenuItem {
+            objectName: "showGridMenuButton"
+            text: qsTr("Show Grid")
+            enabled: canvas
+            checkable: true
+            checked: settings.gridVisible
+            onClicked: settings.gridVisible = checked
+        }
 
-            MenuItem {
-                objectName: "showRulersMenuButton"
-                text: qsTr("Show Rulers")
-                enabled: canvas
-                checkable: true
-                checked: settings.rulersVisible
-                onClicked: settings.rulersVisible = checked
-            }
+        MenuItem {
+            objectName: "showRulersMenuButton"
+            text: qsTr("Show Rulers")
+            enabled: canvas
+            checkable: true
+            checked: settings.rulersVisible
+            onClicked: settings.rulersVisible = checked
+        }
 
-            MenuItem {
-                objectName: "showGuidesMenuButton"
-                text: qsTr("Show Guides")
-                enabled: canvas
-                checkable: true
-                checked: settings.guidesVisible
-                onClicked: settings.guidesVisible = checked
-            }
+        MenuItem {
+            objectName: "showGuidesMenuButton"
+            text: qsTr("Show Guides")
+            enabled: canvas
+            checkable: true
+            checked: settings.guidesVisible
+            onClicked: settings.guidesVisible = checked
+        }
 
-            MenuItem {
-                objectName: "lockGuidesMenuButton"
-                text: qsTr("Lock Guides")
-                enabled: canvas
-                checkable: true
-                checked: settings.guidesLocked
-                onClicked: settings.guidesLocked = checked
-            }
+        MenuItem {
+            objectName: "lockGuidesMenuButton"
+            text: qsTr("Lock Guides")
+            enabled: canvas
+            checkable: true
+            checked: settings.guidesLocked
+            onClicked: settings.guidesLocked = checked
+        }
 
-            MenuSeparator {}
+        MenuSeparator {}
 
-            MenuItem {
-                objectName: "splitScreenMenuButton"
-                text: qsTr("Split Screen")
-                enabled: canvas
-                checkable: true
-                checked: settings.splitScreen
-                onClicked: settings.splitScreen = checked
-            }
+        MenuItem {
+            objectName: "splitScreenMenuButton"
+            text: qsTr("Split Screen")
+            enabled: canvas
+            checkable: true
+            checked: settings.splitScreen
+            onClicked: settings.splitScreen = checked
+        }
 
-            MenuItem {
-                objectName: "splitterLockedMenuButton"
-                text: qsTr("Lock Splitter")
-                enabled: canvas && settings.splitScreen
-                checkable: true
-                checked: settings.splitterLocked
-                onClicked: settings.splitterLocked = checked
-            }
+        MenuItem {
+            objectName: "splitterLockedMenuButton"
+            text: qsTr("Lock Splitter")
+            enabled: canvas && settings.splitScreen
+            checkable: true
+            checked: settings.splitterLocked
+            onClicked: settings.splitterLocked = checked
+        }
 
-            MenuItem {
-                objectName: "scrollZoomMenuButton"
-                text: qsTr("Scroll Zoom")
-                enabled: canvas
-                checkable: true
-                checked: settings.scrollZoom
-                onClicked: settings.scrollZoom = checked
-            }
+        MenuItem {
+            objectName: "scrollZoomMenuButton"
+            text: qsTr("Scroll Zoom")
+            enabled: canvas
+            checkable: true
+            checked: settings.scrollZoom
+            onClicked: settings.scrollZoom = checked
         }
     }
 
-    MenuBarItem {
-        objectName: "optionsMenuBarItem"
-        focusPolicy: Qt.TabFocus
-        menu: Menu {
-            title: qsTr("Tools")
+    Menu {
+        title: qsTr("Tools")
 
-            MenuItem {
-                objectName: "settingsMenuButton"
-                text: qsTr("Options")
-                onClicked: optionsDialog.open()
-            }
+        MenuItem {
+            objectName: "optionsMenuButton"
+            text: qsTr("Options")
+            onClicked: optionsDialog.open()
         }
     }
 }
