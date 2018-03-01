@@ -20,6 +20,9 @@ Panel {
     contentItem: Flickable {
         implicitWidth: picker.implicitWidth
         implicitHeight: picker.implicitHeight
+        contentWidth: picker.implicitWidth
+        contentHeight: picker.implicitHeight
+        clip: true
 
         ScrollBar.vertical: ScrollBar {}
 
