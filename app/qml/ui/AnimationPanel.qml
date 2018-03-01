@@ -51,6 +51,7 @@ Panel {
             implicitWidth: animationPlayPauseButton.implicitWidth
             implicitHeight: animationPlayPauseButton.implicitHeight
             interactive: animationPlayPauseButton.implicitWidth > width || animationPlayPauseButton.implicitHeight > height
+            clip: true
 
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -69,7 +70,6 @@ Panel {
                 contentItem: Item {
                     implicitWidth: spriteImage.implicitWidth
                     implicitHeight: spriteImage.implicitHeight
-                    clip: true
 
                     SpriteImage {
                         id: spriteImage
