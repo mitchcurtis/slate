@@ -19,14 +19,12 @@
         <file>ui/Shortcuts.qml</file>
         <file>ui/SwatchFocusRectangle.qml</file>
         <file>ui/TilesetSwatch.qml</file>
-        <file>ui/ToolBar.qml</file>
         <file>ui/ToolSizePopup.qml</file>
         <file>ui/ZoomIndicator.qml</file>
         <file>ui/+material/CanvasColours.qml</file>
         <file>ui/+material/DialogButton.qml</file>
         <file>ui/+material/IconRectangle.qml</file>
         <file>ui/+material/SwatchFocusRectangle.qml</file>
-        <file>ui/+material/ToolBar.qml</file>
         <file>ui/+universal/CanvasColours.qml</file>
         <file>ui/+universal/IconRectangle.qml</file>
         <file>ui/+universal/SwatchFocusRectangle.qml</file>

@@ -169,7 +169,7 @@ ApplicationWindow {
         imageSizePopup: imageSizePopup
     }
 
-    header: Ui.ToolBar {
+    header: ToolBar {
         objectName: "toolBar"
 
         Ui.IconToolBar {
