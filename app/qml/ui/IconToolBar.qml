@@ -13,7 +13,6 @@ ToolBar {
     property int projectType: project ? project.type : 0
     property bool isTilesetProject: projectType === Project.TilesetType
     property ImageCanvas canvas
-    property FontMetrics fontMetrics
     property Popup canvasSizePopup
     property Popup imageSizePopup
 

@@ -13,7 +13,6 @@ Pane {
 
     property Project project
     property ImageCanvas canvas
-    property FontMetrics fontMetrics
 
     Rectangle {
         parent: statusBarPane.background
@@ -41,7 +40,7 @@ Pane {
             id: pointerIconLabel
             text: "\uf245"
             font.family: "FontAwesome"
-            font.pixelSize: fontMetrics.font.pixelSize * 1.2
+            font.pixelSize: Qt.application.font.pixelSize * 1.2
             horizontalAlignment: Label.AlignHCenter
 
             Layout.preferredWidth: Math.max(26, implicitWidth)
@@ -178,7 +177,6 @@ Pane {
         ZoomIndicator {
             objectName: "firstPaneZoomIndicator"
             pane: canvas ? canvas.firstPane : null
-            fontMetrics: statusBarPane.fontMetrics
         }
     }
 
@@ -188,7 +186,6 @@ Pane {
         anchors.right: parent.right
         visible: project && canvas && project.loaded && canvas.splitScreen
         pane: canvas ? canvas.secondPane : null
-        fontMetrics: statusBarPane.fontMetrics
         anchors.verticalCenter: parent.verticalCenter
     }
 }

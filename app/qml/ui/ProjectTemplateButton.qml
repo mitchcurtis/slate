@@ -35,7 +35,7 @@ T.AbstractButton {
         ColumnLayout {
             Label {
                 text: titleText
-                font.pixelSize: fontMetrics.font.pixelSize * 1.5
+                font.pixelSize: Qt.application.font.pixelSize * 1.5
                 Layout.topMargin: 20
             }
 

@@ -150,10 +150,6 @@ ApplicationWindow {
         }
     }
 
-    FontMetrics {
-        id: fontMetrics
-    }
-
     Ui.Shortcuts {
         window: window
         projectManager: window.projectManager
@@ -173,7 +169,6 @@ ApplicationWindow {
         id: iconToolBar
         project: window.project
         canvas: window.canvas
-        fontMetrics: fontMetrics
         canvasSizePopup: canvasSizePopup
         imageSizePopup: imageSizePopup
 
@@ -190,7 +185,6 @@ ApplicationWindow {
 
             projectManager: window.projectManager
             checkedToolButton: iconToolBar.toolButtonGroup.checkedButton
-            fontMetrics: fontMetrics
 
             Layout.preferredWidth: window.width / 3
             Layout.fillWidth: true

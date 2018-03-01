@@ -31,7 +31,6 @@ Item {
     property Project project: projectManager.project
     property ImageCanvas canvas: loader.item
     property var checkedToolButton
-    property FontMetrics fontMetrics
 
     Loader {
         id: loader
@@ -85,6 +84,5 @@ Item {
         anchors.bottom: parent.bottom
         project: canvasContainer.project
         canvas: canvasContainer.canvas
-        fontMetrics: canvasContainer.fontMetrics
     }
 }

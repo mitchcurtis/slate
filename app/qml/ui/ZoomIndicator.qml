@@ -8,7 +8,6 @@ RowLayout {
     id: zoomLevelIndicator
 
     property CanvasPane pane
-    property FontMetrics fontMetrics
 
     TextMetrics {
         id: maxZoomTextMetrics
