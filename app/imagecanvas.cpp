@@ -1752,8 +1752,10 @@ void ImageCanvas::updateWindowCursorShape()
             break;
         case Qt::SizeAllCursor:
             cursorName = "SizeAllCursor";
+            break;
         case Qt::ForbiddenCursor:
             cursorName = "ForbiddenCursor";
+            break;
         default:
             break;
         }
