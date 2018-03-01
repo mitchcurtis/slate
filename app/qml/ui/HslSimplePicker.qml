@@ -89,18 +89,14 @@ GridLayout {
         }
     }
 
-    Image {
-        id: opacityLabel
-        source: "qrc:/images/opacity.png"
-
+    Control {
         Layout.alignment: Qt.AlignHCenter
 
-        MouseArea {
-            anchors.fill: parent
-            hoverEnabled: true
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Opacity")
 
-            ToolTip.visible: containsMouse
-            ToolTip.text: qsTr("Opacity")
+        background: Image {
+            source: "qrc:/images/opacity.png"
         }
     }
 
@@ -155,21 +151,19 @@ GridLayout {
         Layout.fillWidth: true
     }
 
-    Label {
+    Control {
         id: lightnessLabel
-        text: "\uf185"
-        font.family: "FontAwesome"
-        horizontalAlignment: Text.AlignHCenter
+
+        contentItem: Label {
+            text: "\uf185"
+            font.family: "FontAwesome"
+            horizontalAlignment: Text.AlignHCenter
+        }
 
         Layout.fillWidth: true
 
-        MouseArea {
-            anchors.fill: parent
-            hoverEnabled: true
-
-            ToolTip.visible: containsMouse
-            ToolTip.text: qsTr("Lightness")
-        }
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Lightness")
     }
 
     RowLayout {
@@ -220,23 +214,21 @@ GridLayout {
         Layout.fillWidth: true
     }
 
-    Rectangle {
+    Control {
         id: saturationLabel
         implicitWidth: lightnessLabel.implicitWidth
         implicitHeight: lightnessLabel.implicitHeight
-        gradient: Gradient {
-            GradientStop { position: 0; color: Ui.CanvasColours.focusColour }
-            GradientStop { position: 1; color: "#ccc" }
-        }
 
         Layout.alignment: Qt.AlignHCenter
 
-        MouseArea {
-            anchors.fill: parent
-            hoverEnabled: true
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Saturation")
 
-            ToolTip.visible: containsMouse
-            ToolTip.text: qsTr("Saturation")
+        background: Rectangle {
+            gradient: Gradient {
+                GradientStop { position: 0; color: Ui.CanvasColours.focusColour }
+                GradientStop { position: 1; color: "#ccc" }
+            }
         }
     }
 
