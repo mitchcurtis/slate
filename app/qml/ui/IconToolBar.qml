@@ -5,11 +5,9 @@ import App 1.0
 
 import "." as Ui
 
-Item {
+ToolBar {
     id: root
     objectName: "iconToolBar"
-    implicitWidth: toolbarRow.implicitWidth
-    implicitHeight: toolbarRow.implicitHeight
 
     property Project project
     property int projectType: project ? project.type : 0

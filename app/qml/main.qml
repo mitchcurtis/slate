@@ -169,19 +169,15 @@ ApplicationWindow {
         imageSizePopup: imageSizePopup
     }
 
-    header: ToolBar {
-        objectName: "toolBar"
+    header: Ui.IconToolBar {
+        id: iconToolBar
+        project: window.project
+        canvas: window.canvas
+        fontMetrics: fontMetrics
+        canvasSizePopup: canvasSizePopup
+        imageSizePopup: imageSizePopup
 
-        Ui.IconToolBar {
-            id: iconToolBar
-            project: window.project
-            canvas: window.canvas
-            fontMetrics: fontMetrics
-            canvasSizePopup: canvasSizePopup
-            imageSizePopup: imageSizePopup
-
-            Layout.fillWidth: true
-        }
+        Layout.fillWidth: true
     }
 
     RowLayout {
