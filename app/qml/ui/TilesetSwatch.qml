@@ -182,7 +182,7 @@ Panel {
             id: duplicateMenuItem
             objectName: "duplicateTileMenuButton"
             text: qsTr("Duplicate")
-            onClicked: {
+            onTriggered: {
                 contextMenu.currentAction = text;
                 cursorIcon.text = "\uf112";
             }
@@ -191,7 +191,7 @@ Panel {
         MenuItem {
             objectName: "rotateTileLeftMenuButton"
             text: qsTr("Rotate 90° Left")
-            onClicked: {
+            onTriggered: {
                 project.rotateTileCounterClockwise(contextMenu.rightClickedTile);
                 contextMenu.rightClickedTile = null;
             }
@@ -200,7 +200,7 @@ Panel {
         MenuItem {
             objectName: "rotateTileRightMenuButton"
             text: qsTr("Rotate 90° Right")
-            onClicked: {
+            onTriggered: {
                 project.rotateTileClockwise(contextMenu.rightClickedTile);
                 contextMenu.rightClickedTile = null;
             }

@@ -25,27 +25,27 @@ MenuBar {
         MenuItem {
             objectName: "newMenuButton"
             text: qsTr("New")
-            onClicked: doIfChangesDiscarded(function() { newProjectPopup.open() })
+            onTriggered: doIfChangesDiscarded(function() { newProjectPopup.open() })
         }
 
         MenuItem {
             objectName: "openMenuButton"
             text: qsTr("Open")
-            onClicked: doIfChangesDiscarded(function() { openProjectDialog.open() })
+            onTriggered: doIfChangesDiscarded(function() { openProjectDialog.open() })
         }
 
         MenuItem {
             objectName: "saveMenuButton"
             text: qsTr("Save")
             enabled: project ? project.canSave : false
-            onClicked: projectManager.saveOrSaveAs()
+            onTriggered: projectManager.saveOrSaveAs()
         }
 
         MenuItem {
             objectName: "saveAsMenuButton"
             text: qsTr("Save As")
             enabled: project ? project.loaded : false
-            onClicked: saveAsDialog.open()
+            onTriggered: saveAsDialog.open()
         }
 
         MenuItem {
@@ -53,7 +53,7 @@ MenuBar {
             objectName: "exportMenuButton"
             text: qsTr("Export")
             enabled: project && project.loaded && projectType === Project.LayeredImageType
-            onClicked: exportDialog.open()
+            onTriggered: exportDialog.open()
         }
 
         MenuItem {
@@ -62,21 +62,21 @@ MenuBar {
             checkable: true
             checked: enabled && project.autoExportEnabled
             enabled: exportMenuButton.enabled
-            onClicked: project.autoExportEnabled = !project.autoExportEnabled
+            onTriggered: project.autoExportEnabled = !project.autoExportEnabled
         }
 
         MenuItem {
             objectName: "closeMenuButton"
             text: qsTr("Close")
             enabled: project ? project.loaded : false
-            onClicked: doIfChangesDiscarded(function() { project.close() })
+            onTriggered: doIfChangesDiscarded(function() { project.close() })
         }
 
         MenuItem {
             objectName: "revertMenuButton"
             text: qsTr("Revert")
             enabled: project ? project.loaded && project.unsavedChanges : false
-            onClicked: project.revert()
+            onTriggered: project.revert()
         }
     }
 
@@ -86,14 +86,14 @@ MenuBar {
         MenuItem {
             objectName: "undoMenuButton"
             text: qsTr("Undo")
-            onClicked: project.undoStack.undo()
+            onTriggered: project.undoStack.undo()
             enabled: project ? project.undoStack.canUndo : false
         }
 
         MenuItem {
             objectName: "redoMenuButton"
             text: qsTr("Redo")
-            onClicked: project.undoStack.redo()
+            onTriggered: project.undoStack.redo()
             enabled: project ? project.undoStack.canRedo : false
         }
 
@@ -111,14 +111,14 @@ MenuBar {
         MenuItem {
             objectName: "copyMenuButton"
             text: qsTr("Copy")
-            onClicked: canvas.copySelection()
+            onTriggered: canvas.copySelection()
             enabled: isImageProjectType && canvas && canvas.hasSelection
         }
 
         MenuItem {
             objectName: "pasteMenuButton"
             text: qsTr("Paste")
-            onClicked: canvas.paste()
+            onTriggered: canvas.paste()
             enabled: isImageProjectType && canvas
         }
 
@@ -127,14 +127,14 @@ MenuBar {
         MenuItem {
             objectName: "flipHorizontallyMenuButton"
             text: qsTr("Flip Horizontally")
-            onClicked: canvas.flipSelection(Qt.Horizontal)
+            onTriggered: canvas.flipSelection(Qt.Horizontal)
             enabled: isImageProjectType && canvas && canvas.hasSelection
         }
 
         MenuItem {
             objectName: "flipVerticallyMenuButton"
             text: qsTr("Flip Vertically")
-            onClicked: canvas.flipSelection(Qt.Vertical)
+            onTriggered: canvas.flipSelection(Qt.Vertical)
             enabled: isImageProjectType && canvas && canvas.hasSelection
         }
     }
@@ -146,14 +146,14 @@ MenuBar {
             objectName: "changeCanvasSizeMenuButton"
             text: qsTr("Canvas Size...")
             enabled: canvas
-            onClicked: canvasSizePopup.open()
+            onTriggered: canvasSizePopup.open()
         }
 
         MenuItem {
             objectName: "changeImageSizeMenuButton"
             text: qsTr("Image Size...")
             enabled: canvas && projectType === Project.ImageType
-            onClicked: imageSizePopup.open()
+            onTriggered: imageSizePopup.open()
         }
     }
 
@@ -167,14 +167,14 @@ MenuBar {
             enabled: isImageProjectType && canvas
             checkable: true
             checked: isImageProjectType && project.usingAnimation
-            onClicked: project.usingAnimation = checked
+            onTriggered: project.usingAnimation = checked
         }
 
         MenuItem {
             objectName: "animationPlayMenuButton"
             text: enabled && !project.animationPlayback.playing ? qsTr("Play") : qsTr("Pause")
             enabled: animationPlaybackMenuButton.checked
-            onClicked: project.animationPlayback.playing = !project.animationPlayback.playing
+            onTriggered: project.animationPlayback.playing = !project.animationPlayback.playing
         }
     }
 
@@ -185,21 +185,21 @@ MenuBar {
             objectName: "centreMenuButton"
             text: qsTr("Centre")
             enabled: canvas
-            onClicked: canvas.centreView()
+            onTriggered: canvas.centreView()
         }
 
         MenuItem {
             objectName: "zoomInMenuButton"
             text: qsTr("Zoom In")
             enabled: canvas
-            onClicked: canvas.zoomIn()
+            onTriggered: canvas.zoomIn()
         }
 
         MenuItem {
             objectName: "zoomOutMenuButton"
             text: qsTr("Zoom Out")
             enabled: canvas
-            onClicked: canvas.zoomOut()
+            onTriggered: canvas.zoomOut()
         }
 
         MenuSeparator {}
@@ -210,7 +210,7 @@ MenuBar {
             enabled: canvas
             checkable: true
             checked: settings.gridVisible
-            onClicked: settings.gridVisible = checked
+            onTriggered: settings.gridVisible = checked
         }
 
         MenuItem {
@@ -219,7 +219,7 @@ MenuBar {
             enabled: canvas
             checkable: true
             checked: settings.rulersVisible
-            onClicked: settings.rulersVisible = checked
+            onTriggered: settings.rulersVisible = checked
         }
 
         MenuItem {
@@ -228,7 +228,7 @@ MenuBar {
             enabled: canvas
             checkable: true
             checked: settings.guidesVisible
-            onClicked: settings.guidesVisible = checked
+            onTriggered: settings.guidesVisible = checked
         }
 
         MenuItem {
@@ -237,7 +237,7 @@ MenuBar {
             enabled: canvas
             checkable: true
             checked: settings.guidesLocked
-            onClicked: settings.guidesLocked = checked
+            onTriggered: settings.guidesLocked = checked
         }
 
         MenuSeparator {}
@@ -248,7 +248,7 @@ MenuBar {
             enabled: canvas
             checkable: true
             checked: settings.splitScreen
-            onClicked: settings.splitScreen = checked
+            onTriggered: settings.splitScreen = checked
         }
 
         MenuItem {
@@ -257,7 +257,7 @@ MenuBar {
             enabled: canvas && settings.splitScreen
             checkable: true
             checked: settings.splitterLocked
-            onClicked: settings.splitterLocked = checked
+            onTriggered: settings.splitterLocked = checked
         }
 
         MenuItem {
@@ -266,7 +266,7 @@ MenuBar {
             enabled: canvas
             checkable: true
             checked: settings.scrollZoom
-            onClicked: settings.scrollZoom = checked
+            onTriggered: settings.scrollZoom = checked
         }
     }
 
@@ -276,7 +276,7 @@ MenuBar {
         MenuItem {
             objectName: "optionsMenuButton"
             text: qsTr("Options")
-            onClicked: optionsDialog.open()
+            onTriggered: optionsDialog.open()
         }
     }
 }
