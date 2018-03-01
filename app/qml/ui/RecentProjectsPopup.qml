@@ -64,6 +64,7 @@ Popup {
                 }
             }
             Button {
+                objectName: "loadRecentProjectCancelButton"
                 text: "Cancel"
 
                 Layout.fillWidth: true

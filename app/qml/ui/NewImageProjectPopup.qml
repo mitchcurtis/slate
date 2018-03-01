@@ -113,6 +113,7 @@ Dialog {
                 onClicked: popup.accept()
             }
             Button {
+                objectName: "newImageProjectCancelButton"
                 text: "Cancel"
                 onClicked: popup.reject()
             }

@@ -115,6 +115,7 @@ Dialog {
                 }
 
                 Button {
+                    objectName: "chooseTilesetPathButton"
                     text: qsTr("...")
                     onClicked: openTilesetDialog.open()
                     hoverEnabled: true

@@ -58,7 +58,7 @@ Panel {
 
             Button {
                 id: animationPlayPauseButton
-                objectName: "animationPlayPauseButton"
+                objectName: "animationPreviewPlayPauseButton"
                 focusPolicy: Qt.NoFocus
                 padding: 4
                 width: Math.max(parent.width, implicitWidth)
@@ -118,6 +118,7 @@ Panel {
             }
 
             ToolButton {
+                objectName: "animationPlayPauseButton"
                 text: root.enabled && animationPlayback.playing ? "\uf04c" : "\uf04b"
                 font.family: "FontAwesome"
                 focusPolicy: Qt.NoFocus
@@ -131,6 +132,7 @@ Panel {
             }
 
             ToolButton {
+                objectName: "animationLoopButton"
                 text: "\ue800"
                 checkable: true
                 checked: animationPlayback ? animationPlayback.loop : false
