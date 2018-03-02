@@ -200,7 +200,7 @@ ApplicationWindow {
                 Layout.fillHeight: expanded
             }
 
-            SimpleLoader {
+            Loader {
                 objectName: "tilesetSwatchLoader"
                 active: window.projectType === Project.TilesetType && window.canvas
                 sourceComponent: Ui.TilesetSwatch {
@@ -218,7 +218,7 @@ ApplicationWindow {
                 Layout.fillHeight: active && item.expanded
             }
 
-            SimpleLoader {
+            Loader {
                 objectName: "layersLoader"
                 active: window.projectType === Project.LayeredImageType && window.canvas
                 sourceComponent: Ui.LayerPanel {

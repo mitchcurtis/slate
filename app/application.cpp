@@ -36,7 +36,6 @@
 #include "project.h"
 #include "projectmanager.h"
 #include "rectangularcursor.h"
-#include "simpleloader.h"
 #include "splitter.h"
 #include "spriteimage.h"
 #include "spriteimageprovider.h"
@@ -76,7 +75,6 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterType<NewProjectValidator>("App", 1, 0, "NewProjectValidator");
     qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");
     qmlRegisterType<RectangularCursor>("App", 1, 0, "RectangularCursor");
-    qmlRegisterType<SimpleLoader>("App", 1, 0, "SimpleLoader");
     qmlRegisterType<SpriteImage>("App", 1, 0, "SpriteImage");
     qmlRegisterType<Splitter>();
     qmlRegisterType<TileCanvas>();

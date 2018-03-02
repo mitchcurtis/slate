@@ -28,7 +28,6 @@ HEADERS += \
     $$PWD/projectmanager.h \
     $$PWD/rectangularcursor.h \
     $$PWD/ruler.h \
-    $$PWD/simpleloader.h \
     $$PWD/splitter.h \
     $$PWD/tilecanvas.h \
     $$PWD/tilegrid.h \
@@ -88,7 +87,6 @@ SOURCES += \
     $$PWD/projectmanager.cpp \
     $$PWD/rectangularcursor.cpp \
     $$PWD/ruler.cpp \
-    $$PWD/simpleloader.cpp \
     $$PWD/splitter.cpp \
     $$PWD/tilecanvas.cpp \
     $$PWD/tile.cpp \
