@@ -28,7 +28,7 @@ See the [releases](https://github.com/mitchcurtis/slate/releases) page for the a
 
 ### Dependencies ###
 
-* Qt >= 5.10
+* Qt >= 5.11
 * https://github.com/mitchcurtis/qt-undo
 * https://github.com/mitchcurtis/pickawinner
 
