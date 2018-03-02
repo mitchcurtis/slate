@@ -34,7 +34,7 @@ import "ui" as Ui
     - cursor ruler that follows the cursor as it moves to make it easy to
       line stuff up
     - fix performance when drawing pixels
-    - fix performance when resizing
+    - fix performance when resizing on Windows
     - tutorial?
     - add "lighten/darken current colour" feature with convenient keyboard shortcuts.
       it could display a fading indicator like the zoom level does, comparing the
