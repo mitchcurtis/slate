@@ -32,14 +32,14 @@ Platform.MenuBar {
         Platform.MenuItem {
             objectName: "saveMenuButton"
             text: qsTr("Save")
-            enabled: project ? project.canSave : false
+            enabled: project && project.canSave
             onTriggered: projectManager.saveOrSaveAs()
         }
 
         Platform.MenuItem {
             objectName: "saveAsMenuButton"
             text: qsTr("Save As")
-            enabled: project ? project.loaded : false
+            enabled: project && project.loaded
             onTriggered: saveAsDialog.open()
         }
 
@@ -63,14 +63,14 @@ Platform.MenuBar {
         Platform.MenuItem {
             objectName: "closeMenuButton"
             text: qsTr("Close")
-            enabled: project ? project.loaded : false
+            enabled: project && project.loaded
             onTriggered: doIfChangesDiscarded(function() { project.close() })
         }
 
         Platform.MenuItem {
             objectName: "revertMenuButton"
             text: qsTr("Revert")
-            enabled: project ? project.loaded && project.unsavedChanges : false
+            enabled: project && project.loaded && project.unsavedChanges
             onTriggered: project.revert()
         }
     }
@@ -84,14 +84,14 @@ Platform.MenuBar {
             objectName: "undoMenuButton"
             text: qsTr("Undo")
             onTriggered: project.undoStack.undo()
-            enabled: project ? project.undoStack.canUndo : false
+            enabled: project && project.undoStack.canUndo
         }
 
         Platform.MenuItem {
             objectName: "redoMenuButton"
             text: qsTr("Redo")
             onTriggered: project.undoStack.redo()
-            enabled: project ? project.undoStack.canRedo : false
+            enabled: project && project.undoStack.canRedo
         }
 
         Platform.MenuSeparator {}

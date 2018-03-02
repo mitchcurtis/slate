@@ -66,7 +66,7 @@ ToolBar {
         ToolButton {
             id: canvasSizeButton
             objectName: "canvasSizeButton"
-            enabled: project ? project.loaded : false
+            enabled: project && project.loaded
             hoverEnabled: true
             focusPolicy: Qt.TabFocus
 
@@ -81,7 +81,7 @@ ToolBar {
         ToolButton {
             id: imageSizeButton
             objectName: "imageSizeButton"
-            enabled: project ? project.loaded && !isTilesetProject : false
+            enabled: project && project.loaded && !isTilesetProject
             hoverEnabled: true
             focusPolicy: Qt.TabFocus
 
@@ -101,7 +101,7 @@ ToolBar {
             Ui.IconToolButton {
                 objectName: "undoButton"
                 iconText: "\uf0e2"
-                enabled: project ? project.undoStack.canUndo : false
+                enabled: project && project.undoStack.canUndo
                 hoverEnabled: true
 
                 ToolTip.text: qsTr("Undo the last canvas operation")
@@ -113,7 +113,7 @@ ToolBar {
             Ui.IconToolButton {
                 objectName: "redoButton"
                 iconText: "\uf01e"
-                enabled: project ? project.undoStack.canRedo : false
+                enabled: project && project.undoStack.canRedo
                 hoverEnabled: true
 
                 ToolTip.text: qsTr("Redo the last undone canvas operation")

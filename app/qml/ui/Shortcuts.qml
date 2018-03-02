@@ -38,14 +38,14 @@ Item {
         objectName: "saveShortcut"
         sequence: settings.saveShortcut
         onActivated: projectManager.saveOrSaveAs()
-        enabled: canvasHasActiveFocus && (project ? project.canSave : false)
+        enabled: canvasHasActiveFocus && project && project.canSave
     }
 
     Shortcut {
         objectName: "exportShortcut"
         sequence: settings.exportShortcut
         onActivated: exportDialog.open()
-        enabled: project ? project.loaded && projectType === Project.LayeredImageType : false
+        enabled: project && project.loaded && projectType === Project.LayeredImageType
     }
 
     Shortcut {
