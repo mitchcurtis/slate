@@ -46,14 +46,12 @@ ApplicationWindow {
     objectName: "window"
     width: 1200
     height: 800
-    title: qtbug53394Title
+    title: project && project.loaded
+        ? ((project.url.toString().length > 0 ? project.displayUrl : "Untitled") + (project.unsavedChanges ? "*" : ""))
+        : ""
     visible: true
 
 //    onActiveFocusItemChanged: print(activeFocusItem)
-
-    property string qtbug53394Title: project && project.loaded
-        ? ((project.url.toString().length > 0 ? project.displayUrl : "Untitled") + (project.unsavedChanges ? "*" : ""))
-        : ""
 
     property alias projectManager: projectManager
     property Project project: projectManager.project
@@ -81,7 +79,6 @@ ApplicationWindow {
             createNewProject(Project.LayeredImageType)
         }
 
-        window.title = Qt.binding(function(){ return qtbug53394Title });
         window.x = Screen.desktopAvailableWidth / 2 - width / 2
         window.y = Screen.desktopAvailableHeight / 2 - height / 2
     }
