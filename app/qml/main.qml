@@ -49,8 +49,7 @@ ApplicationWindow {
     title: qtbug53394Title
     visible: true
 
-    // Leave this uncommented until the cursor/focus issue is fixed
-    onActiveFocusItemChanged: print(activeFocusItem)
+//    onActiveFocusItemChanged: print(activeFocusItem)
 
     property string qtbug53394Title: project && project.loaded
         ? ((project.url.toString().length > 0 ? project.displayUrl : "Untitled") + (project.unsavedChanges ? "*" : ""))
@@ -157,7 +156,7 @@ ApplicationWindow {
         canvas: window.canvas
     }
 
-    menuBar: Ui.MenuBar {
+    Ui.MenuBar {
         id: menuBar
         projectManager: window.projectManager
         canvas: window.canvas

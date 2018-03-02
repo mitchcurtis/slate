@@ -36,7 +36,6 @@
 #include "layeredimageproject.h"
 #include "tilecanvas.h"
 #include "tilesetproject.h"
-#include "platformdefines.h"
 #include "project.h"
 #include "tilesetproject.h"
 
@@ -203,34 +202,9 @@ protected:
     QPointer<ImageCanvas> imageCanvas;
     QPointer<TileCanvas> tileCanvas;
     QPointer<LayeredImageCanvas> layeredImageCanvas;
-#ifdef NON_NATIVE_MENUS
-    QQuickItem *fileMenuBarItem;
-    QQuickItem *editMenuBarItem;
-    QQuickItem *animationMenuBarItem;
-    QQuickItem *toolsMenuBarItem;
-    QQuickItem *viewMenuBarItem;
-    QQuickItem *newMenuButton;
-    QQuickItem *closeMenuButton;
-    QQuickItem *openMenuButton;
-    QQuickItem *saveMenuButton;
-    QQuickItem *saveAsMenuButton;
-    QQuickItem *revertMenuButton;
-    QQuickItem *flipHorizontallyMenuButton;
-    QQuickItem *flipVerticallyMenuButton;
-    QQuickItem *optionsMenuButton;
-    QQuickItem *centreMenuButton;
-    QQuickItem *showGridMenuButton;
-    QQuickItem *showRulersMenuButton;
-    QQuickItem *showGuidesMenuButton;
-    QQuickItem *splitScreenMenuButton;
-    QQuickItem *splitterLockedMenuButton;
-    QQuickItem *animationPlaybackMenuButton;
-    QQuickItem *duplicateTileMenuButton;
-    QQuickItem *rotateTileLeftMenuButton;
-    QQuickItem *rotateTileRightMenuButton;
-#else
+
     QObject *fileMenuBarItem;
-#endif
+
     QQuickItem *canvasSizeButton;
     QQuickItem *imageSizeButton;
     QQuickItem *modeToolButton;

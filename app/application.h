@@ -25,7 +25,6 @@
 #include <QtQml>
 
 #include "applicationsettings.h"
-#include "platformdefines.h"
 
 class Application
 {

@@ -32,32 +32,6 @@ TestHelper::TestHelper(int &argc, char **argv) :
     layeredImageProject(nullptr),
     imageCanvas(nullptr),
     tileCanvas(nullptr),
-#ifdef NON_NATIVE_MENUS
-    fileMenuBarItem(nullptr),
-    editMenuBarItem(nullptr),
-    animationMenuBarItem(nullptr),
-    toolsMenuBarItem(nullptr),
-    viewMenuBarItem(nullptr),
-    newMenuButton(nullptr),
-    closeMenuButton(nullptr),
-    openMenuButton(nullptr),
-    saveMenuButton(nullptr),
-    saveAsMenuButton(nullptr),
-    revertMenuButton(nullptr),
-    flipHorizontallyMenuButton(nullptr),
-    flipVerticallyMenuButton(nullptr),
-    optionsMenuButton(nullptr),
-    centreMenuButton(nullptr),
-    showGridMenuButton(nullptr),
-    showRulersMenuButton(nullptr),
-    showGuidesMenuButton(nullptr),
-    splitScreenMenuButton(nullptr),
-    splitterLockedMenuButton(nullptr),
-    animationPlaybackMenuButton(nullptr),
-    duplicateTileMenuButton(nullptr),
-    rotateTileLeftMenuButton(nullptr),
-    rotateTileRightMenuButton(nullptr),
-#endif
     canvasSizeButton(nullptr),
     imageSizeButton(nullptr),
     modeToolButton(nullptr),
@@ -120,71 +94,6 @@ void TestHelper::initTestCase()
 
     layeredImageProject = qobject_cast<LayeredImageProject*>(project.data());
     QVERIFY(layeredImageProject);
-
-#ifdef NON_NATIVE_MENUS
-    fileMenuBarItem = window->findChild<QQuickItem*>("fileMenuBarItem");
-    QVERIFY(fileMenuBarItem);
-
-    editMenuBarItem = window->findChild<QQuickItem*>("editMenuBarItem");
-    QVERIFY(editMenuBarItem);
-
-    animationMenuBarItem = window->findChild<QQuickItem*>("animationMenuBarItem");
-    QVERIFY(animationMenuBarItem);
-
-    toolsMenuBarItem = window->findChild<QQuickItem*>("toolsMenuBarItem");
-    QVERIFY(toolsMenuBarItem);
-
-    viewMenuBarItem = window->findChild<QQuickItem*>("viewMenuBarItem");
-    QVERIFY(viewMenuBarItem);
-
-    newMenuButton = window->findChild<QQuickItem*>("newMenuButton");
-    QVERIFY(newMenuButton);
-
-    closeMenuButton = window->findChild<QQuickItem*>("closeMenuButton");
-    QVERIFY(closeMenuButton);
-
-    openMenuButton = window->findChild<QQuickItem*>("openMenuButton");
-    QVERIFY(openMenuButton);
-
-    saveMenuButton = window->findChild<QQuickItem*>("saveMenuButton");
-    QVERIFY(saveMenuButton);
-
-    saveAsMenuButton = window->findChild<QQuickItem*>("saveAsMenuButton");
-    QVERIFY(saveAsMenuButton);
-
-    revertMenuButton = window->findChild<QQuickItem*>("revertMenuButton");
-    QVERIFY(revertMenuButton);
-
-    flipHorizontallyMenuButton = window->findChild<QQuickItem*>("flipHorizontallyMenuButton");
-    QVERIFY(flipHorizontallyMenuButton);
-
-    flipVerticallyMenuButton = window->findChild<QQuickItem*>("flipVerticallyMenuButton");
-    QVERIFY(flipVerticallyMenuButton);
-
-    optionsMenuButton = window->findChild<QQuickItem*>("optionsMenuButton");
-    QVERIFY(optionsMenuButton);
-
-    centreMenuButton = window->findChild<QQuickItem*>("centreMenuButton");
-    QVERIFY(centreMenuButton);
-
-    showGridMenuButton = window->findChild<QQuickItem*>("showGridMenuButton");
-    QVERIFY(showGridMenuButton);
-
-    showRulersMenuButton = window->findChild<QQuickItem*>("showRulersMenuButton");
-    QVERIFY(showRulersMenuButton);
-
-    showGuidesMenuButton = window->findChild<QQuickItem*>("showGuidesMenuButton");
-    QVERIFY(showGuidesMenuButton);
-
-    splitScreenMenuButton = window->findChild<QQuickItem*>("splitScreenMenuButton");
-    QVERIFY(splitScreenMenuButton);
-
-    splitterLockedMenuButton = window->findChild<QQuickItem*>("splitterLockedMenuButton");
-    QVERIFY(splitterLockedMenuButton);
-
-    animationPlaybackMenuButton = window->findChild<QQuickItem*>("animationPlaybackMenuButton");
-    QVERIFY(animationPlaybackMenuButton);
-#endif
 
     canvasSizeButton = window->findChild<QQuickItem*>("canvasSizeButton");
     QVERIFY(canvasSizeButton);
@@ -742,68 +651,39 @@ void TestHelper::triggerShortcut(const QString &objectName, const QString &seque
     const int value = QKeySequence(sequenceAsString)[0];
     Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(value & Qt::KeyboardModifierMask);
     QTest::keyClick(window, value & ~mods, mods);
-    QCOMPARE(activatedSpy.count(), 1);
+    QVERIFY2(activatedSpy.count() == 1, qPrintable(QString::fromLatin1(
+        "The activated() signal was not emitted for %1 with sequence %2").arg(objectName).arg(sequenceAsString)));
 }
 
 void TestHelper::triggerNewProject()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(fileMenuBarItem, MouseClick);
-    mouseEventOnCentre(newMenuButton, MouseClick);
-#else
     triggerShortcut("newShortcut", app.settings()->newShortcut());
-#endif
 }
 
 void TestHelper::triggerCloseProject()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(fileMenuBarItem, MouseClick);
-    mouseEventOnCentre(closeMenuButton, MouseClick);
-#else
     triggerShortcut("closeShortcut", app.settings()->closeShortcut());
-#endif
 }
 
 void TestHelper::triggerSaveProject()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(fileMenuBarItem, MouseClick);
-    mouseEventOnCentre(saveMenuButton, MouseClick);
-#else
     triggerShortcut("saveShortcut", app.settings()->saveShortcut());
-#endif
 }
 
 void TestHelper::triggerSaveProjectAs()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(fileMenuBarItem, MouseClick);
-    mouseEventOnCentre(saveAsMenuButton, MouseClick);
-#else
     QFAIL("TODO: no saveas shortcut");
 //    triggerShortcut(app.settings()->saveShortcut());
-#endif
 }
 
 void TestHelper::triggerOpenProject()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(fileMenuBarItem, MouseClick);
-    mouseEventOnCentre(openMenuButton, MouseClick);
-#else
     triggerShortcut("openShortcut", app.settings()->openShortcut());
-#endif
 }
 
 void TestHelper::triggerRevert()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(fileMenuBarItem, MouseClick);
-    mouseEventOnCentre(revertMenuButton, MouseClick);
-#else
     triggerShortcut("revertShortcut", app.settings()->revertShortcut());
-#endif
 }
 
 void TestHelper::triggerPaste()
@@ -813,82 +693,42 @@ void TestHelper::triggerPaste()
 
 void TestHelper::triggerFlipHorizontally()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(editMenuBarItem, MouseClick);
-    mouseEventOnCentre(flipHorizontallyMenuButton, MouseClick);
-#else
     triggerShortcut("flipHorizontallyShortcut", app.settings()->flipHorizontallyShortcut());
-#endif
 }
 
 void TestHelper::triggerFlipVertically()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(editMenuBarItem, MouseClick);
-    mouseEventOnCentre(flipVerticallyMenuButton, MouseClick);
-#else
     triggerShortcut("flipVerticallyShortcut", app.settings()->flipVerticallyShortcut());
-#endif
 }
 
 void TestHelper::triggerCentre()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(viewMenuBarItem, MouseClick);
-    mouseEventOnCentre(centreMenuButton, MouseClick);
-#else
     triggerShortcut("centreShortcut", app.settings()->centreShortcut());
-#endif
 }
 
 void TestHelper::triggerGridVisible()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(viewMenuBarItem, MouseClick);
-    mouseEventOnCentre(showGridMenuButton, MouseClick);
-#else
     triggerShortcut("gridVisibleShortcut", app.settings()->gridVisibleShortcut());
-#endif
 }
 
 void TestHelper::triggerRulersVisible()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(viewMenuBarItem, MouseClick);
-    mouseEventOnCentre(showRulersMenuButton, MouseClick);
-#else
     triggerShortcut("rulersVisibleShortcut", app.settings()->rulersVisibleShortcut());
-#endif
 }
 
 void TestHelper::triggerGuidesVisible()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(viewMenuBarItem, MouseClick);
-    mouseEventOnCentre(showGuidesMenuButton, MouseClick);
-#else
     triggerShortcut("guidesVisibleShortcut", app.settings()->guidesVisibleShortcut());
-#endif
 }
 
 void TestHelper::triggerSplitScreen()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(viewMenuBarItem, MouseClick);
-    mouseEventOnCentre(splitScreenMenuButton, MouseClick);
-#else
     triggerShortcut("splitScreenShortcut", app.settings()->splitScreenShortcut());
-#endif
 }
 
 void TestHelper::triggerSplitterLocked()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(viewMenuBarItem, MouseClick);
-    mouseEventOnCentre(splitterLockedMenuButton, MouseClick);
-#else
     triggerShortcut("splitterLockedShortcut", app.settings()->splitterLockedShortcut());
-#endif
 }
 
 void TestHelper::setSplitterLocked(bool splitterLocked)
@@ -901,12 +741,7 @@ void TestHelper::setSplitterLocked(bool splitterLocked)
 
 void TestHelper::triggerAnimationPlayback()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(animationMenuBarItem, MouseClick);
-    mouseEventOnCentre(animationPlaybackMenuButton, MouseClick);
-#else
     triggerShortcut("animationPlaybackShortcut", app.settings()->animationPlaybackShortcut());
-#endif
 }
 
 void TestHelper::setAnimationPlayback(bool usingAnimation)
@@ -919,12 +754,7 @@ void TestHelper::setAnimationPlayback(bool usingAnimation)
 
 void TestHelper::triggerOptions()
 {
-#ifdef NON_NATIVE_MENUS
-    mouseEventOnCentre(toolsMenuBarItem, MouseClick);
-    mouseEventOnCentre(optionsMenuButton, MouseClick);
-#else
     triggerShortcut("optionsShortcut", app.settings()->optionsShortcut());
-#endif
 }
 
 void TestHelper::selectLayer(const QString &layerName, int layerIndex)
@@ -1321,17 +1151,6 @@ void TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
         QCOMPARE(canvas->splitter()->position(), 0.5);
     }
 
-#ifdef NON_NATIVE_MENUS
-    QCOMPARE(newMenuButton->isEnabled(), true);
-    // Projects that have just been loaded can't be saved...
-    QCOMPARE(saveMenuButton->isEnabled(), isNewProject);
-    // ... but they can be saved as another project.
-    QCOMPARE(saveAsMenuButton->isEnabled(), true);
-    QCOMPARE(openMenuButton->isEnabled(), true);
-    QCOMPARE(closeMenuButton->isEnabled(), true);
-    QCOMPARE(optionsMenuButton->isEnabled(), true);
-#endif
-
     if (newProjectType == Project::TilesetType) {
         // Establish references to TilesetProject-specific properties.
         tilesetSwatch = window->findChild<QQuickItem*>("tilesetSwatch");
@@ -1345,17 +1164,6 @@ void TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
         QVERIFY(tilesetSwatchFlickable);
         QVERIFY(tilesetSwatchFlickable->property("contentY").isValid());
         QCOMPARE(tilesetSwatchFlickable->property("contentY").toReal(), 0.0);
-
-#ifdef NON_NATIVE_MENUS
-        duplicateTileMenuButton = window->findChild<QQuickItem*>("duplicateTileMenuButton");
-        QVERIFY(duplicateTileMenuButton);
-
-        rotateTileLeftMenuButton = window->findChild<QQuickItem*>("rotateTileLeftMenuButton");
-        QVERIFY(rotateTileLeftMenuButton);
-
-        rotateTileRightMenuButton = window->findChild<QQuickItem*>("rotateTileRightMenuButton");
-        QVERIFY(rotateTileRightMenuButton);
-#endif
 
         QVERIFY(imageGrabber.requestImage(tileCanvas));
         QTRY_VERIFY(imageGrabber.isReady());

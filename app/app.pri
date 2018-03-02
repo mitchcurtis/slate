@@ -53,7 +53,6 @@ HEADERS += \
     $$PWD/changelayervisiblecommand.h \
     $$PWD/changelayeropacitycommand.h \
     $$PWD/deletelayercommand.h \
-    $$PWD/platformdefines.h \
     $$PWD/addlayercommand.h \
     $$PWD/applygreedypixelfillcommand.h \
     $$PWD/guide.h \

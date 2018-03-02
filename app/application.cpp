@@ -19,9 +19,7 @@
 
 #include "application.h"
 
-#ifndef NON_NATIVE_MENUS
 #include <QApplication>
-#endif
 #include <QFontDatabase>
 #include <QLoggingCategory>
 
@@ -51,17 +49,11 @@
 
 Q_LOGGING_CATEGORY(lcApplication, "app.application")
 
-#ifdef NON_NATIVE_MENUS
-typedef QGuiApplication QtApplicationType;
-#else
-typedef QApplication QtApplicationType;
-#endif
-
 static QGuiApplication *createApplication(int &argc, char **argv, const QString &applicationName)
 {
     QLoggingCategory::setFilterRules("app.* = false");
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QtApplicationType *app = new QtApplicationType(argc, argv);
+    QApplication *app = new QApplication(argc, argv);
     app->setOrganizationName("Mitch Curtis");
     app->setApplicationName(applicationName);
     app->setOrganizationDomain("mitchcurtis");

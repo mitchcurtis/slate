@@ -389,7 +389,12 @@ void ApplicationSettings::setExportShortcut(const QString &shortcut)
 
 QString ApplicationSettings::defaultCloseShortcut() const
 {
+#ifdef Q_OS_WIN
+    // Ctrl+F4 is apparently the default, but is not what we want.
+    return QLatin1String("Ctrl+W");
+#else
     return QKeySequence(QKeySequence::Close).toString();
+#endif
 }
 
 QString ApplicationSettings::closeShortcut() const

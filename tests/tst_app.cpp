@@ -1500,17 +1500,6 @@ void tst_App::altEyedropper()
     QTest::keyRelease(window, Qt::Key_Alt);
     QCOMPARE(tileCanvas->tool(), TileCanvas::PenTool);
 
-#ifdef NON_NATIVE_MENUS
-    // I think this tests that the cursor shape is correct after opening a menu.
-    mouseEventOnCentre(fileMenuBarItem, MouseClick);
-    // Workaround until https://bugreports.qt.io/browse/QTBUG-62954 is fixed
-    mouseEventOnCentre(fileMenuBarItem, MouseClick);
-//    QTest::keyClick(window, Qt::Key_Escape);
-    // Workaround until https://bugreports.qt.io/browse/QTBUG-62955 is fixed
-    tileCanvas->forceActiveFocus();
-    QCOMPARE(window->activeFocusItem(), tileCanvas.data());
-#endif
-
     QTest::keyPress(window, Qt::Key_Alt);
     QCOMPARE(tileCanvas->tool(), TileCanvas::EyeDropperTool);
 
@@ -1717,88 +1706,86 @@ void tst_App::useTilesetSwatch()
 
 void tst_App::tilesetSwatchContextMenu()
 {
-#ifdef NON_NATIVE_MENUS
-    createNewTilesetProject();
+//    createNewTilesetProject();
 
-    QCOMPARE(tileCanvas->penTile(), tilesetProject->tilesetTileAt(0, 0));
+//    QCOMPARE(tileCanvas->penTile(), tilesetProject->tilesetTileAt(0, 0));
 
-    // Test clicking outside of the menu to cancel it.
+//    // Test clicking outside of the menu to cancel it.
 
-    const Tile *originallySelectedTile = tileCanvas->penTile();
-    // Open the context menu.
-    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, tilesetTileSceneCentre(0, 0));
-    QObject *tilesetContextMenu = window->findChild<QObject*>("tilesetContextMenu");
-    QVERIFY(tilesetContextMenu);
-    QVERIFY(tilesetContextMenu->property("visible").toBool());
+//    const Tile *originallySelectedTile = tileCanvas->penTile();
+//    // Open the context menu.
+//    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, tilesetTileSceneCentre(0, 0));
+//    QObject *tilesetContextMenu = window->findChild<QObject*>("tilesetContextMenu");
+//    QVERIFY(tilesetContextMenu);
+//    QVERIFY(tilesetContextMenu->property("visible").toBool());
 
-    const QPoint outsidePos = tilesetTileSceneCentre(tilesetProject->tileset()->tilesWide() - 1, 0);
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, outsidePos);
-    QVERIFY(!tilesetContextMenu->property("visible").toBool());
-    // The selected tile shouldn't have changed.
-    QCOMPARE(tileCanvas->penTile(), originallySelectedTile);
+//    const QPoint outsidePos = tilesetTileSceneCentre(tilesetProject->tileset()->tilesWide() - 1, 0);
+//    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, outsidePos);
+//    QVERIFY(!tilesetContextMenu->property("visible").toBool());
+//    // The selected tile shouldn't have changed.
+//    QCOMPARE(tileCanvas->penTile(), originallySelectedTile);
 
-    // Test duplicating a tile.
+//    // Test duplicating a tile.
 
-    // Open the context menu.
-    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, tilesetTileSceneCentre(0, 0));
-    QVERIFY(tilesetContextMenu->property("visible").toBool());
+//    // Open the context menu.
+//    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, tilesetTileSceneCentre(0, 0));
+//    QVERIFY(tilesetContextMenu->property("visible").toBool());
 
-    // Click the "duplicate" menu item.
-    mouseEventOnCentre(duplicateTileMenuButton, MouseClick);
-    QCOMPARE(tileCanvas->penTile(), originallySelectedTile);
-    QVERIFY(!tilesetContextMenu->property("visible").toBool());
+//    // Click the "duplicate" menu item.
+//    mouseEventOnCentre(duplicateTileMenuButton, MouseClick);
+//    QCOMPARE(tileCanvas->penTile(), originallySelectedTile);
+//    QVERIFY(!tilesetContextMenu->property("visible").toBool());
 
-    // Duplicate the tile.
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, tilesetTileSceneCentre(1, 1));
-    // It should be the tile we right clicked on.
-    QCOMPARE(tilesetProject->tilesetTileAt(0, 0), originallySelectedTile);
-    // The selected tile shouldn't have changed.
-    QCOMPARE(tileCanvas->penTile(), originallySelectedTile);
+//    // Duplicate the tile.
+//    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, tilesetTileSceneCentre(1, 1));
+//    // It should be the tile we right clicked on.
+//    QCOMPARE(tilesetProject->tilesetTileAt(0, 0), originallySelectedTile);
+//    // The selected tile shouldn't have changed.
+//    QCOMPARE(tileCanvas->penTile(), originallySelectedTile);
 
-    // Test rotating a tile left.
+//    // Test rotating a tile left.
 
-    // Draw the tile that we're rotating onto the canvas and then
-    // take a snapshot of the canvas to make sure that it's actually updated.
-    switchMode(TileCanvas::TileMode);
-    setCursorPosInTiles(0, 0);
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QVERIFY(tilesetProject->tileAt(cursorPos));
-    QVERIFY(imageGrabber.requestImage(tileCanvas));
-    QTRY_VERIFY(imageGrabber.isReady());
-    QImage lastCanvasSnapshot = imageGrabber.takeImage();
+//    // Draw the tile that we're rotating onto the canvas and then
+//    // take a snapshot of the canvas to make sure that it's actually updated.
+//    switchMode(TileCanvas::TileMode);
+//    setCursorPosInTiles(0, 0);
+//    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+//    QVERIFY(tilesetProject->tileAt(cursorPos));
+//    QVERIFY(imageGrabber.requestImage(tileCanvas));
+//    QTRY_VERIFY(imageGrabber.isReady());
+//    QImage lastCanvasSnapshot = imageGrabber.takeImage();
 
-    // Open the context menu.
-    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, tilesetTileSceneCentre(0, 0));
-    QVERIFY(tilesetContextMenu->property("visible").toBool());
+//    // Open the context menu.
+//    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, tilesetTileSceneCentre(0, 0));
+//    QVERIFY(tilesetContextMenu->property("visible").toBool());
 
-    // Click the "rotate left" menu item.
-    const QImage originalTileImage = tileCanvas->penTile()->image();
-    mouseEventOnCentre(rotateTileLeftMenuButton, MouseClick);
-    QVERIFY(!tilesetContextMenu->property("visible").toBool());
-    QCOMPARE(Utils::rotate(tileCanvas->penTile()->image(), 90), originalTileImage);
+//    // Click the "rotate left" menu item.
+//    const QImage originalTileImage = tileCanvas->penTile()->image();
+//    mouseEventOnCentre(rotateTileLeftMenuButton, MouseClick);
+//    QVERIFY(!tilesetContextMenu->property("visible").toBool());
+//    QCOMPARE(Utils::rotate(tileCanvas->penTile()->image(), 90), originalTileImage);
 
-    QVERIFY(imageGrabber.requestImage(tileCanvas));
-    QTRY_VERIFY(imageGrabber.isReady());
-    QImage currentImage = imageGrabber.takeImage();
-    QVERIFY(currentImage != lastCanvasSnapshot);
-    lastCanvasSnapshot = currentImage;
+//    QVERIFY(imageGrabber.requestImage(tileCanvas));
+//    QTRY_VERIFY(imageGrabber.isReady());
+//    QImage currentImage = imageGrabber.takeImage();
+//    QVERIFY(currentImage != lastCanvasSnapshot);
+//    lastCanvasSnapshot = currentImage;
 
-    // Test rotating a tile right.
+//    // Test rotating a tile right.
 
-    // Open the context menu.
-    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, tilesetTileSceneCentre(0, 0));
-    QVERIFY(tilesetContextMenu->property("visible").toBool());
+//    // Open the context menu.
+//    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, tilesetTileSceneCentre(0, 0));
+//    QVERIFY(tilesetContextMenu->property("visible").toBool());
 
-    // Click the "rotate right" menu item.
-    mouseEventOnCentre(rotateTileRightMenuButton, MouseClick);
-    QVERIFY(!tilesetContextMenu->property("visible").toBool());
-    QCOMPARE(tileCanvas->penTile()->image(), originalTileImage);
+//    // Click the "rotate right" menu item.
+//    mouseEventOnCentre(rotateTileRightMenuButton, MouseClick);
+//    QVERIFY(!tilesetContextMenu->property("visible").toBool());
+//    QCOMPARE(tileCanvas->penTile()->image(), originalTileImage);
 
-    QVERIFY(imageGrabber.requestImage(tileCanvas));
-    QTRY_VERIFY(imageGrabber.isReady());
-    currentImage = imageGrabber.takeImage();
-    QVERIFY(currentImage != lastCanvasSnapshot);
-#endif
+//    QVERIFY(imageGrabber.requestImage(tileCanvas));
+//    QTRY_VERIFY(imageGrabber.isReady());
+//    currentImage = imageGrabber.takeImage();
+//    QVERIFY(currentImage != lastCanvasSnapshot);
 }
 
 void tst_App::tilesetSwatchNavigation()
@@ -3170,14 +3157,8 @@ void tst_App::autoExport()
 
     // Don't have a shortcut for it yet, so have to change it manually, but we can still
     // check that the menus update accordingly.
-#ifdef NON_NATIVE_MENUS
-    // TODO: can we just use the QObject-based code below instead?
-    QQuickItem *autoExportMenuButton = window->findChild<QQuickItem*>("autoExportMenuButton");
-    QVERIFY(autoExportMenuButton);
-#else
     QObject *autoExportMenuButton = window->findChild<QObject*>("autoExportMenuButton");
     QVERIFY(autoExportMenuButton);
-#endif
     QCOMPARE(autoExportMenuButton->property("checked").toBool(), false);
 
     layeredImageProject->setAutoExportEnabled(true);
