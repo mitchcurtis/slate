@@ -22,9 +22,7 @@ do { \
 
 #define VERIFY2(statement, description) \
 do { \
-    if (statement) { \
-        return true; \
-    } else { \
+    if (!static_cast<bool>(statement)) { \
         failureMessage = description; \
         return false; \
     } \

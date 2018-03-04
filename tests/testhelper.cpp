@@ -1039,7 +1039,7 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         VERIFY(!newImageProjectPopup->property("visible").toBool());
     }
 
-    return !updateVariables(true, projectType);
+    return updateVariables(true, projectType);
 }
 
 bool TestHelper::createNewTilesetProject(int tileWidth, int tileHeight, int tilesetTilesWide, int tilesetTilesHigh,
