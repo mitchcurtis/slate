@@ -57,7 +57,7 @@ ImageCanvas::ImageCanvas() :
     mGridVisible(false),
     mGridColour(Qt::black),
     mSplitColour(Qt::black),
-    mSplitScreen(true),
+    mSplitScreen(false),
     mSplitter(this),
     mCurrentPane(&mFirstPane),
     mFirstHorizontalRuler(new Ruler(Qt::Horizontal, this)),
@@ -160,11 +160,22 @@ void ImageCanvas::setProject(Project *project)
         // New projects or projects that don't have their own Slate extension
         // won't have any JSON data.
         QJsonObject *cachedProjectJson = project->cachedProjectJson();
+        bool readPanes = false;
         if (cachedProjectJson->contains("firstPane")) {
             mFirstPane.read(cachedProjectJson->value("firstPane").toObject());
+            readPanes = true;
         }
         if (cachedProjectJson->contains("firstPane")) {
             mSecondPane.read(cachedProjectJson->value("secondPane").toObject());
+            readPanes = true;
+        }
+        doSetSplitScreen(cachedProjectJson->value("splitScreen").toBool(false), DontResetPaneSizes);
+        mSplitter.setEnabled(cachedProjectJson->value("splitterLocked").toBool(false));
+        if (!readPanes) {
+            // If there were no panes stored, then the project hasn't been saved yet,
+            // so we can do what we want with the panes.
+            setDefaultPaneSizes();
+            centrePanes();
         }
 
         setAcceptedMouseButtons(Qt::AllButtons);
@@ -504,24 +515,7 @@ bool ImageCanvas::isSplitScreen() const
 
 void ImageCanvas::setSplitScreen(bool splitScreen)
 {
-    if (splitScreen == mSplitScreen)
-        return;
-
-    mSplitScreen = splitScreen;
-
-    if (mCurrentPane == &mSecondPane) {
-        setCurrentPane(&mFirstPane);
-    }
-
-    mFirstPane.setSize(splitScreen ? 0.5 : 1.0);
-    mSecondPane.setSize(splitScreen ? 0.5 : 0.0);
-
-    updateRulerVisibility();
-    resizeRulers();
-
-    update();
-
-    emit splitScreenChanged();
+    doSetSplitScreen(splitScreen, ResetPaneSizes);
 }
 
 bool ImageCanvas::scrollZoom() const
@@ -671,8 +665,6 @@ void ImageCanvas::connectSignals()
         this, SLOT(onReadyForWritingToJson(QJsonObject*)));
 
     connect(window(), SIGNAL(activeFocusItemChanged()), this, SLOT(updateWindowCursorShape()));
-
-    centrePanes();
 }
 
 void ImageCanvas::disconnectSignals()
@@ -890,6 +882,36 @@ void ImageCanvas::centrePanes(bool respectSceneCentred)
     update();
 }
 
+void ImageCanvas::doSetSplitScreen(bool splitScreen, ImageCanvas::ResetPaneSizePolicy resetPaneSizePolicy)
+{
+    if (splitScreen == mSplitScreen)
+        return;
+
+    mSplitScreen = splitScreen;
+
+    if (mCurrentPane == &mSecondPane) {
+        setCurrentPane(&mFirstPane);
+    }
+
+    if (resetPaneSizePolicy == ResetPaneSizes) {
+        setDefaultPaneSizes();
+        centrePanes();
+    }
+
+    updateRulerVisibility();
+    resizeRulers();
+
+    update();
+
+    emit splitScreenChanged();
+}
+
+void ImageCanvas::setDefaultPaneSizes()
+{
+    mFirstPane.setSize(mSplitScreen ? 0.5 : 1.0);
+    mSecondPane.setSize(mSplitScreen ? 0.5 : 0.0);
+}
+
 bool ImageCanvas::mouseOverSplitterHandle(const QPoint &mousePos)
 {
     const QRect splitterRegion(paneWidth(0) - mSplitter.width() / 2, 0, mSplitter.width(), height());
@@ -1015,6 +1037,11 @@ void ImageCanvas::onReadyForWritingToJson(QJsonObject *projectJson)
     QJsonObject secondPaneJson;
     mSecondPane.write(secondPaneJson);
     (*projectJson)["secondPane"] = secondPaneJson;
+
+    if (mSplitScreen)
+        (*projectJson)["splitScreen"] = true;
+    if (mSplitter.isEnabled())
+        (*projectJson)["splitterLocked"] = true;
 }
 
 bool ImageCanvas::isPanning() const

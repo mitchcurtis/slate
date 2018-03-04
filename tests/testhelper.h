@@ -92,9 +92,9 @@ private Q_SLOTS:
     void initTestCase();
     void cleanup();
 
+protected:
     void resetCreationErrorSpy();
 
-protected:
     enum TestMouseEventType
     {
         MousePress,

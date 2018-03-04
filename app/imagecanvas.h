@@ -309,6 +309,12 @@ protected:
     void drawGuide(QPainter *painter, const CanvasPane &pane, int paneIndex, const Guide &guide, int guideIndex);
     int paneWidth(int index) const;
     void centrePanes(bool respectSceneCentred = true);
+    enum ResetPaneSizePolicy {
+        DontResetPaneSizes,
+        ResetPaneSizes
+    };
+    void doSetSplitScreen(bool splitScreen, ResetPaneSizePolicy resetPaneSizePolicy);
+    void setDefaultPaneSizes();
     bool mouseOverSplitterHandle(const QPoint &mousePos);
 
     void updateRulerVisibility();

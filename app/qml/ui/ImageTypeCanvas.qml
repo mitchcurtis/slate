@@ -14,9 +14,7 @@ ImageCanvas {
     rulersVisible: settings.rulersVisible
     guidesVisible: settings.guidesVisible
     guidesLocked: settings.guidesLocked
-    splitScreen: settings.splitScreen
     splitColour: CanvasColours.splitColour
-    splitter.enabled: settings.splitScreen && !settings.splitterLocked
     splitter.width: 32
     scrollZoom: settings.scrollZoom
     anchors.fill: parent

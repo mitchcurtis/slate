@@ -141,7 +141,7 @@ protected:
     QUrl mUrl;
     QTemporaryDir mTempDir;
     bool mUsingTempImage;
-    // Caching the project's json object allows the project to save and shared
+    // Caching the project's json object allows the project to save and share
     // e.g. pane info without having to know about the canvas. This member is
     // written to once after loading, and then the readyForWritingToJson()
     // signal is emitted when saving to allow the canvas (and anyone else

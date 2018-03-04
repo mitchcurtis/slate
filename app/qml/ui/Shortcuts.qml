@@ -161,14 +161,14 @@ Item {
     Shortcut {
         objectName: "splitScreenShortcut"
         sequence: settings.splitScreenShortcut
-        onActivated: settings.splitScreen = !settings.splitScreen
+        onActivated: canvas.splitScreen = !canvas.splitScreen
         enabled: canvasHasActiveFocus
     }
 
     Shortcut {
         objectName: "splitterLockedShortcut"
         sequence: settings.splitterLockedShortcut
-        onActivated: settings.splitterLocked = !settings.splitterLocked
+        onActivated: canvas.splitter.enabled = !canvas.splitter.enabled
         enabled: canvasHasActiveFocus
     }
 

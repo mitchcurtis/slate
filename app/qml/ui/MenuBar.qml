@@ -237,17 +237,17 @@ Platform.MenuBar {
             text: qsTr("Split Screen")
             enabled: canvas
             checkable: true
-            checked: settings.splitScreen
-            onTriggered: settings.splitScreen = checked
+            checked: canvas && canvas.splitScreen
+            onTriggered: canvas.splitScreen = checked
         }
 
         Platform.MenuItem {
             objectName: "splitterLockedMenuButton"
             text: qsTr("Lock Splitter")
-            enabled: canvas && settings.splitScreen
+            enabled: canvas && canvas.splitScreen
             checkable: true
-            checked: settings.splitterLocked
-            onTriggered: settings.splitterLocked = checked
+            checked: canvas && canvas.splitter.enabled
+            onTriggered: canvas.splitter.enabled = checked
         }
 
         Platform.MenuItem {

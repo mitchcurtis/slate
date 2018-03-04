@@ -39,8 +39,6 @@ class ApplicationSettings : public QSettings
     Q_PROPERTY(bool rulersVisible READ areRulersVisible WRITE setRulersVisible NOTIFY rulersVisibleChanged)
     Q_PROPERTY(bool guidesVisible READ areGuidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
     Q_PROPERTY(bool guidesLocked READ areGuidesLocked WRITE setGuidesLocked NOTIFY guidesLockedChanged)
-    Q_PROPERTY(bool splitScreen READ isSplitScreen WRITE setSplitScreen NOTIFY splitScreenChanged)
-    Q_PROPERTY(bool splitterLocked READ isSplitterLocked WRITE setSplitterLocked NOTIFY splitterLockedChanged)
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
 
     Q_PROPERTY(QString quitShortcut READ quitShortcut WRITE setQuitShortcut NOTIFY quitShortcutChanged)
@@ -104,14 +102,6 @@ public:
     bool areGuidesLocked() const;
     void setGuidesLocked(bool guidesLocked);
     bool defaultGuidesLocked() const;
-
-    bool defaultSplitScreen() const;
-    bool isSplitScreen() const;
-    void setSplitScreen(bool splitScreen);
-
-    bool defaultSplitterLocked() const;
-    bool isSplitterLocked() const;
-    void setSplitterLocked(bool splitterLocked);
 
     bool defaultScrollZoom() const;
     bool scrollZoom() const;
@@ -266,8 +256,6 @@ signals:
     void rulersVisibleChanged();
     void guidesVisibleChanged();
     void guidesLockedChanged();
-    void splitScreenChanged();
-    void splitterLockedChanged();
     void scrollZoomChanged();
 
     void quitShortcutChanged();

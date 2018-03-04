@@ -177,56 +177,6 @@ bool ApplicationSettings::defaultGuidesLocked() const
     return false;
 }
 
-bool ApplicationSettings::defaultSplitScreen() const
-{
-    return true;
-}
-
-bool ApplicationSettings::isSplitScreen() const
-{
-    return contains("splitScreen") ? value("splitScreen").toBool() : defaultSplitScreen();
-}
-
-void ApplicationSettings::setSplitScreen(bool splitScreen)
-{
-    QVariant existingValue = value("splitScreen");
-    bool existingBoolValue = defaultSplitScreen();
-    if (contains("splitScreen")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (splitScreen == existingBoolValue)
-        return;
-
-    setValue("splitScreen", splitScreen);
-    emit splitScreenChanged();
-}
-
-bool ApplicationSettings::defaultSplitterLocked() const
-{
-    return true;
-}
-
-bool ApplicationSettings::isSplitterLocked() const
-{
-    return contains("splitterLocked") ? value("splitterLocked").toBool() : defaultSplitterLocked();
-}
-
-void ApplicationSettings::setSplitterLocked(bool splitterLocked)
-{
-    QVariant existingValue = value("splitterLocked");
-    bool existingBoolValue = defaultSplitterLocked();
-    if (contains("splitterLocked")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (splitterLocked == existingBoolValue)
-        return;
-
-    setValue("splitterLocked", splitterLocked);
-    emit splitterLockedChanged();
-}
-
 bool ApplicationSettings::defaultScrollZoom() const
 {
     return true;

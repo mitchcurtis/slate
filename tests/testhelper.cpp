@@ -64,8 +64,6 @@ void TestHelper::initTestCase()
     // Tests could have failed on the last run, so just enforce the default settings.
     app.settings()->setGridVisible(app.settings()->defaultGridVisible());
     QVERIFY(app.settings()->isGridVisible());
-    app.settings()->setSplitScreen(app.settings()->defaultSplitScreen());
-    QVERIFY(app.settings()->isSplitScreen());
     app.settings()->setRulersVisible(false);
     QVERIFY(!app.settings()->areRulersVisible());
 
@@ -1133,6 +1131,11 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
 
     canvas = window->findChild<ImageCanvas*>();
     VERIFY(canvas);
+    // The old default was to split the screen,
+    // and so the tests might be depending on it to be split.
+    // Also, it's good to ensure that it's tested.
+    canvas->setSplitScreen(true);
+    VERIFY(canvas->isSplitScreen());
 
     if (newProjectType == Project::TilesetType) {
         tilesetProject = qobject_cast<TilesetProject*>(project);
@@ -1153,7 +1156,7 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
     }
 
     canvas->forceActiveFocus();
-//    QTRY_VERIFY(canvas->hasActiveFocus());
+//    TRY_VERIFY(canvas->hasActiveFocus());
 
     VERIFY(project->hasLoaded());
 

@@ -427,8 +427,8 @@ void tst_App::saveAsAndLoad()
     setCursorPosInPixels(QPoint(0, 0));
     QVERIFY2(zoomTo(5), failureMessage);
 
+    // Ensure that the splitter is not locked.
     QCOMPARE(canvas->isSplitScreen(), true);
-
     QVERIFY2(setSplitterLocked(false), failureMessage);
 
     // Resize the first pane to make it smaller.
@@ -1478,13 +1478,13 @@ void tst_App::panes()
 
     // Remove split.
     QVERIFY2(triggerSplitScreen(), failureMessage);
-    QVERIFY(!app.settings()->isSplitScreen());
+    QVERIFY(!canvas->isSplitScreen());
     QCOMPARE(tileCanvas->firstPane()->size(), 1.0);
     QCOMPARE(tileCanvas->secondPane()->size(), 0.0);
 
     // Add it back again.
     QVERIFY2(triggerSplitScreen(), failureMessage);
-    QVERIFY(app.settings()->isSplitScreen());
+    QVERIFY(canvas->isSplitScreen());
     QCOMPARE(tileCanvas->firstPane()->size(), 0.5);
     QCOMPARE(tileCanvas->secondPane()->size(), 0.5);
 }
