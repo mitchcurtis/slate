@@ -84,7 +84,7 @@ ApplicationWindow {
     }
 
     function doIfChangesDiscarded(actionFunction, skipChangesConfirmationIfNoProject) {
-        if (!!skipChangesConfirmationIfNoProject && !project) {
+        if ((skipChangesConfirmationIfNoProject === undefined || skipChangesConfirmationIfNoProject === true) && !project) {
             // If there's no project open, some features should be able to
             // be performed immediately, such as Open.
             actionFunction();
