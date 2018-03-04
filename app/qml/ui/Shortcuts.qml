@@ -22,7 +22,7 @@ Item {
     Shortcut {
         objectName: "newShortcut"
         sequence: settings.newShortcut
-        onActivated: doIfChangesDiscarded(function() { newProjectPopup.open() }, true)
+        onActivated: {print("@@@");doIfChangesDiscarded(function() { newProjectPopup.open() }, true)}
         enabled: canvasHasActiveFocus
     }
 

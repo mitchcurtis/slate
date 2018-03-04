@@ -389,8 +389,10 @@ bool TestHelper::drawPixelAtCursorPos()
         const Tile *targetTile = tilesetProject->tileAt(cursorPos);
         VERIFY(targetTile);
 
-        switchTool(TileCanvas::PenTool);
-        switchMode(TileCanvas::PixelMode);
+        if (!switchTool(TileCanvas::PenTool))
+            return false;
+        if (!switchMode(TileCanvas::PixelMode))
+            return false;
 
         // Draw on some pixels of the current tile.
         const QImage originalTileImage = targetTile->tileset()->image()->copy(targetTile->sourceRect());
@@ -409,7 +411,8 @@ bool TestHelper::drawPixelAtCursorPos()
         VERIFY(tilesetProject->hasUnsavedChanges());
         VERIFY(window->title().contains("*"));
     } else {
-        switchTool(TileCanvas::PenTool);
+        if (!switchTool(TileCanvas::PenTool))
+            return false;
 
         QTest::mouseMove(window, cursorWindowPos);
         QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -428,8 +431,10 @@ bool TestHelper::drawPixelAtCursorPos()
 
 bool TestHelper::drawTileAtCursorPos()
 {
-    switchTool(TileCanvas::PenTool);
-    switchMode(TileCanvas::TileMode);
+    if (!switchTool(TileCanvas::PenTool))
+        return false;
+    if (!switchMode(TileCanvas::TileMode))
+        return false;
 
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -469,7 +474,8 @@ bool TestHelper::fuzzyImageCompare(const QImage &image1, const QImage &image2)
 
     for (int y = 0; y < image1.height(); ++y) {
         for (int x = 0; x < image1.width(); ++x) {
-            fuzzyColourCompare(image1.pixelColor(x, y), image2.pixelColor(x, y));
+            if (!fuzzyColourCompare(image1.pixelColor(x, y), image2.pixelColor(x, y)))
+                return false;
         }
     }
 
@@ -751,7 +757,8 @@ bool TestHelper::triggerSplitterLocked()
 bool TestHelper::setSplitterLocked(bool splitterLocked)
 {
     if (canvas->splitter()->isEnabled() != !splitterLocked) {
-        triggerSplitterLocked();
+        if (!triggerSplitterLocked())
+            return false;
         VERIFY(canvas->splitter()->isEnabled() == !splitterLocked);
     }
     return true;
@@ -765,7 +772,8 @@ bool TestHelper::triggerAnimationPlayback()
 bool TestHelper::setAnimationPlayback(bool usingAnimation)
 {
     if (layeredImageProject->isUsingAnimation() != usingAnimation) {
-        triggerAnimationPlayback();
+        if (!triggerAnimationPlayback())
+            return false;
         VERIFY(layeredImageProject->isUsingAnimation() == usingAnimation);
     }
     return true;
@@ -1043,8 +1051,7 @@ bool TestHelper::createNewTilesetProject(int tileWidth, int tileHeight, int tile
     args.insert("tilesetTilesWide", tilesetTilesWide);
     args.insert("tilesetTilesHigh", tilesetTilesHigh);
     args.insert("transparentTilesetBackground", transparentTilesetBackground);
-    createNewProject(Project::TilesetType, args);
-    return true;
+    return createNewProject(Project::TilesetType, args);
 }
 
 bool TestHelper::createNewImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)
@@ -1053,8 +1060,7 @@ bool TestHelper::createNewImageProject(int imageWidth, int imageHeight, bool tra
     args.insert("imageWidth", imageWidth);
     args.insert("imageHeight", imageHeight);
     args.insert("transparentImageBackground", transparentImageBackground);
-    createNewProject(Project::ImageType, args);
-    return true;
+    return createNewProject(Project::ImageType, args);
 }
 
 bool TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)
@@ -1063,7 +1069,8 @@ bool TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
     args.insert("imageWidth", imageWidth);
     args.insert("imageHeight", imageHeight);
     args.insert("transparentImageBackground", transparentImageBackground);
-    createNewProject(Project::LayeredImageType, args);
+    if (!createNewProject(Project::LayeredImageType, args))
+        return false;
 
     VERIFY(layeredImageProject->layerCount() == 1);
     VERIFY(layeredImageProject->currentLayerIndex() == 0);
@@ -1106,9 +1113,7 @@ bool TestHelper::loadProject(const QUrl &url)
     VERIFY(QMetaObject::invokeMethod(window, "loadProject", Qt::DirectConnection, Q_ARG(QVariant, url)));
     VERIFY_NO_CREATION_ERRORS_OCCURRED();
 
-    updateVariables(false, projectManager->projectTypeForUrl(url));
-
-    return true;
+    return updateVariables(false, projectManager->projectTypeForUrl(url));
 }
 
 bool TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType)
@@ -1164,7 +1169,8 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
         settings->resetShortcutsToDefaults();
 
         if (settings->areRulersVisible()) {
-            triggerRulersVisible();
+            if (!triggerRulersVisible())
+                return false;
             VERIFY(settings->areRulersVisible() == false);
         }
 
@@ -1365,6 +1371,8 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     QTest::keyRelease(window, Qt::Key_Space);
     VERIFY(window->cursor().shape() == Qt::BlankCursor);
     VERIFY(canvas->currentPane()->offset() == expectedOffset);
+
+    return true;
 }
 
 bool TestHelper::zoomTo(int zoomLevel)

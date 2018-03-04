@@ -130,7 +130,7 @@ tst_App::tst_App(int &argc, char **argv) :
 
 void tst_App::newProjectWithNewTileset()
 {
-    createNewTilesetProject(32, 32, 5, 5);
+    QVERIFY2(createNewTilesetProject(32, 32, 5, 5), failureMessage);
 
     // Make sure that any changes are reflected in the image after it's saved.
     // First, establish what we expect the image to look like in the end.
@@ -150,7 +150,7 @@ void tst_App::newProjectWithNewTileset()
     QVERIFY(tilesetProject->hasUnsavedChanges());
 
     // Draw a pixel on that tile.
-    switchMode(TileCanvas::PixelMode);
+    QVERIFY2(switchMode(TileCanvas::PixelMode), failureMessage);
     setCursorPosInScenePixels(10, 10);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(*tilesetProject->tileset()->image(), expectedTilesetImage);
@@ -410,7 +410,7 @@ void tst_App::saveAsAndLoad()
     const qreal rulerThickness = firstHorizontalRuler->height();
 
     // TODO: fix this failure so that we can test it properly
-//    panTopLeftTo(rulerThickness, rulerThickness);
+//    QVERIFY2(panTopLeftTo(rulerThickness, rulerThickness), failureMessage);
     canvas->firstPane()->setOffset(QPoint(rulerThickness, rulerThickness));
 
     // Drop a horizontal guide onto the canvas.
@@ -425,11 +425,11 @@ void tst_App::saveAsAndLoad()
 
     // Zoom in.
     setCursorPosInPixels(QPoint(0, 0));
-    zoomTo(5);
+    QVERIFY2(zoomTo(5), failureMessage);
 
     QCOMPARE(canvas->isSplitScreen(), true);
 
-    setSplitterLocked(false);
+    QVERIFY2(setSplitterLocked(false), failureMessage);
 
     // Resize the first pane to make it smaller.
     const QPoint splitterCentre(canvas->width() / 2, canvas->height() / 2);
@@ -461,7 +461,7 @@ void tst_App::saveAsAndLoad()
     QVERIFY(!project->hasLoaded());
 
     // Load the saved file.
-    loadProject(QUrl::fromLocalFile(savedProjectPath));
+    QVERIFY2(loadProject(QUrl::fromLocalFile(savedProjectPath)), failureMessage);
     QCOMPARE(project->guides().size(), 1);
     QCOMPARE(project->guides().first().position(), 10);
     QCOMPARE(canvas->firstPane()->offset(), firstPaneOffset);
@@ -474,10 +474,10 @@ void tst_App::saveAsAndLoad()
 
 void tst_App::animationPlayback()
 {
-    createNewLayeredImageProject();
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
     QCOMPARE(layeredImageProject->isUsingAnimation(), false);
 
-    setAnimationPlayback(true);
+    QVERIFY2(setAnimationPlayback(true), failureMessage);
 
     // Open the settings popup to modify the settings slightly.
     QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
@@ -736,7 +736,7 @@ void tst_App::showGrid()
 void tst_App::undoPixels()
 {
     QVERIFY2(createNewTilesetProject(), failureMessage);
-    switchTool(TileCanvas::PenTool);
+    QVERIFY2(switchTool(TileCanvas::PenTool), failureMessage);
 
     // It's a new project.
     QVERIFY(tilesetProject->canSave());
@@ -772,7 +772,7 @@ void tst_App::undoPixels()
     QVERIFY(window->title().contains("*"));
     QVERIFY(tilesetProject->canSave());
 
-    switchMode(TileCanvas::PixelMode);
+    QVERIFY2(switchMode(TileCanvas::PixelMode), failureMessage);
 
     // Draw on some pixels of that tile.
     const QImage originalImage = *tilesetProject->tileAt(cursorPos)->tileset()->image();
@@ -836,12 +836,12 @@ void tst_App::undoLargePixelPen()
     QVERIFY(tilesetProject->tileAt(cursorPos));
     QVERIFY(tilesetProject->tileAt(tileCanvasCentre(0, 0)) != tilesetProject->tileAt(tileCanvasCentre(1, 0)));
 
-    switchMode(TileCanvas::PixelMode);
+    QVERIFY2(switchMode(TileCanvas::PixelMode), failureMessage);
 
     const QImage originalTilesetImage = *tilesetProject->tileset()->image();
 
     const int toolSize = tilesetProject->tileWidth();
-    changeToolSize(toolSize);
+    QVERIFY2(changeToolSize(toolSize), failureMessage);
 
     // Draw a large square.
     setCursorPosInScenePixels(toolSize, toolSize / 2);
@@ -961,7 +961,7 @@ void tst_App::undoWithDuplicates()
     QVERIFY(tilesetProject->hasUnsavedChanges());
     QVERIFY(window->title().contains("*"));
 
-    switchMode(TileCanvas::PixelMode);
+    QVERIFY2(switchMode(TileCanvas::PixelMode), failureMessage);
 
     setCursorPosInScenePixels(0, 1);
     const QImage originalImage = *tilesetProject->tileAt(cursorPos)->tileset()->image();
@@ -1013,7 +1013,7 @@ void tst_App::undoWithDuplicates()
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QVERIFY(tilesetProject->tileAt(cursorPos));
 
-    switchMode(TileCanvas::PixelMode);
+    QVERIFY2(switchMode(TileCanvas::PixelMode), failureMessage);
 
     int x = 0;
     const int y = tilesetProject->tileHeight() / 2;
@@ -1059,7 +1059,7 @@ void tst_App::undoTilesetCanvasSizeChange()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
 
-    changeCanvasSize(9, 9);
+    QVERIFY2(changeCanvasSize(9, 9), failureMessage);
     QVERIFY(tilesetProject->tiles() != originalTiles);
     QCOMPARE(tilesetProject->tiles().size(), 9 * 9);
 
@@ -1073,24 +1073,24 @@ void tst_App::undoTilesetCanvasSizeChange()
     QCOMPARE(tilesetProject->tiles().size(), 10 * 10);
 
     // Check that neither of the following assert.
-    changeCanvasSize(10, 9);
+    QVERIFY2(changeCanvasSize(10, 9), failureMessage);
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(tilesetProject->tiles(), originalTiles);
     QCOMPARE(tilesetProject->tiles().size(), 10 * 10);
 
-    changeCanvasSize(9, 10);
+    QVERIFY2(changeCanvasSize(9, 10), failureMessage);
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(tilesetProject->tiles(), originalTiles);
     QCOMPARE(tilesetProject->tiles().size(), 10 * 10);
 
-    changeCanvasSize(12, 12);
+    QVERIFY2(changeCanvasSize(12, 12), failureMessage);
     QCOMPARE(tilesetProject->tiles().size(), 12 * 12);
     QCOMPARE(tilesetProject->tiles().last(), -1);
 }
 
 void tst_App::undoImageCanvasSizeChange()
 {
-    createNewImageProject();
+    QVERIFY2(createNewImageProject(), failureMessage);
 
     QCOMPARE(imageProject->widthInPixels(), 256);
     QCOMPARE(imageProject->heightInPixels(), 256);
@@ -1104,7 +1104,7 @@ void tst_App::undoImageCanvasSizeChange()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
 
-    changeCanvasSize(200, 200);
+    QVERIFY2(changeCanvasSize(200, 200), failureMessage);
 
     // Ensure that the canvas was repainted after the size change.
     QVERIFY(imageGrabber.requestImage(canvas));
@@ -1117,9 +1117,9 @@ void tst_App::undoImageCanvasSizeChange()
 
 void tst_App::undoImageSizeChange()
 {
-    createNewImageProject(12, 12);
+    QVERIFY2(createNewImageProject(12, 12), failureMessage);
 
-    changeToolSize(4);
+    QVERIFY2(changeToolSize(4), failureMessage);
 
     setCursorPosInScenePixels(2, 2);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -1131,7 +1131,7 @@ void tst_App::undoImageSizeChange()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
 
-    changeImageSize(6, 6);
+    QVERIFY2(changeImageSize(6, 6), failureMessage);
 
     // The contents should have been scaled down by 50%.
     QCOMPARE(imageProject->image()->pixelColor(QPoint(0, 0)), imageCanvas->penForegroundColour());
@@ -1163,9 +1163,9 @@ void tst_App::undoImageSizeChange()
 
 void tst_App::undoLayeredImageSizeChange()
 {
-    createNewLayeredImageProject(12, 12);
+    QVERIFY2(createNewLayeredImageProject(12, 12), failureMessage);
 
-    changeToolSize(4);
+    QVERIFY2(changeToolSize(4), failureMessage);
 
     setCursorPosInScenePixels(2, 2);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -1179,7 +1179,7 @@ void tst_App::undoLayeredImageSizeChange()
     ImageLayer *layer2 = layeredImageProject->layerAt(0);
 
     // Select the new layer.
-    selectLayer("Layer 2", 0);
+    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
 
     // Draw on the new layer.
     setCursorPosInScenePixels(6, 2);
@@ -1192,7 +1192,7 @@ void tst_App::undoLayeredImageSizeChange()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
 
-    changeImageSize(6, 6);
+    QVERIFY2(changeImageSize(6, 6), failureMessage);
 
     // The contents of both layers should have been scaled down by 50%.
     QCOMPARE(layer1->image()->pixelColor(QPoint(0, 0)), QColor(Qt::black));
@@ -1253,16 +1253,16 @@ void tst_App::undoPixelFill()
 
     // Draw a block of tiles.
     setCursorPosInScenePixels(0, 0);
-    drawPixelAtCursorPos();
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     setCursorPosInScenePixels(1, 0);
-    drawPixelAtCursorPos();
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     setCursorPosInScenePixels(1, 1);
-    drawPixelAtCursorPos();
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     setCursorPosInScenePixels(0, 1);
-    drawPixelAtCursorPos();
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     const Tile *targetTile = tilesetProject->tileAt(cursorPos);
     QVERIFY(targetTile);
@@ -1275,7 +1275,7 @@ void tst_App::undoPixelFill()
     // Try to fill it. The whole thing should be filled.
     // We do it from the top right because there was a bug where fills
     // wouldn't go downwards.
-    switchTool(TileCanvas::FillTool);
+    QVERIFY2(switchTool(TileCanvas::FillTool), failureMessage);
     setCursorPosInScenePixels(1, 0);
     const QColor red = QColor(Qt::red);
     tileCanvas->setPenForegroundColour(red);
@@ -1299,10 +1299,10 @@ void tst_App::undoTileFill()
 
     // Draw a block of tiles.
     setCursorPosInTiles(0, 0);
-    drawTileAtCursorPos();
+    QVERIFY2(drawTileAtCursorPos(), failureMessage);
 
     setCursorPosInTiles(1, 0);
-    drawTileAtCursorPos();
+    QVERIFY2(drawTileAtCursorPos(), failureMessage);
 
     const Tile *targetTile = tilesetProject->tileAt(cursorPos);
     QVERIFY(targetTile);
@@ -1310,7 +1310,7 @@ void tst_App::undoTileFill()
     QCOMPARE(tilesetProject->tileAtTilePos(QPoint(1, 0)), tileCanvas->penTile());
 
     // Try to fill it. The whole block should be filled.
-    switchTool(TileCanvas::FillTool);
+    QVERIFY2(switchTool(TileCanvas::FillTool), failureMessage);
 
     // Select the second tile from the top-left in the swatch.
     QTest::mouseMove(window, tilesetTileSceneCentre(1, 0));
@@ -1331,9 +1331,9 @@ void tst_App::undoTileFill()
 
 void tst_App::undoThickPen()
 {
-    createNewImageProject();
+    QVERIFY2(createNewImageProject(), failureMessage);
 
-    changeToolSize(2);
+    QVERIFY2(changeToolSize(2), failureMessage);
 
     // First, try a single click.
     setCursorPosInScenePixels(QPoint(1, 1));
@@ -1400,7 +1400,7 @@ void tst_App::colours()
     // Choose a colour.
     mouseEventOnCentre(saturationLightnessPicker, MouseClick);
     const QColor expectedColour = QColor("#c04141");
-    fuzzyColourCompare(canvas->penForegroundColour(), expectedColour);
+    QVERIFY2(fuzzyColourCompare(canvas->penForegroundColour(), expectedColour), failureMessage);
     // Background colour shouldn't be affected.
     QCOMPARE(canvas->penBackgroundColour(), QColor(Qt::white));
 
@@ -1413,7 +1413,7 @@ void tst_App::colours()
         saturationLightnessPicker->height() * 0.25), MouseClick);
     QVERIFY(canvas->penBackgroundColour() != QColor(Qt::white));
     // Foreground colour shouldn't be affected.
-    fuzzyColourCompare(canvas->penForegroundColour(), expectedColour);
+    QVERIFY2(fuzzyColourCompare(canvas->penForegroundColour(), expectedColour), failureMessage);
 
     // Hex field should represent background colour when selected.
     QQuickItem *hexTextField = window->findChild<QQuickItem*>("hexTextField");
@@ -1521,8 +1521,8 @@ void tst_App::eyedropper()
     const QPoint pixelPos = QPoint(tilesetProject->tileWidth() / 2, tilesetProject->tileHeight() / 2);
     QVERIFY(tileCanvas->penForegroundColour() != originalTile->pixelColor(pixelPos));
 
-    switchMode(TileCanvas::PixelMode);
-    switchTool(TileCanvas::EyeDropperTool);
+    QVERIFY2(switchMode(TileCanvas::PixelMode), failureMessage);
+    QVERIFY2(switchTool(TileCanvas::EyeDropperTool), failureMessage);
 
     QColor lastForegroundColour = tileCanvas->penForegroundColour();
     QTest::mouseMove(window, cursorWindowPos);
@@ -1550,13 +1550,13 @@ void tst_App::zoomAndPan()
 {
     QVERIFY2(createNewTilesetProject(), failureMessage);
 
-    panTopLeftTo(0, 0);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
     // Test panning.
-    panBy(50, 0);
+    QVERIFY2(panBy(50, 0), failureMessage);
 
     // Test zoom.
-    zoomTo(2, tileSceneCentre(5, 5));
+    QVERIFY2(zoomTo(2, tileSceneCentre(5, 5)), failureMessage);
 }
 
 void tst_App::zoomAndCentre()
@@ -1564,13 +1564,13 @@ void tst_App::zoomAndCentre()
     QVERIFY2(createNewTilesetProject(), failureMessage);
 
     // Pan to some non-centered location.
-    panTopLeftTo(-100, -100);
+    QVERIFY2(panTopLeftTo(-100, -100), failureMessage);
 
     const CanvasPane *currentPane = tileCanvas->currentPane();
     QCOMPARE(currentPane, tileCanvas->firstPane());
 
     // Zoom in.
-    zoomTo(5, tileSceneCentre(5, 5));
+    QVERIFY2(zoomTo(5, tileSceneCentre(5, 5)), failureMessage);
 
     QVERIFY2(triggerCentre(), failureMessage);
     const QPoint expectedOffset(
@@ -1611,8 +1611,8 @@ void tst_App::penWhilePannedAndZoomed()
     QFETCH(int, zoomLevel);
 
     QVERIFY2(createNewProject(projectType), failureMessage);
-    panTopLeftTo(0, 0);
-    panBy(xDistance, yDistance);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
+    QVERIFY2(panBy(xDistance, yDistance), failureMessage);
 
     if (zoomLevel > 1) {
         for (int i = 0; i < zoomLevel - canvas->currentPane()->integerZoomLevel(); ++i) {
@@ -1684,7 +1684,7 @@ void tst_App::useTilesetSwatch()
     QCOMPARE(tilesetProject->tileAt(cursorPos), expectedTile);
 
     // Draw some pixels on the tile we just painted onto the canvas.
-    switchMode(TileCanvas::PixelMode);
+    QVERIFY2(switchMode(TileCanvas::PixelMode), failureMessage);
     // Make sure that the pixel's colour will actually change.
     const QPoint pixelPos = QPoint(tilesetProject->tileWidth() / 2, tilesetProject->tileHeight() / 2);
     QVERIFY(tileCanvas->penForegroundColour() != expectedTile->tileset()->image()->pixelColor(pixelPos));
@@ -1860,7 +1860,7 @@ void tst_App::cursorShapeAfterClickingLighter()
 
 void tst_App::colourPickerHexField()
 {
-    createNewImageProject();
+    QVERIFY2(createNewImageProject(), failureMessage);
 
     QQuickItem *hexTextField = window->findChild<QQuickItem*>("hexTextField");
     QVERIFY(hexTextField);
@@ -1922,7 +1922,7 @@ void tst_App::colourPickerHexField()
 
 void tst_App::colourPickerHexFieldTranslucent()
 {
-    setPenForegroundColour("#88ff0000");
+    QVERIFY2(setPenForegroundColour("#88ff0000"), failureMessage);
 }
 
 void tst_App::eraseImageCanvas_data()
@@ -1936,8 +1936,8 @@ void tst_App::eraseImageCanvas()
 
     QVERIFY2(createNewProject(projectType), failureMessage);
 
-    switchTool(ImageCanvas::EraserTool);
-    changeToolSize(1);
+    QVERIFY2(switchTool(ImageCanvas::EraserTool), failureMessage);
+    QVERIFY2(changeToolSize(1), failureMessage);
 
     // Make sure that the edges of the canvas can be erased.
     setCursorPosInScenePixels(project->widthInPixels() - 1, 0);
@@ -1998,9 +1998,9 @@ QByteArray selectionAreaFailureMessage(ImageCanvas *canvas, const SelectionData 
 
 void tst_App::selectionToolImageCanvas()
 {
-    createNewImageProject();
+    QVERIFY2(createNewImageProject(), failureMessage);
 
-    switchTool(ImageCanvas::SelectionTool);
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
 
     // We don't want to use a _data() function for this, because we don't need
     // to create a new project every time.
@@ -2030,17 +2030,17 @@ void tst_App::selectionToolImageCanvas()
         QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
 
         // Cancel the selection so that we can do the next one.
-        switchTool(ImageCanvas::PenTool);
+        QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
         QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
-        switchTool(ImageCanvas::SelectionTool);
+        QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
     }
 }
 
 void tst_App::cancelSelectionToolImageCanvas()
 {
-    createNewImageProject();
+    QVERIFY2(createNewImageProject(), failureMessage);
 
-    switchTool(ImageCanvas::SelectionTool);
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
 
     // Select an area.
     setCursorPosInScenePixels(QPoint(0, 0));
@@ -2051,10 +2051,10 @@ void tst_App::cancelSelectionToolImageCanvas()
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 10, 10));
 
     // Switching tools should clear the selection.
-    switchTool(ImageCanvas::PenTool);
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
 
-    switchTool(ImageCanvas::SelectionTool);
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
     QCOMPARE(project->hasUnsavedChanges(), false);
 
     // Select an area.
@@ -2114,9 +2114,9 @@ void tst_App::moveSelectionImageCanvas()
     QFETCH(bool, transparentBackground);
 
     if (projectType == Project::ImageType)
-        createNewImageProject(256, 256, transparentBackground);
+        QVERIFY2(createNewImageProject(256, 256, transparentBackground), failureMessage);
     else if (projectType == Project::LayeredImageType)
-        createNewLayeredImageProject(256, 256, transparentBackground);
+        QVERIFY2(createNewLayeredImageProject(256, 256, transparentBackground), failureMessage);
     else
         QFAIL("Test doesn't support this project type");
 
@@ -2128,15 +2128,15 @@ void tst_App::moveSelectionImageCanvas()
     const QColor backgroundColour = transparentBackground ? Qt::transparent : Qt::white;
 
     // Draw a square of black pixels.
-    switchTool(ImageCanvas::PenTool);
-    changeToolSize(5);
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
+    QVERIFY2(changeToolSize(5), failureMessage);
     setCursorPosInScenePixels(2, 2);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
 
-    changeToolSize(1);
-    switchTool(ImageCanvas::SelectionTool);
+    QVERIFY2(changeToolSize(1), failureMessage);
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
 
     // Select an area.
     setCursorPosInScenePixels(QPoint(0, 0));
@@ -2163,13 +2163,13 @@ void tst_App::moveSelectionImageCanvas()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(22, 22), backgroundColour);
 
     // Clear the selection.
-    switchTool(ImageCanvas::PenTool);
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::transparent));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::transparent));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(18, 18), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(22, 22), QColor(Qt::black));
 
-    switchTool(ImageCanvas::SelectionTool);
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
 
     // Undo the selection move.
     QVERIFY(canvas->hasActiveFocus());
@@ -2208,18 +2208,18 @@ void tst_App::moveSelectionImageCanvas()
 
 void tst_App::moveSelectionWithKeysImageCanvas()
 {
-    createNewImageProject(256, 256);
+    QVERIFY2(createNewImageProject(256, 256), failureMessage);
 
     // Draw a square of black pixels.
-    switchTool(ImageCanvas::PenTool);
-    changeToolSize(5);
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
+    QVERIFY2(changeToolSize(5), failureMessage);
     setCursorPosInScenePixels(2, 2);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(imageProject->image()->pixelColor(4, 4), QColor(Qt::black));
 
-    changeToolSize(1);
-    switchTool(ImageCanvas::SelectionTool);
+    QVERIFY2(changeToolSize(1), failureMessage);
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
 
     // Select an area.
     setCursorPosInScenePixels(QPoint(0, 0));
@@ -2256,7 +2256,7 @@ void tst_App::deleteSelectionImageCanvas()
 
     QVERIFY2(createNewProject(projectType), failureMessage);
 
-    switchTool(ImageCanvas::SelectionTool);
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
 
     // Select an area.
     setCursorPosInScenePixels(QPoint(0, 0));
@@ -2290,18 +2290,18 @@ void tst_App::copyPaste()
     QVERIFY2(createNewProject(projectType), failureMessage);
 
     // Make comparing grabbed image pixels easier.
-    panTopLeftTo(0, 0);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
     // Draw a square of black pixels.
-    switchTool(ImageCanvas::PenTool);
-    changeToolSize(5);
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
+    QVERIFY2(changeToolSize(5), failureMessage);
     setCursorPosInScenePixels(12, 12);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(10, 10), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(14, 14), QColor(Qt::black));
 
-    changeToolSize(1);
-    switchTool(ImageCanvas::SelectionTool);
+    QVERIFY2(changeToolSize(1), failureMessage);
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
 
     // Select an area.
     setCursorPosInScenePixels(QPoint(10, 10));
@@ -2375,9 +2375,9 @@ void tst_App::pasteFromExternalSource()
 
 void tst_App::flipPastedImage()
 {
-    createNewImageProject();
+    QVERIFY2(createNewImageProject(), failureMessage);
 
-    panTopLeftTo(0, 0);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
     QImage image(32, 32, QImage::Format_ARGB32_Premultiplied);
     image.fill(Qt::blue);
@@ -2416,10 +2416,10 @@ void tst_App::fillImageCanvas()
 
     // A fill on a canvas of this size would previously trigger a stack overflow
     // using a recursive algorithm.
-    changeCanvasSize(90, 90);
+    QVERIFY2(changeCanvasSize(90, 90), failureMessage);
 
     // Fill the canvas with black.
-    switchTool(ImageCanvas::FillTool);
+    QVERIFY2(switchTool(ImageCanvas::FillTool), failureMessage);
     setCursorPosInScenePixels(0, 0);
     mouseEvent(canvas, cursorWindowPos, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
@@ -2438,22 +2438,22 @@ void tst_App::greedyPixelFillImageCanvas()
 
     QVERIFY2(createNewProject(projectType), failureMessage);
 
-    changeCanvasSize(40, 40);
+    QVERIFY2(changeCanvasSize(40, 40), failureMessage);
 
     // Draw 4 separate pixels.
     setCursorPosInScenePixels(4, 4);
-    drawPixelAtCursorPos();
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     setCursorPosInScenePixels(35, 4);
-    drawPixelAtCursorPos();
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     setCursorPosInScenePixels(35, 35);
-    drawPixelAtCursorPos();
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     setCursorPosInScenePixels(4, 35);
-    drawPixelAtCursorPos();
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
-    switchTool(ImageCanvas::FillTool);
+    QVERIFY2(switchTool(ImageCanvas::FillTool), failureMessage);
     canvas->setPenForegroundColour(Qt::blue);
     setCursorPosInScenePixels(4, 4);
     QTest::mouseMove(window, cursorWindowPos);
@@ -2485,7 +2485,7 @@ void tst_App::pixelLineToolImageCanvas()
 
     QVERIFY2(createNewProject(projectType), failureMessage);
 
-    switchTool(ImageCanvas::PenTool);
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
 
     // Draw the start of the line.
     setCursorPosInScenePixels(0, 0);
@@ -2562,10 +2562,10 @@ void tst_App::pixelLineToolTransparent()
 
     QVERIFY2(createNewProject(projectType), failureMessage);
 
-    switchTool(ImageCanvas::PenTool);
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
 
     const QColor translucentRed = QColor::fromRgba(0x88ff0000);
-    setPenForegroundColour("#88ff0000");
+    QVERIFY2(setPenForegroundColour("#88ff0000"), failureMessage);
 
     // Draw the start of the line.
     setCursorPosInScenePixels(0, 0);
@@ -2618,7 +2618,7 @@ void tst_App::rulersAndGuides()
     const qreal rulerThickness = firstHorizontalRuler->height();
 
     // Pan so that the top left of the canvas is at the rulers' corners.
-    panTopLeftTo(rulerThickness, rulerThickness);
+    QVERIFY2(panTopLeftTo(rulerThickness, rulerThickness), failureMessage);
 
     // A guide should only be added when dropped outside of the ruler.
     setCursorPosInPixels(QPoint(50, rulerThickness / 2));
@@ -2713,9 +2713,9 @@ void tst_App::rulersAndGuides()
 
 void tst_App::addAndRemoveLayers()
 {
-    createNewLayeredImageProject();
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
-    panTopLeftTo(0, 0);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
     ImageLayer *expectedCurrentLayer = layeredImageProject->currentLayer();
 
@@ -2743,7 +2743,7 @@ void tst_App::addAndRemoveLayers()
     QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
 
     // Select the new layer.
-    selectLayer("Layer 2", 0);
+    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
 
     // Draw a red dot on the new layer.
     setCursorPosInScenePixels(20, 20);
@@ -2765,15 +2765,15 @@ void tst_App::addAndRemoveLayers()
         QCOMPARE(layerListView->property("count").toInt(), 2);
 
         QQuickItem *layer1Delegate = nullptr;
-        verifyLayerName(QLatin1String("Layer 1"), &layer1Delegate);
+        QVERIFY2(verifyLayerName(QLatin1String("Layer 1"), &layer1Delegate), failureMessage);
         QQuickItem *layer2Delegate = nullptr;
-        verifyLayerName(QLatin1String("Layer 2"), &layer2Delegate);
+        QVERIFY2(verifyLayerName(QLatin1String("Layer 2"), &layer2Delegate), failureMessage);
         // The second layer was added last, so it should be at the top of the list.
         QVERIFY(layer1Delegate->y() > layer2Delegate->z());
     }
 
     // Select the original layer.
-    selectLayer("Layer 1", 1);
+    QVERIFY2(selectLayer("Layer 1", 1), failureMessage);
 
     // Delete the original layer.
     expectedCurrentLayer = layeredImageProject->layerAt(0);
@@ -2799,7 +2799,7 @@ void tst_App::addAndRemoveLayers()
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
-    verifyLayerName(QLatin1String("Layer 1"));
+    QVERIFY2(verifyLayerName(QLatin1String("Layer 1")), failureMessage);
 
     // Both dots should be visible again.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
@@ -2809,10 +2809,10 @@ void tst_App::addAndRemoveLayers()
 
 void tst_App::layerVisibility()
 {
-    createNewLayeredImageProject();
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
     // Make comparing grabbed image pixels easier.
-    panTopLeftTo(0, 0);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
     // Draw a blue square at {10, 10}.
     setCursorPosInScenePixels(10, 10);
@@ -2832,7 +2832,7 @@ void tst_App::layerVisibility()
     QCOMPARE(layeredImageProject->layerCount(), 2);
 
     // Make it the current layer.
-    selectLayer("Layer 2", 0);
+    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
 
     // Draw a red dot at the same position.
     layeredImageCanvas->setPenForegroundColour(Qt::red);
@@ -2847,7 +2847,7 @@ void tst_App::layerVisibility()
 
     // Hide the current layer.
     QQuickItem *layer2Delegate = nullptr;
-    verifyLayerName("Layer 2", &layer2Delegate);
+    QVERIFY2(verifyLayerName("Layer 2", &layer2Delegate), failureMessage);
     QQuickItem *layer2VisibilityCheckBox = layer2Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
     QVERIFY(layer2VisibilityCheckBox);
     mouseEventOnCentre(layer2VisibilityCheckBox, MouseClick);
@@ -2870,7 +2870,7 @@ void tst_App::layerVisibility()
 
 void tst_App::moveLayerUpAndDown()
 {
-    createNewLayeredImageProject();
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
     QCOMPARE(moveLayerDownButton->isEnabled(), false);
     QCOMPARE(moveLayerUpButton->isEnabled(), false);
@@ -2884,7 +2884,7 @@ void tst_App::moveLayerUpAndDown()
     QCOMPARE(moveLayerUpButton->isEnabled(), true);
 
     // Make the new layer the current layer.
-    selectLayer("Layer 2", 0);
+    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
 
     // It should be possible to move the highest layer down but not up.
     QCOMPARE(moveLayerDownButton->isEnabled(), true);
@@ -2913,10 +2913,10 @@ void tst_App::moveLayerUpAndDown()
 
 void tst_App::renameLayer()
 {
-    createNewLayeredImageProject();
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
     QQuickItem *delegate = nullptr;
-    verifyLayerName("Layer 1", &delegate);
+    QVERIFY2(verifyLayerName("Layer 1", &delegate), failureMessage);
     QCOMPARE(delegate->property("checked").toBool(), true);
 
     QQuickItem *nameTextField = delegate->findChild<QQuickItem*>("layerNameTextField");
@@ -2958,10 +2958,10 @@ void tst_App::renameLayer()
 
 void tst_App::saveAndLoadLayeredImageProject()
 {
-    createNewLayeredImageProject();
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
     // Make comparing grabbed image pixels easier.
-    panTopLeftTo(0, 0);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
     // Draw a blue square.
     setCursorPosInScenePixels(10, 10);
@@ -2975,7 +2975,7 @@ void tst_App::saveAndLoadLayeredImageProject()
     QCOMPARE(layeredImageProject->layerCount(), 2);
 
     // Make it the current layer.
-    selectLayer("Layer 2", 0);
+    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
 
     // Draw a red dot.
     setCursorPosInScenePixels(20, 20);
@@ -2992,7 +2992,7 @@ void tst_App::saveAndLoadLayeredImageProject()
     QCOMPARE(grabBeforeSaving.pixelColor(20, 20), QColor(Qt::red));
 
     // Select a layer with a non-zero index so that we can check that it's saved.
-    selectLayer("Layer 1", 1);
+    QVERIFY2(selectLayer("Layer 1", 1), failureMessage);
 
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/layeredimageproject.slp");
@@ -3015,7 +3015,7 @@ void tst_App::saveAndLoadLayeredImageProject()
     QCOMPARE(layeredImageProject->currentLayer()->name(), "Layer 1");
     QVERIFY_NO_CREATION_ERRORS_OCCURRED();
 
-    panTopLeftTo(0, 0);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
     // Ensure that what the user sees is correct.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
@@ -3027,17 +3027,17 @@ void tst_App::saveAndLoadLayeredImageProject()
 
 void tst_App::layerVisibilityAfterMoving()
 {
-    createNewLayeredImageProject();
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
     // Make comparing grabbed image pixels easier.
-    panTopLeftTo(0, 0);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
     // Add a new layer.
     mouseEventOnCentre(newLayerButton, MouseClick);
     QCOMPARE(layeredImageProject->layerCount(), 2);
 
     // Make it the current layer.
-    selectLayer("Layer 2", 0);
+    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
 
     // Draw a red dot.
     setCursorPosInScenePixels(20, 20);
@@ -3060,7 +3060,7 @@ void tst_App::layerVisibilityAfterMoving()
 
     // Hide Layer 1. It should show the red square and a transparent background.
     QQuickItem *layer1Delegate = nullptr;
-    verifyLayerName("Layer 1", &layer1Delegate);
+    QVERIFY2(verifyLayerName("Layer 1", &layer1Delegate), failureMessage);
     QQuickItem *layer1VisibilityCheckBox = layer1Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
     QVERIFY(layer1VisibilityCheckBox);
     mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
@@ -3082,7 +3082,7 @@ void tst_App::layerVisibilityAfterMoving()
     QCOMPARE(grabWithLayer1Visible.pixelColor(20, 20), QColor(Qt::white));
 
     // Make Layer 1 the current layer.
-    selectLayer("Layer 1", 0);
+    QVERIFY2(selectLayer("Layer 1", 0), failureMessage);
 
     // Move Layer 1 back down. The red square should be visible on a white background.
     mouseEventOnCentre(moveLayerDownButton, MouseClick);
@@ -3097,7 +3097,7 @@ void tst_App::layerVisibilityAfterMoving()
 
 void tst_App::undoAfterAddLayer()
 {
-    createNewLayeredImageProject();
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
     // Add a new layer.
     mouseEventOnCentre(newLayerButton, MouseClick);
@@ -3115,9 +3115,9 @@ void tst_App::selectionConfirmedWhenSwitchingLayers()
     qGuiApp->clipboard()->setImage(clipboardContents);
 
     // Create a new layered image project with the dimensions of the clipboard contents.
-    createNewLayeredImageProject(100, 200);
+    QVERIFY2(createNewLayeredImageProject(100, 200), failureMessage);
 
-    panTopLeftTo(0, 0);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
     // Create a new layer and make it the active layer
     mouseEventOnCentre(newLayerButton, MouseClick);
@@ -3130,14 +3130,14 @@ void tst_App::selectionConfirmedWhenSwitchingLayers()
     QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
     QCOMPARE(layeredImageProject->layerAt(1)->isVisible(), true);
 
-    selectLayer("Layer 2", 0);
+    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
 
     // Paste the image into that layer
     QVERIFY2(triggerPaste(), failureMessage);
     QCOMPARE(canvas->hasSelection(), true);
 
     // Switching layers should cause the selection to be confirmed.
-    selectLayer("Layer 1", 1);
+    QVERIFY2(selectLayer("Layer 1", 1), failureMessage);
     QCOMPARE(canvas->hasSelection(), false);
 
     QVERIFY(imageGrabber.requestImage(canvas));
@@ -3149,9 +3149,9 @@ void tst_App::selectionConfirmedWhenSwitchingLayers()
 void tst_App::autoExport()
 {
     // Create a new layered image project with the dimensions of the clipboard contents.
-    createNewLayeredImageProject(10, 10);
+    QVERIFY2(createNewLayeredImageProject(10, 10), failureMessage);
 
-    panTopLeftTo(0, 0);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
     QCOMPARE(layeredImageProject->isAutoExportEnabled(), false);
 
@@ -3200,7 +3200,7 @@ void tst_App::autoExport()
 
 void tst_App::disableToolsWhenLayerHidden()
 {
-    createNewLayeredImageProject();
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
     // The cursor should be normal.
     setCursorPosInScenePixels(0, 0);
@@ -3208,7 +3208,7 @@ void tst_App::disableToolsWhenLayerHidden()
     QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
 
     QQuickItem *layer1Delegate = nullptr;
-    verifyLayerName("Layer 1", &layer1Delegate);
+    QVERIFY2(verifyLayerName("Layer 1", &layer1Delegate), failureMessage);
     QQuickItem *layer1VisibilityCheckBox = layer1Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
     QVERIFY(layer1VisibilityCheckBox);
 
@@ -3227,7 +3227,7 @@ void tst_App::disableToolsWhenLayerHidden()
         QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
 
         // Switch tool.
-        switchTool(tool);
+        QVERIFY2(switchTool(tool), failureMessage);
 
         // The cursor should be disabled for each tool.
         setCursorPosInScenePixels(0, 0);
@@ -3252,7 +3252,7 @@ void tst_App::disableToolsWhenLayerHidden()
     QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
 
     // Ensure that we can't actually do anything when the cursor is disabled.
-    switchTool(ImageCanvas::PenTool);
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
     setCursorPosInScenePixels(10, 10);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
