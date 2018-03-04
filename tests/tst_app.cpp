@@ -40,7 +40,7 @@
 class tst_App : public TestHelper
 {
     Q_OBJECT
-    
+
 public:
     tst_App(int &argc, char **argv);
 
@@ -143,7 +143,7 @@ void tst_App::newProjectWithNewTileset()
     expectedTilesetImage.setPixelColor(10, 10, tileCanvas->penForegroundColour());
 
     // Draw a tile on.
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
     setCursorPosInTiles(0, 0);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QVERIFY(tilesetProject->tileAt(QPoint(0, 0)));
@@ -158,7 +158,7 @@ void tst_App::newProjectWithNewTileset()
     // Save the project.
     const QUrl saveFileName = QUrl::fromLocalFile(tempProjectDir->path() + "/mytileset.stp");
     tilesetProject->saveAs(saveFileName);
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     // Should save the image at the same location as the project.
     const QString tilesetPath = tempProjectDir->path() + "/mytileset.png";
     QCOMPARE(tilesetProject->tilesetUrl(), QUrl::fromLocalFile(tilesetPath));
@@ -181,7 +181,7 @@ void tst_App::repeatedNewProject()
 
     foreach (auto projectType, projectTypes) {
         // Shouldn't crash on repeated opening of new projects.
-        createNewProject(projectType);
+        QVERIFY2(createNewProject(projectType), failureMessage);
     }
 }
 
@@ -195,7 +195,7 @@ void tst_App::openClose()
     QFETCH(Project::Type, projectType);
 
     // Create a new, valid project.
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
 
     if (projectType == Project::TilesetType) {
         // Test an invalid tileset URL.
@@ -244,7 +244,7 @@ void tst_App::openClose()
 
     // Test closing a valid project.
     project->close();
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QCOMPARE(project->url(), QUrl());
     QCOMPARE(project->hasLoaded(), false);
 
@@ -253,12 +253,12 @@ void tst_App::openClose()
         QPointF(canvas->width() / 2, canvas->height() / 2)).toPoint());
     QCOMPARE(window->cursor().shape(), Qt::ArrowCursor);
 
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
 }
 
 void tst_App::saveTilesetProject()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
     // Store a snapshot of the canvas before we alter it.
     QVERIFY(imageGrabber.requestImage(tileCanvas));
@@ -266,7 +266,7 @@ void tst_App::saveTilesetProject()
     const QImage originalImage = imageGrabber.takeImage();
 
     // Draw a tile on first.
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     // QTBUG-53466
     setCursorPosInScenePixels(10, 10);
@@ -278,7 +278,7 @@ void tst_App::saveTilesetProject()
     // Save our drawing.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/project.stp");
     tilesetProject->saveAs(saveUrl);
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -293,12 +293,12 @@ void tst_App::saveTilesetProject()
 
 void tst_App::saveAsAndLoadTilesetProject()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
     // Save the untouched project.
     const QString originalProjectPath = tempProjectDir->path() + "/project.stp";
     tilesetProject->saveAs(QUrl::fromLocalFile(originalProjectPath));
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(!window->title().contains("*"));
     QCOMPARE(tilesetProject->url().toLocalFile(), originalProjectPath);
@@ -319,13 +319,13 @@ void tst_App::saveAsAndLoadTilesetProject()
     // Save the project to a new file.
     const QString savedProjectPath = tempProjectDir->path() + "/project2.stp";
     tilesetProject->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QCOMPARE(tilesetProject->url().toLocalFile(), savedProjectPath);
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     QCOMPARE(imageGrabber.takeImage(), originalCanvasImage);
 
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     // Draw on the canvas. We want to check that the latest
     // saved project is modified and not the original.
@@ -339,7 +339,7 @@ void tst_App::saveAsAndLoadTilesetProject()
 
     // Save our project.
     tilesetProject->save();
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -365,8 +365,8 @@ void tst_App::saveAsAndLoadTilesetProject()
         QVERIFY(file.readAll() != originalProjectFileContents);
     }
 
-    // Loading the saved file.
-    triggerCloseProject();
+    // Load the saved file.
+    QVERIFY2(triggerCloseProject(), failureMessage);
     QVERIFY(!tilesetProject->hasLoaded());
 
     QVERIFY(imageGrabber.requestImage(tileCanvas));
@@ -374,7 +374,7 @@ void tst_App::saveAsAndLoadTilesetProject()
     const QImage closedCanvasImage = imageGrabber.takeImage();
 
     tilesetProject->load(QUrl::fromLocalFile(savedProjectPath));
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     QVERIFY(imageGrabber.takeImage() != closedCanvasImage);
@@ -393,15 +393,15 @@ void tst_App::saveAsAndLoad()
     QFETCH(Project::Type, projectType);
     QFETCH(QString, projectExtension);
 
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
 
     if (!canvas->rulersVisible()) {
-        triggerRulersVisible();
+        QVERIFY2(triggerRulersVisible(), failureMessage);
         QCOMPARE(canvas->rulersVisible(), true);
     }
 
     if (!canvas->guidesVisible()) {
-        triggerGuidesVisible();
+        QVERIFY2(triggerGuidesVisible(), failureMessage);
         QCOMPARE(canvas->guidesVisible(), true);
     }
 
@@ -453,11 +453,11 @@ void tst_App::saveAsAndLoad()
     // Save the project.
     const QString savedProjectPath = tempProjectDir->path() + "/saveAsAndLoad-project." + projectExtension;
     project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QCOMPARE(project->url().toLocalFile(), savedProjectPath);
 
     // Close the project.
-    triggerCloseProject();
+    QVERIFY2(triggerCloseProject(), failureMessage);
     QVERIFY(!project->hasLoaded());
 
     // Load the saved file.
@@ -551,17 +551,17 @@ void tst_App::animationPlayback()
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animationStuffSaved.slp"));
     layeredImageProject->saveAs(saveUrl);
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QVERIFY(!layeredImageProject->hasUnsavedChanges());
 
     // Close.
-    triggerCloseProject();
+    QVERIFY2(triggerCloseProject(), failureMessage);
     QVERIFY(!layeredImageProject->hasLoaded());
     QCOMPARE(layeredImageProject->isUsingAnimation(), false);
 
     // Load the saved file and check that our custom settings were remembered.
     layeredImageProject->load(saveUrl);
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QCOMPARE(layeredImageProject->isUsingAnimation(), true);
     QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
     QCOMPARE(layeredImageProject->animationPlayback()->frameWidth(), 256 / 4 + 1);
@@ -572,7 +572,7 @@ void tst_App::animationPlayback()
 
 void tst_App::keyboardShortcuts()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
     QTest::keyPress(window, Qt::Key_1);
     QCOMPARE(tileCanvas->tool(), TileCanvas::PenTool);
@@ -590,7 +590,7 @@ void tst_App::keyboardShortcuts()
     QCOMPARE(tileCanvas->tool(), TileCanvas::EraserTool);
 
     // Open options dialog.
-    triggerOptions();
+    QVERIFY2(triggerOptions(), failureMessage);
     const QObject *optionsDialog = findPopupFromTypeName("OptionsDialog");
     QVERIFY(optionsDialog);
     QVERIFY(optionsDialog->property("visible").toBool());
@@ -656,10 +656,10 @@ void tst_App::keyboardShortcuts()
 void tst_App::optionsCancelled()
 {
     // Ensure that cancelling the options dialog after changing a shortcut cancels the shortcut change.
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
     // Open options dialog.
-    triggerOptions();
+    QVERIFY2(triggerOptions(), failureMessage);
     const QObject *optionsDialog = findPopupFromTypeName("OptionsDialog");
     QVERIFY(optionsDialog);
     QVERIFY(optionsDialog->property("visible").toBool());
@@ -696,7 +696,7 @@ void tst_App::optionsCancelled()
     QCOMPARE(app.settings()->newShortcut(), app.settings()->defaultNewShortcut());
 
     // Reopen the dialog to make sure that the editor shows the default shortcut.
-    triggerOptions();
+    QVERIFY2(triggerOptions(), failureMessage);
     QVERIFY(optionsDialog->property("visible").toBool());
     QTRY_COMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
     QCOMPARE(app.settings()->newShortcut(), app.settings()->defaultNewShortcut());
@@ -707,7 +707,7 @@ void tst_App::optionsCancelled()
 
 void tst_App::showGrid()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
     // Store a screenshot of the canvas so we can ensure that the grid lines
     // aren't actually visible to the user.
@@ -717,7 +717,7 @@ void tst_App::showGrid()
 
     QVERIFY(app.settings()->isGridVisible());
     // Toggle the option.
-    triggerGridVisible();
+    QVERIFY2(triggerGridVisible(), failureMessage);
     QVERIFY(!app.settings()->isGridVisible());
 
     // Close the view menu.
@@ -729,13 +729,13 @@ void tst_App::showGrid()
     QVERIFY(withoutGrid != withGrid);
 
     // Show the grid again.
-    triggerGridVisible();
+    QVERIFY2(triggerGridVisible(), failureMessage);
     QVERIFY(app.settings()->isGridVisible());
 }
 
 void tst_App::undoPixels()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
     switchTool(TileCanvas::PenTool);
 
     // It's a new project.
@@ -745,12 +745,12 @@ void tst_App::undoPixels()
 
     // Save the project so that we can test hasUnsavedChanges.
     tilesetProject->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/project.stp"));
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QVERIFY(!tilesetProject->canSave());
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(!window->title().contains("*"));
 
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     // Draw a tile on.
     setCursorPosInTiles(0, 1);
@@ -802,7 +802,7 @@ void tst_App::undoPixels()
     QVERIFY(window->title().contains("*"));
 
     // Test reverting.
-    triggerRevert();
+    QVERIFY2(triggerRevert(), failureMessage);
     QVERIFY(!tilesetProject->tileAt(cursorPos));
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(!window->title().contains("*"));
@@ -810,9 +810,9 @@ void tst_App::undoPixels()
 
 void tst_App::undoLargePixelPen()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     // Draw the first tile on the canvas.
     setCursorPosInTiles(0, 0);
@@ -874,9 +874,9 @@ void tst_App::undoLargePixelPen()
 
 void tst_App::undoTiles()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     // Move the cursor away so we have an image we can compare against other grabbed images later on.
     setCursorPosInTiles(0, 2);
@@ -938,7 +938,7 @@ void tst_App::undoTiles()
     QVERIFY(window->title().contains("*"));
 
     // Test reverting.
-    triggerRevert();
+    QVERIFY2(triggerRevert(), failureMessage);
     QVERIFY(!tilesetProject->tileAt(cursorPos));
     QVERIFY(!undoButton->isEnabled());
     QVERIFY(!tilesetProject->hasUnsavedChanges());
@@ -948,9 +948,9 @@ void tst_App::undoTiles()
 // Test going back over the same pixels several times.
 void tst_App::undoWithDuplicates()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     // Draw on a tile so that we can operate on its pixels.
     setCursorPosInTiles(0, 0);
@@ -1004,7 +1004,7 @@ void tst_App::undoWithDuplicates()
 
     // Now test that going over the same pixels on the same tile but in a different scene
     // position doesn't result in those pixels not being undone.
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     // Draw on another tile next to the existing one.
     setCursorPosInTiles(1, 0);
@@ -1039,9 +1039,9 @@ void tst_App::undoWithDuplicates()
 
 void tst_App::undoTilesetCanvasSizeChange()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     setCursorPosInTiles(8, 9);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -1231,9 +1231,9 @@ void tst_App::undoLayeredImageSizeChange()
 
 void tst_App::undoPixelFill()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     // Select a blank tile to draw on.
     QTest::mouseMove(window, tilesetTileSceneCentre(1, 0));
@@ -1295,7 +1295,7 @@ void tst_App::undoPixelFill()
 
 void tst_App::undoTileFill()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
     // Draw a block of tiles.
     setCursorPosInTiles(0, 0);
@@ -1383,7 +1383,7 @@ void tst_App::colours()
 {
     QFETCH(Project::Type, projectType);
 
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
     QCOMPARE(canvas->penForegroundColour(), QColor(Qt::black));
     QCOMPARE(canvas->penBackgroundColour(), QColor(Qt::white));
 
@@ -1451,14 +1451,14 @@ void tst_App::colours()
 
 void tst_App::panes()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
     QVERIFY(tileCanvas->firstPane());
     QCOMPARE(tileCanvas->firstPane()->size(), 0.5);
     QVERIFY(tileCanvas->secondPane());
     QCOMPARE(tileCanvas->secondPane()->size(), 0.5);
     QCOMPARE(tileCanvas->tool(), TileCanvas::PenTool);
 
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     setCursorPosInTiles(0, 0);
     Tile *lastTile = tilesetProject->tileAt(cursorPos);
@@ -1477,13 +1477,13 @@ void tst_App::panes()
     QVERIFY(tilesetProject->tileAt(cursorPos) != lastTile);
 
     // Remove split.
-    triggerSplitScreen();
+    QVERIFY2(triggerSplitScreen(), failureMessage);
     QVERIFY(!app.settings()->isSplitScreen());
     QCOMPARE(tileCanvas->firstPane()->size(), 1.0);
     QCOMPARE(tileCanvas->secondPane()->size(), 0.0);
 
     // Add it back again.
-    triggerSplitScreen();
+    QVERIFY2(triggerSplitScreen(), failureMessage);
     QVERIFY(app.settings()->isSplitScreen());
     QCOMPARE(tileCanvas->firstPane()->size(), 0.5);
     QCOMPARE(tileCanvas->secondPane()->size(), 0.5);
@@ -1491,7 +1491,7 @@ void tst_App::panes()
 
 void tst_App::altEyedropper()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
     QCOMPARE(tileCanvas->tool(), TileCanvas::PenTool);
 
     QTest::keyPress(window, Qt::Key_Alt);
@@ -1509,9 +1509,9 @@ void tst_App::altEyedropper()
 
 void tst_App::eyedropper()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     setCursorPosInTiles(1, 1);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -1531,7 +1531,7 @@ void tst_App::eyedropper()
     // TODO: no idea why this doesn't work.. the positions are both {12, 12}.
 //    QCOMPARE(canvas->penForegroundColour(), originalTile->pixelColor(pixelPos));
 
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     // Choose another tile from the swatch.
     QCOMPARE(tileCanvas->penTile(), tilesetProject->tilesetTileAt(0, 0));
@@ -1548,7 +1548,7 @@ void tst_App::eyedropper()
 
 void tst_App::zoomAndPan()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
     panTopLeftTo(0, 0);
 
@@ -1561,7 +1561,7 @@ void tst_App::zoomAndPan()
 
 void tst_App::zoomAndCentre()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
     // Pan to some non-centered location.
     panTopLeftTo(-100, -100);
@@ -1572,7 +1572,7 @@ void tst_App::zoomAndCentre()
     // Zoom in.
     zoomTo(5, tileSceneCentre(5, 5));
 
-    triggerCentre();
+    QVERIFY2(triggerCentre(), failureMessage);
     const QPoint expectedOffset(
         currentPane->size() * tileCanvas->width() / 2 - (tilesetProject->widthInPixels() * currentPane->integerZoomLevel()) / 2,
         tileCanvas->height() / 2 - (tilesetProject->heightInPixels() * currentPane->integerZoomLevel()) / 2);
@@ -1610,7 +1610,7 @@ void tst_App::penWhilePannedAndZoomed()
     QFETCH(int, yDistance);
     QFETCH(int, zoomLevel);
 
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
     panTopLeftTo(0, 0);
     panBy(xDistance, yDistance);
 
@@ -1627,7 +1627,7 @@ void tst_App::penWhilePannedAndZoomed()
     }
 
     if (projectType == Project::TilesetType) {
-        switchMode(TileCanvas::TileMode);
+        QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
         // Draw a tile on.
         setCursorPosInTiles(4, 4);
@@ -1656,9 +1656,9 @@ void tst_App::penWhilePannedAndZoomed()
 
 void tst_App::useTilesetSwatch()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
-    switchMode(TileCanvas::TileMode);
+    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     QCOMPARE(tileCanvas->penTile(), tilesetProject->tilesetTileAt(0, 0));
 
@@ -1706,7 +1706,7 @@ void tst_App::useTilesetSwatch()
 
 void tst_App::tilesetSwatchContextMenu()
 {
-//    createNewTilesetProject();
+//    QVERIFY2(createNewTilesetProject(), failureMessage);
 
 //    QCOMPARE(tileCanvas->penTile(), tilesetProject->tilesetTileAt(0, 0));
 
@@ -1747,7 +1747,7 @@ void tst_App::tilesetSwatchContextMenu()
 
 //    // Draw the tile that we're rotating onto the canvas and then
 //    // take a snapshot of the canvas to make sure that it's actually updated.
-//    switchMode(TileCanvas::TileMode);
+//    QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 //    setCursorPosInTiles(0, 0);
 //    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 //    QVERIFY(tilesetProject->tileAt(cursorPos));
@@ -1790,7 +1790,7 @@ void tst_App::tilesetSwatchContextMenu()
 
 void tst_App::tilesetSwatchNavigation()
 {
-    createNewTilesetProject();
+    QVERIFY2(createNewTilesetProject(), failureMessage);
 
     const Qt::Key leftKey = Qt::Key_A;
     const Qt::Key rightKey = Qt::Key_D;
@@ -1934,7 +1934,7 @@ void tst_App::eraseImageCanvas()
 {
     QFETCH(Project::Type, projectType);
 
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
 
     switchTool(ImageCanvas::EraserTool);
     changeToolSize(1);
@@ -2173,7 +2173,7 @@ void tst_App::moveSelectionImageCanvas()
 
     // Undo the selection move.
     QVERIFY(canvas->hasActiveFocus());
-    triggerShortcut("undoShortcut", app.settings()->undoShortcut());
+    QVERIFY2(triggerShortcut("undoShortcut", app.settings()->undoShortcut()), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(18, 18), backgroundColour);
@@ -2201,7 +2201,7 @@ void tst_App::moveSelectionImageCanvas()
 
     // "Undo" the selection move. The selection move was never confirmed, so this
     // will take the ImageCanvas-shortcutOverride path.
-    triggerShortcut("undoShortcut", app.settings()->undoShortcut());
+    QVERIFY2(triggerShortcut("undoShortcut", app.settings()->undoShortcut()), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
 }
@@ -2254,7 +2254,7 @@ void tst_App::deleteSelectionImageCanvas()
 {
     QFETCH(Project::Type, projectType);
 
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
 
     switchTool(ImageCanvas::SelectionTool);
 
@@ -2287,7 +2287,7 @@ void tst_App::copyPaste()
 {
     QFETCH(Project::Type, projectType);
 
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
 
     // Make comparing grabbed image pixels easier.
     panTopLeftTo(0, 0);
@@ -2354,7 +2354,7 @@ void tst_App::pasteFromExternalSource()
 
     QFETCH(Project::Type, projectType);
 
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
 
     QCOMPARE(canvas->tool(), ImageCanvas::PenTool);
 
@@ -2386,17 +2386,17 @@ void tst_App::flipPastedImage()
     painter.fillRect(0, 0, image.width() / 2, 10, QColor(Qt::red));
     qGuiApp->clipboard()->setImage(image);
 
-    triggerPaste();
+    QVERIFY2(triggerPaste(), failureMessage);
     QCOMPARE(canvas->tool(), ImageCanvas::SelectionTool);
     QCOMPARE(canvas->hasSelection(), true);
 
-    triggerFlipVertically();
+    QVERIFY2(triggerFlipVertically(), failureMessage);
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage snapshotFlippedVertically = imageGrabber.takeImage();
     QCOMPARE(snapshotFlippedVertically.pixelColor(image.width() * 0.25, image.height() - 5), QColor(Qt::red));
 
-    triggerFlipHorizontally();
+    QVERIFY2(triggerFlipHorizontally(), failureMessage);
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage snapshotFlippedHorizontally = imageGrabber.takeImage();
@@ -2412,7 +2412,7 @@ void tst_App::fillImageCanvas()
 {
     QFETCH(Project::Type, projectType);
 
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
 
     // A fill on a canvas of this size would previously trigger a stack overflow
     // using a recursive algorithm.
@@ -2436,7 +2436,7 @@ void tst_App::greedyPixelFillImageCanvas()
 {
     QFETCH(Project::Type, projectType);
 
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
 
     changeCanvasSize(40, 40);
 
@@ -2483,7 +2483,7 @@ void tst_App::pixelLineToolImageCanvas()
 {
     QFETCH(Project::Type, projectType);
 
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
 
     switchTool(ImageCanvas::PenTool);
 
@@ -2560,7 +2560,7 @@ void tst_App::pixelLineToolTransparent()
 {
     QFETCH(Project::Type, projectType);
 
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
 
     switchTool(ImageCanvas::PenTool);
 
@@ -2608,9 +2608,9 @@ void tst_App::rulersAndGuides()
 {
     QFETCH(Project::Type, projectType);
 
-    createNewProject(projectType);
+    QVERIFY2(createNewProject(projectType), failureMessage);
 
-    triggerRulersVisible();
+    QVERIFY2(triggerRulersVisible(), failureMessage);
     QCOMPARE(app.settings()->areRulersVisible(), true);
 
     QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
@@ -2997,11 +2997,11 @@ void tst_App::saveAndLoadLayeredImageProject()
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/layeredimageproject.slp");
     layeredImageProject->saveAs(saveUrl);
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QVERIFY(!layeredImageProject->hasUnsavedChanges());
 
     // Close.
-    triggerCloseProject();
+    QVERIFY2(triggerCloseProject(), failureMessage);
     QVERIFY(!layeredImageProject->hasLoaded());
     QCOMPARE(layeredImageProject->layerCount(), 0);
     // The layer panel shouldn't show any layers.
@@ -3013,7 +3013,7 @@ void tst_App::saveAndLoadLayeredImageProject()
     layeredImageProject->load(saveUrl);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
     QCOMPARE(layeredImageProject->currentLayer()->name(), "Layer 1");
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
 
     panTopLeftTo(0, 0);
 
@@ -3133,7 +3133,7 @@ void tst_App::selectionConfirmedWhenSwitchingLayers()
     selectLayer("Layer 2", 0);
 
     // Paste the image into that layer
-    triggerPaste();
+    QVERIFY2(triggerPaste(), failureMessage);
     QCOMPARE(canvas->hasSelection(), true);
 
     // Switching layers should cause the selection to be confirmed.

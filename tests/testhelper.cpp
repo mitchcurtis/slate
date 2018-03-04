@@ -19,8 +19,8 @@
 
 #include "testhelper.h"
 
-#include "projectmanager.h"
 #include "imagelayer.h"
+#include "projectmanager.h"
 
 TestHelper::TestHelper(int &argc, char **argv) :
     app(argc, argv, QStringLiteral("Slate Test Suite")),
@@ -151,6 +151,11 @@ void TestHelper::initTestCase()
     mCheckerImage = checkerPixmap.toImage();
 }
 
+void TestHelper::cleanup()
+{
+    failureMessage.clear();
+}
+
 void TestHelper::resetCreationErrorSpy()
 {
     if (projectManager->temporaryProject())
@@ -160,12 +165,7 @@ void TestHelper::resetCreationErrorSpy()
 void TestHelper::mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType)
 {
     QQuickWindow *itemWindow = item->window();
-    if (!itemWindow) {
-        QString str;
-        QDebug debug(&str);
-        debug << "Item" << item << "has no window; can't send mouse events to it";
-        QFAIL(qPrintable(str));
-    }
+    Q_ASSERT(itemWindow);
 
     const QPoint centre = item->mapToScene(QPointF(item->width() / 2, item->height() / 2)).toPoint();
     switch (eventType) {
@@ -211,145 +211,149 @@ void TestHelper::wheelEvent(QQuickItem *item, const QPoint &localPos, const int 
         QTest::qWarn("Wheel event not accepted by receiving window");
 }
 
-void TestHelper::changeCanvasSize(int width, int height)
+bool TestHelper::changeCanvasSize(int width, int height)
 {
     // Open the canvas size popup.
     mouseEventOnCentre(canvasSizeButton, MouseClick);
     const QObject *canvasSizePopup = findPopupFromTypeName("CanvasSizePopup");
-    QVERIFY(canvasSizePopup);
-    QVERIFY(canvasSizePopup->property("visible").toBool());
+    VERIFY(canvasSizePopup);
+    VERIFY(canvasSizePopup->property("visible").toBool());
 
     // Change the values and then cancel.
     // TODO: use actual input events...
     QQuickItem *widthSpinBox = canvasSizePopup->findChild<QQuickItem*>("changeCanvasWidthSpinBox");
-    QVERIFY(widthSpinBox);
+    VERIFY(widthSpinBox);
     // We want it to be easy to change the values with the keyboard..
-    QVERIFY(widthSpinBox->hasActiveFocus());
+    VERIFY(widthSpinBox->hasActiveFocus());
     const int originalWidthSpinBoxValue = widthSpinBox->property("value").toInt();
-    QVERIFY(widthSpinBox->setProperty("value", originalWidthSpinBoxValue + 1));
-    QCOMPARE(widthSpinBox->property("value").toInt(), originalWidthSpinBoxValue + 1);
+    VERIFY(widthSpinBox->setProperty("value", originalWidthSpinBoxValue + 1));
+    VERIFY(widthSpinBox->property("value").toInt() == originalWidthSpinBoxValue + 1);
 
     QQuickItem *heightSpinBox = canvasSizePopup->findChild<QQuickItem*>("changeCanvasHeightSpinBox");
     const int originalHeightSpinBoxValue = heightSpinBox->property("value").toInt();
-    QVERIFY(heightSpinBox);
-    QVERIFY(heightSpinBox->setProperty("value", originalHeightSpinBoxValue - 1));
-    QCOMPARE(heightSpinBox->property("value").toInt(), originalHeightSpinBoxValue - 1);
+    VERIFY(heightSpinBox);
+    VERIFY(heightSpinBox->setProperty("value", originalHeightSpinBoxValue - 1));
+    VERIFY(heightSpinBox->property("value").toInt() == originalHeightSpinBoxValue - 1);
 
     QQuickItem *cancelButton = canvasSizePopup->findChild<QQuickItem*>("canvasSizePopupCancelButton");
-    QVERIFY(cancelButton);
+    VERIFY(cancelButton);
     mouseEventOnCentre(cancelButton, MouseClick);
-    QVERIFY(!canvasSizePopup->property("visible").toBool());
-    QCOMPARE(project->size().width(), originalWidthSpinBoxValue);
-    QCOMPARE(project->size().height(), originalHeightSpinBoxValue);
+    VERIFY(!canvasSizePopup->property("visible").toBool());
+    VERIFY(project->size().width() == originalWidthSpinBoxValue);
+    VERIFY(project->size().height() == originalHeightSpinBoxValue);
 
     // Open the popup again.
     mouseEventOnCentre(canvasSizeButton, MouseClick);
-    QVERIFY(canvasSizePopup);
-    QVERIFY(canvasSizePopup->property("visible").toBool());
+    VERIFY(canvasSizePopup);
+    VERIFY(canvasSizePopup->property("visible").toBool());
     // The old values should be restored.
-    QCOMPARE(widthSpinBox->property("value").toInt(), originalWidthSpinBoxValue);
-    QCOMPARE(heightSpinBox->property("value").toInt(), originalHeightSpinBoxValue);
+    VERIFY(widthSpinBox->property("value").toInt() == originalWidthSpinBoxValue);
+    VERIFY(heightSpinBox->property("value").toInt() == originalHeightSpinBoxValue);
 
     // Change the values and then press OK.
-    QVERIFY(widthSpinBox->setProperty("value", width));
-    QCOMPARE(widthSpinBox->property("value").toInt(), width);
-    QVERIFY(heightSpinBox->setProperty("value", height));
-    QCOMPARE(heightSpinBox->property("value").toInt(), height);
+    VERIFY(widthSpinBox->setProperty("value", width));
+    VERIFY(widthSpinBox->property("value").toInt() == width);
+    VERIFY(heightSpinBox->setProperty("value", height));
+    VERIFY(heightSpinBox->property("value").toInt() == height);
 
     QQuickItem *okButton = canvasSizePopup->findChild<QQuickItem*>("canvasSizePopupOkButton");
-    QVERIFY(okButton);
+    VERIFY(okButton);
     mouseEventOnCentre(okButton, MouseClick);
-    QVERIFY(!canvasSizePopup->property("visible").toBool());
-    QCOMPARE(project->size().width(), width);
-    QCOMPARE(project->size().height(), height);
-    QCOMPARE(widthSpinBox->property("value").toInt(), width);
-    QCOMPARE(heightSpinBox->property("value").toInt(), height);
+    VERIFY(!canvasSizePopup->property("visible").toBool());
+    VERIFY(project->size().width() == width);
+    VERIFY(project->size().height() == height);
+    VERIFY(widthSpinBox->property("value").toInt() == width);
+    VERIFY(heightSpinBox->property("value").toInt() == height);
+
+    return true;
 }
 
-void TestHelper::changeImageSize(int width, int height)
+bool TestHelper::changeImageSize(int width, int height)
 {
     // Open the image size popup.
     mouseEventOnCentre(imageSizeButton, MouseClick);
     const QObject *imageSizePopup = findPopupFromTypeName("ImageSizePopup");
-    QVERIFY(imageSizePopup);
-    QVERIFY(imageSizePopup->property("visible").toBool());
+    VERIFY(imageSizePopup);
+    VERIFY(imageSizePopup->property("visible").toBool());
 
     // Change the values and then cancel.
     // TODO: use actual input events...
     QQuickItem *widthSpinBox = imageSizePopup->findChild<QQuickItem*>("changeImageWidthSpinBox");
-    QVERIFY(widthSpinBox);
+    VERIFY(widthSpinBox);
     // We want it to be easy to change the values with the keyboard..
-    QVERIFY(widthSpinBox->hasActiveFocus());
+    VERIFY(widthSpinBox->hasActiveFocus());
     const int originalWidthSpinBoxValue = widthSpinBox->property("value").toInt();
-    QVERIFY(widthSpinBox->setProperty("value", originalWidthSpinBoxValue + 1));
-    QCOMPARE(widthSpinBox->property("value").toInt(), originalWidthSpinBoxValue + 1);
+    VERIFY(widthSpinBox->setProperty("value", originalWidthSpinBoxValue + 1));
+    VERIFY(widthSpinBox->property("value").toInt() == originalWidthSpinBoxValue + 1);
 
     QQuickItem *heightSpinBox = imageSizePopup->findChild<QQuickItem*>("changeImageHeightSpinBox");
     const int originalHeightSpinBoxValue = heightSpinBox->property("value").toInt();
-    QVERIFY(heightSpinBox);
-    QVERIFY(heightSpinBox->setProperty("value", originalHeightSpinBoxValue - 1));
-    QCOMPARE(heightSpinBox->property("value").toInt(), originalHeightSpinBoxValue - 1);
+    VERIFY(heightSpinBox);
+    VERIFY(heightSpinBox->setProperty("value", originalHeightSpinBoxValue - 1));
+    VERIFY(heightSpinBox->property("value").toInt() == originalHeightSpinBoxValue - 1);
 
     QQuickItem *cancelButton = imageSizePopup->findChild<QQuickItem*>("imageSizePopupCancelButton");
-    QVERIFY(cancelButton);
+    VERIFY(cancelButton);
     mouseEventOnCentre(cancelButton, MouseClick);
-    QVERIFY(!imageSizePopup->property("visible").toBool());
-    QCOMPARE(project->size().width(), originalWidthSpinBoxValue);
-    QCOMPARE(project->size().height(), originalHeightSpinBoxValue);
+    VERIFY(!imageSizePopup->property("visible").toBool());
+    VERIFY(project->size().width() == originalWidthSpinBoxValue);
+    VERIFY(project->size().height() == originalHeightSpinBoxValue);
 
     // Open the popup again.
     mouseEventOnCentre(imageSizeButton, MouseClick);
-    QVERIFY(imageSizePopup);
-    QVERIFY(imageSizePopup->property("visible").toBool());
+    VERIFY(imageSizePopup);
+    VERIFY(imageSizePopup->property("visible").toBool());
     // The old values should be restored.
-    QCOMPARE(widthSpinBox->property("value").toInt(), originalWidthSpinBoxValue);
-    QCOMPARE(heightSpinBox->property("value").toInt(), originalHeightSpinBoxValue);
+    VERIFY(widthSpinBox->property("value").toInt() == originalWidthSpinBoxValue);
+    VERIFY(heightSpinBox->property("value").toInt() == originalHeightSpinBoxValue);
 
     // Change the values and then press OK.
-    QVERIFY(widthSpinBox->setProperty("value", width));
-    QCOMPARE(widthSpinBox->property("value").toInt(), width);
-    QVERIFY(heightSpinBox->setProperty("value", height));
-    QCOMPARE(heightSpinBox->property("value").toInt(), height);
+    VERIFY(widthSpinBox->setProperty("value", width));
+    VERIFY(widthSpinBox->property("value").toInt() == width);
+    VERIFY(heightSpinBox->setProperty("value", height));
+    VERIFY(heightSpinBox->property("value").toInt() == height);
 
     QQuickItem *okButton = imageSizePopup->findChild<QQuickItem*>("imageSizePopupOkButton");
-    QVERIFY(okButton);
+    VERIFY(okButton);
     mouseEventOnCentre(okButton, MouseClick);
-    QVERIFY(!imageSizePopup->property("visible").toBool());
-    QCOMPARE(project->size().width(), width);
-    QCOMPARE(project->size().height(), height);
-    QCOMPARE(widthSpinBox->property("value").toInt(), width);
-    QCOMPARE(heightSpinBox->property("value").toInt(), height);
+    VERIFY(!imageSizePopup->property("visible").toBool());
+    VERIFY(project->size().width() == width);
+    VERIFY(project->size().height() == height);
+    VERIFY(widthSpinBox->property("value").toInt() == width);
+    VERIFY(heightSpinBox->property("value").toInt() == height);
+
+    return true;
 }
 
-void TestHelper::changeToolSize(int size)
+bool TestHelper::changeToolSize(int size)
 {
     mouseEventOnCentre(toolSizeButton, MouseClick);
     const QObject *toolSizePopup = findPopupFromTypeName("ToolSizePopup");
-    QVERIFY(toolSizePopup);
-    QCOMPARE(toolSizePopup->property("visible").toBool(), true);
+    VERIFY(toolSizePopup);
+    VERIFY(toolSizePopup->property("visible").toBool() == true);
 
     QQuickItem *toolSizeSlider = toolSizePopup->findChild<QQuickItem*>("toolSizeSlider");
-    QVERIFY(toolSizeSlider);
+    VERIFY(toolSizeSlider);
 
     QQuickItem *toolSizeSliderHandle = toolSizeSlider->property("handle").value<QQuickItem*>();
-    QVERIFY(toolSizeSliderHandle);
+    VERIFY(toolSizeSliderHandle);
 
     // Move the slider to the right to find the max pos.
-    QVERIFY(toolSizeSlider->setProperty("value", toolSizeSlider->property("to").toReal()));
-    QCOMPARE(toolSizeSlider->property("value"), toolSizeSlider->property("to"));
+    VERIFY(toolSizeSlider->setProperty("value", toolSizeSlider->property("to").toReal()));
+    VERIFY(toolSizeSlider->property("value") == toolSizeSlider->property("to"));
     const QPoint handleMaxPos = toolSizeSliderHandle->mapToScene(
         QPointF(toolSizeSliderHandle->width() / 2, toolSizeSliderHandle->height() / 2)).toPoint();
 
     // Move/reset the slider to the left since we move from left to right.
-    QVERIFY(toolSizeSlider->setProperty("value", toolSizeSlider->property("from").toReal()));
-    QCOMPARE(toolSizeSlider->property("value"), toolSizeSlider->property("from"));
+    VERIFY(toolSizeSlider->setProperty("value", toolSizeSlider->property("from").toReal()));
+    VERIFY(toolSizeSlider->property("value") == toolSizeSlider->property("from"));
     const QPoint handleMinPos = toolSizeSliderHandle->mapToScene(
         QPointF(toolSizeSliderHandle->width() / 2, toolSizeSlider->height() / 2)).toPoint();
 
     QPoint sliderHandlePos = handleMinPos;
     QTest::mousePress(toolSizeSlider->window(), Qt::LeftButton, Qt::NoModifier, sliderHandlePos);
-    QCOMPARE(toolSizeSlider->property("pressed").toBool(), true);
-    QCOMPARE(window->mouseGrabberItem(), toolSizeSlider);
+    VERIFY(toolSizeSlider->property("pressed").toBool() == true);
+    VERIFY(window->mouseGrabberItem() == toolSizeSlider);
 
     QTest::mouseMove(toolSizeSlider->window(), sliderHandlePos, 5);
 
@@ -361,12 +365,14 @@ void TestHelper::changeToolSize(int size)
     }
     --sliderHandlePos.rx();
     QTest::mouseRelease(toolSizeSlider->window(), Qt::LeftButton, Qt::NoModifier, sliderHandlePos);
-    QCOMPARE(toolSizeSlider->property("pressed").toBool(), false);
-    QCOMPARE(sliderValue(toolSizeSlider), size);
+    VERIFY(toolSizeSlider->property("pressed").toBool() == false);
+    VERIFY(sliderValue(toolSizeSlider) == size);
 
     // Close the popup.
     QTest::keyClick(window, Qt::Key_Escape);
-    QCOMPARE(toolSizePopup->property("visible").toBool(), false);
+    VERIFY(toolSizePopup->property("visible").toBool() == false);
+
+    return true;
 }
 
 int TestHelper::sliderValue(QQuickItem *slider) const
@@ -377,11 +383,11 @@ int TestHelper::sliderValue(QQuickItem *slider) const
     return qFloor(value);
 }
 
-void TestHelper::drawPixelAtCursorPos()
+bool TestHelper::drawPixelAtCursorPos()
 {
     if (tilesetProject) {
         const Tile *targetTile = tilesetProject->tileAt(cursorPos);
-        QVERIFY(targetTile);
+        VERIFY(targetTile);
 
         switchTool(TileCanvas::PenTool);
         switchMode(TileCanvas::PixelMode);
@@ -393,32 +399,34 @@ void TestHelper::drawPixelAtCursorPos()
 
         QTest::mouseMove(window, cursorPos);
         QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-        QVERIFY(targetTile->tileset()->image()->copy(targetTile->sourceRect()) != originalTileImage);
-        QCOMPARE(targetTile->tileset()->image()->copy(targetTile->sourceRect()), expectedImage);
-        QVERIFY(tilesetProject->hasUnsavedChanges());
-        QVERIFY(window->title().contains("*"));
+        VERIFY(targetTile->tileset()->image()->copy(targetTile->sourceRect()) != originalTileImage);
+        VERIFY(targetTile->tileset()->image()->copy(targetTile->sourceRect()) == expectedImage);
+        VERIFY(tilesetProject->hasUnsavedChanges());
+        VERIFY(window->title().contains("*"));
 
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-        QCOMPARE(targetTile->tileset()->image()->copy(targetTile->sourceRect()), expectedImage);
-        QVERIFY(tilesetProject->hasUnsavedChanges());
-        QVERIFY(window->title().contains("*"));
+        VERIFY(targetTile->tileset()->image()->copy(targetTile->sourceRect()) == expectedImage);
+        VERIFY(tilesetProject->hasUnsavedChanges());
+        VERIFY(window->title().contains("*"));
     } else {
         switchTool(TileCanvas::PenTool);
 
         QTest::mouseMove(window, cursorWindowPos);
         QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-        QCOMPARE(canvas->currentProjectImage()->pixelColor(cursorPos), canvas->penForegroundColour());
-        QVERIFY(project->hasUnsavedChanges());
-        QVERIFY(window->title().contains("*"));
+        VERIFY(canvas->currentProjectImage()->pixelColor(cursorPos) == canvas->penForegroundColour());
+        VERIFY(project->hasUnsavedChanges());
+        VERIFY(window->title().contains("*"));
 
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-        QCOMPARE(canvas->currentProjectImage()->pixelColor(cursorPos), canvas->penForegroundColour());
-        QVERIFY(project->hasUnsavedChanges());
-        QVERIFY(window->title().contains("*"));
+        VERIFY(canvas->currentProjectImage()->pixelColor(cursorPos) == canvas->penForegroundColour());
+        VERIFY(project->hasUnsavedChanges());
+        VERIFY(window->title().contains("*"));
     }
+
+    return true;
 }
 
-void TestHelper::drawTileAtCursorPos()
+bool TestHelper::drawTileAtCursorPos()
 {
     switchTool(TileCanvas::PenTool);
     switchMode(TileCanvas::TileMode);
@@ -427,7 +435,8 @@ void TestHelper::drawTileAtCursorPos()
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     const int penId = tileCanvas->penTile()->id();
-    QCOMPARE(tilesetProject->tileAt(cursorPos)->id(), penId);
+    VERIFY(tilesetProject->tileAt(cursorPos)->id() == penId);
+    return true;
 }
 
 static QString fuzzyColourCompareFailMsg(const QColor &colour1, const QColor &colour2,
@@ -437,30 +446,34 @@ static QString fuzzyColourCompareFailMsg(const QColor &colour1, const QColor &co
             .arg(colour1.name()).arg(colour2.name()).arg(componentName).arg(difference).arg(fuzz);
 }
 
-void TestHelper::fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz)
+bool TestHelper::fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz)
 {
     const int rDiff = qAbs(colour2.red() - colour1.red());
-    QVERIFY2(rDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(colour1, colour2, QLatin1Char('r'), rDiff, fuzz)));
+    VERIFY2(rDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(colour1, colour2, QLatin1Char('r'), rDiff, fuzz)));
 
     const int gDiff = qAbs(colour2.green() - colour1.green());
-    QVERIFY2(gDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(colour1, colour2, QLatin1Char('g'), gDiff, fuzz)));
+    VERIFY2(gDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(colour1, colour2, QLatin1Char('g'), gDiff, fuzz)));
 
     const int bDiff = qAbs(colour2.blue() - colour1.blue());
-    QVERIFY2(bDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(colour1, colour2, QLatin1Char('b'), bDiff, fuzz)));
+    VERIFY2(bDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(colour1, colour2, QLatin1Char('b'), bDiff, fuzz)));
 
     const int aDiff = qAbs(colour2.alpha() - colour1.alpha());
-    QVERIFY2(aDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(colour1, colour2, QLatin1Char('a'), aDiff, fuzz)));
+    VERIFY2(aDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(colour1, colour2, QLatin1Char('a'), aDiff, fuzz)));
+
+    return true;
 }
 
-void TestHelper::fuzzyImageCompare(const QImage &image1, const QImage &image2)
+bool TestHelper::fuzzyImageCompare(const QImage &image1, const QImage &image2)
 {
-    QCOMPARE(image1.size(), image2.size());
+    VERIFY(image1.size() == image2.size());
 
     for (int y = 0; y < image1.height(); ++y) {
         for (int x = 0; x < image1.width(); ++x) {
             fuzzyColourCompare(image1.pixelColor(x, y), image2.pixelColor(x, y));
         }
     }
+
+    return true;
 }
 
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
@@ -577,8 +590,10 @@ void TestHelper::setCursorPosInScenePixels(int xPosInScenePixels, int yPosInScen
     cursorPos = QPoint(xPosInScenePixels, yPosInScenePixels);
     cursorWindowPos = canvas->mapToScene(cursorPos).toPoint() + canvas->firstPane()->offset();
     if (verifyWithinWindow) {
-        QVERIFY2(cursorWindowPos.x() >= 0 && cursorWindowPos.y() >= 0,
-                 qPrintable(QString::fromLatin1("x %1 y %2").arg(cursorWindowPos.x()).arg(cursorWindowPos.y())));
+        // As with mouseEventOnCentre(), we don't want this to be a e.g. VERIFY2, because then we'd have to
+        // verify its return value everywhere we use it, and we use it a lot, so just assert instead.
+        Q_ASSERT_X(cursorWindowPos.x() >= 0 && cursorWindowPos.y() >= 0, Q_FUNC_INFO,
+            qPrintable(QString::fromLatin1("x %1 y %2").arg(cursorWindowPos.x()).arg(cursorWindowPos.y())));
     }
 }
 
@@ -636,148 +651,154 @@ int TestHelper::digitAt(int number, int index)
     return index < digits.size() ? digits.at(index) : 0;
 }
 
-void TestHelper::triggerShortcut(const QString &objectName, const QString &sequenceAsString)
+bool TestHelper::triggerShortcut(const QString &objectName, const QString &sequenceAsString)
 {
     QObject *shortcut = window->findChild<QObject*>(objectName);
-    QVERIFY2(shortcut, qPrintable(QString::fromLatin1("Shortcut \"%1\" could not be found").arg(objectName)));
-    QVERIFY2(shortcut->property("enabled").toBool(), qPrintable(QString::fromLatin1(
+    VERIFY2(shortcut, qPrintable(QString::fromLatin1("Shortcut \"%1\" could not be found").arg(objectName)));
+    VERIFY2(shortcut->property("enabled").toBool(), qPrintable(QString::fromLatin1(
         "Shortcut \"%1\" is not enabled (%2 has active focus; does this shortcut require the canvas to have it?)")
             .arg(objectName, window->activeFocusItem() ? window->activeFocusItem()->objectName() : QString())));
 
     QSignalSpy activatedSpy(shortcut, SIGNAL(activated()));
-    QVERIFY(activatedSpy.isValid());
+    VERIFY(activatedSpy.isValid());
 
-    QVERIFY(QTest::qWaitForWindowActive(window));
+    VERIFY(QTest::qWaitForWindowActive(window));
     const int value = QKeySequence(sequenceAsString)[0];
     Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(value & Qt::KeyboardModifierMask);
     QTest::keyClick(window, value & ~mods, mods);
-    QVERIFY2(activatedSpy.count() == 1, qPrintable(QString::fromLatin1(
+    VERIFY2(activatedSpy.count() == 1, qPrintable(QString::fromLatin1(
         "The activated() signal was not emitted for %1 with sequence %2").arg(objectName).arg(sequenceAsString)));
+
+    return true;
 }
 
-void TestHelper::triggerNewProject()
+bool TestHelper::triggerNewProject()
 {
-    triggerShortcut("newShortcut", app.settings()->newShortcut());
+    return triggerShortcut("newShortcut", app.settings()->newShortcut());
 }
 
-void TestHelper::triggerCloseProject()
+bool TestHelper::triggerCloseProject()
 {
-    triggerShortcut("closeShortcut", app.settings()->closeShortcut());
+    return triggerShortcut("closeShortcut", app.settings()->closeShortcut());
 }
 
-void TestHelper::triggerSaveProject()
+bool TestHelper::triggerSaveProject()
 {
-    triggerShortcut("saveShortcut", app.settings()->saveShortcut());
+    return triggerShortcut("saveShortcut", app.settings()->saveShortcut());
 }
 
-void TestHelper::triggerSaveProjectAs()
+bool TestHelper::triggerSaveProjectAs()
 {
-    QFAIL("TODO: no saveas shortcut");
+    FAIL("TODO: no saveas shortcut");
 //    triggerShortcut(app.settings()->saveShortcut());
 }
 
-void TestHelper::triggerOpenProject()
+bool TestHelper::triggerOpenProject()
 {
-    triggerShortcut("openShortcut", app.settings()->openShortcut());
+    return triggerShortcut("openShortcut", app.settings()->openShortcut());
 }
 
-void TestHelper::triggerRevert()
+bool TestHelper::triggerRevert()
 {
-    triggerShortcut("revertShortcut", app.settings()->revertShortcut());
+    return triggerShortcut("revertShortcut", app.settings()->revertShortcut());
 }
 
-void TestHelper::triggerPaste()
+bool TestHelper::triggerPaste()
 {
-    triggerShortcut("pasteShortcut", QKeySequence(QKeySequence::Paste).toString());
+    return triggerShortcut("pasteShortcut", QKeySequence(QKeySequence::Paste).toString());
 }
 
-void TestHelper::triggerFlipHorizontally()
+bool TestHelper::triggerFlipHorizontally()
 {
-    triggerShortcut("flipHorizontallyShortcut", app.settings()->flipHorizontallyShortcut());
+    return triggerShortcut("flipHorizontallyShortcut", app.settings()->flipHorizontallyShortcut());
 }
 
-void TestHelper::triggerFlipVertically()
+bool TestHelper::triggerFlipVertically()
 {
-    triggerShortcut("flipVerticallyShortcut", app.settings()->flipVerticallyShortcut());
+    return triggerShortcut("flipVerticallyShortcut", app.settings()->flipVerticallyShortcut());
 }
 
-void TestHelper::triggerCentre()
+bool TestHelper::triggerCentre()
 {
-    triggerShortcut("centreShortcut", app.settings()->centreShortcut());
+    return triggerShortcut("centreShortcut", app.settings()->centreShortcut());
 }
 
-void TestHelper::triggerGridVisible()
+bool TestHelper::triggerGridVisible()
 {
-    triggerShortcut("gridVisibleShortcut", app.settings()->gridVisibleShortcut());
+    return triggerShortcut("gridVisibleShortcut", app.settings()->gridVisibleShortcut());
 }
 
-void TestHelper::triggerRulersVisible()
+bool TestHelper::triggerRulersVisible()
 {
-    triggerShortcut("rulersVisibleShortcut", app.settings()->rulersVisibleShortcut());
+    return triggerShortcut("rulersVisibleShortcut", app.settings()->rulersVisibleShortcut());
 }
 
-void TestHelper::triggerGuidesVisible()
+bool TestHelper::triggerGuidesVisible()
 {
-    triggerShortcut("guidesVisibleShortcut", app.settings()->guidesVisibleShortcut());
+    return triggerShortcut("guidesVisibleShortcut", app.settings()->guidesVisibleShortcut());
 }
 
-void TestHelper::triggerSplitScreen()
+bool TestHelper::triggerSplitScreen()
 {
-    triggerShortcut("splitScreenShortcut", app.settings()->splitScreenShortcut());
+    return triggerShortcut("splitScreenShortcut", app.settings()->splitScreenShortcut());
 }
 
-void TestHelper::triggerSplitterLocked()
+bool TestHelper::triggerSplitterLocked()
 {
-    triggerShortcut("splitterLockedShortcut", app.settings()->splitterLockedShortcut());
+    return triggerShortcut("splitterLockedShortcut", app.settings()->splitterLockedShortcut());
 }
 
-void TestHelper::setSplitterLocked(bool splitterLocked)
+bool TestHelper::setSplitterLocked(bool splitterLocked)
 {
     if (canvas->splitter()->isEnabled() != !splitterLocked) {
         triggerSplitterLocked();
-        QCOMPARE(canvas->splitter()->isEnabled(), !splitterLocked);
+        VERIFY(canvas->splitter()->isEnabled() == !splitterLocked);
     }
+    return true;
 }
 
-void TestHelper::triggerAnimationPlayback()
+bool TestHelper::triggerAnimationPlayback()
 {
-    triggerShortcut("animationPlaybackShortcut", app.settings()->animationPlaybackShortcut());
+    return triggerShortcut("animationPlaybackShortcut", app.settings()->animationPlaybackShortcut());
 }
 
-void TestHelper::setAnimationPlayback(bool usingAnimation)
+bool TestHelper::setAnimationPlayback(bool usingAnimation)
 {
     if (layeredImageProject->isUsingAnimation() != usingAnimation) {
         triggerAnimationPlayback();
-        QCOMPARE(layeredImageProject->isUsingAnimation(), usingAnimation);
+        VERIFY(layeredImageProject->isUsingAnimation() == usingAnimation);
     }
+    return true;
 }
 
-void TestHelper::triggerOptions()
+bool TestHelper::triggerOptions()
 {
-    triggerShortcut("optionsShortcut", app.settings()->optionsShortcut());
+    return triggerShortcut("optionsShortcut", app.settings()->optionsShortcut());
 }
 
-void TestHelper::selectLayer(const QString &layerName, int layerIndex)
+bool TestHelper::selectLayer(const QString &layerName, int layerIndex)
 {
-    QTRY_VERIFY(findListViewChild("layerListView", layerName));
+    TRY_VERIFY(findListViewChild("layerListView", layerName));
     QQuickItem *layerDelegate = findListViewChild("layerListView", layerName);
-    QVERIFY(layerDelegate);
+    VERIFY(layerDelegate);
     mouseEventOnCentre(layerDelegate, MouseClick);
-    QCOMPARE(layerDelegate->property("checked").toBool(), true);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), layerIndex);
+    VERIFY(layerDelegate->property("checked").toBool());
+    VERIFY(layeredImageProject->currentLayerIndex() == layerIndex);
+    return true;
 }
 
-void TestHelper::verifyLayerName(const QString &layerName, QQuickItem **layerDelegate)
+bool TestHelper::verifyLayerName(const QString &layerName, QQuickItem **layerDelegate)
 {
     // It seems that the ListView sometimes need some extra time to create the second item (e.g. when debugging).
-    QTRY_VERIFY(findListViewChild("layerListView", layerName));
+    TRY_VERIFY(findListViewChild("layerListView", layerName));
     QQuickItem *delegate = findListViewChild("layerListView", layerName);
-    QVERIFY(delegate);
+    VERIFY(delegate);
     QQuickItem *layerDelegateNameTextField = delegate->findChild<QQuickItem*>("layerNameTextField");
-    QVERIFY(layerDelegateNameTextField);
-    QCOMPARE(layerDelegateNameTextField->property("text").toString(), layerName);
+    VERIFY(layerDelegateNameTextField);
+    VERIFY(layerDelegateNameTextField->property("text").toString() == layerName);
     if (layerDelegate)
         *layerDelegate = delegate;
+    return true;
 }
 
 void TestHelper::addAllProjectTypes()
@@ -806,7 +827,7 @@ void TestHelper::addActualProjectTypes()
     QTest::newRow("LayeredImageType") << Project::LayeredImageType << "slp";
 }
 
-void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &args)
+bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &args)
 {
     const bool isTilesetProject = projectType == Project::TilesetType;
 
@@ -825,34 +846,35 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     if (!project) {
         // Hovering over the canvas with no project open should result in the default cursor being displayed.
         QTest::mouseMove(window, QPointF(window->width() / 2, window->height() / 2).toPoint());
-        QCOMPARE(window->cursor().shape(), Qt::ArrowCursor);
+        VERIFY(window->cursor().shape() == Qt::ArrowCursor);
     }
 
     if (creationErrorOccurredSpy)
         creationErrorOccurredSpy->clear();
 
     // Click the new project button.
-    triggerNewProject();
+    if (!triggerNewProject())
+        return false;
 
     // Check that we get prompted to discard any changes.
     if (project && project->hasUnsavedChanges()) {
         const QObject *discardChangesDialog = window->contentItem()->findChild<QObject*>("discardChangesDialog");
-        QVERIFY(discardChangesDialog);
-        QVERIFY(discardChangesDialog->property("visible").toBool());
+        VERIFY(discardChangesDialog);
+        VERIFY(discardChangesDialog->property("visible").toBool());
 
         QQuickItem *yesButton = findDialogButton(discardChangesDialog, "Yes");
-        QVERIFY(yesButton);
+        VERIFY(yesButton);
         mouseEventOnCentre(yesButton, MouseClick);
-        QVERIFY(!discardChangesDialog->property("visible").toBool());
+        VERIFY(!discardChangesDialog->property("visible").toBool());
     }
 
     // Ensure that the new project popup is visible.
     const QObject *newProjectPopup = findPopupFromTypeName("NewProjectPopup");
-    QVERIFY(newProjectPopup);
-    QVERIFY(newProjectPopup->property("visible").toBool());
+    VERIFY(newProjectPopup);
+    VERIFY(newProjectPopup->property("visible").toBool());
     // TODO: remove this when https://bugreports.qt.io/browse/QTBUG-53420 is fixed
     newProjectPopup->property("contentItem").value<QQuickItem*>()->forceActiveFocus();
-    QVERIFY2(newProjectPopup->property("activeFocus").toBool(),
+    VERIFY2(newProjectPopup->property("activeFocus").toBool(),
         qPrintable(QString::fromLatin1("NewProjectPopup doesn't have active focus (%1 does)").arg(window->activeFocusItem()->objectName())));
 
     QString newProjectButtonObjectName;
@@ -866,54 +888,55 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
 
     // Click on the appropriate project type button.
     QQuickItem *tilesetProjectButton = newProjectPopup->findChild<QQuickItem*>(newProjectButtonObjectName);
-    QVERIFY(tilesetProjectButton);
+    VERIFY(tilesetProjectButton);
 
     mouseEventOnCentre(tilesetProjectButton, MouseClick);
-    QCOMPARE(tilesetProjectButton->property("checked").toBool(), true);
+    VERIFY(tilesetProjectButton->property("checked").toBool());
 
-    QTRY_COMPARE(newProjectPopup->property("visible").toBool(), false);
+    TRY_VERIFY(!newProjectPopup->property("visible").toBool());
 
     if (projectType == Project::TilesetType) {
         // Create a temporary directory containing a tileset image for us to use.
-        setupTempTilesetProjectDir();
+        if (!setupTempTilesetProjectDir())
+            return false;
 
         // Now the New Tileset Project popup should be visible.
-        QTRY_VERIFY(findPopupFromTypeName("NewTilesetProjectPopup"));
+        TRY_VERIFY(findPopupFromTypeName("NewTilesetProjectPopup"));
         const QObject *newTilesetProjectPopup = findPopupFromTypeName("NewTilesetProjectPopup");
-        QVERIFY(newTilesetProjectPopup->property("visible").toBool());
+        VERIFY(newTilesetProjectPopup->property("visible").toBool());
 
         // Ensure that the popup gets reset each time it's opened.
         QQuickItem *useExistingTilesetCheckBox = newTilesetProjectPopup->findChild<QQuickItem*>("useExistingTilesetCheckBox");
-        QVERIFY(useExistingTilesetCheckBox);
-        QVERIFY(useExistingTilesetCheckBox->property("checked").isValid());
-        QVERIFY(!useExistingTilesetCheckBox->property("checked").toBool());
+        VERIFY(useExistingTilesetCheckBox);
+        VERIFY(useExistingTilesetCheckBox->property("checked").isValid());
+        VERIFY(!useExistingTilesetCheckBox->property("checked").toBool());
 
         QQuickItem *tilesetField = newTilesetProjectPopup->findChild<QQuickItem*>("tilesetPathTextField");
-        QVERIFY(tilesetField);
-        QVERIFY(tilesetField->property("text").isValid());
-        QVERIFY(tilesetField->property("text").toString().isEmpty());
+        VERIFY(tilesetField);
+        VERIFY(tilesetField->property("text").isValid());
+        VERIFY(tilesetField->property("text").toString().isEmpty());
 
         QQuickItem *tileWidthSpinBox = newTilesetProjectPopup->findChild<QQuickItem*>("tileWidthSpinBox");
-        QVERIFY(tileWidthSpinBox);
-        QCOMPARE(tileWidthSpinBox->property("value").toInt(), 32);
+        VERIFY(tileWidthSpinBox);
+        VERIFY(tileWidthSpinBox->property("value").toInt() == 32);
 
         QQuickItem *tileHeightSpinBox = newTilesetProjectPopup->findChild<QQuickItem*>("tileHeightSpinBox");
-        QVERIFY(tileHeightSpinBox);
-        QCOMPARE(tileHeightSpinBox->property("value").toInt(), 32);
+        VERIFY(tileHeightSpinBox);
+        VERIFY(tileHeightSpinBox->property("value").toInt() == 32);
 
         QQuickItem *tilesWideSpinBox = newTilesetProjectPopup->findChild<QQuickItem*>("tilesWideSpinBox");
-        QVERIFY(tilesWideSpinBox);
-        QCOMPARE(tilesWideSpinBox->property("value").toInt(), 10);
+        VERIFY(tilesWideSpinBox);
+        VERIFY(tilesWideSpinBox->property("value").toInt() == 10);
 
         QQuickItem *tilesHighSpinBox = newTilesetProjectPopup->findChild<QQuickItem*>("tilesHighSpinBox");
-        QVERIFY(tilesHighSpinBox);
-        QCOMPARE(tilesHighSpinBox->property("value").toInt(), 10);
+        VERIFY(tilesHighSpinBox);
+        VERIFY(tilesHighSpinBox->property("value").toInt() == 10);
 
-        QVERIFY(tileWidthSpinBox->setProperty("value", tileWidth));
-        QCOMPARE(tileWidthSpinBox->property("value").toInt(), tileWidth);
+        VERIFY(tileWidthSpinBox->setProperty("value", tileWidth));
+        VERIFY(tileWidthSpinBox->property("value").toInt() == tileWidth);
 
-        QVERIFY(tileHeightSpinBox->setProperty("value", tileHeight));
-        QCOMPARE(tileHeightSpinBox->property("value").toInt(), tileHeight);
+        VERIFY(tileHeightSpinBox->setProperty("value", tileHeight));
+        VERIFY(tileHeightSpinBox->property("value").toInt() == tileHeight);
 
         if (tilesetTilesWide == -1 || tilesetTilesHigh == -1) {
             // Using an existing tileset image.
@@ -921,96 +944,97 @@ void TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
             // Check the "use existing tileset" checkbox.
             // Hack: it has focus in the app, but not in the test => meh
             useExistingTilesetCheckBox->forceActiveFocus();
-            QVERIFY(useExistingTilesetCheckBox->hasActiveFocus());
+            VERIFY(useExistingTilesetCheckBox->hasActiveFocus());
             QTest::keyClick(window, Qt::Key_Space);
-            QVERIFY(useExistingTilesetCheckBox->property("checked").toBool());
+            VERIFY(useExistingTilesetCheckBox->property("checked").toBool());
 
             // Input the filename.
             QTest::keyClick(window, Qt::Key_Tab);
-            QVERIFY(tilesetField->hasActiveFocus());
+            VERIFY(tilesetField->hasActiveFocus());
             // TODO: input path using events
-            QVERIFY(tilesetField->property("text").isValid());
-            QVERIFY(tilesetField->setProperty("text", tempTilesetUrl.toString()));
+            VERIFY(tilesetField->property("text").isValid());
+            VERIFY(tilesetField->setProperty("text", tempTilesetUrl.toString()));
 
             QQuickItem *invalidFileIcon = newTilesetProjectPopup->findChild<QQuickItem*>("invalidFileIcon");
-            QVERIFY(invalidFileIcon);
+            VERIFY(invalidFileIcon);
             QObject *fileValidator = newTilesetProjectPopup->findChild<QObject*>("validator");
-            QVERIFY2(qFuzzyCompare(invalidFileIcon->property("opacity").toReal(), 0),
+            VERIFY2(qFuzzyCompare(invalidFileIcon->property("opacity").toReal(), 0),
                 qPrintable(QString::fromLatin1("File should be valid, but got error message \"%1\"; file path: %2")
                     .arg(fileValidator->property("errorMessage").toString())
                     .arg(tilesetField->property("text").toString())));
         } else {
             // Using a new tileset image.
-            QVERIFY(tilesetTilesWide > 0 && tilesetTilesHigh > 0);
+            VERIFY(tilesetTilesWide > 0 && tilesetTilesHigh > 0);
 
-            QVERIFY(tilesWideSpinBox->setProperty("value", tilesetTilesWide));
-            QCOMPARE(tilesWideSpinBox->property("value").toInt(), tilesetTilesWide);
+            VERIFY(tilesWideSpinBox->setProperty("value", tilesetTilesWide));
+            VERIFY(tilesWideSpinBox->property("value").toInt() == tilesetTilesWide);
 
-            QVERIFY(tilesHighSpinBox->setProperty("value", tilesetTilesHigh));
-            QCOMPARE(tilesHighSpinBox->property("value").toInt(), tilesetTilesHigh);
+            VERIFY(tilesHighSpinBox->setProperty("value", tilesetTilesHigh));
+            VERIFY(tilesHighSpinBox->property("value").toInt() == tilesetTilesHigh);
 
             QQuickItem *transparentBackgroundCheckBox = newTilesetProjectPopup->findChild<QQuickItem*>("transparentBackgroundCheckBox");
-            QVERIFY(transparentBackgroundCheckBox);
-            QCOMPARE(transparentBackgroundCheckBox->property("checked").toBool(), true);
+            VERIFY(transparentBackgroundCheckBox);
+            VERIFY(transparentBackgroundCheckBox->property("checked").toBool());
 
             if (!transparentTilesetBackground) {
                 mouseEventOnCentre(transparentBackgroundCheckBox, MouseClick);
-                QCOMPARE(transparentBackgroundCheckBox->property("checked").toBool(), false);
+                VERIFY(!transparentBackgroundCheckBox->property("checked").toBool());
             }
         }
 
         // Confirm creation of the project.
         QQuickItem *okButton = newTilesetProjectPopup->findChild<QQuickItem*>("newTilesetProjectOkButton");
-        QVERIFY(okButton);
+        VERIFY(okButton);
         mouseEventOnCentre(okButton, MouseClick);
-        QVERIFY(!newTilesetProjectPopup->property("visible").toBool());
+        VERIFY(!newTilesetProjectPopup->property("visible").toBool());
     } else {
         // Create a temporary directory that we can save into, etc.
         if (projectType == Project::LayeredImageType) {
-            setupTempLayeredImageProjectDir();
+            if (!setupTempLayeredImageProjectDir())
+                return false;
         }
 
         // Now the New Image Project popup should be visible.
-        QTRY_VERIFY(findPopupFromTypeName("NewImageProjectPopup"));
+        TRY_VERIFY(findPopupFromTypeName("NewImageProjectPopup"));
         const QObject *newImageProjectPopup = findPopupFromTypeName("NewImageProjectPopup");
-        QVERIFY(newImageProjectPopup->property("visible").toBool());
+        VERIFY(newImageProjectPopup->property("visible").toBool());
 
         // Ensure that the popup gets reset each time it's opened.
         QQuickItem *imageWidthSpinBox = newImageProjectPopup->findChild<QQuickItem*>("imageWidthSpinBox");
-        QVERIFY(imageWidthSpinBox);
-        QCOMPARE(imageWidthSpinBox->property("value").toInt(), 256);
+        VERIFY(imageWidthSpinBox);
+        VERIFY(imageWidthSpinBox->property("value").toInt() == 256);
 
         QQuickItem *imageHeightSpinBox = newImageProjectPopup->findChild<QQuickItem*>("imageHeightSpinBox");
-        QVERIFY(imageHeightSpinBox);
-        QCOMPARE(imageHeightSpinBox->property("value").toInt(), 256);
+        VERIFY(imageHeightSpinBox);
+        VERIFY(imageHeightSpinBox->property("value").toInt() == 256);
 
-        QVERIFY(imageWidthSpinBox->setProperty("value", imageWidth));
-        QCOMPARE(imageWidthSpinBox->property("value").toInt(), imageWidth);
+        VERIFY(imageWidthSpinBox->setProperty("value", imageWidth));
+        VERIFY(imageWidthSpinBox->property("value").toInt() == imageWidth);
 
-        QVERIFY(imageHeightSpinBox->setProperty("value", imageHeight));
-        QCOMPARE(imageHeightSpinBox->property("value").toInt(), imageHeight);
+        VERIFY(imageHeightSpinBox->setProperty("value", imageHeight));
+        VERIFY(imageHeightSpinBox->property("value").toInt() == imageHeight);
 
         QQuickItem *transparentImageBackgroundCheckBox = newImageProjectPopup->findChild<QQuickItem*>("transparentImageBackgroundCheckBox");
-        QVERIFY(transparentImageBackgroundCheckBox);
-        QVERIFY(transparentImageBackgroundCheckBox->property("checked").isValid());
-        QCOMPARE(transparentImageBackgroundCheckBox->property("checked").toBool(), false);
+        VERIFY(transparentImageBackgroundCheckBox);
+        VERIFY(transparentImageBackgroundCheckBox->property("checked").isValid());
+        VERIFY(!transparentImageBackgroundCheckBox->property("checked").toBool());
 
         if (transparentImageBackground) {
             mouseEventOnCentre(transparentImageBackgroundCheckBox, MouseClick);
-            QCOMPARE(transparentImageBackgroundCheckBox->property("checked").toBool(), transparentImageBackground);
+            VERIFY(transparentImageBackgroundCheckBox->property("checked").toBool() == transparentImageBackground);
         }
 
         // Confirm creation of the project.
         QQuickItem *okButton = newImageProjectPopup->findChild<QQuickItem*>("newImageProjectOkButton");
-        QVERIFY(okButton);
+        VERIFY(okButton);
         mouseEventOnCentre(okButton, MouseClick);
-        QVERIFY(!newImageProjectPopup->property("visible").toBool());
+        VERIFY(!newImageProjectPopup->property("visible").toBool());
     }
 
-    updateVariables(true, projectType);
+    return !updateVariables(true, projectType);
 }
 
-void TestHelper::createNewTilesetProject(int tileWidth, int tileHeight, int tilesetTilesWide, int tilesetTilesHigh,
+bool TestHelper::createNewTilesetProject(int tileWidth, int tileHeight, int tilesetTilesWide, int tilesetTilesHigh,
     bool transparentTilesetBackground)
 {
     QVariantMap args;
@@ -1020,18 +1044,20 @@ void TestHelper::createNewTilesetProject(int tileWidth, int tileHeight, int tile
     args.insert("tilesetTilesHigh", tilesetTilesHigh);
     args.insert("transparentTilesetBackground", transparentTilesetBackground);
     createNewProject(Project::TilesetType, args);
+    return true;
 }
 
-void TestHelper::createNewImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)
+bool TestHelper::createNewImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)
 {
     QVariantMap args;
     args.insert("imageWidth", imageWidth);
     args.insert("imageHeight", imageHeight);
     args.insert("transparentImageBackground", transparentImageBackground);
     createNewProject(Project::ImageType, args);
+    return true;
 }
 
-void TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)
+bool TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)
 {
     QVariantMap args;
     args.insert("imageWidth", imageWidth);
@@ -1039,80 +1065,84 @@ void TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
     args.insert("transparentImageBackground", transparentImageBackground);
     createNewProject(Project::LayeredImageType, args);
 
-    QCOMPARE(layeredImageProject->layerCount(), 1);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
-    QVERIFY(layeredImageProject->currentLayer());
-    QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 1"));
+    VERIFY(layeredImageProject->layerCount() == 1);
+    VERIFY(layeredImageProject->currentLayerIndex() == 0);
+    VERIFY(layeredImageProject->currentLayer());
+    VERIFY(layeredImageProject->layerAt(0)->name() == QLatin1String("Layer 1"));
 
     {
         // Ensure that what the user sees (the delegate) is correct.
         QQuickItem *layer1Delegate = findListViewChild("layerListView", QLatin1String("Layer 1"));
-        QVERIFY(layer1Delegate);
+        VERIFY(layer1Delegate);
 
         QQuickItem *nameTextField = layer1Delegate->findChild<QQuickItem*>("layerNameTextField");
-        QVERIFY(nameTextField);
-        QCOMPARE(nameTextField->property("text").toString(), QLatin1String("Layer 1"));
+        VERIFY(nameTextField);
+        VERIFY(nameTextField->property("text").toString() == QLatin1String("Layer 1"));
     }
 
     newLayerButton = window->findChild<QQuickItem*>("newLayerButton");
-    QVERIFY(newLayerButton);
+    VERIFY(newLayerButton);
 
     moveLayerUpButton = window->findChild<QQuickItem*>("moveLayerUpButton");
-    QVERIFY(moveLayerUpButton);
+    VERIFY(moveLayerUpButton);
 
     moveLayerDownButton = window->findChild<QQuickItem*>("moveLayerDownButton");
-    QVERIFY(moveLayerDownButton);
+    VERIFY(moveLayerDownButton);
 
     animationPlayPauseButton = window->findChild<QQuickItem*>("animationPlayPauseButton");
-    QVERIFY(animationPlayPauseButton);
+    VERIFY(animationPlayPauseButton);
+
+    return true;
 }
 
-void TestHelper::loadProject(const QUrl &url)
+bool TestHelper::loadProject(const QUrl &url)
 {
     if (creationErrorOccurredSpy)
         creationErrorOccurredSpy->clear();
 
     QWindow *window = qobject_cast<QWindow*>(app.qmlEngine()->rootObjects().first());
-    QVERIFY(window);
+    VERIFY(window);
 
-    QVERIFY(QMetaObject::invokeMethod(window, "loadProject", Qt::DirectConnection, Q_ARG(QVariant, url)));
+    VERIFY(QMetaObject::invokeMethod(window, "loadProject", Qt::DirectConnection, Q_ARG(QVariant, url)));
     VERIFY_NO_CREATION_ERRORS_OCCURRED();
 
     updateVariables(false, projectManager->projectTypeForUrl(url));
+
+    return true;
 }
 
-void TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType)
+bool TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType)
 {
     // The projects and canvases that we had references to should have
     // been destroyed by now.
-    QTRY_VERIFY(!project);
-    QVERIFY(!imageProject);
-    QVERIFY(!tilesetProject);
+    TRY_VERIFY(!project);
+    VERIFY(!imageProject);
+    VERIFY(!tilesetProject);
 
-    QTRY_VERIFY(!canvas);
-    QVERIFY(!imageCanvas);
-    QVERIFY(!tileCanvas);
+    TRY_VERIFY(!canvas);
+    VERIFY(!imageCanvas);
+    VERIFY(!tileCanvas);
 
     project = window->contentItem()->findChild<Project*>();
-    QVERIFY(project);
+    VERIFY(project);
 
     canvas = window->findChild<ImageCanvas*>();
-    QVERIFY(canvas);
+    VERIFY(canvas);
 
     if (newProjectType == Project::TilesetType) {
         tilesetProject = qobject_cast<TilesetProject*>(project);
-        QVERIFY(tilesetProject);
+        VERIFY(tilesetProject);
 
         tileCanvas = qobject_cast<TileCanvas*>(canvas);
-        QVERIFY(tileCanvas);
+        VERIFY(tileCanvas);
     } else if (newProjectType == Project::ImageType) {
         imageProject = qobject_cast<ImageProject*>(project);
-        QVERIFY(imageProject);
+        VERIFY(imageProject);
 
         imageCanvas = canvas;
     } else if (newProjectType == Project::LayeredImageType) {
         layeredImageProject = qobject_cast<LayeredImageProject*>(project);
-        QVERIFY(layeredImageProject);
+        VERIFY(layeredImageProject);
 
         layeredImageCanvas = qobject_cast<LayeredImageCanvas*>(canvas);;
     }
@@ -1120,22 +1150,22 @@ void TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
     canvas->forceActiveFocus();
 //    QTRY_VERIFY(canvas->hasActiveFocus());
 
-    QVERIFY(project->hasLoaded());
+    VERIFY(project->hasLoaded());
 
     if (isNewProject) {
-        QCOMPARE(project->url(), QUrl());
-        QVERIFY(project->isNewProject());
+        VERIFY(project->url() == QUrl());
+        VERIFY(project->isNewProject());
 
         // Reset any settings that have changed back to their defaults.
         QVariant settingsAsVariant = qmlEngine(canvas)->rootContext()->contextProperty("settings");
-        QVERIFY(settingsAsVariant.isValid());
+        VERIFY(settingsAsVariant.isValid());
         ApplicationSettings *settings = settingsAsVariant.value<ApplicationSettings*>();
-        QVERIFY(settings);
+        VERIFY(settings);
         settings->resetShortcutsToDefaults();
 
         if (settings->areRulersVisible()) {
             triggerRulersVisible();
-            QCOMPARE(settings->areRulersVisible(), false);
+            VERIFY(settings->areRulersVisible() == false);
         }
 
         cursorPos = QPoint();
@@ -1143,100 +1173,108 @@ void TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
     }
 
     // Sanity check.
-    QTRY_COMPARE(canvas->window(), canvasSizeButton->window());
-    QVERIFY(!canvas->splitter()->isPressed());
-    QVERIFY(!canvas->splitter()->isHovered());
+    TRY_VERIFY(canvas->window() == canvasSizeButton->window());
+    VERIFY(!canvas->splitter()->isPressed());
+    VERIFY(!canvas->splitter()->isHovered());
 
     if (isNewProject) {
-        QCOMPARE(canvas->splitter()->position(), 0.5);
+        VERIFY(canvas->splitter()->position() == 0.5);
     }
 
     if (newProjectType == Project::TilesetType) {
         // Establish references to TilesetProject-specific properties.
         tilesetSwatch = window->findChild<QQuickItem*>("tilesetSwatch");
-        QVERIFY(tilesetSwatch);
-        QCOMPARE(tilesetSwatch->isVisible(), true);
-        QVERIFY(!qFuzzyIsNull(tilesetSwatch->width()));
-        QVERIFY(!qFuzzyIsNull(tilesetSwatch->height()));
+        VERIFY(tilesetSwatch);
+        VERIFY(tilesetSwatch->isVisible() == true);
+        VERIFY(!qFuzzyIsNull(tilesetSwatch->width()));
+        VERIFY(!qFuzzyIsNull(tilesetSwatch->height()));
 
         // Ensure that the tileset swatch flickable has the correct contentY.
         tilesetSwatchFlickable = tilesetSwatch->findChild<QQuickItem*>("tilesetSwatchFlickable");
-        QVERIFY(tilesetSwatchFlickable);
-        QVERIFY(tilesetSwatchFlickable->property("contentY").isValid());
-        QCOMPARE(tilesetSwatchFlickable->property("contentY").toReal(), 0.0);
+        VERIFY(tilesetSwatchFlickable);
+        VERIFY(tilesetSwatchFlickable->property("contentY").isValid());
+        VERIFY(tilesetSwatchFlickable->property("contentY").toReal() == 0.0);
 
-        QVERIFY(imageGrabber.requestImage(tileCanvas));
-        QTRY_VERIFY(imageGrabber.isReady());
-        QCOMPARE(imageGrabber.takeImage().pixelColor(16, 16), tileCanvas->mapBackgroundColour());
+        VERIFY(imageGrabber.requestImage(tileCanvas));
+        TRY_VERIFY(imageGrabber.isReady());
+        VERIFY(imageGrabber.takeImage().pixelColor(16, 16) == tileCanvas->mapBackgroundColour());
     } else {
-        QVERIFY(window->findChild<QQuickItem*>("selectionToolButton"));
+        VERIFY(window->findChild<QQuickItem*>("selectionToolButton"));
     }
+
+    return true;
 }
 
-void TestHelper::setupTempTilesetProjectDir()
+bool TestHelper::setupTempTilesetProjectDir()
 {
     QStringList toCopy;
     toCopy << tilesetBasename;
     // More stuff here.
 
     QStringList copiedPaths;
-    setupTempProjectDir(toCopy, &copiedPaths);
+    if (!setupTempProjectDir(toCopy, &copiedPaths))
+        return false;
 
     tempTilesetUrl = QUrl::fromLocalFile(copiedPaths.at(0));
     // More stuff here.
+
+    return true;
 }
 
-void TestHelper::setupTempLayeredImageProjectDir()
+bool TestHelper::setupTempLayeredImageProjectDir()
 {
-    setupTempProjectDir();
+    return setupTempProjectDir();
 }
 
-void TestHelper::setupTempProjectDir(const QStringList &resourceFilesToCopy, QStringList *filesCopied)
+bool TestHelper::setupTempProjectDir(const QStringList &resourceFilesToCopy, QStringList *filesCopied)
 {
     tempProjectDir.reset(new QTemporaryDir);
-    QVERIFY2(tempProjectDir->isValid(), qPrintable(tempProjectDir->errorString()));
+    VERIFY2(tempProjectDir->isValid(), qPrintable(tempProjectDir->errorString()));
 
     foreach (const QString &basename, resourceFilesToCopy) {
         QFile sourceFile(":/resources/" + basename);
-        QVERIFY2(sourceFile.open(QIODevice::ReadOnly), qPrintable(QString::fromLatin1(
+        VERIFY2(sourceFile.open(QIODevice::ReadOnly), qPrintable(QString::fromLatin1(
             "Failed to open %1: %2").arg(sourceFile.fileName()).arg(sourceFile.errorString())));
         sourceFile.close();
 
         const QString saveFilePath = tempProjectDir->path() + "/" + basename;
-        QVERIFY2(QFile::copy(sourceFile.fileName(), saveFilePath), qPrintable(QString::fromLatin1(
+        VERIFY2(QFile::copy(sourceFile.fileName(), saveFilePath), qPrintable(QString::fromLatin1(
             "Failed to copy %1 to %2: %3").arg(sourceFile.fileName()).arg(saveFilePath).arg(sourceFile.errorString())));
 
         // A file copied from a file that is part of resources will always be read-only...
         QFile copiedFile(saveFilePath);
-        QVERIFY(copiedFile.size() > 0);
+        VERIFY(copiedFile.size() > 0);
 
-        QVERIFY(copiedFile.setPermissions(QFile::ReadUser | QFile::WriteUser));
-        QVERIFY(copiedFile.size() > 0);
-        QVERIFY2(copiedFile.open(QIODevice::ReadWrite), qPrintable(QString::fromLatin1(
+        VERIFY(copiedFile.setPermissions(QFile::ReadUser | QFile::WriteUser));
+        VERIFY(copiedFile.size() > 0);
+        VERIFY2(copiedFile.open(QIODevice::ReadWrite), qPrintable(QString::fromLatin1(
             "Error opening file at %1: %2").arg(saveFilePath).arg(copiedFile.errorString())));
 
         if (filesCopied)
             *filesCopied << saveFilePath;
     }
+
+    return true;
 }
 
-void TestHelper::switchMode(TileCanvas::Mode mode)
+bool TestHelper::switchMode(TileCanvas::Mode mode)
 {
     if (tileCanvas->mode() == mode)
-        return;
+        return true;
 
     mouseEventOnCentre(modeToolButton, MouseClick);
     const bool expectChecked = mode == TileCanvas::TileMode;
-    QVERIFY2(modeToolButton->property("checked").toBool() == expectChecked, qPrintable(QString::fromLatin1(
+    VERIFY2(modeToolButton->property("checked").toBool() == expectChecked, qPrintable(QString::fromLatin1(
         "modeToolButton.checked should be %1, but it's %2 (trying to set mode %3)")
             .arg(expectChecked).arg(modeToolButton->property("checked").toBool()).arg(mode)));
-    QCOMPARE(tileCanvas->mode(), mode);
+    VERIFY(tileCanvas->mode() == mode);
+    return true;
 }
 
-void TestHelper::switchTool(ImageCanvas::Tool tool)
+bool TestHelper::switchTool(ImageCanvas::Tool tool)
 {
     if (canvas->tool() == tool)
-        return;
+        return true;
 
     if (tool == ImageCanvas::PenTool) {
         mouseEventOnCentre(penToolButton, MouseClick);
@@ -1249,13 +1287,14 @@ void TestHelper::switchTool(ImageCanvas::Tool tool)
     } else if (tool == ImageCanvas::SelectionTool) {
         mouseEventOnCentre(selectionToolButton, MouseClick);
     }
-    QCOMPARE(canvas->tool(), tool);
+    VERIFY(canvas->tool() == tool);
+    return true;
 }
 
-void TestHelper::setPenForegroundColour(QString argbString)
+bool TestHelper::setPenForegroundColour(QString argbString)
 {
     QQuickItem *hexTextField = window->findChild<QQuickItem*>("hexTextField");
-    QVERIFY(hexTextField);
+    VERIFY(hexTextField);
 
     argbString.replace("#", QString());
 
@@ -1266,23 +1305,24 @@ void TestHelper::setPenForegroundColour(QString argbString)
         QTest::keyClick(window, argbString.at(i).toLatin1());
     }
     QTest::keyClick(window, Qt::Key_Return);
-    QCOMPARE(hexTextField->property("text").toString(), argbString);
+    VERIFY(hexTextField->property("text").toString() == argbString);
+    return true;
 }
 
-void TestHelper::panTopLeftTo(int x, int y)
+bool TestHelper::panTopLeftTo(int x, int y)
 {
     const QPoint panDistance = QPoint(x, y) - canvas->firstPane()->offset();
-    panBy(panDistance.x(), panDistance.y());
+    return panBy(panDistance.x(), panDistance.y());
 }
 
-void TestHelper::panBy(int xDistance, int yDistance)
+bool TestHelper::panBy(int xDistance, int yDistance)
 {
     QPoint pressPos = firstPaneSceneCentre();
     QTest::mouseMove(window, pressPos);
-    QCOMPARE(canvas->currentPane(), canvas->firstPane());
+    VERIFY(canvas->currentPane() == canvas->firstPane());
 
     // TODO: get image checks working
-    //        QVERIFY(imageGrabber.requestImage(canvas));
+    //        VERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
     //        const QImage originalImage = imageGrabber.takeImage();
 
@@ -1290,52 +1330,53 @@ void TestHelper::panBy(int xDistance, int yDistance)
     const QPoint expectedOffset = originalOffset + QPoint(xDistance, yDistance);
 
     QTest::keyPress(window, Qt::Key_Space);
-    QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
-    QCOMPARE(canvas->currentPane()->offset(), originalOffset);
-    //        QVERIFY(imageGrabber.requestImage(canvas));
+    VERIFY(window->cursor().shape() == Qt::OpenHandCursor);
+    VERIFY(canvas->currentPane()->offset() == originalOffset);
+    //        VERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
     //        // Cursor changed to OpenHandCursor.
     //        QImage currentImage = imageGrabber.takeImage();
-    //        QVERIFY(currentImage != originalImage);
+    //        VERIFY(currentImage != originalImage);
     //        QImage lastImage = currentImage;
 
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, pressPos);
-    QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
-    QCOMPARE(canvas->currentPane()->offset(), originalOffset);
-    //        QVERIFY(imageGrabber.requestImage(canvas));
+    VERIFY(window->cursor().shape() == Qt::ClosedHandCursor);
+    VERIFY(canvas->currentPane()->offset() == originalOffset);
+    //        VERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
     //        currentImage = imageGrabber.takeImage();
     //        // Cursor changed to ClosedHandCursor.
-    //        QVERIFY(currentImage != lastImage);
+    //        VERIFY(currentImage != lastImage);
     //        lastImage = currentImage;
 
     QTest::mouseMove(window, pressPos + QPoint(xDistance, yDistance));
-    QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
-    QCOMPARE(canvas->currentPane()->offset(), expectedOffset);
-    //        QVERIFY(imageGrabber.requestImage(canvas));
+    VERIFY(window->cursor().shape() == Qt::ClosedHandCursor);
+    VERIFY(canvas->currentPane()->offset() == expectedOffset);
+    //        VERIFY(imageGrabber.requestImage(canvas));
     //        // Pane offset changed.
     //        currentImage = imageGrabber.takeImage();
-    //        QVERIFY(currentImage != lastImage);
+    //        VERIFY(currentImage != lastImage);
     //        lastImage = currentImage;
 
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, pressPos + QPoint(xDistance, yDistance));
-    QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
-    QCOMPARE(canvas->currentPane()->offset(), expectedOffset);
+    VERIFY(window->cursor().shape() == Qt::OpenHandCursor);
+    VERIFY(canvas->currentPane()->offset() == expectedOffset);
 
     QTest::keyRelease(window, Qt::Key_Space);
-    QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
-    QCOMPARE(canvas->currentPane()->offset(), expectedOffset);
+    VERIFY(window->cursor().shape() == Qt::BlankCursor);
+    VERIFY(canvas->currentPane()->offset() == expectedOffset);
 }
 
-void TestHelper::zoomTo(int zoomLevel)
+bool TestHelper::zoomTo(int zoomLevel)
 {
-    zoomTo(zoomLevel, cursorWindowPos);
+    return zoomTo(zoomLevel, cursorWindowPos);
 }
 
-void TestHelper::zoomTo(int zoomLevel, const QPoint &pos)
+bool TestHelper::zoomTo(int zoomLevel, const QPoint &pos)
 {
     CanvasPane *currentPane = canvas->currentPane();
     for (int i = 0; currentPane->zoomLevel() < zoomLevel; ++i)
         wheelEvent(canvas, pos, 1);
-    QCOMPARE(currentPane->integerZoomLevel(), zoomLevel);
+    VERIFY(currentPane->integerZoomLevel() == zoomLevel);
+    return true;
 }

@@ -34,15 +34,21 @@
 #include "imageproject.h"
 #include "layeredimagecanvas.h"
 #include "layeredimageproject.h"
+#include "project.h"
+#include "testutils.h"
 #include "tilecanvas.h"
 #include "tilesetproject.h"
-#include "project.h"
 #include "tilesetproject.h"
 
 class ProjectManager;
 
-#define VERIFY_NO_CREATION_ERRORS_OCCURRED() \
+#define QVERIFY_NO_CREATION_ERRORS_OCCURRED() \
 QVERIFY2(creationErrorOccurredSpy->isEmpty(), \
+    qPrintable(QString::fromLatin1("Unexpected error occurred: ") + \
+    (!creationErrorOccurredSpy->isEmpty() ? creationErrorOccurredSpy->first().first().toString() : "")));
+
+#define VERIFY_NO_CREATION_ERRORS_OCCURRED() \
+VERIFY2(creationErrorOccurredSpy->isEmpty(), \
     qPrintable(QString::fromLatin1("Unexpected error occurred: ") + \
     (!creationErrorOccurredSpy->isEmpty() ? creationErrorOccurredSpy->first().first().toString() : "")));
 
@@ -84,6 +90,7 @@ public:
 
 private Q_SLOTS:
     void initTestCase();
+    void cleanup();
 
     void resetCreationErrorSpy();
 
@@ -125,70 +132,72 @@ protected:
     int digitAt(int number, int index);
 
     // Platform-dependent actions
-    void triggerShortcut(const QString &objectName, const QString &sequenceAsString);
-    void triggerNewProject();
-    void triggerCloseProject();
-    void triggerSaveProject();
-    void triggerSaveProjectAs();
-    void triggerOpenProject();
-    void triggerRevert();
+    Q_REQUIRED_RESULT bool triggerShortcut(const QString &objectName, const QString &sequenceAsString);
+    Q_REQUIRED_RESULT bool triggerNewProject();
+    Q_REQUIRED_RESULT bool triggerCloseProject();
+    Q_REQUIRED_RESULT bool triggerSaveProject();
+    Q_REQUIRED_RESULT bool triggerSaveProjectAs();
+    Q_REQUIRED_RESULT bool triggerOpenProject();
+    Q_REQUIRED_RESULT bool triggerRevert();
 
-    void triggerPaste();
-    void triggerFlipHorizontally();
-    void triggerFlipVertically();
+    Q_REQUIRED_RESULT bool triggerPaste();
+    Q_REQUIRED_RESULT bool triggerFlipHorizontally();
+    Q_REQUIRED_RESULT bool triggerFlipVertically();
 
-    void triggerCentre();
-    void triggerGridVisible();
-    void triggerRulersVisible();
-    void triggerGuidesVisible();
-    void triggerSplitScreen();
-    void triggerSplitterLocked();
-    void setSplitterLocked(bool splitterLocked);
-    void triggerAnimationPlayback();
-    void setAnimationPlayback(bool usingAnimation);
+    Q_REQUIRED_RESULT bool triggerCentre();
+    Q_REQUIRED_RESULT bool triggerGridVisible();
+    Q_REQUIRED_RESULT bool triggerRulersVisible();
+    Q_REQUIRED_RESULT bool triggerGuidesVisible();
+    Q_REQUIRED_RESULT bool triggerSplitScreen();
+    Q_REQUIRED_RESULT bool triggerSplitterLocked();
+    Q_REQUIRED_RESULT bool setSplitterLocked(bool splitterLocked);
+    Q_REQUIRED_RESULT bool triggerAnimationPlayback();
+    Q_REQUIRED_RESULT bool setAnimationPlayback(bool usingAnimation);
 
-    void triggerOptions();
+    Q_REQUIRED_RESULT bool triggerOptions();
 
     // Layer helpers.
-    void selectLayer(const QString &layerName, int layerIndex);
+    Q_REQUIRED_RESULT bool selectLayer(const QString &layerName, int layerIndex);
     // Finds \a layerName in the layer list view, verifies that it exists and that its name is \a layerName,
     // and returns the delegate for convenience.
-    void verifyLayerName(const QString &layerName, QQuickItem **layerDelegate = nullptr);
+    Q_REQUIRED_RESULT bool verifyLayerName(const QString &layerName, QQuickItem **layerDelegate = nullptr);
 
     void addAllProjectTypes();
     void addImageProjectTypes();
     void addActualProjectTypes();
 
-    void createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
-    void createNewTilesetProject(int tileWidth = 25, int tileHeight = 25,
+    Q_REQUIRED_RESULT bool createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
+    Q_REQUIRED_RESULT bool createNewTilesetProject(int tileWidth = 25, int tileHeight = 25,
         int tilesetTilesWide = -1, int tilesetTilesHigh = -1, bool transparentTilesetBackground = false);
-    void createNewImageProject(int imageWidth = 256, int imageHeight = 256,
+    Q_REQUIRED_RESULT bool createNewImageProject(int imageWidth = 256, int imageHeight = 256,
         bool transparentImageBackground = false);
-    void createNewLayeredImageProject(int imageWidth = 256, int imageHeight = 256,
+    Q_REQUIRED_RESULT bool createNewLayeredImageProject(int imageWidth = 256, int imageHeight = 256,
         bool transparentImageBackground = false);
-    void loadProject(const QUrl &url);
-    void updateVariables(bool isNewProject, Project::Type newProjectType);
+    Q_REQUIRED_RESULT bool loadProject(const QUrl &url);
+    Q_REQUIRED_RESULT bool updateVariables(bool isNewProject, Project::Type newProjectType);
 
-    void setupTempTilesetProjectDir();
-    void setupTempLayeredImageProjectDir();
-    void setupTempProjectDir(const QStringList &resourceFilesToCopy = QStringList(),
+    Q_REQUIRED_RESULT bool setupTempTilesetProjectDir();
+    Q_REQUIRED_RESULT bool setupTempLayeredImageProjectDir();
+    Q_REQUIRED_RESULT bool setupTempProjectDir(const QStringList &resourceFilesToCopy = QStringList(),
         QStringList *filesCopied = nullptr);
 
-    void switchMode(TileCanvas::Mode mode);
-    void switchTool(ImageCanvas::Tool tool);
-    void setPenForegroundColour(QString argbString);
-    void panTopLeftTo(int x, int y);
-    void panBy(int xDistance, int yDistance);
-    void zoomTo(int zoomLevel);
-    void zoomTo(int zoomLevel, const QPoint &pos);
-    void changeCanvasSize(int width, int height);
-    void changeImageSize(int width, int height);
-    void changeToolSize(int size);
+    Q_REQUIRED_RESULT bool switchMode(TileCanvas::Mode mode);
+    Q_REQUIRED_RESULT bool switchTool(ImageCanvas::Tool tool);
+    Q_REQUIRED_RESULT bool setPenForegroundColour(QString argbString);
+    Q_REQUIRED_RESULT bool panTopLeftTo(int x, int y);
+    Q_REQUIRED_RESULT bool panBy(int xDistance, int yDistance);
+    Q_REQUIRED_RESULT bool zoomTo(int zoomLevel);
+    Q_REQUIRED_RESULT bool zoomTo(int zoomLevel, const QPoint &pos);
+    Q_REQUIRED_RESULT bool changeCanvasSize(int width, int height);
+    Q_REQUIRED_RESULT bool changeImageSize(int width, int height);
+    Q_REQUIRED_RESULT bool changeToolSize(int size);
     int sliderValue(QQuickItem *slider) const;
-    void drawPixelAtCursorPos();
-    void drawTileAtCursorPos();
-    void fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
-    void fuzzyImageCompare(const QImage &image1, const QImage &image2);
+    Q_REQUIRED_RESULT bool drawPixelAtCursorPos();
+    Q_REQUIRED_RESULT bool drawTileAtCursorPos();
+    Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
+    Q_REQUIRED_RESULT bool fuzzyImageCompare(const QImage &image1, const QImage &image2);
+
+    QByteArray failureMessage;
 
     Application app;
     QQuickWindow *window;

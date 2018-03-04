@@ -13,4 +13,5 @@ RESOURCES += \
     resources.qrc
 
 HEADERS += \
-    testhelper.h
+    testhelper.h \
+    testutils.h
