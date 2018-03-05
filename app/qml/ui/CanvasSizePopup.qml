@@ -40,7 +40,7 @@ Dialog {
                 id: widthSpinBox
                 objectName: "changeCanvasWidthSpinBox"
                 from: 1
-                to: 1000
+                to: isTilesetProject ? 1024 : 4096
                 editable: true
                 stepSize: 1
 
@@ -57,7 +57,7 @@ Dialog {
                 id: heightSpinBox
                 objectName: "changeCanvasHeightSpinBox"
                 from: 1
-                to: 1000
+                to: isTilesetProject ? 1024 : 4096
                 editable: true
                 stepSize: 1
 
