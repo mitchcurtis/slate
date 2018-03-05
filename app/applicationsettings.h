@@ -35,6 +35,7 @@ class ApplicationSettings : public QSettings
     Q_OBJECT
     Q_PROPERTY(bool loadLastOnStartup READ loadLastOnStartup WRITE setLoadLastOnStartup NOTIFY loadLastOnStartupChanged)
     Q_PROPERTY(QUrl lastProjectUrl READ lastProjectUrl WRITE setLastProjectUrl NOTIFY lastProjectUrlChanged)
+    Q_PROPERTY(QStringList recentFiles READ recentFiles NOTIFY recentFilesChanged)
     Q_PROPERTY(bool gridVisible READ isGridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
     Q_PROPERTY(bool rulersVisible READ areRulersVisible WRITE setRulersVisible NOTIFY rulersVisibleChanged)
     Q_PROPERTY(bool guidesVisible READ areGuidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
@@ -86,6 +87,12 @@ public:
     bool loadLastOnStartup() const;
     void setLoadLastOnStartup(bool loadLastOnStartup);
     bool defaultLoadLastOnStartup() const;
+
+    QStringList recentFiles() const;
+    void addRecentFile(const QString &filePath);
+    Q_INVOKABLE void clearRecentFiles();
+    // Converts the paths we store ("file:///some-file.png") into a user-facing path.
+    Q_INVOKABLE QString displayableFilePath(const QString &filePath) const;
 
     bool isGridVisible() const;
     void setGridVisible(bool isGridVisible);
@@ -252,6 +259,7 @@ public:
 signals:
     void loadLastOnStartupChanged();
     void lastProjectUrlChanged();
+    void recentFilesChanged();
     void gridVisibleChanged();
     void rulersVisibleChanged();
     void guidesVisibleChanged();

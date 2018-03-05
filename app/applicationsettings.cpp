@@ -77,6 +77,44 @@ bool ApplicationSettings::defaultLoadLastOnStartup() const
     return false;
 }
 
+QStringList ApplicationSettings::recentFiles() const
+{
+    return contains("recentFiles") ? value("recentFiles").toStringList() : QStringList();
+}
+
+void ApplicationSettings::addRecentFile(const QString &filePath)
+{
+    QStringList files = recentFiles();
+    const int existingIndex = files.indexOf(filePath);
+    // If it already exists, remove it and move it to the top.
+    if (existingIndex != -1)
+        files.removeAt(existingIndex);
+
+    // Add the file to the top of the list.
+    files.prepend(filePath);
+
+    // Respect the file limit.
+    if (files.size() > 20)
+        files.removeLast();
+
+    setValue("recentFiles", files);
+    emit recentFilesChanged();
+}
+
+void ApplicationSettings::clearRecentFiles()
+{
+    if (recentFiles().isEmpty())
+        return;
+
+    setValue("recentFiles", QStringList());
+    emit recentFilesChanged();
+}
+
+QString ApplicationSettings::displayableFilePath(const QString &filePath) const
+{
+    return QUrl(filePath).path();
+}
+
 bool ApplicationSettings::isGridVisible() const
 {
     return contains("gridVisible") ? value("gridVisible").toBool() : defaultGridVisible();

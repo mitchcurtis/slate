@@ -1,4 +1,5 @@
 import Qt.labs.platform 1.0 as Platform
+import QtQml 2.2
 
 import App 1.0
 
@@ -21,6 +22,36 @@ Platform.MenuBar {
             objectName: "newMenuButton"
             text: qsTr("New")
             onTriggered: doIfChangesDiscarded(function() { newProjectPopup.open() }, true)
+        }
+
+        Platform.Menu {
+            id: recentFilesSubMenu
+            objectName: "recentFilesSubMenu"
+            // Can't use qsTr() in submenu titles: https://bugreports.qt.io/browse/QTBUG-66876
+            title: "Recent Files"
+            enabled: recentFilesInstantiator.count > 0
+
+            Instantiator {
+                id: recentFilesInstantiator
+                objectName: "recentFilesInstantiator"
+                model: settings.recentFiles
+                delegate: Platform.MenuItem {
+                    objectName: text + "MenuButton"
+                    text: settings.displayableFilePath(modelData)
+                    onTriggered: doIfChangesDiscarded(function() { loadProject(modelData) }, true)
+                }
+
+                onObjectAdded: recentFilesSubMenu.insertItem(index, object)
+                onObjectRemoved: recentFilesSubMenu.removeItem(object)
+            }
+
+            Platform.MenuSeparator {}
+
+            Platform.MenuItem {
+                objectName: "clearRecentFilesMenuButton"
+                text: qsTr("Clear Recent Files")
+                onTriggered: settings.clearRecentFiles()
+            }
         }
 
         Platform.MenuItem {

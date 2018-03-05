@@ -152,6 +152,8 @@ void TestHelper::initTestCase()
 void TestHelper::cleanup()
 {
     failureMessage.clear();
+
+    app.settings()->clearRecentFiles();
 }
 
 void TestHelper::resetCreationErrorSpy()

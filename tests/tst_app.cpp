@@ -108,6 +108,7 @@ private Q_SLOTS:
     void pixelLineToolTransparent();
     void rulersAndGuides_data();
     void rulersAndGuides();
+    void recentFiles();
 
     void addAndRemoveLayers();
     void layerVisibility();
@@ -2709,6 +2710,41 @@ void tst_App::rulersAndGuides()
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(project->guides().isEmpty(), true);
     QCOMPARE(window->cursor().shape(), Qt::ArrowCursor);
+}
+
+void tst_App::recentFiles()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    // Should be no recent files until the new project is saved.
+    QObject *recentFilesInstantiator = window->findChild<QObject*>("recentFilesInstantiator");
+    QVERIFY(recentFilesInstantiator);
+    QCOMPARE(recentFilesInstantiator->property("count").toInt(), 0);
+
+    // Save.
+    project->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/recentFiles.png"));
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QCOMPARE(recentFilesInstantiator->property("count").toInt(), 1);
+
+    // Get the recent file menu item from the instantiator and ensure its text is correct.
+    {
+        QObject *recentFileMenuItem = nullptr;
+        QVERIFY(QMetaObject::invokeMethod(recentFilesInstantiator, "objectAt", Qt::DirectConnection,
+            Q_RETURN_ARG(QObject*, recentFileMenuItem), Q_ARG(int, 0)));
+        QVERIFY(recentFileMenuItem);
+        QCOMPARE(recentFileMenuItem->property("text").toString(), project->url().path());
+    }
+
+    // Can't click platform types from tests, so clear the recent items manually.
+    app.settings()->clearRecentFiles();
+
+    QCOMPARE(recentFilesInstantiator->property("count").toInt(), 0);
+    {
+        QObject *recentFileMenuItem = nullptr;
+        QVERIFY(QMetaObject::invokeMethod(recentFilesInstantiator, "objectAt", Qt::DirectConnection,
+            Q_RETURN_ARG(QObject*, recentFileMenuItem), Q_ARG(int, 0)));
+        QVERIFY(!recentFileMenuItem);
+    }
 }
 
 void tst_App::addAndRemoveLayers()
