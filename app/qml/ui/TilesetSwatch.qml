@@ -180,7 +180,7 @@ Panel {
 
         MenuItem {
             id: duplicateMenuItem
-            objectName: "duplicateTileMenuButton"
+            objectName: "duplicateTileMenuItem"
             text: qsTr("Duplicate")
             onTriggered: {
                 contextMenu.currentAction = text;
@@ -189,7 +189,7 @@ Panel {
         }
 
         MenuItem {
-            objectName: "rotateTileLeftMenuButton"
+            objectName: "rotateTileLeftMenuItem"
             text: qsTr("Rotate 90° Left")
             onTriggered: {
                 project.rotateTileCounterClockwise(contextMenu.rightClickedTile);
@@ -198,7 +198,7 @@ Panel {
         }
 
         MenuItem {
-            objectName: "rotateTileRightMenuButton"
+            objectName: "rotateTileRightMenuItem"
             text: qsTr("Rotate 90° Right")
             onTriggered: {
                 project.rotateTileClockwise(contextMenu.rightClickedTile);

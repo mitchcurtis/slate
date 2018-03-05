@@ -1733,7 +1733,7 @@ void tst_App::tilesetSwatchContextMenu()
 //    QVERIFY(tilesetContextMenu->property("visible").toBool());
 
 //    // Click the "duplicate" menu item.
-//    mouseEventOnCentre(duplicateTileMenuButton, MouseClick);
+//    mouseEventOnCentre(duplicateTileMenuItem, MouseClick);
 //    QCOMPARE(tileCanvas->penTile(), originallySelectedTile);
 //    QVERIFY(!tilesetContextMenu->property("visible").toBool());
 
@@ -1762,7 +1762,7 @@ void tst_App::tilesetSwatchContextMenu()
 
 //    // Click the "rotate left" menu item.
 //    const QImage originalTileImage = tileCanvas->penTile()->image();
-//    mouseEventOnCentre(rotateTileLeftMenuButton, MouseClick);
+//    mouseEventOnCentre(rotateTileLeftMenuItem, MouseClick);
 //    QVERIFY(!tilesetContextMenu->property("visible").toBool());
 //    QCOMPARE(Utils::rotate(tileCanvas->penTile()->image(), 90), originalTileImage);
 
@@ -1779,7 +1779,7 @@ void tst_App::tilesetSwatchContextMenu()
 //    QVERIFY(tilesetContextMenu->property("visible").toBool());
 
 //    // Click the "rotate right" menu item.
-//    mouseEventOnCentre(rotateTileRightMenuButton, MouseClick);
+//    mouseEventOnCentre(rotateTileRightMenuItem, MouseClick);
 //    QVERIFY(!tilesetContextMenu->property("visible").toBool());
 //    QCOMPARE(tileCanvas->penTile()->image(), originalTileImage);
 
@@ -3193,12 +3193,12 @@ void tst_App::autoExport()
 
     // Don't have a shortcut for it yet, so have to change it manually, but we can still
     // check that the menus update accordingly.
-    QObject *autoExportMenuButton = window->findChild<QObject*>("autoExportMenuButton");
-    QVERIFY(autoExportMenuButton);
-    QCOMPARE(autoExportMenuButton->property("checked").toBool(), false);
+    QObject *autoExportMenuItem = window->findChild<QObject*>("autoExportMenuItem");
+    QVERIFY(autoExportMenuItem);
+    QCOMPARE(autoExportMenuItem->property("checked").toBool(), false);
 
     layeredImageProject->setAutoExportEnabled(true);
-    QCOMPARE(autoExportMenuButton->property("checked").toBool(), true);
+    QCOMPARE(autoExportMenuItem->property("checked").toBool(), true);
 
     QCOMPARE(layeredImageProject->canSave(), true);
 
@@ -3219,7 +3219,7 @@ void tst_App::autoExport()
 
     // Disable auto-export.
     layeredImageProject->setAutoExportEnabled(false);
-    QCOMPARE(autoExportMenuButton->property("checked").toBool(), false);
+    QCOMPARE(autoExportMenuItem->property("checked").toBool(), false);
 
     // Draw something.
     setCursorPosInScenePixels(2, 2);

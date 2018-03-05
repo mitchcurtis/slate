@@ -19,7 +19,7 @@ Platform.MenuBar {
         title: qsTr("File")
 
         Platform.MenuItem {
-            objectName: "newMenuButton"
+            objectName: "newMenuItem"
             text: qsTr("New")
             onTriggered: doIfChangesDiscarded(function() { newProjectPopup.open() }, true)
         }
@@ -36,7 +36,7 @@ Platform.MenuBar {
                 objectName: "recentFilesInstantiator"
                 model: settings.recentFiles
                 delegate: Platform.MenuItem {
-                    objectName: text + "MenuButton"
+                    objectName: text + "MenuItem"
                     text: settings.displayableFilePath(modelData)
                     onTriggered: doIfChangesDiscarded(function() { loadProject(modelData) }, true)
                 }
@@ -48,58 +48,58 @@ Platform.MenuBar {
             Platform.MenuSeparator {}
 
             Platform.MenuItem {
-                objectName: "clearRecentFilesMenuButton"
+                objectName: "clearRecentFilesMenuItem"
                 text: qsTr("Clear Recent Files")
                 onTriggered: settings.clearRecentFiles()
             }
         }
 
         Platform.MenuItem {
-            objectName: "openMenuButton"
+            objectName: "openMenuItem"
             text: qsTr("Open")
             onTriggered: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
         }
 
         Platform.MenuItem {
-            objectName: "saveMenuButton"
+            objectName: "saveMenuItem"
             text: qsTr("Save")
             enabled: project && project.canSave
             onTriggered: projectManager.saveOrSaveAs()
         }
 
         Platform.MenuItem {
-            objectName: "saveAsMenuButton"
+            objectName: "saveAsMenuItem"
             text: qsTr("Save As")
             enabled: project && project.loaded
             onTriggered: saveAsDialog.open()
         }
 
         Platform.MenuItem {
-            id: exportMenuButton
-            objectName: "exportMenuButton"
+            id: exportMenuItem
+            objectName: "exportMenuItem"
             text: qsTr("Export")
             enabled: project && project.loaded && projectType === Project.LayeredImageType
             onTriggered: exportDialog.open()
         }
 
         Platform.MenuItem {
-            objectName: "autoExportMenuButton"
+            objectName: "autoExportMenuItem"
             text: qsTr("Auto Export")
             checkable: true
             checked: enabled && project.autoExportEnabled
-            enabled: exportMenuButton.enabled
+            enabled: exportMenuItem.enabled
             onTriggered: project.autoExportEnabled = !project.autoExportEnabled
         }
 
         Platform.MenuItem {
-            objectName: "closeMenuButton"
+            objectName: "closeMenuItem"
             text: qsTr("Close")
             enabled: project && project.loaded
             onTriggered: doIfChangesDiscarded(function() { project.close() })
         }
 
         Platform.MenuItem {
-            objectName: "revertMenuButton"
+            objectName: "revertMenuItem"
             text: qsTr("Revert")
             enabled: project && project.loaded && project.unsavedChanges
             onTriggered: project.revert()
@@ -112,14 +112,14 @@ Platform.MenuBar {
         title: qsTr("Edit")
 
         Platform.MenuItem {
-            objectName: "undoMenuButton"
+            objectName: "undoMenuItem"
             text: qsTr("Undo")
             onTriggered: project.undoStack.undo()
             enabled: project && project.undoStack.canUndo
         }
 
         Platform.MenuItem {
-            objectName: "redoMenuButton"
+            objectName: "redoMenuItem"
             text: qsTr("Redo")
             onTriggered: project.undoStack.redo()
             enabled: project && project.undoStack.canRedo
@@ -128,14 +128,14 @@ Platform.MenuBar {
         Platform.MenuSeparator {}
 
         Platform.MenuItem {
-            objectName: "copyMenuButton"
+            objectName: "copyMenuItem"
             text: qsTr("Copy")
             onTriggered: canvas.copySelection()
             enabled: isImageProjectType && canvas && canvas.hasSelection
         }
 
         Platform.MenuItem {
-            objectName: "pasteMenuButton"
+            objectName: "pasteMenuItem"
             text: qsTr("Paste")
             onTriggered: canvas.paste()
             enabled: isImageProjectType && canvas
@@ -144,7 +144,7 @@ Platform.MenuBar {
         Platform.MenuSeparator {}
 
         Platform.MenuItem {
-            objectName: "selectAllMenuButton"
+            objectName: "selectAllMenuItem"
             text: qsTr("Select All")
             onTriggered: canvas.selectAll()
             enabled: isImageProjectType && canvas
@@ -153,14 +153,14 @@ Platform.MenuBar {
         Platform.MenuSeparator {}
 
         Platform.MenuItem {
-            objectName: "flipHorizontallyMenuButton"
+            objectName: "flipHorizontallyMenuItem"
             text: qsTr("Flip Horizontally")
             onTriggered: canvas.flipSelection(Qt.Horizontal)
             enabled: isImageProjectType && canvas && canvas.hasSelection
         }
 
         Platform.MenuItem {
-            objectName: "flipVerticallyMenuButton"
+            objectName: "flipVerticallyMenuItem"
             text: qsTr("Flip Vertically")
             onTriggered: canvas.flipSelection(Qt.Vertical)
             enabled: isImageProjectType && canvas && canvas.hasSelection
@@ -172,7 +172,7 @@ Platform.MenuBar {
             title: qsTr("Image")
 
         Platform.MenuItem {
-            objectName: "changeCanvasSizeMenuButton"
+            objectName: "changeCanvasSizeMenuItem"
             text: qsTr("Canvas Size...")
             shortcut: settings.resizeCanvasShortcut
             enabled: canvas
@@ -180,7 +180,7 @@ Platform.MenuBar {
         }
 
         Platform.MenuItem {
-            objectName: "changeImageSizeMenuButton"
+            objectName: "changeImageSizeMenuItem"
             text: qsTr("Image Size...")
             shortcut: settings.resizeImageShortcut
             enabled: canvas && projectType === Project.ImageType
@@ -194,8 +194,8 @@ Platform.MenuBar {
         title: qsTr("Animation")
 
         Platform.MenuItem {
-            id: animationPlaybackMenuButton
-            objectName: "animationPlaybackMenuButton"
+            id: animationPlaybackMenuItem
+            objectName: "animationPlaybackMenuItem"
             text: qsTr("Animation Playback")
             enabled: isImageProjectType && canvas
             checkable: true
@@ -204,9 +204,9 @@ Platform.MenuBar {
         }
 
         Platform.MenuItem {
-            objectName: "animationPlayMenuButton"
+            objectName: "animationPlayMenuItem"
             text: enabled && !project.animationPlayback.playing ? qsTr("Play") : qsTr("Pause")
-            enabled: animationPlaybackMenuButton.checked
+            enabled: animationPlaybackMenuItem.checked
             onTriggered: project.animationPlayback.playing = !project.animationPlayback.playing
         }
     }
@@ -217,7 +217,7 @@ Platform.MenuBar {
         title: qsTr("View")
 
         Platform.MenuItem {
-            objectName: "centreMenuButton"
+            objectName: "centreMenuItem"
             text: qsTr("Centre")
             enabled: canvas
             onTriggered: canvas.centreView()
@@ -226,7 +226,7 @@ Platform.MenuBar {
         Platform.MenuSeparator {}
 
         Platform.MenuItem {
-            objectName: "showGridMenuButton"
+            objectName: "showGridMenuItem"
             text: qsTr("Show Grid")
             enabled: canvas
             checkable: true
@@ -235,7 +235,7 @@ Platform.MenuBar {
         }
 
         Platform.MenuItem {
-            objectName: "showRulersMenuButton"
+            objectName: "showRulersMenuItem"
             text: qsTr("Show Rulers")
             enabled: canvas
             checkable: true
@@ -244,7 +244,7 @@ Platform.MenuBar {
         }
 
         Platform.MenuItem {
-            objectName: "showGuidesMenuButton"
+            objectName: "showGuidesMenuItem"
             text: qsTr("Show Guides")
             enabled: canvas
             checkable: true
@@ -253,7 +253,7 @@ Platform.MenuBar {
         }
 
         Platform.MenuItem {
-            objectName: "lockGuidesMenuButton"
+            objectName: "lockGuidesMenuItem"
             text: qsTr("Lock Guides")
             enabled: canvas
             checkable: true
@@ -264,7 +264,7 @@ Platform.MenuBar {
         Platform.MenuSeparator {}
 
         Platform.MenuItem {
-            objectName: "splitScreenMenuButton"
+            objectName: "splitScreenMenuItem"
             text: qsTr("Split Screen")
             enabled: canvas
             checkable: true
@@ -273,7 +273,7 @@ Platform.MenuBar {
         }
 
         Platform.MenuItem {
-            objectName: "splitterLockedMenuButton"
+            objectName: "splitterLockedMenuItem"
             text: qsTr("Lock Splitter")
             enabled: canvas && canvas.splitScreen
             checkable: true
@@ -282,7 +282,7 @@ Platform.MenuBar {
         }
 
         Platform.MenuItem {
-            objectName: "scrollZoomMenuButton"
+            objectName: "scrollZoomMenuItem"
             text: qsTr("Scroll Zoom")
             enabled: canvas
             checkable: true
@@ -297,7 +297,7 @@ Platform.MenuBar {
         title: qsTr("Tools")
 
         Platform.MenuItem {
-            objectName: "optionsMenuButton"
+            objectName: "optionsMenuItem"
             text: qsTr("Options")
             onTriggered: optionsDialog.open()
         }
