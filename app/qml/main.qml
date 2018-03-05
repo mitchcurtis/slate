@@ -161,7 +161,7 @@ ApplicationWindow {
         imageSizePopup: imageSizePopup
     }
 
-    header: Ui.IconToolBar {
+    header: Ui.ToolBar {
         id: iconToolBar
         project: window.project
         canvas: window.canvas

@@ -11,7 +11,6 @@
         <file>ui/HexColourRowLayout.qml</file>
         <file>ui/HueSlider.qml</file>
         <file>ui/IconRectangle.qml</file>
-        <file>ui/IconToolBar.qml</file>
         <file>ui/IconToolButton.qml</file>
         <file>ui/MenuBar.qml</file>
         <file>ui/NewProjectPopup.qml</file>
@@ -48,5 +47,6 @@
         <file>ui/AnimationPanel.qml</file>
         <file>ui/Panel.qml</file>
         <file>ui/AnimationSettingsPopup.qml</file>
+        <file>ui/ToolBar.qml</file>
     </qresource>
 </RCC>
