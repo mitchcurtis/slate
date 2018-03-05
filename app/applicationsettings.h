@@ -34,7 +34,6 @@ class ApplicationSettings : public QSettings
 {
     Q_OBJECT
     Q_PROPERTY(bool loadLastOnStartup READ loadLastOnStartup WRITE setLoadLastOnStartup NOTIFY loadLastOnStartupChanged)
-    Q_PROPERTY(QUrl lastProjectUrl READ lastProjectUrl WRITE setLastProjectUrl NOTIFY lastProjectUrlChanged)
     Q_PROPERTY(QStringList recentFiles READ recentFiles NOTIFY recentFilesChanged)
     Q_PROPERTY(bool gridVisible READ isGridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
     Q_PROPERTY(bool rulersVisible READ areRulersVisible WRITE setRulersVisible NOTIFY rulersVisibleChanged)
@@ -80,9 +79,6 @@ class ApplicationSettings : public QSettings
 
 public:
     explicit ApplicationSettings(QObject *parent = 0);
-
-    QUrl lastProjectUrl() const;
-    void setLastProjectUrl(const QUrl &url);
 
     bool loadLastOnStartup() const;
     void setLoadLastOnStartup(bool loadLastOnStartup);
@@ -258,7 +254,6 @@ public:
 
 signals:
     void loadLastOnStartupChanged();
-    void lastProjectUrlChanged();
     void recentFilesChanged();
     void gridVisibleChanged();
     void rulersVisibleChanged();

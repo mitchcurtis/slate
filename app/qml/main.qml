@@ -73,8 +73,8 @@ ApplicationWindow {
     Component.onCompleted: {
         contentItem.objectName = "applicationWindowContentItem";
 
-        if (settings.loadLastOnStartup && settings.lastProjectUrl.toString().length > 0) {
-            loadProject(settings.lastProjectUrl)
+        if (settings.loadLastOnStartup && settings.recentFiles.length > 0) {
+            loadProject(settings.recentFiles[0])
         } else {
             createNewProject(Project.LayeredImageType)
         }

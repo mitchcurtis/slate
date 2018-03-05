@@ -208,8 +208,6 @@ void ProjectManager::onCreationFailed(const QString &errorMessage)
 void ProjectManager::projectUrlChanged()
 {
     if (mProject->hasLoaded()) {
-        // TODO: replace lastProjectUrl with first item from recent files
-        mSettings->setLastProjectUrl(mProject->url());
         mSettings->addRecentFile(mProject->url().toString());
     }
 }

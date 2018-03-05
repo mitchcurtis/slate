@@ -32,26 +32,6 @@ ApplicationSettings::ApplicationSettings(QObject *parent) :
     qCDebug(lcSettings) << "Loading settings from" << fileName();
 }
 
-QUrl ApplicationSettings::lastProjectUrl() const
-{
-    return value("lastProjectUrl").toUrl();
-}
-
-void ApplicationSettings::setLastProjectUrl(const QUrl &url)
-{
-    QVariant existingValue = value("lastProjectUrl");
-    QUrl existingUrl;
-    if (contains("lastProjectUrl")) {
-        existingUrl = existingValue.toUrl();
-    }
-
-    if (url == existingUrl)
-        return;
-
-    setValue("lastProjectUrl", url);
-    emit lastProjectUrlChanged();
-}
-
 bool ApplicationSettings::loadLastOnStartup() const
 {
     return contains("loadLastOnStartup") ? value("loadLastOnStartup").toBool() : defaultLoadLastOnStartup();
