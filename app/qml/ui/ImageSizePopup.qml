@@ -75,7 +75,7 @@ Dialog {
                 IconToolButton {
                     id: preserveAspectRatioButton
                     objectName: "preserveAspectRatioButton"
-                    iconText: "\uf0c1"
+                    text: "\uf0c1"
                     checked: true
                     topPadding: 0
                     bottomPadding: 0

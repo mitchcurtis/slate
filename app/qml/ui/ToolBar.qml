@@ -68,7 +68,7 @@ ToolBar {
             objectName: "canvasSizeButton"
             enabled: project && project.loaded
             hoverEnabled: true
-            focusPolicy: Qt.TabFocus
+            focusPolicy: Qt.NoFocus
 
             icon.source: "qrc:/images/change-canvas-size.png"
 
@@ -83,7 +83,7 @@ ToolBar {
             objectName: "imageSizeButton"
             enabled: project && project.loaded && !isTilesetProject
             hoverEnabled: true
-            focusPolicy: Qt.TabFocus
+            focusPolicy: Qt.NoFocus
 
             icon.source: "qrc:/images/change-image-size.png"
 
@@ -100,7 +100,7 @@ ToolBar {
 
             Ui.IconToolButton {
                 objectName: "undoButton"
-                iconText: "\uf0e2"
+                text: "\uf0e2"
                 enabled: project && project.undoStack.canUndo
                 hoverEnabled: true
 
@@ -112,7 +112,7 @@ ToolBar {
 
             Ui.IconToolButton {
                 objectName: "redoButton"
-                iconText: "\uf01e"
+                text: "\uf01e"
                 enabled: project && project.undoStack.canRedo
                 hoverEnabled: true
 
@@ -128,7 +128,7 @@ ToolBar {
         Ui.IconToolButton {
             id: modeToolButton
             objectName: "modeToolButton"
-            iconText: "\uf044"
+            text: "\uf044"
             checked: canvas && canvas.mode === TileCanvas.TileMode
             checkable: true
             hoverEnabled: true
@@ -162,7 +162,7 @@ ToolBar {
             Ui.IconToolButton {
                 id: penToolButton
                 objectName: "penToolButton"
-                iconText: "\uf040"
+                text: "\uf040"
                 checked: true
                 hoverEnabled: true
 
@@ -175,7 +175,7 @@ ToolBar {
             Ui.IconToolButton {
                 id: eyeDropperToolButton
                 objectName: "eyeDropperToolButton"
-                iconText: "\uf1fb"
+                text: "\uf1fb"
                 checkable: true
                 hoverEnabled: true
 
@@ -188,7 +188,7 @@ ToolBar {
             Ui.IconToolButton {
                 id: eraserToolButton
                 objectName: "eraserToolButton"
-                iconText: "\uf12d"
+                text: "\uf12d"
                 checkable: true
                 hoverEnabled: true
 
@@ -201,7 +201,7 @@ ToolBar {
             Ui.IconToolButton {
                 id: fillToolButton
                 objectName: "fillToolButton"
-                iconText: "\uf0c3"
+                text: "\uf0c3"
                 checkable: true
                 hoverEnabled: true
 
@@ -218,7 +218,7 @@ ToolBar {
                 objectName: "selectionToolButton"
                 checkable: true
                 hoverEnabled: true
-                focusPolicy: Qt.TabFocus
+                focusPolicy: Qt.NoFocus
                 visible: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
                 icon.source: "qrc:/images/selection.png"
@@ -232,7 +232,7 @@ ToolBar {
             Ui.IconToolButton {
                 id: cropToolButton
                 objectName: "cropToolButton"
-                iconText: "\uf125"
+                text: "\uf125"
                 checkable: true
                 hoverEnabled: true
                 visible: false // TODO: implement crop
