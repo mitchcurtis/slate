@@ -44,7 +44,7 @@ Slate is built, by first running the following commands:
 Once that's set up, there are two options for building:
 
 #### Qt Creator ####
-Open [slate.pro](https://github.com/mitchcurtis/slate/blob/master/slate.pro) in Qt Creator, configure the project using a kit with a Qt version that meets the requirement listed in the Dependencies section, and then build it.
+Open [slate.pro](https://github.com/mitchcurtis/slate/blob/master/slate.pro) in Qt Creator, configure the project using a kit with a Qt version that meets the requirement listed in the [Dependencies](#dependencies) section, and then build it.
 
 #### Command Line ####
 
