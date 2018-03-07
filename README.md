@@ -32,15 +32,37 @@ See the [releases](https://github.com/mitchcurtis/slate/releases) page for the a
 * https://github.com/mitchcurtis/qt-undo
 * https://github.com/mitchcurtis/pickawinner
 
+### Building ###
+
 qt-undo and pickawinner can be cloned and built separately, but they are also available as submodules of Slate's repo, and can therefore be built automatically when
 Slate is built, by first running the following commands:
 
-    cd <slate-source-dir>
+    cd /path/to/slate-source-dir
     git submodule init
     git submodule update
+    
+Once that's set up, there are two options for building:
+
+#### Qt Creator ####
+Open [slate.pro](https://github.com/mitchcurtis/slate/blob/master/slate.pro) in Qt Creator, configure the project using a kit with a Qt version that meets the requirement listed in the Dependencies section, and then build it.
+
+#### Command Line ####
+
+In-source builds:
+
+    cd /path/to/slate-source-dir
+    /path/to/qt/qmake
+    make (or nmake/jom on Windows)
+
+Shadow builds:
+
+    mkdir slate-build
+    cd slate-build
+    /path/to/qt/qmake /path/to/slate-source-dir/slate.pro
+    make (or nmake/jom on Windows)
 
 ---
 
-The tileset in the screenhot was taken from the following page:
+The tileset in the screenshot was taken from the following page:
 
 http://opengameart.org/content/lpc-tile-atlas
