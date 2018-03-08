@@ -21,5 +21,9 @@
         <file>change-canvas-size@4x.png</file>
         <file>change-image-size.png</file>
         <file>change-image-size@2x.png</file>
+        <file>change-tool-size.png</file>
+        <file>change-tool-size@2x.png</file>
+        <file>change-tool-size@3x.png</file>
+        <file>change-tool-size@4x.png</file>
     </qresource>
 </RCC>

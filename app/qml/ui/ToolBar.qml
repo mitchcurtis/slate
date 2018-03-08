@@ -246,39 +246,17 @@ ToolBar {
             ToolSeparator {}
         }
 
-        Ui.IconToolButton {
+        ToolButton {
             id: toolSizeButton
             objectName: "toolSizeButton"
             hoverEnabled: true
+
+            icon.source: "qrc:/images/change-tool-size.png"
 
             ToolTip.text: qsTr("Change the size of drawing tools")
             ToolTip.visible: hovered && !toolSizeSliderPopup.visible
 
             onClicked: toolSizeSliderPopup.visible = !toolSizeSliderPopup.visible
-
-            Item {
-                objectName: "toolSizeButtonIcon"
-                width: 12
-                height: 12
-                anchors.centerIn: parent
-
-                Ui.IconRectangle {
-                    width: parent.width
-                    height: 1
-                }
-
-                Ui.IconRectangle {
-                    y: 4
-                    width: parent.width
-                    height: 2
-                }
-
-                Ui.IconRectangle {
-                    y: 9
-                    width: parent.width
-                    height: 3
-                }
-            }
 
             ToolSizePopup {
                 id: toolSizeSliderPopup
