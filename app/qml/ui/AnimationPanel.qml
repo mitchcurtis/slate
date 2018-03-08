@@ -80,6 +80,22 @@ Panel {
                         anchors.centerIn: parent
                     }
 
+                    // TODO: use animatedsprite here (image provider that uses project image?)
+//                    AnimatedSprite {
+//                        id: animatedSprite
+//                        source: ???
+//                        frameX: animationPlayback.frameX
+//                        frameY: animationPlayback.frameY
+//                        frameWidth: animationPlayback.frameWidth
+//                        frameHeight: animationPlayback.frameHeight
+//                        frameCount: animationPlayback.frameCount
+//                        frameDuration: 1000 / animationPlayback.fps
+//                        loops: animationPlayback.loop ? AnimatedSprite.Infinite : 1
+//                        scale: animationPlayback ? animationPlayback.scale : 1.0
+//                        smooth: false
+//                        anchors.centerIn: parent
+//                    }
+
                     Rectangle {
                         anchors.fill: parent
                         color: "#44000000"

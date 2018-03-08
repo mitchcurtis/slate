@@ -32,6 +32,8 @@ class AnimationPlayback : public QObject
     // Serialised.
     Q_PROPERTY(int fps READ fps WRITE setFps NOTIFY fpsChanged FINAL)
     Q_PROPERTY(int frameCount READ frameCount WRITE setFrameCount NOTIFY frameCountChanged FINAL)
+    Q_PROPERTY(int frameX READ frameX WRITE setFrameX NOTIFY frameXChanged)
+    Q_PROPERTY(int frameY READ frameY WRITE setFrameY NOTIFY frameYChanged)
     Q_PROPERTY(int frameWidth READ frameWidth WRITE setFrameWidth NOTIFY frameWidthChanged FINAL)
     Q_PROPERTY(int frameHeight READ frameHeight WRITE setFrameHeight NOTIFY frameHeightChanged FINAL)
     Q_PROPERTY(int currentFrameIndex READ currentFrameIndex NOTIFY currentFrameIndexChanged FINAL)
@@ -49,6 +51,12 @@ public:
 
     int frameCount() const;
     void setFrameCount(int frameCount);
+
+    int frameX() const;
+    void setFrameX(int frameX);
+
+    int frameY() const;
+    void setFrameY(int frameY);
 
     int frameWidth() const;
     void setFrameWidth(int frameWidth);
@@ -75,6 +83,8 @@ public:
 signals:
     void fpsChanged();
     void frameCountChanged();
+    void frameXChanged();
+    void frameYChanged();
     void frameWidthChanged();
     void frameHeightChanged();
     void currentFrameIndexChanged();
@@ -89,6 +99,8 @@ private:
 
     int mFps;
     int mFrameCount;
+    int mFrameX;
+    int mFrameY;
     int mFrameWidth;
     int mFrameHeight;
     int mCurrentFrameIndex;

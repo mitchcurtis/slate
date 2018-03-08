@@ -498,6 +498,24 @@ void tst_App::animationPlayback()
         animationFpsSpinBox->height() / 2), MouseClick);
     QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
 
+    // Increase frame x.
+    QQuickItem *animationFrameXSpinBox = window->findChild<QQuickItem*>("animationFrameXSpinBox");
+    QVERIFY(animationFrameXSpinBox);
+    QCOMPARE(animationFrameXSpinBox->property("value").toInt(), 0);
+
+    mouseEvent(animationFrameXSpinBox, QPoint(animationFrameXSpinBox->width() - 10,
+        animationFrameXSpinBox->height() / 2), MouseClick);
+    QCOMPARE(animationFrameXSpinBox->property("value").toInt(), 1);
+
+    // Increase frame y.
+    QQuickItem *animationFrameYSpinBox = window->findChild<QQuickItem*>("animationFrameYSpinBox");
+    QVERIFY(animationFrameYSpinBox);
+    QCOMPARE(animationFrameYSpinBox->property("value").toInt(), 0);
+
+    mouseEvent(animationFrameYSpinBox, QPoint(animationFrameYSpinBox->width() - 10,
+        animationFrameYSpinBox->height() / 2), MouseClick);
+    QCOMPARE(animationFrameYSpinBox->property("value").toInt(), 1);
+
     // Increase frame width.
     QQuickItem *animationFrameWidthSpinBox = window->findChild<QQuickItem*>("animationFrameWidthSpinBox");
     QVERIFY(animationFrameWidthSpinBox);
@@ -565,6 +583,8 @@ void tst_App::animationPlayback()
     QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QCOMPARE(layeredImageProject->isUsingAnimation(), true);
     QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
+    QCOMPARE(layeredImageProject->animationPlayback()->frameX(), 1);
+    QCOMPARE(layeredImageProject->animationPlayback()->frameY(), 1);
     QCOMPARE(layeredImageProject->animationPlayback()->frameWidth(), 256 / 4 + 1);
     QCOMPARE(layeredImageProject->animationPlayback()->frameHeight(), 256 + 1);
     QCOMPARE(layeredImageProject->animationPlayback()->frameCount(), 4 + 1);

@@ -60,6 +60,34 @@ void AnimationPlayback::setFrameCount(int frameCount)
     emit frameCountChanged();
 }
 
+int AnimationPlayback::frameX() const
+{
+    return mFrameX;
+}
+
+void AnimationPlayback::setFrameX(int frameX)
+{
+    if (frameX == mFrameX)
+        return;
+
+    mFrameX = frameX;
+    emit frameXChanged();
+}
+
+int AnimationPlayback::frameY() const
+{
+    return mFrameY;
+}
+
+void AnimationPlayback::setFrameY(int frameY)
+{
+    if (frameY == mFrameY)
+        return;
+
+    mFrameY = frameY;
+    emit frameYChanged();
+}
+
 int AnimationPlayback::frameWidth() const
 {
     return mFrameWidth;
@@ -180,6 +208,8 @@ void AnimationPlayback::read(const QJsonObject &json)
 {
     setFps(json.value(QLatin1String("fps")).toInt());
     setFrameCount(json.value(QLatin1String("frameCount")).toInt());
+    setFrameX(json.value(QLatin1String("frameX")).toInt());
+    setFrameY(json.value(QLatin1String("frameY")).toInt());
     setFrameWidth(json.value(QLatin1String("frameWidth")).toInt());
     setFrameHeight(json.value(QLatin1String("frameHeight")).toInt());
     setScale(json.value(QLatin1String("scale")).toDouble());
@@ -190,6 +220,8 @@ void AnimationPlayback::read(const QJsonObject &json)
 void AnimationPlayback::write(QJsonObject &json) const
 {
     json[QLatin1String("fps")] = mFps;
+    json[QLatin1String("frameX")] = mFrameX;
+    json[QLatin1String("frameY")] = mFrameY;
     json[QLatin1String("frameCount")] = mFrameCount;
     json[QLatin1String("frameWidth")] = mFrameWidth;
     json[QLatin1String("frameHeight")] = mFrameHeight;
@@ -201,6 +233,8 @@ void AnimationPlayback::reset()
 {
     setFps(4);
     setFrameCount(4);
+    setFrameX(0);
+    setFrameY(0);
     setFrameWidth(32);
     setFrameHeight(32);
     setCurrentFrameIndex(0);

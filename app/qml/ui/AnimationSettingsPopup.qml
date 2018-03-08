@@ -15,6 +15,8 @@ Dialog {
 
     property int originalFps
     property int originalFrameCount
+    property int originalFrameX
+    property int originalFrameY
     property int originalFrameWidth
     property int originalFrameHeight
     property real originalPreviewScale
@@ -23,6 +25,8 @@ Dialog {
     onAboutToShow: {
         originalFps = animationPlayback.fps
         originalFrameCount = animationPlayback.frameCount
+        originalFrameX = animationPlayback.frameX
+        originalFrameY = animationPlayback.frameY
         originalFrameWidth = animationPlayback.frameWidth
         originalFrameHeight = animationPlayback.frameHeight
         originalPreviewScale = animationPlayback.scale
@@ -31,6 +35,8 @@ Dialog {
     onRejected: {
         animationPlayback.fps = originalFps
         animationPlayback.frameCount = originalFrameCount
+        animationPlayback.frameX = originalFrameX
+        animationPlayback.frameY = originalFrameY
         animationPlayback.frameWidth = originalFrameWidth
         animationPlayback.frameHeight = originalFrameHeight
         animationPlayback.scale = originalPreviewScale
@@ -47,25 +53,49 @@ Dialog {
         columns: 2
 
         Label {
-            text: qsTr("FPS")
+            id: frameXLabel
+            text: qsTr("Frame X")
 
             Layout.preferredWidth: labelTextMetrics.width
         }
 
         SpinBox {
-            objectName: "animationFpsSpinBox"
-            from: 1
-            value: animationPlayback ? animationPlayback.fps : 0
-            to: 60
+            objectName: "animationFrameXSpinBox"
+            from: 0
+            value: animationPlayback ? animationPlayback.frameX : 0
+            to: 4096
             editable: true
             focusPolicy: Qt.NoFocus
 
             Layout.preferredWidth: controlWidth
 
-            // Update the actual values as the controls are modified so that
-            // the user gets a preview of the changes they're making.
-            // If the dialog is cancelled, we revert the changes.
-            onValueModified: animationPlayback.fps = value
+            ToolTip.text: qsTr("X coordinate of the first frame to animate")
+            ToolTip.visible: hovered
+
+            onValueModified: animationPlayback.frameX = value
+        }
+
+        Label {
+            id: frameYLabel
+            text: qsTr("Frame Y")
+
+            Layout.preferredWidth: labelTextMetrics.width
+        }
+
+        SpinBox {
+            objectName: "animationFrameYSpinBox"
+            from: 0
+            value: animationPlayback ? animationPlayback.frameY : 0
+            to: 4096
+            editable: true
+            focusPolicy: Qt.NoFocus
+
+            Layout.preferredWidth: controlWidth
+
+            ToolTip.text: qsTr("Y coordinate of the first frame to animate")
+            ToolTip.visible: hovered
+
+            onValueModified: animationPlayback.frameY = value
         }
 
         Label {
@@ -84,6 +114,9 @@ Dialog {
             focusPolicy: Qt.NoFocus
 
             Layout.preferredWidth: controlWidth
+
+            ToolTip.text: qsTr("Width of each frame")
+            ToolTip.visible: hovered
 
             onValueModified: animationPlayback.frameWidth = value
         }
@@ -104,6 +137,9 @@ Dialog {
 
             Layout.preferredWidth: controlWidth
 
+            ToolTip.text: qsTr("Height of each frame")
+            ToolTip.visible: hovered
+
             onValueModified: animationPlayback.frameHeight = value
         }
 
@@ -123,7 +159,35 @@ Dialog {
 
             Layout.preferredWidth: controlWidth
 
+            ToolTip.text: qsTr("The number of frames to animate")
+            ToolTip.visible: hovered
+
             onValueModified: animationPlayback.frameCount = value
+        }
+
+        Label {
+            text: qsTr("FPS")
+
+            Layout.preferredWidth: labelTextMetrics.width
+        }
+
+        SpinBox {
+            objectName: "animationFpsSpinBox"
+            from: 1
+            value: animationPlayback ? animationPlayback.fps : 0
+            to: 60
+            editable: true
+            focusPolicy: Qt.NoFocus
+
+            Layout.preferredWidth: controlWidth
+
+            ToolTip.text: qsTr("Frames per second")
+            ToolTip.visible: hovered
+
+            // Update the actual values as the controls are modified so that
+            // the user gets a preview of the changes they're making.
+            // If the dialog is cancelled, we revert the changes.
+            onValueModified: animationPlayback.fps = value
         }
 
         Label {
@@ -143,6 +207,9 @@ Dialog {
 
             Layout.alignment: Qt.AlignHCenter
             Layout.preferredWidth: controlWidth - 30
+
+            ToolTip.text: qsTr("The scale of the animation in the preview")
+            ToolTip.visible: hovered
 
             onMoved: animationPlayback.scale = value
         }
