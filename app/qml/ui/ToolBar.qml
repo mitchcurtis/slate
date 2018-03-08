@@ -250,6 +250,7 @@ ToolBar {
             id: toolSizeButton
             objectName: "toolSizeButton"
             hoverEnabled: true
+            focusPolicy: Qt.NoFocus
 
             icon.source: "qrc:/images/change-tool-size.png"
 
