@@ -43,6 +43,12 @@ void AnimationPlayback::setFps(int fps)
         return;
 
     mFps = fps;
+
+    if (mPlaying && mTimerId != -1) {
+        killTimer(mTimerId);
+        mTimerId = startTimer(1000 / mFps);
+    }
+
     emit fpsChanged();
 }
 
