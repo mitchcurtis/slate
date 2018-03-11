@@ -59,7 +59,6 @@ QString Project::typeToString(Project::Type type)
 
 QUrl Project::url() const
 {
-    qDebug() << mUrl << mUrl.toLocalFile();
     return mUrl;
 }
 
@@ -82,6 +81,15 @@ void Project::setUrl(const QUrl &url)
 QString Project::displayUrl() const
 {
     return mUrl.toDisplayString(QUrl::PreferLocalFile);
+}
+
+QUrl Project::dirUrl() const
+{
+    QDir dir(mUrl.toLocalFile());
+    if (!dir.cdUp())
+        return QUrl();
+
+    return QUrl::fromLocalFile(dir.path());
 }
 
 bool Project::hasLoaded() const

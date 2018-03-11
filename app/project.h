@@ -46,6 +46,7 @@ class Project : public QObject
     Q_PROPERTY(bool unsavedChanges READ hasUnsavedChanges NOTIFY unsavedChangesChanged)
     Q_PROPERTY(bool canSave READ canSave NOTIFY canSaveChanged)
     Q_PROPERTY(QUrl url READ url NOTIFY urlChanged)
+    Q_PROPERTY(QUrl dirUrl READ dirUrl NOTIFY urlChanged)
     Q_PROPERTY(QString displayUrl READ displayUrl NOTIFY urlChanged)
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
     Q_PROPERTY(UndoStack *undoStack READ undoStack CONSTANT)
@@ -75,6 +76,7 @@ public:
     QUrl url() const;
     void setUrl(const QUrl &url);
     QString displayUrl() const;
+    QUrl dirUrl() const;
 
     virtual QSize size() const;
     virtual void setSize(const QSize &size);

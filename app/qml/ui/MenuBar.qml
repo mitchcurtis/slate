@@ -62,11 +62,13 @@ Platform.MenuBar {
             onTriggered: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
         }
 
+        Platform.MenuSeparator {}
+
         Platform.MenuItem {
             objectName: "showLocationMenuItem"
             text: qsTr("Show Location")
             enabled: project && project.loaded
-            onTriggered: Qt.openUrlExternally(project.path)
+            onTriggered: Qt.openUrlExternally(project.dirUrl)
         }
 
         Platform.MenuSeparator {}
