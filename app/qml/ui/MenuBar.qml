@@ -24,6 +24,8 @@ Platform.MenuBar {
             onTriggered: doIfChangesDiscarded(function() { newProjectPopup.open() }, true)
         }
 
+        Platform.MenuSeparator {}
+
         Platform.Menu {
             id: recentFilesSubMenu
             objectName: "recentFilesSubMenu"
@@ -60,6 +62,8 @@ Platform.MenuBar {
             onTriggered: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
         }
 
+        Platform.MenuSeparator {}
+
         Platform.MenuItem {
             objectName: "saveMenuItem"
             text: qsTr("Save")
@@ -91,12 +95,16 @@ Platform.MenuBar {
             onTriggered: project.autoExportEnabled = !project.autoExportEnabled
         }
 
+        Platform.MenuSeparator {}
+
         Platform.MenuItem {
             objectName: "closeMenuItem"
             text: qsTr("Close")
             enabled: project && project.loaded
             onTriggered: doIfChangesDiscarded(function() { project.close() })
         }
+
+        Platform.MenuSeparator {}
 
         Platform.MenuItem {
             objectName: "revertMenuItem"
