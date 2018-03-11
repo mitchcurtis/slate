@@ -66,7 +66,7 @@ Platform.MenuBar {
             objectName: "showLocationMenuItem"
             text: qsTr("Show Location")
             enabled: project && project.loaded
-            onTriggered: Qt.openUrlExternally(Url.path(project.url))
+            onTriggered: Qt.openUrlExternally(project.path)
         }
 
         Platform.MenuSeparator {}

@@ -59,6 +59,7 @@ QString Project::typeToString(Project::Type type)
 
 QUrl Project::url() const
 {
+    qDebug() << mUrl << mUrl.toLocalFile();
     return mUrl;
 }
 

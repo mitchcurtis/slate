@@ -62,17 +62,11 @@ static QGuiApplication *createApplication(int &argc, char **argv, const QString 
     return app;
 }
 
-QObject *urlSingletontypeProvider(QQmlEngine *, QJSEngine *)
-{
-    return new Url();
-}
-
 Application::Application(int &argc, char **argv, const QString &applicationName) :
     mApplication(createApplication(argc, argv, applicationName)),
     mSettings(new ApplicationSettings),
     mEngine(new QQmlApplicationEngine)
 {
-    qmlRegisterSingletonType<Url>("App", 1, 0, "Url", urlSingletontypeProvider);
     qmlRegisterType<FileValidator>("App", 1, 0, "FileValidator");
     qmlRegisterType<ImageCanvas>();
     qmlRegisterType<ImageCanvas>("App", 1, 0, "ImageCanvas");
