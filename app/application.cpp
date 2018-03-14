@@ -45,7 +45,6 @@
 #include "tileset.h"
 #include "tilesetproject.h"
 #include "tilesetswatchimage.h"
-#include "url.h"
 
 Q_LOGGING_CATEGORY(lcApplication, "app.application")
 
