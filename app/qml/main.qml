@@ -102,21 +102,23 @@ ApplicationWindow {
         }
 
         function disconnectSignals() {
-            saveChangesDialog.accepted.disconnect(discardChanges);
-            saveChangesDialog.rejected.disconnect(dontDiscardChanges);
+            saveChangesDialog.accepted.disconnect(dontDiscardChanges);
+            saveChangesDialog.discarded.disconnect(discardChanges);
         }
 
         function discardChanges() {
             actionFunction();
             disconnectSignals();
+            // TODO: temporary until https://bugreports.qt.io/browse/QTBUG-67168 is fixed.
+            saveChangesDialog.close();
         }
 
         function dontDiscardChanges() {
             disconnectSignals();
         }
 
-        saveChangesDialog.accepted.connect(discardChanges);
-        saveChangesDialog.rejected.connect(dontDiscardChanges);
+        saveChangesDialog.accepted.connect(dontDiscardChanges);
+        saveChangesDialog.discarded.connect(discardChanges);
         saveChangesDialog.open();
     }
 
@@ -379,12 +381,26 @@ ApplicationWindow {
         x: parent.width / 2 - width / 2
         y: parent.height / 2 - height / 2
         title: qsTr("Unsaved changes")
-        standardButtons: Dialog.Yes | Dialog.No
         modal: true
         onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
 
         Label {
             text: qsTr("The action you're about to perform could discard changes.\n\nContinue anyway?")
+        }
+
+        // Using a DialogButtonBox allows us to assign objectNames to the buttons,
+        // which makes it possible to test them.
+        footer: DialogButtonBox {
+            Button {
+                objectName: "saveChangesDialogButton"
+                text: qsTr("Save")
+                DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+            }
+            Button {
+                objectName: "discardChangesDialogButton"
+                text: qsTr("Discard")
+                DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
+            }
         }
     }
 

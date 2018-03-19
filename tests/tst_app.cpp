@@ -551,7 +551,7 @@ void tst_App::animationPlayback()
     QVERIFY(modifiedScaleValue > 1.0);
 
     // Accept and close the settings popup.
-    QQuickItem *saveButton = findDialogButton(animationSettingsPopup, "Save");
+    QQuickItem *saveButton = findDialogButtonFromText(animationSettingsPopup, "Save");
     QVERIFY(saveButton);
     mouseEventOnCentre(saveButton, MouseClick);
     QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);

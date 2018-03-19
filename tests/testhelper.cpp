@@ -496,13 +496,22 @@ QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
     return popup;
 }
 
-QQuickItem *TestHelper::findDialogButton(const QObject *dialog, const QString &text)
+QQuickItem *TestHelper::findDialogButtonFromText(const QObject *dialog, const QString &text)
 {
     QQuickItem *footer = dialog->property("footer").value<QQuickItem*>();
     if (!footer)
         return nullptr;
 
     return findChildWithText(footer, text);
+}
+
+QQuickItem *TestHelper::findDialogButtonFromObjectName(const QObject *dialog, const QString &objectName)
+{
+    QQuickItem *footer = dialog->property("footer").value<QQuickItem*>();
+    if (!footer)
+        return nullptr;
+
+    return footer->findChild<QQuickItem*>(objectName);
 }
 
 QQuickItem *TestHelper::findListViewChild(QQuickItem *listView, const QString &childObjectName) const
@@ -870,9 +879,9 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         VERIFY(discardChangesDialog);
         VERIFY(discardChangesDialog->property("visible").toBool());
 
-        QQuickItem *yesButton = findDialogButton(discardChangesDialog, "Yes");
-        VERIFY(yesButton);
-        mouseEventOnCentre(yesButton, MouseClick);
+        QQuickItem *discardChangesButton = findDialogButtonFromObjectName(discardChangesDialog, "discardChangesDialogButton");
+        VERIFY(discardChangesButton);
+        mouseEventOnCentre(discardChangesButton, MouseClick);
         VERIFY(!discardChangesDialog->property("visible").toBool());
     }
 

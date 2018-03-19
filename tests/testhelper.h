@@ -108,7 +108,8 @@ protected:
     void wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees);
 
     QObject *findPopupFromTypeName(const QString &typeName) const;
-    QQuickItem *findDialogButton(const QObject *dialog, const QString &text);
+    QQuickItem *findDialogButtonFromText(const QObject *dialog, const QString &text);
+    QQuickItem *findDialogButtonFromObjectName(const QObject *dialog, const QString &objectName);
     QQuickItem *findListViewChild(QQuickItem *listView, const QString &childObjectName) const;
     QQuickItem *findListViewChild(const QString &listViewObjectName, const QString &childObjectName) const;
     static QQuickItem *findChildWithText(QQuickItem *item, const QString &text);
