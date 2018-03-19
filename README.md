@@ -32,6 +32,10 @@ See the [releases](https://github.com/mitchcurtis/slate/releases) page for the a
 * https://github.com/mitchcurtis/qt-undo
 * https://github.com/mitchcurtis/pickawinner
 
+### Cloning ###
+
+`master` is the default branch where all work is done, and is therefore not stable. I tag releases, so if you're looking for a stable build to try out, it's best to pick one from `git tag -l`. 
+
 ### Building ###
 
 qt-undo and pickawinner can be cloned and built separately, but they are also available as submodules of Slate's repo, and can therefore be built automatically when
