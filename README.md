@@ -34,7 +34,7 @@ See the [releases](https://github.com/mitchcurtis/slate/releases) page for the a
 
 ### Cloning ###
 
-`master` is the default branch where all work is done, and is not guaranteed to be stable. I tag releases, so if you're looking for a stable build to try out, it's best to pick one from `git tag -l`. 
+`master` is the default branch where all work is done, and is not guaranteed to be stable. I [tag](https://github.com/mitchcurtis/slate/tags) releases, so if you're looking for a stable build to try out, it's best to pick the latest one from `git tag -l`. 
 
 ### Building ###
 
