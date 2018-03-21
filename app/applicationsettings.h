@@ -88,6 +88,7 @@ public:
     QStringList recentFiles() const;
     void addRecentFile(const QString &filePath);
     Q_INVOKABLE void clearRecentFiles();
+    void removeInvalidRecentFiles();
     // Converts the paths we store ("file:///some-file.png") into a user-facing path.
     Q_INVOKABLE QString displayableFilePath(const QString &filePath) const;
 

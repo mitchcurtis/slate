@@ -209,6 +209,11 @@ void ProjectManager::onCreationFailed(const QString &errorMessage)
     mTemporaryProject.reset();
     emit temporaryProjectChanged();
 
+    // In case this was a recent file that we were loading, remove it from our list.
+    // The function only checks that the file exists (not that e.g. its contents couldn't be loaded),
+    // but it will remove any other invalid files at the same time. It's good enough.
+    mSettings->removeInvalidRecentFiles();
+
     emit creationFailed(errorMessage);
 }
 

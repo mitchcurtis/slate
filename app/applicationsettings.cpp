@@ -20,6 +20,7 @@
 #include "applicationsettings.h"
 
 #include <QDebug>
+#include <QFile>
 #include <QKeySequence>
 #include <QLoggingCategory>
 #include <QVector>
@@ -88,6 +89,29 @@ void ApplicationSettings::clearRecentFiles()
 
     setValue("recentFiles", QStringList());
     emit recentFilesChanged();
+}
+
+void ApplicationSettings::removeInvalidRecentFiles()
+{
+    if (!contains("recentFiles"))
+        return;
+
+    bool changed = false;
+    QStringList files = value("recentFiles").toStringList();
+    for (int i = 0; i < files.size(); ) {
+        const QString filePath = files.at(i);
+        if (filePath.isEmpty() || !QFile::exists(QUrl(filePath).toLocalFile())) {
+            files.removeAt(i);
+            changed = true;
+        } else {
+            ++i;
+        }
+    }
+
+    setValue("recentFiles", files);
+
+    if (changed)
+        emit recentFilesChanged();
 }
 
 QString ApplicationSettings::displayableFilePath(const QString &filePath) const
