@@ -118,6 +118,8 @@ void LayeredImageCanvas::connectSignals()
 
 void LayeredImageCanvas::disconnectSignals()
 {
+    ImageCanvas::disconnectSignals();
+
     disconnect(mLayeredImageProject, &LayeredImageProject::postLayerAdded, this, &LayeredImageCanvas::onPostLayerAdded);
     disconnect(mLayeredImageProject, &LayeredImageProject::preLayerRemoved, this, &LayeredImageCanvas::onPreLayerRemoved);
     disconnect(mLayeredImageProject, &LayeredImageProject::postLayerRemoved, this, &LayeredImageCanvas::onPostLayerRemoved);

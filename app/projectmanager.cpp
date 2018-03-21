@@ -40,6 +40,8 @@ ProjectManager::ProjectManager(QObject *parent) :
 
 ProjectManager::~ProjectManager()
 {
+    qCDebug(lcProjectManager) << "destroying ProjectManager";
+
     // If we're destroyed before the scene, we need to ensure that we close the project first.
     setReady(false);
     if (mProject)
@@ -77,6 +79,7 @@ bool ProjectManager::isReady() const
 
 void ProjectManager::setReady(bool ready)
 {
+    qCDebug(lcProjectManager) << "setting ready to" << ready;
     if (ready == mReady)
         return;
 

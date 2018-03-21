@@ -14,7 +14,6 @@
         <file>ui/IconToolButton.qml</file>
         <file>ui/MenuBar.qml</file>
         <file>ui/NewProjectPopup.qml</file>
-        <file>ui/RecentProjectsPopup.qml</file>
         <file>ui/Shortcuts.qml</file>
         <file>ui/SwatchFocusRectangle.qml</file>
         <file>ui/TilesetSwatch.qml</file>
