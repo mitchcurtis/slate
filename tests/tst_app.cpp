@@ -1117,6 +1117,7 @@ void tst_App::undoImageCanvasSizeChange()
     QCOMPARE(imageProject->widthInPixels(), 256);
     QCOMPARE(imageProject->heightInPixels(), 256);
 
+    // Draw something near the bottom right.
     setCursorPosInScenePixels(250, 250);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -1126,6 +1127,7 @@ void tst_App::undoImageCanvasSizeChange()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
 
+    // Change the size so that our drawing is removed.
     QVERIFY2(changeCanvasSize(200, 200), failureMessage);
 
     // Ensure that the canvas was repainted after the size change.
@@ -1133,8 +1135,12 @@ void tst_App::undoImageCanvasSizeChange()
     QTRY_VERIFY(imageGrabber.isReady());
     QVERIFY(imageGrabber.takeImage() != preSizeChangeCanvasSnapshot);
 
+    // Undo it.
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(imageProject->image()->size(), QSize(256, 256));
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QCOMPARE(imageGrabber.takeImage(), preSizeChangeCanvasSnapshot);
 }
 
 void tst_App::undoImageSizeChange()

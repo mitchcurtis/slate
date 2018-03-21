@@ -99,8 +99,17 @@ void LayeredImageProject::setSize(const QSize &newSize)
     if (newSize == size())
         return;
 
+    QVector<QImage> previousImages;
+    QVector<QImage> newImages;
+    foreach (ImageLayer *layer, mLayers) {
+        previousImages.append(*layer->image());
+
+        const QImage resized = layer->image()->copy(0, 0, newSize.width(), newSize.height());
+        newImages.append(resized);
+    }
+
     beginMacro(QLatin1String("ChangeLayeredImageCanvasSize"));
-    addChange(new ChangeLayeredImageCanvasSizeCommand(this, size(), newSize));
+    addChange(new ChangeLayeredImageCanvasSizeCommand(this, previousImages, newImages));
     endMacro();
 }
 
@@ -553,24 +562,12 @@ Project::Type LayeredImageProject::type() const
     return LayeredImageType;
 }
 
-void LayeredImageProject::doSetSize(const QSize &newSize)
+void LayeredImageProject::doSetCanvasSize(const QVector<QImage> &newImages)
 {
-    if (newSize.width() <= 0 || newSize.height() <= 0) {
-        error(QString::fromLatin1("Cannot set project size to: %1 x %2").arg(newSize.width(), newSize.height()));
-        return;
-    }
-
-    Q_ASSERT(newSize != size());
-    Q_ASSERT(!mLayers.isEmpty());
-
-    foreach (ImageLayer *layer, mLayers) {
-        layer->setSize(newSize);
-    }
-
-    emit sizeChanged();
+    doSetImageSize(newImages);
 }
 
-void LayeredImageProject::doResize(const QVector<QImage> &newImages)
+void LayeredImageProject::doSetImageSize(const QVector<QImage> &newImages)
 {
     Q_ASSERT(newImages.size() == mLayers.size());
 

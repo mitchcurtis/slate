@@ -45,7 +45,7 @@ void ImageProject::setSize(const QSize &newSize)
         return;
 
     beginMacro(QLatin1String("ChangeCanvasSize"));
-    addChange(new ChangeImageCanvasSizeCommand(this, mImage.size(), newSize));
+    addChange(new ChangeImageCanvasSizeCommand(this, mImage, mImage.copy(0, 0, newSize.width(), newSize.height())));
     endMacro();
 }
 
@@ -187,21 +187,18 @@ Project::Type ImageProject::type() const
     return ImageType;
 }
 
-void ImageProject::doSetSize(const QSize &newSize)
+void ImageProject::doSetCanvasSize(const QImage &newImage)
 {
-    if (newSize.width() <= 0 || newSize.height() <= 0) {
-        error(QString::fromLatin1("Cannot set project size to: %1 x %2").arg(newSize.width(), newSize.height()));
+    doSetImageSize(newImage);
+}
+
+void ImageProject::doSetImageSize(const QImage &newImage)
+{
+    if (newImage.width() == 0 || newImage.height() == 0) {
+        error(QLatin1String("Cannot set image's width or height to zero"));
         return;
     }
 
-    Q_ASSERT(newSize != size());
-    Q_ASSERT(!mImage.isNull());
-    mImage = mImage.copy(0, 0, newSize.width(), newSize.height());
-    emit sizeChanged();
-}
-
-void ImageProject::doResize(const QImage &newImage)
-{
     Q_ASSERT(!mImage.isNull());
     Q_ASSERT(newImage.size() != size());
     mImage = newImage;

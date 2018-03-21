@@ -117,8 +117,8 @@ private:
 
     bool isValidIndex(int index) const;
 
-    void doSetSize(const QSize &size);
-    void doResize(const QVector<QImage> &newImages);
+    void doSetCanvasSize(const QVector<QImage> &newImages);
+    void doSetImageSize(const QVector<QImage> &newImages);
 
     void doMoveContents(const QVector<QImage> &newImages);
 

@@ -38,13 +38,13 @@ ChangeImageSizeCommand::ChangeImageSizeCommand(ImageProject *project, const QIma
 void ChangeImageSizeCommand::undo()
 {
     qCDebug(lcChangeImageSizeCommand) << "undoing" << this;
-    mProject->doResize(mPreviousImage);
+    mProject->doSetImageSize(mPreviousImage);
 }
 
 void ChangeImageSizeCommand::redo()
 {
     qCDebug(lcChangeImageSizeCommand) << "redoing" << this;
-    mProject->doResize(mNewImage);
+    mProject->doSetImageSize(mNewImage);
 }
 
 int ChangeImageSizeCommand::id() const
@@ -54,8 +54,8 @@ int ChangeImageSizeCommand::id() const
 
 QDebug operator<<(QDebug debug, const ChangeImageSizeCommand *command)
 {
-    debug.nospace() << "(ChangeImageSizeCommand size=" << command->mNewImage.size()
-        << "previousSize=" << command->mPreviousImage.size()
+    debug.nospace() << "(ChangeImageSizeCommand new size=" << command->mNewImage.size()
+        << "previous size=" << command->mPreviousImage.size()
         << ")";
     return debug.space();
 }

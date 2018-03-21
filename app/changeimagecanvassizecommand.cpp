@@ -25,12 +25,12 @@
 
 Q_LOGGING_CATEGORY(lcChangeImageCanvasSizeCommand, "app.undo.changeImageCanvasSizeCommand")
 
-ChangeImageCanvasSizeCommand::ChangeImageCanvasSizeCommand(ImageProject *project, const QSize &previousSize,
-    const QSize &size, UndoCommand *parent) :
+ChangeImageCanvasSizeCommand::ChangeImageCanvasSizeCommand(ImageProject *project, const QImage &previousImage,
+    const QImage &newImage, UndoCommand *parent) :
     UndoCommand(parent),
     mProject(project),
-    mPreviousSize(previousSize),
-    mSize(size)
+    mPreviousImage(previousImage),
+    mNewImage(newImage)
 {
     qCDebug(lcChangeImageCanvasSizeCommand) << "constructed" << this;
 }
@@ -38,13 +38,13 @@ ChangeImageCanvasSizeCommand::ChangeImageCanvasSizeCommand(ImageProject *project
 void ChangeImageCanvasSizeCommand::undo()
 {
     qCDebug(lcChangeImageCanvasSizeCommand) << "undoing" << this;
-    mProject->doSetSize(mPreviousSize);
+    mProject->doSetCanvasSize(mPreviousImage);
 }
 
 void ChangeImageCanvasSizeCommand::redo()
 {
     qCDebug(lcChangeImageCanvasSizeCommand) << "redoing" << this;
-    mProject->doSetSize(mSize);
+    mProject->doSetCanvasSize(mNewImage);
 }
 
 int ChangeImageCanvasSizeCommand::id() const
@@ -54,8 +54,8 @@ int ChangeImageCanvasSizeCommand::id() const
 
 QDebug operator<<(QDebug debug, const ChangeImageCanvasSizeCommand *command)
 {
-    debug.nospace() << "(ChangeImageCanvasSizeCommand size=" << command->mSize
-        << "previousSize=" << command->mPreviousSize
+    debug.nospace() << "(ChangeImageCanvasSizeCommand new size=" << command->mNewImage.size()
+        << "previous size=" << command->mPreviousImage.size()
         << ")";
     return debug.space();
 }

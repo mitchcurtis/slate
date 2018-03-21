@@ -67,8 +67,8 @@ private:
     friend class ChangeImageCanvasSizeCommand;
     friend class ChangeImageSizeCommand;
 
-    void doSetSize(const QSize &size);
-    void doResize(const QImage &newImage);
+    void doSetCanvasSize(const QImage &newImage);
+    void doSetImageSize(const QImage &newImage);
 
     QUrl mImageUrl;
     QImage mImage;

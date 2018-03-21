@@ -21,7 +21,7 @@
 #define CHANGEIMAGECANVASSIZECOMMAND_H
 
 #include <QDebug>
-#include <QSize>
+#include <QImage>
 #include <QtUndo/undocommand.h>
 
 class ImageProject;
@@ -31,7 +31,7 @@ class ChangeImageCanvasSizeCommand : public UndoCommand
     Q_OBJECT
 
 public:
-    ChangeImageCanvasSizeCommand(ImageProject *project, const QSize &previousSize, const QSize &size,
+    ChangeImageCanvasSizeCommand(ImageProject *project, const QImage &previousImage, const QImage &newImage,
         UndoCommand *parent = nullptr);
 
     void undo() override;
@@ -43,8 +43,8 @@ private:
     friend QDebug operator<<(QDebug debug, const ChangeImageCanvasSizeCommand *command);
 
     ImageProject *mProject;
-    QSize mPreviousSize;
-    QSize mSize;
+    QImage mPreviousImage;
+    QImage mNewImage;
 };
 
 #endif // CHANGEIMAGECANVASSIZECOMMAND_H

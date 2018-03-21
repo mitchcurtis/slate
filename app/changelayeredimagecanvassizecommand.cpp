@@ -25,12 +25,12 @@
 
 Q_LOGGING_CATEGORY(lcChangeLayeredImageCanvasSizeCommand, "app.undo.changeLayeredImageCanvasSizeCommand")
 
-ChangeLayeredImageCanvasSizeCommand::ChangeLayeredImageCanvasSizeCommand(LayeredImageProject *project, const QSize &previousSize,
-    const QSize &size, UndoCommand *parent) :
+ChangeLayeredImageCanvasSizeCommand::ChangeLayeredImageCanvasSizeCommand(LayeredImageProject *project,
+    const QVector<QImage> &previousImages, const QVector<QImage> &newImages, UndoCommand *parent) :
     UndoCommand(parent),
     mProject(project),
-    mPreviousSize(previousSize),
-    mSize(size)
+    mPreviousImages(previousImages),
+    mNewImages(newImages)
 {
     qCDebug(lcChangeLayeredImageCanvasSizeCommand) << "constructed" << this;
 }
@@ -38,13 +38,13 @@ ChangeLayeredImageCanvasSizeCommand::ChangeLayeredImageCanvasSizeCommand(Layered
 void ChangeLayeredImageCanvasSizeCommand::undo()
 {
     qCDebug(lcChangeLayeredImageCanvasSizeCommand) << "undoing" << this;
-    mProject->doSetSize(mPreviousSize);
+    mProject->doSetCanvasSize(mPreviousImages);
 }
 
 void ChangeLayeredImageCanvasSizeCommand::redo()
 {
     qCDebug(lcChangeLayeredImageCanvasSizeCommand) << "redoing" << this;
-    mProject->doSetSize(mSize);
+    mProject->doSetCanvasSize(mNewImages);
 }
 
 int ChangeLayeredImageCanvasSizeCommand::id() const
@@ -52,10 +52,8 @@ int ChangeLayeredImageCanvasSizeCommand::id() const
     return -1;
 }
 
-QDebug operator<<(QDebug debug, const ChangeLayeredImageCanvasSizeCommand *command)
+QDebug operator<<(QDebug debug, const ChangeLayeredImageCanvasSizeCommand *)
 {
-    debug.nospace() << "(ChangeLayeredImageCanvasSizeCommand size=" << command->mSize
-        << "previousSize=" << command->mPreviousSize
-        << ")";
+    debug.nospace() << "(ChangeLayeredImageCanvasSizeCommand)";
     return debug.space();
 }

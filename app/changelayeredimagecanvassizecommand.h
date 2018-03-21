@@ -21,8 +21,9 @@
 #define CHANGELAYEREDIMAGECANVASSIZECOMMAND_H
 
 #include <QDebug>
-#include <QSize>
+#include <QImage>
 #include <QtUndo/undocommand.h>
+#include <QVector>
 
 class LayeredImageProject;
 
@@ -31,8 +32,8 @@ class ChangeLayeredImageCanvasSizeCommand : public UndoCommand
     Q_OBJECT
 
 public:
-    ChangeLayeredImageCanvasSizeCommand(LayeredImageProject *project, const QSize &previousSize, const QSize &size,
-        UndoCommand *parent = nullptr);
+    ChangeLayeredImageCanvasSizeCommand(LayeredImageProject *project, const QVector<QImage> &previousImages,
+        const QVector<QImage> &newImages, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
@@ -43,8 +44,8 @@ private:
     friend QDebug operator<<(QDebug debug, const ChangeLayeredImageCanvasSizeCommand *command);
 
     LayeredImageProject *mProject;
-    QSize mPreviousSize;
-    QSize mSize;
+    QVector<QImage> mPreviousImages;
+    QVector<QImage> mNewImages;
 };
 
 #endif // CHANGELAYEREDIMAGECANVASSIZECOMMAND_H
