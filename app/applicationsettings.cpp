@@ -237,6 +237,7 @@ void ApplicationSettings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("flipVerticallyShortcut"));
         allShortcuts.append(QLatin1String("resizeCanvasShortcut"));
         allShortcuts.append(QLatin1String("resizeImageShortcut"));
+        allShortcuts.append(QLatin1String("moveContentsShortcut"));
         allShortcuts.append(QLatin1String("centreShortcut"));
         allShortcuts.append(QLatin1String("zoomInShortcut"));
         allShortcuts.append(QLatin1String("zoomOutShortcut"));
@@ -478,6 +479,21 @@ QString ApplicationSettings::resizeImageShortcut() const
 void ApplicationSettings::setResizeImageShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("resizeImageShortcut", defaultResizeImageShortcut, resizeImageShortcutChanged)
+}
+
+QString ApplicationSettings::defaultMoveContentsShortcut() const
+{
+    return QLatin1String("Alt+Shift+C");
+}
+
+QString ApplicationSettings::moveContentsShortcut() const
+{
+    GET_SHORTCUT("moveContentsShortcut", defaultMoveContentsShortcut)
+}
+
+void ApplicationSettings::setMoveContentsShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("moveContentsShortcut", defaultMoveContentsShortcut, moveContentsShortcutChanged)
 }
 
 QString ApplicationSettings::defaultGridVisibleShortcut() const

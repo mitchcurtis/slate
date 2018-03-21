@@ -84,6 +84,8 @@ signals:
     void preLayerMoved(int fromIndex, int toIndex);
     void postLayerMoved(int fromIndex, int toIndex);
 
+    void contentsMoved();
+
 public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
 
@@ -92,6 +94,7 @@ public slots:
     void saveAs(const QUrl &url) override;
     bool exportImage(const QUrl &url);
     void resize(int width, int height);
+    void moveContents(int x, int y);
 
     void addNewLayer();
     void deleteCurrentLayer();
@@ -110,11 +113,14 @@ private:
     friend class ChangeLayerVisibleCommand;
     friend class ChangeLayerOpacityCommand;
     friend class DeleteLayerCommand;
+    friend class MoveLayeredImageContentsCommand;
 
     bool isValidIndex(int index) const;
 
     void doSetSize(const QSize &size);
     void doResize(const QVector<QImage> &newImages);
+
+    void doMoveContents(const QVector<QImage> &newImages);
 
     void addNewLayer(int imageWidth, int imageHeight, bool transparent, bool undoable = true);
     void addLayerAboveAll(ImageLayer *imageLayer);

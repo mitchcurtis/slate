@@ -47,6 +47,7 @@ Panel {
             id: listView
             objectName: "layerListView"
             boundsBehavior: ListView.StopAtBounds
+            // TODO: shouldn't need to null-check at all in this file
             visible: project && project.loaded
             clip: true
 
@@ -67,7 +68,7 @@ Panel {
             delegate: ItemDelegate {
                 objectName: model.layer.name
                 checkable: true
-                checked: project.currentLayerIndex === index
+                checked: project && project.currentLayerIndex === index
                 width: listView.width
                 leftPadding: visibilityCheckBox.width + 18
                 focusPolicy: Qt.NoFocus

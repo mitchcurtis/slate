@@ -1,3 +1,4 @@
+import QtQml 2.2
 import App 1.0
 
 // For access to CanvasColours Singleton

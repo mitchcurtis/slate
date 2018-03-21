@@ -53,19 +53,25 @@ ApplicationWindow {
 
 //    onActiveFocusItemChanged: print(activeFocusItem)
 
-    property alias projectManager: projectManager
     property Project project: projectManager.project
-    property int projectType: project ? project.type : 0
+    property int projectType: project && projectManager.ready ? project.type : 0
     property ImageCanvas canvas: canvasContainer.canvas
     property alias newProjectPopup: newProjectPopup
     property alias openProjectDialog: openProjectDialog
     property alias saveChangesDialog: discardChangesDialog
+    property alias moveContentsDialog: moveContentsDialog
     property int toolTipDelay: 500
     property int toolTipTimeout: 2000
 
     onClosing: {
         close.accepted = false;
-        doIfChangesDiscarded(function() { Qt.quit() })
+        doIfChangesDiscarded(function() {
+            // Ensure that the project is closed before quitting so
+            // that the proper shutdown order occurs.
+            if (projectManager.project)
+                projectManager.project.close()
+            Qt.quit()
+        })
     }
 
     // If we set the image URL immediately, it can happen before
@@ -122,6 +128,14 @@ ApplicationWindow {
         saveChangesDialog.open();
     }
 
+    function saveOrSaveAs() {
+        if (project.url.toString().length > 0) {
+            project.save();
+        } else {
+            saveAsDialog.open();
+        }
+    }
+
     Settings {
         property alias windowX: window.x
         property alias windowY: window.y
@@ -134,33 +148,23 @@ ApplicationWindow {
         onErrorOccurred: errorPopup.showError(errorMessage)
     }
 
-    ProjectManager {
-        id: projectManager
-        applicationSettings: settings
+    Connections {
+        target: projectManager
         onCreationFailed: errorPopup.showError(errorMessage)
-
-        function saveOrSaveAs() {
-            if (project.url.toString().length > 0) {
-                project.save();
-            } else {
-                saveAsDialog.open();
-            }
-        }
     }
 
     Ui.Shortcuts {
         window: window
-        projectManager: window.projectManager
         canvasContainer: canvasContainer
         canvas: window.canvas
     }
 
     Ui.MenuBar {
         id: menuBar
-        projectManager: window.projectManager
         canvas: window.canvas
         canvasSizePopup: canvasSizePopup
         imageSizePopup: imageSizePopup
+        moveContentsDialog: moveContentsDialog
     }
 
     header: Ui.ToolBar {
@@ -181,7 +185,6 @@ ApplicationWindow {
             id: canvasContainer
             focus: true
 
-            projectManager: window.projectManager
             checkedToolButton: iconToolBar.toolButtonGroup.checkedButton
 
             Layout.preferredWidth: window.width / 3
@@ -406,16 +409,24 @@ ApplicationWindow {
 
     Ui.CanvasSizePopup {
         id: canvasSizePopup
-        x: parent.width / 2 - width / 2
-        y: parent.height / 2 - height / 2
+        x: Math.round(parent.width - width) / 2
+        y: Math.round(parent.height - height) / 2
         project: projectManager.project
         onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }
 
     Ui.ImageSizePopup {
         id: imageSizePopup
-        x: parent.width / 2 - width / 2
-        y: parent.height / 2 - height / 2
+        x: Math.round(parent.width - width) / 2
+        y: Math.round(parent.height - height) / 2
+        project: projectManager.project
+        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
+    }
+
+    Ui.MoveContentsDialog {
+        id: moveContentsDialog
+        x: Math.round(parent.width - width) / 2
+        y: Math.round(parent.height - height) / 2
         project: projectManager.project
         onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }

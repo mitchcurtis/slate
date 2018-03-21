@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2018, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,32 +17,23 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#ifndef PROJECTIMAGEPROVIDER_H
+#define PROJECTIMAGEPROVIDER_H
 
-#include <QGuiApplication>
-#include <QScopedPointer>
-#include <QtQml>
+#include <QImage>
+#include <QString>
+#include <QQuickImageProvider>
 
-#include "applicationsettings.h"
-#include "projectmanager.h"
+class ProjectManager;
 
-class Application
+class ProjectImageProvider : public QQuickImageProvider
 {
 public:
-    Application(int &argc, char **argv, const QString &applicationName);
-
-    int run();
-
-    ApplicationSettings *settings() const;
-    QQmlApplicationEngine *qmlEngine() const;
-    ProjectManager *projectManager();
+    ProjectImageProvider(ProjectManager *projectManager);
+    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
 
 private:
-    QScopedPointer<QGuiApplication> mApplication;
-    QScopedPointer<ApplicationSettings> mSettings;
-    QScopedPointer<QQmlApplicationEngine> mEngine;
-    ProjectManager mProjectManager;
+    ProjectManager *mProjectManager;
 };
 
-#endif // APPLICATION_H
+#endif // PROJECTIMAGEPROVIDER_H

@@ -108,6 +108,7 @@ void LayeredImageCanvas::connectSignals()
     connect(mLayeredImageProject, &LayeredImageProject::postLayerMoved, this, &LayeredImageCanvas::onPostLayerMoved);
     connect(mLayeredImageProject, &LayeredImageProject::preCurrentLayerChanged, this, &LayeredImageCanvas::onPreCurrentLayerChanged);
     connect(mLayeredImageProject, &LayeredImageProject::postCurrentLayerChanged, this, &LayeredImageCanvas::onPostCurrentLayerChanged);
+    connect(mLayeredImageProject, &LayeredImageProject::contentsMoved, this, &QQuickItem::update);
 
     // Connect to all existing layers, as onPostLayerAdded() won't get called for them automatically.
     for (int i = 0; i < mLayeredImageProject->layerCount(); ++i) {
@@ -123,6 +124,7 @@ void LayeredImageCanvas::disconnectSignals()
     disconnect(mLayeredImageProject, &LayeredImageProject::postLayerMoved, this, &LayeredImageCanvas::onPostLayerMoved);
     disconnect(mLayeredImageProject, &LayeredImageProject::preCurrentLayerChanged, this, &LayeredImageCanvas::onPreCurrentLayerChanged);
     disconnect(mLayeredImageProject, &LayeredImageProject::postCurrentLayerChanged, this, &LayeredImageCanvas::onPostCurrentLayerChanged);
+    disconnect(mLayeredImageProject, &LayeredImageProject::contentsMoved, this, &QQuickItem::update);
 
     mLayeredImageProject = nullptr;
 }

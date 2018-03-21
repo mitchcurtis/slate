@@ -116,10 +116,11 @@ private Q_SLOTS:
     void renameLayer();
     void saveAndLoadLayeredImageProject();
     void layerVisibilityAfterMoving();
-    void undoAfterAddLayer();
+//    void undoAfterAddLayer();
     void selectionConfirmedWhenSwitchingLayers();
     void autoExport();
     void disableToolsWhenLayerHidden();
+    void undoMoveContents();
 };
 
 typedef QVector<Project::Type> ProjectTypeVector;
@@ -3151,16 +3152,18 @@ void tst_App::layerVisibilityAfterMoving()
     QCOMPARE(grabWithLayer1Below.pixelColor(20, 20), QColor(Qt::red));
 }
 
-void tst_App::undoAfterAddLayer()
-{
-    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+//void tst_App::undoAfterAddLayer()
+//{
+//    QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
-    // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 2);
-    QCOMPARE(layeredImageProject->hasUnsavedChanges(), true);
-    QCOMPARE(undoButton->isEnabled(), true);
-}
+//    // Add a new layer.
+//    mouseEventOnCentre(newLayerButton, MouseClick);
+//    QCOMPARE(layeredImageProject->layerCount(), 2);
+//    QCOMPARE(layeredImageProject->hasUnsavedChanges(), true);
+//    QCOMPARE(undoButton->isEnabled(), true);
+
+//    // TODO
+//}
 
 // https://github.com/mitchcurtis/slate/issues/6
 void tst_App::selectionConfirmedWhenSwitchingLayers()
@@ -3313,6 +3316,29 @@ void tst_App::disableToolsWhenLayerHidden()
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), QColor(Qt::white));
+}
+
+void tst_App::undoMoveContents()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    // Draw a red dot.
+    layeredImageCanvas->setPenForegroundColour(Qt::red);
+    setCursorPosInScenePixels(0, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), QColor(Qt::red));
+
+    // Move the contents down.
+    QVERIFY2(moveContents(1, 3), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), QColor(Qt::transparent));
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 2), QColor(Qt::transparent));
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(1, 2), QColor(Qt::transparent));
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(1, 3), QColor(Qt::red));
+
+    // Undo.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), QColor(Qt::red));
 }
 
 int main(int argc, char *argv[])

@@ -27,7 +27,6 @@ Item {
     id: canvasContainer
     objectName: "canvasContainer"
 
-    property ProjectManager projectManager
     property Project project: projectManager.project
     property ImageCanvas canvas: loader.item
     property var checkedToolButton

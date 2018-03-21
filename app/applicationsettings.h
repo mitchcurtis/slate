@@ -54,6 +54,7 @@ class ApplicationSettings : public QSettings
     Q_PROPERTY(QString flipVerticallyShortcut READ flipVerticallyShortcut WRITE setFlipVerticallyShortcut NOTIFY flipVerticallyShortcutChanged)
     Q_PROPERTY(QString resizeCanvasShortcut READ resizeCanvasShortcut WRITE setResizeCanvasShortcut NOTIFY resizeCanvasShortcutChanged)
     Q_PROPERTY(QString resizeImageShortcut READ resizeImageShortcut WRITE setResizeImageShortcut NOTIFY resizeImageShortcutChanged)
+    Q_PROPERTY(QString moveContentsShortcut READ moveContentsShortcut WRITE setMoveContentsShortcut NOTIFY moveContentsShortcutChanged)
     Q_PROPERTY(QString gridVisibleShortcut READ gridVisibleShortcut WRITE setGridVisibleShortcut NOTIFY gridVisibleShortcutChanged)
     Q_PROPERTY(QString rulersVisibleShortcut READ rulersVisibleShortcut WRITE setRulersVisibleShortcut NOTIFY rulersVisibleShortcutChanged)
     Q_PROPERTY(QString guidesVisibleShortcut READ guidesVisibleShortcut WRITE setGuidesVisibleShortcut NOTIFY guidesVisibleShortcutChanged)
@@ -163,6 +164,10 @@ public:
     QString defaultResizeImageShortcut() const;
     QString resizeImageShortcut() const;
     void setResizeImageShortcut(const QString &shortcut);
+
+    QString defaultMoveContentsShortcut() const;
+    QString moveContentsShortcut() const;
+    void setMoveContentsShortcut(const QString &shortcut);
 
     QString defaultGridVisibleShortcut() const;
     QString gridVisibleShortcut() const;
@@ -274,6 +279,7 @@ signals:
     void flipVerticallyShortcutChanged();
     void resizeCanvasShortcutChanged();
     void resizeImageShortcutChanged();
+    void moveContentsShortcutChanged();
     void gridVisibleShortcutChanged();
     void rulersVisibleShortcutChanged();
     void guidesVisibleShortcutChanged();

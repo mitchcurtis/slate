@@ -160,6 +160,10 @@ Dialog {
                         shortcutDisplayName: qsTr("Resize Image")
                     }
                     ShortcutRow {
+                        shortcutName: "moveContentsShortcut"
+                        shortcutDisplayName: qsTr("Move Contents")
+                    }
+                    ShortcutRow {
                         shortcutName: "centreShortcut"
                         shortcutDisplayName: qsTr("Centre View")
                     }

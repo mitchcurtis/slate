@@ -33,6 +33,7 @@
 #include "deletelayercommand.h"
 #include "imagelayer.h"
 #include "jsonutils.h"
+#include "movelayeredimagecontentscommand.h"
 
 LayeredImageProject::LayeredImageProject() :
     mCurrentLayerIndex(0),
@@ -451,6 +452,32 @@ void LayeredImageProject::resize(int width, int height)
     endMacro();
 }
 
+void LayeredImageProject::moveContents(int x, int y)
+{
+    if (x == 0 && y == 0)
+        return;
+
+    QVector<QImage> previousImages;
+    QVector<QImage> newImages;
+    foreach (ImageLayer *layer, mLayers) {
+        const QImage oldImage = *layer->image();
+        previousImages.append(oldImage);
+
+        QImage translated(size(), QImage::Format_ARGB32_Premultiplied);
+        translated.fill(Qt::transparent);
+
+        QPainter painter(&translated);
+        painter.drawImage(x, y, oldImage);
+        painter.end();
+
+        newImages.append(translated);
+    }
+
+    beginMacro(QLatin1String("MoveLayeredImageContents"));
+    addChange(new MoveLayeredImageContentsCommand(this, previousImages, newImages));
+    endMacro();
+}
+
 void LayeredImageProject::addNewLayer()
 {
     addNewLayer(widthInPixels(), heightInPixels(), true);
@@ -559,6 +586,21 @@ void LayeredImageProject::doResize(const QVector<QImage> &newImages)
     }
 
     emit sizeChanged();
+}
+
+void LayeredImageProject::doMoveContents(const QVector<QImage> &newImages)
+{
+    Q_ASSERT(newImages.size() == mLayers.size());
+
+    for (int i = 0; i < newImages.size(); ++i) {
+        const QImage newImage = newImages.at(i);
+        Q_ASSERT(!newImage.isNull());
+
+        ImageLayer *layer = mLayers.at(i);
+        *layer->image() = newImage;
+    }
+
+    emit contentsMoved();
 }
 
 void LayeredImageProject::addNewLayer(int imageWidth, int imageHeight, bool transparent, bool undoable)

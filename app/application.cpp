@@ -34,6 +34,7 @@
 #include "layeredimageproject.h"
 #include "newprojectvalidator.h"
 #include "project.h"
+#include "projectimageprovider.h"
 #include "projectmanager.h"
 #include "rectangularcursor.h"
 #include "splitter.h"
@@ -52,6 +53,7 @@ static QGuiApplication *createApplication(int &argc, char **argv, const QString 
 {
     QLoggingCategory::setFilterRules("app.* = false");
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
     QApplication *app = new QApplication(argc, argv);
     app->setOrganizationName("Mitch Curtis");
     app->setApplicationName(applicationName);
@@ -98,9 +100,14 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
         qWarning() << "Failed to load FontAwesome font";
     }
 
-    mEngine->addImageProvider("sprite", new SpriteImageProvider);
+    mProjectManager.setApplicationSettings(mSettings.data());
 
+    mEngine->addImageProvider("sprite", new SpriteImageProvider);
+    mEngine->addImageProvider("project", new ProjectImageProvider(&mProjectManager));
+
+    mEngine->rootContext()->setContextProperty("projectManager", &mProjectManager);
     mEngine->rootContext()->setContextProperty("settings", mSettings.data());
+
     qCDebug(lcApplication) << "Loading main.qml...";
     mEngine->load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
     qCDebug(lcApplication) << "... loaded main.qml";
@@ -120,4 +127,9 @@ ApplicationSettings *Application::settings() const
 QQmlApplicationEngine *Application::qmlEngine() const
 {
     return mEngine.data();
+}
+
+ProjectManager *Application::projectManager()
+{
+    return &mProjectManager;
 }

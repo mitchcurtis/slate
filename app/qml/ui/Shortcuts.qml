@@ -6,7 +6,6 @@ Item {
     objectName: "shortcuts"
 
     property var window
-    property ProjectManager projectManager
     property Project project: projectManager.project
     property int projectType: project ? project.type : 0
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
@@ -138,6 +137,13 @@ Item {
         sequence: settings.resizeImageShortcut
         onActivated: imageSizePopup.open()
         enabled: isImageProjectType && canvasHasActiveFocus && canvas.hasSelection
+    }
+
+    Shortcut {
+        objectName: "moveContentsShortcut"
+        sequence: settings.moveContentsShortcut
+        onActivated: moveContentsDialog.open()
+        enabled: projectType === Project.LayeredImageType && canvasHasActiveFocus
     }
 
     Shortcut {

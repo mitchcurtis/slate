@@ -20,6 +20,7 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
+#include <QImage>
 #include <QJsonObject>
 #include <QLoggingCategory>
 #include <QObject>
@@ -89,8 +90,9 @@ public:
     virtual void moveGuide(const Guide &guide, int to);
     virtual void removeGuide(const Guide &guide);
 
-    // Used by animation system (only image projects need to implement this).
-    virtual QImage exportedImage() const;
+    // Used by animation system (only image projects need to implement this)
+    // and MoveContentsDialog.
+    Q_INVOKABLE virtual QImage exportedImage() const;
 
     UndoStack *undoStack();
 

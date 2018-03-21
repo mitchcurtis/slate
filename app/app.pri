@@ -61,7 +61,9 @@ HEADERS += \
     $$PWD/crophelper.h \
     $$PWD/animationplayback.h \
     $$PWD/spriteimageprovider.h \
-    $$PWD/spriteimage.h
+    $$PWD/spriteimage.h \
+    $$PWD/projectimageprovider.h \
+    $$PWD/movelayeredimagecontentscommand.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -120,7 +122,9 @@ SOURCES += \
     $$PWD/crophelper.cpp \
     $$PWD/animationplayback.cpp \
     $$PWD/spriteimageprovider.cpp \
-    $$PWD/spriteimage.cpp
+    $$PWD/spriteimage.cpp \
+    $$PWD/projectimageprovider.cpp \
+    $$PWD/movelayeredimagecontentscommand.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \

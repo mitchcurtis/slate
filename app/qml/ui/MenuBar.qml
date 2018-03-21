@@ -5,13 +5,13 @@ import App 1.0
 
 Platform.MenuBar {
     property ImageCanvas canvas
-    property ProjectManager projectManager
     property Project project: projectManager.project
     property int projectType: project ? project.type : 0
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
     property var canvasSizePopup
     property var imageSizePopup
+    property var moveContentsDialog
 
     Platform.Menu {
         id: fileMenu
@@ -202,6 +202,16 @@ Platform.MenuBar {
             shortcut: settings.resizeImageShortcut
             enabled: canvas && projectType === Project.ImageType
             onTriggered: imageSizePopup.open()
+        }
+
+        Platform.MenuSeparator {}
+
+        Platform.MenuItem {
+            objectName: "moveContentsMenuItem"
+            text: qsTr("Move Contents...")
+            shortcut: settings.moveContentsShortcut
+            enabled: canvas && projectType === Project.LayeredImageType
+            onTriggered: moveContentsDialog.open()
         }
     }
 

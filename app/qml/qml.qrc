@@ -48,5 +48,6 @@
         <file>ui/Panel.qml</file>
         <file>ui/AnimationSettingsPopup.qml</file>
         <file>ui/ToolBar.qml</file>
+        <file>ui/MoveContentsDialog.qml</file>
     </qresource>
 </RCC>

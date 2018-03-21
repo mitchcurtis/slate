@@ -19,6 +19,8 @@
 
 #include "testhelper.h"
 
+#include <QPainter>
+
 #include "imagelayer.h"
 #include "projectmanager.h"
 
@@ -74,8 +76,7 @@ void TestHelper::initTestCase()
     overlay = window->property("overlay").value<QQuickItem*>();
     QVERIFY(overlay);
 
-    projectManager = window->contentItem()->findChild<ProjectManager*>();
-    QVERIFY(projectManager);
+    projectManager = app.projectManager();
 
     // Whenever the project manager's project changes, it means we should
     // reset our errorOccurred spy, as createNewProject() is about to be called on it.
@@ -371,6 +372,69 @@ bool TestHelper::changeToolSize(int size)
     // Close the popup.
     QTest::keyClick(window, Qt::Key_Escape);
     VERIFY(toolSizePopup->property("visible").toBool() == false);
+
+    return true;
+}
+
+bool TestHelper::moveContents(int x, int y)
+{
+    const QImage originalContents = project->exportedImage();
+
+    // Open the move contents dialog.
+    VERIFY(triggerShortcut("moveContentsShortcut", app.settings()->moveContentsShortcut()));
+    const QObject *moveContentsDialog = findPopupFromTypeName("MoveContentsDialog");
+    VERIFY(moveContentsDialog);
+    VERIFY(moveContentsDialog->property("visible").toBool());
+
+    // Change the values and then cancel.
+    // TODO: use actual input events...
+    QQuickItem *moveContentsXSpinBox = moveContentsDialog->findChild<QQuickItem*>("moveContentsXSpinBox");
+    VERIFY(moveContentsXSpinBox);
+    // We want it to be easy to change the values with the keyboard..
+    VERIFY(moveContentsXSpinBox->hasActiveFocus());
+    const int originalXSpinBoxValue = moveContentsXSpinBox->property("value").toInt();
+    VERIFY(moveContentsXSpinBox->setProperty("value", originalXSpinBoxValue + 1));
+    VERIFY(moveContentsXSpinBox->property("value").toInt() == originalXSpinBoxValue + 1);
+
+    QQuickItem *moveContentsYSpinBox = moveContentsDialog->findChild<QQuickItem*>("moveContentsYSpinBox");
+    const int originalYSpinBoxValue = moveContentsYSpinBox->property("value").toInt();
+    VERIFY(moveContentsYSpinBox);
+    VERIFY(moveContentsYSpinBox->setProperty("value", originalYSpinBoxValue - 1));
+    VERIFY(moveContentsYSpinBox->property("value").toInt() == originalYSpinBoxValue - 1);
+
+    QQuickItem *cancelButton = moveContentsDialog->findChild<QQuickItem*>("moveContentsDialogCancelButton");
+    VERIFY(cancelButton);
+    mouseEventOnCentre(cancelButton, MouseClick);
+    VERIFY(!moveContentsDialog->property("visible").toBool());
+    VERIFY(project->exportedImage() == originalContents);
+
+    // Open the dialog again.
+    VERIFY(triggerShortcut("moveContentsShortcut", app.settings()->moveContentsShortcut()));
+    VERIFY(moveContentsDialog->property("visible").toBool());
+    // The old values should be restored.
+    VERIFY(moveContentsXSpinBox->property("value").toInt() == originalXSpinBoxValue);
+    VERIFY(moveContentsYSpinBox->property("value").toInt() == originalYSpinBoxValue);
+
+    // Change the values and then press OK.
+    VERIFY(moveContentsXSpinBox->setProperty("value", x));
+    VERIFY(moveContentsXSpinBox->property("value").toInt() == x);
+    VERIFY(moveContentsYSpinBox->setProperty("value", y));
+    VERIFY(moveContentsYSpinBox->property("value").toInt() == y);
+
+    QImage movedContents(originalContents.size(), QImage::Format_ARGB32_Premultiplied);
+    movedContents.fill(Qt::transparent);
+
+    QPainter painter(&movedContents);
+    painter.drawImage(x, y, originalContents);
+    painter.end();
+
+    QQuickItem *okButton = moveContentsDialog->findChild<QQuickItem*>("moveContentsDialogOkButton");
+    VERIFY(okButton);
+    mouseEventOnCentre(okButton, MouseClick);
+    VERIFY(!moveContentsDialog->property("visible").toBool());
+    VERIFY(project->exportedImage() == movedContents);
+    VERIFY(moveContentsXSpinBox->property("value").toInt() == x);
+    VERIFY(moveContentsYSpinBox->property("value").toInt() == y);
 
     return true;
 }
@@ -1137,7 +1201,7 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
     VERIFY(!imageCanvas);
     VERIFY(!tileCanvas);
 
-    project = window->contentItem()->findChild<Project*>();
+    project = projectManager->project();
     VERIFY(project);
 
     canvas = window->findChild<ImageCanvas*>();
