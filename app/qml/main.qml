@@ -294,18 +294,16 @@ ApplicationWindow {
 
     Ui.ErrorPopup {
         id: errorPopup
-        x: parent.width / 2 - width / 2
-        y: parent.height / 2 - height / 2
+        x: Math.round(parent.width - width) / 2
+        y: Math.round(parent.height - height) / 2
         // TODO: shouldn't have to do this, but not even a FocusScope around TileCanvas worked..
         onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }
 
     Ui.NewProjectPopup {
         id: newProjectPopup
-        x: parent.width / 2 - width / 2
-        // Avoid binding loop that results from using height.
-        // TODO: https://codereview.qt-project.org/#/c/175024/ fixes this
-        y: parent.height / 2 - implicitHeight / 2
+        x: Math.round(parent.width - width) / 2
+        y: Math.round(parent.height - height) / 2
 
         onChoseTilesetProject: newTilesetProjectPopup.open()
         onChoseImageProject: newImageProjectPopup.open()
@@ -340,8 +338,8 @@ ApplicationWindow {
 
     Ui.NewTilesetProjectPopup {
         id: newTilesetProjectPopup
-        x: parent.width / 2 - width / 2
-        y: parent.height / 2 - height / 2
+        x: Math.round(parent.width - width) / 2
+        y: Math.round(parent.height - height) / 2
         onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
 
         onAccepted: createNewProject(Project.TilesetType)
@@ -349,8 +347,8 @@ ApplicationWindow {
 
     Ui.NewImageProjectPopup {
         id: newImageProjectPopup
-        x: parent.width / 2 - width / 2
-        y: parent.height / 2 - height / 2
+        x: Math.round(parent.width - width) / 2
+        y: Math.round(parent.height - height) / 2
         onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
 
         onAccepted: createNewProject(Project.ImageType)
@@ -358,8 +356,8 @@ ApplicationWindow {
 
     Ui.NewLayeredImageProjectPopup {
         id: newLayeredImageProjectPopup
-        x: parent.width / 2 - width / 2
-        y: parent.height / 2 - height / 2
+        x: Math.round(parent.width - width) / 2
+        y: Math.round(parent.height - height) / 2
         onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
 
         onAccepted: createNewProject(Project.LayeredImageType)
@@ -367,16 +365,16 @@ ApplicationWindow {
 
     Ui.OptionsDialog {
         id: optionsDialog
-        x: parent.width / 2 - width / 2
-        y: parent.height / 2 - implicitHeight / 2
+        x: Math.round(parent.width - width) / 2
+        y: Math.round(parent.height - height) / 2
         onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }
 
     Dialog {
         id: discardChangesDialog
         objectName: "discardChangesDialog"
-        x: parent.width / 2 - width / 2
-        y: parent.height / 2 - height / 2
+        x: Math.round(parent.width - width) / 2
+        y: Math.round(parent.height - height) / 2
         title: qsTr("Unsaved changes")
         modal: true
         onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
