@@ -135,6 +135,7 @@ ApplicationWindow {
         property alias windowY: window.y
         property alias windowWidth: window.width
         property alias windowHeight: window.height
+        property alias windowVisibility: window.visibility
     }
 
     Connections {
