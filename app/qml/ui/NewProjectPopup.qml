@@ -11,7 +11,6 @@ Dialog {
     id: popup
     objectName: "newProjectPopup"
     modal: true
-    closePolicy: Popup.CloseOnEscape
     focus: true
     padding: 20
     contentWidth: 600
