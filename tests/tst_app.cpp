@@ -95,6 +95,7 @@ private Q_SLOTS:
     void deleteSelectionImageCanvas();
     void copyPaste_data();
     void copyPaste();
+    void undoCopyPasteWithTransparency();
     void pasteFromExternalSource_data();
     void pasteFromExternalSource();
     void flipPastedImage();
@@ -2339,6 +2340,7 @@ void tst_App::copyPaste()
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(canvas->selectionArea(), QRect(10, 10, 5, 5));
 
+    // Copy it.
     keySequence(window, QKeySequence::Copy);
     QCOMPARE(QGuiApplication::clipboard()->image(), canvas->currentProjectImage()->copy(10, 10, 5, 5));
 
@@ -2368,6 +2370,54 @@ void tst_App::copyPaste()
     //QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
     //QCOMPARE(canvas->hasSelection(), false);
     //QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
+}
+
+void tst_App::undoCopyPasteWithTransparency()
+{
+    QVERIFY2(createNewLayeredImageProject(256, 256, true), failureMessage);
+
+    // Draw something low enough that pasting something won't overlap it.
+    setCursorPosInScenePixels(1, 10);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 10), QColor(Qt::black));
+
+    // Select it.
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
+
+    setCursorPosInScenePixels(QPoint(0, 9));
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    setCursorPosInScenePixels(QPoint(3, 12));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    const QRect copyRect(QRect(0, 9, 3, 3));
+    QCOMPARE(canvas->selectionArea(), copyRect);
+
+    // Copy it.
+    keySequence(window, QKeySequence::Copy);
+    QCOMPARE(QGuiApplication::clipboard()->image(), canvas->currentProjectImage()->copy(copyRect));
+
+    // Deselect so that we paste at the top left.
+    setCursorPosInScenePixels(100, 100);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(!canvas->hasSelection());
+
+    // Paste.
+    keySequence(window, QKeySequence::Paste);
+    QCOMPARE(canvas->hasSelection(), true);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 3, 3));
+
+    // Deselect.
+    setCursorPosInScenePixels(100, 100);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(!canvas->hasSelection());
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 10), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
+
+    // Undo the paste. It should disappear.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 10), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::transparent));
 }
 
 void tst_App::pasteFromExternalSource_data()

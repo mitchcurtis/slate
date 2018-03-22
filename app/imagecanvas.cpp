@@ -1394,7 +1394,8 @@ void ImageCanvas::paste()
     const QSize adjustedSize(qMin(clipboardImage.width(), mProject->widthInPixels()),
         qMin(clipboardImage.height(), mProject->heightInPixels()));
     if (fromExternalSource) {
-        // If the paste was from an external source, we just paste it at 0, 0.
+        // If the paste was from an external source, or there was no
+        // selection prior to pasting, we just paste it at 0, 0.
         pastedArea = QRect(0, 0, adjustedSize.width(), adjustedSize.height());
         // TODO: #16 - pastes too far to the top left for some reason
 //        if (mCurrentPane->offset().x() < 0)

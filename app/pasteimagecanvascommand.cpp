@@ -39,7 +39,7 @@ PasteImageCanvasCommand::PasteImageCanvasCommand(ImageCanvas *canvas, const QIma
 void PasteImageCanvasCommand::undo()
 {
     qCDebug(lcPasteImageCanvasCommand) << "undoing" << this;
-    mCanvas->paintImageOntoPortionOfImage(mArea, mPreviousImage);
+    mCanvas->replacePortionOfImage(mArea, mPreviousImage);
     mCanvas->clearSelection();
 }
 
