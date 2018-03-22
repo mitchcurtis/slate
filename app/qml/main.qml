@@ -78,9 +78,6 @@ ApplicationWindow {
         } else {
             createNewProject(Project.LayeredImageType)
         }
-
-        window.x = Screen.desktopAvailableWidth / 2 - width / 2
-        window.y = Screen.desktopAvailableHeight / 2 - height / 2
     }
 
     function doIfChangesDiscarded(actionFunction, skipChangesConfirmationIfNoProject) {
