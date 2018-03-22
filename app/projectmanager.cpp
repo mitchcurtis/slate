@@ -214,7 +214,8 @@ void ProjectManager::onCreationFailed(const QString &errorMessage)
 
 void ProjectManager::projectUrlChanged()
 {
-    if (mProject->hasLoaded()) {
+    if (mProject->hasLoaded() && !mProject->url().isEmpty()) {
+        qCDebug(lcProjectManager) << "adding" << mProject->url().toString() << "to recent files list";
         mSettings->addRecentFile(mProject->url().toString());
     }
 }
