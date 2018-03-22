@@ -31,6 +31,7 @@ class Application
 {
 public:
     Application(int &argc, char **argv, const QString &applicationName);
+    ~Application();
 
     int run();
 

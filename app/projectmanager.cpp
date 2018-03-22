@@ -41,11 +41,6 @@ ProjectManager::ProjectManager(QObject *parent) :
 ProjectManager::~ProjectManager()
 {
     qCDebug(lcProjectManager) << "destroying ProjectManager";
-
-    // If we're destroyed before the scene, we need to ensure that we close the project first.
-    setReady(false);
-    if (mProject)
-        mProject->close();
 }
 
 Project *ProjectManager::project() const

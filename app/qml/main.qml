@@ -64,14 +64,8 @@ ApplicationWindow {
     property int toolTipTimeout: 2000
 
     onClosing: {
-        close.accepted = false;
-        doIfChangesDiscarded(function() {
-            // Ensure that the project is closed before quitting so
-            // that the proper shutdown order occurs.
-            if (projectManager.project)
-                projectManager.project.close()
-            Qt.quit()
-        })
+        close.accepted = false
+        doIfChangesDiscarded(function() { Qt.quit() })
     }
 
     // If we set the image URL immediately, it can happen before

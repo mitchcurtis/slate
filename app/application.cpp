@@ -114,6 +114,18 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     Q_ASSERT(!mEngine->rootObjects().isEmpty());
 }
 
+Application::~Application()
+{
+    // Context properties should outlive QML.
+    // Usually this wouldn't be a problem with a traditional main(),
+    // but since we're trying to encapsulate as much as possible into Application
+    // to be able to reuse it in tests, we run into the problem where
+    // the project manager (a context property) is destroyed before the engine.
+    // Give the engine a little helping hand and ensure that it's
+    // destroyed before the project manager, otherwise we get binding errors.
+    mEngine.reset();
+}
+
 int Application::run()
 {
     return mApplication->exec();
