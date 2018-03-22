@@ -36,7 +36,7 @@ Item {
     Shortcut {
         objectName: "saveShortcut"
         sequence: settings.saveShortcut
-        onActivated: projectManager.saveOrSaveAs()
+        onActivated: saveOrSaveAs()
         enabled: canvasHasActiveFocus && project && project.canSave
     }
 

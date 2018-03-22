@@ -77,7 +77,7 @@ Platform.MenuBar {
             objectName: "saveMenuItem"
             text: qsTr("Save")
             enabled: project && project.canSave
-            onTriggered: projectManager.saveOrSaveAs()
+            onTriggered: saveOrSaveAs()
         }
 
         Platform.MenuItem {

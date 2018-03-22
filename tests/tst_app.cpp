@@ -473,6 +473,17 @@ void tst_App::saveAsAndLoad()
     QCOMPARE(canvas->secondPane()->offset(), secondPaneOffset);
     QCOMPARE(canvas->secondPane()->integerZoomLevel(), secondPaneZoomLevel);
     QCOMPARE(canvas->secondPane()->size(), secondPaneSize);
+
+    if (projectType == Project::ImageType || projectType == Project::LayeredImageType) {
+        // Test that the save shortcut works by drawing and then saving.
+        setCursorPosInScenePixels(0, 0);
+        QTest::mouseMove(window, cursorWindowPos);
+        QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QVERIFY(project->hasUnsavedChanges());
+
+        QVERIFY2(triggerSaveProject(), failureMessage);
+        QVERIFY(!project->hasUnsavedChanges());
+    }
 }
 
 void tst_App::animationPlayback()
