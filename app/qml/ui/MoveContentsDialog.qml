@@ -73,6 +73,7 @@ Dialog {
                 Layout.fillWidth: true
 
                 ToolTip.text: qsTr("Horizontal distance to move the contents by (in pixels)")
+                ToolTip.visible: hovered
             }
 
             Label {
@@ -91,6 +92,21 @@ Dialog {
                 Layout.fillWidth: true
 
                 ToolTip.text: qsTr("Vertical distance to move the contents by (in pixels)")
+                ToolTip.visible: hovered
+            }
+
+            Label {
+                text: qsTr("Only move visible layers")
+                Layout.fillWidth: true
+            }
+
+            CheckBox {
+                id: onlyMoveVisibleLayersCheckBox
+                objectName: "onlyMoveVisibleLayersCheckBox"
+                checked: true
+
+                ToolTip.text: qsTr("Only move contents of visible layers")
+                ToolTip.visible: hovered
             }
 
             Rectangle {
@@ -144,7 +160,7 @@ Dialog {
             text: qsTr("OK")
 
             onClicked: {
-                project.moveContents(xDistanceSpinBox.value, yDistanceSpinBox.value)
+                project.moveContents(xDistanceSpinBox.value, yDistanceSpinBox.value, onlyMoveVisibleLayersCheckBox.checked)
                 dialog.visible = false
             }
         }

@@ -94,7 +94,7 @@ public slots:
     void saveAs(const QUrl &url) override;
     bool exportImage(const QUrl &url);
     void resize(int width, int height);
-    void moveContents(int x, int y);
+    void moveContents(int x, int y, bool onlyVisibleContents);
 
     void addNewLayer();
     void deleteCurrentLayer();

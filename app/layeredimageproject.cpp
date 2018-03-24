@@ -461,7 +461,7 @@ void LayeredImageProject::resize(int width, int height)
     endMacro();
 }
 
-void LayeredImageProject::moveContents(int x, int y)
+void LayeredImageProject::moveContents(int x, int y, bool onlyVisibleContents)
 {
     if (x == 0 && y == 0)
         return;
@@ -472,14 +472,20 @@ void LayeredImageProject::moveContents(int x, int y)
         const QImage oldImage = *layer->image();
         previousImages.append(oldImage);
 
-        QImage translated(size(), QImage::Format_ARGB32_Premultiplied);
-        translated.fill(Qt::transparent);
+        if (onlyVisibleContents && !layer->isVisible()) {
+            // This is lazy and inefficient (we could e.g. store a null QImage),
+            // but it avoids adding more code paths elsewhere.
+            newImages.append(oldImage);
+        } else {
+            QImage translated(size(), QImage::Format_ARGB32_Premultiplied);
+            translated.fill(Qt::transparent);
 
-        QPainter painter(&translated);
-        painter.drawImage(x, y, oldImage);
-        painter.end();
+            QPainter painter(&translated);
+            painter.drawImage(x, y, oldImage);
+            painter.end();
 
-        newImages.append(translated);
+            newImages.append(translated);
+        }
     }
 
     beginMacro(QLatin1String("MoveLayeredImageContents"));

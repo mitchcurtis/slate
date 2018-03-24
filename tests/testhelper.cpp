@@ -376,7 +376,7 @@ bool TestHelper::changeToolSize(int size)
     return true;
 }
 
-bool TestHelper::moveContents(int x, int y)
+bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
 {
     const QImage originalContents = project->exportedImage();
 
@@ -420,6 +420,15 @@ bool TestHelper::moveContents(int x, int y)
     VERIFY(moveContentsXSpinBox->property("value").toInt() == x);
     VERIFY(moveContentsYSpinBox->setProperty("value", y));
     VERIFY(moveContentsYSpinBox->property("value").toInt() == y);
+
+    if (onlyVisibleLayers) {
+        QQuickItem *onlyMoveVisibleLayersCheckBox = moveContentsDialog->findChild<QQuickItem*>("onlyMoveVisibleLayersCheckBox");
+        VERIFY(onlyMoveVisibleLayersCheckBox);
+        if (onlyMoveVisibleLayersCheckBox->property("checked").toBool() != onlyVisibleLayers) {
+            mouseEventOnCentre(onlyMoveVisibleLayersCheckBox, MouseClick);
+            VERIFY(onlyMoveVisibleLayersCheckBox->property("checked").toBool() == onlyVisibleLayers);
+        }
+    }
 
     QImage movedContents(originalContents.size(), QImage::Format_ARGB32_Premultiplied);
     movedContents.fill(Qt::transparent);

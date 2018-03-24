@@ -122,6 +122,7 @@ private Q_SLOTS:
     void autoExport();
     void disableToolsWhenLayerHidden();
     void undoMoveContents();
+    void undoMoveContentsOfVisibleLayers();
 };
 
 typedef QVector<Project::Type> ProjectTypeVector;
@@ -3397,7 +3398,7 @@ void tst_App::undoMoveContents()
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), QColor(Qt::red));
 
     // Move the contents down.
-    QVERIFY2(moveContents(1, 3), failureMessage);
+    QVERIFY2(moveContents(1, 3, false), failureMessage);
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), QColor(Qt::transparent));
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 2), QColor(Qt::transparent));
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(1, 2), QColor(Qt::transparent));
@@ -3406,6 +3407,54 @@ void tst_App::undoMoveContents()
     // Undo.
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), QColor(Qt::red));
+}
+
+void tst_App::undoMoveContentsOfVisibleLayers()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    // Draw a red dot.
+    layeredImageCanvas->setPenForegroundColour(Qt::red);
+    setCursorPosInScenePixels(0, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), QColor(Qt::red));
+
+    // Add a new layer.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+    ImageLayer *layer1 = layeredImageProject->layerAt(1);
+    ImageLayer *layer2 = layeredImageProject->layerAt(0);
+
+    // Select the new layer.
+    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
+
+    // Draw a blue dot on layer 2.
+    layeredImageCanvas->setPenForegroundColour(Qt::blue);
+    setCursorPosInScenePixels(1, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layer2->image()->pixelColor(1, 0), QColor(Qt::blue));
+
+    // Hide layer 2.
+    QQuickItem *layer2Delegate = nullptr;
+    QVERIFY2(verifyLayerName("Layer 2", &layer2Delegate), failureMessage);
+    QQuickItem *layer2VisibilityCheckBox = layer2Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
+    QVERIFY(layer2VisibilityCheckBox);
+    mouseEventOnCentre(layer2VisibilityCheckBox, MouseClick);
+    QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
+
+    // Move the contents down. Only layer 1 should have been moved.
+    QVERIFY2(moveContents(0, 1, true), failureMessage);
+    QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::transparent));
+    QCOMPARE(layer1->image()->pixelColor(0, 1), QColor(Qt::red));
+    QCOMPARE(layer2->image()->pixelColor(1, 0), QColor(Qt::blue));
+
+    // Undo.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::red));
+    QCOMPARE(layer1->image()->pixelColor(0, 1), QColor(Qt::white));
+    QCOMPARE(layer2->image()->pixelColor(1, 0), QColor(Qt::blue));
 }
 
 int main(int argc, char *argv[])

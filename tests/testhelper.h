@@ -192,7 +192,7 @@ protected:
     Q_REQUIRED_RESULT bool changeCanvasSize(int width, int height);
     Q_REQUIRED_RESULT bool changeImageSize(int width, int height);
     Q_REQUIRED_RESULT bool changeToolSize(int size);
-    Q_REQUIRED_RESULT bool moveContents(int x, int y);
+    Q_REQUIRED_RESULT bool moveContents(int x, int y, bool onlyVisibleLayers);
     int sliderValue(QQuickItem *slider) const;
     Q_REQUIRED_RESULT bool drawPixelAtCursorPos();
     Q_REQUIRED_RESULT bool drawTileAtCursorPos();
