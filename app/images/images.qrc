@@ -25,5 +25,9 @@
         <file>change-tool-size@2x.png</file>
         <file>change-tool-size@3x.png</file>
         <file>change-tool-size@4x.png</file>
+        <file>fill.png</file>
+        <file>fill@2x.png</file>
+        <file>fill@3X.png</file>
+        <file>fill@4X.png</file>
     </qresource>
 </RCC>

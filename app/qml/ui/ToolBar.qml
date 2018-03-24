@@ -198,12 +198,14 @@ ToolBar {
                 onClicked: switchTool(ImageCanvas.EraserTool)
             }
 
-            Ui.IconToolButton {
+            ToolButton {
                 id: fillToolButton
                 objectName: "fillToolButton"
-                text: "\uf0c3"
                 checkable: true
                 hoverEnabled: true
+                focusPolicy: Qt.NoFocus
+
+                icon.source: "qrc:/images/fill.png"
 
                 ToolTip.text: isTilesetProject
                     ? qsTr("Fill a contiguous area with pixels or tiles")
