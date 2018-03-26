@@ -228,7 +228,14 @@ Item {
     Shortcut {
         objectName: "fillToolShortcut"
         sequence: settings.fillToolShortcut
-        onActivated: canvas.tool = ImageCanvas.FillTool
+        onActivated: canvas.tool = canvas.lastFillToolUsed
+    }
+
+    Shortcut {
+        objectName: "cycleFillToolsShortcut"
+        sequence: "Shift+" + settings.fillToolShortcut
+        onActivated: canvas.tool = (canvas.lastFillToolUsed === ImageCanvas.FillTool
+            ? ImageCanvas.TexturedFillTool : ImageCanvas.FillTool)
     }
 
     Shortcut {
