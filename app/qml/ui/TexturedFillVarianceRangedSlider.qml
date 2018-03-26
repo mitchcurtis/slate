@@ -29,7 +29,7 @@ RangeSlider {
     first.value: parameter.varianceLowerBound
     second.value: parameter.varianceUpperBound
     // TODO: remove this when https://github.com/mitchcurtis/slate/issues/45 is fixed
-    live: false
+//    live: false
 
     property string displayName
     property TexturedFillParameter parameter
@@ -43,17 +43,19 @@ RangeSlider {
     }
 
     // https://bugreports.qt.io/browse/QTBUG-67311
-    first.onValueChanged: parameter.varianceLowerBound = first.value
-    second.onValueChanged: parameter.varianceUpperBound = second.value
+//    first.onValueChanged: parameter.varianceLowerBound = first.value
+//    second.onValueChanged: parameter.varianceUpperBound = second.value
+    first.onPressedChanged: if (!first.pressed) parameter.varianceLowerBound = first.value
+    second.onPressedChanged: if (!second.pressed) parameter.varianceUpperBound = second.value
 
     ToolTip {
         parent: root.first.handle
         visible: root.first.pressed
-        text: root.first.value.toFixed(1)
+        text: root.first.value.toFixed(3)
     }
     ToolTip {
         parent: root.second.handle
         visible: root.second.pressed
-        text: root.second.value.toFixed(1)
+        text: root.second.value.toFixed(3)
     }
 }
