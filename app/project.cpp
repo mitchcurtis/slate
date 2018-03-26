@@ -298,6 +298,11 @@ void Project::removeGuide(const Guide &guide)
     }
 }
 
+int Project::currentLayerIndex() const
+{
+    return -1;
+}
+
 QImage Project::exportedImage() const
 {
     return QImage();

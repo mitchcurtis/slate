@@ -48,5 +48,8 @@
         <file>ui/AnimationSettingsPopup.qml</file>
         <file>ui/ToolBar.qml</file>
         <file>ui/MoveContentsDialog.qml</file>
+        <file>ui/ToolButtonMenuIndicator.qml</file>
+        <file>ui/TexturedFillSettingsDialog.qml</file>
+        <file>ui/TexturedFillVarianceRangedSlider.qml</file>
     </qresource>
 </RCC>

@@ -25,10 +25,11 @@
 
 Q_LOGGING_CATEGORY(lcApplyPixelEraserCommand, "app.undo.applyPixelEraserCommand")
 
-ApplyPixelEraserCommand::ApplyPixelEraserCommand(ImageCanvas *canvas, const QVector<QPoint> &scenePositions,
+ApplyPixelEraserCommand::ApplyPixelEraserCommand(ImageCanvas *canvas, int layerIndex, const QVector<QPoint> &scenePositions,
     const QVector<QColor> &previousColours, UndoCommand *parent) :
     UndoCommand(parent),
-    mCanvas(canvas)
+    mCanvas(canvas),
+    mLayerIndex(layerIndex)
 {
     mScenePositions = scenePositions;
     mPreviousColours = previousColours;
@@ -40,7 +41,7 @@ void ApplyPixelEraserCommand::undo()
 {
     qCDebug(lcApplyPixelEraserCommand) << "undoing" << this;
     for (int i = 0; i < mScenePositions.size(); ++i) {
-        mCanvas->applyPixelPenTool(mScenePositions.at(i), mPreviousColours.at(i));
+        mCanvas->applyPixelPenTool(mLayerIndex, mScenePositions.at(i), mPreviousColours.at(i));
     }
 }
 
@@ -48,7 +49,7 @@ void ApplyPixelEraserCommand::redo()
 {
     qCDebug(lcApplyPixelEraserCommand) << "redoing" << this;
     for (int i = 0; i < mScenePositions.size(); ++i) {
-        mCanvas->applyPixelPenTool(mScenePositions.at(i), QColor(Qt::transparent));
+        mCanvas->applyPixelPenTool(mLayerIndex, mScenePositions.at(i), QColor(Qt::transparent));
     }
 }
 
@@ -78,7 +79,9 @@ bool ApplyPixelEraserCommand::mergeWith(const UndoCommand *other)
 
 QDebug operator<<(QDebug debug, const ApplyPixelEraserCommand *command)
 {
-    debug.nospace() << "(ApplyPixelEraserCommand scenePositions=" << command->mScenePositions
+    debug.nospace() << "(ApplyPixelEraserCommand"
+        << " layerIndex=" << command->mLayerIndex
+        << ", scenePositions=" << command->mScenePositions
         << ", previousColours=" << command->mPreviousColours
         << ")";
     return debug.space();

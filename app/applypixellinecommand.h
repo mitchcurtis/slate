@@ -31,7 +31,7 @@ class ApplyPixelLineCommand : public UndoCommand
     Q_OBJECT
 
 public:
-    ApplyPixelLineCommand(ImageCanvas *canvas, const QImage &imageWithLine,
+    ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex, const QImage &imageWithLine,
         const QImage &imageWithoutLine, const QRect &lineRect, const QPoint &newLastPixelPenReleaseScenePos,
         const QPoint &oldLastPixelPenReleaseScenePos, UndoCommand *parent = nullptr);
     ~ApplyPixelLineCommand();
@@ -46,6 +46,7 @@ private:
     friend QDebug operator<<(QDebug debug, const ApplyPixelLineCommand *command);
 
     ImageCanvas *mCanvas;
+    int mLayerIndex;
     QImage mImageWithLine;
     QImage mImageWithoutLine;
     QRect mLineRect;

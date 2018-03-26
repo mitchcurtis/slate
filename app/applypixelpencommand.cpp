@@ -25,10 +25,11 @@
 
 Q_LOGGING_CATEGORY(lcApplyPixelPenCommand, "app.undo.applyPixelPenCommand")
 
-ApplyPixelPenCommand::ApplyPixelPenCommand(ImageCanvas *canvas, const QVector<QPoint> &scenePositions,
+ApplyPixelPenCommand::ApplyPixelPenCommand(ImageCanvas *canvas, int layerIndex, const QVector<QPoint> &scenePositions,
     const QVector<QColor> &previousColours, const QColor &colour, UndoCommand *parent) :
     UndoCommand(parent),
     mCanvas(canvas),
+    mLayerIndex(layerIndex),
     mColour(colour)
 {
     mScenePositions = scenePositions;
@@ -41,7 +42,7 @@ void ApplyPixelPenCommand::undo()
 {
     qCDebug(lcApplyPixelPenCommand) << "undoing" << this;
     for (int i = 0; i < mScenePositions.size(); ++i) {
-        mCanvas->applyPixelPenTool(mScenePositions.at(i), mPreviousColours.at(i), i == mScenePositions.size() - 1);
+        mCanvas->applyPixelPenTool(mLayerIndex, mScenePositions.at(i), mPreviousColours.at(i), i == mScenePositions.size() - 1);
     }
 }
 
@@ -49,7 +50,7 @@ void ApplyPixelPenCommand::redo()
 {
     qCDebug(lcApplyPixelPenCommand) << "redoing" << this;
     for (int i = 0; i < mScenePositions.size(); ++i) {
-        mCanvas->applyPixelPenTool(mScenePositions.at(i), mColour, i == mScenePositions.size() - 1);
+        mCanvas->applyPixelPenTool(mLayerIndex, mScenePositions.at(i), mColour, i == mScenePositions.size() - 1);
     }
 }
 

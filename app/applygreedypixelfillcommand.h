@@ -20,10 +20,8 @@
 #ifndef APPLYGREEDYPIXELFILLCOMMAND_H
 #define APPLYGREEDYPIXELFILLCOMMAND_H
 
-#include <QColor>
 #include <QDebug>
-#include <QPoint>
-#include <QVector>
+#include <QImage>
 #include <QtUndo/undocommand.h>
 
 class ImageCanvas;
@@ -33,22 +31,21 @@ class ApplyGreedyPixelFillCommand : public UndoCommand
     Q_OBJECT
 
 public:
-    ApplyGreedyPixelFillCommand(ImageCanvas *canvas, const QVector<QPoint> &scenePositions, const QColor &previousColour,
-        const QColor &colour, UndoCommand *parent = nullptr);
+    ApplyGreedyPixelFillCommand(ImageCanvas *canvas, int layerIndex,const QImage &previousImage,
+        const QImage &newImage, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
 
     int id() const override;
-    bool mergeWith(const UndoCommand *other) override;
 
 private:
     friend QDebug operator<<(QDebug debug, const ApplyGreedyPixelFillCommand *command);
 
     ImageCanvas *mCanvas;
-    QVector<QPoint> mScenePositions;
-    QColor mPreviousColour;
-    QColor mColour;
+    int mLayerIndex;
+    QImage mPreviousImage;
+    QImage mNewImage;
 };
 
 #endif // APPLYGREEDYPIXELFILLCOMMAND_H

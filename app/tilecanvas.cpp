@@ -28,6 +28,7 @@
 #include "applypixelerasercommand.h"
 #include "applypixelfillcommand.h"
 #include "applypixelpencommand.h"
+#include "applytilecanvaspixelfillcommand.h"
 #include "applytileerasercommand.h"
 #include "applytilefillcommand.h"
 #include "applytilepencommand.h"
@@ -418,7 +419,7 @@ void TileCanvas::applyCurrentTool()
             }
 
             mTilesetProject->beginMacro(QLatin1String("PixelPenTool"));
-            mTilesetProject->addChange(new ApplyPixelPenCommand(this, candidateData.scenePositions, candidateData.previousColours, penColour()));
+            mTilesetProject->addChange(new ApplyPixelPenCommand(this, -1, candidateData.scenePositions, candidateData.previousColours, penColour()));
         } else {
             const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
             const Tile *tile = mTilesetProject->tileAt(scenePos);
@@ -456,7 +457,7 @@ void TileCanvas::applyCurrentTool()
             }
 
             mTilesetProject->beginMacro(QLatin1String("PixelEraserTool"));
-            mTilesetProject->addChange(new ApplyPixelEraserCommand(this, candidateData.scenePositions, candidateData.previousColours));
+            mTilesetProject->addChange(new ApplyPixelEraserCommand(this, -1, candidateData.scenePositions, candidateData.previousColours));
         } else {
             const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
             const Tile *tile = mTilesetProject->tileAt(scenePos);
@@ -480,7 +481,7 @@ void TileCanvas::applyCurrentTool()
             }
 
             mTilesetProject->beginMacro(QLatin1String("PixelFillTool"));
-            mTilesetProject->addChange(new ApplyPixelFillCommand(this, candidateData.scenePositions,
+            mTilesetProject->addChange(new ApplyTileCanvasPixelFillCommand(this, candidateData.scenePositions,
                 candidateData.previousColours.first(), penColour()));
         } else {
             const TileCandidateData candidateData = fillTileCandidates();
@@ -506,8 +507,10 @@ QPoint TileCanvas::scenePosToTilePixelPos(const QPoint &scenePos) const
 }
 
 // This function actually operates on the image.
-void TileCanvas::applyPixelPenTool(const QPoint &scenePos, const QColor &colour, bool markAsLastRelease)
+void TileCanvas::applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease)
 {
+    Q_ASSERT(layerIndex == -1);
+
     Tile *tile = mTilesetProject->tileAt(scenePos);
     Q_ASSERT_X(tile, Q_FUNC_INFO, qPrintable(QString::fromLatin1(
         "No tile at scene pos {%1, %2}").arg(scenePos.x()).arg(scenePos.y())));

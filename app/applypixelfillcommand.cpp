@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2018, Mitch Curtis
 
     This file is part of Slate.
 
@@ -21,71 +21,42 @@
 
 #include <QLoggingCategory>
 
-#include "commands.h"
 #include "imagecanvas.h"
 
 Q_LOGGING_CATEGORY(lcApplyPixelFillCommand, "app.undo.applyPixelFillCommand")
 
-ApplyPixelFillCommand::ApplyPixelFillCommand(ImageCanvas *canvas, const QVector<QPoint> &scenePositions,
-    const QColor &previousColour, const QColor &colour, UndoCommand *parent) :
+ApplyPixelFillCommand::ApplyPixelFillCommand(ImageCanvas *canvas, int layerIndex,
+    const QImage &previousImage, const QImage &newImage, UndoCommand *parent) :
     UndoCommand(parent),
     mCanvas(canvas),
-    mColour(colour)
+    mLayerIndex(layerIndex),
+    mPreviousImage(previousImage),
+    mNewImage(newImage)
 {
-    mScenePositions = scenePositions;
-    mPreviousColour = previousColour;
-
     qCDebug(lcApplyPixelFillCommand) << "constructed" << this;
 }
 
 void ApplyPixelFillCommand::undo()
 {
     qCDebug(lcApplyPixelFillCommand) << "undoing" << this;
-    for (int i = 0; i < mScenePositions.size(); ++i) {
-        mCanvas->applyPixelPenTool(mScenePositions.at(i), mPreviousColour);
-    }
+    mCanvas->replaceImage(mLayerIndex, mPreviousImage);
 }
 
 void ApplyPixelFillCommand::redo()
 {
     qCDebug(lcApplyPixelFillCommand) << "redoing" << this;
-    for (int i = 0; i < mScenePositions.size(); ++i) {
-        mCanvas->applyPixelPenTool(mScenePositions.at(i), mColour);
-    }
+    mCanvas->replaceImage(mLayerIndex, mNewImage);
 }
 
 int ApplyPixelFillCommand::id() const
 {
-    return ApplyPixelFillCommandId;
-}
-
-bool ApplyPixelFillCommand::mergeWith(const UndoCommand *other)
-{
-    const ApplyPixelFillCommand *otherCommand = qobject_cast<const ApplyPixelFillCommand*>(other);
-    if (!otherCommand) {
-        return false;
-    }
-
-    if (otherCommand->mColour != mColour) {
-        return false;
-    }
-
-    // Duplicate pixel; we can just discard the other command.
-    if (otherCommand->mScenePositions.size() == 1 && mScenePositions.contains(otherCommand->mScenePositions.first())) {
-        return true;
-    }
-
-    // A unique pixel that we haven't touched yet; add it.
-    qCDebug(lcApplyPixelFillCommand) << "\nmerging:\n    " << otherCommand << "\nwith:\n    " << this;
-    mScenePositions.append(otherCommand->mScenePositions);
-    return true;
+    return -1;
 }
 
 QDebug operator<<(QDebug debug, const ApplyPixelFillCommand *command)
 {
-    debug.nospace() << "(ApplyPixelFillCommand scenePositions=" << command->mScenePositions
-        << ", previousColours=" << command->mPreviousColour
-        << ", colour=" << command->mColour
+    debug.nospace() << "(ApplyPixelFillCommand"
+        << " layerIndex=" << command->mLayerIndex
         << ")";
     return debug.space();
 }

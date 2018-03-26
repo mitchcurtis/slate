@@ -12,6 +12,7 @@ Platform.MenuBar {
     property var canvasSizePopup
     property var imageSizePopup
     property var moveContentsDialog
+    property var texturedFillSettingsDialog
 
     Platform.Menu {
         id: fileMenu
@@ -142,6 +143,7 @@ Platform.MenuBar {
             enabled: project && project.undoStack.canRedo
         }
 
+        // https://bugreports.qt.io/browse/QTBUG-67310
         Platform.MenuSeparator {}
 
         Platform.MenuItem {
@@ -164,6 +166,15 @@ Platform.MenuBar {
             objectName: "selectAllMenuItem"
             text: qsTr("Select All")
             onTriggered: canvas.selectAll()
+            enabled: isImageProjectType && canvas
+        }
+
+        Platform.MenuSeparator {}
+
+        Platform.MenuItem {
+            objectName: "texturedFillSettingsMenuItem"
+            text: qsTr("Textured Fill Settings...")
+            onTriggered: texturedFillSettingsDialog.open()
             enabled: isImageProjectType && canvas
         }
 

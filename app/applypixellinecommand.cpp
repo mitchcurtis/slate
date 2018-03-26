@@ -25,11 +25,12 @@
 
 Q_LOGGING_CATEGORY(lcApplyPixelLineCommand, "app.undo.applyPixelLineCommand")
 
-ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *canvas, const QImage &imageWithLine,
+ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex, const QImage &imageWithLine,
     const QImage &imageWithoutLine, const QRect &lineRect,
     const QPoint &newLastPixelPenReleaseScenePos, const QPoint &oldLastPixelPenReleaseScenePos, UndoCommand *parent) :
     UndoCommand(parent),
     mCanvas(canvas),
+    mLayerIndex(layerIndex),
     mImageWithLine(imageWithLine),
     mImageWithoutLine(imageWithoutLine),
     mLineRect(lineRect),
@@ -47,13 +48,13 @@ ApplyPixelLineCommand::~ApplyPixelLineCommand()
 void ApplyPixelLineCommand::undo()
 {
     qCDebug(lcApplyPixelLineCommand) << "undoing" << this;
-    mCanvas->applyPixelLineTool(mImageWithoutLine, mLineRect, mOldLastPixelPenReleaseScenePos);
+    mCanvas->applyPixelLineTool(mLayerIndex, mImageWithoutLine, mLineRect, mOldLastPixelPenReleaseScenePos);
 }
 
 void ApplyPixelLineCommand::redo()
 {
     qCDebug(lcApplyPixelLineCommand) << "redoing" << this;
-    mCanvas->applyPixelLineTool(mImageWithLine, mLineRect, mNewLastPixelPenReleaseScenePos);
+    mCanvas->applyPixelLineTool(mLayerIndex, mImageWithLine, mLineRect, mNewLastPixelPenReleaseScenePos);
 }
 
 int ApplyPixelLineCommand::id() const
@@ -69,7 +70,8 @@ bool ApplyPixelLineCommand::mergeWith(const UndoCommand *)
 QDebug operator<<(QDebug debug, const ApplyPixelLineCommand *command)
 {
     debug.nospace() << "(ApplyPixelLineCommand"
-        << " lineRect" << command->mLineRect
+        << " layerIndex=" << command->mLayerIndex
+        << ", lineRect" << command->mLineRect
         << ", newLastPixelPenReleaseScenePos=" << command->mNewLastPixelPenReleaseScenePos
         << ", oldLastPixelPenReleaseScenePos=" << command->mOldLastPixelPenReleaseScenePos
         << ")";

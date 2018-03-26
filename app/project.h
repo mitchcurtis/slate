@@ -90,6 +90,8 @@ public:
     virtual void moveGuide(const Guide &guide, int to);
     virtual void removeGuide(const Guide &guide);
 
+    virtual int currentLayerIndex() const;
+
     // Used by animation system (only image projects need to implement this)
     // and MoveContentsDialog.
     Q_INVOKABLE virtual QImage exportedImage() const;

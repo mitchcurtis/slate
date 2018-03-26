@@ -29,5 +29,9 @@
         <file>fill@2x.png</file>
         <file>fill@3X.png</file>
         <file>fill@4X.png</file>
+        <file>textured-fill.png</file>
+        <file>textured-fill@2x.png</file>
+        <file>textured-fill@3x.png</file>
+        <file>textured-fill@4x.png</file>
     </qresource>
 </RCC>

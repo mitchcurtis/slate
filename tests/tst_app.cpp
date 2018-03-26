@@ -101,8 +101,11 @@ private Q_SLOTS:
     void flipPastedImage();
     void fillImageCanvas_data();
     void fillImageCanvas();
+    void fillLayeredImageCanvas();
     void greedyPixelFillImageCanvas_data();
     void greedyPixelFillImageCanvas();
+    void texturedFill_data();
+    void texturedFill();
     void pixelLineToolImageCanvas_data();
     void pixelLineToolImageCanvas();
     void pixelLineToolTransparent_data();
@@ -2517,6 +2520,38 @@ void tst_App::fillImageCanvas()
                                                        project->heightInPixels() - 1), QColor(Qt::black));
 }
 
+void tst_App::fillLayeredImageCanvas()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    // Add a new layer.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+    QVERIFY(layeredImageProject->currentLayerIndex() == 1);
+    ImageLayer *layer1 = layeredImageProject->layerAt(1);
+    ImageLayer *layer2 = layeredImageProject->layerAt(0);
+
+    // Switch to the fill tool.
+    QVERIFY2(switchTool(ImageCanvas::FillTool), failureMessage);
+
+    // Fill layer 1.
+    layeredImageCanvas->setPenForegroundColour(Qt::red);
+    setCursorPosInScenePixels(0, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::red));
+    QCOMPARE(layer1->image()->pixelColor(255, 255), QColor(Qt::red));
+
+    // Select the new layer (make it current).
+    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
+
+    // Undo. It should affect layer 1.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(layer1->image()->pixelColor(255, 255), QColor(Qt::white));
+    QCOMPARE(layer2->image()->pixelColor(0, 0), QColor(Qt::transparent));
+}
+
 void tst_App::greedyPixelFillImageCanvas_data()
 {
     addImageProjectTypes();
@@ -2562,6 +2597,90 @@ void tst_App::greedyPixelFillImageCanvas()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 4), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 35), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 35), QColor(Qt::black));
+}
+
+void tst_App::texturedFill_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::texturedFill()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+
+    QVERIFY2(changeCanvasSize(90, 90), failureMessage);
+
+    // TODO: switch tools via the popup menu
+//    QVERIFY2(switchTool(ImageCanvas::TexturedFillTool), failureMessage);
+    canvas->setTool(ImageCanvas::TexturedFillTool);
+    QCOMPARE(canvas->lastFillToolUsed(), ImageCanvas::TexturedFillTool);
+
+    QVERIFY2(setPenForegroundColour("#123456"), failureMessage);
+
+    // Open the settings dialog.
+    QObject *settingsDialog = window->findChild<QObject*>("texturedFillSettingsDialog");
+    QVERIFY(settingsDialog);
+    QVERIFY(QMetaObject::invokeMethod(settingsDialog, "open"));
+    QVERIFY(settingsDialog->property("visible").toBool());
+
+    QQuickItem *hueVarianceCheckBox = settingsDialog->findChild<QQuickItem*>("hueVarianceCheckBox");
+    QVERIFY(hueVarianceCheckBox);
+    QCOMPARE(hueVarianceCheckBox->property("checked").toBool(), false);
+
+    QQuickItem *saturationVarianceCheckBox = settingsDialog->findChild<QQuickItem*>("saturationVarianceCheckBox");
+    QVERIFY(saturationVarianceCheckBox);
+    QCOMPARE(saturationVarianceCheckBox->property("checked").toBool(), false);
+
+    QQuickItem *lightnessVarianceCheckBox = settingsDialog->findChild<QQuickItem*>("lightnessVarianceCheckBox");
+    QVERIFY(lightnessVarianceCheckBox);
+    QCOMPARE(lightnessVarianceCheckBox->property("checked").toBool(), true);
+
+    // Change some settings.
+    QVERIFY(hueVarianceCheckBox->setProperty("checked", QVariant(true)));
+    QVERIFY(saturationVarianceCheckBox->setProperty("checked", QVariant(true)));
+    QVERIFY(lightnessVarianceCheckBox->setProperty("checked", QVariant(false)));
+
+    // Cancel the dialog..
+    QQuickItem *texturedFillSettingsCancelButton = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsCancelButton");
+    mouseEventOnCentre(texturedFillSettingsCancelButton, MouseClick);
+    QVERIFY(!settingsDialog->property("visible").toBool());
+
+    // .. and then open it again.
+    QVERIFY(QMetaObject::invokeMethod(settingsDialog, "open"));
+    QVERIFY(settingsDialog->property("visible").toBool());
+
+    // The original settings should be restored.
+    QVERIFY(hueVarianceCheckBox->setProperty("checked", QVariant(false)));
+    QVERIFY(saturationVarianceCheckBox->setProperty("checked", QVariant(false)));
+    QVERIFY(lightnessVarianceCheckBox->setProperty("checked", QVariant(true)));
+
+    // Open the settings dialog again.
+    QVERIFY(settingsDialog->property("visible").toBool());
+    QCOMPARE(hueVarianceCheckBox->property("checked").toBool(), false);
+    QCOMPARE(saturationVarianceCheckBox->property("checked").toBool(), false);
+    QCOMPARE(lightnessVarianceCheckBox->property("checked").toBool(), true);
+
+    // Confirm the changes.
+    QQuickItem *texturedFillSettingsDialogOkButton = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsDialogOkButton");
+    QVERIFY(texturedFillSettingsDialogOkButton);
+    mouseEventOnCentre(texturedFillSettingsDialogOkButton, MouseClick);
+    QVERIFY(!settingsDialog->property("visible").toBool());
+
+    // Fill the canvas with the default settings.
+    setCursorPosInScenePixels(0, 0);
+    mouseEvent(canvas, cursorWindowPos, MouseClick);
+    // Ensure that there is some variation to the colours.
+    bool hasVariation = false;
+    for (int y = 0; y < canvas->currentProjectImage()->height() && !hasVariation; ++y) {
+        for (int x = 0; x < canvas->currentProjectImage()->width() && !hasVariation; ++x) {
+            const QColor colour = canvas->currentProjectImage()->pixelColor(x, y);
+            // (the background is white by default)
+            hasVariation = colour != QColor(Qt::black) && colour != QColor(Qt::white);
+        }
+    }
+    QVERIFY(hasVariation);
 }
 
 void tst_App::pixelLineToolImageCanvas_data()

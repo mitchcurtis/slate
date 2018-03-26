@@ -1,5 +1,5 @@
 /*
-    Copyright 2017, Mitch Curtis
+    Copyright 2018, Mitch Curtis
 
     This file is part of Slate.
 
@@ -55,7 +55,10 @@ protected:
     void disconnectSignals() override;
     QImage *currentProjectImage() override;
     const QImage *currentProjectImage() const override;
+    QImage *imageForLayerAt(int layerIndex) override;
     QImage contentImage() const override;
+
+    void replaceImage(int layerIndex, const QImage &replacementImage) override;
 
     bool areToolsForbidden() const override;
 

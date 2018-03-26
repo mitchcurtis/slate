@@ -1,5 +1,5 @@
 /*
-    Copyright 2017, Mitch Curtis
+    Copyright 2018, Mitch Curtis
 
     This file is part of Slate.
 
@@ -141,6 +141,11 @@ const QImage *LayeredImageCanvas::currentProjectImage() const
     return mLayeredImageProject->currentLayer()->image();
 }
 
+QImage *LayeredImageCanvas::imageForLayerAt(int layerIndex)
+{
+    return mLayeredImageProject->layerAt(layerIndex)->image();
+}
+
 QImage LayeredImageCanvas::contentImage() const
 {
     return mLayeredImageProject->flattenedImage([=](int index) {
@@ -156,6 +161,12 @@ QImage LayeredImageCanvas::contentImage() const
         }
         return layerImage;
     });
+}
+
+void LayeredImageCanvas::replaceImage(int layerIndex, const QImage &replacementImage)
+{
+    *mLayeredImageProject->layerAt(layerIndex)->image() = replacementImage;
+    update();
 }
 
 bool LayeredImageCanvas::areToolsForbidden() const

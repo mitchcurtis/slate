@@ -44,6 +44,7 @@ ToolBar {
                 toolButtonGroup.checkedButton = eraserToolButton;
                 break;
             case TileCanvas.FillTool:
+            case TileCanvas.TexturedFillTool:
                 toolButtonGroup.checkedButton = fillToolButton;
                 break;
             case TileCanvas.SelectionTool:
@@ -205,14 +206,50 @@ ToolBar {
                 hoverEnabled: true
                 focusPolicy: Qt.NoFocus
 
-                icon.source: "qrc:/images/fill.png"
+                readonly property bool regularFill: canvas && canvas.lastFillToolUsed === ImageCanvas.FillTool
+                readonly property string imageProjectToolTipText:
+                    qsTr("Fill a contiguous area with %1pixels.\nHold Shift to fill all pixels matching the target colour.")
+                        .arg(!regularFill ? "semi-randomised" : "")
 
-                ToolTip.text: isTilesetProject
-                    ? qsTr("Fill a contiguous area with pixels or tiles")
-                    : qsTr("Fill a contiguous area with pixels.\nHold Shift to fill all pixels matching the target colour.")
+                icon.source: regularFill ? "qrc:/images/fill.png" : "qrc:/images/textured-fill.png"
+
+                ToolTip.text: isTilesetProject ? qsTr("Fill a contiguous area with pixels or tiles") : imageProjectToolTipText
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(ImageCanvas.FillTool)
+                onClicked: switchTool(canvas.lastFillToolUsed)
+                onPressAndHold: if (!isTilesetProject) fillMenu.open()
+                // TODO: respond to right clicks when https://bugreports.qt.io/browse/QTBUG-67331 is implemented
+
+                ToolButtonMenuIndicator {
+                    color: fillToolButton.icon.color
+                    anchors.right: parent.contentItem.right
+                    anchors.bottom: parent.contentItem.bottom
+                    anchors.margins: 6
+                    visible: !isTilesetProject
+                }
+
+                Menu {
+                    id: fillMenu
+                    y: fillToolButton.height
+                    width: 260
+
+                    MenuItem {
+                        text: qsTr("Fill Tool")
+                        icon.source: "qrc:/images/fill.png"
+                        autoExclusive: true
+                        checkable: true
+                        checked: canvas && canvas.lastFillToolUsed === ImageCanvas.FillTool
+                        onTriggered: canvas.tool = ImageCanvas.FillTool
+                    }
+                    MenuItem {
+                        text: qsTr("Textured Fill Tool")
+                        icon.source: "qrc:/images/textured-fill.png"
+                        autoExclusive: true
+                        checkable: true
+                        checked: canvas && canvas.lastFillToolUsed === ImageCanvas.TexturedFillTool
+                        onTriggered: canvas.tool = ImageCanvas.TexturedFillTool
+                    }
+                }
             }
 
             ToolButton {

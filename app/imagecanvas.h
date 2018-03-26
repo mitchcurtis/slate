@@ -1,5 +1,5 @@
 /*
-    Copyright 2017, Mitch Curtis
+    Copyright 2018, Mitch Curtis
 
     This file is part of Slate.
 
@@ -32,6 +32,7 @@
 #include "canvaspane.h"
 #include "ruler.h"
 #include "splitter.h"
+#include "texturedfillparameters.h"
 
 Q_DECLARE_LOGGING_CATEGORY(lcCanvas)
 Q_DECLARE_LOGGING_CATEGORY(lcCanvasLifecycle)
@@ -69,10 +70,12 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(QColor invertedCursorPixelColour READ invertedCursorPixelColour NOTIFY cursorPixelColourChanged)
     Q_PROPERTY(bool containsMouse READ containsMouse NOTIFY containsMouseChanged)
     Q_PROPERTY(Tool tool READ tool WRITE setTool NOTIFY toolChanged)
+    Q_PROPERTY(Tool lastFillToolUsed READ lastFillToolUsed NOTIFY lastFillToolUsedChanged)
     Q_PROPERTY(int toolSize READ toolSize WRITE setToolSize NOTIFY toolSizeChanged)
     Q_PROPERTY(int maxToolSize READ maxToolSize CONSTANT)
     Q_PROPERTY(QColor penForegroundColour READ penForegroundColour WRITE setPenForegroundColour NOTIFY penForegroundColourChanged)
     Q_PROPERTY(QColor penBackgroundColour READ penBackgroundColour WRITE setPenBackgroundColour NOTIFY penBackgroundColourChanged)
+    Q_PROPERTY(TexturedFillParameters *texturedFillParameters READ texturedFillParameters CONSTANT FINAL)
     Q_PROPERTY(bool hasSelection READ hasSelection NOTIFY hasSelectionChanged)
     Q_PROPERTY(QRect selectionArea READ selectionArea NOTIFY selectionAreaChanged)
     Q_PROPERTY(bool hasBlankCursor READ hasBlankCursor NOTIFY hasBlankCursorChanged)
@@ -87,6 +90,7 @@ public:
         EyeDropperTool,
         EraserTool,
         FillTool,
+        TexturedFillTool,
         SelectionTool,
         CropTool
     };
@@ -113,6 +117,7 @@ public:
 
     QColor cursorPixelColour() const;
     QColor invertedCursorPixelColour() const;
+    static QColor invertedColour(const QColor &colour);
 
     bool containsMouse() const;
     void setContainsMouse(bool containsMouse);
@@ -164,6 +169,8 @@ public:
     Tool tool() const;
     void setTool(const Tool &tool);
 
+    Tool lastFillToolUsed() const;
+
     int toolSize() const;
     void setToolSize(int toolSize);
     int maxToolSize() const;
@@ -173,6 +180,8 @@ public:
 
     QColor penBackgroundColour() const;
     void setPenBackgroundColour(const QColor &penBackgroundColour);
+
+    TexturedFillParameters *texturedFillParameters();
 
     bool hasSelection() const;
 
@@ -197,6 +206,8 @@ public:
     virtual QImage *currentProjectImage();
     virtual const QImage *currentProjectImage() const;
 
+    virtual QImage *imageForLayerAt(int layerIndex);
+
 signals:
     void projectChanged();
     void zoomLevelChanged();
@@ -219,6 +230,7 @@ signals:
 //    void rulerForegroundColourChanged();
 //    void rulerBackgroundColourChanged();
     void toolChanged();
+    void lastFillToolUsedChanged();
     void toolSizeChanged();
     void penForegroundColourChanged();
     void penBackgroundColourChanged();
@@ -271,15 +283,18 @@ protected:
         QVector<QColor> previousColours;
     };
     virtual PixelCandidateData penEraserPixelCandidates(Tool tool) const;
-    virtual PixelCandidateData fillPixelCandidates() const;
-    virtual PixelCandidateData greedyFillPixelCandidates() const;
+    QImage fillPixels() const;
+    QImage greedyFillPixels() const;
+    QImage texturedFillPixels() const;
+    QImage greedyTexturedFillPixels() const;
 
     virtual void applyCurrentTool();
-    virtual void applyPixelPenTool(const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false);
-    virtual void applyPixelLineTool(const QImage &lineImage, const QRect &lineRect, const QPoint &lastPixelPenReleaseScenePosition);
+    virtual void applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false);
+    virtual void applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPoint &lastPixelPenReleaseScenePosition);
     void paintImageOntoPortionOfImage(const QRect &portion, const QImage &replacementImage);
     void replacePortionOfImage(const QRect &portion, const QImage &replacementImage);
     void erasePortionOfImage(const QRect &portion);
+    virtual void replaceImage(int layerIndex, const QImage &replacementImage);
     void doFlipSelection(const QRect &area, Qt::Orientation orientation);
 
     QPointF linePoint1() const;
@@ -424,10 +439,13 @@ protected:
     bool mScrollZoom;
 
     Tool mTool;
+    Tool mLastFillToolUsed;
     int mToolSize;
     int mMaxToolSize;
     QColor mPenForegroundColour;
     QColor mPenBackgroundColour;
+
+    TexturedFillParameters mTexturedFillParameters;
 
     // The scene position at which the mouse was last pressed.
     // This is used by the pixel line tool to draw the line preview.

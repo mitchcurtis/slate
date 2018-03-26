@@ -33,7 +33,7 @@ class ApplyPixelPenCommand : public UndoCommand
     Q_OBJECT
 
 public:
-    ApplyPixelPenCommand(ImageCanvas *canvas, const QVector<QPoint> &scenePositions, const QVector<QColor> &previousColours,
+    ApplyPixelPenCommand(ImageCanvas *canvas, int layerIndex, const QVector<QPoint> &scenePositions, const QVector<QColor> &previousColours,
         const QColor &colour, UndoCommand *parent = nullptr);
 
     void undo() override;
@@ -46,6 +46,7 @@ private:
     friend QDebug operator<<(QDebug debug, const ApplyPixelPenCommand *command);
 
     ImageCanvas *mCanvas;
+    int mLayerIndex;
     QVector<QPoint> mScenePositions;
     QVector<QColor> mPreviousColours;
     QColor mColour;

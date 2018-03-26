@@ -8,6 +8,7 @@ HEADERS += \
     $$PWD/applypixelerasercommand.h \
     $$PWD/applypixelfillcommand.h \
     $$PWD/applypixelpencommand.h \
+    $$PWD/applytilecanvaspixelfillcommand.h \
     $$PWD/applytileerasercommand.h \
     $$PWD/applytilefillcommand.h \
     $$PWD/applytilepencommand.h \
@@ -63,13 +64,16 @@ HEADERS += \
     $$PWD/spriteimageprovider.h \
     $$PWD/spriteimage.h \
     $$PWD/projectimageprovider.h \
-    $$PWD/movelayeredimagecontentscommand.h
+    $$PWD/movelayeredimagecontentscommand.h \
+    $$PWD/texturedfillparameters.h \
+    $$PWD/texturedfillpreviewitem.h
 
 SOURCES += \
     $$PWD/application.cpp \
     $$PWD/applypixelerasercommand.cpp \
     $$PWD/applypixelfillcommand.cpp \
     $$PWD/applypixelpencommand.cpp \
+    $$PWD/applytilecanvaspixelfillcommand.cpp \
     $$PWD/applytileerasercommand.cpp \
     $$PWD/applytilefillcommand.cpp \
     $$PWD/applytilepencommand.cpp \
@@ -124,7 +128,9 @@ SOURCES += \
     $$PWD/spriteimageprovider.cpp \
     $$PWD/spriteimage.cpp \
     $$PWD/projectimageprovider.cpp \
-    $$PWD/movelayeredimagecontentscommand.cpp
+    $$PWD/movelayeredimagecontentscommand.cpp \
+    $$PWD/texturedfillparameters.cpp \
+    $$PWD/texturedfillpreviewitem.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \

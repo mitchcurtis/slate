@@ -102,10 +102,11 @@ private:
     friend class ApplyTilePenCommand;
     friend class ApplyTileEraserCommand;
     friend class ApplyTileFillCommand;
+    friend class ApplyTileCanvasPixelFillCommand;
 
     PixelCandidateData penEraserPixelCandidates(Tool tool) const override;
-    PixelCandidateData fillPixelCandidates() const override;
-    PixelCandidateData greedyFillPixelCandidates() const override;
+    PixelCandidateData fillPixelCandidates() const;
+    PixelCandidateData greedyFillPixelCandidates() const;
 
     struct TileCandidateData
     {
@@ -118,7 +119,7 @@ private:
     TileCandidateData fillTileCandidates() const;
 
     void applyCurrentTool() override;
-    void applyPixelPenTool(const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false) override;
+    void applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false) override;
     void applyTilePenTool(const QPoint &tilePos, int id);
 
     void updateCursorPos(const QPoint &eventPos) override;

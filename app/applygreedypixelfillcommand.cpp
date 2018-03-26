@@ -26,32 +26,27 @@
 
 Q_LOGGING_CATEGORY(lcApplyGreedyPixelFillCommand, "app.undo.applyGreedyPixelFillCommand")
 
-ApplyGreedyPixelFillCommand::ApplyGreedyPixelFillCommand(ImageCanvas *canvas, const QVector<QPoint> &scenePositions,
-    const QColor &previousColour, const QColor &colour, UndoCommand *parent) :
+ApplyGreedyPixelFillCommand::ApplyGreedyPixelFillCommand(ImageCanvas *canvas, int layerIndex, const QImage &previousImage,
+    const QImage &newImage, UndoCommand *parent) :
     UndoCommand(parent),
     mCanvas(canvas),
-    mColour(colour)
+    mLayerIndex(layerIndex),
+    mPreviousImage(previousImage),
+    mNewImage(newImage)
 {
-    mScenePositions = scenePositions;
-    mPreviousColour = previousColour;
-
     qCDebug(lcApplyGreedyPixelFillCommand) << "constructed" << this;
 }
 
 void ApplyGreedyPixelFillCommand::undo()
 {
     qCDebug(lcApplyGreedyPixelFillCommand) << "undoing" << this;
-    for (int i = 0; i < mScenePositions.size(); ++i) {
-        mCanvas->applyPixelPenTool(mScenePositions.at(i), mPreviousColour);
-    }
+    mCanvas->replaceImage(mLayerIndex, mPreviousImage);
 }
 
 void ApplyGreedyPixelFillCommand::redo()
 {
     qCDebug(lcApplyGreedyPixelFillCommand) << "redoing" << this;
-    for (int i = 0; i < mScenePositions.size(); ++i) {
-        mCanvas->applyPixelPenTool(mScenePositions.at(i), mColour);
-    }
+    mCanvas->replaceImage(mLayerIndex, mNewImage);
 }
 
 int ApplyGreedyPixelFillCommand::id() const
@@ -59,16 +54,10 @@ int ApplyGreedyPixelFillCommand::id() const
     return -1;
 }
 
-bool ApplyGreedyPixelFillCommand::mergeWith(const UndoCommand *)
-{
-    return false;
-}
-
 QDebug operator<<(QDebug debug, const ApplyGreedyPixelFillCommand *command)
 {
-    debug.nospace() << "(ApplyGreedyPixelFillCommand scenePositions=" << command->mScenePositions
-        << ", previousColours=" << command->mPreviousColour
-        << ", colour=" << command->mColour
+    debug.nospace() << "(ApplyGreedyPixelFillCommand"
+        << " layerIndex=" << command->mLayerIndex
         << ")";
     return debug.space();
 }

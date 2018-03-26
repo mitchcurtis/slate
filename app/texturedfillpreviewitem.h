@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2018, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,35 +17,37 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef APPLYPIXELFILLCOMMAND_H
-#define APPLYPIXELFILLCOMMAND_H
+#ifndef TEXTUREDFILLPREVIEWITEM_H
+#define TEXTUREDFILLPREVIEWITEM_H
 
-#include <QDebug>
-#include <QImage>
-#include <QtUndo/undocommand.h>
+#include <QQuickPaintedItem>
+
+#include "texturedfillparameters.h"
 
 class ImageCanvas;
 
-class ApplyPixelFillCommand : public UndoCommand
+class TexturedFillPreviewItem : public QQuickPaintedItem
 {
     Q_OBJECT
+    Q_PROPERTY(ImageCanvas *canvas READ canvas WRITE setCanvas NOTIFY canvasChanged)
+    Q_PROPERTY(TexturedFillParameters *parameters READ parameters CONSTANT FINAL)
 
 public:
-    ApplyPixelFillCommand(ImageCanvas *canvas, int layerIndex, const QImage &previousImage,
-        const QImage &newImage, UndoCommand *parent = nullptr);
+    TexturedFillPreviewItem();
 
-    void undo() override;
-    void redo() override;
+    void paint(QPainter *painter) override;
 
-    int id() const override;
+    ImageCanvas *canvas() const;
+    void setCanvas(ImageCanvas *canvas);
+
+    TexturedFillParameters *parameters();
+
+signals:
+    void canvasChanged();
 
 private:
-    friend QDebug operator<<(QDebug debug, const ApplyPixelFillCommand *command);
-
     ImageCanvas *mCanvas;
-    int mLayerIndex;
-    QImage mPreviousImage;
-    QImage mNewImage;
+    TexturedFillParameters mParameters;
 };
 
-#endif // APPLYPIXELFILLCOMMAND_H
+#endif // TEXTUREDFILLPREVIEWITEM_H

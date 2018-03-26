@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2018, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,21 +17,21 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef APPLYPIXELFILLCOMMAND_H
-#define APPLYPIXELFILLCOMMAND_H
+#ifndef APPLYLAYEREDIMAGEPIXELFILLCOMMAND_H
+#define APPLYLAYEREDIMAGEPIXELFILLCOMMAND_H
 
 #include <QDebug>
 #include <QImage>
 #include <QtUndo/undocommand.h>
 
-class ImageCanvas;
+class LayeredImageProject;
 
-class ApplyPixelFillCommand : public UndoCommand
+class ApplyLayeredImagePixelFillCommand : public UndoCommand
 {
     Q_OBJECT
 
 public:
-    ApplyPixelFillCommand(ImageCanvas *canvas, int layerIndex, const QImage &previousImage,
+    ApplyLayeredImagePixelFillCommand(LayeredImageProject *project, const QImage &previousImage,
         const QImage &newImage, UndoCommand *parent = nullptr);
 
     void undo() override;
@@ -40,12 +40,12 @@ public:
     int id() const override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const ApplyPixelFillCommand *command);
+    friend QDebug operator<<(QDebug debug, const ApplyLayeredImagePixelFillCommand *command);
 
-    ImageCanvas *mCanvas;
+    LayeredImageProject *mProject;
     int mLayerIndex;
     QImage mPreviousImage;
     QImage mNewImage;
 };
 
-#endif // APPLYPIXELFILLCOMMAND_H
+#endif // APPLYLAYEREDIMAGEPIXELFILLCOMMAND_H

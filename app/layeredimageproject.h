@@ -43,7 +43,7 @@ public:
     ~LayeredImageProject();
 
     ImageLayer *currentLayer();
-    int currentLayerIndex() const;
+    int currentLayerIndex() const override;
     void setCurrentLayerIndex(int index);
     ImageLayer *layerAt(int index);
     const ImageLayer *layerAt(int index) const;

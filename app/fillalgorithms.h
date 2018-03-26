@@ -26,14 +26,35 @@ class QPoint;
 template <typename T>
 class QVector;
 
+class TexturedFillParameters;
 class TilesetProject;
 class Tile;
+
+class FillColourProvider
+{
+public:
+    virtual QColor colour(const QColor &baseColour) const;
+};
 
 QVector<QPoint> imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour);
 
+// TODO: replace imagePixelFloodFill() with this eventually
+QImage imagePixelFloodFill2(const QImage *image, const QPoint &startPos, const QColor &targetColour,
+    const QColor &replacementColour, const FillColourProvider &fillColourProvider = FillColourProvider());
+
 QVector<QPoint> imageGreedyPixelFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour);
+
+// TODO: replace imagePixelFloodFill() with this eventually
+QImage imageGreedyPixelFill2(const QImage *image, const QPoint &startPos, const QColor &targetColour,
+    const QColor &replacementColour, const FillColourProvider &fillColourProvider = FillColourProvider());
+
+QImage texturedFill(const QImage *image, const QPoint &startPos,
+    const QColor &targetColour, const QColor &replacementColour, const TexturedFillParameters &parameters);
+
+QImage greedyTexturedFill(const QImage *image, const QPoint &startPos,
+    const QColor &targetColour, const QColor &replacementColour, const TexturedFillParameters &parameters);
 
 void tilesetPixelFloodFill(const Tile *tile, const QPoint &pos, const QColor &targetColour,
     const QColor &replacementColour, QVector<QPoint> &filledPositions);

@@ -1,5 +1,5 @@
 /*
-    Copyright 2017, Mitch Curtis
+    Copyright 2018, Mitch Curtis
 
     This file is part of Slate.
 
@@ -81,6 +81,7 @@ ImageCanvas::ImageCanvas() :
     mLastMouseButtonPressed(Qt::NoButton),
     mScrollZoom(false),
     mTool(PenTool),
+    mLastFillToolUsed(FillTool),
     mToolSize(1),
     mMaxToolSize(100),
     mPenForegroundColour(Qt::black),
@@ -110,6 +111,15 @@ ImageCanvas::ImageCanvas() :
     mSecondHorizontalRuler->setObjectName("secondHorizontalRuler");
     mSecondVerticalRuler->setObjectName("secondVerticalRuler");
     mSecondVerticalRuler->setDrawCorner(true);
+
+    // Give some defaults so that the range slider handles aren't stuck together.
+    mTexturedFillParameters.hue()->setVarianceLowerBound(-0.2);
+    mTexturedFillParameters.hue()->setVarianceUpperBound(0.2);
+    mTexturedFillParameters.saturation()->setVarianceLowerBound(-0.2);
+    mTexturedFillParameters.saturation()->setVarianceUpperBound(0.2);
+    mTexturedFillParameters.lightness()->setEnabled(true);
+    mTexturedFillParameters.lightness()->setVarianceLowerBound(-0.2);
+    mTexturedFillParameters.lightness()->setVarianceUpperBound(0.2);
 
     connect(&mFirstPane, SIGNAL(zoomLevelChanged()), this, SLOT(onZoomLevelChanged()));
     connect(&mFirstPane, SIGNAL(offsetChanged()), this, SLOT(onPaneOffsetChanged()));
@@ -156,10 +166,16 @@ void ImageCanvas::setProject(Project *project)
     if (mProject) {
         connectSignals();
 
-        // Read the pane data that was stored in the project, if there is any.
+        // Read the canvas data that was stored in the project, if there is any.
         // New projects or projects that don't have their own Slate extension
         // won't have any JSON data.
         QJsonObject *cachedProjectJson = project->cachedProjectJson();
+
+        if (cachedProjectJson->contains("lastFillToolUsed")) {
+            mLastFillToolUsed = static_cast<Tool>(QMetaEnum::fromType<Tool>().keyToValue(
+                qPrintable(cachedProjectJson->value("lastFillToolUsed").toString())));
+        }
+
         bool readPanes = false;
         if (cachedProjectJson->contains("firstPane")) {
             mFirstPane.read(cachedProjectJson->value("firstPane").toObject());
@@ -367,13 +383,28 @@ void ImageCanvas::setTool(const Tool &tool)
         return;
 
     mTool = tool;
+
     // The selection tool doesn't follow the undo rules, so we have to clear
     // the selected area if a different tool is chosen.
     if (mTool != SelectionTool) {
         clearOrConfirmSelection();
     }
+
+    if (mTool == FillTool || mTool == TexturedFillTool) {
+        if (mTool != mLastFillToolUsed) {
+            mLastFillToolUsed = mTool;
+            emit lastFillToolUsedChanged();
+        }
+    }
+
     toolChange();
+
     emit toolChanged();
+}
+
+ImageCanvas::Tool ImageCanvas::lastFillToolUsed() const
+{
+    return mLastFillToolUsed;
 }
 
 int ImageCanvas::toolSize() const
@@ -436,6 +467,11 @@ void ImageCanvas::setPenBackgroundColour(const QColor &penBackgroundColour)
     emit penBackgroundColourChanged();
 }
 
+TexturedFillParameters *ImageCanvas::texturedFillParameters()
+{
+    return &mTexturedFillParameters;
+}
+
 bool ImageCanvas::hasSelection() const
 {
     return mHasSelection;
@@ -468,8 +504,13 @@ QColor ImageCanvas::cursorPixelColour() const
 
 QColor ImageCanvas::invertedCursorPixelColour() const
 {
+    return invertedColour(mCursorPixelColour);
+}
+
+QColor ImageCanvas::invertedColour(const QColor &colour)
+{
     // https://stackoverflow.com/a/18142036/904422
-    return (0xFFFFFF - mCursorPixelColour.rgba()) | 0xFF000000;
+    return (0xFFFFFF - colour.rgba()) | 0xFF000000;
 }
 
 void ImageCanvas::setCursorPixelColour(const QColor &cursorPixelColour)
@@ -740,6 +781,12 @@ QImage *ImageCanvas::currentProjectImage()
 
 const QImage *ImageCanvas::currentProjectImage() const
 {
+    return mImageProject->image();
+}
+
+QImage *ImageCanvas::imageForLayerAt(int layerIndex)
+{
+    Q_ASSERT(layerIndex == -1);
     return mImageProject->image();
 }
 
@@ -1028,8 +1075,11 @@ void ImageCanvas::onGuidesChanged()
     update();
 }
 
+// TODO: make projectJson a reference to make this neater
 void ImageCanvas::onReadyForWritingToJson(QJsonObject *projectJson)
 {
+    (*projectJson)["lastFillToolUsed"] = QMetaEnum::fromType<Tool>().valueToKey(mLastFillToolUsed);
+
     QJsonObject firstPaneJson;
     mFirstPane.write(firstPaneJson);
     (*projectJson)["firstPane"] = firstPaneJson;
@@ -1304,6 +1354,8 @@ void ImageCanvas::reset()
     setPenForegroundColour(Qt::black);
     setPenBackgroundColour(Qt::white);
 
+    mTexturedFillParameters.reset();
+
     mLastPixelPenPressScenePosition = QPoint(0, 0);
     mLinePreviewImage = QImage();
 
@@ -1474,48 +1526,57 @@ ImageCanvas::PixelCandidateData ImageCanvas::penEraserPixelCandidates(Tool tool)
     return candidateData;
 }
 
-ImageCanvas::PixelCandidateData ImageCanvas::fillPixelCandidates() const
+QImage ImageCanvas::fillPixels() const
 {
-    PixelCandidateData candidateData;
-
     const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
-    if (!isWithinImage(scenePos)) {
-        return candidateData;
-    }
+    if (!isWithinImage(scenePos))
+        return QImage();
 
     const QColor previousColour = currentProjectImage()->pixelColor(scenePos);
     // Don't do anything if the colours are the same.
-    if (previousColour == penColour()) {
-        return candidateData;
-    }
+    if (previousColour == penColour())
+        return QImage();
 
-    QVector<QPoint> scenePositions = imagePixelFloodFill(currentProjectImage(), scenePos, previousColour, penColour());
-    candidateData.scenePositions = scenePositions;
-
-    candidateData.previousColours.append(previousColour);
-    return candidateData;
+    return imagePixelFloodFill2(currentProjectImage(), scenePos, previousColour, penColour());
 }
 
-ImageCanvas::PixelCandidateData ImageCanvas::greedyFillPixelCandidates() const
+QImage ImageCanvas::greedyFillPixels() const
 {
-    PixelCandidateData candidateData;
-
     const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
-    if (!isWithinImage(scenePos)) {
-        return candidateData;
-    }
+    if (!isWithinImage(scenePos))
+        return QImage();
 
     const QColor previousColour = currentProjectImage()->pixelColor(scenePos);
-    // Don't do anything if the colours are the same.
-    if (previousColour == penColour()) {
-        return candidateData;
-    }
+    if (previousColour == penColour())
+        return QImage();
 
-    QVector<QPoint> scenePositions = imageGreedyPixelFill(currentProjectImage(), scenePos, previousColour, penColour());
-    candidateData.scenePositions = scenePositions;
+    return imageGreedyPixelFill2(currentProjectImage(), scenePos, previousColour, penColour());
+}
 
-    candidateData.previousColours.append(previousColour);
-    return candidateData;
+QImage ImageCanvas::texturedFillPixels() const
+{
+    const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
+    if (!isWithinImage(scenePos))
+        return QImage();
+
+    const QColor previousColour = currentProjectImage()->pixelColor(scenePos);
+    if (previousColour == penColour())
+        return QImage();
+
+    return texturedFill(currentProjectImage(), scenePos, previousColour, penColour(), mTexturedFillParameters);
+}
+
+QImage ImageCanvas::greedyTexturedFillPixels() const
+{
+    const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
+    if (!isWithinImage(scenePos))
+        return QImage();
+
+    const QColor previousColour = currentProjectImage()->pixelColor(scenePos);
+    if (previousColour == penColour())
+        return QImage();
+
+    return greedyTexturedFill(currentProjectImage(), scenePos, previousColour, penColour(), mTexturedFillParameters);
 }
 
 void ImageCanvas::applyCurrentTool()
@@ -1532,7 +1593,8 @@ void ImageCanvas::applyCurrentTool()
             }
 
             mProject->beginMacro(QLatin1String("PixelPenTool"));
-            mProject->addChange(new ApplyPixelPenCommand(this, candidateData.scenePositions, candidateData.previousColours, penColour()));
+            mProject->addChange(new ApplyPixelPenCommand(this, mProject->currentLayerIndex(),
+                candidateData.scenePositions, candidateData.previousColours, penColour()));
         } else {
             // The undo command for lines needs the project image before and after
             // the line was drawn on it.
@@ -1546,8 +1608,8 @@ void ImageCanvas::applyCurrentTool()
             imageWithLine = imageWithLine.copy(lineRect);
 
             mProject->beginMacro(QLatin1String("PixelLineTool"));
-            mProject->addChange(new ApplyPixelLineCommand(this, imageWithLine, imageWithoutLine, lineRect,
-                mPressScenePosition, mLastPixelPenPressScenePosition));
+            mProject->addChange(new ApplyPixelLineCommand(this, mProject->currentLayerIndex(),
+                imageWithLine, imageWithoutLine, lineRect, mPressScenePosition, mLastPixelPenPressScenePosition));
             mProject->endMacro();
         }
         break;
@@ -1566,28 +1628,52 @@ void ImageCanvas::applyCurrentTool()
         }
 
         mProject->beginMacro(QLatin1String("PixelEraserTool"));
-        mProject->addChange(new ApplyPixelEraserCommand(this, candidateData.scenePositions, candidateData.previousColours));
+        mProject->addChange(new ApplyPixelEraserCommand(this, mProject->currentLayerIndex(),
+                candidateData.scenePositions, candidateData.previousColours));
         break;
     }
     case FillTool: {
         if (!mShiftPressed) {
-            const PixelCandidateData candidateData = fillPixelCandidates();
-            if (candidateData.scenePositions.isEmpty()) {
+            const QImage filledImage = fillPixels();
+            if (filledImage.isNull())
                 return;
-            }
 
             mProject->beginMacro(QLatin1String("PixelFillTool"));
-            mProject->addChange(new ApplyPixelFillCommand(this, candidateData.scenePositions,
-                candidateData.previousColours.first(), penColour()));
+            mProject->addChange(new ApplyPixelFillCommand(this, mProject->currentLayerIndex(),
+                *currentProjectImage(), filledImage));
+            // TODO: see if the tests pass with these added
+            // mProject->endMacro();
         } else {
-            const PixelCandidateData candidateData = greedyFillPixelCandidates();
-            if (candidateData.scenePositions.isEmpty()) {
+            const QImage filledImage = greedyFillPixels();
+            if (filledImage.isNull())
                 return;
-            }
 
             mProject->beginMacro(QLatin1String("GreedyPixelFillTool"));
-            mProject->addChange(new ApplyGreedyPixelFillCommand(this, candidateData.scenePositions,
-                candidateData.previousColours.first(), penColour()));
+            mProject->addChange(new ApplyGreedyPixelFillCommand(this, mProject->currentLayerIndex(),
+                *currentProjectImage(), filledImage));
+            // mProject->endMacro();
+        }
+        break;
+    }
+    case TexturedFillTool: {
+        if (!mShiftPressed) {
+            const QImage filledImage = texturedFillPixels();
+            if (filledImage.isNull())
+                return;
+
+            mProject->beginMacro(QLatin1String("PixelTexturedFillTool"));
+            mProject->addChange(new ApplyPixelFillCommand(this, mProject->currentLayerIndex(),
+                *currentProjectImage(), filledImage));
+            // mProject->endMacro();
+        } else {
+            const QImage filledImage = greedyFillPixels();
+            if (filledImage.isNull())
+                return;
+
+            mProject->beginMacro(QLatin1String("GreedyPixelTexturedFillTool"));
+            mProject->addChange(new ApplyGreedyPixelFillCommand(this, mProject->currentLayerIndex(),
+                *currentProjectImage(), filledImage));
+            // mProject->endMacro();
         }
         break;
     }
@@ -1597,18 +1683,19 @@ void ImageCanvas::applyCurrentTool()
 }
 
 // This function actually operates on the image.
-void ImageCanvas::applyPixelPenTool(const QPoint &scenePos, const QColor &colour, bool markAsLastRelease)
+void ImageCanvas::applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease)
 {
-    currentProjectImage()->setPixelColor(scenePos, colour);
+    imageForLayerAt(layerIndex)->setPixelColor(scenePos, colour);
     if (markAsLastRelease)
         mLastPixelPenPressScenePosition = scenePos;
     update();
 }
 
-void ImageCanvas::applyPixelLineTool(const QImage &lineImage, const QRect &lineRect, const QPoint &lastPixelPenReleaseScenePosition)
+void ImageCanvas::applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect,
+    const QPoint &lastPixelPenReleaseScenePosition)
 {
     mLastPixelPenPressScenePosition = lastPixelPenReleaseScenePosition;
-    QPainter painter(currentProjectImage());
+    QPainter painter(imageForLayerAt(layerIndex));
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.drawImage(lineRect, lineImage);
     update();
@@ -1629,6 +1716,14 @@ void ImageCanvas::replacePortionOfImage(const QRect &portion, const QImage &repl
 void ImageCanvas::erasePortionOfImage(const QRect &portion)
 {
     *currentProjectImage() = Utils::erasePortionOfImage(*currentProjectImage(), portion);
+    update();
+}
+
+void ImageCanvas::replaceImage(int layerIndex, const QImage &replacementImage)
+{
+    // TODO: could ImageCanvas just be a LayeredImageCanvas with one layer?
+    Q_ASSERT(layerIndex == -1);
+    *mImageProject->image() = replacementImage;
     update();
 }
 

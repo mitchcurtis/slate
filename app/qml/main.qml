@@ -157,6 +157,7 @@ ApplicationWindow {
         canvasSizePopup: canvasSizePopup
         imageSizePopup: imageSizePopup
         moveContentsDialog: moveContentsDialog
+        texturedFillSettingsDialog: texturedFillSettingsDialog
     }
 
     header: Ui.ToolBar {
@@ -418,6 +419,15 @@ ApplicationWindow {
         x: Math.round(parent.width - width) / 2
         y: Math.round(parent.height - height) / 2
         project: projectManager.project
+        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
+    }
+
+    Ui.TexturedFillSettingsDialog {
+        id: texturedFillSettingsDialog
+        x: Math.round(parent.width - width) / 2
+        y: Math.round(parent.height - height) / 2
+        project: projectManager.project
+        canvas: window.canvas
         onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }
 }

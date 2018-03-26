@@ -17,22 +17,24 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef APPLYPIXELFILLCOMMAND_H
-#define APPLYPIXELFILLCOMMAND_H
+#ifndef APPLYTILECANVASPIXELFILLCOMMAND_H
+#define APPLYTILECANVASPIXELFILLCOMMAND_H
 
+#include <QColor>
 #include <QDebug>
-#include <QImage>
+#include <QPoint>
+#include <QVector>
 #include <QtUndo/undocommand.h>
 
-class ImageCanvas;
+class TileCanvas;
 
-class ApplyPixelFillCommand : public UndoCommand
+class ApplyTileCanvasPixelFillCommand : public UndoCommand
 {
     Q_OBJECT
 
 public:
-    ApplyPixelFillCommand(ImageCanvas *canvas, int layerIndex, const QImage &previousImage,
-        const QImage &newImage, UndoCommand *parent = nullptr);
+    ApplyTileCanvasPixelFillCommand(TileCanvas *canvas, const QVector<QPoint> &scenePositions, const QColor &previousColour,
+        const QColor &colour, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
@@ -40,12 +42,12 @@ public:
     int id() const override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const ApplyPixelFillCommand *command);
+    friend QDebug operator<<(QDebug debug, const ApplyTileCanvasPixelFillCommand *command);
 
-    ImageCanvas *mCanvas;
-    int mLayerIndex;
-    QImage mPreviousImage;
-    QImage mNewImage;
+    TileCanvas *mCanvas;
+    QVector<QPoint> mScenePositions;
+    QColor mPreviousColour;
+    QColor mColour;
 };
 
-#endif // APPLYPIXELFILLCOMMAND_H
+#endif // APPLYTILECANVASPIXELFILLCOMMAND_H
