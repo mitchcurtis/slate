@@ -76,7 +76,6 @@ signals:
     void autoExportEnabledChanged();
     void usingAnimationChanged();
 
-    void postLayerChanged(int index);
     void preLayersCleared();
     void postLayersCleared();
     void preLayerAdded(int index);
