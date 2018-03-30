@@ -33,6 +33,7 @@
 #include "deletelayercommand.h"
 #include "imagelayer.h"
 #include "jsonutils.h"
+#include "mergelayerscommand.h"
 #include "movelayeredimagecontentscommand.h"
 
 LayeredImageProject::LayeredImageProject() :
@@ -125,12 +126,23 @@ int LayeredImageProject::heightInPixels() const
 
 QImage LayeredImageProject::flattenedImage(std::function<QImage(int)> layerSubstituteFunction) const
 {
+    return flattenedImage(0, layerCount() - 1, layerSubstituteFunction);
+}
+
+QImage LayeredImageProject::flattenedImage(int fromIndex, int toIndex, std::function<QImage(int)> layerSubstituteFunction) const
+{
+    Q_ASSERT(isValidIndex(fromIndex));
+    Q_ASSERT(isValidIndex(toIndex));
+    // If there's only one layer, the from and to indices will be the same.
+    if (fromIndex != 0 && toIndex != 0)
+        Q_ASSERT(fromIndex < toIndex);
+
     QImage finalImage(size(), QImage::Format_ARGB32_Premultiplied);
     finalImage.fill(Qt::transparent);
 
     QPainter painter(&finalImage);
     // Work backwards from the last layer so that it gets drawn at the "bottom".
-    for (int i = layerCount() - 1; i >= 0; --i) {
+    for (int i = toIndex; i >= fromIndex; --i) {
         const ImageLayer *layer = layerAt(i);
         if (!layer->isVisible() || qFuzzyIsNull(layer->opacity()))
             continue;
@@ -528,6 +540,28 @@ void LayeredImageProject::moveCurrentLayerDown()
     endMacro();
 }
 
+void LayeredImageProject::mergeCurrentLayerUp()
+{
+    if (!isValidIndex(mCurrentLayerIndex) || !isValidIndex(mCurrentLayerIndex - 1))
+        return;
+
+    beginMacro(QLatin1String("MergeLayersCommand"));
+    addChange(new MergeLayersCommand(this, mCurrentLayerIndex, layerAt(mCurrentLayerIndex),
+        mCurrentLayerIndex - 1, layerAt(mCurrentLayerIndex - 1)));
+    endMacro();
+}
+
+void LayeredImageProject::mergeCurrentLayerDown()
+{
+    if (!isValidIndex(mCurrentLayerIndex) || !isValidIndex(mCurrentLayerIndex + 1))
+        return;
+
+    beginMacro(QLatin1String("MergeLayersCommand"));
+    addChange(new MergeLayersCommand(this, mCurrentLayerIndex, layerAt(mCurrentLayerIndex),
+        mCurrentLayerIndex + 1, layerAt(mCurrentLayerIndex + 1)));
+    endMacro();
+}
+
 void LayeredImageProject::setLayerName(int layerIndex, const QString &name)
 {
     if (!isValidIndex(layerIndex) || name == layerAt(layerIndex)->name())
@@ -632,6 +666,9 @@ void LayeredImageProject::addLayerAboveAll(ImageLayer *imageLayer)
 
 void LayeredImageProject::addLayer(ImageLayer *imageLayer, int index)
 {
+    qCDebug(lcProject).nospace() << "adding layer " << imageLayer << " at index " << index
+        << ", mCurrentLayerIndex is " << mCurrentLayerIndex;
+
     if (mLayers.contains(imageLayer)) {
         qWarning() << "Can't add layer" << imageLayer << "to project as we already have it";
         return;
@@ -670,6 +707,25 @@ void LayeredImageProject::moveLayer(int fromIndex, int toIndex)
     setCurrentLayerIndex(newCurrentIndex);
 }
 
+/*!
+    Merges the layers \a sourceIndex and \a targetIndex together,
+    transferring ownership of the layer at \a sourceIndex to the caller.
+*/
+void LayeredImageProject::mergeLayers(int sourceIndex, int targetIndex)
+{
+    if (!isValidIndex(sourceIndex) || !isValidIndex(targetIndex))
+        return;
+
+    const int fromIndex = sourceIndex < targetIndex ? sourceIndex : targetIndex;
+    const int toIndex = sourceIndex < targetIndex ? targetIndex : sourceIndex;
+
+    // flattenedImage() merges the layers' images.
+    setLayerImage(targetIndex, flattenedImage(fromIndex, toIndex));
+
+    // Remove the source layer as it has been merged into the target layer.
+    takeLayer(sourceIndex);
+}
+
 ImageLayer *LayeredImageProject::takeLayer(int index)
 {
     preLayerRemoved(index);
@@ -686,6 +742,15 @@ ImageLayer *LayeredImageProject::takeLayer(int index)
     layer->setParent(nullptr);
 
     return layer;
+}
+
+void LayeredImageProject::setLayerImage(int index, const QImage &image)
+{
+    Q_ASSERT(isValidIndex(index));
+
+    *mLayers[index]->image() = image;
+
+    emit postLayerImageChanged();
 }
 
 QDebug operator<<(QDebug debug, const LayeredImageProject *project)

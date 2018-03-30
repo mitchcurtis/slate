@@ -66,7 +66,8 @@ HEADERS += \
     $$PWD/projectimageprovider.h \
     $$PWD/movelayeredimagecontentscommand.h \
     $$PWD/texturedfillparameters.h \
-    $$PWD/texturedfillpreviewitem.h
+    $$PWD/texturedfillpreviewitem.h \
+    $$PWD/mergelayerscommand.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -130,7 +131,8 @@ SOURCES += \
     $$PWD/projectimageprovider.cpp \
     $$PWD/movelayeredimagecontentscommand.cpp \
     $$PWD/texturedfillparameters.cpp \
-    $$PWD/texturedfillpreviewitem.cpp
+    $$PWD/texturedfillpreviewitem.cpp \
+    $$PWD/mergelayerscommand.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \

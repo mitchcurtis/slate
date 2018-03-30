@@ -56,6 +56,7 @@ public:
     int heightInPixels() const override;
 
     QImage flattenedImage(std::function<QImage(int)> layerSubstituteFunction = nullptr) const;
+    QImage flattenedImage(int fromIndex, int toIndex, std::function<QImage(int)> layerSubstituteFunction = nullptr) const;
     QImage exportedImage() const override;
 
     bool isAutoExportEnabled() const;
@@ -75,6 +76,7 @@ signals:
     void autoExportEnabledChanged();
     void usingAnimationChanged();
 
+    void postLayerChanged(int index);
     void preLayersCleared();
     void postLayersCleared();
     void preLayerAdded(int index);
@@ -83,6 +85,7 @@ signals:
     void postLayerRemoved(int index);
     void preLayerMoved(int fromIndex, int toIndex);
     void postLayerMoved(int fromIndex, int toIndex);
+    void postLayerImageChanged();
 
     void contentsMoved();
 
@@ -100,6 +103,8 @@ public slots:
     void deleteCurrentLayer();
     void moveCurrentLayerUp();
     void moveCurrentLayerDown();
+    void mergeCurrentLayerUp();
+    void mergeCurrentLayerDown();
     void setLayerName(int layerIndex, const QString &name);
     void setLayerVisible(int layerIndex, bool visible);
     void setLayerOpacity(int layerIndex, qreal opacity);
@@ -113,6 +118,7 @@ private:
     friend class ChangeLayerVisibleCommand;
     friend class ChangeLayerOpacityCommand;
     friend class DeleteLayerCommand;
+    friend class MergeLayersCommand;
     friend class MoveLayeredImageContentsCommand;
 
     bool isValidIndex(int index) const;
@@ -126,7 +132,9 @@ private:
     void addLayerAboveAll(ImageLayer *imageLayer);
     void addLayer(ImageLayer *imageLayer, int index);
     void moveLayer(int fromIndex, int toIndex);
+    void mergeLayers(int sourceIndex, int targetIndex);
     ImageLayer *takeLayer(int index);
+    void setLayerImage(int index, const QImage &image);
 
     friend QDebug operator<<(QDebug debug, const LayeredImageProject *project);
 

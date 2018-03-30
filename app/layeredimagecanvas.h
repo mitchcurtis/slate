@@ -43,8 +43,10 @@ public slots:
 protected slots:
     void onPostLayerAdded(int index);
     void onPreLayerRemoved(int index);
+    // TODO: replace these with "e.g. updateCanvas() or repaint()"
     void onPostLayerRemoved();
     void onPostLayerMoved();
+    void onPostLayerImageChanged();
     void onLayerVisibleChanged();
     void onLayerOpacityChanged();
     void onPreCurrentLayerChanged();

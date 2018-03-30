@@ -39,6 +39,7 @@ LayeredImageCanvas::~LayeredImageCanvas()
 void LayeredImageCanvas::onPostLayerAdded(int index)
 {
     ImageLayer *layer = mLayeredImageProject->layerAt(index);
+    // TODO: could we move these to LayeredImageProject and save a few connections?
     connect(layer, &ImageLayer::visibleChanged, this, &LayeredImageCanvas::onLayerVisibleChanged);
     connect(layer, &ImageLayer::opacityChanged, this, &LayeredImageCanvas::onLayerOpacityChanged);
     update();
@@ -57,6 +58,11 @@ void LayeredImageCanvas::onPostLayerRemoved()
 }
 
 void LayeredImageCanvas::onPostLayerMoved()
+{
+    update();
+}
+
+void LayeredImageCanvas::onPostLayerImageChanged()
 {
     update();
 }
@@ -106,6 +112,7 @@ void LayeredImageCanvas::connectSignals()
     connect(mLayeredImageProject, &LayeredImageProject::preLayerRemoved, this, &LayeredImageCanvas::onPreLayerRemoved);
     connect(mLayeredImageProject, &LayeredImageProject::postLayerRemoved, this, &LayeredImageCanvas::onPostLayerRemoved);
     connect(mLayeredImageProject, &LayeredImageProject::postLayerMoved, this, &LayeredImageCanvas::onPostLayerMoved);
+    connect(mLayeredImageProject, &LayeredImageProject::postLayerImageChanged, this, &LayeredImageCanvas::onPostLayerImageChanged);
     connect(mLayeredImageProject, &LayeredImageProject::preCurrentLayerChanged, this, &LayeredImageCanvas::onPreCurrentLayerChanged);
     connect(mLayeredImageProject, &LayeredImageProject::postCurrentLayerChanged, this, &LayeredImageCanvas::onPostCurrentLayerChanged);
     connect(mLayeredImageProject, &LayeredImageProject::contentsMoved, this, &QQuickItem::update);
@@ -124,6 +131,7 @@ void LayeredImageCanvas::disconnectSignals()
     disconnect(mLayeredImageProject, &LayeredImageProject::preLayerRemoved, this, &LayeredImageCanvas::onPreLayerRemoved);
     disconnect(mLayeredImageProject, &LayeredImageProject::postLayerRemoved, this, &LayeredImageCanvas::onPostLayerRemoved);
     disconnect(mLayeredImageProject, &LayeredImageProject::postLayerMoved, this, &LayeredImageCanvas::onPostLayerMoved);
+    disconnect(mLayeredImageProject, &LayeredImageProject::postLayerImageChanged, this, &LayeredImageCanvas::onPostLayerImageChanged);
     disconnect(mLayeredImageProject, &LayeredImageProject::preCurrentLayerChanged, this, &LayeredImageCanvas::onPreCurrentLayerChanged);
     disconnect(mLayeredImageProject, &LayeredImageProject::postCurrentLayerChanged, this, &LayeredImageCanvas::onPostCurrentLayerChanged);
     disconnect(mLayeredImageProject, &LayeredImageProject::contentsMoved, this, &QQuickItem::update);

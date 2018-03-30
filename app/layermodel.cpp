@@ -52,6 +52,7 @@ void LayerModel::setLayeredImageProject(LayeredImageProject *layeredImageProject
     emit layeredImageProjectChanged();
 
     if (mLayeredImageProject) {
+        connect(mLayeredImageProject, &LayeredImageProject::postLayerChanged, this, &LayerModel::onPostLayerChanged);
         connect(mLayeredImageProject, &LayeredImageProject::preLayersCleared, this, &LayerModel::onPreLayersCleared);
         connect(mLayeredImageProject, &LayeredImageProject::postLayersCleared, this, &LayerModel::onPostLayersCleared);
         connect(mLayeredImageProject, &LayeredImageProject::preLayerAdded, this, &LayerModel::onPreLayerAdded);
@@ -96,6 +97,13 @@ QHash<int, QByteArray> LayerModel::roleNames() const
     QHash<int, QByteArray> names;
     names.insert(LayerRole, "layer");
     return names;
+}
+
+void LayerModel::onPostLayerChanged(int index)
+{
+    qCDebug(lcLayerModel) << "index" << index;
+    const QModelIndex modelIndex = createIndex(index, 0);
+    emit dataChanged(modelIndex, modelIndex);
 }
 
 void LayerModel::onPreLayersCleared()

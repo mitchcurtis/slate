@@ -227,6 +227,44 @@ Platform.MenuBar {
     }
 
     Platform.Menu {
+        objectName: "layersMenuBarItem"
+            title: qsTr("Layers")
+
+        Platform.MenuItem {
+            objectName: "moveLayerUpMenuItem"
+            text: qsTr("Move Layer Up")
+            enabled: canvas && project && projectType === Project.LayeredImageType
+                && project.currentLayerIndex > 0
+            onTriggered: project.moveCurrentLayerUp()
+        }
+
+        Platform.MenuItem {
+            objectName: "moveLayerDownMenuItem"
+            text: qsTr("Move Layer Down")
+            enabled: canvas && project && projectType === Project.LayeredImageType
+                && project.currentLayerIndex < project.layerCount - 1
+            onTriggered: project.moveCurrentLayerDown()
+        }
+
+        Platform.MenuSeparator {}
+
+        Platform.MenuItem {
+            objectName: "mergeLayerUpMenuItem"
+            text: qsTr("Merge Layer Up")
+            enabled: canvas && project && project.currentLayerIndex > 0
+            onTriggered: project.mergeCurrentLayerUp()
+        }
+
+        Platform.MenuItem {
+            objectName: "mergeLayerDownMenuItem"
+            text: qsTr("Merge Layer Down")
+            enabled: canvas && project && projectType === Project.LayeredImageType
+                && project.currentLayerIndex < project.layerCount - 1
+            onTriggered: project.mergeCurrentLayerDown()
+        }
+    }
+
+    Platform.Menu {
         id: animationMenu
         objectName: "animationMenu"
         title: qsTr("Animation")
