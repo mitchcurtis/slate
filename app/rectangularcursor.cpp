@@ -20,7 +20,8 @@
 #include "rectangularcursor.h"
 
 #include <QPainter>
-#include <QtMath>
+
+#include "utils.h"
 
 RectangularCursor::RectangularCursor()
 {
@@ -28,31 +29,5 @@ RectangularCursor::RectangularCursor()
 
 void RectangularCursor::paint(QPainter *painter)
 {
-    static const QColor greyColour(0, 0, 0, 180);
-    static const QColor whiteColour(255, 255, 255, 180);
-
-    QPainterPathStroker stroker;
-    stroker.setWidth(1);
-    stroker.setJoinStyle(Qt::BevelJoin);
-    stroker.setCapStyle(Qt::FlatCap);
-
-    QVector<qreal> dashes;
-    const qreal dash = 4;
-    const qreal space = 4;
-    dashes << dash << space;
-    stroker.setDashPattern(dashes);
-
-    QPainterPath path;
-    qreal xy = 0.5;
-    qreal wh = width() - 1;
-    path.addRect(xy, xy, wh, wh);
-
-    // Stroke with grey.
-    QPainterPath stroke = stroker.createStroke(path);
-    painter->fillPath(stroke, greyColour);
-
-    // Stroke with white.
-    stroker.setDashOffset(4);
-    stroke = stroker.createStroke(path);
-    painter->fillPath(stroke, whiteColour);
+    Utils::strokeRectWithDashes(painter, QRect(0, 0, width(), height()));
 }

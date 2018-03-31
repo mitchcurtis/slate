@@ -55,3 +55,36 @@ QImage Utils::erasePortionOfImage(const QImage &image, const QRect &portion)
     painter.fillRect(portion, Qt::transparent);
     return newImage;
 }
+
+void Utils::strokeRectWithDashes(QPainter *painter, const QRect &rect)
+{
+    static const QColor greyColour(0, 0, 0, 180);
+    static const QColor whiteColour(255, 255, 255, 180);
+
+    painter->save();
+
+    QPainterPathStroker stroker;
+    stroker.setWidth(1);
+    stroker.setJoinStyle(Qt::BevelJoin);
+    stroker.setCapStyle(Qt::FlatCap);
+
+    QVector<qreal> dashes;
+    const qreal dash = 4;
+    const qreal space = 4;
+    dashes << dash << space;
+    stroker.setDashPattern(dashes);
+
+    QPainterPath path;
+    path.addRect(rect.x() + 0.5, rect.y() + 0.5, rect.width() - 1.0, rect.height() - 1.0);
+
+    // Stroke with grey.
+    QPainterPath stroke = stroker.createStroke(path);
+    painter->fillPath(stroke, greyColour);
+
+    // Stroke with white.
+    stroker.setDashOffset(4);
+    stroke = stroker.createStroke(path);
+    painter->fillPath(stroke, whiteColour);
+
+    painter->restore();
+}

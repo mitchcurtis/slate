@@ -31,6 +31,8 @@ namespace Utils {
     QImage replacePortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
 
     QImage erasePortionOfImage(const QImage &image, const QRect &portion);
+
+    void strokeRectWithDashes(QPainter *painter, const QRect &rect);
 }
 
 #endif // UTILS_H
