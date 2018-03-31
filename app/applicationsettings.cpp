@@ -246,7 +246,7 @@ void ApplicationSettings::setScrollZoom(bool scrollZoom)
 
 QColor ApplicationSettings::defaultCheckerColour1() const
 {
-    return QColor(Qt::white);
+    return QColor("#444444");
 }
 
 QColor ApplicationSettings::checkerColour1() const
