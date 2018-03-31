@@ -832,14 +832,16 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
     const QSize zoomedImageSize = pane.zoomedSize(image.size());
     painter->drawImage(QRectF(QPointF(0, 0), zoomedImageSize), image, QRectF(0, 0, image.width(), image.height()));
 
-    // Draw the selection area.
-    QPen pen;
-    QVector<qreal> dashes;
-    dashes << 4 << 4;
-    pen.setDashPattern(dashes);
-    const QRect zoomedSelectionArea(mSelectionArea.topLeft() * pane.integerZoomLevel(), pane.zoomedSize(mSelectionArea.size()));
-    painter->setPen(pen);
-    painter->drawRect(zoomedSelectionArea);
+    if (mHasSelection) {
+        // Draw the selection area.
+        QPen pen;
+        QVector<qreal> dashes;
+        dashes << 4 << 4;
+        pen.setDashPattern(dashes);
+        const QRect zoomedSelectionArea(mSelectionArea.topLeft() * pane.integerZoomLevel(), pane.zoomedSize(mSelectionArea.size()));
+        painter->setPen(pen);
+        painter->drawRect(zoomedSelectionArea);
+    }
 
     if (mGuidesVisible) {
         // Draw the existing guides.
