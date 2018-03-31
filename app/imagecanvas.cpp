@@ -411,6 +411,11 @@ void ImageCanvas::setTool(const Tool &tool)
     if (tool == mTool)
         return;
 
+    if (mTool == SelectionTool) {
+        // The selection cursor guide was visible and now it won't be, so request an update.
+        update();
+    }
+
     mTool = tool;
 
     // The selection tool doesn't follow the undo rules, so we have to clear
