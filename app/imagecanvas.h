@@ -322,6 +322,7 @@ protected:
     void drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex);
     void drawLine(QPainter *painter) const;
     void drawGuide(QPainter *painter, const CanvasPane &pane, int paneIndex, const Guide &guide, int guideIndex);
+    void drawSelectionCursorGuide(QPainter *painter, const CanvasPane &pane, int paneIndex);
     int paneWidth(int index) const;
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
@@ -364,6 +365,7 @@ protected:
     void setMovingSelection(bool movingSelection);
     bool cursorOverSelection() const;
     bool shouldDrawSelectionPreviewImage() const;
+    bool shouldDrawSelectionCursorGuide() const;
     void confirmPasteSelection();
     void setSelectionFromPaste(bool isSelectionFromPaste);
 

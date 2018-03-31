@@ -859,6 +859,9 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
         }
     }
 
+    if (shouldDrawSelectionCursorGuide())
+        drawSelectionCursorGuide(painter, pane, paneIndex);
+
     painter->restore();
 }
 
@@ -903,6 +906,34 @@ void ImageCanvas::drawGuide(QPainter *painter, const CanvasPane &pane, int paneI
         painter->translate(-pane.offset().x(), 0);
         painter->drawLine(QLineF(0, zoomedGuidePosition, paneWidth(paneIndex), zoomedGuidePosition));
     }
+    painter->restore();
+}
+
+void ImageCanvas::drawSelectionCursorGuide(QPainter *painter, const CanvasPane &pane, int paneIndex)
+{
+    painter->save();
+
+    QPen pen;
+    pen.setColor(Qt::gray);
+    pen.setStyle(Qt::DotLine);
+    painter->setPen(pen);
+
+    // Draw the vertical cursor selection guide.
+    painter->save();
+
+    int guidePosition = mCursorSceneX;
+    qreal zoomedGuidePosition = (guidePosition * pane.integerZoomLevel()) + (painter->pen().widthF() / 2.0);
+    painter->translate(0, -pane.offset().y());
+    painter->drawLine(QLineF(zoomedGuidePosition, 0, zoomedGuidePosition, height()));
+
+    painter->restore();
+
+    // Draw the horizontal cursor selection guide.
+    guidePosition = mCursorSceneY;
+    zoomedGuidePosition = (guidePosition * pane.integerZoomLevel()) + (painter->pen().widthF() / 2.0);
+    painter->translate(-pane.offset().x(), 0);
+    painter->drawLine(QLineF(0, zoomedGuidePosition, paneWidth(paneIndex), zoomedGuidePosition));
+
     painter->restore();
 }
 
@@ -1314,6 +1345,11 @@ bool ImageCanvas::cursorOverSelection() const
 bool ImageCanvas::shouldDrawSelectionPreviewImage() const
 {
     return mMovingSelection || mHasMovedSelection || mIsSelectionFromPaste;
+}
+
+bool ImageCanvas::shouldDrawSelectionCursorGuide() const
+{
+    return mTool == SelectionTool && !mHasSelection;
 }
 
 void ImageCanvas::confirmPasteSelection()
@@ -1793,6 +1829,9 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
         // ShaderSourceEffect to pick the colour instead
         setCursorPixelColour(contentImage().pixelColor(cursorScenePos));
     }
+
+    if (shouldDrawSelectionCursorGuide())
+        update();
 }
 
 void ImageCanvas::onLoadedChanged()
