@@ -29,7 +29,7 @@ CanvasPane::CanvasPane(QObject *parent) :
     QObject(parent),
     mSize(0.5),
     mZoomLevel(1.0),
-    mMaxZoomLevel(30),
+    mMaxZoomLevel(48),
     mSceneCentered(true)
 {
 }
