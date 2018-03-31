@@ -9,6 +9,8 @@ ImageCanvas {
     focus: true
     project: args.project
     backgroundColour: CanvasColours.backgroundColour
+    checkerColour1: settings.checkerColour1
+    checkerColour2: settings.checkerColour2
     gridVisible: settings.gridVisible
     gridColour: "#55000000"
     rulersVisible: settings.rulersVisible

@@ -19,21 +19,27 @@ Dialog {
     onRejected: clearChanges()
 
     function applyAllSettings() {
-        settings.loadLastOnStartup = loadLastCheckBox.checked;
+        settings.loadLastOnStartup = loadLastCheckBox.checked
+        settings.checkerColour1 = checkerColour1TextField.colour
+        settings.checkerColour2 = checkerColour2TextField.colour
 
         for (var i = 0; i < shortcutModel.count; ++i) {
-            var row = shortcutModel.get(i);
+            var row = shortcutModel.get(i)
             if (row.hasChanged) {
-                settings[row.shortcutName] = row.newSequence;
+                settings[row.shortcutName] = row.newSequence
             }
         }
     }
 
     function clearChanges() {
+        loadLastCheckBox.checked = settings.loadLastOnStartup
+        checkerColour1TextField.text = settings.checkerColour1
+        checkerColour2TextField.text = settings.checkerColour2
+
         for (var i = 0; i < shortcutModel.count; ++i) {
-            var row = shortcutModel.get(i);
+            var row = shortcutModel.get(i)
             if (row.hasChanged) {
-                row.reset();
+                row.reset()
             }
         }
     }
@@ -65,13 +71,72 @@ Dialog {
 
             GridLayout {
                 columns: 2
+                columnSpacing: 12
 
                 Label {
                     text: qsTr("Load last project on startup")
                 }
                 CheckBox {
                     id: loadLastCheckBox
+                    leftPadding: 0
                     checked: settings.loadLastOnStartup
+                }
+
+                Label {
+                    text: qsTr("Transparency grid colours")
+                }
+                RowLayout {
+                    spacing: 8
+
+                    Layout.alignment: Qt.AlignHCenter
+
+                    TextMetrics {
+                        id: colourInputFontMetrics
+                        text: "777777"
+                        font: checkerColour1TextField.font
+                    }
+
+                    Item {
+                        implicitWidth: 32
+                        implicitHeight: 32
+
+                        Flow {
+                            anchors.fill: parent
+
+                            Repeater {
+                                model: 16
+                                delegate: Rectangle {
+                                    width: 8
+                                    height: 8
+                                    color: index % 2 == 0
+                                        ? (evenRow ? checkerColour2TextField.colour : checkerColour1TextField.colour)
+                                        : (evenRow ? checkerColour1TextField.colour : checkerColour2TextField.colour)
+
+                                    readonly property int evenRow: Math.floor(index / 4) % 2 == 0
+                                }
+                            }
+                        }
+                    }
+                    TextField {
+                        id: checkerColour1TextField
+                        objectName: "checkerColour1TextField"
+                        implicitWidth: colourInputFontMetrics.width
+                        text: settings.checkerColour1
+                        inputMask: "hhhhhh"
+                        selectByMouse: true
+
+                        readonly property color colour: "#" + text
+                    }
+                    TextField {
+                        id: checkerColour2TextField
+                        objectName: "checkerColour2TextField"
+                        text: settings.checkerColour2
+                        implicitWidth: colourInputFontMetrics.width
+                        inputMask: "hhhhhh"
+                        selectByMouse: true
+
+                        readonly property color colour: "#" + text
+                    }
                 }
 
                 Item {

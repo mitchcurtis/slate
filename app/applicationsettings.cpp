@@ -244,6 +244,44 @@ void ApplicationSettings::setScrollZoom(bool scrollZoom)
     emit scrollZoomChanged();
 }
 
+QColor ApplicationSettings::defaultCheckerColour1() const
+{
+    return QColor(Qt::white);
+}
+
+QColor ApplicationSettings::checkerColour1() const
+{
+    return contains("checkerColour1") ? value("checkerColour1").value<QColor>() : defaultCheckerColour1();
+}
+
+void ApplicationSettings::setCheckerColour1(const QColor &colour)
+{
+    if (colour == checkerColour1())
+        return;
+
+    setValue("checkerColour1", QVariant::fromValue(colour));
+    emit checkerColour1Changed();
+}
+
+QColor ApplicationSettings::defaultCheckerColour2() const
+{
+    return QColor("#7e7e7e");
+}
+
+QColor ApplicationSettings::checkerColour2() const
+{
+    return contains("checkerColour2") ? value("checkerColour2").value<QColor>() : defaultCheckerColour2();
+}
+
+void ApplicationSettings::setCheckerColour2(const QColor &colour)
+{
+    if (colour == checkerColour2())
+        return;
+
+    setValue("checkerColour2", QVariant::fromValue(colour));
+    emit checkerColour2Changed();
+}
+
 void ApplicationSettings::resetShortcutsToDefaults()
 {
     static QVector<QString> allShortcuts;

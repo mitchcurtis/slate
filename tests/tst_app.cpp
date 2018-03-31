@@ -56,7 +56,8 @@ private Q_SLOTS:
     void saveAsAndLoad();
     void animationPlayback();
     void keyboardShortcuts();
-    void optionsCancelled();
+    void optionsShortcutCancelled();
+    void optionsTransparencyCancelled();
     void showGrid();
     void undoPixels();
     void undoLargePixelPen();
@@ -692,7 +693,7 @@ void tst_App::keyboardShortcuts()
     QTest::keyClick(window, Qt::Key_Escape);
 }
 
-void tst_App::optionsCancelled()
+void tst_App::optionsShortcutCancelled()
 {
     // Ensure that cancelling the options dialog after changing a shortcut cancels the shortcut change.
     QVERIFY2(createNewTilesetProject(), failureMessage);
@@ -739,6 +740,59 @@ void tst_App::optionsCancelled()
     QVERIFY(optionsDialog->property("visible").toBool());
     QTRY_COMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
     QCOMPARE(app.settings()->newShortcut(), app.settings()->defaultNewShortcut());
+
+    // Close the dialog.
+    QTest::keyClick(window, Qt::Key_Escape);
+}
+
+void tst_App::optionsTransparencyCancelled()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    // Open options dialog.
+    QVERIFY2(triggerOptions(), failureMessage);
+    const QObject *optionsDialog = findPopupFromTypeName("OptionsDialog");
+    QVERIFY(optionsDialog);
+    QVERIFY(optionsDialog->property("visible").toBool());
+
+    // Open the general tab.
+    QQuickItem *generalTabButton = optionsDialog->findChild<QQuickItem*>("generalTabButton");
+    QVERIFY(generalTabButton);
+    mouseEventOnCentre(generalTabButton, MouseClick);
+
+    // Give "checkerColour1TextField" focus.
+    QQuickItem *checkerColour1TextField = optionsDialog->findChild<QQuickItem*>("checkerColour1TextField");
+    QVERIFY(checkerColour1TextField);
+    QCOMPARE(checkerColour1TextField->property("text").toString(), app.settings()->checkerColour1().name().right(6));
+    mouseEventOnCentre(checkerColour1TextField, MouseClick);
+    QVERIFY(checkerColour1TextField->hasActiveFocus());
+
+    // Input a colour.
+    QTest::keySequence(window, QKeySequence(QKeySequence::SelectAll));
+    QTest::keyClick(window, Qt::Key_1);
+    QTest::keyClick(window, Qt::Key_2);
+    QTest::keyClick(window, Qt::Key_3);
+    QTest::keyClick(window, Qt::Key_4);
+    QTest::keyClick(window, Qt::Key_5);
+    QTest::keyClick(window, Qt::Key_6);
+    QCOMPARE(checkerColour1TextField->property("text").toString(), QLatin1String("123456"));
+
+    // Press Enter to accept it.
+    QTest::keyClick(window, Qt::Key_Return);
+    QCOMPARE(checkerColour1TextField->property("text").toString(), QLatin1String("123456"));
+    // Shortcut shouldn't change until we hit "OK".
+    QCOMPARE(app.settings()->checkerColour1(), app.settings()->defaultCheckerColour1());
+
+    QTest::keyClick(window, Qt::Key_Escape);
+    QVERIFY(!optionsDialog->property("visible").toBool());
+    // Cancelling the dialog shouldn't change anything.
+    QCOMPARE(app.settings()->checkerColour1(), app.settings()->defaultCheckerColour1());
+
+    // Reopen the dialog to make sure that the editor shows the default value.
+    QVERIFY2(triggerOptions(), failureMessage);
+    QVERIFY(optionsDialog->property("visible").toBool());
+    QTRY_COMPARE(checkerColour1TextField->property("text").toString(), app.settings()->defaultCheckerColour1().name().right(6));
+    QCOMPARE(app.settings()->checkerColour1(), app.settings()->defaultCheckerColour1());
 
     // Close the dialog.
     QTest::keyClick(window, Qt::Key_Escape);

@@ -54,6 +54,8 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(bool guidesVisible READ guidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
     Q_PROPERTY(bool guidesLocked READ guidesLocked WRITE setGuidesLocked NOTIFY guidesLockedChanged)
     Q_PROPERTY(QColor splitColour READ splitColour WRITE setSplitColour NOTIFY splitColourChanged)
+    Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
+    Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
     Q_PROPERTY(bool splitScreen READ isSplitScreen WRITE setSplitScreen NOTIFY splitScreenChanged)
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
     Q_PROPERTY(Splitter *splitter READ splitter CONSTANT)
@@ -140,6 +142,12 @@ public:
     QColor splitColour() const;
     void setSplitColour(const QColor &splitColour);
 
+    QColor checkerColour1() const;
+    void setCheckerColour1(const QColor &colour);
+
+    QColor checkerColour2() const;
+    void setCheckerColour2(const QColor &colour);
+
     QColor backgroundColour() const;
     void setBackgroundColour(const QColor &backgroundColour);
 
@@ -220,6 +228,8 @@ signals:
     void backgroundColourChanged();
     void gridVisibleChanged();
     void gridColourChanged();
+    void checkerColour1Changed();
+    void checkerColour2Changed();
     void rulersVisibleChanged();
     void guidesVisibleChanged();
     void guidesLockedChanged();
@@ -262,6 +272,7 @@ protected slots:
     void onSplitterPositionChanged();
     void onGuidesChanged();
     void onReadyForWritingToJson(QJsonObject* projectJson);
+    void recreateCheckerImage();
 
 protected:
     void componentComplete() override;
@@ -400,6 +411,9 @@ protected:
     QColor mGridColour;
     QColor mSplitColour;
     QPixmap mCheckerPixmap;
+    QImage mCheckerImage;
+    QColor mCheckerColour1;
+    QColor mCheckerColour2;
 
     bool mSplitScreen;
     Splitter mSplitter;

@@ -57,6 +57,8 @@ ImageCanvas::ImageCanvas() :
     mGridVisible(false),
     mGridColour(Qt::black),
     mSplitColour(Qt::black),
+    mCheckerColour1("#7e7e7e"),
+    mCheckerColour2(Qt::white),
     mSplitScreen(false),
     mSplitter(this),
     mCurrentPane(&mFirstPane),
@@ -129,10 +131,7 @@ ImageCanvas::ImageCanvas() :
     connect(&mSecondPane, SIGNAL(sizeChanged()), this, SLOT(onPaneSizeChanged()));
     connect(&mSplitter, SIGNAL(positionChanged()), this, SLOT(onSplitterPositionChanged()));
 
-    mCheckerPixmap = QPixmap(":/images/checker.png");
-    if (mCheckerPixmap.isNull()) {
-        qWarning() << "Failed to load checker pixmap";
-    }
+    recreateCheckerImage();
 
     installEventFilter(this);
 
@@ -295,6 +294,36 @@ void ImageCanvas::setSplitColour(const QColor &splitColour)
     mSplitColour = splitColour;
     update();
     emit splitColourChanged();
+}
+
+QColor ImageCanvas::checkerColour1() const
+{
+    return mCheckerColour1;
+}
+
+void ImageCanvas::setCheckerColour1(const QColor &colour)
+{
+    if (colour == mCheckerColour1)
+        return;
+
+    mCheckerColour1 = colour;
+    recreateCheckerImage();
+    emit checkerColour1Changed();
+}
+
+QColor ImageCanvas::checkerColour2() const
+{
+    return mCheckerColour2;
+}
+
+void ImageCanvas::setCheckerColour2(const QColor &colour)
+{
+    if (colour == mCheckerColour2)
+        return;
+
+    mCheckerColour2 = colour;
+    recreateCheckerImage();
+    emit checkerColour2Changed();
 }
 
 QColor ImageCanvas::backgroundColour() const
@@ -1125,6 +1154,27 @@ void ImageCanvas::onReadyForWritingToJson(QJsonObject *projectJson)
         (*projectJson)["splitScreen"] = true;
     if (mSplitter.isEnabled())
         (*projectJson)["splitterLocked"] = true;
+}
+
+void ImageCanvas::recreateCheckerImage()
+{
+    mCheckerImage = QImage(32, 32, QImage::Format_ARGB32_Premultiplied);
+
+    QPainter painter(&mCheckerImage);
+    int i = 0;
+    for (int y = 0; y < mCheckerImage.height(); y += 8) {
+        for (int x = 0; x < mCheckerImage.width(); x += 8, ++i) {
+            const int row = y / 8;
+            if (i % 2 == 0)
+                painter.fillRect(QRect(x, y, 8, 8), row % 2 == 0 ? mCheckerColour2 : mCheckerColour1);
+            else
+                painter.fillRect(QRect(x, y, 8, 8), row % 2 == 0 ? mCheckerColour1 : mCheckerColour2);
+        }
+    }
+
+    mCheckerPixmap = QPixmap::fromImage(mCheckerImage);
+
+    update();
 }
 
 bool ImageCanvas::isPanning() const
