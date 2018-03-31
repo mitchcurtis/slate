@@ -3645,12 +3645,9 @@ void tst_App::disableToolsWhenLayerHidden()
         QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
         // Qt::ForbiddenCursor shouldn't be displayed yet.
         // The cursor should be disabled for each tool.
-        if (window->cursor().shape() != Qt::ArrowCursor) {
-            QString message;
-            QDebug debug(&message);
-            debug.nospace() << "Expected Qt::ArrowCursor for tool " << tool << ", but got " << window->cursor().shape();
-            QFAIL(qPrintable(message));
-        }
+        QVERIFY2(window->cursor().shape() == Qt::ArrowCursor,
+            qPrintable(QString::fromLatin1("Expected Qt::ArrowCursor for tool %1, but got %2")
+                .arg(Utils::enumToString(tool)).arg(Utils::enumToString(window->cursor().shape()))));
 
         // Switch tool.
         QVERIFY2(switchTool(tool), failureMessage);
@@ -3658,12 +3655,10 @@ void tst_App::disableToolsWhenLayerHidden()
         // Move onto the canvas. The cursor should be disabled for each tool.
         setCursorPosInScenePixels(0, 0);
         QTest::mouseMove(window, cursorWindowPos);
-        if (window->cursor().shape() != Qt::ForbiddenCursor) {
-            QString message;
-            QDebug debug(&message);
-            debug.nospace() << "Expected Qt::ForbiddenCursor for tool " << tool << ", but got " << window->cursor().shape();
-            QFAIL(qPrintable(message));
-        }
+        // TODO: ForbiddenCursor
+        QVERIFY2(window->cursor().shape() == Qt::ForbiddenCursor,
+            qPrintable(QString::fromLatin1("Expected Qt::ForbiddenCursor for tool %1, but got %2")
+                .arg(Utils::enumToString(tool)).arg(Utils::enumToString(window->cursor().shape()))));
 
         // Make the layer visible again.
         mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);

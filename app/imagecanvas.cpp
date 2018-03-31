@@ -1946,34 +1946,6 @@ void ImageCanvas::updateWindowCursorShape()
     }
 
     if (lcCanvasCursorShape().isDebugEnabled()) {
-        QString cursorName;
-
-        switch (cursorShape) {
-        case Qt::ClosedHandCursor:
-            cursorName = "ClosedHandCursor";
-            break;
-        case Qt::OpenHandCursor:
-            cursorName = "OpenHandCursor";
-            break;
-        case Qt::BlankCursor:
-            cursorName = "BlankCursor";
-            break;
-        case Qt::ArrowCursor:
-            cursorName = "ArrowCursor";
-            break;
-        case Qt::SplitHCursor:
-            cursorName = "SplitHCursor";
-            break;
-        case Qt::SizeAllCursor:
-            cursorName = "SizeAllCursor";
-            break;
-        case Qt::ForbiddenCursor:
-            cursorName = "ForbiddenCursor";
-            break;
-        default:
-            break;
-        }
-
         qCDebug(lcCanvasCursorShape) << "Updating window cursor shape for" << objectName() << "..."
             << "\n... mProject->hasLoaded()" << mProject->hasLoaded()
             << "\n........ hasActiveFocus()" << hasActiveFocus()
@@ -1982,7 +1954,7 @@ void ImageCanvas::updateWindowCursorShape()
             << "\n... mSplitter.isHovered()" << mSplitter.isHovered()
             << "\n..... areToolsForbidden()" << toolsForbidden
             << "\n......... mHasBlankCursor" << mHasBlankCursor
-            << "\n............ cursor shape" << cursorName;
+            << "\n............ cursor shape" << Utils::enumToString(cursorShape);
     }
 
     if (window())

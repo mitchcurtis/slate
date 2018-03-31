@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2018, Mitch Curtis
 
     This file is part of Slate.
 
@@ -33,6 +33,15 @@ namespace Utils {
     QImage erasePortionOfImage(const QImage &image, const QRect &portion);
 
     void strokeRectWithDashes(QPainter *painter, const QRect &rect);
+
+    template<typename T>
+    QString enumToString(T enumValue)
+    {
+        QString string;
+        QDebug debug(&string);
+        debug << enumValue;
+        return string;
+    }
 }
 
 #endif // UTILS_H

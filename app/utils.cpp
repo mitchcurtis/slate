@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2018, Mitch Curtis
 
     This file is part of Slate.
 
@@ -19,6 +19,7 @@
 
 #include "utils.h"
 
+#include <QDebug>
 #include <QPainter>
 
 QImage Utils::rotate(const QImage &image, int angle)
