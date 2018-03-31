@@ -2081,10 +2081,19 @@ void ImageCanvas::wheelEvent(QWheelEvent *event)
 
     mCurrentPane->setSceneCentered(false);
 
+    const QPoint pixelDelta = event->pixelDelta();
+    const QPoint angleDelta = event->angleDelta();
+
     const int oldZoomLevel = mCurrentPane->integerZoomLevel();
-    const qreal zoomAmount = 0.15;
-    const qreal newZoomLevel = mCurrentPane->zoomLevel() + (event->angleDelta().y() > 0 ? zoomAmount : -zoomAmount);
-    mCurrentPane->setZoomLevel(newZoomLevel);
+    if (!pixelDelta.isNull()) {
+        const qreal zoomAmount = pixelDelta.y() * 0.01;
+        const qreal newZoomLevel = mCurrentPane->zoomLevel() + zoomAmount;
+        mCurrentPane->setZoomLevel(newZoomLevel);
+    } else if (!angleDelta.isNull()) {
+        const qreal zoomAmount = 1.0;
+        const qreal newZoomLevel = mCurrentPane->zoomLevel() + (angleDelta.y() > 0 ? zoomAmount : -zoomAmount);
+        mCurrentPane->setZoomLevel(newZoomLevel);
+    }
 
     // From: http://stackoverflow.com/a/38302057/904422
     QPoint relativeEventPos = eventPosRelativeToCurrentPane(event->pos());
