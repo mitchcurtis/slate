@@ -1938,7 +1938,7 @@ void ImageCanvas::updateWindowCursorShape()
             cursorShape = Qt::SizeAllCursor;
         } else if (splitterHovered) {
             cursorShape = Qt::SplitHCursor;
-        } else if (toolsForbidden) {
+        } else if (toolsForbidden && nothingOverUs) {
             cursorShape = Qt::ForbiddenCursor;
         } else {
             cursorShape = Qt::ArrowCursor;
@@ -1974,14 +1974,15 @@ void ImageCanvas::updateWindowCursorShape()
             break;
         }
 
-        qCDebug(lcCanvasCursorShape) << this
-            << "Updating window cursor shape... mProject->hasLoaded():" << mProject->hasLoaded()
-            << "hasActiveFocus()" << hasActiveFocus()
-            << "mContainsMouse" << mContainsMouse
-            << "isPanning()" << isPanning()
-            << "mSplitter.isHovered()" << mSplitter.isHovered()
-            << "areToolsForbidden()" << toolsForbidden
-            << "cursor shape" << cursorName;
+        qCDebug(lcCanvasCursorShape) << "Updating window cursor shape for" << objectName() << "..."
+            << "\n... mProject->hasLoaded()" << mProject->hasLoaded()
+            << "\n........ hasActiveFocus()" << hasActiveFocus()
+            << "\n.......... mContainsMouse" << mContainsMouse
+            << "\n............. isPanning()" << isPanning()
+            << "\n... mSplitter.isHovered()" << mSplitter.isHovered()
+            << "\n..... areToolsForbidden()" << toolsForbidden
+            << "\n......... mHasBlankCursor" << mHasBlankCursor
+            << "\n............ cursor shape" << cursorName;
     }
 
     if (window())

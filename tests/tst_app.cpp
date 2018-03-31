@@ -3643,11 +3643,19 @@ void tst_App::disableToolsWhenLayerHidden()
         // Hide the layer.
         mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
         QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
+        // Qt::ForbiddenCursor shouldn't be displayed yet.
+        // The cursor should be disabled for each tool.
+        if (window->cursor().shape() != Qt::ArrowCursor) {
+            QString message;
+            QDebug debug(&message);
+            debug.nospace() << "Expected Qt::ArrowCursor for tool " << tool << ", but got " << window->cursor().shape();
+            QFAIL(qPrintable(message));
+        }
 
         // Switch tool.
         QVERIFY2(switchTool(tool), failureMessage);
 
-        // The cursor should be disabled for each tool.
+        // Move onto the canvas. The cursor should be disabled for each tool.
         setCursorPosInScenePixels(0, 0);
         QTest::mouseMove(window, cursorWindowPos);
         if (window->cursor().shape() != Qt::ForbiddenCursor) {
