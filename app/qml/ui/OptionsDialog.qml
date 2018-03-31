@@ -92,7 +92,8 @@ Dialog {
 
                     TextMetrics {
                         id: colourInputFontMetrics
-                        text: "777777"
+                        // '.' is never part of the text, but it gives us some wiggle room.
+                        text: "444444."
                         font: checkerColour1TextField.font
                     }
 
