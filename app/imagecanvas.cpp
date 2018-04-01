@@ -1570,6 +1570,19 @@ void ImageCanvas::paste()
     update();
 }
 
+void ImageCanvas::deleteSelection()
+{
+    if (!mHasSelection) {
+        qWarning() << "No selection to delete";
+        return;
+    }
+
+    mProject->beginMacro(QLatin1String("DeleteSelection"));
+    mProject->addChange(new DeleteImageCanvasSelectionCommand(this, mSelectionArea));
+    mProject->endMacro();
+    clearSelection();
+}
+
 void ImageCanvas::selectAll()
 {
     if (mTool == SelectionTool) {
@@ -2339,11 +2352,6 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
     } else if (event->key() == Qt::Key_Space) {
         mSpacePressed = true;
         updateWindowCursorShape();
-    } else if (event->key() == Qt::Key_Delete && mHasSelection) {
-        mProject->beginMacro(QLatin1String("DeleteSelection"));
-        mProject->addChange(new DeleteImageCanvasSelectionCommand(this, mSelectionArea));
-        mProject->endMacro();
-        clearSelection();
     } else if (event->key() == Qt::Key_Escape && mHasSelection) {
         if (mHasMovedSelection) {
             // We've moved the selection since creating it, so, like mspaint, escape confirms it.

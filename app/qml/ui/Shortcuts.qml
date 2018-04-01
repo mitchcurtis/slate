@@ -105,6 +105,24 @@ Item {
     }
 
     Shortcut {
+        id: primaryDeleteShortcut
+        objectName: "deleteShortcut"
+        sequence: StandardKey.Delete
+        onActivated: canvas.deleteSelection()
+        enabled: isImageProjectType && canvasHasActiveFocus && canvas.hasSelection
+    }
+
+    // StandardKey.Delete doesn't work on a MacBook Pro keyboard;
+    // Qt uses Fn+Delete instead, and "Backspace" is the only thing that seems to work,
+    // so we need two shortcuts. See: https://bugreports.qt.io/browse/QTBUG-67430
+    Shortcut {
+        objectName: "deleteViaBackspaceShortcut"
+        sequence: "Backspace"
+        onActivated: canvas.deleteSelection()
+        enabled: primaryDeleteShortcut.enabled
+    }
+
+    Shortcut {
         objectName: "selectAllShortcut"
         sequence: StandardKey.SelectAll
         onActivated: canvas.selectAll()
