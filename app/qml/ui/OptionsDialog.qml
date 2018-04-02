@@ -194,6 +194,10 @@ Dialog {
                         shortcutDisplayName: qsTr("Save Project")
                     }
                     ShortcutRow {
+                        shortcutName: "saveAsShortcut"
+                        shortcutDisplayName: qsTr("Save Project As")
+                    }
+                    ShortcutRow {
                         shortcutName: "closeShortcut"
                         shortcutDisplayName: qsTr("Close Project")
                     }

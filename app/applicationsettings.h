@@ -48,6 +48,7 @@ class ApplicationSettings : public QSettings
     Q_PROPERTY(QString newShortcut READ newShortcut WRITE setNewShortcut NOTIFY newShortcutChanged)
     Q_PROPERTY(QString openShortcut READ openShortcut WRITE setOpenShortcut NOTIFY openShortcutChanged)
     Q_PROPERTY(QString saveShortcut READ saveShortcut WRITE setSaveShortcut NOTIFY saveShortcutChanged)
+    Q_PROPERTY(QString saveAsShortcut READ saveAsShortcut WRITE setSaveAsShortcut NOTIFY saveAsShortcutChanged)
     Q_PROPERTY(QString exportShortcut READ exportShortcut WRITE setExportShortcut NOTIFY exportShortcutChanged)
     Q_PROPERTY(QString closeShortcut READ closeShortcut WRITE setCloseShortcut NOTIFY closeShortcutChanged)
     Q_PROPERTY(QString revertShortcut READ revertShortcut WRITE setRevertShortcut NOTIFY revertShortcutChanged)
@@ -140,6 +141,10 @@ public:
     QString defaultSaveShortcut() const;
     QString saveShortcut() const;
     void setSaveShortcut(const QString &shortcut);
+
+    QString defaultSaveAsShortcut() const;
+    QString saveAsShortcut() const;
+    void setSaveAsShortcut(const QString &shortcut);
 
     QString defaultExportShortcut() const;
     QString exportShortcut() const;
@@ -284,6 +289,7 @@ signals:
     void newShortcutChanged();
     void openShortcutChanged();
     void saveShortcutChanged();
+    void saveAsShortcutChanged();
     void exportShortcutChanged();
     void closeShortcutChanged();
     void revertShortcutChanged();

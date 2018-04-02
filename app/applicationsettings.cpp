@@ -290,6 +290,7 @@ void ApplicationSettings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("newShortcut"));
         allShortcuts.append(QLatin1String("openShortcut"));
         allShortcuts.append(QLatin1String("saveShortcut"));
+        allShortcuts.append(QLatin1String("saveAsShortcut"));
         allShortcuts.append(QLatin1String("exportShortcut"));
         allShortcuts.append(QLatin1String("closeShortcut"));
         allShortcuts.append(QLatin1String("revertShortcut"));
@@ -401,6 +402,21 @@ QString ApplicationSettings::saveShortcut() const
 void ApplicationSettings::setSaveShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("saveShortcut", defaultSaveShortcut, saveShortcutChanged)
+}
+
+QString ApplicationSettings::defaultSaveAsShortcut() const
+{
+    return QKeySequence(QKeySequence::SaveAs).toString();
+}
+
+QString ApplicationSettings::saveAsShortcut() const
+{
+    GET_SHORTCUT("saveAsShortcut", defaultSaveAsShortcut)
+}
+
+void ApplicationSettings::setSaveAsShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("saveAsShortcut", defaultSaveAsShortcut, saveAsShortcutChanged)
 }
 
 QString ApplicationSettings::defaultExportShortcut() const

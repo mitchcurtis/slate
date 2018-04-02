@@ -41,6 +41,13 @@ Item {
     }
 
     Shortcut {
+        objectName: "saveAsShortcut"
+        sequence: settings.saveAsShortcut
+        onActivated: saveAsDialog.open()
+        enabled: canvasHasActiveFocus && project
+    }
+
+    Shortcut {
         objectName: "exportShortcut"
         sequence: settings.exportShortcut
         onActivated: exportDialog.open()
