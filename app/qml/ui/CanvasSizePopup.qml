@@ -30,7 +30,6 @@ Dialog {
     modal: true
     dim: false
     focus: true
-    closePolicy: Popup.CloseOnEscape | Popup.CloseOnReleaseOutside
 
     property Project project
     readonly property bool isTilesetProject: project && project.type === Project.TilesetType

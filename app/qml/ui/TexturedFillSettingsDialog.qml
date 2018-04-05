@@ -30,7 +30,6 @@ Dialog {
     modal: true
     dim: false
     focus: true
-    closePolicy: Popup.CloseOnEscape | Popup.CloseOnReleaseOutside
     enabled: canvas && project && (project.type === Project.ImageType || project.type === Project.LayeredImageType)
 
     property Project project

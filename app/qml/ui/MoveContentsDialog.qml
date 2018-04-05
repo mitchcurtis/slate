@@ -30,7 +30,6 @@ Dialog {
     modal: true
     dim: false
     focus: true
-    closePolicy: Popup.CloseOnEscape | Popup.CloseOnReleaseOutside
     enabled: isLayeredImageProject
 
     property Project project
