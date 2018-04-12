@@ -295,8 +295,6 @@ ApplicationWindow {
         id: errorPopup
         x: Math.round(parent.width - width) / 2
         y: Math.round(parent.height - height) / 2
-        // TODO: shouldn't have to do this, but not even a FocusScope around TileCanvas worked..
-        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }
 
     Ui.NewProjectPopup {
@@ -307,7 +305,6 @@ ApplicationWindow {
         onChoseTilesetProject: newTilesetProjectPopup.open()
         onChoseImageProject: newImageProjectPopup.open()
         onChoseLayeredImageProject: newLayeredImageProjectPopup.open()
-        onRejected: if (window.canvas) window.canvas.forceActiveFocus()
     }
 
     function createNewProject(type) {
@@ -339,7 +336,6 @@ ApplicationWindow {
         id: newTilesetProjectPopup
         x: Math.round(parent.width - width) / 2
         y: Math.round(parent.height - height) / 2
-        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
 
         onAccepted: createNewProject(Project.TilesetType)
     }
@@ -348,7 +344,6 @@ ApplicationWindow {
         id: newImageProjectPopup
         x: Math.round(parent.width - width) / 2
         y: Math.round(parent.height - height) / 2
-        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
 
         onAccepted: createNewProject(Project.ImageType)
     }
@@ -357,7 +352,6 @@ ApplicationWindow {
         id: newLayeredImageProjectPopup
         x: Math.round(parent.width - width) / 2
         y: Math.round(parent.height - height) / 2
-        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
 
         onAccepted: createNewProject(Project.LayeredImageType)
     }
@@ -366,7 +360,6 @@ ApplicationWindow {
         id: optionsDialog
         x: Math.round(parent.width - width) / 2
         y: Math.round(parent.height - height) / 2
-        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }
 
     Dialog {
@@ -376,7 +369,6 @@ ApplicationWindow {
         y: Math.round(parent.height - height) / 2
         title: qsTr("Unsaved changes")
         modal: true
-        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
 
         Label {
             text: qsTr("The action you're about to perform could discard changes.\n\nContinue anyway?")
@@ -403,7 +395,6 @@ ApplicationWindow {
         x: Math.round(parent.width - width) / 2
         y: Math.round(parent.height - height) / 2
         project: projectManager.project
-        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }
 
     Ui.ImageSizePopup {
@@ -411,7 +402,6 @@ ApplicationWindow {
         x: Math.round(parent.width - width) / 2
         y: Math.round(parent.height - height) / 2
         project: projectManager.project
-        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }
 
     Ui.MoveContentsDialog {
@@ -419,7 +409,6 @@ ApplicationWindow {
         x: Math.round(parent.width - width) / 2
         y: Math.round(parent.height - height) / 2
         project: projectManager.project
-        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }
 
     Ui.TexturedFillSettingsDialog {
@@ -428,6 +417,5 @@ ApplicationWindow {
         y: Math.round(parent.height - height) / 2
         project: projectManager.project
         canvas: window.canvas
-        onVisibleChanged: if (window.canvas) window.canvas.forceActiveFocus()
     }
 }
