@@ -32,8 +32,7 @@ See the [releases](https://github.com/mitchcurtis/slate/releases) page for the a
 ### Dependencies ###
 
 * Qt >= 5.11
-* https://github.com/mitchcurtis/qt-undo
-* https://github.com/mitchcurtis/pickawinner
+* https://github.com/mitchcurtis/qt-undo (submodule; see [Building](#building))
 
 ### Cloning ###
 
@@ -41,8 +40,7 @@ See the [releases](https://github.com/mitchcurtis/slate/releases) page for the a
 
 ### Building ###
 
-qt-undo and pickawinner can be cloned and built separately, but they are also available as submodules of Slate's repo, and can therefore be built automatically when
-Slate is built, by first running the following commands:
+qt-undo can be cloned and built separately, but it is also available as a submodule of Slate's repo, and can therefore be built automatically when Slate is built, by first running the following commands:
 
     cd /path/to/slate-source-dir
     git submodule init
