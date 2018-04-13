@@ -37,6 +37,7 @@
 #include "projectimageprovider.h"
 #include "projectmanager.h"
 #include "rectangularcursor.h"
+#include "saturationlightnesspicker.h"
 #include "splitter.h"
 #include "spriteimage.h"
 #include "spriteimageprovider.h"
@@ -79,6 +80,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterType<NewProjectValidator>("App", 1, 0, "NewProjectValidator");
     qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");
     qmlRegisterType<RectangularCursor>("App", 1, 0, "RectangularCursor");
+    qmlRegisterType<SaturationLightnessPicker>("App", 1, 0, "SaturationLightnessPickerTemplate");
     qmlRegisterType<SpriteImage>("App", 1, 0, "SpriteImage");
     qmlRegisterType<Splitter>();
     qmlRegisterType<TexturedFillPreviewItem>("App", 1, 0, "TexturedFillPreviewItem");

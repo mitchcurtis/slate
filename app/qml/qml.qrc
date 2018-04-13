@@ -51,5 +51,6 @@
         <file>ui/ToolButtonMenuIndicator.qml</file>
         <file>ui/TexturedFillSettingsDialog.qml</file>
         <file>ui/TexturedFillVarianceRangedSlider.qml</file>
+        <file>ui/SaturationLightnessPicker.qml</file>
     </qresource>
 </RCC>

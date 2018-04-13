@@ -2,8 +2,6 @@ import QtQuick 2.6
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
 
-import PickAWinner 1.0
-
 import App 1.0
 
 import "." as Ui
@@ -61,7 +59,6 @@ GridLayout {
             objectName: "saturationLightnessPicker"
             implicitWidth: 156
             implicitHeight: 156
-            focusPolicy: Qt.NoFocus
             hue: hueSlider.hue
             alpha: transparencySlider.value
 

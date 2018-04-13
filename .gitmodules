@@ -1,6 +1,3 @@
 [submodule "3rdparty/qt-undo"]
 	path = 3rdparty/qt-undo
 	url = https://github.com/mitchcurtis/qt-undo.git
-[submodule "3rdparty/pickawinner"]
-	path = 3rdparty/pickawinner
-	url = https://github.com/mitchcurtis/pickawinner.git

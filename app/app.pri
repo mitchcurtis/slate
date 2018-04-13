@@ -67,7 +67,8 @@ HEADERS += \
     $$PWD/movelayeredimagecontentscommand.h \
     $$PWD/texturedfillparameters.h \
     $$PWD/texturedfillpreviewitem.h \
-    $$PWD/mergelayerscommand.h
+    $$PWD/mergelayerscommand.h \
+    $$PWD/saturationlightnesspicker.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -132,7 +133,8 @@ SOURCES += \
     $$PWD/movelayeredimagecontentscommand.cpp \
     $$PWD/texturedfillparameters.cpp \
     $$PWD/texturedfillpreviewitem.cpp \
-    $$PWD/mergelayerscommand.cpp
+    $$PWD/mergelayerscommand.cpp \
+    $$PWD/saturationlightnesspicker.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \
