@@ -264,6 +264,7 @@ void SaturationLightnessPicker::keyReleaseEvent(QKeyEvent *event)
 {
     QQuickItem::keyReleaseEvent(event);
     setPressed(false);
+    event->accept();
 }
 
 void SaturationLightnessPicker::mousePressEvent(QMouseEvent *event)
@@ -271,6 +272,7 @@ void SaturationLightnessPicker::mousePressEvent(QMouseEvent *event)
     QQuickItem::mousePressEvent(event);
     mPressPoint = event->pos();
     setPressed(true);
+    event->accept();
 
     updateValuesForPos(event->pos());
 }
@@ -278,6 +280,7 @@ void SaturationLightnessPicker::mousePressEvent(QMouseEvent *event)
 void SaturationLightnessPicker::mouseMoveEvent(QMouseEvent *event)
 {
     QQuickItem::mouseMoveEvent(event);
+    event->accept();
 
     updateValuesForPos(event->pos());
 }
@@ -287,6 +290,7 @@ void SaturationLightnessPicker::mouseReleaseEvent(QMouseEvent *event)
     QQuickItem::mouseReleaseEvent(event);
     mPressPoint = QPoint();
     setPressed(false);
+    event->accept();
 
     updateValuesForPos(event->pos());
 }
