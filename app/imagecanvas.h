@@ -34,8 +34,8 @@
 #include "splitter.h"
 #include "texturedfillparameters.h"
 
-Q_DECLARE_LOGGING_CATEGORY(lcCanvas)
-Q_DECLARE_LOGGING_CATEGORY(lcCanvasLifecycle)
+Q_DECLARE_LOGGING_CATEGORY(lcImageCanvas)
+Q_DECLARE_LOGGING_CATEGORY(lcImageCanvasLifecycle)
 
 class Guide;
 class ImageProject;

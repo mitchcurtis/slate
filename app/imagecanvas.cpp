@@ -46,10 +46,10 @@
 #include "tileset.h"
 #include "utils.h"
 
-Q_LOGGING_CATEGORY(lcCanvas, "app.canvas")
-Q_LOGGING_CATEGORY(lcCanvasCursorShape, "app.canvas.cursorshape")
-Q_LOGGING_CATEGORY(lcCanvasLifecycle, "app.canvas.lifecycle")
-Q_LOGGING_CATEGORY(lcCanvasSelection, "app.canvas.selection")
+Q_LOGGING_CATEGORY(lcImageCanvas, "app.canvas")
+Q_LOGGING_CATEGORY(lcImageCanvasCursorShape, "app.canvas.cursorshape")
+Q_LOGGING_CATEGORY(lcImageCanvasLifecycle, "app.canvas.lifecycle")
+Q_LOGGING_CATEGORY(lcImageCanvasSelection, "app.canvas.selection")
 
 ImageCanvas::ImageCanvas() :
     mProject(nullptr),
@@ -135,12 +135,12 @@ ImageCanvas::ImageCanvas() :
 
     installEventFilter(this);
 
-    qCDebug(lcCanvasLifecycle) << "constructing ImageCanvas" << this;
+    qCDebug(lcImageCanvasLifecycle) << "constructing ImageCanvas" << this;
 }
 
 ImageCanvas::~ImageCanvas()
 {
-    qCDebug(lcCanvasLifecycle) << "destructing ImageCanvas" << this;
+    qCDebug(lcImageCanvasLifecycle) << "destructing ImageCanvas" << this;
 }
 
 Project *ImageCanvas::project() const
@@ -150,7 +150,7 @@ Project *ImageCanvas::project() const
 
 void ImageCanvas::setProject(Project *project)
 {
-    qCDebug(lcCanvas) << "setting project" << project << "on canvas" << this;
+    qCDebug(lcImageCanvas) << "setting project" << project << "on canvas" << this;
 
     if (project == mProject)
         return;
@@ -729,7 +729,7 @@ void ImageCanvas::setShiftPressed(bool shiftPressed)
 
 void ImageCanvas::connectSignals()
 {
-    qCDebug(lcCanvas) << "connecting signals for" << this << "as we have a new project" << mProject;
+    qCDebug(lcImageCanvas) << "connecting signals for" << this << "as we have a new project" << mProject;
 
     connect(mProject, SIGNAL(loadedChanged()), this, SLOT(onLoadedChanged()));
     connect(mProject, SIGNAL(projectCreated()), this, SLOT(update()));
@@ -744,7 +744,7 @@ void ImageCanvas::connectSignals()
 
 void ImageCanvas::disconnectSignals()
 {
-    qCDebug(lcCanvas) << "disconnecting signals for" << this;
+    qCDebug(lcImageCanvas) << "disconnecting signals for" << this;
 
     mProject->disconnect(SIGNAL(loadedChanged()), this, SLOT(onLoadedChanged()));
     mProject->disconnect(SIGNAL(projectCreated()), this, SLOT(update()));
@@ -1185,7 +1185,7 @@ bool ImageCanvas::isPanning() const
 
 void ImageCanvas::beginSelectionMove()
 {
-    qCDebug(lcCanvasSelection) << "beginning selection move... mIsSelectionFromPaste =" << mIsSelectionFromPaste;
+    qCDebug(lcImageCanvasSelection) << "beginning selection move... mIsSelectionFromPaste =" << mIsSelectionFromPaste;
 
     setMovingSelection(true);
     mSelectionAreaBeforeLastMove = mSelectionArea;
@@ -1193,7 +1193,7 @@ void ImageCanvas::beginSelectionMove()
     if (mSelectionAreaBeforeFirstMove.isEmpty()) {
         // When the selection is moved for the first time in its life,
         // copy the contents within it so that we can moved them around as a preview.
-        qCDebug(lcCanvasSelection) << "copying currentProjectImage()" << *currentProjectImage() << "into mSelectionContents";
+        qCDebug(lcImageCanvasSelection) << "copying currentProjectImage()" << *currentProjectImage() << "into mSelectionContents";
         mSelectionAreaBeforeFirstMove = mSelectionArea;
         mSelectionContents = currentProjectImage()->copy(mSelectionAreaBeforeFirstMove);
         // Technically we don't need to call this until the selection has actually moved,
@@ -1218,30 +1218,30 @@ void ImageCanvas::updateSelectionArea()
 
 void ImageCanvas::updateSelectionPreviewImage()
 {
-    qCDebug(lcCanvasSelection) << "updating selection preview image...";
+    qCDebug(lcImageCanvasSelection) << "updating selection preview image...";
 
     if (!mIsSelectionFromPaste) {
         // Only if the selection wasn't pasted should we erase the area left behind.
         mSelectionPreviewImage = Utils::erasePortionOfImage(*currentProjectImage(), mSelectionAreaBeforeFirstMove);
-        qCDebug(lcCanvasSelection) << "... selection is not from paste; erasing area left behind"
+        qCDebug(lcImageCanvasSelection) << "... selection is not from paste; erasing area left behind"
             << "- new selection preview image:" << mSelectionPreviewImage;
     } else {
         mSelectionPreviewImage = *currentProjectImage();
-        qCDebug(lcCanvasSelection) << "... selection is from a paste; not touching existing canvas content"
+        qCDebug(lcImageCanvasSelection) << "... selection is from a paste; not touching existing canvas content"
             << "- new selection preview image:" << mSelectionPreviewImage;
     }
 
     // Then, move the dragged contents to their new location.
     // Doing this last ensures that the drag contents are painted over the transparency,
     // and not the other way around.
-    qCDebug(lcCanvasSelection) << "painting selection contents" << mSelectionContents
+    qCDebug(lcImageCanvasSelection) << "painting selection contents" << mSelectionContents
        << "within selection area" << mSelectionArea << "over top of current project image" << mSelectionPreviewImage;
     mSelectionPreviewImage = Utils::paintImageOntoPortionOfImage(mSelectionPreviewImage, mSelectionArea, mSelectionContents);
 }
 
 void ImageCanvas::moveSelectionArea()
 {
-//    qCDebug(lcCanvasSelection) << "moving selection area... mIsSelectionFromPaste =" << mIsSelectionFromPaste;
+//    qCDebug(lcImageCanvasSelection) << "moving selection area... mIsSelectionFromPaste =" << mIsSelectionFromPaste;
 
     QRect newSelectionArea = mSelectionAreaBeforeLastMove;
     const QPoint distanceMoved(mCursorSceneX - mPressScenePosition.x(), mCursorSceneY - mPressScenePosition.y());
@@ -1257,7 +1257,7 @@ void ImageCanvas::moveSelectionArea()
 
 void ImageCanvas::moveSelectionAreaBy(const QPoint &pixelDistance)
 {
-    qCDebug(lcCanvasSelection) << "moving selection area by" << pixelDistance;
+    qCDebug(lcImageCanvasSelection) << "moving selection area by" << pixelDistance;
 
     // Moving a selection with the directional keys creates a single move command instantly.
     beginSelectionMove();
@@ -1347,7 +1347,7 @@ QRect ImageCanvas::boundSelectionArea(const QRect &selectionArea) const
 
 void ImageCanvas::clearSelection()
 {
-    qCDebug(lcCanvasSelection) << "clearing selection";
+    qCDebug(lcImageCanvasSelection) << "clearing selection";
 
     setSelectionArea(QRect());
     mPotentiallySelecting = false;
@@ -1515,7 +1515,7 @@ void ImageCanvas::copySelection()
 
 void ImageCanvas::paste()
 {
-    qCDebug(lcCanvasSelection) << "pasting selection from clipboard";
+    qCDebug(lcImageCanvasSelection) << "pasting selection from clipboard";
 
     QRect pastedArea = mSelectionArea;
     const bool fromExternalSource = !mHasSelection;
@@ -1525,7 +1525,7 @@ void ImageCanvas::paste()
     QClipboard *clipboard = QGuiApplication::clipboard();
     QImage clipboardImage = clipboard->image();
     if (clipboardImage.isNull()) {
-        qCDebug(lcCanvasSelection) << "Clipboard content is not an image; can't paste";
+        qCDebug(lcImageCanvasSelection) << "Clipboard content is not an image; can't paste";
         return;
     }
 
@@ -1554,7 +1554,7 @@ void ImageCanvas::paste()
     // Setting a selection area is only done when a paste is first created,
     // not when it's redone, so we do it here instead of in the command.
     setSelectionFromPaste(true);
-    qCDebug(lcCanvasSelection) << "setting selection contents to clipboard image with area" << pastedArea;
+    qCDebug(lcImageCanvasSelection) << "setting selection contents to clipboard image with area" << pastedArea;
     mSelectionContents = clipboardImage;
 
     setSelectionArea(pastedArea);
@@ -1958,8 +1958,8 @@ void ImageCanvas::updateWindowCursorShape()
         }
     }
 
-    if (lcCanvasCursorShape().isDebugEnabled()) {
-        qCDebug(lcCanvasCursorShape) << "Updating window cursor shape for" << objectName() << "..."
+    if (lcImageCanvasCursorShape().isDebugEnabled()) {
+        qCDebug(lcImageCanvasCursorShape) << "Updating window cursor shape for" << objectName() << "..."
             << "\n... mProject->hasLoaded()" << mProject->hasLoaded()
             << "\n........ hasActiveFocus()" << hasActiveFocus()
             << "\n.......... mContainsMouse" << mContainsMouse
@@ -2418,7 +2418,7 @@ bool ImageCanvas::overrideShortcut(const QKeySequence &keySequence)
 {
     if (keySequence == mProject->settings()->undoShortcut() && mHasSelection && !mIsSelectionFromPaste) {
         if (mHasMovedSelection) {
-            qCDebug(lcCanvasSelection) << "Undo activated while a selection that has previously been moved is active;"
+            qCDebug(lcImageCanvasSelection) << "Undo activated while a selection that has previously been moved is active;"
                 << "confirming selection to create move command, and then instantly undoing it";
             // Create a move command so that the undo can be redone...
             confirmSelectionMove(ClearSelection);
@@ -2429,7 +2429,7 @@ bool ImageCanvas::overrideShortcut(const QKeySequence &keySequence)
             mProject->undoStack()->undo();
         } else {
             // Nothing was ever moved, and this isn't a paste, so we can simply clear the selection.
-            qCDebug(lcCanvasSelection) << "Overriding undo shortcut to cancel selection that hadn't been moved";
+            qCDebug(lcImageCanvasSelection) << "Overriding undo shortcut to cancel selection that hadn't been moved";
             clearSelection();
         }
         return true;

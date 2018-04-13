@@ -44,12 +44,12 @@ TileCanvas::TileCanvas() :
     mPenTile(nullptr),
     mTilePenPreview(false)
 {
-    qCDebug(lcCanvasLifecycle) << "constructing TileCanvas" << this;
+    qCDebug(lcImageCanvasLifecycle) << "constructing TileCanvas" << this;
 }
 
 TileCanvas::~TileCanvas()
 {
-    qCDebug(lcCanvasLifecycle) << "destructing TileCanvas" << this;
+    qCDebug(lcImageCanvasLifecycle) << "destructing TileCanvas" << this;
 }
 
 TileCanvas::Mode TileCanvas::mode() const

@@ -25,12 +25,12 @@
 #include <QLoggingCategory>
 #include <QVector>
 
-Q_LOGGING_CATEGORY(lcSettings, "app.applicationsettings")
+Q_LOGGING_CATEGORY(lcApplicationSettings, "app.applicationsettings")
 
 ApplicationSettings::ApplicationSettings(QObject *parent) :
     QSettings(parent)
 {
-    qCDebug(lcSettings) << "Loading settings from" << fileName();
+    qCDebug(lcApplicationSettings) << "Loading settings from" << fileName();
 }
 
 bool ApplicationSettings::loadLastOnStartup() const
