@@ -122,10 +122,10 @@ bool SaturationLightnessPicker::isPressed() const
 
 void SaturationLightnessPicker::setPressed(bool pressed)
 {
-    if (pressed == pressed)
+    if (pressed == mPressed)
         return;
 
-    pressed = pressed;
+    mPressed = pressed;
     emit pressedChanged();
 }
 
