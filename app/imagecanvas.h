@@ -20,11 +20,13 @@
 #ifndef IMAGECANVAS_H
 #define IMAGECANVAS_H
 
+#include <QBasicTimer>
 #include <QObject>
 #include <QLoggingCategory>
 #include <QPixmap>
 #include <QQuickPaintedItem>
 #include <QStack>
+#include <QTimerEvent>
 #include <QWheelEvent>
 
 #include <QtUndo/undostack.h>
@@ -363,7 +365,13 @@ protected:
         ClearSelection
     };
 
+    enum SelectionPanReason {
+        SelectionPanMouseMovementReason,
+        SelectionPanTimerReason
+    };
+
     void beginSelectionMove();
+    void updateOrMoveSelectionArea();
     void updateSelectionArea();
     void updateSelectionPreviewImage();
     void moveSelectionArea();
@@ -380,6 +388,7 @@ protected:
     bool shouldDrawSelectionCursorGuide() const;
     void confirmPasteSelection();
     void setSelectionFromPaste(bool isSelectionFromPaste);
+    void panWithSelectionIfAtEdge(SelectionPanReason reason);
 
     void setAltPressed(bool altPressed);
 
@@ -400,6 +409,7 @@ protected:
     void keyReleaseEvent(QKeyEvent *event) override;
     void focusInEvent(QFocusEvent *event) override;
     void focusOutEvent(QFocusEvent *event) override;
+    void timerEvent(QTimerEvent *event) override;
 
     Project *mProject;
 
@@ -489,6 +499,7 @@ protected:
     // The entire image as it would look if the selection (that is currently being dragged)
     // was dropped where it is now.
     QImage mSelectionPreviewImage;
+    QBasicTimer mSelectionEdgePanTimer;
 
     QRect mCropArea;
 

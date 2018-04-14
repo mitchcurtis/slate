@@ -21,6 +21,7 @@
 
 #include <QClipboard>
 #include <QCursor>
+#include <QEasingCurve>
 #include <QGuiApplication>
 #include <QImage>
 #include <QPainter>
@@ -1204,6 +1205,15 @@ void ImageCanvas::beginSelectionMove()
     }
 }
 
+void ImageCanvas::updateOrMoveSelectionArea()
+{
+    if (!mMovingSelection) {
+        updateSelectionArea();
+    } else {
+        moveSelectionArea();
+    }
+}
+
 void ImageCanvas::updateSelectionArea()
 {
     Q_ASSERT(mPotentiallySelecting);
@@ -1411,6 +1421,94 @@ void ImageCanvas::confirmPasteSelection()
 void ImageCanvas::setSelectionFromPaste(bool isSelectionFromPaste)
 {
     mIsSelectionFromPaste = isSelectionFromPaste;
+}
+
+void ImageCanvas::panWithSelectionIfAtEdge(ImageCanvas::SelectionPanReason reason)
+{
+    // Only pan if there's a selection being moved or created.
+    // Also, don't pan from mouse events, as the timer takes care of that
+    // (prevents jumpiness when moving the mouse)
+    if ((!mHasSelection && !mMovingSelection) || (mSelectionEdgePanTimer.isActive() && reason == SelectionPanMouseMovementReason))
+        return;
+
+    bool panned = false;
+    static const int boostFactor = 6;
+    // Scale the velocity by the zoom level to ensure that it's not too slow when zoomed in.
+    static const int maxVelocity = boostFactor * mCurrentPane->zoomLevel();
+    // The amount by which we should pan based on the distance by which the
+    // mouse went over the edge. This is limited to max velocity, but no scaling
+    // has been applied yet.
+    QPoint baseOffsetChange;
+
+    // Check the left edge.
+    if (mCursorX < 0) {
+        baseOffsetChange.rx() += qMin(qAbs(mCursorX), maxVelocity);
+        panned = true;
+    } else {
+        // Check the right edge.
+        const int distancePastRight = mCursorX - width();
+        if (distancePastRight > 0) {
+            baseOffsetChange.rx() += qMax(-distancePastRight, -maxVelocity);
+            panned = true;
+        }
+    }
+
+    // Check the top edge.
+    if (mCursorY < 0) {
+        baseOffsetChange.ry() += qMin(qAbs(mCursorY), maxVelocity);
+        panned = true;
+    } else {
+        // Check the bottom edge.
+        const int distancePastBottom = mCursorY - height();
+        if (distancePastBottom > 0) {
+            baseOffsetChange.ry() += qMax(-distancePastBottom, -maxVelocity);
+            panned = true;
+        }
+    }
+
+    if (panned) {
+        // Scale the velocity based on a certain curve, rather than just doing it linearly.
+        // With the right curve, this should make it easier to precisely pan with a slower velocity
+        // most of the time, but also allow fast panning if the mouse is far enough past the edge.
+        const int xOffsetChangeSign = baseOffsetChange.x() > 0 ? 1 : -1;
+        const int yOffsetChangeSign = baseOffsetChange.y() > 0 ? 1 : -1;
+
+        // Use qAbs() to ensure that the progress values we pass are between 0.0 and 1.0.
+        const QEasingCurve curve(QEasingCurve::InCirc);
+        qreal scaledXOffsetChange = curve.valueForProgress(qAbs(baseOffsetChange.x()) / qreal(maxVelocity));
+        qreal scaledYOffsetChange = curve.valueForProgress(qAbs(baseOffsetChange.y()) / qreal(maxVelocity));
+
+        // Althought InCirc works well, there is still a certain range of values that it produces
+        // that will result in no panning, even though the mouse is past the edge.
+        // Work around this by increasing the lower bound. We do it here instead of at the end
+        // so that we don't have to mess around with getting the right sign (positive vs negative).
+        if (!qFuzzyIsNull(scaledXOffsetChange))
+            scaledXOffsetChange = qMin(scaledXOffsetChange + 0.15, 1.0);
+        if (!qFuzzyIsNull(scaledYOffsetChange))
+            scaledYOffsetChange = qMin(scaledYOffsetChange + 0.15, 1.0);
+
+        const QPoint finalOffsetChange(
+             (scaledXOffsetChange * xOffsetChangeSign) * maxVelocity,
+             (scaledYOffsetChange * yOffsetChangeSign) * maxVelocity);
+        mCurrentPane->setOffset(mCurrentPane->offset() + finalOffsetChange);
+
+        // Ensure that the panning still occurs when the mouse is at the edge but isn't moving.
+        if (!mSelectionEdgePanTimer.isActive()) {
+            static const int pansPerSecond = 25;
+            static const int panInterval = 1000 / pansPerSecond;
+            mSelectionEdgePanTimer.start(panInterval, this);
+        }
+
+        // The pane offset changing causes the cursor scene position to change, which
+        // in turn affects the selection area.
+        updateCursorPos(QPoint(mCursorX, mCursorY));
+        updateOrMoveSelectionArea();
+
+        update();
+    } else {
+        // If the mouse isn't over the edge, stop the timer.
+        mSelectionEdgePanTimer.stop();
+    }
 }
 
 void ImageCanvas::reset()
@@ -1862,7 +1960,7 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     }
 
     const int firstPaneWidth = paneWidth(0);
-    const bool inFirstPane = eventPos.x() <= firstPaneWidth;
+    const bool inFirstPane = hoveredPane(eventPos) == &mFirstPane;
     mCursorPaneX = eventPos.x() - (!inFirstPane ? firstPaneWidth : 0);
     mCursorPaneY = eventPos.y();
 
@@ -2033,9 +2131,16 @@ void ImageCanvas::setCurrentPane(CanvasPane *pane)
 
 CanvasPane *ImageCanvas::hoveredPane(const QPoint &pos)
 {
+    // Can only hover the first pane if there's only one screen.
+    if (!mSplitScreen)
+        return &mFirstPane;
+
+    // If we're creating or moving a selection, don't let the current pane be changed.
+    if (mHasSelection && mMouseButtonPressed == Qt::LeftButton)
+        return mCurrentPane;
+
     const int firstPaneWidth = paneWidth(0);
     return pos.x() <= firstPaneWidth ? &mFirstPane : &mSecondPane;
-    return &mSecondPane;
 }
 
 QPoint ImageCanvas::eventPosRelativeToCurrentPane(const QPoint &pos)
@@ -2170,11 +2275,9 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
                 if (mTool != SelectionTool) {
                     applyCurrentTool();
                 } else {
-                    if (!mMovingSelection) {
-                        updateSelectionArea();
-                    } else {
-                        moveSelectionArea();
-                    }
+                    panWithSelectionIfAtEdge(SelectionPanMouseMovementReason);
+
+                    updateOrMoveSelectionArea();
                 }
             } else {
                 // Panning.
@@ -2245,6 +2348,8 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
                 mLastValidSelectionArea = mSelectionArea;
         }
         mPotentiallySelecting = false;
+
+        mSelectionEdgePanTimer.stop();
     }
 
     if (mProject->isComposingMacro()) {
@@ -2412,6 +2517,16 @@ void ImageCanvas::focusOutEvent(QFocusEvent *event)
     setShiftPressed(false);
 
     updateWindowCursorShape();
+}
+
+void ImageCanvas::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() != mSelectionEdgePanTimer.timerId()) {
+        QQuickPaintedItem::timerEvent(event);
+        return;
+    }
+
+    panWithSelectionIfAtEdge(SelectionPanTimerReason);
 }
 
 bool ImageCanvas::overrideShortcut(const QKeySequence &keySequence)

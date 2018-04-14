@@ -87,6 +87,7 @@ private Q_SLOTS:
     void colourPickerHexFieldTranslucent();
     void eraseImageCanvas_data();
     void eraseImageCanvas();
+
     void selectionToolImageCanvas();
     void cancelSelectionToolImageCanvas();
     void moveSelectionImageCanvas_data();
@@ -100,6 +101,9 @@ private Q_SLOTS:
     void pasteFromExternalSource_data();
     void pasteFromExternalSource();
     void flipPastedImage();
+    void selectionEdgePan_data();
+    void selectionEdgePan();
+
     void fillImageCanvas_data();
     void fillImageCanvas();
     void fillLayeredImageCanvas();
@@ -2549,6 +2553,87 @@ void tst_App::flipPastedImage()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage snapshotFlippedHorizontally = imageGrabber.takeImage();
     QCOMPARE(snapshotFlippedHorizontally.pixelColor(image.width() * 0.75, image.height() - 5), QColor(Qt::red));
+}
+
+void tst_App::selectionEdgePan_data()
+{
+    QTest::addColumn<QPoint>("selectionStartPos");
+    QTest::addColumn<QPoint>("selectionEndPos");
+    // The direction the panning is happening in. 0 if not going past the edge.
+    QTest::addColumn<QPoint>("panDirection");
+    QTest::addColumn<QRect>("expectedSelectionArea");
+
+    const QPoint startPos(100, 100);
+    const int largeDistance = qMax(window->width(), window->height());
+
+    // "reverse" selections end up with slightly different coordinates.
+    QTest::newRow("top-left") << startPos << QPoint(-largeDistance, -largeDistance) << QPoint(-1, -1) << QRect(0, 0, 101, 101);
+    QTest::newRow("top") << startPos << QPoint(0, -largeDistance) << QPoint(0, -1) << QRect(0, 0, 101, 101);
+    QTest::newRow("top-right") << startPos << QPoint(largeDistance, -largeDistance) << QPoint(1, -1) << QRect(100, 0, 256 - 100, 101);
+    QTest::newRow("right") << startPos << QPoint(largeDistance, 0) << QPoint(1, 0) << QRect(100, 0, 256 - 100, 101);
+    QTest::newRow("bottom-right") << startPos << QPoint(largeDistance, largeDistance) << QPoint(1, 1) << QRect(100, 100, 256 - 100, 256 - 100);
+    QTest::newRow("bottom") << startPos << QPoint(256, largeDistance) << QPoint(0, 1) << QRect(100, 100, 256 - 100, 256 - 100);
+    QTest::newRow("bottom-left") << startPos << QPoint(-largeDistance, largeDistance) << QPoint(-1, 1) << QRect(0, 100, 101, 256 - 100);
+    QTest::newRow("left") << startPos << QPoint(-largeDistance, 0) << QPoint(-1, 0) << QRect(0, 0, 101, 101);
+}
+
+void tst_App::selectionEdgePan()
+{
+    QFETCH(QPoint, selectionStartPos);
+    QFETCH(QPoint, selectionEndPos);
+    QFETCH(QPoint, panDirection);
+    QFETCH(QRect, expectedSelectionArea);
+
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
+
+    const QPoint originalOffset = canvas->currentPane()->offset();
+
+    // Test that the canvas is panned when the mouse goes past the edge when creating a selection.
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
+
+    setCursorPosInScenePixels(selectionStartPos.x(), selectionStartPos.y(), false);
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+
+    // Add an extra move otherwise the pan isn't started for some reason.
+    QTest::mouseMove(window, cursorWindowPos + QPoint(1, 1));
+
+    setCursorPosInScenePixels(selectionEndPos.x(), selectionEndPos.y(), false);
+    // The current pane shouldn't change at all during this test.
+    QCOMPARE(canvas->currentPane(), canvas->firstPane());
+    // Uncomment when https://bugreports.qt.io/browse/QTBUG-67702 is fixed
+//    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(".*Mouse event at .* occurs outside of target window.*"));
+    QTest::mouseMove(window, cursorWindowPos);
+    QCOMPARE(canvas->currentPane(), canvas->firstPane());
+    QVERIFY(canvas->hasSelection());
+    QCOMPARE(canvas->selectionArea(), expectedSelectionArea);
+
+    if (panDirection.x() != 0) {
+        // We don't want try to know how far it will pan, as we don't
+        // want to rely on implementation details. So, choose a sufficiently
+        // high number as the maximum amount of iterations.
+        QPoint movedOffset = originalOffset - panDirection;
+        for (int i = 0; i < 10000 && movedOffset != canvas->currentPane()->offset(); ++i) {
+            movedOffset -= panDirection;
+        }
+        QCOMPARE(canvas->currentPane()->offset().x(), movedOffset.x());
+    } else {
+        QCOMPARE(canvas->currentPane()->offset().x(), originalOffset.x());
+    }
+
+    if (panDirection.y() != 0) {
+        QPoint movedOffset = originalOffset - panDirection;
+        for (int i = 0; i < 10000 && movedOffset != canvas->currentPane()->offset(); ++i) {
+            movedOffset -= panDirection;
+        }
+        QCOMPARE(canvas->currentPane()->offset().y(), movedOffset.y());
+    } else {
+        QCOMPARE(canvas->currentPane()->offset().y(), originalOffset.y());
+    }
+
+    // Uncomment when https://bugreports.qt.io/browse/QTBUG-67702 is fixed
+//    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(".*Mouse event at .* occurs outside of target window.*"));
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 }
 
 void tst_App::fillImageCanvas_data()

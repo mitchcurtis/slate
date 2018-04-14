@@ -36,7 +36,9 @@ Item {
         objectName: "canvasContainerLoader"
         source: project && project.typeString.length > 0 ? project.typeString + "Canvas.qml" : ""
         focus: true
-        anchors.fill: parent
+        width: parent.width
+        anchors.top: parent.top
+        anchors.bottom: statusBar.top
 
         property QtObject args: QtObject {
             // We want this property to be updated before "source" above, as we need
