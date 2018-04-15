@@ -92,10 +92,13 @@ Panel {
                 TextField {
                     id: layerNameTextField
                     objectName: "layerNameTextField"
-                    x: parent.leftPadding
                     text: model.layer.name
                     font.family: "FontAwesome"
                     activeFocusOnPress: false
+                    anchors.left: visibilityCheckBox.right
+                    anchors.leftMargin: 4
+                    anchors.right: parent.right
+                    anchors.rightMargin: parent.rightPadding
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.verticalCenterOffset: 6
                     background.visible: false

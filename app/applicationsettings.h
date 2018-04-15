@@ -43,6 +43,7 @@ class ApplicationSettings : public QSettings
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
+    Q_PROPERTY(int panelWidth READ panelWidth WRITE setPanelWidth NOTIFY panelWidthChanged)
 
     Q_PROPERTY(QString quitShortcut READ quitShortcut WRITE setQuitShortcut NOTIFY quitShortcutChanged)
     Q_PROPERTY(QString newShortcut READ newShortcut WRITE setNewShortcut NOTIFY newShortcutChanged)
@@ -123,6 +124,10 @@ public:
     QColor defaultCheckerColour2() const;
     QColor checkerColour2() const;
     void setCheckerColour2(const QColor &colour);
+
+    int defaultPanelWidth() const;
+    int panelWidth() const;
+    void setPanelWidth(int width);
 
     Q_INVOKABLE void resetShortcutsToDefaults();
 
@@ -284,6 +289,7 @@ signals:
     void scrollZoomChanged();
     void checkerColour1Changed();
     void checkerColour2Changed();
+    void panelWidthChanged();
 
     void quitShortcutChanged();
     void newShortcutChanged();

@@ -282,6 +282,25 @@ void ApplicationSettings::setCheckerColour2(const QColor &colour)
     emit checkerColour2Changed();
 }
 
+int ApplicationSettings::defaultPanelWidth() const
+{
+    return 240;
+}
+
+int ApplicationSettings::panelWidth() const
+{
+    return contains("panelWidth") ? value("panelWidth").toInt() : defaultPanelWidth();
+}
+
+void ApplicationSettings::setPanelWidth(int width)
+{
+    if (width == panelWidth())
+        return;
+
+    setValue("panelWidth", QVariant(width));
+    emit panelWidthChanged();
+}
+
 void ApplicationSettings::resetShortcutsToDefaults()
 {
     static QVector<QString> allShortcuts;
