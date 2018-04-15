@@ -188,8 +188,8 @@ ApplicationWindow {
         ColumnLayout {
             id: panelColumnLayout
 
-            Layout.minimumWidth: 260
-            Layout.maximumWidth: 260
+            Layout.minimumWidth: 240
+            Layout.maximumWidth: 240
             Layout.alignment: Qt.AlignTop
 
             Ui.ColourPanel {
