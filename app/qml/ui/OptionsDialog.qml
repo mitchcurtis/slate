@@ -18,13 +18,10 @@ Dialog {
     onAccepted: applyAllSettings()
     onRejected: clearChanges()
 
-    property alias panelWidth: panelWidthSlider.value
-
     function applyAllSettings() {
         settings.loadLastOnStartup = loadLastCheckBox.checked
         settings.checkerColour1 = checkerColour1TextField.colour
         settings.checkerColour2 = checkerColour2TextField.colour
-        settings.panelWidth = panelWidthSlider.value
 
         for (var i = 0; i < shortcutModel.count; ++i) {
             var row = shortcutModel.get(i)
@@ -38,7 +35,6 @@ Dialog {
         loadLastCheckBox.checked = settings.loadLastOnStartup
         checkerColour1TextField.text = settings.checkerColour1
         checkerColour2TextField.text = settings.checkerColour2
-        panelWidthSlider.value = settings.panelWidth
 
         for (var i = 0; i < shortcutModel.count; ++i) {
             var row = shortcutModel.get(i)
@@ -142,27 +138,6 @@ Dialog {
 
                         readonly property color colour: "#" + text
                     }
-                }
-
-                Label {
-                    text: qsTr("Panel width")
-                }
-                Slider {
-                    id: panelWidthSlider
-                    from: 240
-                    value: settings.panelWidth
-                    to: window.width / 3
-
-                    ToolTip {
-                        parent: panelWidthSlider.handle
-                        visible: panelWidthSlider.pressed
-                        text: panelWidthSlider.valueAt(panelWidthSlider.position).toFixed(0)
-                    }
-                }
-
-                Item {
-                    Layout.columnSpan: 2
-                    Layout.preferredHeight: 10
                 }
             }
         }
