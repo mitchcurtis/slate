@@ -162,7 +162,6 @@ protected:
     // Finds \a layerName in the layer list view, verifies that it exists and that its name is \a layerName,
     // and returns the delegate for convenience.
     Q_REQUIRED_RESULT bool verifyLayerName(const QString &layerName, QQuickItem **layerDelegate = nullptr);
-    Q_REQUIRED_RESULT bool makeCurrentAndRenameLayer(const QString &from, const QString &to);
 
     void addAllProjectTypes();
     void addImageProjectTypes();

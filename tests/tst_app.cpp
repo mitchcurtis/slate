@@ -123,13 +123,12 @@ private Q_SLOTS:
     void layerVisibility();
     void moveLayerUpAndDown();
     void mergeLayerUpAndDown();
-    void renameLayers();
+    void renameLayer();
     void saveAndLoadLayeredImageProject();
     void layerVisibilityAfterMoving();
 //    void undoAfterAddLayer();
     void selectionConfirmedWhenSwitchingLayers();
     void autoExport();
-    void autoExportLayers();
     void disableToolsWhenLayerHidden();
     void undoMoveContents();
     void undoMoveContentsOfVisibleLayers();
@@ -3413,7 +3412,7 @@ void tst_App::mergeLayerUpAndDown()
     QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(2, 0), QColor(Qt::blue));
 }
 
-void tst_App::renameLayers()
+void tst_App::renameLayer()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
@@ -3700,64 +3699,6 @@ void tst_App::autoExport()
     // No export should have happened and so the exported image shouldn't have changed.
     exportedImage = QImage(autoExportFilePath);
     QCOMPARE(exportedImage, expectedExportedImage);
-}
-
-void tst_App::autoExportLayers()
-{
-    QVERIFY2(createNewLayeredImageProject(), failureMessage);
-
-    layeredImageProject->setAutoExportEnabled(true);
-
-    // Draw a red dot.
-    layeredImageCanvas->setPenForegroundColour(Qt::red);
-    setCursorPosInScenePixels(0, 0);
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), QColor(Qt::red));
-
-    // Add some new layers.
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 3);
-//    ImageLayer *layer1 = layeredImageProject->layerAt(2);
-    ImageLayer *layer2 = layeredImageProject->layerAt(1);
-    ImageLayer *layer3 = layeredImageProject->layerAt(0);
-
-    // Select Layer 2.
-    QVERIFY2(selectLayer("Layer 2", 1), failureMessage);
-
-    // Draw a green dot on layer 2.
-    layeredImageCanvas->setPenForegroundColour(Qt::green);
-    setCursorPosInScenePixels(1, 0);
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layer2->image()->pixelColor(1, 0), QColor(Qt::green));
-
-    // Select Layer 3.
-    QVERIFY2(selectLayer("Layer 3", 0), failureMessage);
-
-    // Draw a blue dot on layer 3.
-    layeredImageCanvas->setPenForegroundColour(Qt::blue);
-    setCursorPosInScenePixels(2, 0);
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layer3->image()->pixelColor(2, 0), QColor(Qt::blue));
-
-    // Give the layer a name so that it's saved as a PNG.
-    QVERIFY2(makeCurrentAndRenameLayer("Layer 2", "[test] Layer 2"), failureMessage);
-
-    // TODO: implement the functionality
-
-    // Save the project so that the PNG is saved.
-    const QString savedProjectPath = tempProjectDir->path() + "/autoExportLayers-project.slp";
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
-
-    const QString exportedImagePath = tempProjectDir->path() + "/test.png";
-    QVERIFY(QFile::exists(exportedImagePath));
-    QImage image(exportedImagePath);
-    QVERIFY(!image.isNull());
-    QCOMPARE(image, *layer2->image());
 }
 
 void tst_App::disableToolsWhenLayerHidden()

@@ -155,9 +155,6 @@ void TestHelper::cleanup()
     failureMessage.clear();
 
     app.settings()->clearRecentFiles();
-
-    if (layeredImageProject)
-        layeredImageProject->setAutoExportEnabled(false);
 }
 
 void TestHelper::resetCreationErrorSpy()
@@ -876,9 +873,7 @@ bool TestHelper::selectLayer(const QString &layerName, int layerIndex)
     VERIFY(layerDelegate);
     mouseEventOnCentre(layerDelegate, MouseClick);
     VERIFY(layerDelegate->property("checked").toBool());
-    VERIFY2(layeredImageProject->currentLayerIndex() == layerIndex,
-        qPrintable(QString::fromLatin1("Expected currentLayerIndex to be %1 after selecting it, but it's %2")
-            .arg(layerIndex).arg(layeredImageProject->currentLayerIndex())));
+    VERIFY(layeredImageProject->currentLayerIndex() == layerIndex);
     return true;
 }
 
@@ -893,45 +888,6 @@ bool TestHelper::verifyLayerName(const QString &layerName, QQuickItem **layerDel
     VERIFY(layerDelegateNameTextField->property("text").toString() == layerName);
     if (layerDelegate)
         *layerDelegate = delegate;
-    return true;
-}
-
-bool TestHelper::makeCurrentAndRenameLayer(const QString &from, const QString &to)
-{
-    QQuickItem *layerDelegate = nullptr;
-    VERIFY2(verifyLayerName(from, &layerDelegate), failureMessage);
-
-    mouseEventOnCentre(layerDelegate, MouseClick);
-    VERIFY(layerDelegate->property("checked").toBool() == true);
-    VERIFY(layeredImageProject->currentLayer()->name() == from);
-
-    QQuickItem *nameTextField = layerDelegate->findChild<QQuickItem*>("layerNameTextField");
-    VERIFY(nameTextField);
-
-    // A single click should not give the text field focus.
-    mouseEventOnCentre(nameTextField, MouseClick);
-    VERIFY(!nameTextField->hasActiveFocus());
-
-    // A double click should.
-    mouseEventOnCentre(nameTextField, MouseDoubleClick);
-    VERIFY(nameTextField->hasActiveFocus() == true);
-
-    // Enter the text.
-    QTest::keySequence(window, QKeySequence(QKeySequence::SelectAll));
-    foreach (const auto character, to)
-        QTest::keyClick(window, character.toLatin1());
-    VERIFY2(nameTextField->property("text").toString() == to, qPrintable(QString::fromLatin1(
-        "Expected layerNameTextField to contain \"%1\" after inputting new layer name, but it contains \"%2\"")
-            .arg(to, nameTextField->property("text").toString())));
-    VERIFY(layeredImageProject->currentLayer()->name() == from);
-
-    // Confirm the changes.
-    QTest::keyClick(window, Qt::Key_Enter);
-    VERIFY2(nameTextField->property("text").toString() == to, qPrintable(QString::fromLatin1(
-        "Expected layerNameTextField to contain \"%1\" after confirming changes, but it contains \"%2\"")
-            .arg(to, nameTextField->property("text").toString())));
-    VERIFY(layeredImageProject->currentLayer()->name() == to);
-
     return true;
 }
 
