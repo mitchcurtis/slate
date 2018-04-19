@@ -52,6 +52,6 @@
         <file>ui/TexturedFillSettingsDialog.qml</file>
         <file>ui/TexturedFillVarianceRangedSlider.qml</file>
         <file>ui/SaturationLightnessPicker.qml</file>
-        <file>ui/+windows/MenuBar.qml</file>
+        <file>ui/+nativemenubar/MenuBar.qml</file>
     </qresource>
 </RCC>

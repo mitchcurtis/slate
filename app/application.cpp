@@ -22,6 +22,7 @@
 #include <QApplication>
 #include <QFontDatabase>
 #include <QLoggingCategory>
+#include <QQmlFileSelector>
 
 #include "canvaspane.h"
 #include "filevalidator.h"
@@ -110,6 +111,11 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     if (QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf") == -1) {
         qWarning() << "Failed to load FontAwesome font";
     }
+
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+    QQmlFileSelector fileSelector(mEngine.data());
+    fileSelector.setExtraSelectors(QStringList() << QLatin1String("nativemenubar"));
+#endif
 
     mProjectManager.setApplicationSettings(mSettings.data());
 
