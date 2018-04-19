@@ -381,7 +381,7 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     const QImage originalContents = project->exportedImage();
 
     // Open the move contents dialog.
-    VERIFY(triggerShortcut("moveContentsShortcut", app.settings()->moveContentsShortcut()));
+    VERIFY2(triggerShortcut("moveContentsShortcut", app.settings()->moveContentsShortcut()), failureMessage);
     const QObject *moveContentsDialog = findPopupFromTypeName("MoveContentsDialog");
     VERIFY(moveContentsDialog);
     VERIFY(moveContentsDialog->property("visible").toBool());

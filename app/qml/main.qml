@@ -151,7 +151,7 @@ ApplicationWindow {
         canvas: window.canvas
     }
 
-    Ui.MenuBar {
+    menuBar: Ui.MenuBar {
         id: menuBar
         canvas: window.canvas
         canvasSizePopup: canvasSizePopup
@@ -161,13 +161,12 @@ ApplicationWindow {
     }
 
     header: Ui.ToolBar {
-        id: iconToolBar
+        id: toolBar
+        objectName: "toolBar"
         project: window.project
         canvas: window.canvas
         canvasSizePopup: canvasSizePopup
         imageSizePopup: imageSizePopup
-
-        Layout.fillWidth: true
     }
 
     RowLayout {
@@ -178,7 +177,7 @@ ApplicationWindow {
             id: canvasContainer
             focus: true
 
-            checkedToolButton: iconToolBar.toolButtonGroup.checkedButton
+            checkedToolButton: toolBar.toolButtonGroup.checkedButton
 
             Layout.preferredWidth: window.width / 3
             Layout.fillWidth: true
