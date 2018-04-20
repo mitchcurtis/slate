@@ -204,7 +204,7 @@ static bool shouldDraw(const ImageLayer *layer, const QString &layerFileName)
     By default, all layers are combined into one image when exported,
     with the highest (lowest index) layers in the list having the highest "Z order".
 
-    If one or more layers contains the same [prefix], however, they will be combined
+    If one or more layers contain the same [prefix], however, they will be combined
     into a separate image which is saved as that prefix with a .png extension,
     in the same directory as the save URL.
 
