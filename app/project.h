@@ -78,6 +78,7 @@ public:
     void setUrl(const QUrl &url);
     QString displayUrl() const;
     QUrl dirUrl() const;
+    QString fileBaseName() const;
 
     virtual QSize size() const;
     virtual void setSize(const QSize &size);

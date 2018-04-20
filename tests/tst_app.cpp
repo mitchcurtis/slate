@@ -123,12 +123,13 @@ private Q_SLOTS:
     void layerVisibility();
     void moveLayerUpAndDown();
     void mergeLayerUpAndDown();
-    void renameLayer();
+    void renameLayers();
     void saveAndLoadLayeredImageProject();
     void layerVisibilityAfterMoving();
 //    void undoAfterAddLayer();
     void selectionConfirmedWhenSwitchingLayers();
     void autoExport();
+    void exportFileNamedLayers();
     void disableToolsWhenLayerHidden();
     void undoMoveContents();
     void undoMoveContentsOfVisibleLayers();
@@ -3412,7 +3413,7 @@ void tst_App::mergeLayerUpAndDown()
     QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(2, 0), QColor(Qt::blue));
 }
 
-void tst_App::renameLayer()
+void tst_App::renameLayers()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
@@ -3699,6 +3700,134 @@ void tst_App::autoExport()
     // No export should have happened and so the exported image shouldn't have changed.
     exportedImage = QImage(autoExportFilePath);
     QCOMPARE(exportedImage, expectedExportedImage);
+}
+
+void tst_App::exportFileNamedLayers()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    layeredImageProject->setAutoExportEnabled(true);
+
+    // Draw a red dot.
+    layeredImageCanvas->setPenForegroundColour(Qt::red);
+    setCursorPosInScenePixels(0, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), QColor(Qt::red));
+
+    // Add some new layers.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 3);
+    ImageLayer *layer1 = layeredImageProject->layerAt(2);
+    ImageLayer *layer2 = layeredImageProject->layerAt(1);
+    ImageLayer *layer3 = layeredImageProject->layerAt(0);
+
+    // Select Layer 2.
+    QVERIFY2(selectLayer("Layer 2", 1), failureMessage);
+
+    // Draw a green dot on layer 2.
+    layeredImageCanvas->setPenForegroundColour(Qt::green);
+    setCursorPosInScenePixels(1, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layer2->image()->pixelColor(1, 0), QColor(Qt::green));
+
+    // Select Layer 3.
+    QVERIFY2(selectLayer("Layer 3", 0), failureMessage);
+
+    // Draw a blue dot on layer 3.
+    layeredImageCanvas->setPenForegroundColour(Qt::blue);
+    setCursorPosInScenePixels(2, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layer3->image()->pixelColor(2, 0), QColor(Qt::blue));
+
+    // Give the layer a name so that it's saved as a PNG.
+    QVERIFY2(makeCurrentAndRenameLayer("Layer 2", "[test] Layer 2"), failureMessage);
+
+    // Save the project so that auto export is triggered and the images saved.
+    const QString savedProjectPath = tempProjectDir->path() + "/exportFileNameLayers-project.slp";
+    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+
+    // Check that the "main" image (combined from regular layers) is saved.
+    const QString exportedImagePath = tempProjectDir->path() + "/exportFileNameLayers-project.png";
+    QVERIFY(QFile::exists(exportedImagePath));
+    QImage exportedImage(exportedImagePath);
+    // TODO: formats are wrong when comparing whole images, but I don't know why.
+    QCOMPARE(exportedImage.pixelColor(0, 0), layer1->image()->pixelColor(0, 0));
+    QCOMPARE(exportedImage.pixelColor(2, 0), layer3->image()->pixelColor(2, 0));
+
+    // Check that the one file-named layer was saved as a separate image.
+    const QString exportedTestLayerImagePath = tempProjectDir->path() + "/test.png";
+    QVERIFY(QFile::exists(exportedTestLayerImagePath));
+    QImage exportedLayerImage(exportedTestLayerImagePath);
+    QVERIFY(!exportedLayerImage.isNull());
+    QCOMPARE(exportedLayerImage.pixelColor(1, 0), layer2->image()->pixelColor(1, 0));
+
+    // Remove the image so that we can re-test it being exported.
+    QVERIFY(QFile::remove(exportedTestLayerImagePath));
+    QVERIFY(!QFile::exists(exportedTestLayerImagePath));
+
+    // Hide that file-named layer; it should still be exported.
+    QVERIFY2(changeLayerVisiblity("[test] Layer 2", false), failureMessage);
+
+    // Save to export.
+    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(QFile::exists(exportedTestLayerImagePath));
+    exportedLayerImage = QImage(exportedTestLayerImagePath);
+    QVERIFY(!exportedLayerImage.isNull());
+    QCOMPARE(exportedLayerImage.pixelColor(1, 0), layer2->image()->pixelColor(1, 0));
+
+    // Add a new layer.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 4);
+    ImageLayer *layer4 = layeredImageProject->layerAt(0);
+
+    // Rename it so it's in the same group as "test".
+    QVERIFY2(makeCurrentAndRenameLayer("Layer 4", "[test] Layer 4"), failureMessage);
+
+    // Draw a dot on it.
+    layeredImageCanvas->setPenForegroundColour(Qt::darkMagenta);
+    setCursorPosInScenePixels(3, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layer4->image()->pixelColor(3, 0), QColor(Qt::darkMagenta));
+
+    // Export again. Both layers should have been exported to the same image.
+    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(QFile::exists(exportedTestLayerImagePath));
+    exportedLayerImage = QImage(exportedTestLayerImagePath);
+    QVERIFY(!exportedLayerImage.isNull());
+    QCOMPARE(exportedLayerImage.pixelColor(1, 0), layer2->image()->pixelColor(1, 0));
+    QCOMPARE(exportedLayerImage.pixelColor(3, 0), layer4->image()->pixelColor(3, 0));
+
+    // Add another new layer.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 5);
+    ImageLayer *layer5 = layeredImageProject->layerAt(0);
+
+    // Rename it so that it uses the project as a prefix.
+    QVERIFY2(makeCurrentAndRenameLayer("Layer 5", "[%p-blah] Layer 5"), failureMessage);
+
+    // Draw a dot on it as usual, so that we can verify it exports correctly.
+    layeredImageCanvas->setPenForegroundColour(Qt::darkBlue);
+    setCursorPosInScenePixels(4, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layer5->image()->pixelColor(4, 0), QColor(Qt::darkBlue));
+
+    // Export it.
+    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    const QString exportedBlahLayerImagePath = tempProjectDir->path() + "/exportFileNameLayers-project-blah.png";
+    QVERIFY(QFile::exists(exportedBlahLayerImagePath));
+    exportedLayerImage = QImage(exportedBlahLayerImagePath);
+    QVERIFY(!exportedLayerImage.isNull());
+    QCOMPARE(exportedLayerImage.pixelColor(4, 0), layer5->image()->pixelColor(4, 0));
 }
 
 void tst_App::disableToolsWhenLayerHidden()

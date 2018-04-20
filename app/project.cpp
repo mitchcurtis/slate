@@ -92,6 +92,11 @@ QUrl Project::dirUrl() const
     return QUrl::fromLocalFile(dir.path());
 }
 
+QString Project::fileBaseName() const
+{
+    return QFileInfo(mUrl.toLocalFile()).baseName();
+}
+
 bool Project::hasLoaded() const
 {
     return mFromNew || mUrl.isValid();

@@ -47,6 +47,7 @@ public:
     void setCurrentLayerIndex(int index);
     ImageLayer *layerAt(int index);
     const ImageLayer *layerAt(int index) const;
+    const ImageLayer *layerAt(const QString &name) const;
     int layerCount() const;
 
     Type type() const override;
@@ -57,6 +58,7 @@ public:
 
     QImage flattenedImage(std::function<QImage(int)> layerSubstituteFunction = nullptr) const;
     QImage flattenedImage(int fromIndex, int toIndex, std::function<QImage(int)> layerSubstituteFunction = nullptr) const;
+    QHash<QString, QImage> flattenedImages() const;
     QImage exportedImage() const override;
 
     bool isAutoExportEnabled() const;
@@ -134,6 +136,8 @@ private:
     void mergeLayers(int sourceIndex, int targetIndex);
     ImageLayer *takeLayer(int index);
     void setLayerImage(int index, const QImage &image);
+
+    QString expandLayerNameVariables(const QString &layerFileNamePrefix) const;
 
     friend QDebug operator<<(QDebug debug, const LayeredImageProject *project);
 

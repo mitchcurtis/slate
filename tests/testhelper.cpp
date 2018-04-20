@@ -155,6 +155,9 @@ void TestHelper::cleanup()
     failureMessage.clear();
 
     app.settings()->clearRecentFiles();
+
+    if (layeredImageProject)
+        layeredImageProject->setAutoExportEnabled(false);
 }
 
 void TestHelper::resetCreationErrorSpy()
@@ -873,7 +876,9 @@ bool TestHelper::selectLayer(const QString &layerName, int layerIndex)
     VERIFY(layerDelegate);
     mouseEventOnCentre(layerDelegate, MouseClick);
     VERIFY(layerDelegate->property("checked").toBool());
-    VERIFY(layeredImageProject->currentLayerIndex() == layerIndex);
+    VERIFY2(layeredImageProject->currentLayerIndex() == layerIndex,
+        qPrintable(QString::fromLatin1("Expected currentLayerIndex to be %1 after selecting it, but it's %2")
+            .arg(layerIndex).arg(layeredImageProject->currentLayerIndex())));
     return true;
 }
 
@@ -888,6 +893,72 @@ bool TestHelper::verifyLayerName(const QString &layerName, QQuickItem **layerDel
     VERIFY(layerDelegateNameTextField->property("text").toString() == layerName);
     if (layerDelegate)
         *layerDelegate = delegate;
+    return true;
+}
+
+bool TestHelper::makeCurrentAndRenameLayer(const QString &from, const QString &to)
+{
+    QQuickItem *layerDelegate = nullptr;
+    VERIFY2(verifyLayerName(from, &layerDelegate), failureMessage);
+
+    mouseEventOnCentre(layerDelegate, MouseClick);
+    VERIFY(layerDelegate->property("checked").toBool() == true);
+    VERIFY(layeredImageProject->currentLayer()->name() == from);
+
+    QQuickItem *nameTextField = layerDelegate->findChild<QQuickItem*>("layerNameTextField");
+    VERIFY(nameTextField);
+
+    // A single click should not give the text field focus.
+    mouseEventOnCentre(nameTextField, MouseClick);
+    VERIFY(!nameTextField->hasActiveFocus());
+
+    // A double click should.
+    mouseEventOnCentre(nameTextField, MouseDoubleClick);
+    VERIFY(nameTextField->hasActiveFocus() == true);
+
+    // Enter the text.
+    QTest::keySequence(window, QKeySequence(QKeySequence::SelectAll));
+    foreach (const auto character, to)
+        QTest::keyClick(window, character.toLatin1());
+    VERIFY2(nameTextField->property("text").toString() == to, qPrintable(QString::fromLatin1(
+        "Expected layerNameTextField to contain \"%1\" after inputting new layer name, but it contains \"%2\"")
+            .arg(to, nameTextField->property("text").toString())));
+    VERIFY(layeredImageProject->currentLayer()->name() == from);
+
+    // Confirm the changes.
+    QTest::keyClick(window, Qt::Key_Enter);
+    VERIFY2(nameTextField->property("text").toString() == to, qPrintable(QString::fromLatin1(
+        "Expected layerNameTextField to contain \"%1\" after confirming changes, but it contains \"%2\"")
+            .arg(to, nameTextField->property("text").toString())));
+    VERIFY(layeredImageProject->currentLayer()->name() == to);
+
+    return true;
+}
+
+bool TestHelper::changeLayerVisiblity(const QString &layerName, bool visible)
+{
+    QQuickItem *layerDelegate = nullptr;
+    VERIFY2(verifyLayerName(layerName, &layerDelegate), failureMessage);
+
+    const ImageLayer *layer = layeredImageProject->layerAt(layerName);
+    VERIFY(layer);
+
+    QQuickItem *layerVisibilityCheckBox = layerDelegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
+    VERIFY(layerVisibilityCheckBox);
+
+    // Sanity check that the check box's state matches the layer's state.
+    const bool oldLayerVisibilityCheckBoxValue = layerVisibilityCheckBox->property("checked").toBool();
+    VERIFY(oldLayerVisibilityCheckBoxValue == !layer->isVisible());
+
+    // If the layer's visibility already matches the target visibility, we have nothing to do.
+    if (oldLayerVisibilityCheckBoxValue == !visible)
+        return true;
+
+    // Hide the layer.
+    mouseEventOnCentre(layerVisibilityCheckBox, MouseClick);
+    VERIFY(layer->isVisible() == visible);
+    VERIFY(layerVisibilityCheckBox->property("checked").toBool() == !visible);
+
     return true;
 }
 

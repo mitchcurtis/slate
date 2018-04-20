@@ -22,6 +22,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QPainter>
+#include <QRegularExpression>
 
 #include "addlayercommand.h"
 #include "changelayeredimagesizecommand.h"
@@ -83,6 +84,15 @@ ImageLayer *LayeredImageProject::layerAt(int index)
 const ImageLayer *LayeredImageProject::layerAt(int index) const
 {
     return isValidIndex(index) ? mLayers.at(index) : nullptr;
+}
+
+const ImageLayer *LayeredImageProject::layerAt(const QString &name) const
+{
+    foreach (const auto layer, mLayers) {
+        if (layer->name() == name)
+            return layer;
+    }
+    return nullptr;
 }
 
 int LayeredImageProject::layerCount() const
@@ -158,6 +168,134 @@ QImage LayeredImageProject::flattenedImage(int fromIndex, int toIndex, std::func
     }
 
     return finalImage;
+}
+
+QString LayeredImageProject::expandLayerNameVariables(const QString &layerFileNamePrefix) const
+{
+    static const QString projectBaseNameIndicator(QLatin1String("%p"));
+
+    // Currently we only have one variable, %p, which refers to the project's
+    // base file name. It doesn't make sense for that to be repeated,
+    // so we only find and replace once.
+    QString expanded = layerFileNamePrefix;
+    expanded.replace(projectBaseNameIndicator, fileBaseName());
+    return expanded;
+}
+
+static bool shouldDraw(const ImageLayer *layer, const QString &layerFileName)
+{
+    // Only regular, non-file-named layers respect visibility.
+    if (layerFileName.isEmpty() && !layer->isVisible()) {
+        qCDebug(lcProject) << "  - layer" << layer->name()
+            << "is a regular layer that's not visible; removing from remaining layers";
+        return false;
+    }
+
+    // On the other hand, all types of layer respect opacity (if/when we add support for it).
+    if (qFuzzyIsNull(layer->opacity())) {
+        qCDebug(lcProject) << "  - layer" << layer->name() << "has 0 opacity; removing from remaining layers";
+        return false;
+    }
+
+    return true;
+}
+
+/*
+    By default, all layers are combined into one image when exported,
+    with the highest (lowest index) layers in the list having the highest "Z order".
+
+    If one or more layers contains the same [prefix], however, they will be combined
+    into a separate image which is saved as that prefix with a .png extension,
+    in the same directory as the save URL.
+
+    For example, if the exported URL is house.png, the following images will be saved:
+
+    [house-roof] left roof     // house-roof.png
+    [house-roof] right roof    // house-roof.png
+    [house-walls] left wall    // house-walls.png
+    [house-walls] right wall   // house-walls.png
+    background                 // house.png
+
+    This allows related assets to be saved in the same project file, which avoids
+    the need to have separate projects for them.
+
+    Any variables (e.g. %p) are expanded.
+*/
+QHash<QString, QImage> LayeredImageProject::flattenedImages() const
+{
+    qCDebug(lcProject) << "flattening" << mLayers.size() << "layers";
+
+    static const QRegularExpression fileNameRegex("^\\[.*\\]");
+    QHash<QString, QImage> images;
+
+    QVector<ImageLayer*> remainingLayers = mLayers;
+    while (!remainingLayers.isEmpty()) {
+        // Take the last layer and try to find "[file-name]" in its layer name.
+        QRegularExpressionMatch match;
+        QString targetFileName;
+        qCDebug(lcProject) << "- taking last layer" << remainingLayers.last();
+        ImageLayer *layer = remainingLayers.takeLast();
+        if (layer->name().contains(fileNameRegex, &match))
+            targetFileName = match.captured();
+
+        qCDebug(lcProject) << "- searching for layers with fileName" << targetFileName;
+
+        // The final image that contains all of the matching layers combined.
+        QImage finalImage(size(), QImage::Format_ARGB32_Premultiplied);
+        finalImage.fill(Qt::transparent);
+
+        QPainter painter(&finalImage);
+        if (shouldDraw(layer, targetFileName)) {
+            // Draw the last layer's image.
+            qCDebug(lcProject) << "  - drawing bottom layer" << layer->name();
+            QImage layerImage = *layer->image();
+            painter.drawImage(0, 0, layerImage);
+        }
+
+        // Now we're going to go through every layer looking for that file name.
+        // If there was no file name, we'll look for layers without file names.
+        // When a matching layer is found, it gets painted onto the final image.
+        //
+        // Work backwards from the last layer so that it gets drawn at the "bottom".
+        for (int i = remainingLayers.size() - 1; i >= 0; --i) {
+            QRegularExpressionMatch ourMatch;
+            QString fileName;
+            const ImageLayer *layer = remainingLayers.at(i);
+            if (layer->name().contains(fileNameRegex, &ourMatch)) {
+                // This is a file-named layer.
+                fileName = ourMatch.captured();
+            }
+
+            if (!shouldDraw(layer, fileName)) {
+                remainingLayers.removeAt(i);
+                continue;
+            }
+
+            if (fileName != targetFileName) {
+                qCDebug(lcProject) << "  - layer" << layer->name() << "has the file name" << fileName
+                    << "which is not equal to" << targetFileName << "; skipping";
+                continue;
+            }
+
+            qCDebug(lcProject) << "  - drawing layer" << layer->name();
+            QImage layerImage = *layer->image();
+            painter.drawImage(0, 0, layerImage);
+
+            remainingLayers.removeAt(i);
+        }
+
+        qCDebug(lcProject) << "- completed drawing of layers with file name" << targetFileName;
+
+        if (!targetFileName.isEmpty()) {
+            // The file name is in brackets so remove them so we save it under the correct name.
+            targetFileName = targetFileName.chopped(1).remove(0, 1);
+            // Expand any variables that might be in there.
+            targetFileName = expandLayerNameVariables(targetFileName);
+        }
+        images[targetFileName] = finalImage;
+    }
+
+    return images;
 }
 
 QImage LayeredImageProject::exportedImage() const
@@ -436,8 +574,8 @@ bool LayeredImageProject::exportImage(const QUrl &url)
     if (url.isEmpty())
         return false;
 
-    const QString filePath = url.toLocalFile();
-    const QFileInfo projectSaveFileInfo(filePath);
+    const QString mainExportFilePath = url.toLocalFile();
+    const QFileInfo projectSaveFileInfo(mainExportFilePath);
     if (mTempDir.isValid()) {
         if (projectSaveFileInfo.dir().path() == mTempDir.path()) {
             error(QLatin1String("Cannot save project in internal temporary directory"));
@@ -445,9 +583,15 @@ bool LayeredImageProject::exportImage(const QUrl &url)
         }
     }
 
-    if (!flattenedImage().save(filePath)) {
-        error(QString::fromLatin1("Failed to save project's image to:\n\n%1").arg(filePath));
-        return false;
+    const auto imagesToExport = flattenedImages();
+    foreach (const QString &key, imagesToExport.keys()) {
+        const QImage image = imagesToExport.value(key);
+        const QString imageFilePath = key.isEmpty()
+            ? mainExportFilePath : projectSaveFileInfo.dir().path() + "/" + key + ".png";
+        if (!image.save(imageFilePath)) {
+            error(QString::fromLatin1("Failed to save project's image to:\n\n%1").arg(imageFilePath));
+            return false;
+        }
     }
 
     return true;
