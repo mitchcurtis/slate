@@ -23,6 +23,7 @@ Panel {
         contentWidth: picker.implicitWidth
         contentHeight: picker.implicitHeight
         clip: true
+        flickableDirection: Flickable.AutoFlickIfNeeded
 
         ScrollBar.vertical: ScrollBar {}
 
