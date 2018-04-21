@@ -579,8 +579,16 @@ void ImageCanvas::setContainsMouse(bool containsMouse)
     if (containsMouse == mContainsMouse)
         return;
 
+    const bool wasDrawingSelectionCursorGuide = shouldDrawSelectionCursorGuide();
+
     mContainsMouse = containsMouse;
     updateWindowCursorShape();
+    if (shouldDrawSelectionCursorGuide() != wasDrawingSelectionCursorGuide) {
+        // Ensure that the selection cursor guide isn't still drawn when the mouse
+        // is outside of us (e.g. over a panel).
+        update();
+    }
+
     emit containsMouseChanged();
 }
 
@@ -1409,7 +1417,7 @@ bool ImageCanvas::shouldDrawSelectionPreviewImage() const
 
 bool ImageCanvas::shouldDrawSelectionCursorGuide() const
 {
-    return mTool == SelectionTool && !mHasSelection;
+    return mTool == SelectionTool && !mHasSelection && mContainsMouse;
 }
 
 void ImageCanvas::confirmPasteSelection()
