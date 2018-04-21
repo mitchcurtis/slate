@@ -72,6 +72,7 @@ private Q_SLOTS:
     void undoThickPen();
     void colours_data();
     void colours();
+    void colourPickerSaturationHex();
     void panes();
     void altEyedropper();
     void eyedropper();
@@ -1551,6 +1552,41 @@ void tst_App::colours()
     oldColour = canvas->penForegroundColour();
     mouseEventOnCentre(desaturateButton, MouseClick);
     QVERIFY(canvas->penForegroundColour().saturationF() < oldColour.saturationF());
+}
+
+// Test that two colours that only differ by saturation
+// show the correct colour in the hex text field.
+void tst_App::colourPickerSaturationHex()
+{
+    QVERIFY2(createNewImageProject(2, 1), failureMessage);
+
+    const QColor colour1 = QColor("#fbf7ea");
+    const QColor colour2 = QColor("#fffbee");
+
+    // Draw with one colour.
+    imageCanvas->setPenForegroundColour(colour1);
+    setCursorPosInScenePixels(0, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), colour1);
+
+    // Now draw with a colour that only varies in saturation from the previous colour.
+    imageCanvas->setPenForegroundColour(colour2);
+    setCursorPosInScenePixels(1, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(imageProject->image()->pixelColor(1, 0), colour2);
+
+    // Now select the first colour with the eyedropper, and ensure that the hex text is correct.
+    QVERIFY2(switchTool(ImageCanvas::EyeDropperTool), failureMessage);
+    setCursorPosInScenePixels(0, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(imageCanvas->penForegroundColour(), colour1);
+
+    QQuickItem *hexTextField = window->findChild<QQuickItem*>("hexTextField");
+    QVERIFY(hexTextField);
+    QCOMPARE(hexTextField->property("text").toString().prepend("#"), colour1.name());
 }
 
 void tst_App::panes()
