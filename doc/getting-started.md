@@ -6,8 +6,6 @@
 
 Slate supports editing bitmap images directly. This project type has no layer support.
 
-Image projects
-
 ## Layered Images
 
 ![Layered Image Project icon](https://github.com/mitchcurtis/slate/blob/master/app/images/layered-image-project.svg)
