@@ -2,7 +2,8 @@ TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS += \
     3rdparty \
-    app \
-    tests
+    app
+    
+!emscripten:SUBDIRS += tests
 
 OTHER_FILES += README.md
