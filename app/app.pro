@@ -1,6 +1,9 @@
 TEMPLATE = app
 TARGET = slate
 
+OBJECTS_DIR = .obj
+MOC_DIR = .moc
+
 include(app.pri)
 
 SOURCES += main.cpp
