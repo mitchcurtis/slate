@@ -35,6 +35,7 @@ Panel {
     padding: 12
 
     property Project project
+    property ImageCanvas canvas
     property AnimationPlayback animationPlayback: project ? project.animationPlayback : null
 
     settingsPopup: AnimationSettingsPopup {
@@ -42,6 +43,8 @@ Panel {
         y: (parent.height - height) / 2
         parent: root.parent.Window.contentItem
         animationPlayback: root.animationPlayback
+
+        onClosed: canvas.forceActiveFocus()
     }
 
     contentItem: ColumnLayout {

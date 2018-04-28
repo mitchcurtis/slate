@@ -243,6 +243,7 @@ ApplicationWindow {
                 visible: window.project && window.project.loaded && window.projectType === Project.LayeredImageType
                     && window.project.usingAnimation
                 project: visible ? window.project : null
+                canvas: window.canvas
 
                 Layout.preferredWidth: visible ? colourPanel.implicitWidth : 0
                 Layout.fillWidth: true
