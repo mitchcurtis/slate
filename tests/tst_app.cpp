@@ -104,6 +104,7 @@ private Q_SLOTS:
     void flipPastedImage();
     void selectionEdgePan_data();
     void selectionEdgePan();
+    void panThenMoveSelection();
 
     void fillImageCanvas_data();
     void fillImageCanvas();
@@ -2670,6 +2671,44 @@ void tst_App::selectionEdgePan()
 
     // Uncomment when https://bugreports.qt.io/browse/QTBUG-67702 is fixed
 //    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(".*Mouse event at .* occurs outside of target window.*"));
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+}
+
+// https://github.com/mitchcurtis/slate/issues/50
+// When panning while having an active selection, and then releasing the space bar
+// and hence starting a drag, there would be an assertion failure (Q_ASSERT(mPotentiallySelecting))
+// in ImageCanvas::updateSelectionArea().
+void tst_App::panThenMoveSelection()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
+
+    setCursorPosInScenePixels(100, 100);
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+
+    // Add an extra move otherwise the pan isn't started for some reason.
+    QTest::mouseMove(window, cursorWindowPos + QPoint(1, 1));
+
+    setCursorPosInScenePixels(120, 120);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(layeredImageCanvas->hasSelection());
+
+    // Start panning.
+    QTest::keyPress(window, Qt::Key_Space);
+    QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
+
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
+
+    // Stop panning but don't release the mouse.
+    QTest::keyRelease(window, Qt::Key_Space);
+
+    // Move the mouse slightly and it would previously crash with an assertion failure.
+    QTest::mouseMove(window, cursorWindowPos + QPoint(1, 1));
+
+    // Release to finish up.
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 }
 

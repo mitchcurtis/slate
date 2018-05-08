@@ -1224,7 +1224,13 @@ void ImageCanvas::updateOrMoveSelectionArea()
 
 void ImageCanvas::updateSelectionArea()
 {
-    Q_ASSERT(mPotentiallySelecting);
+    if (!mPotentiallySelecting) {
+        // updateSelectionArea() can be called by updateOrMoveSelectionArea() as a result
+        // of moving after panning (all without releasing the mouse). In that case,
+        // we can't be selecting, as we were just panning, so we return early.
+        // Previously we would assert that mPotentiallySelecting was true, but that's too strict.
+        return;
+    }
 
     QRect newSelectionArea(mPressScenePosition.x(), mPressScenePosition.y(),
         mCursorSceneX - mPressScenePosition.x(), mCursorSceneY - mPressScenePosition.y());
