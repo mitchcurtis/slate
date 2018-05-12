@@ -134,8 +134,6 @@ ImageCanvas::ImageCanvas() :
 
     recreateCheckerImage();
 
-    installEventFilter(this);
-
     qCDebug(lcImageCanvasLifecycle) << "constructing ImageCanvas" << this;
 }
 
