@@ -1190,6 +1190,11 @@ bool ImageCanvas::isPanning() const
     return mSpacePressed || mMouseButtonPressed == Qt::MiddleButton;
 }
 
+bool ImageCanvas::supportsSelectionTool() const
+{
+    return true;
+}
+
 void ImageCanvas::beginSelectionMove()
 {
     qCDebug(lcImageCanvasSelection) << "beginning selection move... mIsSelectionFromPaste =" << mIsSelectionFromPaste;
@@ -1702,6 +1707,11 @@ void ImageCanvas::selectAll()
     }
 
     setSelectionArea(QRect(0, 0, mProject->widthInPixels(), mProject->heightInPixels()));
+}
+
+void ImageCanvas::cycleFillTools()
+{
+    setTool(mLastFillToolUsed == FillTool ? TexturedFillTool : FillTool);
 }
 
 void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
@@ -2464,8 +2474,17 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
     if (event->isAutoRepeat())
         return;
 
-    if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_3) {
-        setTool(static_cast<ImageCanvas::Tool>(PenTool + event->key() - Qt::Key_1));
+    if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_5) {
+        const Tool activatedTool = static_cast<ImageCanvas::Tool>(PenTool + event->key() - Qt::Key_1);
+        if (activatedTool == FillTool && (mTool == FillTool || mTool == TexturedFillTool)) {
+            // If the tool was already one of the fill tools, select the next fill tool.
+            cycleFillTools();
+        } else {
+            if (activatedTool != SelectionTool || (activatedTool == SelectionTool && supportsSelectionTool())) {
+                // Don't set the selection tool if the canvas doesn't support it.
+                setTool(activatedTool);
+            }
+        }
     } else if (event->key() == Qt::Key_Space) {
         mSpacePressed = true;
         updateWindowCursorShape();

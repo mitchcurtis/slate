@@ -89,13 +89,14 @@ class ImageCanvas : public QQuickPaintedItem
     Q_PROPERTY(qreal lineAngle READ lineAngle NOTIFY lineLengthChanged)
 
 public:
+    // The order of these is important, as the number keys can activate the tools.
     enum Tool {
         PenTool,
         EyeDropperTool,
         EraserTool,
         FillTool,
-        TexturedFillTool,
         SelectionTool,
+        TexturedFillTool,
         CropTool
     };
 
@@ -265,6 +266,8 @@ public slots:
     void deleteSelection();
     void selectAll();
 
+    void cycleFillTools();
+
 protected slots:
     virtual void reset();
     virtual void onLoadedChanged();
@@ -370,6 +373,7 @@ protected:
         SelectionPanTimerReason
     };
 
+    virtual bool supportsSelectionTool() const;
     void beginSelectionMove();
     void updateOrMoveSelectionArea();
     void updateSelectionArea();
