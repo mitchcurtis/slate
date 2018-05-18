@@ -2,9 +2,7 @@
 
 ## Creating a New Project
 
-Whether you have an existing tileset or wish to create a new one from scratch, the first step is to create a new project. There are two ways to do this: Ctrl+N or via the File menu.
-
-Next, select New Layered Image from the list:
+To create a new Layered Image Project, select File > New or press Ctrl+N. Then, select New Layered Image from the list:
 
 <img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-new-project-dialog.png" width="600">
 
