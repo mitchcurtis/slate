@@ -20,7 +20,7 @@ Slate was built for pixel art, and its goal is to simplify the creation of sprit
 See the [releases](https://github.com/mitchcurtis/slate/releases) page for the available downloads.
 
 ### Documentation ###
-- [Getting Started](https://github.com/mitchcurtis/slate/blob/master/doc/getting-started.md)
+- [Overview](https://github.com/mitchcurtis/slate/blob/master/doc/overview.md)
 
 ### Notes ###
 - This is a work in progress, but should already be usable. Feel free to report any bugs you find. :)
