@@ -1,4 +1,4 @@
-# Slate - Getting Started
+# Slate - Overview
 
 ## Images
 
