@@ -24,7 +24,7 @@ In the bottom left of the Layer panel, click the "+" button to add a new layer. 
 
 ## Renaming Layers
 
-Double click on the layer to rename it.
+Double click on the layer to rename it. Press Enter to confirm the changes, or Escape to cancel.
 
 <img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-layered-image-project-rename-layers.png" width="285">
 
