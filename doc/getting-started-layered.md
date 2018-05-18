@@ -10,7 +10,7 @@ Next, select New Layered Image from the list:
 
 Choose a width and height for the canvas. You can also choose whether or not the first layer is transparent or filled with white.
 
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-new-layered-image-project-dialog.png" width="600">
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-new-layered-image-project-dialog.png" width="400">
 
 Hit OK. You'll now be looking at a new layered image project:
 
