@@ -22,8 +22,8 @@ Hit OK. You'll now be looking at a new layered image project:
 
 ## Renaming Layers
 
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-layered-image-project-rename-layers.png" height="600">
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-layered-image-project-rename-layers.png" width="285">
 
 ## Exporting Layers
 
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-layered-image-project-export-layers.png" width="height">
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-layered-image-project-export-layers.png" height="600">
