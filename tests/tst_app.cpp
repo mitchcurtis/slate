@@ -3888,6 +3888,13 @@ void tst_App::exportFileNamedLayers()
     // Rename it so that it uses the project as a prefix.
     QVERIFY2(makeCurrentAndRenameLayer("Layer 5", "[%p-blah] Layer 5"), failureMessage);
 
+    // Now we have the following layers (x = hidden):
+    // - [%p-blah] Layer 5
+    // - [test] Layer 4
+    // - Layer 3
+    // x [test] Layer 2
+    // - Layer 1
+
     // Draw a dot on it as usual, so that we can verify it exports correctly.
     layeredImageCanvas->setPenForegroundColour(Qt::darkBlue);
     setCursorPosInScenePixels(4, 0);
@@ -3903,6 +3910,26 @@ void tst_App::exportFileNamedLayers()
     exportedLayerImage = QImage(exportedBlahLayerImagePath);
     QVERIFY(!exportedLayerImage.isNull());
     QCOMPARE(exportedLayerImage.pixelColor(4, 0), layer5->image()->pixelColor(4, 0));
+
+    // Add [no-export] to each layer without a prefix so that they're not exported.
+    QVERIFY2(makeCurrentAndRenameLayer("Layer 1", "[no-export] Layer 1"), failureMessage);
+    QVERIFY2(makeCurrentAndRenameLayer("Layer 3", "[no-export] Layer 3"), failureMessage);
+
+    // Now we have the following layers:
+    // - [%p-blah] Layer 5
+    // - [test] Layer 4
+    // - [no-export] Layer 3
+    // x [test] Layer 2
+    // - [no-export] Layer 1
+
+    // Remove the image so that we can re-test it being exported.
+    QVERIFY(QFile::remove(exportedImagePath));
+    QVERIFY(!QFile::exists(exportedImagePath));
+
+    // Now it shouldn't be exported.
+    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(!QFile::exists(exportedImagePath));
 }
 
 void tst_App::disableToolsWhenLayerHidden()

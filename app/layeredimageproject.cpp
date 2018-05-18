@@ -226,15 +226,21 @@ QHash<QString, QImage> LayeredImageProject::flattenedImages() const
     qCDebug(lcProject) << "flattening" << mLayers.size() << "layers";
 
     static const QRegularExpression fileNameRegex("^\\[.*\\]");
+    static const QString noExportString("[no-export]");
     QHash<QString, QImage> images;
 
     QVector<ImageLayer*> remainingLayers = mLayers;
     while (!remainingLayers.isEmpty()) {
-        // Take the last layer and try to find "[file-name]" in its layer name.
-        QRegularExpressionMatch match;
+        // Take the last layer and try to find "[file-name]" or "[no-export]" in its layer name.
         QString targetFileName;
         qCDebug(lcProject) << "- taking last layer" << remainingLayers.last();
         ImageLayer *layer = remainingLayers.takeLast();
+        if (layer->name().startsWith(noExportString)) {
+            // Don't export this layer.
+            continue;
+        }
+
+        QRegularExpressionMatch match;
         if (layer->name().contains(fileNameRegex, &match))
             targetFileName = match.captured();
 
