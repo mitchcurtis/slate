@@ -10,7 +10,7 @@ Slate supports editing bitmap images directly. This project type has no layer su
 
 ![Layered Image Project icon](https://github.com/mitchcurtis/slate/blob/master/app/images/layered-image-project.svg)
 
-A layered image project can contain several images, each of which is stored as a layer. The highest layer in the list is drawn on top of the layers below it. This type of project can be exported as a single image.
+A layered image project can contain several images, each of which is stored as a layer. The highest layer in the list is drawn on top of the layers below it. This type of project can be exported as one or more images.
 
 - [Getting Started with Layered Image Projects](https://github.com/mitchcurtis/slate/blob/master/doc/getting-started-layered.md)
 
