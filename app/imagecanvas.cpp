@@ -472,7 +472,7 @@ void ImageCanvas::setPenForegroundColour(const QColor &penForegroundColour)
         return;
     }
 
-    QColor colour = penForegroundColour.toRgb();
+    const QColor colour = penForegroundColour.toRgb();
     if (colour == mPenForegroundColour)
         return;
 
@@ -492,7 +492,7 @@ void ImageCanvas::setPenBackgroundColour(const QColor &penBackgroundColour)
         return;
     }
 
-    QColor colour = penBackgroundColour.toRgb();
+    const QColor colour = penBackgroundColour.toRgb();
     if (colour == mPenBackgroundColour)
         return;
 

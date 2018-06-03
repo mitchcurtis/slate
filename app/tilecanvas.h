@@ -93,7 +93,7 @@ protected:
     void connectSignals() override;
     void disconnectSignals() override;
     void toolChange() override;
-    virtual bool supportsSelectionTool() const;
+    bool supportsSelectionTool() const override;
 
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
