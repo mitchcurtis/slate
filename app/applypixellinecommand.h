@@ -22,25 +22,23 @@
 
 #include <QDebug>
 #include <QPointF>
-#include <QtUndo/undocommand.h>
+#include <QUndoCommand>
 
 #include "imagecanvas.h"
 
-class ApplyPixelLineCommand : public UndoCommand
+class ApplyPixelLineCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex, const QImage &imageWithLine,
         const QImage &imageWithoutLine, const QRect &lineRect, const QPoint &newLastPixelPenReleaseScenePos,
-        const QPoint &oldLastPixelPenReleaseScenePos, UndoCommand *parent = nullptr);
+        const QPoint &oldLastPixelPenReleaseScenePos, QUndoCommand *parent = nullptr);
     ~ApplyPixelLineCommand();
 
     void undo() override;
     void redo() override;
 
     int id() const override;
-    bool mergeWith(const UndoCommand *other) override;
+    bool mergeWith(const QUndoCommand *other) override;
 
 private:
     friend QDebug operator<<(QDebug debug, const ApplyPixelLineCommand *command);

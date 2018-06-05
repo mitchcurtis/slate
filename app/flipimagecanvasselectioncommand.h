@@ -22,17 +22,15 @@
 
 #include <QDebug>
 #include <QRect>
-#include <QtUndo/undocommand.h>
+#include <QUndoCommand>
 
 class ImageCanvas;
 
-class FlipImageCanvasSelectionCommand : public UndoCommand
+class FlipImageCanvasSelectionCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     FlipImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &area,
-        Qt::Orientation orientation, UndoCommand *parent = nullptr);
+        Qt::Orientation orientation, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

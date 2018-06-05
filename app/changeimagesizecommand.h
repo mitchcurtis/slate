@@ -22,17 +22,15 @@
 
 #include <QDebug>
 #include <QImage>
-#include <QtUndo/undocommand.h>
+#include <QUndoCommand>
 
 class ImageProject;
 
-class ChangeImageSizeCommand : public UndoCommand
+class ChangeImageSizeCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     ChangeImageSizeCommand(ImageProject *project, const QImage &previousImage, const QImage &newImage,
-        UndoCommand *parent = nullptr);
+        QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

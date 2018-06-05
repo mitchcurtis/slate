@@ -28,8 +28,8 @@ Q_LOGGING_CATEGORY(lcMergeLayersCommand, "app.undo.mergeLayersCommand")
 
 MergeLayersCommand::MergeLayersCommand(LayeredImageProject *project,
         int sourceIndex, ImageLayer *sourceLayer, int targetIndex, ImageLayer *targetLayer,
-    UndoCommand *parent) :
-    UndoCommand(parent),
+    QUndoCommand *parent) :
+    QUndoCommand(parent),
     mProject(project),
     mSourceIndex(sourceIndex),
     mSourceLayer(sourceLayer),
@@ -44,7 +44,7 @@ void MergeLayersCommand::undo()
 {
     qCDebug(lcMergeLayersCommand) << "undoing" << this;
     // Restore the source layer..
-    mProject->addLayer(mSourceLayer, mSourceIndex);
+    mProject->addLayer(mSourceLayerGuard.take(), mSourceIndex);
     // .. and then restore the target layer.
     mProject->setLayerImage(mTargetIndex, mPreviousTargetLayerImage);
 }
@@ -53,8 +53,8 @@ void MergeLayersCommand::redo()
 {
     qCDebug(lcMergeLayersCommand) << "redoing" << this;
     mProject->mergeLayers(mSourceIndex, mTargetIndex);
-    // The source layer loses its QObject parent, so parent it to us to prevent leaks.
-    mSourceLayer->setParent(this);
+    // The source layer loses its QObject parent, so manage it to prevent leaks.
+    mSourceLayerGuard.reset(mSourceLayer);
 }
 
 int MergeLayersCommand::id() const

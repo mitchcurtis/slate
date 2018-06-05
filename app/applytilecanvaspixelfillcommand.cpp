@@ -27,8 +27,8 @@
 Q_LOGGING_CATEGORY(lcApplyTileCanvasPixelFillCommand, "app.undo.applyTileCanvasPixelFillCommand")
 
 ApplyTileCanvasPixelFillCommand::ApplyTileCanvasPixelFillCommand(TileCanvas *canvas, const QVector<QPoint> &scenePositions,
-    const QColor &previousColour, const QColor &colour, UndoCommand *parent) :
-    UndoCommand(parent),
+    const QColor &previousColour, const QColor &colour, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mCanvas(canvas),
     mColour(colour)
 {

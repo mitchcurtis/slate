@@ -22,18 +22,16 @@
 
 #include <QDebug>
 #include <QSize>
+#include <QUndoCommand>
 #include <QVector>
-#include <QtUndo/undocommand.h>
 
 class LayeredImageProject;
 
-class ChangeLayerOrderCommand : public UndoCommand
+class ChangeLayerOrderCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     ChangeLayerOrderCommand(LayeredImageProject *project, int previousIndex, int newIndex,
-        UndoCommand *parent = nullptr);
+        QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

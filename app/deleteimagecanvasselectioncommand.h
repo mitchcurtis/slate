@@ -23,17 +23,15 @@
 #include <QDebug>
 #include <QImage>
 #include <QRect>
-#include <QtUndo/undocommand.h>
+#include <QUndoCommand>
 
 class ImageCanvas;
 
-class DeleteImageCanvasSelectionCommand : public UndoCommand
+class DeleteImageCanvasSelectionCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     DeleteImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &area,
-        UndoCommand *parent = nullptr);
+        QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

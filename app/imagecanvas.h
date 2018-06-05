@@ -26,10 +26,12 @@
 #include <QPixmap>
 #include <QQuickPaintedItem>
 #include <QStack>
+<<<<<<< HEAD
 #include <QTimerEvent>
+=======
+#include <QUndoStack>
+>>>>>>> 5.12
 #include <QWheelEvent>
-
-#include <QtUndo/undostack.h>
 
 #include "canvaspane.h"
 #include "ruler.h"

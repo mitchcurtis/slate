@@ -24,23 +24,21 @@
 #include <QDebug>
 #include <QPoint>
 #include <QVector>
-#include <QtUndo/undocommand.h>
+#include <QUndoCommand>
 
 #include "tilecanvas.h"
 
-class ApplyTileFillCommand : public UndoCommand
+class ApplyTileFillCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     ApplyTileFillCommand(TileCanvas *canvas, const QVector<QPoint> &tilePositions, int previousTile,
-        int tile, UndoCommand *parent = nullptr);
+        int tile, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
 
     int id() const override;
-    bool mergeWith(const UndoCommand *other) override;
+    bool mergeWith(const QUndoCommand *other) override;
 
 private:
     friend QDebug operator<<(QDebug debug, const ApplyTileFillCommand *command);

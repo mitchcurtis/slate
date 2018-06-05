@@ -21,17 +21,15 @@
 #define CHANGELAYEROPACITYCOMMAND_H
 
 #include <QDebug>
-#include <QtUndo/undocommand.h>
+#include <QUndoCommand>
 
 class LayeredImageProject;
 
-class ChangeLayerOpacityCommand : public UndoCommand
+class ChangeLayerOpacityCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     ChangeLayerOpacityCommand(LayeredImageProject *project, int layerIndex, qreal previousOpacity,
-        qreal newOpacity, UndoCommand *parent = nullptr);
+        qreal newOpacity, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

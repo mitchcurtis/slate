@@ -21,18 +21,16 @@
 #define DELETEGUIDECOMMAND_H
 
 #include <QDebug>
-#include <QtUndo/undocommand.h>
+#include <QUndoCommand>
 
 #include "guide.h"
 
 class Project;
 
-class DeleteGuideCommand : public UndoCommand
+class DeleteGuideCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
-    DeleteGuideCommand(Project *project, const Guide &guide, UndoCommand *parent = nullptr);
+    DeleteGuideCommand(Project *project, const Guide &guide, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

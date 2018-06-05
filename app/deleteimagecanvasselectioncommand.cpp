@@ -24,8 +24,8 @@
 
 Q_LOGGING_CATEGORY(lcDeleteImageCanvasSelectionCommand, "app.undo.deleteImageCanvasSelectionCommand")
 
-DeleteImageCanvasSelectionCommand::DeleteImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &area, UndoCommand *parent) :
-    UndoCommand(parent),
+DeleteImageCanvasSelectionCommand::DeleteImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &area, QUndoCommand *parent) :
+    QUndoCommand(parent),
     mCanvas(canvas),
     mDeletedArea(area),
     mDeletedAreaImagePortion(canvas->currentProjectImage()->copy(area))

@@ -23,17 +23,15 @@
 #include <QDebug>
 #include <QImage>
 #include <QRect>
-#include <QtUndo/undocommand.h>
+#include <QUndoCommand>
 
 class ImageCanvas;
 
-class PasteImageCanvasCommand : public UndoCommand
+class PasteImageCanvasCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     PasteImageCanvasCommand(ImageCanvas *canvas, const QImage &image, const QPoint &position,
-        UndoCommand *parent = nullptr);
+        QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

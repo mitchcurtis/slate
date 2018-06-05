@@ -31,8 +31,7 @@ See the [releases](https://github.com/mitchcurtis/slate/releases) page for the a
 
 ### Dependencies ###
 
-* Qt >= 5.11
-* https://github.com/mitchcurtis/qt-undo (submodule; see [Building](#building))
+* Qt 5.12
 
 ### Cloning ###
 
@@ -40,13 +39,7 @@ See the [releases](https://github.com/mitchcurtis/slate/releases) page for the a
 
 ### Building ###
 
-qt-undo can be cloned and built separately, but it is also available as a submodule of Slate's repo, and can therefore be built automatically when Slate is built, by first running the following commands:
-
-    cd /path/to/slate-source-dir
-    git submodule init
-    git submodule update
-    
-Once that's set up, there are two options for building:
+There are two options for building:
 
 #### Qt Creator ####
 Open [slate.pro](https://github.com/mitchcurtis/slate/blob/master/slate.pro) in Qt Creator, configure the project using a kit with a Qt version that meets the requirement listed in the [Dependencies](#dependencies) section, and then build it.

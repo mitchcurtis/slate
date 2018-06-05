@@ -21,17 +21,15 @@
 #define CHANGELAYERNAMECOMMAND_H
 
 #include <QDebug>
-#include <QtUndo/undocommand.h>
+#include <QUndoCommand>
 
 class LayeredImageProject;
 
-class ChangeLayerNameCommand : public UndoCommand
+class ChangeLayerNameCommand : public QUndoCommand
 {
-    Q_OBJECT
-
 public:
     ChangeLayerNameCommand(LayeredImageProject *project, int layerIndex, const QString &previousName,
-        const QString &newName, UndoCommand *parent = nullptr);
+        const QString &newName, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
