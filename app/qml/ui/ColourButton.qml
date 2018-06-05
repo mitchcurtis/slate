@@ -7,11 +7,15 @@ Button {
     checkable: true
     hoverEnabled: true
     focusPolicy: Qt.NoFocus
+    topInset: 0
+    bottomInset: 0
 
     property alias color: rect.color
 
     background: Rectangle {
         id: rect
+        implicitWidth: 24
+        implicitHeight: 24
 
         Rectangle {
             anchors.fill: parent
