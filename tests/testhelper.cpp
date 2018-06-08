@@ -68,6 +68,8 @@ void TestHelper::initTestCase()
     QVERIFY(app.settings()->isGridVisible());
     app.settings()->setRulersVisible(false);
     QVERIFY(!app.settings()->areRulersVisible());
+    app.settings()->setGuidesLocked(false);
+    QVERIFY(!app.settings()->areGuidesLocked());
 
     // However, this should never change.
     QVERIFY(!app.settings()->loadLastOnStartup());

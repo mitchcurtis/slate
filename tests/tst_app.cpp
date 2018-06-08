@@ -3134,6 +3134,25 @@ void tst_App::rulersAndGuides()
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(project->guides().isEmpty(), true);
     QCOMPARE(window->cursor().shape(), Qt::ArrowCursor);
+
+    // Shouldn't be possible to create a guide when Guides Locked is checked.
+    app.settings()->setGuidesLocked(true);
+
+    // Try to drag a guide out.
+    setCursorPosInPixels(QPoint(50, rulerThickness / 2));
+    QTest::mouseMove(window, cursorWindowPos);
+    QVERIFY(!canvas->pressedRuler());
+
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(!canvas->pressedRuler());
+
+    setCursorPosInPixels(QPoint(50, rulerThickness + 10));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(!canvas->pressedRuler());
+    QCOMPARE(project->guides().size(), 0);
+
+    app.settings()->setGuidesLocked(false);
 }
 
 void tst_App::recentFiles()

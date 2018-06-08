@@ -1059,7 +1059,7 @@ void ImageCanvas::resizeRulers()
 
 void ImageCanvas::updatePressedRuler()
 {
-    mPressedRuler = rulerAtCursorPos();
+    mPressedRuler = !guidesLocked() ? rulerAtCursorPos() : nullptr;
 }
 
 Ruler *ImageCanvas::rulerAtCursorPos()
