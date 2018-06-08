@@ -26,11 +26,8 @@
 #include <QPixmap>
 #include <QQuickPaintedItem>
 #include <QStack>
-<<<<<<< HEAD
 #include <QTimerEvent>
-=======
 #include <QUndoStack>
->>>>>>> 5.12
 #include <QWheelEvent>
 
 #include "canvaspane.h"
