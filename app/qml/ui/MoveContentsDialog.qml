@@ -139,14 +139,19 @@ Dialog {
                         id: imagePreview
                         // Our parent has to be positioned correctly based on our painted size,
                         // which means we must deduct their position to get ours.
-                        x: Math.ceil(xDistanceSpinBox.value) - parent.x
-                        y: Math.ceil(yDistanceSpinBox.value) - parent.y
+                        x: Math.ceil((xDistanceSpinBox.value * widthScale) - parent.x)
+                        y: Math.ceil((yDistanceSpinBox.value * heightScale) - parent.y)
                         width: imagePreviewBackground.width
                         height: imagePreviewBackground.height
                         fillMode: Image.PreserveAspectFit
                         smooth: false
                         // Ensure that we get up-to-date images from the provider.
                         cache: false
+
+                        // The image is scaled to fit the viewport (imagePreviewBackground),
+                        // so our x and y position must be scaled to account for that.
+                        readonly property int widthScale: paintedWidth / implicitWidth
+                        readonly property int heightScale: paintedHeight / implicitHeight
                     }
                 }
             }
