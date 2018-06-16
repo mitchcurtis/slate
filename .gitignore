@@ -36,3 +36,7 @@ Makefile*
 # OS X
 
 .DS_Store
+
+# Android
+
+android/

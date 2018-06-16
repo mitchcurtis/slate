@@ -43,7 +43,6 @@ public:
 
     qreal zoomLevel() const;
     int integerZoomLevel() const;
-    void setZoomLevel(qreal zoomLevel);
     int maxZoomLevel() const;
 
     QSize zoomedSize(const QSize &size) const;
@@ -60,6 +59,9 @@ public:
     void write(QJsonObject &json) const;
 
     void reset();
+
+public slots:
+    void setZoomLevel(qreal zoomLevel);
 
 signals:
     void zoomLevelChanged();

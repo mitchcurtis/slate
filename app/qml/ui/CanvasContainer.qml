@@ -21,6 +21,8 @@ import QtQuick 2.9
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
 
+import Qt.labs.handlers 1.0
+
 import App 1.0
 
 Item {
@@ -31,7 +33,7 @@ Item {
     property ImageCanvas canvas: loader.item
     property var checkedToolButton
 
-    Loader {
+    CanvasLoader {
         id: loader
         objectName: "canvasContainerLoader"
         source: project && project.typeString.length > 0 ? project.typeString + "Canvas.qml" : ""

@@ -53,5 +53,8 @@
         <file>ui/TexturedFillVarianceRangedSlider.qml</file>
         <file>ui/SaturationLightnessPicker.qml</file>
         <file>ui/+nativemenubar/MenuBar.qml</file>
+        <file>+android/main.qml</file>
+        <file>ui/CanvasLoader.qml</file>
+        <file>ui/+android/CanvasLoader.qml</file>
     </qresource>
 </RCC>
