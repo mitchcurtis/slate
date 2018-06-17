@@ -1,20 +1,5 @@
 <RCC>
     <qresource prefix="/images">
-        <file>opacity.png</file>
-        <file>opacity@2x.png</file>
-        <file>opacity@3x.png</file>
-        <file>opacity@4x.png</file>
-        <file>checker.png</file>
-        <file>selection.png</file>
-        <file>selection@2x.png</file>
-        <file>selection@3x.png</file>
-        <file>selection@4x.png</file>
-        <file>image-project.png</file>
-        <file>layered-image-project.png</file>
-        <file>tileset-project.png</file>
-        <file>tileset-project@2x.png</file>
-        <file>image-project@2x.png</file>
-        <file>layered-image-project@2x.png</file>
         <file>change-canvas-size.png</file>
         <file>change-canvas-size@2x.png</file>
         <file>change-canvas-size@3x.png</file>
@@ -25,16 +10,40 @@
         <file>change-tool-size@2x.png</file>
         <file>change-tool-size@3x.png</file>
         <file>change-tool-size@4x.png</file>
+        <file>checker.png</file>
         <file>fill.png</file>
         <file>fill@2x.png</file>
         <file>fill@3X.png</file>
         <file>fill@4X.png</file>
+        <file>image-project.png</file>
+        <file>image-project@2x.png</file>
+        <file>layered-image-project.png</file>
+        <file>layered-image-project@2x.png</file>
+        <file>lock-guides.png</file>
+        <file>lock-guides@2x.png</file>
+        <file>lock-guides@3x.png</file>
+        <file>lock-guides@4x.png</file>
+        <file>opacity.png</file>
+        <file>opacity@2x.png</file>
+        <file>opacity@3x.png</file>
+        <file>opacity@4x.png</file>
+        <file>selection.png</file>
+        <file>selection@2x.png</file>
+        <file>selection@3x.png</file>
+        <file>selection@4x.png</file>
+        <file>show-guides.png</file>
+        <file>show-guides@2x.png</file>
+        <file>show-guides@3x.png</file>
+        <file>show-guides@4x.png</file>
+        <file>show-rulers.png</file>
+        <file>show-rulers@2x.png</file>
+        <file>show-rulers@3x.png</file>
+        <file>show-rulers@4x.png</file>
         <file>textured-fill.png</file>
         <file>textured-fill@2x.png</file>
         <file>textured-fill@3x.png</file>
         <file>textured-fill@4x.png</file>
-        <file>show-rulers.png</file>
-        <file>show-guides.png</file>
-        <file>lock-guides.png</file>
+        <file>tileset-project.png</file>
+        <file>tileset-project@2x.png</file>
     </qresource>
 </RCC>
