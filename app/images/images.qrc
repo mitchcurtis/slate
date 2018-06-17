@@ -33,5 +33,8 @@
         <file>textured-fill@2x.png</file>
         <file>textured-fill@3x.png</file>
         <file>textured-fill@4x.png</file>
+        <file>show-rulers.png</file>
+        <file>show-guides.png</file>
+        <file>lock-guides.png</file>
     </qresource>
 </RCC>

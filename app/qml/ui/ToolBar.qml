@@ -309,5 +309,52 @@ ToolBar {
         ToolSeparator {
             id: toolSeparator
         }
+
+        Row {
+            id: viewLayout
+            spacing: 5
+
+            ToolButton {
+                objectName: "showRulersToolButton"
+                focusPolicy: Qt.NoFocus
+                hoverEnabled: true
+                checkable: true
+                checked: settings.rulersVisible
+                icon.source: "qrc:/images/show-rulers.png"
+
+                ToolTip.text: qsTr("Show rulers")
+                ToolTip.visible: hovered
+
+                onClicked: settings.rulersVisible = checked
+            }
+
+            ToolButton {
+                objectName: "showGuidesToolButton"
+                focusPolicy: Qt.NoFocus
+                hoverEnabled: true
+                checkable: true
+                checked: settings.guidesVisible
+                icon.source: "qrc:/images/show-guides.png"
+
+                ToolTip.text: qsTr("Show guides")
+                ToolTip.visible: hovered
+
+                onClicked: settings.guidesVisible = checked
+            }
+
+            ToolButton {
+                objectName: "lockGuidesToolButton"
+                focusPolicy: Qt.NoFocus
+                hoverEnabled: true
+                checkable: true
+                checked: settings.guidesLocked
+                icon.source: "qrc:/images/lock-guides.png"
+
+                ToolTip.text: qsTr("Lock guides")
+                ToolTip.visible: hovered
+
+                onClicked: settings.guidesLocked = checked
+            }
+        }
     }
 }
