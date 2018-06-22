@@ -59,18 +59,26 @@ Pane {
                 return canvas.cursorSceneX + ", " + canvas.cursorSceneY;
             }
 
+            // Specify a fixed size to avoid causing items to the right of us jumping
+            // around when we would be resized due to changes in our text.
             Layout.minimumWidth: cursorMaxTextMetrics.width
             Layout.maximumWidth: cursorMaxTextMetrics.width
 
             TextMetrics {
                 id: cursorMaxTextMetrics
                 font: cursorPixelPosLabel.font
-                text: "999, 999"
+                text: "9999, 9999"
             }
         }
 
         ToolSeparator {
             padding: 0
+            // Use opacity rather than visible, as it's an easy way of ensuring that the RowLayout
+            // always has a minimum height equal to the tallest item (assuming that that's us)
+            // and hence doesn't jump around when we become hidden.
+            // There's always at least one label and icon visible at all times (cursor pos),
+            // so we don't have to worry about those.
+            opacity: (fpsCounter.visible || lineLengthLabel.visible || selectionSizeLabel.visible) ? 1 : 0
 
             Layout.fillHeight: true
             Layout.maximumHeight: 24
@@ -101,7 +109,7 @@ Pane {
             TextMetrics {
                 id: selectionAreaMaxTextMetrics
                 font: selectionSizeLabel.font
-                text: "999 x 999"
+                text: "9999 x 9999"
             }
         }
 
@@ -166,8 +174,40 @@ Pane {
         }
 
         Label {
+            id: lineAngleLabel
             text: canvas ? canvas.lineAngle.toFixed(2) : ""
             visible: canvas && canvas.lineVisible
+
+            Layout.minimumWidth: lineAngleMaxTextMetrics.width
+            Layout.maximumWidth: lineAngleMaxTextMetrics.width
+
+            TextMetrics {
+                id: lineAngleMaxTextMetrics
+                font: lineAngleLabel.font
+                text: "360.00"
+            }
+        }
+
+        ToolSeparator {
+            padding: 0
+            visible: fpsCounter.visible && (lineLengthLabel.visible || selectionSizeLabel.visible)
+
+            Layout.fillHeight: true
+            Layout.maximumHeight: 24
+        }
+
+        FpsCounter {
+            id: fpsCounter
+            visible: settings.fpsVisible
+
+            Layout.minimumWidth: fpsMaxTextMetrics.width
+            Layout.maximumWidth: fpsMaxTextMetrics.width
+
+            TextMetrics {
+                id: fpsMaxTextMetrics
+                font: fpsCounter.font
+                text: "100 FPS"
+            }
         }
 
         Item {

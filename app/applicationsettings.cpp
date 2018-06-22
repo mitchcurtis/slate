@@ -244,6 +244,31 @@ void ApplicationSettings::setScrollZoom(bool scrollZoom)
     emit scrollZoomChanged();
 }
 
+bool ApplicationSettings::defaultFpsVisible() const
+{
+    return false;
+}
+
+bool ApplicationSettings::isFpsVisible() const
+{
+    return contains("fpsVisible") ? value("fpsVisible").toBool() : defaultFpsVisible();
+}
+
+void ApplicationSettings::setFpsVisible(bool fpsVisible)
+{
+    QVariant existingValue = value("fpsVisible");
+    bool existingBoolValue = defaultFpsVisible();
+    if (contains("fpsVisible")) {
+        existingBoolValue = existingValue.toBool();
+    }
+
+    if (fpsVisible == existingBoolValue)
+        return;
+
+    setValue("fpsVisible", fpsVisible);
+    emit fpsVisibleChanged();
+}
+
 QColor ApplicationSettings::defaultCheckerColour1() const
 {
     return QColor("#444444");

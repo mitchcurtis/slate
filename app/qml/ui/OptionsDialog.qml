@@ -22,6 +22,7 @@ Dialog {
         settings.loadLastOnStartup = loadLastCheckBox.checked
         settings.checkerColour1 = checkerColour1TextField.colour
         settings.checkerColour2 = checkerColour2TextField.colour
+        settings.fpsVisible = showFpsCheckBox.checked
 
         for (var i = 0; i < shortcutModel.count; ++i) {
             var row = shortcutModel.get(i)
@@ -35,6 +36,7 @@ Dialog {
         loadLastCheckBox.checked = settings.loadLastOnStartup
         checkerColour1TextField.text = settings.checkerColour1
         checkerColour2TextField.text = settings.checkerColour2
+        showFpsCheckBox.checked = settings.fpsVisible
 
         for (var i = 0; i < shortcutModel.count; ++i) {
             var row = shortcutModel.get(i)
@@ -138,6 +140,15 @@ Dialog {
 
                         readonly property color colour: "#" + text
                     }
+                }
+
+                Label {
+                    text: qsTr("Show FPS")
+                }
+                CheckBox {
+                    id: showFpsCheckBox
+                    leftPadding: 0
+                    checked: settings.fpsVisible
                 }
             }
         }

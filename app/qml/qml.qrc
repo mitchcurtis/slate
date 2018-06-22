@@ -53,5 +53,6 @@
         <file>ui/TexturedFillVarianceRangedSlider.qml</file>
         <file>ui/SaturationLightnessPicker.qml</file>
         <file>ui/+nativemenubar/MenuBar.qml</file>
+        <file>ui/FpsCounter.qml</file>
     </qresource>
 </RCC>
