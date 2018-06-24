@@ -1417,7 +1417,14 @@ void ImageCanvas::updateSelectionCursorGuideVisibility()
         << "mTool == SelectionTool:" << (mTool == SelectionTool)
         << "!mHasSelection:" << !mHasSelection
         << "mContainsMouse:" << mContainsMouse;
+
+    const bool wasVisible = mSelectionCursorGuide->isVisible();
+
     mSelectionCursorGuide->setVisible(shouldDrawSelectionCursorGuide());
+
+    // It seems to be necessary to request an update after making the guide visible.
+    if (mSelectionCursorGuide->isVisible() && !wasVisible)
+        mSelectionCursorGuide->update();
 }
 
 void ImageCanvas::confirmPasteSelection()
