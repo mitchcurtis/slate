@@ -1387,6 +1387,7 @@ void ImageCanvas::setHasSelection(bool hasSelection)
 
     mHasSelection = hasSelection;
     updateWindowCursorShape();
+    updateSelectionCursorGuideVisibility();
     emit hasSelectionChanged();
 }
 
