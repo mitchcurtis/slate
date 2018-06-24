@@ -165,8 +165,11 @@ public:
     Splitter *splitter();
 
     CanvasPane *firstPane();
+    const CanvasPane *firstPane() const;
     CanvasPane *secondPane();
+    const CanvasPane *secondPane() const;
     CanvasPane *currentPane();
+    int paneWidth(int index) const;
 
     QColor rulerForegroundColour() const;
     void setRulerForegroundColour(const QColor &foregroundColour) const;
@@ -339,7 +342,6 @@ protected:
     void drawLine(QPainter *painter) const;
     void drawGuide(QPainter *painter, const CanvasPane &pane, int paneIndex, const Guide &guide, int guideIndex);
     void drawSelectionCursorGuide(QPainter *painter, const CanvasPane &pane, int paneIndex);
-    int paneWidth(int index) const;
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,

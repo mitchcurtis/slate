@@ -42,6 +42,7 @@
 #include "imageproject.h"
 #include "moveimagecanvasselectioncommand.h"
 #include "moveguidecommand.h"
+#include "panedrawinghelper.h"
 #include "pasteimagecanvascommand.h"
 #include "project.h"
 #include "tileset.h"
@@ -629,7 +630,17 @@ CanvasPane *ImageCanvas::firstPane()
     return &mFirstPane;
 }
 
+const CanvasPane *ImageCanvas::firstPane() const
+{
+    return &mFirstPane;
+}
+
 CanvasPane *ImageCanvas::secondPane()
+{
+    return &mSecondPane;
+}
+
+const CanvasPane *ImageCanvas::secondPane() const
 {
     return &mSecondPane;
 }
@@ -637,6 +648,11 @@ CanvasPane *ImageCanvas::secondPane()
 CanvasPane *ImageCanvas::currentPane()
 {
     return mCurrentPane;
+}
+
+int ImageCanvas::paneWidth(int index) const
+{
+    return index == 0 ? mFirstPane.size() * width() : width() - mFirstPane.size() * width();
 }
 
 QColor ImageCanvas::rulerForegroundColour() const
@@ -844,23 +860,11 @@ QImage ImageCanvas::contentImage() const
 
 void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex)
 {
-    const int paneWidth = width() * pane.size();
-
-    painter->save();
-
-    QPoint translateDistance;
-    if (paneIndex == 1) {
-        translateDistance.rx() = width() * mFirstPane.size();
-    }
-    translateDistance += pane.offset();
-    painter->translate(translateDistance);
-
-    // Can't set two clip regions on the same painting, so we only clip the left-hand pane
-    // and simply paint it over the top of any out-of-bounds drawing the right-hand one has done.
-    if (paneIndex == 0)
-        painter->setClipRegion(QRegion(-translateDistance.x(), -translateDistance.y(), paneWidth, height()));
+    // Does saving/restoring, translating, clipping, etc. for us.
+    PaneDrawingHelper paneDrawingHelper(this, painter, &pane, paneIndex);
 
     const QSize zoomedCanvasSize = pane.zoomedSize(currentProjectImage()->size());
+    const int paneWidth = width() * pane.size();
     const int zoomedCanvasWidth = qMin(zoomedCanvasSize.width(), paneWidth);
     const int zoomedCanvasHeight = qMin(zoomedCanvasSize.height(), qFloor(height()));
     painter->fillRect(0, 0, zoomedCanvasWidth, zoomedCanvasHeight, mapBackgroundColour());
@@ -897,8 +901,6 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
 
     if (shouldDrawSelectionCursorGuide())
         drawSelectionCursorGuide(painter, pane, paneIndex);
-
-    painter->restore();
 }
 
 void ImageCanvas::drawLine(QPainter *painter) const
@@ -971,11 +973,6 @@ void ImageCanvas::drawSelectionCursorGuide(QPainter *painter, const CanvasPane &
     painter->drawLine(QLineF(0, zoomedGuidePosition, paneWidth(paneIndex), zoomedGuidePosition));
 
     painter->restore();
-}
-
-int ImageCanvas::paneWidth(int index) const
-{
-    return index == 0 ? mFirstPane.size() * width() : width() - mFirstPane.size() * width();
 }
 
 void ImageCanvas::centrePanes(bool respectSceneCentred)
