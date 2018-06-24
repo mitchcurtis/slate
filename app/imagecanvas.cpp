@@ -45,6 +45,7 @@
 #include "panedrawinghelper.h"
 #include "pasteimagecanvascommand.h"
 #include "project.h"
+#include "selectioncursorguide.h"
 #include "tileset.h"
 #include "utils.h"
 
@@ -95,6 +96,7 @@ ImageCanvas::ImageCanvas() :
     mMovingSelection(false),
     mHasMovedSelection(false),
     mIsSelectionFromPaste(false),
+    mSelectionCursorGuide(new SelectionCursorGuide(this)),
     mAltPressed(false),
     mShiftPressed(false),
     mToolBeforeAltPressed(PenTool),
@@ -411,11 +413,6 @@ void ImageCanvas::setTool(const Tool &tool)
     if (tool == mTool)
         return;
 
-    if (mTool == SelectionTool) {
-        // The selection cursor guide was visible and now it won't be, so request an update.
-        update();
-    }
-
     mTool = tool;
 
     // The selection tool doesn't follow the undo rules, so we have to clear
@@ -430,6 +427,8 @@ void ImageCanvas::setTool(const Tool &tool)
             emit lastFillToolUsedChanged();
         }
     }
+
+    updateSelectionCursorGuideVisibility();
 
     toolChange();
 
@@ -578,15 +577,11 @@ void ImageCanvas::setContainsMouse(bool containsMouse)
     if (containsMouse == mContainsMouse)
         return;
 
-    const bool wasDrawingSelectionCursorGuide = shouldDrawSelectionCursorGuide();
-
     mContainsMouse = containsMouse;
     updateWindowCursorShape();
-    if (shouldDrawSelectionCursorGuide() != wasDrawingSelectionCursorGuide) {
-        // Ensure that the selection cursor guide isn't still drawn when the mouse
-        // is outside of us (e.g. over a panel).
-        update();
-    }
+    // Ensure that the selection cursor guide isn't still drawn when the mouse
+    // is outside of us (e.g. over a panel).
+    updateSelectionCursorGuideVisibility();
 
     emit containsMouseChanged();
 }
@@ -801,11 +796,32 @@ void ImageCanvas::onSplitterPositionChanged()
 void ImageCanvas::componentComplete()
 {
     QQuickPaintedItem::componentComplete();
+
     // For some reason, we need to force this stuff to update when creating a
     // tileset project after a layered image project.
     updateRulerVisibility();
     resizeRulers();
+    resizeChildren();
+
     update();
+}
+
+void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
+{
+    QQuickItem::geometryChanged(newGeometry, oldGeometry);
+
+    centrePanes();
+    resizeRulers();
+    resizeChildren();
+
+    if (mProject)
+        updateCursorPos(QPoint(mCursorX, mCursorY));
+}
+
+void ImageCanvas::resizeChildren()
+{
+    mSelectionCursorGuide->setWidth(width());
+    mSelectionCursorGuide->setHeight(height());
 }
 
 void ImageCanvas::paint(QPainter *painter)
@@ -860,7 +876,6 @@ QImage ImageCanvas::contentImage() const
 
 void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex)
 {
-    // Does saving/restoring, translating, clipping, etc. for us.
     PaneDrawingHelper paneDrawingHelper(this, painter, &pane, paneIndex);
 
     const QSize zoomedCanvasSize = pane.zoomedSize(currentProjectImage()->size());
@@ -898,9 +913,6 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
             drawGuide(painter, pane, paneIndex, guide, -1);
         }
     }
-
-    if (shouldDrawSelectionCursorGuide())
-        drawSelectionCursorGuide(painter, pane, paneIndex);
 }
 
 void ImageCanvas::drawLine(QPainter *painter) const
@@ -944,34 +956,6 @@ void ImageCanvas::drawGuide(QPainter *painter, const CanvasPane &pane, int paneI
         painter->translate(-pane.offset().x(), 0);
         painter->drawLine(QLineF(0, zoomedGuidePosition, paneWidth(paneIndex), zoomedGuidePosition));
     }
-    painter->restore();
-}
-
-void ImageCanvas::drawSelectionCursorGuide(QPainter *painter, const CanvasPane &pane, int paneIndex)
-{
-    painter->save();
-
-    QPen pen;
-    pen.setColor(Qt::gray);
-    pen.setStyle(Qt::DotLine);
-    painter->setPen(pen);
-
-    // Draw the vertical cursor selection guide.
-    painter->save();
-
-    int guidePosition = mCursorSceneX;
-    qreal zoomedGuidePosition = (guidePosition * pane.integerZoomLevel()) + (painter->pen().widthF() / 2.0);
-    painter->translate(0, -pane.offset().y());
-    painter->drawLine(QLineF(zoomedGuidePosition, 0, zoomedGuidePosition, height()));
-
-    painter->restore();
-
-    // Draw the horizontal cursor selection guide.
-    guidePosition = mCursorSceneY;
-    zoomedGuidePosition = (guidePosition * pane.integerZoomLevel()) + (painter->pen().widthF() / 2.0);
-    painter->translate(-pane.offset().x(), 0);
-    painter->drawLine(QLineF(0, zoomedGuidePosition, paneWidth(paneIndex), zoomedGuidePosition));
-
     painter->restore();
 }
 
@@ -1426,6 +1410,15 @@ bool ImageCanvas::shouldDrawSelectionCursorGuide() const
     return mTool == SelectionTool && !mHasSelection && mContainsMouse;
 }
 
+void ImageCanvas::updateSelectionCursorGuideVisibility()
+{
+    qCDebug(lcImageCanvasSelection)
+        << "mTool == SelectionTool:" << (mTool == SelectionTool)
+        << "!mHasSelection:" << !mHasSelection
+        << "mContainsMouse:" << mContainsMouse;
+    mSelectionCursorGuide->setVisible(shouldDrawSelectionCursorGuide());
+}
+
 void ImageCanvas::confirmPasteSelection()
 {
     paintImageOntoPortionOfImage(mSelectionAreaBeforeFirstMove, mSelectionContents);
@@ -1709,15 +1702,6 @@ void ImageCanvas::selectAll()
 void ImageCanvas::cycleFillTools()
 {
     setTool(mLastFillToolUsed == FillTool ? TexturedFillTool : FillTool);
-}
-
-void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
-{
-    QQuickItem::geometryChanged(newGeometry, oldGeometry);
-    centrePanes();
-    resizeRulers();
-    if (mProject)
-        updateCursorPos(QPoint(mCursorX, mCursorY));
 }
 
 ImageCanvas::PixelCandidateData ImageCanvas::penEraserPixelCandidates(Tool tool) const
@@ -2014,8 +1998,8 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     }
 
     const bool cursorScenePosChanged = mCursorSceneX != oldCursorSceneX || mCursorSceneY != oldCursorSceneY;
-    if (cursorScenePosChanged && shouldDrawSelectionCursorGuide())
-        update();
+    if (cursorScenePosChanged && mSelectionCursorGuide->isVisible())
+        mSelectionCursorGuide->update();
 }
 
 void ImageCanvas::onLoadedChanged()

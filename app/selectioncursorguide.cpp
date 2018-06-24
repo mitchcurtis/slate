@@ -25,18 +25,15 @@
 
 #include <QPainter>
 
-SelectionCursorGuide::SelectionCursorGuide() :
-    mCanvas(nullptr)
+SelectionCursorGuide::SelectionCursorGuide(ImageCanvas *canvas) :
+    QQuickPaintedItem(canvas),
+    mCanvas(canvas)
 {
+    setObjectName("selectionCursorGuide");
 }
 
 SelectionCursorGuide::~SelectionCursorGuide()
 {
-}
-
-void SelectionCursorGuide::setCanvas(ImageCanvas *canvas)
-{
-    mCanvas = canvas;
 }
 
 void SelectionCursorGuide::paint(QPainter *painter)

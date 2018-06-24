@@ -41,6 +41,7 @@ Q_DECLARE_LOGGING_CATEGORY(lcImageCanvasLifecycle)
 class Guide;
 class ImageProject;
 class Project;
+class SelectionCursorGuide;
 class Tile;
 class Tileset;
 
@@ -286,6 +287,8 @@ protected:
     void componentComplete() override;
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
+    void resizeChildren();
+
     friend class ApplyGreedyPixelFillCommand;
     friend class ApplyPixelEraserCommand;
     friend class ApplyPixelFillCommand;
@@ -341,7 +344,6 @@ protected:
     void drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex);
     void drawLine(QPainter *painter) const;
     void drawGuide(QPainter *painter, const CanvasPane &pane, int paneIndex, const Guide &guide, int guideIndex);
-    void drawSelectionCursorGuide(QPainter *painter, const CanvasPane &pane, int paneIndex);
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,
@@ -391,6 +393,7 @@ protected:
     bool cursorOverSelection() const;
     bool shouldDrawSelectionPreviewImage() const;
     bool shouldDrawSelectionCursorGuide() const;
+    void updateSelectionCursorGuideVisibility();
     void confirmPasteSelection();
     void setSelectionFromPaste(bool isSelectionFromPaste);
     void panWithSelectionIfAtEdge(SelectionPanReason reason);
@@ -505,6 +508,7 @@ protected:
     // was dropped where it is now.
     QImage mSelectionPreviewImage;
     QBasicTimer mSelectionEdgePanTimer;
+    SelectionCursorGuide *mSelectionCursorGuide;
 
     QRect mCropArea;
 

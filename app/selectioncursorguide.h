@@ -30,10 +30,8 @@ class SelectionCursorGuide : public QQuickPaintedItem
     Q_OBJECT
 
 public:
-    SelectionCursorGuide();
+    explicit SelectionCursorGuide(ImageCanvas *canvas);
     ~SelectionCursorGuide();
-
-    void setCanvas(ImageCanvas *canvas);
 
     void paint(QPainter *painter) override;
 

@@ -105,6 +105,7 @@ private Q_SLOTS:
     void selectionEdgePan_data();
     void selectionEdgePan();
     void panThenMoveSelection();
+    void selectionCursorGuide();
 
     void fillImageCanvas_data();
     void fillImageCanvas();
@@ -2710,6 +2711,33 @@ void tst_App::panThenMoveSelection()
 
     // Release to finish up.
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+}
+
+void tst_App::selectionCursorGuide()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QQuickItem *selectionCursorGuideItem = layeredImageCanvas->findChild<QQuickItem*>("selectionCursorGuide");
+    QVERIFY(selectionCursorGuideItem);
+    QVERIFY(!selectionCursorGuideItem->isVisible());
+
+    // Move the mouse within the canvas so that we can test that
+    // the guide is drawn as soon as the tool is switched.
+    // we switch to the selection tool.
+    setCursorPosInScenePixels(100, 100);
+    QTest::mouseMove(window, cursorWindowPos);
+    QVERIFY(layeredImageCanvas->containsMouse());
+
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool, KeyboardInputType), failureMessage);
+    QVERIFY(selectionCursorGuideItem->isVisible());
+
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+
+    setCursorPosInScenePixels(120, 120);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(layeredImageCanvas->hasSelection());
+    // The guide shouldn't be visible while there's a selection.
+    QVERIFY(!selectionCursorGuideItem->isVisible());
 }
 
 void tst_App::fillImageCanvas_data()

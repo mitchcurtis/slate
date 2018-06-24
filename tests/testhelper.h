@@ -132,6 +132,11 @@ protected:
     int digits(int number);
     int digitAt(int number, int index);
 
+    enum InputType {
+        MouseInputType,
+        KeyboardInputType
+    };
+
     // Platform-dependent actions
     Q_REQUIRED_RESULT bool triggerShortcut(const QString &objectName, const QString &sequenceAsString);
     Q_REQUIRED_RESULT bool triggerNewProject();
@@ -185,7 +190,7 @@ protected:
         QStringList *filesCopied = nullptr);
 
     Q_REQUIRED_RESULT bool switchMode(TileCanvas::Mode mode);
-    Q_REQUIRED_RESULT bool switchTool(ImageCanvas::Tool tool);
+    Q_REQUIRED_RESULT bool switchTool(ImageCanvas::Tool tool, InputType inputType = MouseInputType);
     Q_REQUIRED_RESULT bool setPenForegroundColour(QString argbString);
     Q_REQUIRED_RESULT bool panTopLeftTo(int x, int y);
     Q_REQUIRED_RESULT bool panBy(int xDistance, int yDistance);

@@ -1437,21 +1437,42 @@ bool TestHelper::switchMode(TileCanvas::Mode mode)
     return true;
 }
 
-bool TestHelper::switchTool(ImageCanvas::Tool tool)
+bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
 {
     if (canvas->tool() == tool)
         return true;
 
-    if (tool == ImageCanvas::PenTool) {
-        mouseEventOnCentre(penToolButton, MouseClick);
-    } else if (tool == ImageCanvas::EyeDropperTool) {
-        mouseEventOnCentre(eyeDropperToolButton, MouseClick);
-    } else if (tool == ImageCanvas::FillTool) {
-        mouseEventOnCentre(fillToolButton, MouseClick);
-    } else if (tool == ImageCanvas::EraserTool) {
-        mouseEventOnCentre(eraserToolButton, MouseClick);
-    } else if (tool == ImageCanvas::SelectionTool) {
-        mouseEventOnCentre(selectionToolButton, MouseClick);
+    switch (tool) {
+    case ImageCanvas::PenTool:
+        if (inputType == MouseInputType)
+            mouseEventOnCentre(penToolButton, MouseClick);
+        else
+            keySequence(window, app.settings()->penToolShortcut());
+        break;
+    case ImageCanvas::EyeDropperTool:
+        if (inputType == MouseInputType)
+            mouseEventOnCentre(eyeDropperToolButton, MouseClick);
+        else
+            keySequence(window, app.settings()->eyeDropperToolShortcut());
+        break;
+    case ImageCanvas::FillTool:
+        if (inputType == MouseInputType)
+            mouseEventOnCentre(fillToolButton, MouseClick);
+        else
+            keySequence(window, app.settings()->fillToolShortcut());
+        break;
+    case ImageCanvas::EraserTool:
+        if (inputType == MouseInputType)
+            mouseEventOnCentre(eraserToolButton, MouseClick);
+        else
+            keySequence(window, app.settings()->eraserToolShortcut());
+        break;
+    case ImageCanvas::SelectionTool:
+        if (inputType == MouseInputType)
+            mouseEventOnCentre(selectionToolButton, MouseClick);
+        else
+            keySequence(window, app.settings()->selectionToolShortcut());
+        break;
     }
     VERIFY(canvas->tool() == tool);
     return true;

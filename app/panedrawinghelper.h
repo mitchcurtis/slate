@@ -17,14 +17,17 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PANEDRAWINGUTILS_H
-#define PANEDRAWINGUTILS_H
+#ifndef PANEDRAWINGHELPER_H
+#define PANEDRAWINGHELPER_H
 
 #include <QPainter>
 
 class CanvasPane;
 class ImageCanvas;
 
+/*!
+    Does saving/restoring, translating, clipping, etc. for drawable items.
+*/
 class PaneDrawingHelper
 {
 public:
