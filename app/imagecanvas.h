@@ -128,6 +128,10 @@ public:
     bool containsMouse() const;
     void setContainsMouse(bool containsMouse);
 
+    QRect firstPaneVisibleSceneArea() const;
+    QRect secondPaneVisibleSceneArea() const;
+    QRect paneVisibleSceneArea(int paneIndex) const;
+
     bool gridVisible() const;
     void setGridVisible(bool gridVisible);
 
@@ -325,6 +329,7 @@ protected:
     QRect normalisedLineRect() const;
 
     virtual void updateCursorPos(const QPoint &eventPos);
+    void updateVisibleSceneArea();
     void error(const QString &message);
     QColor penColour() const;
     void setHasBlankCursor(bool hasBlankCursor);
@@ -472,6 +477,8 @@ protected:
     QPoint mPressScenePosition;
     // The scene position at which the mouse was pressed before the most-recent press.
     QPoint mCurrentPaneOffsetBeforePress;
+    QRect mFirstPaneVisibleSceneArea;
+    QRect mSecondPaneVisibleSceneArea;
     bool mScrollZoom;
 
     Tool mTool;

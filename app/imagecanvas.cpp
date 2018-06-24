@@ -592,6 +592,21 @@ void ImageCanvas::setContainsMouse(bool containsMouse)
     emit containsMouseChanged();
 }
 
+QRect ImageCanvas::firstPaneVisibleSceneArea() const
+{
+    return mFirstPaneVisibleSceneArea;
+}
+
+QRect ImageCanvas::secondPaneVisibleSceneArea() const
+{
+    return mSecondPaneVisibleSceneArea;
+}
+
+QRect ImageCanvas::paneVisibleSceneArea(int paneIndex) const
+{
+    return paneIndex == 0 ? mFirstPaneVisibleSceneArea : mSecondPaneVisibleSceneArea;
+}
+
 bool ImageCanvas::isSplitScreen() const
 {
     return mSplitScreen;
@@ -803,6 +818,8 @@ void ImageCanvas::componentComplete()
 {
     QQuickPaintedItem::componentComplete();
 
+    updateVisibleSceneArea();
+
     // For some reason, we need to force this stuff to update when creating a
     // tileset project after a layered image project.
     updateRulerVisibility();
@@ -969,6 +986,7 @@ void ImageCanvas::doSetSplitScreen(bool splitScreen, ImageCanvas::ResetPaneSizeP
         centrePanes();
     }
 
+    updateVisibleSceneArea();
     updateRulerVisibility();
     resizeRulers();
 
@@ -1525,6 +1543,8 @@ void ImageCanvas::reset()
     mPressPosition = QPoint(0, 0);
     mPressScenePosition = QPoint(0, 0);
     mCurrentPaneOffsetBeforePress = QPoint(0, 0);
+    mFirstPaneVisibleSceneArea = QRect();
+    mSecondPaneVisibleSceneArea = QRect();
 
     setPenForegroundColour(Qt::black);
     setPenBackgroundColour(Qt::white);
@@ -1984,6 +2004,27 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
         mSelectionCursorGuide->update();
 }
 
+void ImageCanvas::updateVisibleSceneArea()
+{
+    int integerZoomLevel = mFirstPane.integerZoomLevel();
+
+    mFirstPaneVisibleSceneArea = QRect(
+        -mFirstPane.offset().x() / integerZoomLevel,
+        -mFirstPane.offset().y() / integerZoomLevel,
+        paneWidth(0) / integerZoomLevel,
+        height() / integerZoomLevel);
+
+    if (mSplitScreen) {
+        integerZoomLevel = mSecondPane.integerZoomLevel();
+
+        mSecondPaneVisibleSceneArea = QRect(
+            -mSecondPane.offset().x() / integerZoomLevel,
+            -mSecondPane.offset().y() / integerZoomLevel,
+            paneWidth(1) / integerZoomLevel,
+            height() / integerZoomLevel);
+    }
+}
+
 void ImageCanvas::onLoadedChanged()
 {
     if (mProject->hasLoaded()) {
@@ -2063,6 +2104,8 @@ void ImageCanvas::updateWindowCursorShape()
 
 void ImageCanvas::onZoomLevelChanged()
 {
+    updateVisibleSceneArea();
+
     mFirstHorizontalRuler->setZoomLevel(mFirstPane.integerZoomLevel());
     mFirstVerticalRuler->setZoomLevel(mFirstPane.integerZoomLevel());
     mSecondHorizontalRuler->setZoomLevel(mSecondPane.integerZoomLevel());
@@ -2076,6 +2119,8 @@ void ImageCanvas::onZoomLevelChanged()
 
 void ImageCanvas::onPaneOffsetChanged()
 {
+    updateVisibleSceneArea();
+
     mFirstHorizontalRuler->setFrom(mFirstPane.offset().x());
     mFirstVerticalRuler->setFrom(mFirstPane.offset().y());
 
@@ -2088,6 +2133,8 @@ void ImageCanvas::onPaneOffsetChanged()
 
 void ImageCanvas::onPaneSizeChanged()
 {
+    updateVisibleSceneArea();
+
     resizeRulers();
 
     if (mGuidesVisible)

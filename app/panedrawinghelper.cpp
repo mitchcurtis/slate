@@ -48,3 +48,23 @@ PaneDrawingHelper::~PaneDrawingHelper()
 {
     mPainter->restore();
 }
+
+const ImageCanvas *PaneDrawingHelper::canvas() const
+{
+    return mCanvas;
+}
+
+QPainter *PaneDrawingHelper::painter()
+{
+    return mPainter;
+}
+
+const CanvasPane *PaneDrawingHelper::pane() const
+{
+    return mPane;
+}
+
+int PaneDrawingHelper::paneIndex() const
+{
+    return mPaneIndex;
+}

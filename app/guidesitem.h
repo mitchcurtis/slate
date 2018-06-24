@@ -22,9 +22,10 @@
 
 #include <QQuickPaintedItem>
 
-class ImageCanvas;
 class CanvasPane;
 class Guide;
+class ImageCanvas;
+class PaneDrawingHelper;
 
 class GuidesItem : public QQuickPaintedItem
 {
@@ -38,7 +39,7 @@ public:
 
 private:
     void drawPane(QPainter *painter, const CanvasPane *pane, int paneIndex);
-    void drawGuide(QPainter *painter, const CanvasPane *pane, int paneIndex, const Guide *guide, int guideIndex);
+    void drawGuide(PaneDrawingHelper *paneDrawingHelper, const Guide *guide, int guideIndex);
 
     ImageCanvas *mCanvas;
 };

@@ -34,6 +34,11 @@ public:
     explicit PaneDrawingHelper(const ImageCanvas *canvas, QPainter *painter, const CanvasPane *pane, int paneIndex);
     ~PaneDrawingHelper();
 
+    const ImageCanvas *canvas() const;
+    QPainter *painter();
+    const CanvasPane *pane() const;
+    int paneIndex() const;
+
 private:
     const ImageCanvas *mCanvas;
     QPainter *mPainter;
