@@ -2000,6 +2000,9 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     // We need the position as floating point numbers so that pen sizes > 1 work properly.
     mCursorSceneFX = qreal(mCursorPaneX - mCurrentPane->offset().x()) / mCurrentPane->integerZoomLevel();
     mCursorSceneFY = qreal(mCursorPaneY - mCurrentPane->offset().y()) / mCurrentPane->integerZoomLevel();
+
+    const int oldCursorSceneX = mCursorSceneX;
+    const int oldCursorSceneY = mCursorSceneY;
     setCursorSceneX(mCursorSceneFX);
     setCursorSceneY(mCursorSceneFY);
 
@@ -2013,7 +2016,8 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
         setCursorPixelColour(contentImage().pixelColor(cursorScenePos));
     }
 
-    if (shouldDrawSelectionCursorGuide())
+    const bool cursorScenePosChanged = mCursorSceneX != oldCursorSceneX || mCursorSceneY != oldCursorSceneY;
+    if (cursorScenePosChanged && shouldDrawSelectionCursorGuide())
         update();
 }
 
