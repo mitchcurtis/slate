@@ -39,6 +39,7 @@
 #include "deleteimagecanvasselectioncommand.h"
 #include "fillalgorithms.h"
 #include "flipimagecanvasselectioncommand.h"
+#include "guidesitem.h"
 #include "imageproject.h"
 #include "moveimagecanvasselectioncommand.h"
 #include "moveguidecommand.h"
@@ -74,6 +75,7 @@ ImageCanvas::ImageCanvas() :
     mGuidesLocked(false),
     mGuidePositionBeforePress(0),
     mPressedGuideIndex(-1),
+    mGuidesItem(new GuidesItem(this)),
     mCursorX(0),
     mCursorY(0),
     mCursorPaneX(0),
@@ -265,7 +267,11 @@ void ImageCanvas::setGuidesVisible(bool guidesVisible)
         return;
 
     mGuidesVisible = guidesVisible;
-    update();
+
+    mGuidesItem->setVisible(mGuidesVisible);
+    if (mGuidesVisible)
+        mGuidesItem->update();
+
     emit guidesVisibleChanged();
 }
 
@@ -801,6 +807,10 @@ void ImageCanvas::componentComplete()
     // tileset project after a layered image project.
     updateRulerVisibility();
     resizeRulers();
+
+    updateSelectionCursorGuideVisibility();
+    mGuidesItem->setVisible(mGuidesVisible);
+
     resizeChildren();
 
     update();
@@ -822,6 +832,9 @@ void ImageCanvas::resizeChildren()
 {
     mSelectionCursorGuide->setWidth(width());
     mSelectionCursorGuide->setHeight(height());
+
+    mGuidesItem->setWidth(width());
+    mGuidesItem->setHeight(height());
 }
 
 void ImageCanvas::paint(QPainter *painter)
@@ -897,22 +910,6 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
         const QRect zoomedSelectionArea(mSelectionArea.topLeft() * pane.integerZoomLevel(), pane.zoomedSize(mSelectionArea.size()));
         Utils::strokeRectWithDashes(painter, zoomedSelectionArea);
     }
-
-    if (mGuidesVisible) {
-        // Draw the existing guides.
-        QVector<Guide> guides = mProject->guides();
-        for (int i = 0; i < guides.size(); ++i) {
-            const Guide guide = guides.at(i);
-            drawGuide(painter, pane, paneIndex, guide, i);
-        }
-
-        // Draw the guide that's being dragged from the ruler, if any.
-        if (mPressedRuler) {
-            const bool horizontal = mPressedRuler->orientation() == Qt::Horizontal;
-            const Guide guide(horizontal ? mCursorSceneY : mCursorSceneX, mPressedRuler->orientation());
-            drawGuide(painter, pane, paneIndex, guide, -1);
-        }
-    }
 }
 
 void ImageCanvas::drawLine(QPainter *painter) const
@@ -933,29 +930,6 @@ void ImageCanvas::drawLine(QPainter *painter) const
     painter->setCompositionMode(QPainter::CompositionMode_Source);
     painter->drawLine(line);
 
-    painter->restore();
-}
-
-void ImageCanvas::drawGuide(QPainter *painter, const CanvasPane &pane, int paneIndex, const Guide &guide, int guideIndex)
-{
-    painter->save();
-    painter->setPen(Qt::cyan);
-
-    // If this is an existing guide that is currently being dragged, draw it in its dragged position.
-    const bool draggingExistingGuide = mPressedGuideIndex != -1 && mPressedGuideIndex == guideIndex;
-    const bool vertical = guide.orientation() == Qt::Vertical;
-    const int guidePosition = draggingExistingGuide ? (vertical ? mCursorSceneX : mCursorSceneY) : guide.position();
-    const qreal zoomedGuidePosition = guidePosition * pane.integerZoomLevel() + painter->pen().widthF() / 2.0;
-
-    if (vertical) {
-        // Don't need to account for the vertical offset anymore, as vertical guides go across the whole height of the pane.
-        painter->translate(0, -pane.offset().y());
-        painter->drawLine(QLineF(zoomedGuidePosition, 0, zoomedGuidePosition, height()));
-    } else {
-        // Don't need to account for the horizontal offset anymore, as horizontal guides go across the whole width of the pane.
-        painter->translate(-pane.offset().x(), 0);
-        painter->drawLine(QLineF(0, zoomedGuidePosition, paneWidth(paneIndex), zoomedGuidePosition));
-    }
     painter->restore();
 }
 
@@ -1122,7 +1096,7 @@ int ImageCanvas::guideIndexAtCursorPos()
 
 void ImageCanvas::onGuidesChanged()
 {
-    update();
+    mGuidesItem->update();
 }
 
 // TODO: make projectJson a reference to make this neater
@@ -2095,6 +2069,9 @@ void ImageCanvas::onZoomLevelChanged()
     mSecondVerticalRuler->setZoomLevel(mSecondPane.integerZoomLevel());
 
     update();
+
+    if (mGuidesVisible)
+        mGuidesItem->update();
 }
 
 void ImageCanvas::onPaneOffsetChanged()
@@ -2104,11 +2081,17 @@ void ImageCanvas::onPaneOffsetChanged()
 
     mSecondHorizontalRuler->setFrom(mSecondPane.offset().x());
     mSecondVerticalRuler->setFrom(mSecondPane.offset().y());
+
+    if (mGuidesVisible)
+        mGuidesItem->update();
 }
 
 void ImageCanvas::onPaneSizeChanged()
 {
     resizeRulers();
+
+    if (mGuidesVisible)
+        mGuidesItem->update();
 }
 
 void ImageCanvas::error(const QString &message)
@@ -2283,8 +2266,10 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
     if (mMouseButtonPressed) {
         if (mSplitter.isEnabled() && mSplitter.isPressed()) {
             mSplitter.setPosition(mCursorX / width());
-        } else if (mPressedRuler || mPressedGuideIndex != -1) {
+        } else if (mPressedRuler) {
             update();
+        } else if (mPressedGuideIndex != -1) {
+            mGuidesItem->update();
         } else {
             if (!isPanning()) {
                 if (mTool != SelectionTool) {

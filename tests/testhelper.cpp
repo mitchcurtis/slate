@@ -1473,6 +1473,9 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
         else
             keySequence(window, app.settings()->selectionToolShortcut());
         break;
+    default:
+        qWarning() << "tool not handled!";
+        return false;
     }
     VERIFY(canvas->tool() == tool);
     return true;

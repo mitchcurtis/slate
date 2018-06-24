@@ -39,6 +39,7 @@ Q_DECLARE_LOGGING_CATEGORY(lcImageCanvas)
 Q_DECLARE_LOGGING_CATEGORY(lcImageCanvasLifecycle)
 
 class Guide;
+class GuidesItem;
 class ImageProject;
 class Project;
 class SelectionCursorGuide;
@@ -343,7 +344,6 @@ protected:
     virtual QImage contentImage() const;
     void drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex);
     void drawLine(QPainter *painter) const;
-    void drawGuide(QPainter *painter, const CanvasPane &pane, int paneIndex, const Guide &guide, int guideIndex);
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,
@@ -448,6 +448,7 @@ protected:
     bool mGuidesLocked;
     int mGuidePositionBeforePress;
     int mPressedGuideIndex;
+    GuidesItem *mGuidesItem;
 
     // The position of the cursor in view coordinates.
     int mCursorX;

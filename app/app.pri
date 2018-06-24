@@ -70,7 +70,8 @@ HEADERS += \
     $$PWD/mergelayerscommand.h \
     $$PWD/saturationlightnesspicker.h \
     $$PWD/selectioncursorguide.h \
-    $$PWD/panedrawinghelper.h
+    $$PWD/panedrawinghelper.h \
+    $$PWD/guidesitem.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -138,7 +139,8 @@ SOURCES += \
     $$PWD/mergelayerscommand.cpp \
     $$PWD/saturationlightnesspicker.cpp \
     $$PWD/selectioncursorguide.cpp \
-    $$PWD/panedrawinghelper.cpp
+    $$PWD/panedrawinghelper.cpp \
+    $$PWD/guidesitem.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \

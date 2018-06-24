@@ -25,6 +25,9 @@
 
 #include <QPainter>
 
+// TODO: see if we can turn this into two thin items rather than one big one.
+// could even just try having the two items as a child of this one
+
 SelectionCursorGuide::SelectionCursorGuide(ImageCanvas *canvas) :
     QQuickPaintedItem(canvas),
     mCanvas(canvas)
