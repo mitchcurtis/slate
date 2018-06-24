@@ -66,16 +66,16 @@ ImageCanvas::ImageCanvas() :
     mSplitScreen(false),
     mSplitter(this),
     mCurrentPane(&mFirstPane),
-    mFirstHorizontalRuler(new Ruler(Qt::Horizontal, this)),
-    mFirstVerticalRuler(new Ruler(Qt::Vertical, this)),
-    mSecondHorizontalRuler(new Ruler(Qt::Horizontal, this)),
-    mSecondVerticalRuler(new Ruler(Qt::Vertical, this)),
+    mFirstHorizontalRuler(nullptr),
+    mFirstVerticalRuler(nullptr),
+    mSecondHorizontalRuler(nullptr),
+    mSecondVerticalRuler(nullptr),
     mPressedRuler(nullptr),
     mGuidesVisible(false),
     mGuidesLocked(false),
     mGuidePositionBeforePress(0),
     mPressedGuideIndex(-1),
-    mGuidesItem(new GuidesItem(this)),
+    mGuidesItem(nullptr),
     mCursorX(0),
     mCursorY(0),
     mCursorPaneX(0),
@@ -98,7 +98,7 @@ ImageCanvas::ImageCanvas() :
     mMovingSelection(false),
     mHasMovedSelection(false),
     mIsSelectionFromPaste(false),
-    mSelectionCursorGuide(new SelectionCursorGuide(this)),
+    mSelectionCursorGuide(nullptr),
     mAltPressed(false),
     mShiftPressed(false),
     mToolBeforeAltPressed(PenTool),
@@ -112,11 +112,23 @@ ImageCanvas::ImageCanvas() :
     mSecondPane.setObjectName("secondPane");
     mSplitter.setPosition(mFirstPane.size());
 
+    // We create child items in the body rather than the initialiser list
+    // in order to ensure the correct drawing order.
+    mGuidesItem = new GuidesItem(this);
+
+    mSelectionCursorGuide = new SelectionCursorGuide(this);
+
+    mFirstHorizontalRuler = new Ruler(Qt::Horizontal, this);
     mFirstHorizontalRuler->setObjectName("firstHorizontalRuler");
+
+    mFirstVerticalRuler = new Ruler(Qt::Vertical, this);
     mFirstVerticalRuler->setObjectName("firstVerticalRuler");
     mFirstVerticalRuler->setDrawCorner(true);
 
+    mSecondHorizontalRuler = new Ruler(Qt::Horizontal, this);
     mSecondHorizontalRuler->setObjectName("secondHorizontalRuler");
+
+    mSecondVerticalRuler = new Ruler(Qt::Vertical, this);
     mSecondVerticalRuler->setObjectName("secondVerticalRuler");
     mSecondVerticalRuler->setDrawCorner(true);
 
