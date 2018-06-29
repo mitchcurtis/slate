@@ -3096,8 +3096,16 @@ void tst_App::rulersAndGuides()
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QVERIFY(canvas->pressedRuler());
 
+    // Do the actual moving onto the canvas.
     setCursorPosInPixels(QPoint(50, rulerThickness + 10));
     QTest::mouseMove(window, cursorWindowPos);
+
+    // Now it should be visible on the canvas.
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithGuide = imageGrabber.takeImage();
+    QCOMPARE(grabWithGuide.pixelColor(50, rulerThickness + 10), QColor(Qt::cyan));
+
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QVERIFY(!canvas->pressedRuler());
     QCOMPARE(project->guides().size(), 1);

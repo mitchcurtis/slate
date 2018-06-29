@@ -2327,6 +2327,8 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
             mSplitter.setPosition(mCursorX / width());
         } else if (mPressedRuler) {
             update();
+            // Ensure that the guide being created is drawn.
+            mGuidesItem->update();
         } else if (mPressedGuideIndex != -1) {
             mGuidesItem->update();
         } else {
