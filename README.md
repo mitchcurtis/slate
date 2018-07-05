@@ -19,12 +19,15 @@ Slate was built for pixel art, and its goal is to simplify the creation of sprit
 
 See the [releases](https://github.com/mitchcurtis/slate/releases) page for the available downloads.
 
+### Installing ###
+
+All Slate builds are portable, meaning that no installation is necessary. On Windows, however, it may be necessary to run the vc_redist.x64.exe file that comes with the download in order to install certain Microsoft C++ libraries if you've never installed any applications that require this prior to running Slate.
+
 ### Documentation ###
 - [Overview](https://github.com/mitchcurtis/slate/blob/master/doc/overview.md)
 
 ### Notes ###
 - This is a work in progress, but should already be usable. Feel free to report any bugs you find. :)
-- If you are unable to run the app on Windows, you may need to install the [Microsoft Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/15/release/vc_redist.x64.exe). If that link breaks, [this](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) or [this](https://www.visualstudio.com/downloads/) should work (choose the x64 version). This will be installed automatically when I get around to [making a proper installer](https://github.com/mitchcurtis/slate/issues/42).
 - The UI is currently designed for the [Material style](http://doc.qt.io/qt-5/qtquickcontrols2-material.html), and will probably look bad when run with others.
 
 ## Building From Source ##
