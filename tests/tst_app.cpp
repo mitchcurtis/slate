@@ -90,6 +90,7 @@ private Q_SLOTS:
     void eraseImageCanvas();
 
     void selectionToolImageCanvas();
+    void selectionToolTileCanvas();
     void cancelSelectionToolImageCanvas();
     void moveSelectionImageCanvas_data();
     void moveSelectionImageCanvas();
@@ -2176,6 +2177,18 @@ void tst_App::selectionToolImageCanvas()
         QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
         QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
     }
+}
+
+void tst_App::selectionToolTileCanvas()
+{
+    QVERIFY2(createNewTilesetProject(), failureMessage);
+
+    // The selection tool currently doesn't work for tileset projects.
+    QQuickItem *selectionToolButton = window->findChild<QQuickItem*>("selectionToolButton");
+    QVERIFY(selectionToolButton);
+    QVERIFY(!selectionToolButton->isVisible());
+
+    QVERIFY2(!switchTool(ImageCanvas::SelectionTool, KeyboardInputType), failureMessage);
 }
 
 void tst_App::cancelSelectionToolImageCanvas()

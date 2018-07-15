@@ -271,6 +271,7 @@ Item {
     Shortcut {
         objectName: "selectionToolShortcut"
         sequence: settings.selectionToolShortcut
+        enabled: isImageProjectType
         onActivated: canvas.tool = ImageCanvas.SelectionTool
     }
 

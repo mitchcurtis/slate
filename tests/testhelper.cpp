@@ -1477,8 +1477,7 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
         qWarning() << "tool not handled!";
         return false;
     }
-    VERIFY(canvas->tool() == tool);
-    return true;
+    return canvas->tool() == tool;
 }
 
 bool TestHelper::setPenForegroundColour(QString argbString)
