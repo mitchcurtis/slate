@@ -118,8 +118,10 @@ void TileCanvas::paint(QPainter *painter)
 
     // The order here is deliberate; see the clip region code in drawPane().
     const int firstPaneWidth = width() * mFirstPane.size();
-    painter->fillRect(firstPaneWidth, 0, width() - firstPaneWidth, height(), mBackgroundColour);
-    drawPane(painter, mSecondPane, 1);
+    if (mSplitScreen) {
+        painter->fillRect(firstPaneWidth, 0, width() - firstPaneWidth, height(), mBackgroundColour);
+        drawPane(painter, mSecondPane, 1);
+    }
 
     painter->fillRect(0, 0, firstPaneWidth, height(), mBackgroundColour);
     drawPane(painter, mFirstPane, 0);
