@@ -876,11 +876,15 @@ void ImageCanvas::paint(QPainter *painter)
     // The order here is deliberate; see the clip region code in drawPane().
     const int firstPaneWidth = width() * mFirstPane.size();
     if (mSplitScreen) {
+        // Draw the background that fills the entire pane.
         painter->fillRect(firstPaneWidth, 0, width() - firstPaneWidth, height(), mBackgroundColour);
+        // Draw the second pane.
         drawPane(painter, mSecondPane, 1);
     }
 
+    // Draw the background that fills the entire pane.
     painter->fillRect(0, 0, firstPaneWidth, height(), mBackgroundColour);
+    // Draw the first pane.
     drawPane(painter, mFirstPane, 0);
 
     if (mSplitScreen) {
@@ -920,14 +924,9 @@ void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIn
 {
     PaneDrawingHelper paneDrawingHelper(this, painter, &pane, paneIndex);
 
-    const QSize zoomedCanvasSize = pane.zoomedSize(currentProjectImage()->size());
-    const int paneWidth = width() * pane.size();
-    const int zoomedCanvasWidth = qMin(zoomedCanvasSize.width(), paneWidth);
-    const int zoomedCanvasHeight = qMin(zoomedCanvasSize.height(), qFloor(height()));
-    painter->fillRect(0, 0, zoomedCanvasWidth, zoomedCanvasHeight, mapBackgroundColour());
-
     // Draw the checkered pixmap that acts as an indicator for transparency.
     // We use the unbounded canvas size here, otherwise the drawn area is too small past a certain zoom level.
+    const QSize zoomedCanvasSize = pane.zoomedSize(currentProjectImage()->size());
     painter->drawTiledPixmap(0, 0, zoomedCanvasSize.width(), zoomedCanvasSize.height(), mCheckerPixmap);
 
     const QImage image = contentImage();

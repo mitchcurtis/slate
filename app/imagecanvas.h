@@ -430,6 +430,7 @@ private:
     ImageProject *mImageProject;
 
 protected:
+    // The background colour of the entire pane.
     QColor mBackgroundColour;
     bool mGridVisible;
     QColor mGridColour;
