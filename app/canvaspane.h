@@ -74,7 +74,8 @@ private:
     QPoint mOffset;
     // Scenes are centered in each pane until the view is panned or zoomed.
     bool mSceneCentered;
-
 };
+
+QDebug operator<<(QDebug debug, const CanvasPane *pane);
 
 #endif // CANVASPANE_H

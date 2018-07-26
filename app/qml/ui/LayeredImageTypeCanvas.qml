@@ -1,4 +1,5 @@
-import QtQml 2.2
+import QtQuick 2.11
+
 import App 1.0
 
 // For access to CanvasColours Singleton
@@ -31,4 +32,45 @@ LayeredImageCanvas {
     readonly property bool useIconCursor: layeredCanvas.tool === ImageCanvas.EyeDropperTool
 
     onErrorOccurred: errorPopup.showError(errorMessage)
+
+    CanvasPaneItem {
+        id: secondPane
+        objectName: "secondLayeredImageCanvasPaneItem"
+        canvas: layeredCanvas
+        pane: layeredCanvas.secondPane
+        paneIndex: 1
+        anchors.fill: parent
+        visible: layeredCanvas.splitScreen
+
+        Rectangle {
+            x: parent.width - width
+            width: layeredCanvas.secondPane.size * parent.width
+            height: parent.height
+            color: CanvasColours.backgroundColour
+            z: -1
+        }
+    }
+
+    CanvasPaneItem {
+        id: firstPane
+        objectName: "firstLayeredImageCanvasPaneItem"
+        canvas: layeredCanvas
+        pane: layeredCanvas.firstPane
+        paneIndex: 0
+        anchors.fill: parent
+
+        Rectangle {
+            width: layeredCanvas.firstPane.size * parent.width
+            height: parent.height
+            color: CanvasColours.backgroundColour
+            z: -1
+        }
+    }
+
+    Rectangle {
+        x: layeredCanvas.firstPane.size * parent.width
+        width: 1
+        height: parent.height
+        color: CanvasColours.splitColour
+    }
 }

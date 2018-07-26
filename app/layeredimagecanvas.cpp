@@ -42,7 +42,7 @@ void LayeredImageCanvas::onPostLayerAdded(int index)
     // TODO: could we move these to LayeredImageProject and save a few connections?
     connect(layer, &ImageLayer::visibleChanged, this, &LayeredImageCanvas::onLayerVisibleChanged);
     connect(layer, &ImageLayer::opacityChanged, this, &LayeredImageCanvas::onLayerOpacityChanged);
-    update();
+    requestContentPaint();
 }
 
 void LayeredImageCanvas::onPreLayerRemoved(int index)
@@ -54,22 +54,22 @@ void LayeredImageCanvas::onPreLayerRemoved(int index)
 
 void LayeredImageCanvas::onPostLayerRemoved()
 {
-    update();
+    requestContentPaint();
 }
 
 void LayeredImageCanvas::onPostLayerMoved()
 {
-    update();
+    requestContentPaint();
 }
 
 void LayeredImageCanvas::onPostLayerImageChanged()
 {
-    update();
+    requestContentPaint();
 }
 
 void LayeredImageCanvas::onLayerVisibleChanged()
 {
-    update();
+    requestContentPaint();
 
     ImageLayer *layer = qobject_cast<ImageLayer*>(sender());
     if (layer == mLayeredImageProject->currentLayer())
@@ -82,7 +82,7 @@ void LayeredImageCanvas::onLayerOpacityChanged()
     Q_ASSERT(layer);
     // We don't care about opacity changes of invisible layers.
     if (layer->isVisible())
-        update();
+        requestContentPaint();
 }
 
 void LayeredImageCanvas::onPreCurrentLayerChanged()
@@ -174,7 +174,7 @@ QImage LayeredImageCanvas::contentImage() const
 void LayeredImageCanvas::replaceImage(int layerIndex, const QImage &replacementImage)
 {
     *mLayeredImageProject->layerAt(layerIndex)->image() = replacementImage;
-    update();
+    requestContentPaint();
 }
 
 bool LayeredImageCanvas::areToolsForbidden() const

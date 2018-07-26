@@ -52,7 +52,7 @@ public:
     Q_ENUM(Mode)
 
     TileCanvas();
-    ~TileCanvas();
+    ~TileCanvas() override;
 
     int cursorTilePixelX() const;
     void setCursorTilePixelX(int cursorTilePixelX);
@@ -67,8 +67,6 @@ public:
     void setPenTile(Tile *penTile);
 
     QPoint scenePosToTilePixelPos(const QPoint &scenePos) const;
-
-    void paint(QPainter *painter) override;
 
 signals:
     void cursorTilePixelXChanged();
@@ -100,6 +98,7 @@ protected:
     void onLoadedChanged() override;
 
 private:
+    friend class TileCanvasPaneItem;
     friend class ApplyTilePenCommand;
     friend class ApplyTileEraserCommand;
     friend class ApplyTileFillCommand;

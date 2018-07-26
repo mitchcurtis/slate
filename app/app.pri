@@ -71,7 +71,9 @@ HEADERS += \
     $$PWD/saturationlightnesspicker.h \
     $$PWD/selectioncursorguide.h \
     $$PWD/panedrawinghelper.h \
-    $$PWD/guidesitem.h
+    $$PWD/guidesitem.h \
+    $$PWD/canvaspaneitem.h \
+    $$PWD/tilecanvaspaneitem.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -140,7 +142,9 @@ SOURCES += \
     $$PWD/saturationlightnesspicker.cpp \
     $$PWD/selectioncursorguide.cpp \
     $$PWD/panedrawinghelper.cpp \
-    $$PWD/guidesitem.cpp
+    $$PWD/guidesitem.cpp \
+    $$PWD/canvaspaneitem.cpp \
+    $$PWD/tilecanvaspaneitem.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \

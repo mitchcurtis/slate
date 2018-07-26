@@ -136,3 +136,13 @@ void CanvasPane::reset()
     setOffset(QPoint(0, 0));
     setSceneCentered(true);
 }
+
+QDebug operator<<(QDebug debug, const CanvasPane *pane)
+{
+    QDebugStateSaver stateSaver(debug);
+    debug.nospace() << "(CanvasPane offset=" << pane->offset()
+        << " size=" << pane->size()
+        << " zoomLevel=" << pane->zoomLevel()
+        << ")";
+    return debug.space();
+}

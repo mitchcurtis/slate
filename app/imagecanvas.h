@@ -24,7 +24,7 @@
 #include <QObject>
 #include <QLoggingCategory>
 #include <QPixmap>
-#include <QQuickPaintedItem>
+#include <QQuickItem>
 #include <QStack>
 #include <QTimerEvent>
 #include <QUndoStack>
@@ -46,7 +46,7 @@ class SelectionCursorGuide;
 class Tile;
 class Tileset;
 
-class ImageCanvas : public QQuickPaintedItem
+class ImageCanvas : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(Project *project READ project WRITE setProject NOTIFY projectChanged)
@@ -104,7 +104,7 @@ public:
     Q_ENUM(Tool)
 
     ImageCanvas();
-    ~ImageCanvas();
+    ~ImageCanvas() override;
 
     Project *project() const;
     void setProject(Project *project);
@@ -215,8 +215,6 @@ public:
     int lineLength() const;
     qreal lineAngle() const;
 
-    void paint(QPainter *painter) override;
-
     Q_INVOKABLE bool overrideShortcut(const QKeySequence &keySequence);
 
     // The image that is currently being drawn on. For regular image canvases, this is
@@ -261,6 +259,10 @@ signals:
     void altPressedChanged();
     void lineVisibleChanged();
     void lineLengthChanged();
+
+    // Used to signal CanvasPaneItem classes that they should redraw,
+    // instead of them having to connect to lots of specific signals.
+    void requestContentPaint();
 
     void errorOccurred(const QString &errorMessage);
 
@@ -430,6 +432,8 @@ private:
     ImageProject *mImageProject;
 
 protected:
+    friend class CanvasPaneItem;
+
     // The background colour of the entire pane.
     QColor mBackgroundColour;
     bool mGridVisible;

@@ -109,29 +109,6 @@ void TileCanvas::setCursorTilePixelY(int cursorTilePixelY)
     emit cursorTilePixelYChanged();
 }
 
-void TileCanvas::paint(QPainter *painter)
-{
-    if (!mTilesetProject || !mTilesetProject->hasLoaded()) {
-        painter->fillRect(0, 0, width(), height(), mBackgroundColour);
-        return;
-    }
-
-    // The order here is deliberate; see the clip region code in drawPane().
-    const int firstPaneWidth = width() * mFirstPane.size();
-    if (mSplitScreen) {
-        painter->fillRect(firstPaneWidth, 0, width() - firstPaneWidth, height(), mBackgroundColour);
-        drawPane(painter, mSecondPane, 1);
-    }
-
-    painter->fillRect(0, 0, firstPaneWidth, height(), mBackgroundColour);
-    drawPane(painter, mFirstPane, 0);
-
-    if (mSplitScreen) {
-        painter->setPen(QPen(mSplitColour));
-        painter->drawLine(firstPaneWidth, 0, firstPaneWidth, height());
-    }
-}
-
 void TileCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex)
 {
     const int paneWidth = width() * pane.size();

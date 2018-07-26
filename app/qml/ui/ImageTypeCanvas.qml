@@ -1,3 +1,5 @@
+import QtQuick 2.11
+
 import App 1.0
 
 // For access to CanvasColours Singleton
@@ -28,4 +30,40 @@ ImageCanvas {
     readonly property bool useIconCursor: imageCanvas.tool === TileCanvas.EyeDropperTool
 
     onErrorOccurred: errorPopup.showError(errorMessage)
+
+    CanvasPaneItem {
+        id: secondPane
+        canvas: imageCanvas
+        pane: imageCanvas.secondPane
+        paneIndex: 1
+        anchors.fill: parent
+        visible: imageCanvas.splitScreen
+
+        Rectangle {
+            anchors.fill: parent
+            color: CanvasColours.backgroundColour
+            z: -1
+        }
+    }
+
+    CanvasPaneItem {
+        id: firstPane
+        canvas: imageCanvas
+        pane: imageCanvas.firstPane
+        paneIndex: 0
+        anchors.fill: parent
+
+        Rectangle {
+            anchors.fill: parent
+            color: CanvasColours.backgroundColour
+            z: -1
+        }
+    }
+
+    Rectangle {
+        x: imageCanvas.firstPane.size * parent.width
+        width: 1
+        height: parent.height
+        color: CanvasColours.splitColour
+    }
 }

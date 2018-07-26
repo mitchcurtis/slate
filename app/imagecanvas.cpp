@@ -232,7 +232,7 @@ bool ImageCanvas::gridVisible() const
 void ImageCanvas::setGridVisible(bool gridVisible)
 {
     mGridVisible = gridVisible;
-    update();
+    requestContentPaint();
     emit gridVisibleChanged();
 }
 
@@ -247,7 +247,7 @@ void ImageCanvas::setGridColour(const QColor &gridColour)
         return;
 
     mGridColour = gridColour;
-    update();
+    requestContentPaint();
     emit gridColourChanged();
 }
 
@@ -312,7 +312,7 @@ void ImageCanvas::setSplitColour(const QColor &splitColour)
         return;
 
     mSplitColour = splitColour;
-    update();
+    requestContentPaint();
     emit splitColourChanged();
 }
 
@@ -357,7 +357,7 @@ void ImageCanvas::setBackgroundColour(const QColor &backgroundColour)
         return;
 
     mBackgroundColour = backgroundColour;
-    update();
+    requestContentPaint();
     emit backgroundColourChanged();
 }
 
@@ -544,7 +544,7 @@ void ImageCanvas::setSelectionArea(const QRect &selectionArea)
 
     mSelectionArea = adjustedSelectionArea;
     setHasSelection(!mSelectionArea.isEmpty());
-    update();
+    requestContentPaint();
     emit selectionAreaChanged();
 }
 
@@ -775,7 +775,7 @@ void ImageCanvas::setShiftPressed(bool shiftPressed)
     if (isLineVisible() != wasLineVisible)
         emit lineVisibleChanged();
 
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::connectSignals()
@@ -823,12 +823,12 @@ void ImageCanvas::onSplitterPositionChanged()
 {
     mFirstPane.setSize(mSplitter.position());
     mSecondPane.setSize(1.0 - mSplitter.position());
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::componentComplete()
 {
-    QQuickPaintedItem::componentComplete();
+    QQuickItem::componentComplete();
 
     updateVisibleSceneArea();
 
@@ -842,7 +842,7 @@ void ImageCanvas::componentComplete()
 
     resizeChildren();
 
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
@@ -864,33 +864,6 @@ void ImageCanvas::resizeChildren()
 
     mGuidesItem->setWidth(width());
     mGuidesItem->setHeight(height());
-}
-
-void ImageCanvas::paint(QPainter *painter)
-{
-    if (!mProject || !mProject->hasLoaded()) {
-        painter->fillRect(0, 0, width(), height(), mBackgroundColour);
-        return;
-    }
-
-    // The order here is deliberate; see the clip region code in drawPane().
-    const int firstPaneWidth = width() * mFirstPane.size();
-    if (mSplitScreen) {
-        // Draw the background that fills the entire pane.
-        painter->fillRect(firstPaneWidth, 0, width() - firstPaneWidth, height(), mBackgroundColour);
-        // Draw the second pane.
-        drawPane(painter, mSecondPane, 1);
-    }
-
-    // Draw the background that fills the entire pane.
-    painter->fillRect(0, 0, firstPaneWidth, height(), mBackgroundColour);
-    // Draw the first pane.
-    drawPane(painter, mFirstPane, 0);
-
-    if (mSplitScreen) {
-        painter->setPen(QPen(mSplitColour));
-        painter->drawLine(firstPaneWidth, 0, firstPaneWidth, height());
-    }
 }
 
 QImage *ImageCanvas::currentProjectImage()
@@ -918,26 +891,6 @@ QImage ImageCanvas::contentImage() const
         drawLine(&linePainter);
     }
     return image;
-}
-
-void ImageCanvas::drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex)
-{
-    PaneDrawingHelper paneDrawingHelper(this, painter, &pane, paneIndex);
-
-    // Draw the checkered pixmap that acts as an indicator for transparency.
-    // We use the unbounded canvas size here, otherwise the drawn area is too small past a certain zoom level.
-    const QSize zoomedCanvasSize = pane.zoomedSize(currentProjectImage()->size());
-    painter->drawTiledPixmap(0, 0, zoomedCanvasSize.width(), zoomedCanvasSize.height(), mCheckerPixmap);
-
-    const QImage image = contentImage();
-    const QSize zoomedImageSize = pane.zoomedSize(image.size());
-    painter->drawImage(QRectF(QPointF(0, 0), zoomedImageSize), image, QRectF(0, 0, image.width(), image.height()));
-
-    if (mHasSelection) {
-        // Draw the selection area.
-        const QRect zoomedSelectionArea(mSelectionArea.topLeft() * pane.integerZoomLevel(), pane.zoomedSize(mSelectionArea.size()));
-        Utils::strokeRectWithDashes(painter, zoomedSelectionArea);
-    }
 }
 
 void ImageCanvas::drawLine(QPainter *painter) const
@@ -978,7 +931,7 @@ void ImageCanvas::centrePanes(bool respectSceneCentred)
         mSecondPane.setOffset(newOffset);
     }
 
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::doSetSplitScreen(bool splitScreen, ImageCanvas::ResetPaneSizePolicy resetPaneSizePolicy)
@@ -1001,7 +954,7 @@ void ImageCanvas::doSetSplitScreen(bool splitScreen, ImageCanvas::ResetPaneSizeP
     updateRulerVisibility();
     resizeRulers();
 
-    update();
+    requestContentPaint();
 
     emit splitScreenChanged();
 }
@@ -1165,7 +1118,7 @@ void ImageCanvas::recreateCheckerImage()
 
     mCheckerPixmap = QPixmap::fromImage(mCheckerImage);
 
-    update();
+    requestContentPaint();
 }
 
 bool ImageCanvas::isPanning() const
@@ -1263,7 +1216,7 @@ void ImageCanvas::moveSelectionArea()
 
     mHasMovedSelection = true;
 
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::moveSelectionAreaBy(const QPoint &pixelDistance)
@@ -1284,7 +1237,7 @@ void ImageCanvas::moveSelectionAreaBy(const QPoint &pixelDistance)
     mLastValidSelectionArea = mSelectionArea;
 
     // setSelectionArea() should do this anyway, but just in case..
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::confirmSelectionMove(ClearSelectionFlag clear)
@@ -1522,7 +1475,7 @@ void ImageCanvas::panWithSelectionIfAtEdge(ImageCanvas::SelectionPanReason reaso
         updateCursorPos(QPoint(mCursorX, mCursorY));
         updateOrMoveSelectionArea();
 
-        update();
+        requestContentPaint();
     } else {
         // If the mouse isn't over the edge, stop the timer.
         mSelectionEdgePanTimer.stop();
@@ -1578,7 +1531,7 @@ void ImageCanvas::reset()
     // - tool
     // - toolSize
 
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::centreView()
@@ -1618,7 +1571,7 @@ void ImageCanvas::flipSelection(Qt::Orientation orientation)
     } else {
         mSelectionContents = mSelectionContents.mirrored(orientation == Qt::Horizontal, orientation == Qt::Vertical);
         updateSelectionPreviewImage();
-        update();
+        requestContentPaint();
     }
 }
 
@@ -1685,7 +1638,7 @@ void ImageCanvas::paste()
     // paste, we must do it ourselves.
     updateSelectionPreviewImage();
 
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::deleteSelection()
@@ -1903,7 +1856,7 @@ void ImageCanvas::applyPixelPenTool(int layerIndex, const QPoint &scenePos, cons
     imageForLayerAt(layerIndex)->setPixelColor(scenePos, colour);
     if (markAsLastRelease)
         mLastPixelPenPressScenePosition = scenePos;
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect,
@@ -1913,25 +1866,25 @@ void ImageCanvas::applyPixelLineTool(int layerIndex, const QImage &lineImage, co
     QPainter painter(imageForLayerAt(layerIndex));
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.drawImage(lineRect, lineImage);
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::paintImageOntoPortionOfImage(const QRect &portion, const QImage &replacementImage)
 {
     *currentProjectImage() = Utils::paintImageOntoPortionOfImage(*currentProjectImage(), portion, replacementImage);
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::replacePortionOfImage(const QRect &portion, const QImage &replacementImage)
 {
     *currentProjectImage() = Utils::replacePortionOfImage(*currentProjectImage(), portion, replacementImage);
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::erasePortionOfImage(const QRect &portion)
 {
     *currentProjectImage() = Utils::erasePortionOfImage(*currentProjectImage(), portion);
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::replaceImage(int layerIndex, const QImage &replacementImage)
@@ -1939,7 +1892,7 @@ void ImageCanvas::replaceImage(int layerIndex, const QImage &replacementImage)
     // TODO: could ImageCanvas just be a LayeredImageCanvas with one layer?
     Q_ASSERT(layerIndex == -1);
     *mImageProject->image() = replacementImage;
-    update();
+    requestContentPaint();
 }
 
 void ImageCanvas::doFlipSelection(const QRect &area, Qt::Orientation orientation)
@@ -2122,7 +2075,7 @@ void ImageCanvas::onZoomLevelChanged()
     mSecondHorizontalRuler->setZoomLevel(mSecondPane.integerZoomLevel());
     mSecondVerticalRuler->setZoomLevel(mSecondPane.integerZoomLevel());
 
-    update();
+    requestContentPaint();
 
     if (mGuidesVisible)
         mGuidesItem->update();
@@ -2253,7 +2206,7 @@ void ImageCanvas::wheelEvent(QWheelEvent *event)
 
 void ImageCanvas::mousePressEvent(QMouseEvent *event)
 {
-    QQuickPaintedItem::mousePressEvent(event);
+    QQuickItem::mousePressEvent(event);
 
     // Is it possible to get a press without a hover enter? If so, we need this line.
     updateCursorPos(event->pos());
@@ -2312,7 +2265,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
 
 void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
 {
-    QQuickPaintedItem::mouseMoveEvent(event);
+    QQuickItem::mouseMoveEvent(event);
 
     updateCursorPos(event->pos());
 
@@ -2325,7 +2278,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
         if (mSplitter.isEnabled() && mSplitter.isPressed()) {
             mSplitter.setPosition(mCursorX / width());
         } else if (mPressedRuler) {
-            update();
+            requestContentPaint();
             // Ensure that the guide being created is drawn.
             mGuidesItem->update();
         } else if (mPressedGuideIndex != -1) {
@@ -2343,7 +2296,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
                 // Panning.
                 mCurrentPane->setSceneCentered(false);
                 mCurrentPane->setOffset(mCurrentPaneOffsetBeforePress + (event->pos() - mPressPosition));
-                update();
+                requestContentPaint();
             }
         }
     }
@@ -2351,7 +2304,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
 
 void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
 {
-    QQuickPaintedItem::mouseReleaseEvent(event);
+    QQuickItem::mouseReleaseEvent(event);
 
     updateCursorPos(event->pos());
 
@@ -2446,7 +2399,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
 
 void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
 {
-    QQuickPaintedItem::hoverEnterEvent(event);
+    QQuickItem::hoverEnterEvent(event);
 
     updateCursorPos(event->pos());
 
@@ -2458,7 +2411,7 @@ void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
 
 void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
 {
-    QQuickPaintedItem::hoverMoveEvent(event);
+    QQuickItem::hoverMoveEvent(event);
 
     updateCursorPos(event->pos());
 
@@ -2472,12 +2425,12 @@ void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
     updateWindowCursorShape();
 
     if (mTool == PenTool && mShiftPressed)
-        update();
+        requestContentPaint();
 }
 
 void ImageCanvas::hoverLeaveEvent(QHoverEvent *event)
 {
-    QQuickPaintedItem::hoverLeaveEvent(event);
+    QQuickItem::hoverLeaveEvent(event);
 
     setContainsMouse(false);
 
@@ -2487,7 +2440,7 @@ void ImageCanvas::hoverLeaveEvent(QHoverEvent *event)
 
 void ImageCanvas::keyPressEvent(QKeyEvent *event)
 {
-    QQuickPaintedItem::keyPressEvent(event);
+    QQuickItem::keyPressEvent(event);
 
     if (!mProject->hasLoaded())
         return;
@@ -2547,7 +2500,7 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
 
 void ImageCanvas::keyReleaseEvent(QKeyEvent *event)
 {
-    QQuickPaintedItem::keyReleaseEvent(event);
+    QQuickItem::keyReleaseEvent(event);
 
     if (!mProject->hasLoaded())
         return;
@@ -2567,14 +2520,14 @@ void ImageCanvas::keyReleaseEvent(QKeyEvent *event)
 
 void ImageCanvas::focusInEvent(QFocusEvent *event)
 {
-    QQuickPaintedItem::focusInEvent(event);
+    QQuickItem::focusInEvent(event);
 
     updateWindowCursorShape();
 }
 
 void ImageCanvas::focusOutEvent(QFocusEvent *event)
 {
-    QQuickPaintedItem::focusOutEvent(event);
+    QQuickItem::focusOutEvent(event);
 
     // The alt-to-eyedrop feature is meant to be temporary,
     // so it should restore the previous tool if focus is taken away.
@@ -2591,7 +2544,7 @@ void ImageCanvas::focusOutEvent(QFocusEvent *event)
 void ImageCanvas::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() != mSelectionEdgePanTimer.timerId()) {
-        QQuickPaintedItem::timerEvent(event);
+        QQuickItem::timerEvent(event);
         return;
     }
 
