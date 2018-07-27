@@ -31,39 +31,11 @@ ImageCanvas {
 
     onErrorOccurred: errorPopup.showError(errorMessage)
 
-    CanvasPaneItem {
-        id: secondPane
+    CanvasPaneRepeater {
         canvas: imageCanvas
-        pane: imageCanvas.secondPane
-        paneIndex: 1
-        anchors.fill: parent
-        visible: imageCanvas.splitScreen
-
-        Rectangle {
-            anchors.fill: parent
-            color: CanvasColours.backgroundColour
-            z: -1
-        }
     }
 
-    CanvasPaneItem {
-        id: firstPane
+    SplitterBar {
         canvas: imageCanvas
-        pane: imageCanvas.firstPane
-        paneIndex: 0
-        anchors.fill: parent
-
-        Rectangle {
-            anchors.fill: parent
-            color: CanvasColours.backgroundColour
-            z: -1
-        }
-    }
-
-    Rectangle {
-        x: imageCanvas.firstPane.size * parent.width
-        width: 1
-        height: parent.height
-        color: CanvasColours.splitColour
     }
 }

@@ -175,6 +175,7 @@ public:
     CanvasPane *secondPane();
     const CanvasPane *secondPane() const;
     CanvasPane *currentPane();
+    Q_INVOKABLE CanvasPane *paneAt(int index);
     int paneWidth(int index) const;
 
     QColor rulerForegroundColour() const;

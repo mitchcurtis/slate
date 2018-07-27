@@ -980,10 +980,19 @@ void tst_App::undoTiles()
 
     QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
+    // For some reason, the second pane isn't updated after the centering occurs.
+    // There is a noticeable delay when creating a new tileset project
+    // (with splitscreen as the default) too, but it's not a huge deal...
+    QTest::mouseMove(window, QPoint(window->width() * 0.66, window->height() * 0.5));
+    // Wait for the pane centering update to be painted.
+    QSignalSpy frameSwappedSpy(window, SIGNAL(frameSwapped()));
+    QVERIFY(frameSwappedSpy.wait());
+
     // Move the cursor away so we have an image we can compare against other grabbed images later on.
     setCursorPosInTiles(0, 2);
     const QPoint outsideCanvas = cursorWindowPos - QPoint(tilesetProject->tileWidth(), 0);
     QTest::mouseMove(window, outsideCanvas);
+
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage originalCanvasImage = imageGrabber.takeImage();
@@ -1030,7 +1039,8 @@ void tst_App::undoTiles()
     QTest::mouseMove(window, outsideCanvas);
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
-    QCOMPARE(imageGrabber.takeImage(), originalCanvasImage);
+    const QImage grab = imageGrabber.takeImage();
+    QCOMPARE(grab, originalCanvasImage);
 
     // Draw a tile back so we can test the revert button.
     QTest::mouseMove(window, cursorWindowPos);

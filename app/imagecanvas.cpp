@@ -25,6 +25,7 @@
 #include <QGuiApplication>
 #include <QImage>
 #include <QPainter>
+#include <QQmlEngine>
 #include <QQuickWindow>
 #include <QtMath>
 
@@ -109,7 +110,9 @@ ImageCanvas::ImageCanvas() :
     setFlag(QQuickItem::ItemIsFocusScope);
 
     mFirstPane.setObjectName("firstPane");
+    QQmlEngine::setObjectOwnership(&mFirstPane, QQmlEngine::CppOwnership);
     mSecondPane.setObjectName("secondPane");
+    QQmlEngine::setObjectOwnership(&mSecondPane, QQmlEngine::CppOwnership);
     mSplitter.setPosition(mFirstPane.size());
 
     // We create child items in the body rather than the initialiser list
@@ -685,6 +688,14 @@ CanvasPane *ImageCanvas::currentPane()
     return mCurrentPane;
 }
 
+CanvasPane *ImageCanvas::paneAt(int index)
+{
+    if (index < 0 || index >= 2)
+        return nullptr;
+
+    return index == 0 ? &mFirstPane : &mSecondPane;
+}
+
 int ImageCanvas::paneWidth(int index) const
 {
     return index == 0 ? mFirstPane.size() * width() : width() - mFirstPane.size() * width();
@@ -790,9 +801,9 @@ void ImageCanvas::connectSignals()
     qCDebug(lcImageCanvas) << "connecting signals for" << this << "as we have a new project" << mProject;
 
     connect(mProject, SIGNAL(loadedChanged()), this, SLOT(onLoadedChanged()));
-    connect(mProject, SIGNAL(projectCreated()), this, SLOT(update()));
+    connect(mProject, SIGNAL(projectCreated()), this, SIGNAL(requestContentPaint()));
     connect(mProject, SIGNAL(projectClosed()), this, SLOT(reset()));
-    connect(mProject, SIGNAL(sizeChanged()), this, SLOT(update()));
+    connect(mProject, SIGNAL(sizeChanged()), this, SIGNAL(requestContentPaint()));
     connect(mProject, SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
     connect(mProject, SIGNAL(readyForWritingToJson(QJsonObject*)),
         this, SLOT(onReadyForWritingToJson(QJsonObject*)));
@@ -805,9 +816,9 @@ void ImageCanvas::disconnectSignals()
     qCDebug(lcImageCanvas) << "disconnecting signals for" << this;
 
     mProject->disconnect(SIGNAL(loadedChanged()), this, SLOT(onLoadedChanged()));
-    mProject->disconnect(SIGNAL(projectCreated()), this, SLOT(update()));
+    mProject->disconnect(SIGNAL(projectCreated()), this, SIGNAL(requestContentPaint()));
     mProject->disconnect(SIGNAL(projectClosed()), this, SLOT(reset()));
-    mProject->disconnect(SIGNAL(sizeChanged()), this, SLOT(update()));
+    mProject->disconnect(SIGNAL(sizeChanged()), this, SIGNAL(requestContentPaint()));
     mProject->disconnect(SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
     mProject->disconnect(SIGNAL(readyForWritingToJson(QJsonObject*)),
         this, SLOT(onReadyForWritingToJson(QJsonObject*)));
@@ -869,7 +880,7 @@ void ImageCanvas::resizeChildren()
     mSelectionCursorGuide->setWidth(width());
     mSelectionCursorGuide->setHeight(height());
 
-    mGuidesItem->setWidth(width());
+    mGuidesItem->setWidth(qFloor(width()));
     mGuidesItem->setHeight(height());
 }
 

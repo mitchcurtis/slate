@@ -54,5 +54,7 @@
         <file>ui/SaturationLightnessPicker.qml</file>
         <file>ui/+nativemenubar/MenuBar.qml</file>
         <file>ui/FpsCounter.qml</file>
+        <file>ui/SplitterBar.qml</file>
+        <file>ui/CanvasPaneRepeater.qml</file>
     </qresource>
 </RCC>

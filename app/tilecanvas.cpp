@@ -217,7 +217,7 @@ void TileCanvas::reset()
     // - tool
     // - toolSize
 
-    update();
+    requestContentPaint();
 }
 
 void TileCanvas::swatchLeft()
@@ -255,11 +255,11 @@ void TileCanvas::swatchDown()
 void TileCanvas::onTilesetChanged(Tileset *oldTileset, Tileset *newTileset)
 {
     if (oldTileset) {
-        oldTileset->disconnect(SIGNAL(imageChanged()), this, SLOT(update()));
+        disconnect(oldTileset, &Tileset::imageChanged, this, &TileCanvas::requestContentPaint);
     }
 
     if (newTileset) {
-        connect(newTileset, SIGNAL(imageChanged()), this, SLOT(update()));
+        connect(newTileset, &Tileset::imageChanged, this, &TileCanvas::requestContentPaint);
     }
 }
 
@@ -270,8 +270,8 @@ void TileCanvas::connectSignals()
     mTilesetProject = qobject_cast<TilesetProject*>(mProject);
     Q_ASSERT_X(mTilesetProject, Q_FUNC_INFO, "Non-tileset project set on TileCanvas");
 
-    connect(mTilesetProject, SIGNAL(tilesCleared()), this, SLOT(update()));
-    connect(mTilesetProject, SIGNAL(tilesetChanged(Tileset *, Tileset *)), this, SLOT(onTilesetChanged(Tileset *, Tileset *)));
+    connect(mTilesetProject, &TilesetProject::tilesCleared, this, &TileCanvas::requestContentPaint);
+    connect(mTilesetProject, &TilesetProject::tilesetChanged, this, &TileCanvas::onTilesetChanged);
 
     setPenTile(mTilesetProject->tilesetTileAt(0, 0));
 
@@ -284,8 +284,8 @@ void TileCanvas::disconnectSignals()
 {
     ImageCanvas::disconnectSignals();
 
-    mTilesetProject->disconnect(SIGNAL(tilesCleared()), this, SLOT(update()));
-    mTilesetProject->disconnect(SIGNAL(tilesetChanged(Tileset *, Tileset *)), this, SLOT(onTilesetChanged(Tileset *, Tileset *)));
+    disconnect(mTilesetProject, &TilesetProject::tilesCleared, this, &TileCanvas::requestContentPaint);
+    disconnect(mTilesetProject, &TilesetProject::tilesetChanged, this, &TileCanvas::onTilesetChanged);
 
     setPenTile(nullptr);
 
@@ -503,13 +503,13 @@ void TileCanvas::applyPixelPenTool(int layerIndex, const QPoint &scenePos, const
     mTilesetProject->tileset()->setPixelColor(tilsetPixelPos.x(), tilsetPixelPos.y(), colour);
     if (markAsLastRelease)
         mLastPixelPenPressScenePosition = scenePos;
-    update();
+    requestContentPaint();
 }
 
 void TileCanvas::applyTilePenTool(const QPoint &tilePos, int id)
 {
     mTilesetProject->setTileAtPixelPos(tilePos, id);
-    update();
+    requestContentPaint();
 }
 
 void TileCanvas::updateCursorPos(const QPoint &eventPos)
@@ -574,7 +574,7 @@ void TileCanvas::updateCursorPos(const QPoint &eventPos)
         }
 
         if (mTilePenPreview) {
-            update();
+            requestContentPaint();
         }
     }
 }
@@ -617,7 +617,7 @@ void TileCanvas::setTilePenPreview(bool tilePenPreview)
         return;
 
     mTilePenPreview = tilePenPreview;
-    update();
+    requestContentPaint();
 }
 
 void TileCanvas::hoverLeaveEvent(QHoverEvent *event)

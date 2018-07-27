@@ -116,6 +116,9 @@ void CanvasPaneItem::disconnectFromCanvas()
 
 void CanvasPaneItem::paint(QPainter *painter)
 {
+    if (!mCanvas->project() || !mCanvas->project()->hasLoaded())
+        return;
+
     PaneDrawingHelper paneDrawingHelper(mCanvas, painter, mPane, mPaneIndex);
 
     // Draw the checkered pixmap that acts as an indicator for transparency.
@@ -124,11 +127,8 @@ void CanvasPaneItem::paint(QPainter *painter)
     painter->drawTiledPixmap(0, 0, zoomedCanvasSize.width(), zoomedCanvasSize.height(), mCanvas->mCheckerPixmap);
 
     const QImage image = mCanvas->contentImage();
-    image.save("/Users/mitch/image.png");
     const QSize zoomedImageSize = mPane->zoomedSize(image.size());
     painter->drawImage(QRectF(QPointF(0, 0), zoomedImageSize), image, QRectF(0, 0, image.width(), image.height()));
-    if (objectName().contains("second"))
-        qDebug() << image.size() << zoomedImageSize << mPaneIndex << mPane;
 
     if (mCanvas->hasSelection()) {
         // Draw the selection area.

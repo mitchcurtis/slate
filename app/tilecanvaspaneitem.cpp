@@ -43,6 +43,9 @@ TileCanvasPaneItem::~TileCanvasPaneItem()
 
 void TileCanvasPaneItem::paint(QPainter *painter)
 {
+    if (!mCanvas->project() || !mCanvas->project()->hasLoaded())
+        return;
+
     PaneDrawingHelper paneDrawingHelper(mCanvas, painter, mPane, mPaneIndex);
 
     TileCanvas *tileCanvas = qobject_cast<TileCanvas*>(mCanvas);
