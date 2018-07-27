@@ -32,6 +32,7 @@ GuidesItem::GuidesItem(ImageCanvas *canvas) :
     mCanvas(canvas)
 {
     setObjectName("GuidesItem");
+    setRenderTarget(FramebufferObject);
 }
 
 GuidesItem::~GuidesItem()

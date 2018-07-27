@@ -31,6 +31,9 @@ Ruler::Ruler(Qt::Orientation orientation, QQuickItem *parentItem) :
     mBackgroundColour(QColor(70, 70, 70, 255)),
     mDrawCorner(false)
 {
+    // I'm not sure if it makes a visible difference, but I decided
+    // not to call setRenderTarget(FramebufferObject) here in case it affects the
+    // anti-aliasing of the text.
 }
 
 Qt::Orientation Ruler::orientation() const

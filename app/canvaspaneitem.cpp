@@ -37,6 +37,7 @@ CanvasPaneItem::CanvasPaneItem(QQuickItem *parent) :
     QQuickPaintedItem(parent)
 {
     setObjectName("CanvasPaneItem");
+    setRenderTarget(FramebufferObject);
 }
 
 CanvasPaneItem::~CanvasPaneItem()
