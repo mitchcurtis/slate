@@ -13,13 +13,14 @@ Repeater {
     
     CanvasPaneItem {
         id: paneItem
-        objectName: "layeredImageCanvasPaneItem" + index
+        objectName: canvas.objectName + "PaneItem" + index
+        onObjectNameChanged: print(objectName)
         canvas: root.canvas
         pane: canvas.paneAt(index)
         paneIndex: index
         anchors.fill: parent
         visible: index === 0 || canvas.splitScreen
-        // Want the first pane to painted on top of the second.
+        // We want the first pane to be painted on top of the second.
         z: 2 - index
         
         Rectangle {
