@@ -115,22 +115,29 @@ ImageCanvas::ImageCanvas() :
     // We create child items in the body rather than the initialiser list
     // in order to ensure the correct drawing order.
     mGuidesItem = new GuidesItem(this);
+    qreal itemZ = 3;
+    mGuidesItem->setZ(itemZ++);
 
     mSelectionCursorGuide = new SelectionCursorGuide(this);
+    mSelectionCursorGuide->setZ(itemZ++);
 
     mFirstHorizontalRuler = new Ruler(Qt::Horizontal, this);
     mFirstHorizontalRuler->setObjectName("firstHorizontalRuler");
+    mFirstHorizontalRuler->setZ(itemZ++);
 
     mFirstVerticalRuler = new Ruler(Qt::Vertical, this);
     mFirstVerticalRuler->setObjectName("firstVerticalRuler");
     mFirstVerticalRuler->setDrawCorner(true);
+    mFirstVerticalRuler->setZ(itemZ++);
 
     mSecondHorizontalRuler = new Ruler(Qt::Horizontal, this);
     mSecondHorizontalRuler->setObjectName("secondHorizontalRuler");
+    mSecondHorizontalRuler->setZ(itemZ++);
 
     mSecondVerticalRuler = new Ruler(Qt::Vertical, this);
     mSecondVerticalRuler->setObjectName("secondVerticalRuler");
     mSecondVerticalRuler->setDrawCorner(true);
+    mSecondVerticalRuler->setZ(itemZ++);
 
     // Give some defaults so that the range slider handles aren't stuck together.
     mTexturedFillParameters.hue()->setVarianceLowerBound(-0.2);
