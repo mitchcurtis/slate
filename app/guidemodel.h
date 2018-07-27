@@ -1,46 +1,34 @@
 #ifndef GUIDEMODEL_H
 #define GUIDEMODEL_H
 
-#include <QAbstractListModel>
+#include <QAbstractItemModel>
 
-class Project;
-
-class GuideModel : public QAbstractListModel
+class GuideModel : public QAbstractItemModel
 {
     Q_OBJECT
-    Q_PROPERTY(Project *project READ project WRITE setProject NOTIFY projectChanged)
 
 public:
     explicit GuideModel(QObject *parent = nullptr);
 
-    enum {
-        XPositionRole,
-        YPositionRole,
-        OrientationRole
-    };
-
-    Project *project() const;
-    void setProject(Project *project);
+    // Basic functionality:
+    QModelIndex index(int row, int column,
+                      const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &index) const override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    QHash<int, QByteArray> roleNames() const override;
+    // Add data:
+    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+    bool insertColumns(int column, int count, const QModelIndex &parent = QModelIndex()) override;
 
-signals:
-    void projectChanged();
-
-private slots:
-    void onPreGuideAppended();
-    void onPostGuideAppended();
-    void onGuidePositionChanged(int index);
-    void onPreGuideRemoved(int index);
-    void onPostGuideRemoved();
+    // Remove data:
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+    bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex()) override;
 
 private:
-    Project *mProject = nullptr;
 };
 
 #endif // GUIDEMODEL_H

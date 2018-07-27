@@ -131,7 +131,6 @@ public:
     QRect firstPaneVisibleSceneArea() const;
     QRect secondPaneVisibleSceneArea() const;
     QRect paneVisibleSceneArea(int paneIndex) const;
-    Q_INVOKABLE bool isGuideVisibleInPane(int paneIndex, int guideIndex) const;
 
     bool gridVisible() const;
     void setGridVisible(bool gridVisible);

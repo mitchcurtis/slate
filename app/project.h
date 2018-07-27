@@ -123,11 +123,6 @@ signals:
     void errorOccurred(const QString &errorMessage);
     void settingsChanged();
     void guidesChanged();
-    void preGuideAppended();
-    void postGuideAppended();
-    void preGuideRemoved(int index);
-    void postGuideRemoved();
-    void guidePositionChanged(int index);
     void readyForWritingToJson(QJsonObject *projectJson);
 
 public slots:

@@ -626,23 +626,6 @@ QRect ImageCanvas::paneVisibleSceneArea(int paneIndex) const
     return paneIndex == 0 ? mFirstPaneVisibleSceneArea : mSecondPaneVisibleSceneArea;
 }
 
-bool ImageCanvas::isGuideVisibleInPane(int paneIndex, int guideIndex) const
-{
-    if (!mProject || guideIndex < 0 || guideIndex > mProject->guides().size())
-        return false;
-
-    const Guide guide = mProject->guides().at(guideIndex);
-    const QRect visibleSceneArea = paneVisibleSceneArea(paneIndex);
-
-    if (guide.orientation() == Qt::Vertical) {
-        // Use visibleSceneArea.x()/y() to ensure that that coordinate is within the
-        // scene area, as we don't care about it and are only testing the other coordinate.
-        return visibleSceneArea.contains(QPoint(guide.position(), visibleSceneArea.y()));
-    }
-
-    return visibleSceneArea.contains(QPoint(visibleSceneArea.x(), guide.position()));
-}
-
 bool ImageCanvas::isSplitScreen() const
 {
     return mSplitScreen;
