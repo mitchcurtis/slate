@@ -67,6 +67,7 @@ ImageCanvas::ImageCanvas() :
     mSplitScreen(false),
     mSplitter(this),
     mCurrentPane(&mFirstPane),
+    mCurrentPaneIndex(0),
     mFirstHorizontalRuler(nullptr),
     mFirstVerticalRuler(nullptr),
     mSecondHorizontalRuler(nullptr),
@@ -801,9 +802,9 @@ void ImageCanvas::connectSignals()
     qCDebug(lcImageCanvas) << "connecting signals for" << this << "as we have a new project" << mProject;
 
     connect(mProject, SIGNAL(loadedChanged()), this, SLOT(onLoadedChanged()));
-    connect(mProject, SIGNAL(projectCreated()), this, SIGNAL(requestContentPaint()));
+    connect(mProject, SIGNAL(projectCreated()), this, SLOT(requestContentPaint()));
     connect(mProject, SIGNAL(projectClosed()), this, SLOT(reset()));
-    connect(mProject, SIGNAL(sizeChanged()), this, SIGNAL(requestContentPaint()));
+    connect(mProject, SIGNAL(sizeChanged()), this, SLOT(requestContentPaint()));
     connect(mProject, SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
     connect(mProject, SIGNAL(readyForWritingToJson(QJsonObject*)),
         this, SLOT(onReadyForWritingToJson(QJsonObject*)));
@@ -816,9 +817,9 @@ void ImageCanvas::disconnectSignals()
     qCDebug(lcImageCanvas) << "disconnecting signals for" << this;
 
     mProject->disconnect(SIGNAL(loadedChanged()), this, SLOT(onLoadedChanged()));
-    mProject->disconnect(SIGNAL(projectCreated()), this, SIGNAL(requestContentPaint()));
+    mProject->disconnect(SIGNAL(projectCreated()), this, SLOT(requestContentPaint()));
     mProject->disconnect(SIGNAL(projectClosed()), this, SLOT(reset()));
-    mProject->disconnect(SIGNAL(sizeChanged()), this, SIGNAL(requestContentPaint()));
+    mProject->disconnect(SIGNAL(sizeChanged()), this, SLOT(requestContentPaint()));
     mProject->disconnect(SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
     mProject->disconnect(SIGNAL(readyForWritingToJson(QJsonObject*)),
         this, SLOT(onReadyForWritingToJson(QJsonObject*)));
@@ -2016,6 +2017,19 @@ void ImageCanvas::onLoadedChanged()
     updateWindowCursorShape();
 }
 
+void ImageCanvas::requestContentPaint()
+{
+    // It's nice to be able to debug where a paint request comes from;
+    // that's the only reason that these functions are slots and the signal isn't
+    // just emitted immediately instead.
+    emit contentPaintRequested(-1);
+}
+
+void ImageCanvas::requestPaneContentPaint(int paneIndex)
+{
+    emit contentPaintRequested(paneIndex);
+}
+
 void ImageCanvas::updateWindowCursorShape()
 {
     if (!mProject)
@@ -2148,11 +2162,11 @@ void ImageCanvas::setHasBlankCursor(bool hasCustomCursor)
 
 void ImageCanvas::setCurrentPane(CanvasPane *pane)
 {
-    if (pane == mCurrentPane) {
+    if (pane == mCurrentPane)
         return;
-    }
 
     mCurrentPane = pane;
+    mCurrentPaneIndex = (pane == &mSecondPane ? 1 : 0);
     emit currentPaneChanged();
 }
 
@@ -2314,7 +2328,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
                 // Panning.
                 mCurrentPane->setSceneCentered(false);
                 mCurrentPane->setOffset(mCurrentPaneOffsetBeforePress + (event->pos() - mPressPosition));
-                requestContentPaint();
+                requestPaneContentPaint(mCurrentPaneIndex);
             }
         }
     }

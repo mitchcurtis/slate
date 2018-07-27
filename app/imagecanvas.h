@@ -263,7 +263,9 @@ signals:
 
     // Used to signal CanvasPaneItem classes that they should redraw,
     // instead of them having to connect to lots of specific signals.
-    void requestContentPaint();
+    // paneIndex is the index of the pane that should be redrawn,
+    // or -1 for all panes.
+    void contentPaintRequested(int paneIndex);
 
     void errorOccurred(const QString &errorMessage);
 
@@ -282,6 +284,13 @@ public slots:
 protected slots:
     virtual void reset();
     virtual void onLoadedChanged();
+
+    // Requests both panes to be repainted. Most operations
+    // (like the user drawing pixels) require both panes to be redrawn,
+    // but stuff like panning does not, and hence it should use
+    // requestPaneContentPaint() and pass a specific index.
+    void requestContentPaint();
+    void requestPaneContentPaint(int paneIndex);
     void updateWindowCursorShape();
     void onZoomLevelChanged();
     void onPaneOffsetChanged();
@@ -450,6 +459,7 @@ protected:
     CanvasPane mFirstPane;
     CanvasPane mSecondPane;
     CanvasPane *mCurrentPane;
+    int mCurrentPaneIndex;
     Ruler *mFirstHorizontalRuler;
     Ruler *mFirstVerticalRuler;
     Ruler *mSecondHorizontalRuler;

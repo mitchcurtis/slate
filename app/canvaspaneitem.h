@@ -60,6 +60,10 @@ protected:
     void connectToCanvas();
     void disconnectFromCanvas();
 
+protected slots:
+    void onContentPaintRequested(int paneIndex);
+
+protected:
     ImageCanvas *mCanvas = nullptr;
     CanvasPane *mPane = nullptr;
     int mPaneIndex = -1;

@@ -106,12 +106,20 @@ void CanvasPaneItem::itemChange(QQuickItem::ItemChange change, const QQuickItem:
 
 void CanvasPaneItem::connectToCanvas()
 {
-    connect(mCanvas, &ImageCanvas::requestContentPaint, this, &QQuickItem::update);
+    connect(mCanvas, &ImageCanvas::contentPaintRequested, this, &CanvasPaneItem::onContentPaintRequested);
 }
 
 void CanvasPaneItem::disconnectFromCanvas()
 {
     mCanvas->disconnect(this);
+}
+
+void CanvasPaneItem::onContentPaintRequested(int paneIndex)
+{
+    if (paneIndex == -1 || paneIndex == mPaneIndex) {
+        // Only schedule a re-paint if we were the pane it was requested for.
+        update();
+    }
 }
 
 void CanvasPaneItem::paint(QPainter *painter)
