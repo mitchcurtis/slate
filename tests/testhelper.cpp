@@ -129,6 +129,12 @@ void TestHelper::initTestCase()
     redoButton = window->findChild<QQuickItem*>("redoButton");
     QVERIFY(redoButton);
 
+    splitScreenToolButton = window->findChild<QQuickItem*>("splitScreenToolButton");
+    QVERIFY(splitScreenToolButton);
+
+    lockSplitterToolButton = window->findChild<QQuickItem*>("lockSplitterToolButton");
+    QVERIFY(lockSplitterToolButton);
+
     penForegroundColourButton = window->findChild<QQuickItem*>("penForegroundColourButton");
     QVERIFY(penForegroundColourButton);
 
@@ -1293,6 +1299,10 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
     // Also, it's good to ensure that it's tested.
     canvas->setSplitScreen(true);
     VERIFY(canvas->isSplitScreen());
+    VERIFY(splitScreenToolButton->isEnabled() == true);
+    VERIFY(splitScreenToolButton->property("checked").toBool() == canvas->isSplitScreen());
+    VERIFY(lockSplitterToolButton->isEnabled() == true);
+    VERIFY(lockSplitterToolButton->property("checked").toBool() == !canvas->splitter()->isEnabled());
 
     if (newProjectType == Project::TilesetType) {
         tilesetProject = qobject_cast<TilesetProject*>(project);

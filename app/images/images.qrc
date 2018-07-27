@@ -23,6 +23,10 @@
         <file>lock-guides@2x.png</file>
         <file>lock-guides@3x.png</file>
         <file>lock-guides@4x.png</file>
+        <file>lock-splitter.png</file>
+        <file>lock-splitter@2x.png</file>
+        <file>lock-splitter@3x.png</file>
+        <file>lock-splitter@4x.png</file>
         <file>opacity.png</file>
         <file>opacity@2x.png</file>
         <file>opacity@3x.png</file>
@@ -39,6 +43,10 @@
         <file>show-rulers@2x.png</file>
         <file>show-rulers@3x.png</file>
         <file>show-rulers@4x.png</file>
+        <file>splitscreen.png</file>
+        <file>splitscreen@2x.png</file>
+        <file>splitscreen@3x.png</file>
+        <file>splitscreen@4x.png</file>
         <file>textured-fill.png</file>
         <file>textured-fill@2x.png</file>
         <file>textured-fill@3x.png</file>
