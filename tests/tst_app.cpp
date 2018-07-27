@@ -88,6 +88,8 @@ private Q_SLOTS:
     void colourPickerHexFieldTranslucent();
     void eraseImageCanvas_data();
     void eraseImageCanvas();
+    void splitterSettingsMouse_data();
+    void splitterSettingsMouse();
 
     void selectionToolImageCanvas();
     void selectionToolTileCanvas();
@@ -2088,6 +2090,63 @@ void tst_App::eraseImageCanvas()
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 
     QCOMPARE(canvas->currentProjectImage()->pixelColor(cursorPos), QColor(Qt::transparent));
+}
+
+void tst_App::splitterSettingsMouse_data()
+{
+    addAllProjectTypes();
+}
+
+void tst_App::splitterSettingsMouse()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+
+    // Split screen is on by default for auto tests.
+    QCOMPARE(canvas->isSplitScreen(), true);
+    QCOMPARE(canvas->firstPane()->size(), 0.5);
+    QCOMPARE(canvas->secondPane()->size(), 0.5);
+    QCOMPARE(splitScreenToolButton->isEnabled(), true);
+    QCOMPARE(splitScreenToolButton->property("checked").toBool(), true);
+    // The splitter is always locked by default.
+    QCOMPARE(canvas->splitter()->isEnabled(), false);
+    QCOMPARE(lockSplitterToolButton->isEnabled(), true);
+    QCOMPARE(lockSplitterToolButton->property("checked").toBool(), true);
+
+    // Turn split screen off.
+    mouseEventOnCentre(splitScreenToolButton, MouseClick);
+    QCOMPARE(canvas->isSplitScreen(), false);
+    QCOMPARE(canvas->firstPane()->size(), 1.0);
+    QCOMPARE(canvas->secondPane()->size(), 0.0);
+    QCOMPARE(splitScreenToolButton->isEnabled(), true);
+    QCOMPARE(splitScreenToolButton->property("checked").toBool(), false);
+    // The lock splitter tool button should be disabled but retain its original value.
+    QCOMPARE(canvas->splitter()->isEnabled(), false);
+    QCOMPARE(lockSplitterToolButton->isEnabled(), false);
+    QCOMPARE(lockSplitterToolButton->property("checked").toBool(), true);
+
+    // Turn split screen back on.
+    mouseEventOnCentre(splitScreenToolButton, MouseClick);
+    QCOMPARE(canvas->isSplitScreen(), true);
+    QCOMPARE(canvas->firstPane()->size(), 0.5);
+    QCOMPARE(canvas->secondPane()->size(), 0.5);
+    QCOMPARE(splitScreenToolButton->isEnabled(), true);
+    QCOMPARE(splitScreenToolButton->property("checked").toBool(), true);
+    QCOMPARE(canvas->splitter()->isEnabled(), false);
+    QCOMPARE(lockSplitterToolButton->isEnabled(), true);
+    QCOMPARE(lockSplitterToolButton->property("checked").toBool(), true);
+
+    // Enable the splitter.
+    mouseEventOnCentre(lockSplitterToolButton, MouseClick);
+    QCOMPARE(canvas->isSplitScreen(), true);
+    QCOMPARE(canvas->firstPane()->size(), 0.5);
+    QCOMPARE(canvas->secondPane()->size(), 0.5);
+    QCOMPARE(splitScreenToolButton->isEnabled(), true);
+    QCOMPARE(splitScreenToolButton->property("checked").toBool(), true);
+    QCOMPARE(canvas->splitter()->isEnabled(), true);
+    QCOMPARE(lockSplitterToolButton->isEnabled(), true);
+    QCOMPARE(lockSplitterToolButton->property("checked").toBool(), false);
 }
 
 struct SelectionData

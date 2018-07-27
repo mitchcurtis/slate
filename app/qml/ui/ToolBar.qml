@@ -359,5 +359,43 @@ ToolBar {
                 onClicked: settings.guidesLocked = checked
             }
         }
+
+        ToolSeparator {}
+
+        Row {
+            id: viewSplitscreenLayout
+            spacing: 5
+
+            ToolButton {
+                objectName: "splitScreenToolButton"
+                focusPolicy: Qt.NoFocus
+                hoverEnabled: true
+                checkable: true
+                checked: canvas && canvas.splitScreen
+
+                icon.source: "qrc:/images/splitscreen.png"
+
+                ToolTip.text: qsTr("Split Screen")
+                ToolTip.visible: hovered
+
+                onClicked: canvas.splitScreen = checked
+            }
+
+            ToolButton {
+                objectName: "lockSplitterToolButton"
+                focusPolicy: Qt.NoFocus
+                hoverEnabled: true
+                checkable: true
+                checked: canvas && !canvas.splitter.enabled
+                enabled: canvas && canvas.splitScreen
+
+                icon.source: "qrc:/images/lock-splitter.png"
+
+                ToolTip.text: qsTr("Lock Splitter")
+                ToolTip.visible: hovered
+
+                onClicked: canvas.splitter.enabled = !checked
+            }
+        }
     }
 }

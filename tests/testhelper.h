@@ -234,6 +234,8 @@ protected:
     QQuickItem *toolSizeButton;
     QQuickItem *undoButton;
     QQuickItem *redoButton;
+    QQuickItem *splitScreenToolButton;
+    QQuickItem *lockSplitterToolButton;
     QQuickItem *penForegroundColourButton;
     QQuickItem *penBackgroundColourButton;
     QQuickItem *lighterButton;
