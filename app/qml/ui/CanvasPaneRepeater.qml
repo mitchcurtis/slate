@@ -14,7 +14,6 @@ Repeater {
     CanvasPaneItem {
         id: paneItem
         objectName: canvas.objectName + "PaneItem" + index
-        onObjectNameChanged: print(objectName)
         canvas: root.canvas
         pane: canvas.paneAt(index)
         paneIndex: index
