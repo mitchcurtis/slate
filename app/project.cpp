@@ -280,27 +280,38 @@ void Project::addGuide(const Guide &guide)
     if (mGuides.contains(guide))
         return;
 
+    emit preGuideAppended();
+
     mGuides.append(guide);
 
+    emit postGuideAppended();
     emit guidesChanged();
 }
 
 void Project::moveGuide(const Guide &guide, int to)
 {
-    auto it = std::find(mGuides.begin(), mGuides.end(), guide);
-    if (it == mGuides.end())
+    int index = mGuides.indexOf(guide);
+    if (index == -1)
         return;
 
-    it->setPosition(to);
+    mGuides[index].setPosition(to);
 
+    emit guidePositionChanged(index);
     emit guidesChanged();
 }
 
 void Project::removeGuide(const Guide &guide)
 {
-    if (mGuides.removeOne(guide)) {
-        emit guidesChanged();
-    }
+    int index = mGuides.indexOf(guide);
+    if (index == -1)
+        return;
+
+    emit preGuideRemoved(index);
+
+    mGuides.removeAt(index);
+
+    emit postGuideRemoved();
+    emit guidesChanged();
 }
 
 int Project::currentLayerIndex() const

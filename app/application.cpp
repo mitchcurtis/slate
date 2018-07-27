@@ -28,6 +28,7 @@
 #include "canvaspane.h"
 #include "canvaspaneitem.h"
 #include "filevalidator.h"
+#include "guidemodel.h"
 #include "imagecanvas.h"
 #include "imagelayer.h"
 #include "imageproject.h"
@@ -78,6 +79,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterType<ImageCanvas>();
     qmlRegisterType<ImageCanvas>("App", 1, 0, "ImageCanvas");
     qmlRegisterType<CanvasPaneItem>("App", 1, 0, "CanvasPaneItem");
+    qmlRegisterType<GuideModel>("App", 1, 0, "GuideModel");
     qmlRegisterType<KeySequenceEditor>("App", 1, 0, "KeySequenceEditor");
     qmlRegisterType<LayeredImageCanvas>("App", 1, 0, "LayeredImageCanvas");
     qmlRegisterType<LayerModel>("App", 1, 0, "LayerModel");

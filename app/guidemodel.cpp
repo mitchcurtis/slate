@@ -1,69 +1,112 @@
 #include "guidemodel.h"
 
+#include "guide.h"
+#include "project.h"
+
 GuideModel::GuideModel(QObject *parent)
-    : QAbstractItemModel(parent)
+    : QAbstractListModel(parent)
 {
 }
 
-QModelIndex GuideModel::index(int row, int column, const QModelIndex &parent) const
+Project *GuideModel::project() const
 {
-    // FIXME: Implement me!
+    return mProject;
 }
 
-QModelIndex GuideModel::parent(const QModelIndex &index) const
+void GuideModel::setProject(Project *project)
 {
-    // FIXME: Implement me!
+    if (project == mProject)
+        return;
+
+    if (mProject)
+        mProject->disconnect(this);
+
+    beginResetModel();
+
+    mProject = project;
+
+    if (mProject) {
+        connect(mProject, &Project::preGuideAppended, this, &GuideModel::onPreGuideAppended);
+        connect(mProject, &Project::postGuideAppended, this, &GuideModel::onPostGuideAppended);
+        connect(mProject, &Project::guidePositionChanged, this, &GuideModel::onGuidePositionChanged);
+        connect(mProject, &Project::preGuideRemoved, this, &GuideModel::onPreGuideRemoved);
+        connect(mProject, &Project::postGuideRemoved, this, &GuideModel::onPostGuideRemoved);
+    }
+
+    endResetModel();
+
+    emit projectChanged();
 }
 
 int GuideModel::rowCount(const QModelIndex &parent) const
 {
-    if (!parent.isValid())
+    if (!mProject)
         return 0;
 
-    // FIXME: Implement me!
+    return mProject->guides().size();
 }
 
 int GuideModel::columnCount(const QModelIndex &parent) const
 {
-    if (!parent.isValid())
+    if (!mProject)
         return 0;
 
-    // FIXME: Implement me!
+    return 1;
 }
 
 QVariant GuideModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid())
+    if (!checkIndex(index))
         return QVariant();
 
-    // FIXME: Implement me!
+    const Guide guide = mProject->guides().at(index.row());
+
+    switch (role) {
+    case XPositionRole:
+        return QVariant(guide.orientation() == Qt::Horizontal ? 0 : guide.position());
+        break;
+    case YPositionRole:
+        return QVariant(guide.orientation() == Qt::Horizontal ? guide.position() : 0);
+        break;
+    case OrientationRole:
+        return QVariant::fromValue(guide.orientation());
+        break;
+    }
+
     return QVariant();
 }
 
-bool GuideModel::insertRows(int row, int count, const QModelIndex &parent)
+QHash<int, QByteArray> GuideModel::roleNames() const
 {
-    beginInsertRows(parent, row, row + count - 1);
-    // FIXME: Implement me!
+    QHash<int, QByteArray> names;
+    names[XPositionRole] = "xPosition";
+    names[YPositionRole] = "yPosition";
+    names[OrientationRole] = "orientation";
+    return names;
+}
+
+void GuideModel::onPreGuideAppended()
+{
+    beginInsertRows(QModelIndex(), rowCount(), rowCount());
+}
+
+void GuideModel::onPostGuideAppended()
+{
     endInsertRows();
 }
 
-bool GuideModel::insertColumns(int column, int count, const QModelIndex &parent)
+void GuideModel::onGuidePositionChanged(int index)
 {
-    beginInsertColumns(parent, column, column + count - 1);
-    // FIXME: Implement me!
-    endInsertColumns();
+    const QModelIndex modelIndex(createIndex(index, 0));
+    emit dataChanged(modelIndex, modelIndex);
 }
 
-bool GuideModel::removeRows(int row, int count, const QModelIndex &parent)
+void GuideModel::onPreGuideRemoved(int index)
 {
-    beginRemoveRows(parent, row, row + count - 1);
-    // FIXME: Implement me!
+    emit beginRemoveRows(QModelIndex(), index, index);
+}
+
+void GuideModel::onPostGuideRemoved()
+{
     endRemoveRows();
-}
-
-bool GuideModel::removeColumns(int column, int count, const QModelIndex &parent)
-{
-    beginRemoveColumns(parent, column, column + count - 1);
-    // FIXME: Implement me!
-    endRemoveColumns();
 }

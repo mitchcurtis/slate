@@ -49,6 +49,25 @@ LayeredImageCanvas {
             color: CanvasColours.backgroundColour
             z: -1
         }
+
+//        Repeater {
+//            model: GuideModel {
+//                project: layeredCanvas.project
+//            }
+//            delegate: Rectangle {
+//                x: (secondPane.pane.offset.x + model.xPosition) * secondPane.pane.integerZoomLevel
+//                y: (secondPane.pane.offset.y + model.yPosition) * secondPane.pane.integerZoomLevel
+//                width: model.orientation === Qt.Vertical ? 1 : parent.width
+//                height: model.orientation === Qt.Horizontal ? parent.height : 1
+//                color: "cyan"
+//                visible: {
+//                    // force evaluation
+//                    secondPane.pane.offset
+//                    // TODO: doesn't work, but not that important
+//                    layeredCanvas.isGuideVisibleInPane(secondPane.paneIndex, index)
+//                }
+//            }
+//        }
     }
 
     CanvasPaneItem {
