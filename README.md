@@ -11,7 +11,7 @@ Slate was built for pixel art, and its goal is to simplify the creation of sprit
 
 ![Screenshot of Slate on Linux](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.1.0-tileset-linux.png "Screenshot of Slate on Linux")
 
-![Screenshot of Slate v0.1.0 on Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.1.0-mac.png "Screenshot of Slate v0.1.0 on Mac")
+![Screenshot of Slate v0.1.0 on Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.1.0-mac-layers.png "Screenshot of Slate v0.1.0 on Mac")
 
 ![Screenshot of Slate v0.0.10 on Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.0.10-mac.png "Screenshot of Slate v0.0.10 on Mac")
 
