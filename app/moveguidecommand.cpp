@@ -25,8 +25,8 @@
 
 Q_LOGGING_CATEGORY(lcMoveGuideCommand, "app.undo.moveGuideCommand")
 
-MoveGuideCommand::MoveGuideCommand(Project *project, const Guide &guide, int newPosition, QUndoCommand *parent) :
-    QUndoCommand(parent),
+MoveGuideCommand::MoveGuideCommand(Project *project, const Guide &guide, int newPosition, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mGuide(guide),
     mPreviousPosition(guide.position()),

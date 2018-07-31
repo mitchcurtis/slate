@@ -26,8 +26,8 @@
 Q_LOGGING_CATEGORY(lcChangeLayerOrderCommand, "app.undo.changeLayerOrderCommand")
 
 ChangeLayerOrderCommand::ChangeLayerOrderCommand(LayeredImageProject *project, int previousIndex, int newIndex,
-    QUndoCommand *parent) :
-    QUndoCommand(parent),
+    UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mPreviousIndex(previousIndex),
     mNewIndex(newIndex)

@@ -27,8 +27,8 @@ Q_LOGGING_CATEGORY(lcApplyPixelLineCommand, "app.undo.applyPixelLineCommand")
 
 ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex, const QImage &imageWithLine,
     const QImage &imageWithoutLine, const QRect &lineRect,
-    const QPoint &newLastPixelPenReleaseScenePos, const QPoint &oldLastPixelPenReleaseScenePos, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    const QPoint &newLastPixelPenReleaseScenePos, const QPoint &oldLastPixelPenReleaseScenePos, UndoCommand *parent) :
+    UndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex),
     mImageWithLine(imageWithLine),
@@ -62,7 +62,7 @@ int ApplyPixelLineCommand::id() const
     return ApplyPixelLineCommandId;
 }
 
-bool ApplyPixelLineCommand::mergeWith(const QUndoCommand *)
+bool ApplyPixelLineCommand::mergeWith(const UndoCommand *)
 {
     return false;
 }

@@ -26,7 +26,7 @@
 #include <QStack>
 #include <QWheelEvent>
 
-#include <QUndoStack>
+#include <QtUndo/undostack.h>
 
 #include "imagecanvas.h"
 

@@ -26,8 +26,8 @@
 Q_LOGGING_CATEGORY(lcChangeImageSizeCommand, "app.undo.ChangeImageSizeCommand")
 
 ChangeImageSizeCommand::ChangeImageSizeCommand(ImageProject *project, const QImage &previousImage,
-    const QImage &newImage, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    const QImage &newImage, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mPreviousImage(previousImage),
     mNewImage(newImage)

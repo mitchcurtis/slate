@@ -26,8 +26,8 @@
 Q_LOGGING_CATEGORY(lcChangeTileCanvasSizeCommand, "app.undo.changeTileCanvasSizeCommand")
 
 ChangeTileCanvasSizeCommand::ChangeTileCanvasSizeCommand(TilesetProject *project, const QSize &previousSize,
-    const QSize &size, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    const QSize &size, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mPreviousSize(previousSize),
     mSize(size)

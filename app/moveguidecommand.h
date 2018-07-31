@@ -21,16 +21,18 @@
 #define MOVEGUIDECOMMAND_H
 
 #include <QDebug>
-#include <QUndoCommand>
+#include <QtUndo/undocommand.h>
 
 #include "guide.h"
 
 class Project;
 
-class MoveGuideCommand : public QUndoCommand
+class MoveGuideCommand : public UndoCommand
 {
+    Q_OBJECT
+
 public:
-    MoveGuideCommand(Project *project, const Guide &guide, int newPosition, QUndoCommand *parent = nullptr);
+    MoveGuideCommand(Project *project, const Guide &guide, int newPosition, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

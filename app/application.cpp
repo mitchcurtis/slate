@@ -22,7 +22,6 @@
 #include <QApplication>
 #include <QFontDatabase>
 #include <QLoggingCategory>
-#include <QQmlFileSelector>
 #include <QUndoStack>
 
 #include "canvaspane.h"
@@ -109,13 +108,9 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qRegisterMetaType<ApplicationSettings*>();
     qRegisterMetaType<ImageLayer*>();
     qRegisterMetaType<Project::Type>();
-
-    // For some reason, only when debugging, I get
-    // QMetaProperty::read: Unable to handle unregistered datatype 'QUndoStack*' for property 'Project_QML_108::undoStack'
-    // if I don't do this.
-    qRegisterMetaType<QUndoStack*>();
     qRegisterMetaType<Tile*>();
     qRegisterMetaType<Tileset*>();
+    qRegisterMetaType<UndoStack*>();
 
     if (QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf") == -1) {
         qWarning() << "Failed to load FontAwesome font";

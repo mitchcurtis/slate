@@ -34,7 +34,8 @@ All Slate builds are portable, meaning that no installation is necessary. On Win
 
 ### Dependencies ###
 
-* Qt 5.12
+* Qt >= 5.11
+* https://github.com/mitchcurtis/qt-undo
 
 ### Cloning ###
 
@@ -42,7 +43,14 @@ All Slate builds are portable, meaning that no installation is necessary. On Win
 
 ### Building ###
 
-There are two options for building:
+There are two options for building: Qt Creator and the command line. Each approach is explained in the sections below.
+
+Note: qt-undo can be cloned and built separately, but it is also available as a submodule of Slate's repo, and can therefore be built automatically when
+Slate is built, by first running the following commands:
+
+    cd /path/to/slate-source-dir
+    git submodule init
+    git submodule update
 
 #### Qt Creator ####
 Open [slate.pro](https://github.com/mitchcurtis/slate/blob/master/slate.pro) in Qt Creator, configure the project using a kit with a Qt version that meets the requirement listed in the [Dependencies](#dependencies) section, and then build it.

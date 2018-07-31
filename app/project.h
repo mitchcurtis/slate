@@ -28,7 +28,7 @@
 #include <QTemporaryDir>
 #include <QUrl>
 
-#include <QUndoStack>
+#include <QtUndo/undostack.h>
 
 #include "guide.h"
 
@@ -50,7 +50,7 @@ class Project : public QObject
     Q_PROPERTY(QUrl dirUrl READ dirUrl NOTIFY urlChanged)
     Q_PROPERTY(QString displayUrl READ displayUrl NOTIFY urlChanged)
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
-    Q_PROPERTY(QUndoStack *undoStack READ undoStack CONSTANT)
+    Q_PROPERTY(UndoStack *undoStack READ undoStack CONSTANT)
     Q_PROPERTY(ApplicationSettings *settings READ settings WRITE setSettings NOTIFY settingsChanged)
 
 public:
@@ -97,12 +97,12 @@ public:
     // and MoveContentsDialog.
     Q_INVOKABLE virtual QImage exportedImage() const;
 
-    QUndoStack *undoStack();
+    UndoStack *undoStack();
 
     bool isComposingMacro() const;
     void beginMacro(const QString &text);
     void endMacro();
-    void addChange(QUndoCommand *undoCommand);
+    void addChange(UndoCommand *undoCommand);
     void clearChanges();
 
     ApplicationSettings *settings() const;
@@ -155,7 +155,7 @@ protected:
     // who may be interested) a chance to save data specific to the project.
     QJsonObject mCachedProjectJson;
 
-    QUndoStack mUndoStack;
+    UndoStack mUndoStack;
     bool mComposingMacro;
     bool mHadUnsavedChangesBeforeMacroBegan;
 

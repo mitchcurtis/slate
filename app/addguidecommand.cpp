@@ -25,8 +25,8 @@
 
 Q_LOGGING_CATEGORY(lcAddGuideCommand, "app.undo.addGuideCommand")
 
-AddGuideCommand::AddGuideCommand(Project *project, const Guide &guide, QUndoCommand *parent) :
-    QUndoCommand(parent),
+AddGuideCommand::AddGuideCommand(Project *project, const Guide &guide, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mGuide(guide)
 {

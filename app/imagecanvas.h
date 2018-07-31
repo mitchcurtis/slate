@@ -26,9 +26,10 @@
 #include <QPixmap>
 #include <QQuickItem>
 #include <QStack>
-#include <QTimerEvent>
 #include <QUndoStack>
 #include <QWheelEvent>
+
+#include <QtUndo/undostack.h>
 
 #include "canvaspane.h"
 #include "ruler.h"

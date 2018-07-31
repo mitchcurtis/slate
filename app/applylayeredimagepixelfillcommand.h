@@ -28,6 +28,8 @@ class LayeredImageProject;
 
 class ApplyLayeredImagePixelFillCommand : public UndoCommand
 {
+    Q_OBJECT
+
 public:
     ApplyLayeredImagePixelFillCommand(LayeredImageProject *project, const QImage &previousImage,
         const QImage &newImage, UndoCommand *parent = nullptr);

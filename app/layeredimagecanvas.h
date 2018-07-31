@@ -20,6 +20,8 @@
 #ifndef LAYEREDIMAGECANVAS_H
 #define LAYEREDIMAGECANVAS_H
 
+#include <QtUndo/undostack.h>
+
 #include "imagecanvas.h"
 
 class LayeredImageProject;

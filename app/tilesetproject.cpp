@@ -26,7 +26,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
-#include <QUndoStack>
 
 #include "changetilecanvassizecommand.h"
 #include "jsonutils.h"

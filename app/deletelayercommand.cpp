@@ -26,8 +26,8 @@
 
 Q_LOGGING_CATEGORY(lcDeleteLayerCommand, "app.undo.deleteLayerCommand")
 
-DeleteLayerCommand::DeleteLayerCommand(LayeredImageProject *project, int index, QUndoCommand *parent) :
-    QUndoCommand(parent),
+DeleteLayerCommand::DeleteLayerCommand(LayeredImageProject *project, int index, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mIndex(index),
     mLayer(project->layerAt(index))
@@ -38,7 +38,7 @@ DeleteLayerCommand::DeleteLayerCommand(LayeredImageProject *project, int index, 
 void DeleteLayerCommand::undo()
 {
     qCDebug(lcDeleteLayerCommand) << "undoing" << this;
-    mProject->addLayer(mLayerGuard.take(), mIndex);
+    mProject->addLayer(mLayer, mIndex);
     // If it was deleted, it was also current, as layers can't be deleted without being current.
     mProject->setCurrentLayerIndex(mIndex);
 }
@@ -48,7 +48,7 @@ void DeleteLayerCommand::redo()
     qCDebug(lcDeleteLayerCommand) << "redoing" << this;
     mProject->takeLayer(mIndex);
     // Prevent leaks.
-    mLayerGuard.reset(mLayer);
+    mLayer->setParent(this);
 }
 
 int DeleteLayerCommand::id() const

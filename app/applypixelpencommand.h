@@ -24,21 +24,23 @@
 #include <QDebug>
 #include <QPoint>
 #include <QVector>
-#include <QUndoCommand>
+#include <QtUndo/undocommand.h>
 
 #include "imagecanvas.h"
 
-class ApplyPixelPenCommand : public QUndoCommand
+class ApplyPixelPenCommand : public UndoCommand
 {
+    Q_OBJECT
+
 public:
     ApplyPixelPenCommand(ImageCanvas *canvas, int layerIndex, const QVector<QPoint> &scenePositions, const QVector<QColor> &previousColours,
-        const QColor &colour, QUndoCommand *parent = nullptr);
+        const QColor &colour, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
 
     int id() const override;
-    bool mergeWith(const QUndoCommand *other) override;
+    bool mergeWith(const UndoCommand *other) override;
 
 private:
     friend QDebug operator<<(QDebug debug, const ApplyPixelPenCommand *command);
