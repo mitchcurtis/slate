@@ -23,16 +23,15 @@ for:
     - set PATH=%PATH%;C:/jom/;
 
   build_script:
-    - set PATH=%PATH%;%QTDIR%\bin;
     - cmd: cd C:\projects\slate
     - cmd: git submodule update --init
     - cmd: cd 3rdparty\qt-undo
     - cmd: qmake
-    - cmd: nmake
-    - cmd: nmake install
+    - cmd: jom
+    - cmd: jom install
     - cmd: cd C:\projects\slate
     - cmd: qmake slate.pro
-    - cmd: nmake
+    - cmd: jom
     - cmd: windeployqt.exe --qmldir app\qml app\release
 
   artifacts:
