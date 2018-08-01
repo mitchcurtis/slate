@@ -1,0 +1,72 @@
+# common settings
+version: 0.1.{build}
+clone_depth: 1
+clone_folder: C:\projects\slate
+image: Visual Studio 2017
+
+
+for:
+# 5.11 branch settings
+-
+  branches:
+    only:
+      - 5.11
+
+  install:
+    - cmd: '"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64'
+    - set QTDIR=C:\Qt\5.11.1\msvc2017_64
+    - set PATH=%PATH%;%QTDIR%\bin;
+    - cmd: mkdir C:\Code
+    - cmd: cd C:\Code
+    - ps: Start-FileDownload 'https://download.qt.io/official_releases/jom/jom_1_1_2.zip'
+    - cmd: 7z x jom_1_1_2.zip -oC:/jom/
+    - set PATH=%PATH%;C:/jom/;
+
+  build_script:
+    - set PATH=%PATH%;%QTDIR%\bin;
+    - cmd: cd C:\projects\slate
+    - cmd: git submodule update --init
+    - cmd: cd 3rdparty\qt-undo
+    - cmd: qmake
+    - cmd: nmake
+    - cmd: nmake install
+    - cmd: cd C:\projects\slate
+    - cmd: qmake slate.pro
+    - cmd: nmake
+    - cmd: windeployqt.exe --qmldir app\qml app\release
+
+  artifacts:
+    - path: app\release\
+      name: Slate 5.11
+      type: zip
+
+# master branch settings
+-
+  branches:
+    only:
+      - master
+
+  install:
+    - cmd: '"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64'
+    - cmd: mkdir C:\Code
+    - cmd: cd C:\Code
+    - ps: Start-FileDownload 'https://download.qt.io/official_releases/jom/jom_1_1_2.zip'
+    - cmd: 7z x jom_1_1_2.zip -oC:/jom/
+    - set PATH=%PATH%;C:/jom/;
+    - cmd: git clone --depth=1 --branch=dev http://code.qt.io/qt/qt5.git
+    - cmd: cd qt5
+    - cmd: perl .\init-repository --module-subset=qtbase,qtdeclarative,qtxmlpatterns,qtgraphicaleffects,qtquickcontrols2,qtimageformats,qtsvg,qttools
+    - cmd: .\configure.bat -opensource -prefix C:\Qt\dev\ -release -static -opengl desktop -optimize-size -nomake examples -nomake tests -no-feature-d3d12 -no-feature-qml-debug -no-feature-qml-preview -no-feature-qml-profiler -no-feature-quickcontrols2-fusion -no-feature-quickcontrols2-imagine -no-feature-quickcontrols2-universal -confirm-license
+    - cmd: jom
+    - cmd: jom install
+
+  build_script:
+    - set QTDIR=C:\Qt\dev\
+    - set PATH=%PATH%;%QTDIR%\bin;
+    - cmd: cd C:\projects\slate
+    - cmd: qmake slate.pro
+    - cmd: jom
+
+  artifacts:
+    - path: app\release\slate.exe
+      name: Slate Portable
