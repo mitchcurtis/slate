@@ -1,0 +1,32 @@
+language: cpp
+cache: ccache
+
+branches:
+  only:
+  - master
+  - 5.11
+
+matrix:
+  include:
+    - os: linux
+      sudo: required
+    - os: osx
+
+install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install ccache; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH="/usr/local/opt/ccache/libexec:$PATH"; fi
+  - mkdir ~/Code
+  - cd ~/Code
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then git clone --depth=1 --branch=dev http://code.qt.io/qt/qt5.git; fi
+  - if [ "$TRAVIS_BRANCH" == "5.11" ]; then git clone --depth=1 --branch=v5.11.1 http://code.qt.io/qt/qt5.git; fi
+  - cd qt5
+  - ./init-repository --module-subset=qtbase,qtdeclarative,qtxmlpatterns,qtgraphicaleffects,qtquickcontrols2,qtimageformats,qtsvg,qttools
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then ./configure -opensource -prefix ./qtbase -release -static -optimize-size -nomake examples -nomake tests -no-feature-qml-debug -no-feature-qml-preview -no-feature-qml-profiler -no-feature-quickcontrols2-fusion -no-feature-quickcontrols2-imagine -no-feature-quickcontrols2-universal -confirm-license; fi
+  - if [ "$TRAVIS_BRANCH" == "5.11" ]; then ./configure -opensource -prefix ./qtbase -release -static -optimize-size -nomake examples -nomake tests -no-feature-qml-debug -no-feature-qml-profiler -no-feature-quickcontrols2-fusion -no-feature-quickcontrols2-universal -confirm-license; fi
+  - make -j8
+  - export PATH=$PATH:$PWD/qtbase/bin/
+
+script:
+  - cd $TRAVIS_BUILD_DIR
+  - qmake
+  - make -j8
