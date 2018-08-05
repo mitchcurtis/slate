@@ -28,6 +28,20 @@ Double click on the layer to rename it. Press Enter to confirm the changes, or E
 
 <img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-layered-image-project-rename-layers.png" width="285">
 
+## Moving Layers
+
+To move a layer, select it and then press the up or down button at the bottom of the Layer panel. Alternatively, the following menu items can be used:
+
+* Layers > Move Layer Up
+* Layers > Move Layer Down
+
+## Merging Layers
+
+Merging a layer with another layer results in both being combined into one layer. The layer that was higher up in the list will be drawn on top of the lower layer as part of the merging process. To merge a layer with another layer, first select it and then select one of the following menu items (depending on whether the target layer is above or below the selected layer, respectively):
+
+* Layers > Merge Layer Up
+* Layers > Merge Layer Down
+
 ## Exporting Layers
 
 Layered image projects can be exported by File > Export or with Ctrl+Shift+E. If you'd like the project to be automatically exported every time you save, check the Auto Export menu item under the File menu. The image will be saved to a file with the same name as the project, except with a .png extension.

@@ -5,4 +5,6 @@ SUBDIRS += \
     
 !emscripten:SUBDIRS += tests
 
-OTHER_FILES += README.md
+OTHER_FILES += \
+    README.md \
+    $$files(doc/*.md)
