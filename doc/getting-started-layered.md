@@ -30,6 +30,8 @@ Double click on the layer to rename it. Press Enter to confirm the changes, or E
 
 ## Moving Layers
 
+Moving a layer affects whether or not is drawn above or below other layers. The lowest layer in the list is drawn first, and then each layer above it is drawn in order. This means that the highest layer in the Layers panel will be drawn on top of all other layers, the one below it will be drawn above the ones below it, and so on.
+
 To move a layer, select it and then press the up or down button at the bottom of the Layer panel. Alternatively, the following menu items can be used:
 
 * Layers > Move Layer Up
