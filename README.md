@@ -26,8 +26,12 @@ All Slate builds are portable, meaning that no installation is necessary. On Win
 ### Documentation ###
 - [Overview](https://github.com/mitchcurtis/slate/blob/master/doc/overview.md)
 
+### Discussion ###
+
+Join Slate's Discord channel for discussion: https://discord.gg/ZtAAg5D
+
 ### Notes ###
-- This is a work in progress, but should already be usable. Feel free to report any bugs you find. :)
+- This is a work in progress, but should already be usable. Feel free to [report](https://github.com/mitchcurtis/slate/issues) any bugs you find. :)
 - The UI is currently designed for the [Material style](http://doc.qt.io/qt-5/qtquickcontrols2-material.html), and will probably look bad when run with others.
 
 ## Building From Source ##
