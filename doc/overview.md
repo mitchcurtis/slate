@@ -20,4 +20,4 @@ A layered image project can contain several images, each of which is stored as a
 
 Tileset projects have a tileset bitmap image that can be edited by first painting tiles onto the grid, and then editing those tiles. An accompanying project file is created to save the contents of the grid.
 
-- [Getting Started with Tilesets](https://github.com/mitchcurtis/slate/blob/master/doc/getting-started-tilesets.md)
+- [Getting Started with Tilesets](https://github.com/mitchcurtis/slate/blob/master/doc/getting-started-tileset.md)
