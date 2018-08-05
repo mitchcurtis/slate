@@ -58,11 +58,12 @@ Q_LOGGING_CATEGORY(lcImageCanvasSelection, "app.canvas.selection")
 
 ImageCanvas::ImageCanvas() :
     mProject(nullptr),
+    mImageProject(nullptr),
     mBackgroundColour(Qt::gray),
     mGridVisible(false),
     mGridColour(Qt::black),
     mSplitColour(Qt::black),
-    mCheckerColour1("#7e7e7e"),
+    mCheckerColour1(QColor::fromRgb(0x7e7e7e)),
     mCheckerColour2(Qt::white),
     mSplitScreen(false),
     mSplitter(this),
@@ -84,6 +85,8 @@ ImageCanvas::ImageCanvas() :
     mCursorPaneY(0),
     mCursorSceneX(0),
     mCursorSceneY(0),
+    mCursorSceneFX(0),
+    mCursorSceneFY(0),
     mCursorPixelColour(Qt::black),
     mContainsMouse(false),
     mMouseButtonPressed(Qt::NoButton),
