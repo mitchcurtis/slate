@@ -256,8 +256,18 @@ QJsonObject *Project::cachedProjectJson()
     return &mCachedProjectJson;
 }
 
+QSize Project::size() const
+{
+    return QSize(0, 0);
+}
+
 void Project::setSize(const QSize &)
 {
+}
+
+QRect Project::bounds() const
+{
+    return QRect();
 }
 
 int Project::widthInPixels() const
@@ -311,11 +321,6 @@ int Project::currentLayerIndex() const
 QImage Project::exportedImage() const
 {
     return QImage();
-}
-
-QSize Project::size() const
-{
-    return QSize(0, 0);
 }
 
 QUndoStack *Project::undoStack()

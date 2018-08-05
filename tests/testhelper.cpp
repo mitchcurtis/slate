@@ -566,6 +566,24 @@ bool TestHelper::fuzzyImageCompare(const QImage &image1, const QImage &image2)
     return true;
 }
 
+bool TestHelper::everyPixelIs(const QImage &image, const QColor &colour)
+{
+    for (int y = 0; y < image.size().height(); ++y) {
+        for (int x = 0; x < image.size().width(); ++x) {
+            if (image.pixelColor(x, y) != colour) {
+                QString message;
+                QDebug debug(&message);
+                debug.nospace() << "Expected every pixel of " << image << " to be " << colour
+                    << ", but pixel at " << x << ", " << y << " is " << image.pixelColor(x, y);
+                failureMessage = message.toLatin1();
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
 {
     QObject *popup = nullptr;

@@ -55,6 +55,7 @@ public:
     void setSize(const QSize &newSize) override;
     int widthInPixels() const override;
     int heightInPixels() const override;
+    QRect bounds() const override;
 
     QImage flattenedImage(std::function<QImage(int)> layerSubstituteFunction = nullptr) const;
     QImage flattenedImage(int fromIndex, int toIndex, std::function<QImage(int)> layerSubstituteFunction = nullptr) const;

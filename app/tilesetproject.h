@@ -56,9 +56,9 @@ public:
     QSize tileSize() const;
     QSize size() const override;
     void setSize(const QSize &newSize) override;
-
     int widthInPixels() const override;
     int heightInPixels() const override;
+    QRect bounds() const override;
 
     QUrl tilesetUrl() const;
     Tileset *tileset() const;

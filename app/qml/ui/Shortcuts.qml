@@ -115,8 +115,8 @@ Item {
         id: primaryDeleteShortcut
         objectName: "deleteShortcut"
         sequence: StandardKey.Delete
-        enabled: isImageProjectType && canvasHasActiveFocus && canvas.hasSelection
-        onActivated: canvas.deleteSelection()
+        enabled: isImageProjectType && canvasHasActiveFocus
+        onActivated: canvas.deleteSelectionOrContents()
     }
 
     // StandardKey.Delete doesn't work on a MacBook Pro keyboard;
@@ -126,7 +126,7 @@ Item {
         objectName: "deleteViaBackspaceShortcut"
         sequence: "Backspace"
         enabled: primaryDeleteShortcut.enabled
-        onActivated: canvas.deleteSelection()
+        onActivated: canvas.deleteSelectionOrContents()
     }
 
     Shortcut {

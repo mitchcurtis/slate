@@ -276,7 +276,7 @@ public slots:
     void flipSelection(Qt::Orientation orientation);
     void copySelection();
     void paste();
-    void deleteSelection();
+    void deleteSelectionOrContents();
     void selectAll();
 
     void cycleFillTools();

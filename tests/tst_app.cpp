@@ -2495,11 +2495,17 @@ void tst_App::deleteSelectionImageCanvas()
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
 
     const QImage deletedPortion = canvas->currentProjectImage()->copy(0, 0, 10, 10);
-    for (int y = 0; y < deletedPortion.size().height(); ++y) {
-        for (int x = 0; x < deletedPortion.size().width(); ++x) {
-            QCOMPARE(deletedPortion.pixelColor(x, y), QColor(Qt::transparent));
-        }
-    }
+    QVERIFY2(everyPixelIs(deletedPortion, Qt::transparent), failureMessage);
+
+    // Undo the deletion.
+    mouseEventOnCentre(undoButton, MouseClick);
+    const QImage undeletedPortion = canvas->currentProjectImage()->copy(0, 0, 10, 10);
+    QVERIFY2(everyPixelIs(undeletedPortion, Qt::white), failureMessage);
+
+    // Press delete/backspace without having anything selected;
+    // it should remove the contents of the image/layer.
+    QTest::keyClick(window, Qt::Key_Delete);
+    QVERIFY2(everyPixelIs(*canvas->currentProjectImage(), Qt::transparent), failureMessage);
 }
 
 void tst_App::copyPaste_data()

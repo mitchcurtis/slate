@@ -59,6 +59,12 @@ int ImageProject::heightInPixels() const
     return !mImage.isNull() ? mImage.height() : 0;
 }
 
+QRect ImageProject::bounds() const
+{
+    const QSize ourSize(size());
+    return QRect(0, 0, ourSize.width(), ourSize.height());
+}
+
 void ImageProject::createNew(int imageWidth, int imageHeight, bool transparentBackground)
 {
     if (hasLoaded()) {

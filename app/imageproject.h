@@ -43,6 +43,7 @@ public:
     void setSize(const QSize &newSize) override;
     int widthInPixels() const override;
     int heightInPixels() const override;
+    QRect bounds() const override;
 
     bool isUsingAnimation() const;
     void setUsingAnimation(bool isUsingAnimation);

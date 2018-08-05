@@ -134,6 +134,12 @@ int LayeredImageProject::heightInPixels() const
     return size().height();
 }
 
+QRect LayeredImageProject::bounds() const
+{
+    const QSize ourSize(size());
+    return QRect(0, 0, ourSize.width(), ourSize.height());
+}
+
 QImage LayeredImageProject::flattenedImage(std::function<QImage(int)> layerSubstituteFunction) const
 {
     return flattenedImage(0, layerCount() - 1, layerSubstituteFunction);

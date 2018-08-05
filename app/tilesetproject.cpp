@@ -493,6 +493,11 @@ int TilesetProject::heightInPixels() const
     return mTilesHigh * mTileHeight;
 }
 
+QRect TilesetProject::bounds() const
+{
+    return QRect(0, 0, mTilesWide, mTilesHigh);
+}
+
 QUrl TilesetProject::tilesetUrl() const
 {
     return mTilesetUrl;

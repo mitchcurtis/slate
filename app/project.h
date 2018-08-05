@@ -82,9 +82,9 @@ public:
 
     virtual QSize size() const;
     virtual void setSize(const QSize &size);
-
     virtual int widthInPixels() const;
     virtual int heightInPixels() const;
+    virtual QRect bounds() const;
 
     QVector<Guide> guides() const;
     virtual void addGuide(const Guide &guide);

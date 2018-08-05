@@ -1660,15 +1660,11 @@ void ImageCanvas::paste()
     requestContentPaint();
 }
 
-void ImageCanvas::deleteSelection()
+void ImageCanvas::deleteSelectionOrContents()
 {
-    if (!mHasSelection) {
-        qWarning() << "No selection to delete";
-        return;
-    }
-
     mProject->beginMacro(QLatin1String("DeleteSelection"));
-    mProject->addChange(new DeleteImageCanvasSelectionCommand(this, mSelectionArea));
+    const QRect deletionArea = mHasSelection ? mSelectionArea : mProject->bounds();
+    mProject->addChange(new DeleteImageCanvasSelectionCommand(this, deletionArea));
     mProject->endMacro();
     clearSelection();
 }
