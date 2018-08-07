@@ -32,6 +32,7 @@
 #include "changelayerordercommand.h"
 #include "changelayervisiblecommand.h"
 #include "deletelayercommand.h"
+#include "duplicatelayercommand.h"
 #include "imagelayer.h"
 #include "jsonutils.h"
 #include "mergelayerscommand.h"
@@ -715,6 +716,16 @@ void LayeredImageProject::mergeCurrentLayerDown()
     beginMacro(QLatin1String("MergeLayersCommand"));
     addChange(new MergeLayersCommand(this, mCurrentLayerIndex, layerAt(mCurrentLayerIndex),
         mCurrentLayerIndex + 1, layerAt(mCurrentLayerIndex + 1)));
+    endMacro();
+}
+
+void LayeredImageProject::duplicateCurrentLayer()
+{
+    if (!isValidIndex(mCurrentLayerIndex))
+        return;
+
+    beginMacro(QLatin1String("DuplicateLayerCommand"));
+    addChange(new DuplicateLayerCommand(this, mCurrentLayerIndex, layerAt(mCurrentLayerIndex)->clone()));
     endMacro();
 }
 

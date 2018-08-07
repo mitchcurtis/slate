@@ -22,6 +22,10 @@
 #include <QBuffer>
 #include <QJsonObject>
 
+ImageLayer::ImageLayer()
+{
+}
+
 ImageLayer::ImageLayer(QObject *parent, const QImage &image) :
     QObject(parent),
     mVisible(true),
@@ -98,6 +102,16 @@ void ImageLayer::setVisible(bool visible)
 
     mVisible = visible;
     emit visibleChanged();
+}
+
+ImageLayer *ImageLayer::clone()
+{
+    ImageLayer *layer = new ImageLayer;
+    layer->setName(mName + QLatin1String(" copy"));
+    layer->setVisible(mVisible);
+    layer->setOpacity(mOpacity);
+    layer->mImage = mImage;
+    return layer;
 }
 
 void ImageLayer::read(const QJsonObject &jsonObject)

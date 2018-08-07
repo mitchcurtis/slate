@@ -210,6 +210,22 @@ Panel {
             onClicked: project.moveCurrentLayerUp()
         }
 
+        Button {
+            objectName: "duplicateLayerButton"
+            text: "\uf24d"
+            font.family: "FontAwesome"
+            flat: true
+            focusPolicy: Qt.NoFocus
+            hoverEnabled: true
+            enabled: project && project.currentLayerIndex >= 0 && project.currentLayerIndex < project.layerCount
+
+            Layout.maximumWidth: implicitHeight
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            onClicked: project.duplicateCurrentLayer()
+        }
+
         Item {
             Layout.fillWidth: true
             Layout.fillHeight: true

@@ -107,6 +107,7 @@ public slots:
     void moveCurrentLayerDown();
     void mergeCurrentLayerUp();
     void mergeCurrentLayerDown();
+    void duplicateCurrentLayer();
     void setLayerName(int layerIndex, const QString &name);
     void setLayerVisible(int layerIndex, bool visible);
     void setLayerOpacity(int layerIndex, qreal opacity);
@@ -121,6 +122,7 @@ private:
     friend class ChangeLayerOpacityCommand;
     friend class DeleteLayerCommand;
     friend class MergeLayersCommand;
+    friend class DuplicateLayerCommand;
     friend class MoveLayeredImageContentsCommand;
 
     bool isValidIndex(int index) const;

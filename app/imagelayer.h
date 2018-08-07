@@ -52,6 +52,8 @@ public:
     bool isVisible() const;
     void setVisible(bool visible);
 
+    ImageLayer *clone();
+
     void read(const QJsonObject &jsonObject);
     void write(QJsonObject &jsonObject);
 
@@ -62,8 +64,8 @@ signals:
 
 private:
     QString mName;
-    bool mVisible;
-    qreal mOpacity;
+    bool mVisible = false;
+    qreal mOpacity = 0.0;
     QImage mImage;
 };
 

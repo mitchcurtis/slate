@@ -44,6 +44,10 @@ Merging a layer with another layer results in both being combined into one layer
 * Layers > Merge Layer Up
 * Layers > Merge Layer Down
 
+## Duplicating Layers
+
+A layer can be duplicated by first selecting it and then clicking the duplicate button in the Layer panel.
+
 ## Exporting Layers
 
 Layered image projects can be exported by File > Export or with Ctrl+Shift+E. If you'd like the project to be automatically exported every time you save, check the Auto Export menu item under the File menu. The image will be saved to a file with the same name as the project, except with a .png extension.

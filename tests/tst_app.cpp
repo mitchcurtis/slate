@@ -130,6 +130,7 @@ private Q_SLOTS:
     void moveLayerUpAndDown();
     void mergeLayerUpAndDown();
     void renameLayers();
+    void duplicateLayers();
     void saveAndLoadLayeredImageProject();
     void layerVisibilityAfterMoving();
 //    void undoAfterAddLayer();
@@ -3673,6 +3674,28 @@ void tst_App::renameLayers()
 
     // Undo the name change.
     mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
+}
+
+void tst_App::duplicateLayers()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    QQuickItem *duplicateLayerButton = window->findChild<QQuickItem*>("duplicateLayerButton");
+    QVERIFY(duplicateLayerButton);
+
+    // Duplicate Layer 1 (all white). It should go above the current layer and be selected.
+    mouseEventOnCentre(duplicateLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+    QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 1 copy"));
+    QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
+    QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(0, 0), QColor(Qt::white));
+
+    // Undo it.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 1);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
 }
 
