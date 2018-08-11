@@ -51,85 +51,35 @@ Panel {
         spacing: 0
 
         Flickable {
-            implicitWidth: animationPlayPauseButton.implicitWidth
-            implicitHeight: animationPlayPauseButton.implicitHeight
-            interactive: animationPlayPauseButton.implicitWidth > width || animationPlayPauseButton.implicitHeight > height
+            interactive: spriteImageContainer.implicitWidth > width || spriteImageContainer.implicitHeight > height
             clip: true
+            onContentWidthChanged: print(contentWidth, spriteImage.scale)
+            contentWidth: spriteImageContainer.implicitWidth
+            contentHeight: spriteImageContainer.implicitHeight
 
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            Button {
-                id: animationPlayPauseButton
-                objectName: "animationPreviewPlayPauseButton"
-                focusPolicy: Qt.NoFocus
-                padding: 4
-                width: Math.max(parent.width, implicitWidth)
-                height: Math.max(parent.height, implicitHeight)
+            ScrollBar.horizontal: ScrollBar {}
+            ScrollBar.vertical: ScrollBar {}
 
-                onClicked: animationPlayback.playing = !animationPlayback.playing
+            Item {
+                id: spriteImageContainer
+                implicitWidth: spriteImage.implicitWidth * spriteImage.scale
+                implicitHeight: spriteImage.implicitHeight * spriteImage.scale
 
-                background: null
-                contentItem: Item {
-                    implicitWidth: spriteImage.implicitWidth
-                    implicitHeight: spriteImage.implicitHeight
-
-                    SpriteImage {
-                        id: spriteImage
-                        project: root.project
-                        animationPlayback: root.animationPlayback
-                        scale: animationPlayback ? animationPlayback.scale : 1.0
-                        smooth: false
-                        anchors.centerIn: parent
-                    }
-
-                    // TODO: use animatedsprite here (image provider that uses project image?)
-//                    AnimatedSprite {
-//                        id: animatedSprite
-//                        source: ???
-//                        frameX: animationPlayback.frameX
-//                        frameY: animationPlayback.frameY
-//                        frameWidth: animationPlayback.frameWidth
-//                        frameHeight: animationPlayback.frameHeight
-//                        frameCount: animationPlayback.frameCount
-//                        frameDuration: 1000 / animationPlayback.fps
-//                        loops: animationPlayback.loop ? AnimatedSprite.Infinite : 1
-//                        scale: animationPlayback ? animationPlayback.scale : 1.0
-//                        smooth: false
-//                        anchors.centerIn: parent
-//                    }
-
-                    Rectangle {
-                        anchors.fill: parent
-                        color: "#44000000"
-                        opacity: animationPlayPauseButton.hovered ? 1 : 0
-
-                        Behavior on opacity {
-                            OpacityAnimator {
-                                duration: 150
-                            }
-                        }
-
-                        Label {
-                            id: playPauseIcon
-                            text: root.enabled && animationPlayback.playing ? "\uf04c" : "\uf04b"
-                            font.family: "FontAwesome"
-                            font.pixelSize: 30
-                            fontSizeMode: Label.Fit
-                            horizontalAlignment: Label.AlignHCenter
-                            verticalAlignment: Label.AlignVCenter
-                            anchors.fill: parent
-                            anchors.margins: 4
-                        }
-                    }
+                SpriteImage {
+                    id: spriteImage
+                    project: root.project
+                    animationPlayback: root.animationPlayback
+                    scale: animationPlayback ? animationPlayback.scale : 1.0
+                    smooth: false
+                    anchors.centerIn: parent
                 }
             }
         }
 
         RowLayout {
-            // TODO: - play/pause icon to avoid having to click the preview (when not looping), which dims the image
-            // - seek slider?
-            // - loop toggle
             // We only use one icon from typicons.
             FontLoader {
                 id: fontLoader

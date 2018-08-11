@@ -216,21 +216,27 @@ Dialog {
         }
 
         Slider {
+            id: animationPreviewScaleSlider
             objectName: "animationPreviewScaleSlider"
             from: 0.5
             value: animationPlayback ? animationPlayback.scale : 1.0
             to: 10
+            stepSize: 0.01
             leftPadding: 0
             rightPadding: 0
             focusPolicy: Qt.NoFocus
+            transformOrigin: Item.TopLeft
 
             Layout.alignment: Qt.AlignHCenter
             Layout.preferredWidth: controlWidth - 30
 
-            ToolTip.text: qsTr("The scale of the animation in the preview")
-            ToolTip.visible: hovered
-
             onMoved: animationPlayback.scale = value
+
+            ToolTip {
+                parent: animationPreviewScaleSlider.handle
+                visible: animationPreviewScaleSlider.hovered
+                text: animationPreviewScaleSlider.valueAt(animationPreviewScaleSlider.position).toFixed(2)
+            }
         }
     }
 }
