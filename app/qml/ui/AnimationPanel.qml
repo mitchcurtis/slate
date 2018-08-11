@@ -53,7 +53,6 @@ Panel {
         Flickable {
             interactive: spriteImageContainer.implicitWidth > width || spriteImageContainer.implicitHeight > height
             clip: true
-            onContentWidthChanged: print(contentWidth, spriteImage.scale)
             contentWidth: spriteImageContainer.implicitWidth
             contentHeight: spriteImageContainer.implicitHeight
 
