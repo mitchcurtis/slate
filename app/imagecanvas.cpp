@@ -125,6 +125,9 @@ ImageCanvas::ImageCanvas() :
     qreal itemZ = 3;
     mGuidesItem->setZ(itemZ++);
 
+    mSelectionItem = new SelectionItem(this);
+    mSelectionItem->setZ(itemZ++);
+
     mSelectionCursorGuide = new SelectionCursorGuide(this);
     mSelectionCursorGuide->setZ(itemZ++);
 
@@ -558,7 +561,7 @@ void ImageCanvas::setSelectionArea(const QRect &selectionArea)
 
     mSelectionArea = adjustedSelectionArea;
     setHasSelection(!mSelectionArea.isEmpty());
-    requestContentPaint();
+    mSelectionItem->update();
     emit selectionAreaChanged();
 }
 
@@ -886,6 +889,9 @@ void ImageCanvas::resizeChildren()
 
     mGuidesItem->setWidth(qFloor(width()));
     mGuidesItem->setHeight(height());
+
+    mSelectionItem->setWidth(width());
+    mSelectionItem->setHeight(height());
 }
 
 QImage *ImageCanvas::currentProjectImage()

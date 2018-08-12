@@ -127,7 +127,7 @@ void CanvasPaneItem::paint(QPainter *painter)
 {
     if (!mCanvas->project() || !mCanvas->project()->hasLoaded())
         return;
-
+    qDebug() << Q_FUNC_INFO;
     PaneDrawingHelper paneDrawingHelper(mCanvas, painter, mPane, mPaneIndex);
 
     // Draw the checkered pixmap that acts as an indicator for transparency.
@@ -139,10 +139,10 @@ void CanvasPaneItem::paint(QPainter *painter)
     const QSize zoomedImageSize = mPane->zoomedSize(image.size());
     painter->drawImage(QRectF(QPointF(0, 0), zoomedImageSize), image, QRectF(0, 0, image.width(), image.height()));
 
-    if (mCanvas->hasSelection()) {
-        // Draw the selection area.
-        const QRect zoomedSelectionArea(mCanvas->selectionArea().topLeft() * mPane->integerZoomLevel(),
-            mPane->zoomedSize(mCanvas->selectionArea().size()));
-        Utils::strokeRectWithDashes(painter, zoomedSelectionArea);
-    }
+//    if (mCanvas->hasSelection()) {
+//        // Draw the selection area.
+//        const QRect zoomedSelectionArea(mCanvas->selectionArea().topLeft() * mPane->integerZoomLevel(),
+//            mPane->zoomedSize(mCanvas->selectionArea().size()));
+//        Utils::strokeRectWithDashes(painter, zoomedSelectionArea);
+//    }
 }

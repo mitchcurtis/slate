@@ -74,7 +74,8 @@ HEADERS += \
     $$PWD/guidesitem.h \
     $$PWD/canvaspaneitem.h \
     $$PWD/tilecanvaspaneitem.h \
-    $$PWD/duplicatelayercommand.h
+    $$PWD/duplicatelayercommand.h \
+    $$PWD/selectionitem.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -146,7 +147,8 @@ SOURCES += \
     $$PWD/guidesitem.cpp \
     $$PWD/canvaspaneitem.cpp \
     $$PWD/tilecanvaspaneitem.cpp \
-    $$PWD/duplicatelayercommand.cpp
+    $$PWD/duplicatelayercommand.cpp \
+    $$PWD/selectionitem.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \

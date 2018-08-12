@@ -32,6 +32,7 @@
 
 #include "canvaspane.h"
 #include "ruler.h"
+#include "selectionitem.h"
 #include "splitter.h"
 #include "texturedfillparameters.h"
 
@@ -470,6 +471,7 @@ protected:
     int mGuidePositionBeforePress;
     int mPressedGuideIndex;
     GuidesItem *mGuidesItem;
+    SelectionItem *mSelectionItem;
 
     // The position of the cursor in view coordinates.
     int mCursorX;
