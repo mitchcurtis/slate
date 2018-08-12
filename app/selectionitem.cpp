@@ -38,7 +38,6 @@ SelectionItem::SelectionItem(ImageCanvas *canvas) :
 
 void SelectionItem::paint(QPainter *painter)
 {
-    qDebug() << Q_FUNC_INFO;
     if (mCanvas->isSplitScreen()) {
         drawPane(painter, mCanvas->secondPane(), 1);
     }

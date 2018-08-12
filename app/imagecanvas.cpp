@@ -2116,6 +2116,8 @@ void ImageCanvas::onZoomLevelChanged()
 
     if (mGuidesVisible)
         mGuidesItem->update();
+
+    mSelectionItem->update();
 }
 
 void ImageCanvas::onPaneOffsetChanged()
