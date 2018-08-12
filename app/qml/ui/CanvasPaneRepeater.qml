@@ -10,6 +10,42 @@ Repeater {
     model: 2
 
     property ImageCanvas canvas
+
+    /*
+        The stacking order for child items of ImageCanvas is as follows:
+
+
+         +--------------------------+
+         | ImageCanvas (parent)     |
+         |   +--------------------------+
+         |   | Guides                   |
+         |   |   +--------------------------+
+         |   |   | Selection Cursor Guide   |
+         |   |   |   +--------------------------+
+         |   |   |   | First Horizontal Ruler   |
+         +---|   |   |   +--------------------------+
+             | 3 |   |   | First Vertical Ruler     |
+             +---|   |   |   +--------------------------+
+                 | 4 |   |   | Second Horizontal Ruler  |
+                 +---|   |   |   +--------------------------+
+                     | 5 |   |   | Second Vertical Ruler    |
+                     +---|   |   |   +--------------------------+
+                         | 6 |   |   | Second Pane              |----------|
+                         +---|   |   |   +--------------------------+      |  Checkered transparency pixmap,
+                             | 7 |   |   | First Pane               |      |  canvas image content, selection.
+                             +---|   |   |                          |------|
+                                 | 8 |   |                          |
+                                 +---|   |                          |
+                                     | 9 |                          |
+                                     +---|                          |
+                                         | 10                       |
+                                         +--------------------------+
+
+
+        Each item is a direct child of ImageCanvas.
+
+        The Z value of each child is shown in the lower left corner.
+    */
     
     CanvasPaneItem {
         id: paneItem
