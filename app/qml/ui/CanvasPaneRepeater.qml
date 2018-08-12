@@ -18,27 +18,27 @@ Repeater {
          +--------------------------+
          | ImageCanvas (parent)     |
          |   +--------------------------+
-         |   | Guides                   |
-         |   |   +--------------------------+
-         |   |   | Selection Cursor Guide   |
+         |   | Second Pane              |----------|  Checkered transparency pixmap,
+         |   |   +--------------------------+      |  canvas image content, selection.
+         |   |   | First Pane               |------|
          |   |   |   +--------------------------+
-         |   |   |   | First Horizontal Ruler   |
+         |   |   |   | Guides                   |
          +---|   |   |   +--------------------------+
-             | 3 |   |   | First Vertical Ruler     |
+             | 1 |   |   | Selection Cursor Guide   |
              +---|   |   |   +--------------------------+
-                 | 4 |   |   | Second Horizontal Ruler  |
+                 | 2 |   |   | First Horizontal Ruler   |
                  +---|   |   |   +--------------------------+
-                     | 5 |   |   | Second Vertical Ruler    |
+                     | 3 |   |   | First Vertical Ruler     |
                      +---|   |   |   +--------------------------+
-                         | 6 |   |   | Second Pane              |----------|
-                         +---|   |   |   +--------------------------+      |  Checkered transparency pixmap,
-                             | 7 |   |   | First Pane               |      |  canvas image content, selection.
-                             +---|   |   |                          |------|
-                                 | 8 |   |                          |
+                         | 4 |   |   | Second Horizontal Ruler  |
+                         +---|   |   |   +--------------------------+
+                             | 5 |   |   | Second Vertical Ruler    |
+                             +---|   |   |                          |
+                                 | 6 |   |                          |
                                  +---|   |                          |
-                                     | 9 |                          |
+                                     | 7 |                          |
                                      +---|                          |
-                                         | 10                       |
+                                         | 8                        |
                                          +--------------------------+
 
 
