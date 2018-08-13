@@ -359,8 +359,11 @@ protected:
     // preview image if there is a selection active. For layered image canvases, this
     // should return all layers flattened into one image, or the same flattened image
     // as part of a selection preview image.
-    virtual QImage contentImage() const;
-    void drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex);
+    //
+    // This function calls getContentImage() and caches the result so that we have
+    // cheap lookup of pixel data, which is useful for e.g. mCursorPixelColour.
+    QImage contentImage();
+    virtual QImage getContentImage();
     void drawLine(QPainter *painter) const;
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
@@ -472,6 +475,8 @@ protected:
     int mPressedGuideIndex;
     GuidesItem *mGuidesItem;
     SelectionItem *mSelectionItem;
+
+    QImage mCachedContentImage;
 
     // The position of the cursor in view coordinates.
     int mCursorX;

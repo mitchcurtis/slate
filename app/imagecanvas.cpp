@@ -910,7 +910,13 @@ QImage *ImageCanvas::imageForLayerAt(int layerIndex)
     return mImageProject->image();
 }
 
-QImage ImageCanvas::contentImage() const
+QImage ImageCanvas::contentImage()
+{
+    mCachedContentImage = getContentImage();
+    return mCachedContentImage;
+}
+
+QImage ImageCanvas::getContentImage()
 {
     QImage image = !shouldDrawSelectionPreviewImage() ? *currentProjectImage() : mSelectionPreviewImage;
     // Draw the pixel-pen-line indicator over the content.
@@ -1982,9 +1988,7 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
         setCursorPixelColour(QColor(Qt::black));
     } else {
         const QPoint cursorScenePos = QPoint(mCursorSceneX, mCursorSceneY);
-        // TODO: this may slow down the application; consider caching it or using
-        // ShaderSourceEffect to pick the colour instead
-        setCursorPixelColour(contentImage().pixelColor(cursorScenePos));
+        setCursorPixelColour(mCachedContentImage.pixelColor(cursorScenePos));
     }
 
     const bool cursorScenePosChanged = mCursorSceneX != oldCursorSceneX || mCursorSceneY != oldCursorSceneY;

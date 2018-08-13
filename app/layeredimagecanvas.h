@@ -32,8 +32,6 @@ public:
     LayeredImageCanvas();
     ~LayeredImageCanvas();
 
-//    void paint(QPainter *painter) override;
-
 signals:
 
 public slots:
@@ -56,17 +54,13 @@ protected:
     QImage *currentProjectImage() override;
     const QImage *currentProjectImage() const override;
     QImage *imageForLayerAt(int layerIndex) override;
-    QImage contentImage() const override;
+    QImage getContentImage() override;
 
     void replaceImage(int layerIndex, const QImage &replacementImage) override;
 
     bool areToolsForbidden() const override;
 
 private:
-//    friend class ApplyTileFillCommand;
-
-//    void drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex) override;
-
     LayeredImageProject *mLayeredImageProject;
 };
 
