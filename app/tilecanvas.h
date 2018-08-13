@@ -129,8 +129,6 @@ private:
     void updateTilePenPreview();
     void setTilePenPreview(bool tilePenPreview);
 
-    void drawPane(QPainter *painter, const CanvasPane &pane, int paneIndex);
-
     void hoverLeaveEvent(QHoverEvent *event) override;
     void focusInEvent(QFocusEvent *event) override;
     void focusOutEvent(QFocusEvent *event) override;

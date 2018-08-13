@@ -59,8 +59,6 @@ Repeater {
         paneIndex: index
         anchors.fill: parent
         visible: index === 0 || canvas.splitScreen
-        // We want the first pane to be painted on top of the second.
-        z: 2 - index
         
         Rectangle {
             x: index === 0 ? 0 : Math.floor(parent.width - width)

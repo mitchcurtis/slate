@@ -47,8 +47,6 @@ TileCanvas {
             paneIndex: index
             anchors.fill: parent
             visible: index === 0 || canvas.splitScreen
-            // Want the first pane to painted on top of the second.
-            z: 2 - index
 
             Rectangle {
                 x: index === 0 ? 0 : Math.floor(parent.width - width)

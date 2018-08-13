@@ -51,8 +51,6 @@ void SelectionItem::drawPane(QPainter *painter, const CanvasPane *pane, int pane
         return;
 
     PaneDrawingHelper paneDrawingHelper(mCanvas, painter, pane, paneIndex);
-
-    // Draw the selection area.
     const QRect zoomedSelectionArea(mCanvas->selectionArea().topLeft() * pane->integerZoomLevel(),
         pane->zoomedSize(mCanvas->selectionArea().size()));
     Utils::strokeRectWithDashes(painter, zoomedSelectionArea);

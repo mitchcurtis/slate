@@ -37,11 +37,11 @@ PaneDrawingHelper::PaneDrawingHelper(const ImageCanvas *canvas, QPainter *painte
     translateDistance += mPane->offset();
     painter->translate(translateDistance);
 
-    // Can't set two clip regions on the same painting, so we only clip the left-hand pane
-    // and simply paint it over the top of any out-of-bounds drawing the right-hand one has done.
     const int paneWidth = mCanvas->width() * mPane->size();
-    if (mPaneIndex == 0)
-        painter->setClipRegion(QRegion(-translateDistance.x(), -translateDistance.y(), paneWidth, canvas->height()));
+    if (paneIndex == 0)
+        painter->setClipRect(-translateDistance.x(), -translateDistance.y(), paneWidth, mCanvas->height());
+    else
+        painter->setClipRect(-pane->offset().x(), -pane->offset().y(), paneWidth, mCanvas->height());
 }
 
 PaneDrawingHelper::~PaneDrawingHelper()

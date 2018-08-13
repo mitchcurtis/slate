@@ -2132,6 +2132,8 @@ void ImageCanvas::onPaneOffsetChanged()
 
     if (mGuidesVisible)
         mGuidesItem->update();
+
+    mSelectionItem->update();
 }
 
 void ImageCanvas::onPaneSizeChanged()
@@ -2142,6 +2144,8 @@ void ImageCanvas::onPaneSizeChanged()
 
     if (mGuidesVisible)
         mGuidesItem->update();
+
+    mSelectionItem->update();
 }
 
 void ImageCanvas::error(const QString &message)
