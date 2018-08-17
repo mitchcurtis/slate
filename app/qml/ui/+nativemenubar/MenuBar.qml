@@ -376,5 +376,16 @@ Item {
                 onTriggered: optionsDialog.open()
             }
         }
+
+        Platform.Menu {
+            id: helpMenu
+            title: qsTr("Help")
+
+            Platform.MenuItem {
+                objectName: "onlineDocumentationMenuItem"
+                text: qsTr("Online Documentation...")
+                onTriggered: Qt.openUrlExternally("https://github.com/mitchcurtis/slate/blob/master/doc/overview.md")
+            }
+        }
     }
 }

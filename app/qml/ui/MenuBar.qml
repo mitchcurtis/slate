@@ -395,4 +395,17 @@ Controls.MenuBar {
             onClicked: optionsDialog.open()
         }
     }
+
+    Menu {
+        id: helpMenu
+        title: qsTr("Help")
+
+        onClosed: canvas.forceActiveFocus()
+
+        MenuItem {
+            objectName: "onlineDocumentationMenuItem"
+            text: qsTr("Online Documentation...")
+            onTriggered: Qt.openUrlExternally("https://github.com/mitchcurtis/slate/blob/master/doc/overview.md")
+        }
+    }
 }
