@@ -10,6 +10,7 @@ Rectangle {
     height: parent.height
     color: CanvasColours.splitColour
     z: 4
+    visible: canvas && canvas.project && canvas.project.loaded
 
     property ImageCanvas canvas
 }
