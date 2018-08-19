@@ -24,8 +24,8 @@ import App 1.0
 
 RangeSlider {
     id: root
-    from: -1
-    to: 1
+    from: -0.25
+    to: 0.25
     first.value: parameter.varianceLowerBound
     second.value: parameter.varianceUpperBound
 
