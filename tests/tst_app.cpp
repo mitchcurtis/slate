@@ -3734,8 +3734,24 @@ void tst_App::saveAndLoadLayeredImageProject()
     QCOMPARE(grabBeforeSaving.pixelColor(10, 10), QColor(Qt::blue));
     QCOMPARE(grabBeforeSaving.pixelColor(20, 20), QColor(Qt::red));
 
+    // Add enough layers that the ListView becomes flickable.
+    QQuickItem *layerListView = window->findChild<QQuickItem*>("layerListView");
+    QVERIFY(layerListView);
+    while (layerListView->property("contentHeight").toReal() < layerListView->height() * 2) {
+        mouseEventOnCentre(newLayerButton, MouseClick);
+    }
+    const int finalLayerCount = layeredImageProject->layerCount();
+
+    // Scroll to the end.
+    const qreal contentHeight = layerListView->property("contentHeight").toReal();
+    layerListView->setProperty("contentY", QVariant(contentHeight - layerListView->height()));
+
     // Select a layer with a non-zero index so that we can check that it's saved.
-    QVERIFY2(selectLayer("Layer 1", 1), failureMessage);
+    QVERIFY2(selectLayer("Layer 1", finalLayerCount - 1), failureMessage);
+
+    // Scroll halfway through the list so that we can check that the position is saved.
+    const int contentY = contentHeight / 2;
+    layerListView->setProperty("contentY", QVariant(contentY));
 
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/layeredimageproject.slp");
@@ -3748,15 +3764,25 @@ void tst_App::saveAndLoadLayeredImageProject()
     QVERIFY(!layeredImageProject->hasLoaded());
     QCOMPARE(layeredImageProject->layerCount(), 0);
     // The layer panel shouldn't show any layers.
-    QQuickItem *layerListView = window->findChild<QQuickItem*>("layerListView");
-    QVERIFY(layerListView);
     QCOMPARE(layerListView->property("count").toInt(), 0);
+    QCOMPARE(layerListView->property("contentY").toInt(), 0);
 
-    // Load the saved file.
-    layeredImageProject->load(saveUrl);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
-    QCOMPARE(layeredImageProject->currentLayer()->name(), "Layer 1");
+    // Load the saved file using the proper approach, as simply calling
+    // layeredImageProject->load(saveUrl) will not trigger the contentY to
+    // be set upon loading the project.
+    QVERIFY(QMetaObject::invokeMethod(window, "loadProject", Qt::DirectConnection, Q_ARG(QVariant, saveUrl)));
     QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    updateVariables(false, Project::LayeredImageType);
+    // There may be a nicer way of knowing when the ListView is ready?
+    do {
+        layerListView = window->findChild<QQuickItem*>("layerListView");
+        QTest::qWait(1);
+    } while (!layerListView || qFuzzyIsNull(layerListView->property("contentHeight").toReal()));
+    QCOMPARE(layeredImageProject->layerCount(), finalLayerCount);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), finalLayerCount - 1);
+    QCOMPARE(layeredImageProject->currentLayer()->name(), "Layer 1");
+    QCOMPARE(layerListView->property("count").toInt(), finalLayerCount);
+    QCOMPARE(layerListView->property("contentY").toInt(), contentY);
 
     QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 

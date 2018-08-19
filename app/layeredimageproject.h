@@ -37,6 +37,7 @@ class LayeredImageProject : public Project
     Q_PROPERTY(bool autoExportEnabled READ isAutoExportEnabled WRITE setAutoExportEnabled NOTIFY autoExportEnabledChanged)
     Q_PROPERTY(bool usingAnimation READ isUsingAnimation WRITE setUsingAnimation NOTIFY usingAnimationChanged)
     Q_PROPERTY(AnimationPlayback *animationPlayback READ animationPlayback CONSTANT FINAL)
+    Q_PROPERTY(qreal layerListViewContentY READ layerListViewContentY WRITE setLayerListViewContentY NOTIFY layerListViewContentYChanged)
 
 public:
     LayeredImageProject();
@@ -69,6 +70,9 @@ public:
     bool isUsingAnimation() const;
     void setUsingAnimation(bool isUsingAnimation);
 
+    qreal layerListViewContentY() const;
+    void setLayerListViewContentY(qreal contentY);
+
     AnimationPlayback *animationPlayback();
 
 signals:
@@ -78,6 +82,7 @@ signals:
     void layerCountChanged();
     void autoExportEnabledChanged();
     void usingAnimationChanged();
+    void layerListViewContentYChanged();
 
     void preLayersCleared();
     void postLayersCleared();
@@ -96,7 +101,6 @@ public slots:
 
     void load(const QUrl &url) override;
     void close() override;
-    void saveAs(const QUrl &url) override;
     bool exportImage(const QUrl &url);
     void resize(int width, int height);
     void moveContents(int x, int y, bool onlyVisibleContents);
@@ -111,6 +115,9 @@ public slots:
     void setLayerName(int layerIndex, const QString &name);
     void setLayerVisible(int layerIndex, bool visible);
     void setLayerOpacity(int layerIndex, qreal opacity);
+
+protected:
+    void doSaveAs(const QUrl &url) override;
 
 private:
     friend class AddLayerCommand;
@@ -153,6 +160,7 @@ private:
     bool mUsingAnimation;
     bool mHasUsedAnimation;
     AnimationPlayback mAnimationPlayback;
+    qreal mLayerListViewContentY;
 };
 
 #endif // LAYEREDIMAGEPROJECT_H

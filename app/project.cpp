@@ -155,8 +155,11 @@ void Project::save()
     saveAs(mUrl);
 }
 
-void Project::saveAs(const QUrl &)
+void Project::saveAs(const QUrl &url)
 {
+    emit preProjectSaved();
+
+    doSaveAs(url);
 }
 
 void Project::revert()
@@ -174,6 +177,10 @@ void Project::revert()
 void Project::error(const QString &message)
 {
     emit errorOccurred(message);
+}
+
+void Project::doSaveAs(const QUrl &)
+{
 }
 
 void Project::setComposingMacro(bool composingMacro)

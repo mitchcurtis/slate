@@ -43,7 +43,8 @@ LayeredImageProject::LayeredImageProject() :
     mLayersCreated(0),
     mAutoExportEnabled(false),
     mUsingAnimation(false),
-    mHasUsedAnimation(false)
+    mHasUsedAnimation(false),
+    mLayerListViewContentY(0.0)
 {
     setObjectName(QLatin1String("LayeredImageProject"));
     qCDebug(lcProjectLifecycle) << "constructing" << this;
@@ -368,6 +369,20 @@ void LayeredImageProject::setUsingAnimation(bool isUsingAnimation)
     emit usingAnimationChanged();
 }
 
+qreal LayeredImageProject::layerListViewContentY() const
+{
+    return mLayerListViewContentY;
+}
+
+void LayeredImageProject::setLayerListViewContentY(qreal contentY)
+{
+    if (qFuzzyCompare(contentY, mLayerListViewContentY))
+        return;
+
+    mLayerListViewContentY = contentY;
+    emit layerListViewContentYChanged();
+}
+
 AnimationPlayback *LayeredImageProject::animationPlayback()
 {
     return &mAnimationPlayback;
@@ -445,6 +460,8 @@ void LayeredImageProject::load(const QUrl &url)
         mAnimationPlayback.read(projectObject.value("animationPlayback").toObject());
     }
 
+    mLayerListViewContentY = projectObject.value("layerListViewContentY").toDouble();
+
     mCachedProjectJson = projectObject;
 
     setUrl(url);
@@ -481,12 +498,13 @@ void LayeredImageProject::close()
     mUsingAnimation = false;
     mHasUsedAnimation = false;
     mAnimationPlayback.reset();
+    mLayerListViewContentY = 0.0;
     emit projectClosed();
 
     qCDebug(lcProject) << "... closed project";
 }
 
-void LayeredImageProject::saveAs(const QUrl &url)
+void LayeredImageProject::doSaveAs(const QUrl &url)
 {
     if (!hasLoaded())
         return;
@@ -552,6 +570,8 @@ void LayeredImageProject::saveAs(const QUrl &url)
         mAnimationPlayback.write(animationObject);
         projectObject.insert("animationPlayback", animationObject);
     }
+
+    projectObject.insert("layerListViewContentY", mLayerListViewContentY);
 
     rootJson.insert("project", projectObject);
 

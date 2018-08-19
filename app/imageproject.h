@@ -60,9 +60,11 @@ public slots:
 
     void load(const QUrl &url) override;
     void close() override;
-    void saveAs(const QUrl &url) override;
 
     void resize(int width, int height, bool smooth);
+
+protected:
+    void doSaveAs(const QUrl &url) override;
 
 private:
     friend class ChangeImageCanvasSizeCommand;

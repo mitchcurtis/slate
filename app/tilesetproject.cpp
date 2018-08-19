@@ -209,7 +209,7 @@ void TilesetProject::close()
     qCDebug(lcProject) << "... closed project";
 }
 
-void TilesetProject::saveAs(const QUrl &url)
+void TilesetProject::doSaveAs(const QUrl &url)
 {
     if (!hasLoaded())
         return;

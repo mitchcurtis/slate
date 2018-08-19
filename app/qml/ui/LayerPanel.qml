@@ -34,9 +34,18 @@ Panel {
     property LayeredImageCanvas layeredImageCanvas
     property LayeredImageProject project
 
+    // When the project has been loaded, restore the listview's position.
+    onProjectChanged: Qt.callLater(function() { layerListView.contentY = project.layerListViewContentY; })
+
+    Connections {
+        target: project
+        // Before the project is saved, store the position of the listview.
+        onPreProjectSaved: project.layerListViewContentY = layerListView.contentY
+    }
+
     ButtonGroup {
         objectName: "layerPanelButtonGroup"
-        buttons: listView.contentItem.children
+        buttons: layerListView.contentItem.children
     }
 
     contentItem: ColumnLayout {
@@ -44,7 +53,7 @@ Panel {
         spacing: 0
 
         ListView {
-            id: listView
+            id: layerListView
             objectName: "layerListView"
             boundsBehavior: ListView.StopAtBounds
             // TODO: shouldn't need to null-check at all in this file
@@ -69,7 +78,7 @@ Panel {
                 objectName: model.layer.name
                 checkable: true
                 checked: project && project.currentLayerIndex === index
-                width: listView.width
+                width: layerListView.width
                 leftPadding: visibilityCheckBox.width + 18
                 focusPolicy: Qt.NoFocus
 
@@ -147,7 +156,7 @@ Panel {
         // Necessary for when there is no loaded project so that the separator
         // doesn't go halfway up the panel.
         Item {
-            Layout.fillHeight: listView.count == 0
+            Layout.fillHeight: layerListView.count == 0
         }
 
         MenuSeparator {

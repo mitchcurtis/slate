@@ -114,6 +114,7 @@ signals:
     void projectCreated();
     void projectLoaded();
     void projectClosed();
+    void preProjectSaved();
     void loadedChanged();
     void newProjectChanged();
     void unsavedChangesChanged();
@@ -134,6 +135,8 @@ public slots:
 
 protected:
     void error(const QString &message);
+
+    virtual void doSaveAs(const QUrl &url);
 
     void setComposingMacro(bool composingMacro);
 

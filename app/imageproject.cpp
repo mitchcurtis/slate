@@ -131,7 +131,7 @@ void ImageProject::close()
     qCDebug(lcProject) << "... closed project";
 }
 
-void ImageProject::saveAs(const QUrl &url)
+void ImageProject::doSaveAs(const QUrl &url)
 {
     if (!hasLoaded())
         return;

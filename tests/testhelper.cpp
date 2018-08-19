@@ -1295,7 +1295,7 @@ bool TestHelper::loadProject(const QUrl &url)
     return updateVariables(false, projectManager->projectTypeForUrl(url));
 }
 
-bool TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType)
+bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
 {
     // The projects and canvases that we had references to should have
     // been destroyed by now.
@@ -1322,18 +1322,18 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
     VERIFY(lockSplitterToolButton->isEnabled() == true);
     VERIFY(lockSplitterToolButton->property("checked").toBool() == !canvas->splitter()->isEnabled());
 
-    if (newProjectType == Project::TilesetType) {
+    if (projectType == Project::TilesetType) {
         tilesetProject = qobject_cast<TilesetProject*>(project);
         VERIFY(tilesetProject);
 
         tileCanvas = qobject_cast<TileCanvas*>(canvas);
         VERIFY(tileCanvas);
-    } else if (newProjectType == Project::ImageType) {
+    } else if (projectType == Project::ImageType) {
         imageProject = qobject_cast<ImageProject*>(project);
         VERIFY(imageProject);
 
         imageCanvas = canvas;
-    } else if (newProjectType == Project::LayeredImageType) {
+    } else if (projectType == Project::LayeredImageType) {
         layeredImageProject = qobject_cast<LayeredImageProject*>(project);
         VERIFY(layeredImageProject);
 
@@ -1375,7 +1375,7 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type newProjectType
         VERIFY(canvas->splitter()->position() == 0.5);
     }
 
-    if (newProjectType == Project::TilesetType) {
+    if (projectType == Project::TilesetType) {
         // Establish references to TilesetProject-specific properties.
         tilesetSwatch = window->findChild<QQuickItem*>("tilesetSwatch");
         VERIFY(tilesetSwatch);
