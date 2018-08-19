@@ -50,6 +50,9 @@ void GuidesItem::paint(QPainter *painter)
 
 void GuidesItem::drawPane(QPainter *painter, const CanvasPane *pane, int paneIndex)
 {
+    if (!mCanvas->project()->hasLoaded())
+        return;
+
     PaneDrawingHelper paneDrawingHelper(mCanvas, painter, pane, paneIndex);
 
     QPen pen;
