@@ -2240,7 +2240,7 @@ bool ImageCanvas::areToolsForbidden() const
 bool ImageCanvas::event(QEvent *event)
 {
     // This allows us to handle the two-finger pinch zoom gesture on macOS trackpads, for example.
-    if (event->type() == QEvent::NativeGesture) {
+    if (mGesturesEnabled && event->type() == QEvent::NativeGesture) {
         QNativeGestureEvent *gestureEvent = static_cast<QNativeGestureEvent*>(event);
         if (gestureEvent->gestureType() == Qt::ZoomNativeGesture
                 || gestureEvent->gestureType() == Qt::BeginNativeGesture
