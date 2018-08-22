@@ -665,7 +665,7 @@ QPoint TestHelper::tileSceneCentre(int xPosInTiles, int yPosInTiles) const
     return tileCanvas->mapToScene(QPointF(
         xPosInTiles * tilesetProject->tileWidth() + tilesetProject->tileWidth() / 2,
         yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2)).toPoint()
-            + tileCanvas->firstPane()->offset();
+            + tileCanvas->firstPane()->integerOffset();
 }
 
 QPoint TestHelper::tileCanvasCentre(int xPosInTiles, int yPosInTiles) const
@@ -705,7 +705,7 @@ void TestHelper::setCursorPosInTiles(int xPosInTiles, int yPosInTiles)
 void TestHelper::setCursorPosInScenePixels(int xPosInScenePixels, int yPosInScenePixels, bool verifyWithinWindow)
 {
     cursorPos = QPoint(xPosInScenePixels, yPosInScenePixels);
-    cursorWindowPos = canvas->mapToScene(cursorPos).toPoint() + canvas->firstPane()->offset();
+    cursorWindowPos = canvas->mapToScene(cursorPos).toPoint() + canvas->firstPane()->integerOffset();
     if (verifyWithinWindow) {
         // As with mouseEventOnCentre(), we don't want this to be a e.g. VERIFY2, because then we'd have to
         // verify its return value everywhere we use it, and we use it a lot, so just assert instead.
@@ -718,7 +718,7 @@ void TestHelper::setCursorPosInScenePixels(const QPoint &posInScenePixels)
 {
     cursorPos = posInScenePixels;
     cursorWindowPos = canvas->mapToScene(QPointF(posInScenePixels.x(), posInScenePixels.y())).toPoint()
-            + canvas->firstPane()->offset();
+            + canvas->firstPane()->integerOffset();
 }
 
 QPoint TestHelper::tilesetTileCentre(int xPosInTiles, int yPosInTiles) const
@@ -1322,6 +1322,10 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     VERIFY(lockSplitterToolButton->isEnabled() == true);
     VERIFY(lockSplitterToolButton->property("checked").toBool() == !canvas->splitter()->isEnabled());
 
+    // This is the old default. Some tests seem to choke with it set to true
+    // and I haven't looked into it yet because it's not really important.
+    canvas->setWheelEventsPan(false);
+
     if (projectType == Project::TilesetType) {
         tilesetProject = qobject_cast<TilesetProject*>(project);
         VERIFY(tilesetProject);
@@ -1528,7 +1532,7 @@ bool TestHelper::setPenForegroundColour(QString argbString)
 
 bool TestHelper::panTopLeftTo(int x, int y)
 {
-    const QPoint panDistance = QPoint(x, y) - canvas->firstPane()->offset();
+    const QPoint panDistance = QPoint(x, y) - canvas->firstPane()->integerOffset();
     return panBy(panDistance.x(), panDistance.y());
 }
 
@@ -1543,12 +1547,12 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     //        QTRY_VERIFY(imageGrabber.isReady());
     //        const QImage originalImage = imageGrabber.takeImage();
 
-    const QPoint originalOffset = canvas->currentPane()->offset();
+    const QPoint originalOffset = canvas->currentPane()->integerOffset();
     const QPoint expectedOffset = originalOffset + QPoint(xDistance, yDistance);
 
     QTest::keyPress(window, Qt::Key_Space);
     VERIFY(window->cursor().shape() == Qt::OpenHandCursor);
-    VERIFY(canvas->currentPane()->offset() == originalOffset);
+    VERIFY(canvas->currentPane()->integerOffset() == originalOffset);
     //        VERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
     //        // Cursor changed to OpenHandCursor.
@@ -1558,7 +1562,7 @@ bool TestHelper::panBy(int xDistance, int yDistance)
 
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, pressPos);
     VERIFY(window->cursor().shape() == Qt::ClosedHandCursor);
-    VERIFY(canvas->currentPane()->offset() == originalOffset);
+    VERIFY(canvas->currentPane()->integerOffset() == originalOffset);
     //        VERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
     //        currentImage = imageGrabber.takeImage();
@@ -1568,7 +1572,7 @@ bool TestHelper::panBy(int xDistance, int yDistance)
 
     QTest::mouseMove(window, pressPos + QPoint(xDistance, yDistance));
     VERIFY(window->cursor().shape() == Qt::ClosedHandCursor);
-    VERIFY(canvas->currentPane()->offset() == expectedOffset);
+    VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
     //        VERIFY(imageGrabber.requestImage(canvas));
     //        // Pane offset changed.
     //        currentImage = imageGrabber.takeImage();
@@ -1577,11 +1581,11 @@ bool TestHelper::panBy(int xDistance, int yDistance)
 
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, pressPos + QPoint(xDistance, yDistance));
     VERIFY(window->cursor().shape() == Qt::OpenHandCursor);
-    VERIFY(canvas->currentPane()->offset() == expectedOffset);
+    VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
 
     QTest::keyRelease(window, Qt::Key_Space);
     VERIFY(window->cursor().shape() == Qt::BlankCursor);
-    VERIFY(canvas->currentPane()->offset() == expectedOffset);
+    VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
 
     return true;
 }

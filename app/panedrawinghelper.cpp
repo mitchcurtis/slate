@@ -34,14 +34,14 @@ PaneDrawingHelper::PaneDrawingHelper(const ImageCanvas *canvas, QPainter *painte
     if (mPaneIndex == 1) {
         translateDistance.rx() = mCanvas->width() * mCanvas->firstPane()->size();
     }
-    translateDistance += mPane->offset();
+    translateDistance += mPane->integerOffset();
     painter->translate(translateDistance);
 
     const int paneWidth = mCanvas->width() * mPane->size();
     if (paneIndex == 0)
         painter->setClipRect(-translateDistance.x(), -translateDistance.y(), paneWidth, mCanvas->height());
     else
-        painter->setClipRect(-pane->offset().x(), -pane->offset().y(), paneWidth, mCanvas->height());
+        painter->setClipRect(-pane->integerOffset().x(), -pane->integerOffset().y(), paneWidth, mCanvas->height());
 }
 
 PaneDrawingHelper::~PaneDrawingHelper()

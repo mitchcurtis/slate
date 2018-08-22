@@ -79,25 +79,39 @@ QSize CanvasPane::zoomedSize(const QSize &size) const
     return size * integerZoomLevel();
 }
 
-QPoint CanvasPane::offset() const
+QPoint CanvasPane::integerOffset() const
+{
+    return QPoint(qFloor(mOffset.x()), qFloor(mOffset.y()));
+}
+
+void CanvasPane::setIntegerOffset(const QPoint &offset)
+{
+    setOffset(QPointF(offset.x(), offset.y()));
+}
+
+QPointF CanvasPane::offset() const
 {
     return mOffset;
 }
 
-void CanvasPane::setOffset(const QPoint &offset)
+void CanvasPane::setOffset(const QPointF &offset)
 {
     if (offset == mOffset)
         return;
 
+    const QPoint oldIntegerOffset = integerOffset();
+
     qCDebug(lcCanvasPane) << "setting offset of" << objectName() << "to" << offset;
 
     mOffset = offset;
-    emit offsetChanged();
+
+    if (integerOffset() != oldIntegerOffset)
+        emit integerOffsetChanged();
 }
 
 QPoint CanvasPane::zoomedOffset() const
 {
-    return mOffset * integerZoomLevel();
+    return integerOffset() * integerZoomLevel();
 }
 
 bool CanvasPane::isSceneCentered() const
@@ -114,7 +128,7 @@ void CanvasPane::read(const QJsonObject &json)
 {
     setSize(json.value(QLatin1String("size")).toDouble());
     setZoomLevel(json.value(QLatin1String("zoomLevel")).toInt());
-    setOffset(QPoint(json.value(QLatin1String("offsetX")).toInt(), json.value(QLatin1String("offsetY")).toInt()));
+    setIntegerOffset(QPoint(json.value(QLatin1String("offsetX")).toInt(), json.value(QLatin1String("offsetY")).toInt()));
     setSceneCentered(json.value(QLatin1String("sceneCentered")).toBool());
 }
 
@@ -133,14 +147,14 @@ void CanvasPane::reset()
 {
     setSize(0.5);
     setZoomLevel(1.0);
-    setOffset(QPoint(0, 0));
+    setIntegerOffset(QPoint(0, 0));
     setSceneCentered(true);
 }
 
 QDebug operator<<(QDebug debug, const CanvasPane *pane)
 {
     QDebugStateSaver stateSaver(debug);
-    debug.nospace() << "(CanvasPane offset=" << pane->offset()
+    debug.nospace() << "(CanvasPane offset=" << pane->integerOffset()
         << " size=" << pane->size()
         << " zoomLevel=" << pane->zoomLevel()
         << ")";

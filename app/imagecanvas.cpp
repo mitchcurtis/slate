@@ -92,6 +92,11 @@ ImageCanvas::ImageCanvas() :
     mMouseButtonPressed(Qt::NoButton),
     mLastMouseButtonPressed(Qt::NoButton),
     mScrollZoom(false),
+#ifdef Q_OS_MACOS
+    mWheelEventsPan(true),
+#else
+    mWheelEventsPan(false),
+#endif
     mTool(PenTool),
     mLastFillToolUsed(FillTool),
     mToolSize(1),
@@ -159,10 +164,10 @@ ImageCanvas::ImageCanvas() :
     mTexturedFillParameters.lightness()->setVarianceUpperBound(0.2);
 
     connect(&mFirstPane, SIGNAL(zoomLevelChanged()), this, SLOT(onZoomLevelChanged()));
-    connect(&mFirstPane, SIGNAL(offsetChanged()), this, SLOT(onPaneOffsetChanged()));
+    connect(&mFirstPane, SIGNAL(integerOffsetChanged()), this, SLOT(onPaneintegerOffsetChanged()));
     connect(&mFirstPane, SIGNAL(sizeChanged()), this, SLOT(onPaneSizeChanged()));
     connect(&mSecondPane, SIGNAL(zoomLevelChanged()), this, SLOT(onZoomLevelChanged()));
-    connect(&mSecondPane, SIGNAL(offsetChanged()), this, SLOT(onPaneOffsetChanged()));
+    connect(&mSecondPane, SIGNAL(integerOffsetChanged()), this, SLOT(onPaneintegerOffsetChanged()));
     connect(&mSecondPane, SIGNAL(sizeChanged()), this, SLOT(onPaneSizeChanged()));
     connect(&mSplitter, SIGNAL(positionChanged()), this, SLOT(onSplitterPositionChanged()));
 
@@ -779,6 +784,16 @@ qreal ImageCanvas::lineAngle() const
     return line.angle();
 }
 
+bool ImageCanvas::wheelEventsPan() const
+{
+    return mWheelEventsPan;
+}
+
+void ImageCanvas::setWheelEventsPan(bool wheelEventsPan)
+{
+    mWheelEventsPan = wheelEventsPan;
+}
+
 void ImageCanvas::setAltPressed(bool altPressed)
 {
     if (altPressed == mAltPressed)
@@ -956,13 +971,13 @@ void ImageCanvas::centrePanes(bool respectSceneCentred)
     if (!respectSceneCentred || (respectSceneCentred && mFirstPane.isSceneCentered())) {
         const QPoint newOffset(paneWidth(0) / 2 - (mProject->widthInPixels() * mFirstPane.integerZoomLevel()) / 2,
             height() / 2 - (mProject->heightInPixels() * mFirstPane.integerZoomLevel()) / 2);
-        mFirstPane.setOffset(newOffset);
+        mFirstPane.setIntegerOffset(newOffset);
     }
 
     if (!respectSceneCentred || (respectSceneCentred && mSecondPane.isSceneCentered())) {
         const QPoint newOffset(paneWidth(1) / 2 - (mProject->widthInPixels() * mFirstPane.integerZoomLevel()) / 2,
             height() / 2 - (mProject->heightInPixels() * mFirstPane.integerZoomLevel()) / 2);
-        mSecondPane.setOffset(newOffset);
+        mSecondPane.setIntegerOffset(newOffset);
     }
 
     requestContentPaint();
@@ -1495,7 +1510,7 @@ void ImageCanvas::panWithSelectionIfAtEdge(ImageCanvas::SelectionPanReason reaso
         const QPoint finalOffsetChange(
              (scaledXOffsetChange * xOffsetChangeSign) * maxVelocity,
              (scaledYOffsetChange * yOffsetChangeSign) * maxVelocity);
-        mCurrentPane->setOffset(mCurrentPane->offset() + finalOffsetChange);
+        mCurrentPane->setIntegerOffset(mCurrentPane->integerOffset() + finalOffsetChange);
 
         // Ensure that the panning still occurs when the mouse is at the edge but isn't moving.
         if (!mSelectionEdgePanTimer.isActive()) {
@@ -1975,8 +1990,8 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     }
 
     // We need the position as floating point numbers so that pen sizes > 1 work properly.
-    mCursorSceneFX = qreal(mCursorPaneX - mCurrentPane->offset().x()) / mCurrentPane->integerZoomLevel();
-    mCursorSceneFY = qreal(mCursorPaneY - mCurrentPane->offset().y()) / mCurrentPane->integerZoomLevel();
+    mCursorSceneFX = qreal(mCursorPaneX - mCurrentPane->integerOffset().x()) / mCurrentPane->integerZoomLevel();
+    mCursorSceneFY = qreal(mCursorPaneY - mCurrentPane->integerOffset().y()) / mCurrentPane->integerZoomLevel();
 
     const int oldCursorSceneX = mCursorSceneX;
     const int oldCursorSceneY = mCursorSceneY;
@@ -2001,8 +2016,8 @@ void ImageCanvas::updateVisibleSceneArea()
     int integerZoomLevel = mFirstPane.integerZoomLevel();
 
     mFirstPaneVisibleSceneArea = QRect(
-        -mFirstPane.offset().x() / integerZoomLevel,
-        -mFirstPane.offset().y() / integerZoomLevel,
+        -mFirstPane.integerOffset().x() / integerZoomLevel,
+        -mFirstPane.integerOffset().y() / integerZoomLevel,
         paneWidth(0) / integerZoomLevel,
         height() / integerZoomLevel);
 
@@ -2010,8 +2025,8 @@ void ImageCanvas::updateVisibleSceneArea()
         integerZoomLevel = mSecondPane.integerZoomLevel();
 
         mSecondPaneVisibleSceneArea = QRect(
-            -mSecondPane.offset().x() / integerZoomLevel,
-            -mSecondPane.offset().y() / integerZoomLevel,
+            -mSecondPane.integerOffset().x() / integerZoomLevel,
+            -mSecondPane.integerOffset().y() / integerZoomLevel,
             paneWidth(1) / integerZoomLevel,
             height() / integerZoomLevel);
     }
@@ -2124,15 +2139,15 @@ void ImageCanvas::onZoomLevelChanged()
     mSelectionItem->update();
 }
 
-void ImageCanvas::onPaneOffsetChanged()
+void ImageCanvas::onPaneintegerOffsetChanged()
 {
     updateVisibleSceneArea();
 
-    mFirstHorizontalRuler->setFrom(mFirstPane.offset().x());
-    mFirstVerticalRuler->setFrom(mFirstPane.offset().y());
+    mFirstHorizontalRuler->setFrom(mFirstPane.integerOffset().x());
+    mFirstVerticalRuler->setFrom(mFirstPane.integerOffset().y());
 
-    mSecondHorizontalRuler->setFrom(mSecondPane.offset().x());
-    mSecondVerticalRuler->setFrom(mSecondPane.offset().y());
+    mSecondHorizontalRuler->setFrom(mSecondPane.integerOffset().x());
+    mSecondVerticalRuler->setFrom(mSecondPane.integerOffset().y());
 
     if (mGuidesVisible)
         mGuidesItem->update();
@@ -2219,6 +2234,42 @@ bool ImageCanvas::areToolsForbidden() const
     return false;
 }
 
+bool ImageCanvas::event(QEvent *event)
+{
+    // This allows us to handle the two-finger pinch zoom gesture on macOS trackpads, for example.
+    if (event->type() == QEvent::NativeGesture) {
+        QNativeGestureEvent *gestureEvent = static_cast<QNativeGestureEvent*>(event);
+        if (gestureEvent->gestureType() == Qt::ZoomNativeGesture
+                || gestureEvent->gestureType() == Qt::BeginNativeGesture
+                || gestureEvent->gestureType() == Qt::EndNativeGesture) {
+            if (!qFuzzyIsNull(gestureEvent->value())) {
+                mCurrentPane->setSceneCentered(false);
+                // Zooming is a bit slow without this.
+                static const int zoomFactor = 2;
+                applyZoom(mCurrentPane->zoomLevel() + gestureEvent->value() * zoomFactor, gestureEvent->pos());
+            }
+            return true;
+        }
+    }
+
+    return QQuickItem::event(event);
+}
+
+void ImageCanvas::applyZoom(qreal zoom, const QPoint &origin)
+{
+    const qreal oldZoomLevel = qreal(mCurrentPane->integerZoomLevel());
+
+    mCurrentPane->setZoomLevel(zoom);
+
+    // From: http://stackoverflow.com/a/38302057/904422
+    const QPoint relativeEventPos = eventPosRelativeToCurrentPane(origin);
+    // We still want to use integer zoom levels here; the real-based zoom level just allows
+    // smaller changes in zoom level, rather than incrementing/decrementing by one every time
+    // we get a wheel event.
+    mCurrentPane->setIntegerOffset(relativeEventPos -
+        qreal(mCurrentPane->integerZoomLevel()) / oldZoomLevel * (relativeEventPos - mCurrentPane->integerOffset()));
+}
+
 void ImageCanvas::wheelEvent(QWheelEvent *event)
 {
     if (!mProject->hasLoaded() || !mScrollZoom) {
@@ -2226,29 +2277,36 @@ void ImageCanvas::wheelEvent(QWheelEvent *event)
         return;
     }
 
+    // We set this here rather than in applyZoom() because the user should
+    // probably be able to use the menu items to zoom in without the
+    // centered scene setting being disrupted.
     mCurrentPane->setSceneCentered(false);
 
     const QPoint pixelDelta = event->pixelDelta();
     const QPoint angleDelta = event->angleDelta();
 
-    const int oldZoomLevel = mCurrentPane->integerZoomLevel();
-    if (!pixelDelta.isNull()) {
-        const qreal zoomAmount = pixelDelta.y() * 0.01;
-        const qreal newZoomLevel = mCurrentPane->zoomLevel() + zoomAmount;
-        mCurrentPane->setZoomLevel(newZoomLevel);
-    } else if (!angleDelta.isNull()) {
-        const qreal zoomAmount = 1.0;
-        const qreal newZoomLevel = mCurrentPane->zoomLevel() + (angleDelta.y() > 0 ? zoomAmount : -zoomAmount);
-        mCurrentPane->setZoomLevel(newZoomLevel);
-    }
+    if (!mWheelEventsPan) {
+        // Wheel events zoom.
+        qreal newZoomLevel = 0;
+        if (!pixelDelta.isNull()) {
+            const qreal zoomAmount = pixelDelta.y() * 0.01;
+            newZoomLevel = mCurrentPane->zoomLevel() + zoomAmount;
+        } else if (!angleDelta.isNull()) {
+            const qreal zoomAmount = 1.0;
+            newZoomLevel = mCurrentPane->zoomLevel() + (angleDelta.y() > 0 ? zoomAmount : -zoomAmount);
+        }
 
-    // From: http://stackoverflow.com/a/38302057/904422
-    QPoint relativeEventPos = eventPosRelativeToCurrentPane(event->pos());
-    // We still want to use integer zoom levels here; the real-based zoom level just allows
-    // smaller changes in zoom level, rather than incrementing/decrementing by one every time
-    // we get a wheel event.
-    mCurrentPane->setOffset(relativeEventPos -
-        float(mCurrentPane->integerZoomLevel()) / float(oldZoomLevel) * (relativeEventPos - mCurrentPane->offset()));
+        if (!qFuzzyIsNull(newZoomLevel))
+            applyZoom(newZoomLevel, event->pos());
+    } else {
+        // Wheel events pan.
+        if (pixelDelta.isNull())
+            return;
+
+        const QPointF panDistance(pixelDelta.x() * 0.1, pixelDelta.y() * 0.1);
+        mCurrentPane->setOffset(mCurrentPane->offset() + panDistance);
+        requestPaneContentPaint(mCurrentPaneIndex);
+    }
 }
 
 void ImageCanvas::mousePressEvent(QMouseEvent *event)
@@ -2268,7 +2326,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
     mLastMouseButtonPressed = mMouseButtonPressed;
     mPressPosition = event->pos();
     mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
-    mCurrentPaneOffsetBeforePress = mCurrentPane->offset();
+    mCurrentPaneOffsetBeforePress = mCurrentPane->integerOffset();
     setContainsMouse(true);
 
     if (!isPanning()) {
@@ -2342,7 +2400,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
             } else {
                 // Panning.
                 mCurrentPane->setSceneCentered(false);
-                mCurrentPane->setOffset(mCurrentPaneOffsetBeforePress + (event->pos() - mPressPosition));
+                mCurrentPane->setIntegerOffset(mCurrentPaneOffsetBeforePress + (event->pos() - mPressPosition));
                 requestPaneContentPaint(mCurrentPaneIndex);
             }
         }

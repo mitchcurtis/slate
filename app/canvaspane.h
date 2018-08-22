@@ -30,10 +30,10 @@ class CanvasPane : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(qreal size READ size WRITE setSize NOTIFY sizeChanged)
-//    Q_PROPERTY(qreal zoomLevel READ zoomLevel WRITE setZoomLevel NOTIFY zoomLevelChanged)
+    Q_PROPERTY(qreal zoomLevel READ zoomLevel WRITE setZoomLevel NOTIFY zoomLevelChanged)
     Q_PROPERTY(int integerZoomLevel READ integerZoomLevel NOTIFY zoomLevelChanged)
     Q_PROPERTY(int maxZoomLevel READ maxZoomLevel CONSTANT)
-    Q_PROPERTY(QPoint offset READ offset WRITE setOffset NOTIFY offsetChanged)
+    Q_PROPERTY(QPoint integerOffset READ integerOffset WRITE setIntegerOffset NOTIFY integerOffsetChanged)
 
 public:
     explicit CanvasPane(QObject *parent = 0);
@@ -48,8 +48,10 @@ public:
 
     QSize zoomedSize(const QSize &size) const;
 
-    QPoint offset() const;
-    void setOffset(const QPoint &offset);
+    QPoint integerOffset() const;
+    void setIntegerOffset(const QPoint &integerOffset);
+    QPointF offset() const;
+    void setOffset(const QPointF &offset);
 
     QPoint zoomedOffset() const;
 
@@ -64,14 +66,14 @@ public:
 signals:
     void zoomLevelChanged();
     void sizeChanged();
-    void offsetChanged();
+    void integerOffsetChanged();
 
 private:
     qreal mSize;
     qreal mZoomLevel;
     int mMaxZoomLevel;
     // From the top left of the canvas.
-    QPoint mOffset;
+    QPointF mOffset;
     // Scenes are centered in each pane until the view is panned or zoomed.
     bool mSceneCentered;
 };

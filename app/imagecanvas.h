@@ -217,6 +217,9 @@ public:
     int lineLength() const;
     qreal lineAngle() const;
 
+    bool wheelEventsPan() const;
+    void setWheelEventsPan(bool wheelEventsPan);
+
     Q_INVOKABLE bool overrideShortcut(const QKeySequence &keySequence);
 
     // The image that is currently being drawn on. For regular image canvases, this is
@@ -294,7 +297,7 @@ protected slots:
     void requestPaneContentPaint(int paneIndex);
     void updateWindowCursorShape();
     void onZoomLevelChanged();
-    void onPaneOffsetChanged();
+    void onPaneintegerOffsetChanged();
     void onPaneSizeChanged();
     void onSplitterPositionChanged();
     void onGuidesChanged();
@@ -423,10 +426,13 @@ protected:
 
     void setShiftPressed(bool shiftPressed);
 
+    void applyZoom(qreal zoom, const QPoint &origin);
+
     virtual void connectSignals();
     virtual void disconnectSignals();
     virtual void toolChange();
 
+    bool event(QEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -503,6 +509,7 @@ protected:
     QRect mFirstPaneVisibleSceneArea;
     QRect mSecondPaneVisibleSceneArea;
     bool mScrollZoom;
+    bool mWheelEventsPan;
 
     Tool mTool;
     Tool mLastFillToolUsed;

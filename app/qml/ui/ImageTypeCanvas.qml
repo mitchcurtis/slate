@@ -24,7 +24,7 @@ ImageCanvas {
     anchors.fill: parent
 
     readonly property int currentPaneZoomLevel: imageCanvas.currentPane ? imageCanvas.currentPane.integerZoomLevel : 1
-    readonly property point currentPaneOffset: imageCanvas.currentPane ? imageCanvas.currentPane.offset : Qt.point(0, 0)
+    readonly property point currentPaneOffset: imageCanvas.currentPane ? imageCanvas.currentPane.integerOffset : Qt.point(0, 0)
     readonly property bool useCrosshairCursor: imageCanvas.tool === TileCanvas.SelectionTool
         || (imageCanvas.toolSize < 4 && imageCanvas.currentPaneZoomLevel <= 3)
     readonly property bool useIconCursor: imageCanvas.tool === TileCanvas.EyeDropperTool

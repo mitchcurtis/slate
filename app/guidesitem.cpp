@@ -100,13 +100,13 @@ void GuidesItem::drawGuide(PaneDrawingHelper *paneDrawingHelper, const Guide *gu
         // scene area, as we don't care about it and are only testing the other coordinate.
         if (visibleSceneArea.contains(QPoint(guidePosition, visibleSceneArea.y()))) {
             // Don't need to account for the vertical offset anymore, as vertical guides go across the whole height of the pane.
-            painter->translate(0, -pane->offset().y());
+            painter->translate(0, -pane->integerOffset().y());
             painter->drawLine(QLineF(zoomedGuidePosition, 0, zoomedGuidePosition, height()));
         }
     } else {
         if (visibleSceneArea.contains(QPoint(visibleSceneArea.x(), guidePosition))) {
             // Don't need to account for the horizontal offset anymore, as horizontal guides go across the whole width of the pane.
-            painter->translate(-pane->offset().x(), 0);
+            painter->translate(-pane->integerOffset().x(), 0);
             painter->drawLine(QLineF(0, zoomedGuidePosition, mCanvas->paneWidth(paneIndex), zoomedGuidePosition));
         }
     }

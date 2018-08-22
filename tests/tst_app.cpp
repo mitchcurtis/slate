@@ -432,7 +432,7 @@ void tst_App::saveAsAndLoad()
 
     // TODO: fix this failure so that we can test it properly
 //    QVERIFY2(panTopLeftTo(rulerThickness, rulerThickness), failureMessage);
-    canvas->firstPane()->setOffset(QPoint(rulerThickness, rulerThickness));
+    canvas->firstPane()->setIntegerOffset(QPoint(rulerThickness, rulerThickness));
 
     // Drop a horizontal guide onto the canvas.
     setCursorPosInPixels(QPoint(50, rulerThickness / 2));
@@ -464,10 +464,10 @@ void tst_App::saveAsAndLoad()
     QVERIFY(qAbs(canvas->secondPane()->size() - 0.75) < 0.001);
 
     // Store the original offsets, etc.
-    const QPoint firstPaneOffset = canvas->firstPane()->offset();
+    const QPoint firstPaneOffset = canvas->firstPane()->integerOffset();
     const int firstPaneZoomLevel = canvas->firstPane()->integerZoomLevel();
     const qreal firstPaneSize = canvas->firstPane()->size();
-    const QPoint secondPaneOffset = canvas->secondPane()->offset();
+    const QPoint secondPaneOffset = canvas->secondPane()->integerOffset();
     const int secondPaneZoomLevel = canvas->secondPane()->integerZoomLevel();
     const qreal secondPaneSize = canvas->secondPane()->size();
 
@@ -485,10 +485,10 @@ void tst_App::saveAsAndLoad()
     QVERIFY2(loadProject(QUrl::fromLocalFile(savedProjectPath)), failureMessage);
     QCOMPARE(project->guides().size(), 1);
     QCOMPARE(project->guides().first().position(), 10);
-    QCOMPARE(canvas->firstPane()->offset(), firstPaneOffset);
+    QCOMPARE(canvas->firstPane()->integerOffset(), firstPaneOffset);
     QCOMPARE(canvas->firstPane()->integerZoomLevel(), firstPaneZoomLevel);
     QCOMPARE(canvas->firstPane()->size(), firstPaneSize);
-    QCOMPARE(canvas->secondPane()->offset(), secondPaneOffset);
+    QCOMPARE(canvas->secondPane()->integerOffset(), secondPaneOffset);
     QCOMPARE(canvas->secondPane()->integerZoomLevel(), secondPaneZoomLevel);
     QCOMPARE(canvas->secondPane()->size(), secondPaneSize);
 
@@ -1733,8 +1733,8 @@ void tst_App::zoomAndCentre()
         currentPane->size() * tileCanvas->width() / 2 - (tilesetProject->widthInPixels() * currentPane->integerZoomLevel()) / 2,
         tileCanvas->height() / 2 - (tilesetProject->heightInPixels() * currentPane->integerZoomLevel()) / 2);
     // A one pixel difference was introduced here at some point.. not sure why, but it's not important.
-    const int xDiff = qAbs(currentPane->offset().x() - expectedOffset.x());
-    const int yDiff = qAbs(currentPane->offset().y() - expectedOffset.y());
+    const int xDiff = qAbs(currentPane->integerOffset().x() - expectedOffset.x());
+    const int yDiff = qAbs(currentPane->integerOffset().y() - expectedOffset.y());
     QVERIFY(xDiff <= 1);
     QVERIFY(yDiff <= 1);
 }
@@ -2715,7 +2715,7 @@ void tst_App::selectionEdgePan()
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
     QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
-    const QPoint originalOffset = canvas->currentPane()->offset();
+    const QPoint originalOffset = canvas->currentPane()->integerOffset();
 
     // Test that the canvas is panned when the mouse goes past the edge when creating a selection.
     QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
@@ -2741,22 +2741,22 @@ void tst_App::selectionEdgePan()
         // want to rely on implementation details. So, choose a sufficiently
         // high number as the maximum amount of iterations.
         QPoint movedOffset = originalOffset - panDirection;
-        for (int i = 0; i < 10000 && movedOffset != canvas->currentPane()->offset(); ++i) {
+        for (int i = 0; i < 10000 && movedOffset != canvas->currentPane()->integerOffset(); ++i) {
             movedOffset -= panDirection;
         }
-        QCOMPARE(canvas->currentPane()->offset().x(), movedOffset.x());
+        QCOMPARE(canvas->currentPane()->integerOffset().x(), movedOffset.x());
     } else {
-        QCOMPARE(canvas->currentPane()->offset().x(), originalOffset.x());
+        QCOMPARE(canvas->currentPane()->integerOffset().x(), originalOffset.x());
     }
 
     if (panDirection.y() != 0) {
         QPoint movedOffset = originalOffset - panDirection;
-        for (int i = 0; i < 10000 && movedOffset != canvas->currentPane()->offset(); ++i) {
+        for (int i = 0; i < 10000 && movedOffset != canvas->currentPane()->integerOffset(); ++i) {
             movedOffset -= panDirection;
         }
-        QCOMPARE(canvas->currentPane()->offset().y(), movedOffset.y());
+        QCOMPARE(canvas->currentPane()->integerOffset().y(), movedOffset.y());
     } else {
-        QCOMPARE(canvas->currentPane()->offset().y(), originalOffset.y());
+        QCOMPARE(canvas->currentPane()->integerOffset().y(), originalOffset.y());
     }
 
     // Uncomment when https://bugreports.qt.io/browse/QTBUG-67702 is fixed

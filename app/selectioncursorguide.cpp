@@ -64,7 +64,7 @@ void SelectionCursorGuide::drawPane(QPainter *painter, const CanvasPane *pane, i
 
     int guidePosition = mCanvas->cursorSceneX();
     qreal zoomedGuidePosition = (guidePosition * pane->integerZoomLevel()) + (painter->pen().widthF() / 2.0);
-    painter->translate(0, -pane->offset().y());
+    painter->translate(0, -pane->integerOffset().y());
     painter->drawLine(QLineF(zoomedGuidePosition, 0, zoomedGuidePosition, height()));
 
     painter->restore();
@@ -72,7 +72,7 @@ void SelectionCursorGuide::drawPane(QPainter *painter, const CanvasPane *pane, i
     // Draw the horizontal cursor selection guide.
     guidePosition = mCanvas->cursorSceneY();
     zoomedGuidePosition = (guidePosition * pane->integerZoomLevel()) + (painter->pen().widthF() / 2.0);
-    painter->translate(-pane->offset().x(), 0);
+    painter->translate(-pane->integerOffset().x(), 0);
     painter->drawLine(QLineF(0, zoomedGuidePosition, mCanvas->paneWidth(paneIndex), zoomedGuidePosition));
 
     painter->restore();
