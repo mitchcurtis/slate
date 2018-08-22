@@ -62,6 +62,7 @@ class ImageCanvas : public QQuickItem
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
     Q_PROPERTY(bool splitScreen READ isSplitScreen WRITE setSplitScreen NOTIFY splitScreenChanged)
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
+    Q_PROPERTY(bool gesturesEnabled READ areGesturesEnabled WRITE setGesturesEnabled NOTIFY gesturesEnabledChanged)
     Q_PROPERTY(Splitter *splitter READ splitter CONSTANT)
     Q_PROPERTY(CanvasPane *firstPane READ firstPane CONSTANT)
     Q_PROPERTY(CanvasPane *secondPane READ secondPane CONSTANT)
@@ -166,6 +167,9 @@ public:
     bool scrollZoom() const;
     void setScrollZoom(bool scrollZoom);
 
+    bool areGesturesEnabled() const;
+    void setGesturesEnabled(bool gesturesEnabled);
+
     Ruler *pressedRuler() const;
     int pressedGuideIndex() const;
 
@@ -217,9 +221,6 @@ public:
     int lineLength() const;
     qreal lineAngle() const;
 
-    bool wheelEventsPan() const;
-    void setWheelEventsPan(bool wheelEventsPan);
-
     Q_INVOKABLE bool overrideShortcut(const QKeySequence &keySequence);
 
     // The image that is currently being drawn on. For regular image canvases, this is
@@ -250,6 +251,7 @@ signals:
     void splitColourChanged();
     void splitScreenChanged();
     void scrollZoomChanged();
+    void gesturesEnabledChanged();
     void currentPaneChanged();
 //    void rulerForegroundColourChanged();
 //    void rulerBackgroundColourChanged();
@@ -509,7 +511,7 @@ protected:
     QRect mFirstPaneVisibleSceneArea;
     QRect mSecondPaneVisibleSceneArea;
     bool mScrollZoom;
-    bool mWheelEventsPan;
+    bool mGesturesEnabled;
 
     Tool mTool;
     Tool mLastFillToolUsed;

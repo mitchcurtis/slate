@@ -42,6 +42,7 @@ class ApplicationSettings : public QSettings
     Q_PROPERTY(bool guidesLocked READ areGuidesLocked WRITE setGuidesLocked NOTIFY guidesLockedChanged)
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
     Q_PROPERTY(bool fpsVisible READ isFpsVisible WRITE setFpsVisible NOTIFY fpsVisibleChanged)
+    Q_PROPERTY(bool gesturesEnabled READ areGesturesEnabled WRITE setGesturesEnabled NOTIFY gesturesEnabledChanged)
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
 
@@ -120,6 +121,10 @@ public:
     bool defaultFpsVisible() const;
     bool isFpsVisible() const;
     void setFpsVisible(bool fpsVisible);
+
+    bool defaultGesturesEnabled() const;
+    bool areGesturesEnabled() const;
+    void setGesturesEnabled(bool gesturesEnabled);
 
     QColor defaultCheckerColour1() const;
     QColor checkerColour1() const;
@@ -287,6 +292,7 @@ signals:
     void guidesVisibleChanged();
     void guidesLockedChanged();
     void scrollZoomChanged();
+    void gesturesEnabledChanged();
     void fpsVisibleChanged();
     void checkerColour1Changed();
     void checkerColour2Changed();

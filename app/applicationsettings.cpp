@@ -269,6 +269,35 @@ void ApplicationSettings::setFpsVisible(bool fpsVisible)
     emit fpsVisibleChanged();
 }
 
+bool ApplicationSettings::defaultGesturesEnabled() const
+{
+#ifdef Q_OS_MACOS
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool ApplicationSettings::areGesturesEnabled() const
+{
+    return contains("gesturesEnabled") ? value("gesturesEnabled").toBool() : defaultGesturesEnabled();
+}
+
+void ApplicationSettings::setGesturesEnabled(bool gesturesEnabled)
+{
+    const QVariant existingValue = value("gesturesEnabled");
+    bool existingBoolValue = defaultGesturesEnabled();
+    if (contains("gesturesEnabled")) {
+        existingBoolValue = existingValue.toBool();
+    }
+
+    if (gesturesEnabled == existingBoolValue)
+        return;
+
+    setValue("gesturesEnabled", gesturesEnabled);
+    emit gesturesEnabledChanged();
+}
+
 QColor ApplicationSettings::defaultCheckerColour1() const
 {
     return QColor("#444444");

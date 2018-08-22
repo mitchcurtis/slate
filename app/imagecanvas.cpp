@@ -92,11 +92,7 @@ ImageCanvas::ImageCanvas() :
     mMouseButtonPressed(Qt::NoButton),
     mLastMouseButtonPressed(Qt::NoButton),
     mScrollZoom(false),
-#ifdef Q_OS_MACOS
-    mWheelEventsPan(true),
-#else
-    mWheelEventsPan(false),
-#endif
+    mGesturesEnabled(false),
     mTool(PenTool),
     mLastFillToolUsed(FillTool),
     mToolSize(1),
@@ -665,6 +661,20 @@ void ImageCanvas::setScrollZoom(bool scrollZoom)
     emit scrollZoomChanged();
 }
 
+bool ImageCanvas::areGesturesEnabled() const
+{
+    return mGesturesEnabled;
+}
+
+void ImageCanvas::setGesturesEnabled(bool gesturesEnabled)
+{
+    if (gesturesEnabled == mGesturesEnabled)
+        return;
+
+    mGesturesEnabled = gesturesEnabled;
+    emit gesturesEnabledChanged();
+}
+
 Ruler *ImageCanvas::pressedRuler() const
 {
     return mPressedRuler;
@@ -782,16 +792,6 @@ qreal ImageCanvas::lineAngle() const
     const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
     const QLineF line(point1, point2);
     return line.angle();
-}
-
-bool ImageCanvas::wheelEventsPan() const
-{
-    return mWheelEventsPan;
-}
-
-void ImageCanvas::setWheelEventsPan(bool wheelEventsPan)
-{
-    mWheelEventsPan = wheelEventsPan;
 }
 
 void ImageCanvas::setAltPressed(bool altPressed)
@@ -2285,7 +2285,7 @@ void ImageCanvas::wheelEvent(QWheelEvent *event)
     const QPoint pixelDelta = event->pixelDelta();
     const QPoint angleDelta = event->angleDelta();
 
-    if (!mWheelEventsPan) {
+    if (!mGesturesEnabled) {
         // Wheel events zoom.
         qreal newZoomLevel = 0;
         if (!pixelDelta.isNull()) {

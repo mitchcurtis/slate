@@ -1323,8 +1323,8 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     VERIFY(lockSplitterToolButton->property("checked").toBool() == !canvas->splitter()->isEnabled());
 
     // This is the old default. Some tests seem to choke with it set to true
-    // and I haven't looked into it yet because it's not really important.
-    canvas->setWheelEventsPan(false);
+    // (because of wheel events) and I haven't looked into it yet because it's not really important.
+    canvas->setGesturesEnabled(false);
 
     if (projectType == Project::TilesetType) {
         tilesetProject = qobject_cast<TilesetProject*>(project);

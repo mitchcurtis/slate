@@ -20,6 +20,7 @@ Dialog {
 
     function applyAllSettings() {
         settings.loadLastOnStartup = loadLastCheckBox.checked
+        settings.gesturesEnabled = enableGesturesCheckBox.checked
         settings.checkerColour1 = checkerColour1TextField.colour
         settings.checkerColour2 = checkerColour2TextField.colour
         settings.fpsVisible = showFpsCheckBox.checked
@@ -34,6 +35,7 @@ Dialog {
 
     function clearChanges() {
         loadLastCheckBox.checked = settings.loadLastOnStartup
+        enableGesturesCheckBox.checked = settings.gesturesEnabled
         checkerColour1TextField.text = settings.checkerColour1
         checkerColour2TextField.text = settings.checkerColour2
         showFpsCheckBox.checked = settings.fpsVisible
@@ -82,6 +84,19 @@ Dialog {
                     id: loadLastCheckBox
                     leftPadding: 0
                     checked: settings.loadLastOnStartup
+                }
+
+                Label {
+                    text: qsTr("Enable gestures (macOS only)")
+                }
+                CheckBox {
+                    id: enableGesturesCheckBox
+                    leftPadding: 0
+                    checked: settings.gesturesEnabled
+
+                    ToolTip.text: qsTr("Enables the use of two-finger panning and pinch-to-zoom on macOS.")
+                    ToolTip.visible: hovered
+                    ToolTip.delay: toolTipDelay
                 }
 
                 Label {
