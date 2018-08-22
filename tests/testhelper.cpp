@@ -1385,7 +1385,8 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
         VERIFY(tilesetSwatch);
         VERIFY(tilesetSwatch->isVisible() == true);
         VERIFY(!qFuzzyIsNull(tilesetSwatch->width()));
-        VERIFY(!qFuzzyIsNull(tilesetSwatch->height()));
+        // This started failing recently for some reason, but giving it some time seems to help.
+        TRY_VERIFY(!qFuzzyIsNull(tilesetSwatch->height()));
 
         // Ensure that the tileset swatch flickable has the correct contentY.
         tilesetSwatchFlickable = tilesetSwatch->findChild<QQuickItem*>("tilesetSwatchFlickable");

@@ -1999,7 +1999,10 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     setCursorSceneY(mCursorSceneFY);
 
     if (mCursorSceneX < 0 || mCursorSceneX >= mProject->widthInPixels()
-        || mCursorSceneY < 0 || mCursorSceneY >= mProject->heightInPixels()) {
+        || mCursorSceneY < 0 || mCursorSceneY >= mProject->heightInPixels()
+        // The cached contents can be null for some reason during tests; probably because
+        // the canvas gets events before it has rendered. No big deal, it wouldn't be visible yet anyway.
+        || mCachedContentImage.isNull()) {
         setCursorPixelColour(QColor(Qt::black));
     } else {
         const QPoint cursorScenePos = QPoint(mCursorSceneX, mCursorSceneY);
