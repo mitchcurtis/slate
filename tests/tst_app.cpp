@@ -3772,7 +3772,7 @@ void tst_App::saveAndLoadLayeredImageProject()
     // be set upon loading the project.
     QVERIFY(QMetaObject::invokeMethod(window, "loadProject", Qt::DirectConnection, Q_ARG(QVariant, saveUrl)));
     QVERIFY_NO_CREATION_ERRORS_OCCURRED();
-    updateVariables(false, Project::LayeredImageType);
+    QVERIFY2(updateVariables(false, Project::LayeredImageType), failureMessage);
     // There may be a nicer way of knowing when the ListView is ready?
     do {
         layerListView = window->findChild<QQuickItem*>("layerListView");

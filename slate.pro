@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS += \
     app
-    
+
 !emscripten:SUBDIRS += tests
 
 OTHER_FILES += \
