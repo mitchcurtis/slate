@@ -135,6 +135,7 @@ private Q_SLOTS:
     void layerVisibilityAfterMoving();
 //    void undoAfterAddLayer();
     void selectionConfirmedWhenSwitchingLayers();
+    void newLayerAfterMovingSelection();
     void autoExport();
     void exportFileNamedLayers();
     void disableToolsWhenLayerHidden();
@@ -2383,7 +2384,6 @@ void tst_App::moveSelectionImageCanvas()
     // The project's actual image contents shouldn't change until the move has been confirmed.
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
-    QImage iii = *canvas->currentProjectImage();
     QCOMPARE(canvas->currentProjectImage()->pixelColor(18, 18), backgroundColour);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(22, 22), backgroundColour);
 
@@ -3915,6 +3915,30 @@ void tst_App::selectionConfirmedWhenSwitchingLayers()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage snapshotAfterSwitchingLayers = imageGrabber.takeImage();
     QCOMPARE(snapshotAfterSwitchingLayers.pixelColor(0, 0), QColor(Qt::red));
+}
+
+// Tests #69.
+void tst_App::newLayerAfterMovingSelection()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    // Switch to the selection tool.
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
+
+    // Select an area.
+    QVERIFY2(selectArea(QRect(0, 0, 5, 5)), failureMessage);
+
+    // Drag the selection somewhere else.
+    QVERIFY2(dragSelection(QPoint(18, 18)), failureMessage);
+
+    // Add a new layer; it should confirm the move, delesect it, and, most importantly: not crash.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+    QVERIFY(!canvas->hasSelection());
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::transparent));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::transparent));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(18, 18), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(22, 22), QColor(Qt::white));
 }
 
 void tst_App::autoExport()

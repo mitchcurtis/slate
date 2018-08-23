@@ -183,13 +183,17 @@ void Project::doSaveAs(const QUrl &)
 {
 }
 
-void Project::setComposingMacro(bool composingMacro)
+void Project::setComposingMacro(bool composingMacro, const QString &macroText)
 {
+    // If we're not composing a macro, we don't need to specify the text.
+    Q_ASSERT(!composingMacro || (composingMacro && !macroText.isEmpty()));
+
     if (composingMacro == mComposingMacro)
         return;
 
     const bool couldSave = canSave();
     mComposingMacro = composingMacro;
+    mCurrentlyComposingMacroText = macroText;
     if (couldSave != canSave()) {
         emit canSaveChanged();
     }
@@ -342,9 +346,19 @@ bool Project::isComposingMacro() const
 
 void Project::beginMacro(const QString &text)
 {
+    // ImageCanvas has the concept of a selection. For simplicity, rather
+    // than disable the parts of the UI that shouldn't be accessible while the
+    // canvas has a selection, we choose to instead call clearOrConfirmSelection()
+    // right before performing the relevant command that the user just carried out.
+    // However, projects don't want or need to know about ImageCanvas, so we emit
+    // this signal so that they have the chance to call clearOrConfirmSelection()
+    // without us having to know about them.
+    // This was added to fix https://github.com/mitchcurtis/slate/issues/69.
+    emit aboutToBeginMacro(text);
+
     if (isComposingMacro()) {
-        qCDebug(lcProject).nospace() << "tried to begin macro" << text
-            << ", but we're busy composing another right now";
+        qCDebug(lcProject).nospace() << "tried to begin macro " << text
+            << ", but we're busy composing " << mCurrentlyComposingMacroText << " right now";
         return;
     }
 
@@ -352,7 +366,7 @@ void Project::beginMacro(const QString &text)
 
     mHadUnsavedChangesBeforeMacroBegan = hasUnsavedChanges();
     mUndoStack.beginMacro(text);
-    setComposingMacro(true);
+    setComposingMacro(true, text);
 }
 
 void Project::endMacro()
@@ -373,15 +387,18 @@ void Project::endMacro()
     }
 }
 
-QDebug operator<<(QDebug debug, const QUndoCommand &command)
+// TODO: why aren't the individual classes' operators used?
+QDebug operator<<(QDebug debug, const QUndoCommand *command)
 {
-    debug << &command;
-    return debug;
+    debug.nospace() << "(UndoCommand id=" << command->id()
+        << " text=" << command->text()
+        << ")";
+    return debug.space();
 }
 
 void Project::addChange(QUndoCommand *undoCommand)
 {
-    qCDebug(lcProject) << "adding change" << *undoCommand;
+    qCDebug(lcProject) << "adding change" << undoCommand;
     mUndoStack.push(undoCommand);
 }
 

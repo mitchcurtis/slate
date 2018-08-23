@@ -165,7 +165,7 @@ protected:
     // Layer helpers.
     Q_REQUIRED_RESULT bool selectLayer(const QString &layerName, int layerIndex);
     // Finds \a layerName in the layer list view, verifies that it exists and that its name is \a layerName,
-    // and returns the delegate for convenience.
+    // and sets layerDelegate to it.
     Q_REQUIRED_RESULT bool verifyLayerName(const QString &layerName, QQuickItem **layerDelegate = nullptr);
     Q_REQUIRED_RESULT bool makeCurrentAndRenameLayer(const QString &from, const QString &to);
     Q_REQUIRED_RESULT bool changeLayerVisiblity(const QString &layerName, bool visible);
@@ -203,6 +203,8 @@ protected:
     int sliderValue(QQuickItem *slider) const;
     Q_REQUIRED_RESULT bool drawPixelAtCursorPos();
     Q_REQUIRED_RESULT bool drawTileAtCursorPos();
+    Q_REQUIRED_RESULT bool selectArea(const QRect &area);
+    Q_REQUIRED_RESULT bool dragSelection(const QPoint &newTopLeft);
     Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
     Q_REQUIRED_RESULT bool fuzzyImageCompare(const QImage &image1, const QImage &image2);
     Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
@@ -246,6 +248,7 @@ protected:
     QQuickItem *tilesetSwatch;
     QQuickItem *tilesetSwatchFlickable;
     QQuickItem *newLayerButton;
+    QQuickItem *duplicateLayerButton;
     QQuickItem *moveLayerDownButton;
     QQuickItem *moveLayerUpButton;
     QQuickItem *animationPlayPauseButton;

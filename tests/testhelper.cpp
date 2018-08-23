@@ -528,6 +528,51 @@ bool TestHelper::drawTileAtCursorPos()
     return true;
 }
 
+bool TestHelper::selectArea(const QRect &area)
+{
+    // Switch to the selection tool.
+    if (!switchTool(ImageCanvas::SelectionTool))
+        return false;
+
+    if (canvas->hasSelection()) {
+        failureMessage = "Can't select area when there's already an existing selection";
+        return false;
+    }
+
+    // Select the area.
+    setCursorPosInScenePixels(area.topLeft());
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    // If area is {0, 0, 5, 5}, we need to move to {x=5, y=5} to ensure
+    // that we've selected all 5x5 pixels.
+    setCursorPosInScenePixels(area.bottomRight() + QPoint(1, 1));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    VERIFY(canvas->hasSelection());
+    VERIFY(canvas->selectionArea() == area);
+    return true;
+}
+
+bool TestHelper::dragSelection(const QPoint &newTopLeft)
+{
+    if (!canvas->hasSelection()) {
+        failureMessage = "No selection to drag";
+        return false;
+    }
+
+    const QRect oldSelectionArea = canvas->selectionArea();
+    QRect newSelectionArea = oldSelectionArea;
+    newSelectionArea.moveTo(newTopLeft);
+
+    setCursorPosInScenePixels(canvas->selectionArea().topLeft());
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    setCursorPosInScenePixels(newTopLeft);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    VERIFY(canvas->selectionArea() == newSelectionArea);
+    return true;
+}
+
 static QString fuzzyColourCompareFailMsg(const QColor &colour1, const QColor &colour2,
     const QChar &componentName, int difference, int fuzz)
 {
@@ -1268,6 +1313,9 @@ bool TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
 
     newLayerButton = window->findChild<QQuickItem*>("newLayerButton");
     VERIFY(newLayerButton);
+
+    duplicateLayerButton = window->findChild<QQuickItem*>("duplicateLayerButton");
+    VERIFY(duplicateLayerButton);
 
     moveLayerUpButton = window->findChild<QQuickItem*>("moveLayerUpButton");
     VERIFY(moveLayerUpButton);

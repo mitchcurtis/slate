@@ -104,6 +104,7 @@ ImageCanvas::ImageCanvas() :
     mMovingSelection(false),
     mHasMovedSelection(false),
     mIsSelectionFromPaste(false),
+    mConfirmingSelectionMove(false),
     mSelectionCursorGuide(nullptr),
     mAltPressed(false),
     mShiftPressed(false),
@@ -829,6 +830,8 @@ void ImageCanvas::connectSignals()
     connect(mProject, SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
     connect(mProject, SIGNAL(readyForWritingToJson(QJsonObject*)),
         this, SLOT(onReadyForWritingToJson(QJsonObject*)));
+    connect(mProject, SIGNAL(aboutToBeginMacro(QString)),
+        this, SLOT(onAboutToBeginMacro()));
 
     connect(window(), SIGNAL(activeFocusItemChanged()), this, SLOT(updateWindowCursorShape()));
 }
@@ -844,6 +847,8 @@ void ImageCanvas::disconnectSignals()
     mProject->disconnect(SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
     mProject->disconnect(SIGNAL(readyForWritingToJson(QJsonObject*)),
         this, SLOT(onReadyForWritingToJson(QJsonObject*)));
+    mProject->disconnect(SIGNAL(aboutToBeginMacro(QString)),
+        this, SLOT(onAboutToBeginMacro()));
 
     if (window()) {
         window()->disconnect(SIGNAL(activeFocusItemChanged()), this, SLOT(updateWindowCursorShape()));
@@ -1149,6 +1154,15 @@ void ImageCanvas::onReadyForWritingToJson(QJsonObject *projectJson)
         (*projectJson)["splitterLocked"] = true;
 }
 
+void ImageCanvas::onAboutToBeginMacro()
+{
+    // See Project::beginMacro() for the justification for this function's existence.
+    if (mConfirmingSelectionMove)
+        return;
+
+    clearOrConfirmSelection();
+}
+
 void ImageCanvas::recreateCheckerImage()
 {
     mCheckerImage = QImage(32, 32, QImage::Format_ARGB32_Premultiplied);
@@ -1295,11 +1309,17 @@ void ImageCanvas::confirmSelectionMove(ClearSelectionFlag clear)
 
     const QImage previousImageAreaPortion = currentProjectImage()->copy(mSelectionAreaBeforeFirstMove);
 
+    // Calling beginMacro() causes Project::aboutToBeginMacro() to be
+    // emitted, and we're connected to it, so we have to avoid recursing.
+    mConfirmingSelectionMove = true;
+
     mProject->beginMacro(QLatin1String("MoveSelection"));
     mProject->addChange(new MoveImageCanvasSelectionCommand(
         this, mSelectionAreaBeforeFirstMove, previousImageAreaPortion, mLastValidSelectionArea,
             mIsSelectionFromPaste, mSelectionContents));
     mProject->endMacro();
+
+    mConfirmingSelectionMove = false;
 
     if (clear == ClearSelection)
         clearSelection();

@@ -125,6 +125,7 @@ signals:
     void settingsChanged();
     void guidesChanged();
     void readyForWritingToJson(QJsonObject *projectJson);
+    void aboutToBeginMacro(const QString &text);
 
 public slots:
     virtual void load(const QUrl &url);
@@ -138,7 +139,7 @@ protected:
 
     virtual void doSaveAs(const QUrl &url);
 
-    void setComposingMacro(bool composingMacro);
+    void setComposingMacro(bool composingMacro, const QString &macroText = QString());
 
     QUrl createTemporaryImage(int width, int height, const QColor &colour);
 
@@ -160,6 +161,7 @@ protected:
 
     QUndoStack mUndoStack;
     bool mComposingMacro;
+    QString mCurrentlyComposingMacroText;
     bool mHadUnsavedChangesBeforeMacroBegan;
 
     QVector<Guide> mGuides;
