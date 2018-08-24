@@ -60,7 +60,7 @@ GridLayout {
             implicitWidth: 156
             implicitHeight: 156
             hue: hueSlider.hue
-            alpha: transparencySlider.value
+            alpha: opacitySlider.value
 
             function updateOurColour() {
                 saturationLightnessPicker.color = canvas[hexColourRowLayout.colourSelector.currentPenPropertyName];
@@ -98,8 +98,8 @@ GridLayout {
     }
 
     Slider {
-        id: transparencySlider
-        objectName: "transparencySlider"
+        id: opacitySlider
+        objectName: "opacitySlider"
         value: canvas ? canvas[hexColourRowLayout.colourSelector.currentPenPropertyName].a : 1
         focusPolicy: Qt.NoFocus
 
@@ -113,7 +113,7 @@ GridLayout {
                 return;
 
             ignoreChanges = true;
-            canvas[hexColourRowLayout.colourSelector.currentPenPropertyName].a = transparencySlider.value;
+            canvas[hexColourRowLayout.colourSelector.currentPenPropertyName].a = opacitySlider.value;
             ignoreChanges = false;
         }
 
@@ -121,28 +121,28 @@ GridLayout {
             if (ignoreChanges)
                 return;
 
-            transparencySlider.value = canvas[hexColourRowLayout.colourSelector.currentPenPropertyName].a;
+            opacitySlider.value = canvas[hexColourRowLayout.colourSelector.currentPenPropertyName].a;
         }
 
         Connections {
             target: hexColourRowLayout.colourSelector
             onCurrentPenNameChanged: {
-                transparencySlider.ignoreChanges = true;
-                transparencySlider.updateOurValue()
-                transparencySlider.ignoreChanges = false;
+                opacitySlider.ignoreChanges = true;
+                opacitySlider.updateOurValue()
+                opacitySlider.ignoreChanges = false;
             }
         }
 
         Connections {
             target: canvas
-            onPenForegroundColourChanged: transparencySlider.updateOurValue()
-            onPenBackgroundColourChanged: transparencySlider.updateOurValue()
+            onPenForegroundColourChanged: opacitySlider.updateOurValue()
+            onPenBackgroundColourChanged: opacitySlider.updateOurValue()
         }
 
         ToolTip {
-            parent: transparencySlider.handle
-            visible: transparencySlider.hovered || transparencySlider.pressed
-            text: (transparencySlider.valueAt(transparencySlider.position) * 100).toFixed(1) + "%"
+            parent: opacitySlider.handle
+            visible: opacitySlider.hovered || opacitySlider.pressed
+            text: (opacitySlider.valueAt(opacitySlider.position) * 100).toFixed(1) + "%"
         }
     }
 
