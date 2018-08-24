@@ -141,7 +141,7 @@ GridLayout {
 
         ToolTip {
             parent: transparencySlider.handle
-            visible: transparencySlider.hovered
+            visible: transparencySlider.hovered || transparencySlider.pressed
             text: (transparencySlider.valueAt(transparencySlider.position) * 100).toFixed(1) + "%"
         }
     }
