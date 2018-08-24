@@ -831,7 +831,7 @@ void ImageCanvas::connectSignals()
     connect(mProject, SIGNAL(readyForWritingToJson(QJsonObject*)),
         this, SLOT(onReadyForWritingToJson(QJsonObject*)));
     connect(mProject, SIGNAL(aboutToBeginMacro(QString)),
-        this, SLOT(onAboutToBeginMacro()));
+        this, SLOT(onAboutToBeginMacro(QString)));
 
     connect(window(), SIGNAL(activeFocusItemChanged()), this, SLOT(updateWindowCursorShape()));
 }
@@ -848,7 +848,7 @@ void ImageCanvas::disconnectSignals()
     mProject->disconnect(SIGNAL(readyForWritingToJson(QJsonObject*)),
         this, SLOT(onReadyForWritingToJson(QJsonObject*)));
     mProject->disconnect(SIGNAL(aboutToBeginMacro(QString)),
-        this, SLOT(onAboutToBeginMacro()));
+        this, SLOT(onAboutToBeginMacro(QString)));
 
     if (window()) {
         window()->disconnect(SIGNAL(activeFocusItemChanged()), this, SLOT(updateWindowCursorShape()));
@@ -1154,11 +1154,16 @@ void ImageCanvas::onReadyForWritingToJson(QJsonObject *projectJson)
         (*projectJson)["splitterLocked"] = true;
 }
 
-void ImageCanvas::onAboutToBeginMacro()
+void ImageCanvas::onAboutToBeginMacro(const QString &macroText)
 {
     // See Project::beginMacro() for the justification for this function's existence.
     if (mConfirmingSelectionMove)
         return;
+
+    if (macroText.contains(QLatin1String("Selection"))) {
+        // The macro involves a selection, so we shouldn't clear it.
+        return;
+    }
 
     clearOrConfirmSelection();
 }
@@ -1634,6 +1639,7 @@ void ImageCanvas::flipSelection(Qt::Orientation orientation)
     // Just like mspaint, flipping a pasted selection has no effect on the undo stack -
     // undoing will simply remove the pasted selection and its contents.
     if (!mIsSelectionFromPaste) {
+        // TODO: need to prevent the selection from being cleared here
         mProject->beginMacro(QLatin1String("FlipSelection"));
         mProject->addChange(new FlipImageCanvasSelectionCommand(this, mSelectionArea, orientation));
         mProject->endMacro();

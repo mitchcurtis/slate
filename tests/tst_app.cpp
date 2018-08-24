@@ -105,6 +105,7 @@ private Q_SLOTS:
     void pasteFromExternalSource_data();
     void pasteFromExternalSource();
     void flipPastedImage();
+    void flipOnTransparentBackground();
     void selectionEdgePan_data();
     void selectionEdgePan();
     void panThenMoveSelection();
@@ -2681,6 +2682,35 @@ void tst_App::flipPastedImage()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage snapshotFlippedHorizontally = imageGrabber.takeImage();
     QCOMPARE(snapshotFlippedHorizontally.pixelColor(image.width() * 0.75, image.height() - 5), QColor(Qt::red));
+}
+
+void tst_App::flipOnTransparentBackground()
+{
+    QVERIFY2(createNewImageProject(256, 256, true), failureMessage);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::transparent));
+
+    QVERIFY2(panTopLeftTo(10, 10), failureMessage);
+
+    // Create the flipped image that we expect to see.
+    QImage image(project->widthInPixels(), project->heightInPixels(), QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::transparent);
+    image.setPixelColor(0, project->heightInPixels() - 1, Qt::red);
+
+    // Draw a red dot.
+    setCursorPosInScenePixels(0, 0);
+    canvas->setPenForegroundColour(Qt::red);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(imageProject->image()->pixelColor(0, 0), QColor(Qt::red));
+
+    // Select the image.
+//    QVERIFY2(selectArea(QRect(0, 0, canvas->width(), canvas->height())), failureMessage);
+    QVERIFY2(triggerSelectAll(), failureMessage);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, project->widthInPixels(), project->heightInPixels()));
+
+    // Flip the image.
+    QVERIFY2(triggerFlipVertically(), failureMessage);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, project->heightInPixels() - 1), QColor(Qt::red));
 }
 
 void tst_App::selectionEdgePan_data()

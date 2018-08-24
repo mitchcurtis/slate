@@ -357,6 +357,15 @@ void Project::beginMacro(const QString &text)
     emit aboutToBeginMacro(text);
 
     if (isComposingMacro()) {
+        // For now we've been considering it OK to do the following:
+        //
+        // beginMacro("foo")
+        // *add some command to the stack*
+        // endMacro()
+        //
+        // If there is already a macro in progress, the command will just be added to it.
+        // We might want to review this (and our usage of macros) in the future to ensure
+        // that we're doing it correctly.
         qCDebug(lcProject).nospace() << "tried to begin macro " << text
             << ", but we're busy composing " << mCurrentlyComposingMacroText << " right now";
         return;

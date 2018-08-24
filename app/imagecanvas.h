@@ -304,7 +304,7 @@ protected slots:
     void onSplitterPositionChanged();
     void onGuidesChanged();
     void onReadyForWritingToJson(QJsonObject* projectJson);
-    void onAboutToBeginMacro();
+    void onAboutToBeginMacro(const QString &macroText);
     void recreateCheckerImage();
 
 protected:

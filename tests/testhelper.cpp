@@ -880,6 +880,11 @@ bool TestHelper::triggerFlipVertically()
     return triggerShortcut("flipVerticallyShortcut", app.settings()->flipVerticallyShortcut());
 }
 
+bool TestHelper::triggerSelectAll()
+{
+    return triggerShortcut("selectAllShortcut", QKeySequence(QKeySequence::SelectAll).toString());
+}
+
 bool TestHelper::triggerCentre()
 {
     return triggerShortcut("centreShortcut", app.settings()->centreShortcut());

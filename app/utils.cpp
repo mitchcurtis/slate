@@ -52,7 +52,7 @@ QImage Utils::erasePortionOfImage(const QImage &image, const QRect &portion)
 {
     QImage newImage = image;
     QPainter painter(&newImage);
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.setCompositionMode(QPainter::CompositionMode_Clear);
     painter.fillRect(portion, Qt::transparent);
     return newImage;
 }

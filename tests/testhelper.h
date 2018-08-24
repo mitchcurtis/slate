@@ -150,6 +150,8 @@ protected:
     Q_REQUIRED_RESULT bool triggerFlipHorizontally();
     Q_REQUIRED_RESULT bool triggerFlipVertically();
 
+    Q_REQUIRED_RESULT bool triggerSelectAll();
+
     Q_REQUIRED_RESULT bool triggerCentre();
     Q_REQUIRED_RESULT bool triggerGridVisible();
     Q_REQUIRED_RESULT bool triggerRulersVisible();
