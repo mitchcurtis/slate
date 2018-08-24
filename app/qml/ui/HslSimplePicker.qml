@@ -138,6 +138,12 @@ GridLayout {
             onPenForegroundColourChanged: transparencySlider.updateOurValue()
             onPenBackgroundColourChanged: transparencySlider.updateOurValue()
         }
+
+        ToolTip {
+            parent: transparencySlider.handle
+            visible: transparencySlider.hovered
+            text: (transparencySlider.valueAt(transparencySlider.position) * 100).toFixed(1) + "%"
+        }
     }
 
     MenuSeparator {
