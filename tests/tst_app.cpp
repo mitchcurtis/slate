@@ -137,6 +137,7 @@ private Q_SLOTS:
 //    void undoAfterAddLayer();
     void selectionConfirmedWhenSwitchingLayers();
     void newLayerAfterMovingSelection();
+    void undoAfterMovingTwoSelections();
     void autoExport();
     void exportFileNamedLayers();
     void disableToolsWhenLayerHidden();
@@ -3969,6 +3970,70 @@ void tst_App::newLayerAfterMovingSelection()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::transparent));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(18, 18), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(22, 22), QColor(Qt::white));
+}
+
+void tst_App::undoAfterMovingTwoSelections()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
+
+    // Create two new layers.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 3);
+    QCOMPARE(undoButton->isEnabled(), true);
+
+    // Select Layer 3, draw a semi-transparent grey dot on it.
+    QVERIFY2(selectLayer("Layer 3", 0), failureMessage);
+    const QColor semiTransparentGrey(QColor::fromRgba(0xAA000000));
+    layeredImageCanvas->setPenForegroundColour(semiTransparentGrey);
+    setCursorPosInScenePixels(10, 10);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), semiTransparentGrey);
+
+    // Select Layer 2 and draw a red dot on it.
+    QVERIFY2(selectLayer("Layer 2", 1), failureMessage);
+    const QColor red(Qt::red);
+    layeredImageCanvas->setPenForegroundColour(red);
+    setCursorPosInScenePixels(10, 20);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 20), red);
+
+    const QImage expectedImage = layeredImageProject->exportedImage();
+
+    // Select the grey dot and move it down.
+    QVERIFY2(selectLayer("Layer 3", 0), failureMessage);
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
+    QVERIFY2(selectArea(QRect(10, 10, 1, 1)), failureMessage);
+    QVERIFY2(dragSelection(QPoint(10, 14)), failureMessage);
+    QTest::keyClick(window, Qt::Key_Escape);
+    QVERIFY(!layeredImageCanvas->hasSelection());
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 10), QColor(Qt::transparent));
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 14), semiTransparentGrey);
+
+    // Change layer, select the red dot and move it down.
+    QVERIFY2(selectLayer("Layer 2", 1), failureMessage);
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
+    QVERIFY2(selectArea(QRect(10, 20, 1, 1)), failureMessage);
+    QVERIFY2(dragSelection(QPoint(10, 24)), failureMessage);
+    QTest::keyClick(window, Qt::Key_Escape);
+    QVERIFY(!layeredImageCanvas->hasSelection());
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 20), QColor(Qt::transparent));
+    QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 24), red);
+
+    // Undo both moves; the grey shouldn't be duplicated.
+    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(10, 10), semiTransparentGrey);
+    QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(10, 14), QColor(Qt::transparent));
+    QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(10, 20), red);
+    QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(10, 24), QColor(Qt::transparent));
+    // The checks above should catch everything we're interested in, but just to be thorough...
+    const QImage actualImage = layeredImageProject->exportedImage();
+    QCOMPARE(actualImage, expectedImage);
 }
 
 void tst_App::autoExport()

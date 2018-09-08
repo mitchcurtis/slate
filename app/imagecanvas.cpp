@@ -930,6 +930,11 @@ QImage *ImageCanvas::imageForLayerAt(int layerIndex)
     return mImageProject->image();
 }
 
+int ImageCanvas::currentLayerIndex() const
+{
+    return -1;
+}
+
 QImage ImageCanvas::contentImage()
 {
     mCachedContentImage = getContentImage();
@@ -1320,7 +1325,7 @@ void ImageCanvas::confirmSelectionMove(ClearSelectionFlag clear)
 
     mProject->beginMacro(QLatin1String("MoveSelection"));
     mProject->addChange(new MoveImageCanvasSelectionCommand(
-        this, mSelectionAreaBeforeFirstMove, previousImageAreaPortion, mLastValidSelectionArea,
+        this, currentLayerIndex(), mSelectionAreaBeforeFirstMove, previousImageAreaPortion, mLastValidSelectionArea,
             mIsSelectionFromPaste, mSelectionContents));
     mProject->endMacro();
 
@@ -1459,7 +1464,7 @@ void ImageCanvas::updateSelectionCursorGuideVisibility()
 
 void ImageCanvas::confirmPasteSelection()
 {
-    paintImageOntoPortionOfImage(mSelectionAreaBeforeFirstMove, mSelectionContents);
+    paintImageOntoPortionOfImage(currentLayerIndex(), mSelectionAreaBeforeFirstMove, mSelectionContents);
     clearSelection();
 }
 
@@ -1694,7 +1699,7 @@ void ImageCanvas::paste()
         clipboardImage = clipboardImage.copy(pastedArea);
 
     mProject->beginMacro(QLatin1String("PasteCommand"));
-    mProject->addChange(new PasteImageCanvasCommand(this, clipboardImage, pastedArea.topLeft()));
+    mProject->addChange(new PasteImageCanvasCommand(this, currentLayerIndex(), clipboardImage, pastedArea.topLeft()));
     mProject->endMacro();
 
     // Setting a selection area is only done when a paste is first created,
@@ -1720,7 +1725,7 @@ void ImageCanvas::deleteSelectionOrContents()
 {
     mProject->beginMacro(QLatin1String("DeleteSelection"));
     const QRect deletionArea = mHasSelection ? mSelectionArea : mProject->bounds();
-    mProject->addChange(new DeleteImageCanvasSelectionCommand(this, deletionArea));
+    mProject->addChange(new DeleteImageCanvasSelectionCommand(this, currentLayerIndex(), deletionArea));
     mProject->endMacro();
     clearSelection();
 }
@@ -1940,38 +1945,41 @@ void ImageCanvas::applyPixelLineTool(int layerIndex, const QImage &lineImage, co
     requestContentPaint();
 }
 
-void ImageCanvas::paintImageOntoPortionOfImage(const QRect &portion, const QImage &replacementImage)
+void ImageCanvas::paintImageOntoPortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage)
 {
-    *currentProjectImage() = Utils::paintImageOntoPortionOfImage(*currentProjectImage(), portion, replacementImage);
+    QImage *image = imageForLayerAt(layerIndex);
+    *image = Utils::paintImageOntoPortionOfImage(*image, portion, replacementImage);
     requestContentPaint();
 }
 
-void ImageCanvas::replacePortionOfImage(const QRect &portion, const QImage &replacementImage)
+void ImageCanvas::replacePortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage)
 {
-    *currentProjectImage() = Utils::replacePortionOfImage(*currentProjectImage(), portion, replacementImage);
+    QImage *image = imageForLayerAt(layerIndex);
+    *image = Utils::replacePortionOfImage(*image, portion, replacementImage);
     requestContentPaint();
 }
 
-void ImageCanvas::erasePortionOfImage(const QRect &portion)
+void ImageCanvas::erasePortionOfImage(int layerIndex, const QRect &portion)
 {
-    *currentProjectImage() = Utils::erasePortionOfImage(*currentProjectImage(), portion);
+    QImage *image = imageForLayerAt(layerIndex);
+    *image = Utils::erasePortionOfImage(*image, portion);
     requestContentPaint();
 }
 
 void ImageCanvas::replaceImage(int layerIndex, const QImage &replacementImage)
 {
     // TODO: could ImageCanvas just be a LayeredImageCanvas with one layer?
-    Q_ASSERT(layerIndex == -1);
-    *mImageProject->image() = replacementImage;
+    QImage *image = imageForLayerAt(layerIndex);
+    *image = replacementImage;
     requestContentPaint();
 }
 
-void ImageCanvas::doFlipSelection(const QRect &area, Qt::Orientation orientation)
+void ImageCanvas::doFlipSelection(int layerIndex, const QRect &area, Qt::Orientation orientation)
 {
     const QImage flippedImagePortion = currentProjectImage()->copy(area)
         .mirrored(orientation == Qt::Horizontal, orientation == Qt::Vertical);
-    erasePortionOfImage(area);
-    paintImageOntoPortionOfImage(area, flippedImagePortion);
+    erasePortionOfImage(layerIndex, area);
+    paintImageOntoPortionOfImage(layerIndex, area, flippedImagePortion);
 }
 
 QPointF ImageCanvas::linePoint1() const

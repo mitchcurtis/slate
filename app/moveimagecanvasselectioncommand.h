@@ -30,7 +30,7 @@ class ImageCanvas;
 class MoveImageCanvasSelectionCommand : public QUndoCommand
 {
 public:
-    MoveImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &previousArea,
+    MoveImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex, const QRect &previousArea,
         const QImage &previousAreaImagePortion, const QRect &newArea,
         bool fromPaste, const QImage &pasteContents, QUndoCommand *parent = nullptr);
 
@@ -43,6 +43,7 @@ private:
     friend QDebug operator<<(QDebug debug, const MoveImageCanvasSelectionCommand &command);
 
     ImageCanvas *mCanvas;
+    int mLayerIndex;
     QRect mPreviousArea;
     // The portion of the image under the selection before the selection was moved.
     QImage mPreviousAreaImagePortion;

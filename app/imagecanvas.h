@@ -230,6 +230,7 @@ public:
     virtual const QImage *currentProjectImage() const;
 
     virtual QImage *imageForLayerAt(int layerIndex);
+    virtual int currentLayerIndex() const;
 
 signals:
     void projectChanged();
@@ -337,11 +338,11 @@ protected:
     virtual void applyCurrentTool();
     virtual void applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false);
     virtual void applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPoint &lastPixelPenReleaseScenePosition);
-    void paintImageOntoPortionOfImage(const QRect &portion, const QImage &replacementImage);
-    void replacePortionOfImage(const QRect &portion, const QImage &replacementImage);
-    void erasePortionOfImage(const QRect &portion);
+    void paintImageOntoPortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage);
+    void replacePortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage);
+    void erasePortionOfImage(int layerIndex, const QRect &portion);
     virtual void replaceImage(int layerIndex, const QImage &replacementImage);
-    void doFlipSelection(const QRect &area, Qt::Orientation orientation);
+    void doFlipSelection(int layerIndex, const QRect &area, Qt::Orientation orientation);
 
     QPointF linePoint1() const;
     QPointF linePoint2() const;

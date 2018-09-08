@@ -36,13 +36,13 @@ FlipImageCanvasSelectionCommand::FlipImageCanvasSelectionCommand(ImageCanvas *ca
 void FlipImageCanvasSelectionCommand::undo()
 {
     qCDebug(lcFlipImageCanvasSelectionCommand) << "undoing" << this;
-    mCanvas->doFlipSelection(mArea, mOrientation);
+    mCanvas->doFlipSelection(mCanvas->currentLayerIndex(), mArea, mOrientation);
 }
 
 void FlipImageCanvasSelectionCommand::redo()
 {
     qCDebug(lcFlipImageCanvasSelectionCommand) << "redoing" << this;
-    mCanvas->doFlipSelection(mArea, mOrientation);
+    mCanvas->doFlipSelection(mCanvas->currentLayerIndex(), mArea, mOrientation);
 }
 
 int FlipImageCanvasSelectionCommand::id() const

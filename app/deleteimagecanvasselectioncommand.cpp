@@ -24,9 +24,11 @@
 
 Q_LOGGING_CATEGORY(lcDeleteImageCanvasSelectionCommand, "app.undo.deleteImageCanvasSelectionCommand")
 
-DeleteImageCanvasSelectionCommand::DeleteImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &area, QUndoCommand *parent) :
+DeleteImageCanvasSelectionCommand::DeleteImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex,
+        const QRect &area, QUndoCommand *parent) :
     QUndoCommand(parent),
     mCanvas(canvas),
+    mLayerIndex(layerIndex),
     mDeletedArea(area),
     mDeletedAreaImagePortion(canvas->currentProjectImage()->copy(area))
 {
@@ -36,13 +38,13 @@ DeleteImageCanvasSelectionCommand::DeleteImageCanvasSelectionCommand(ImageCanvas
 void DeleteImageCanvasSelectionCommand::undo()
 {
     qCDebug(lcDeleteImageCanvasSelectionCommand) << "undoing" << this;
-    mCanvas->paintImageOntoPortionOfImage(mDeletedArea, mDeletedAreaImagePortion);
+    mCanvas->paintImageOntoPortionOfImage(mLayerIndex, mDeletedArea, mDeletedAreaImagePortion);
 }
 
 void DeleteImageCanvasSelectionCommand::redo()
 {
     qCDebug(lcDeleteImageCanvasSelectionCommand) << "redoing" << this;
-    mCanvas->erasePortionOfImage(mDeletedArea);
+    mCanvas->erasePortionOfImage(mLayerIndex, mDeletedArea);
     // This matches what mspaint does; deleting a selection also causes the selection to be cleared.
     mCanvas->clearSelection();
 }

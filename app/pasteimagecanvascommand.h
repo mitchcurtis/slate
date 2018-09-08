@@ -30,7 +30,7 @@ class ImageCanvas;
 class PasteImageCanvasCommand : public QUndoCommand
 {
 public:
-    PasteImageCanvasCommand(ImageCanvas *canvas, const QImage &image, const QPoint &position,
+    PasteImageCanvasCommand(ImageCanvas *canvas, int layerIndex, const QImage &image, const QPoint &position,
         QUndoCommand *parent = nullptr);
 
     void undo() override;
@@ -42,6 +42,7 @@ private:
     friend QDebug operator<<(QDebug debug, const PasteImageCanvasCommand &command);
 
     ImageCanvas *mCanvas;
+    int mLayerIndex;
     QImage mNewImage;
     QImage mPreviousImage;
     QRect mArea;

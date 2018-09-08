@@ -154,6 +154,11 @@ QImage *LayeredImageCanvas::imageForLayerAt(int layerIndex)
     return mLayeredImageProject->layerAt(layerIndex)->image();
 }
 
+int LayeredImageCanvas::currentLayerIndex() const
+{
+    return mLayeredImageProject->currentLayerIndex();
+}
+
 QImage LayeredImageCanvas::getContentImage()
 {
     return mLayeredImageProject->flattenedImage([=](int index) {

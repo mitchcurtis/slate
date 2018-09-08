@@ -30,7 +30,7 @@ class ImageCanvas;
 class DeleteImageCanvasSelectionCommand : public QUndoCommand
 {
 public:
-    DeleteImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &area,
+    DeleteImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex, const QRect &area,
         QUndoCommand *parent = nullptr);
 
     void undo() override;
@@ -42,6 +42,7 @@ private:
     friend QDebug operator<<(QDebug debug, const DeleteImageCanvasSelectionCommand *command);
 
     ImageCanvas *mCanvas;
+    int mLayerIndex;
     QRect mDeletedArea;
     // The portion of the image under the selection before it was deleted.
     QImage mDeletedAreaImagePortion;
