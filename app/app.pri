@@ -75,7 +75,8 @@ HEADERS += \
     $$PWD/canvaspaneitem.h \
     $$PWD/tilecanvaspaneitem.h \
     $$PWD/duplicatelayercommand.h \
-    $$PWD/selectionitem.h
+    $$PWD/selectionitem.h \
+    $$PWD/autoswatchmodel.h
 
 SOURCES += \
     $$PWD/application.cpp \
@@ -148,7 +149,8 @@ SOURCES += \
     $$PWD/canvaspaneitem.cpp \
     $$PWD/tilecanvaspaneitem.cpp \
     $$PWD/duplicatelayercommand.cpp \
-    $$PWD/selectionitem.cpp
+    $$PWD/selectionitem.cpp \
+    $$PWD/autoswatchmodel.cpp
 
 RESOURCES += \
     $$PWD/fonts/fonts.qrc \

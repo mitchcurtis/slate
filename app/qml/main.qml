@@ -186,6 +186,9 @@ ApplicationWindow {
 
         ColumnLayout {
             id: panelColumnLayout
+            // Work around https://bugreports.qt.io/browse/QTBUG-70445
+            // by doing the spacing ourselves
+            spacing: 0
 
             Layout.minimumWidth: 240
             Layout.maximumWidth: 240
@@ -200,6 +203,18 @@ ApplicationWindow {
                 Layout.minimumHeight: expanded ? header.implicitHeight + 200 : -1
                 Layout.maximumHeight: expanded ? implicitHeight : header.implicitHeight
                 Layout.fillHeight: expanded
+            }
+
+            Ui.SwatchPanel {
+                id: swatchesPanel
+                canvas: window.canvas
+                project: window.project
+
+                Layout.fillWidth: true
+                Layout.minimumHeight: expanded ? header.implicitHeight + 200 : -1
+                Layout.maximumHeight: expanded ? implicitHeight : header.implicitHeight
+                Layout.fillHeight: expanded
+                Layout.topMargin: 5
             }
 
             Loader {
@@ -217,8 +232,9 @@ ApplicationWindow {
                 Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
                 Layout.fillWidth: true
                 Layout.minimumHeight: active && item.expanded ? item.header.implicitHeight + 300 : -1
-                Layout.maximumHeight: active ? (item.expanded ? -1 : item.header.implicitHeight) : 0
+                Layout.maximumHeight: active ? (item.expanded ? -1 : item.header.implicitHeight) : -2
                 Layout.fillHeight: active && item.expanded
+                Layout.topMargin: active ? 5 : 0
             }
 
             Loader {
@@ -236,6 +252,7 @@ ApplicationWindow {
                 Layout.minimumHeight: active && item.expanded ? item.header.implicitHeight + item.footer.implicitHeight + 100 : -1
                 Layout.maximumHeight: active ? (item.expanded ? -1 : item.header.implicitHeight) : 0
                 Layout.fillHeight: active && item.expanded
+                Layout.topMargin: active ? 5 : 0
             }
 
             Ui.AnimationPanel {
@@ -250,6 +267,7 @@ ApplicationWindow {
                 Layout.minimumHeight: expanded ? header.implicitHeight + 200 : -1
                 Layout.maximumHeight: visible ? (expanded ? -1 : header.implicitHeight) : 0
                 Layout.fillHeight: expanded
+                Layout.topMargin: visible ? 5 : 0
             }
         }
     }

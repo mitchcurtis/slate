@@ -25,6 +25,7 @@
 #include <QQmlFileSelector>
 #include <QUndoStack>
 
+#include "autoswatchmodel.h"
 #include "canvaspane.h"
 #include "canvaspaneitem.h"
 #include "filevalidator.h"
@@ -94,6 +95,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterType<TileCanvas>("App", 1, 0, "TileCanvas");
     qmlRegisterType<TileGrid>("App", 1, 0, "TileGrid");
     qmlRegisterType<TilesetSwatchImage>("App", 1, 0, "TilesetSwatchImage");
+    qmlRegisterType<AutoSwatchModel>("App", 1, 0, "AutoSwatchModel");
     // TODO: these can probably just be qmlRegisterType<Type>()
     // figure out the difference and update the docs
     qmlRegisterUncreatableType<AnimationPlayback>("App", 1, 0, "AnimationPlayback", QLatin1String("Cannot create objects of type AnimationPlayback"));
