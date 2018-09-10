@@ -30,6 +30,12 @@ AutoSwatchModel::AutoSwatchModel(QObject *parent) :
     QAbstractListModel(parent),
     mCanvas(nullptr)
 {
+    mAutoSwatchWorker.moveToThread(&mAutoSwatchWorkerThread);
+
+    connect(&mAutoSwatchWorker, &AutoSwatchWorker::foundAllUniqueColours,
+        this, &AutoSwatchModel::onFoundAllUniqueColours);
+    connect(&mAutoSwatchWorker, &AutoSwatchWorker::foundAllUniqueColours,
+        &mAutoSwatchWorkerThread, &QThread::quit);
 }
 
 ImageCanvas *AutoSwatchModel::canvas() const
@@ -104,23 +110,61 @@ void AutoSwatchModel::onProjectChanged()
 
 void AutoSwatchModel::onUndoStackIndexChanged()
 {
-    qCDebug(lcAutoSwatchModel) << "populating model...";
+    // The index of the undo stack can be set in its destructor,
+    // so we need to account for that here.
+    if (mCanvas && mCanvas->project()) {
+        qCDebug(lcAutoSwatchModel) << "starting auto swatch thread to find unique swatches...";
+        mAutoSwatchWorkerThread.start();
 
+        const bool invokeSucceeded = QMetaObject::invokeMethod(&mAutoSwatchWorker, "findUniqueColours",
+            Qt::QueuedConnection, Q_ARG(QImage, mCanvas->project()->exportedImage()));
+        Q_ASSERT(invokeSucceeded);
+    } else {
+        qCDebug(lcAutoSwatchModel) << "no canvas/project; clearing model";
+
+        beginResetModel();
+        mColours.clear();
+        endResetModel();
+    }
+}
+
+void AutoSwatchModel::onFoundAllUniqueColours(const QVector<QColor> &colours)
+{
     beginResetModel();
 
-    mColours.clear();
-
-    // TODO: cache exported image as a member and only process the changed area?
-    const QImage image = mCanvas->project()->exportedImage();
-    for (int y = 0; y < image.height(); ++y) {
-        for (int x = 0; x < image.width(); ++x) {
-            const QColor colour = image.pixelColor(x, y);
-            if (!mColours.contains(colour))
-                mColours.append(colour);
-        }
-    }
+    mColours = colours;
 
     endResetModel();
 
-    qCDebug(lcAutoSwatchModel) << "... finished populating model";
+    qCDebug(lcAutoSwatchModel) << "... auto swatch thread finished finding unique swatches";
+}
+
+AutoSwatchWorker::AutoSwatchWorker(QObject *parent) :
+    QObject(parent)
+{
+}
+
+AutoSwatchWorker::~AutoSwatchWorker()
+{
+}
+
+void AutoSwatchWorker::findUniqueColours(const QImage &image)
+{
+    if (image.isNull()) {
+        emit foundAllUniqueColours(QVector<QColor>());
+        return;
+    }
+
+    QVector<QColor> colours;
+
+    // TODO: cache exported image somehow and only process the changed area?
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            const QColor colour = image.pixelColor(x, y);
+            if (!colours.contains(colour))
+                colours.append(colour);
+        }
+    }
+
+    emit foundAllUniqueColours(colours);
 }

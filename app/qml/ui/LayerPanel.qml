@@ -63,12 +63,7 @@ Panel {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            ScrollBar.vertical: ScrollBar {
-                id: verticalScrollBar
-            }
-            ScrollBar.horizontal: ScrollBar {
-                id: horizontalScrollBar
-            }
+            ScrollBar.vertical: ScrollBar {}
 
             model: LayerModel {
                 layeredImageProject: project

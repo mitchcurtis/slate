@@ -22,10 +22,26 @@
 
 #include <QAbstractListModel>
 #include <QColor>
+#include <QImage>
+#include <QThread>
 #include <QVector>
 
 class ImageLayer;
 class ImageCanvas;
+
+class AutoSwatchWorker : public QObject
+{
+    Q_OBJECT
+
+public:
+    AutoSwatchWorker(QObject *parent = 0);
+    ~AutoSwatchWorker();
+
+    Q_INVOKABLE void findUniqueColours(const QImage &image);
+
+signals:
+    void foundAllUniqueColours(const QVector<QColor> &colours);
+};
 
 class AutoSwatchModel : public QAbstractListModel
 {
@@ -53,10 +69,14 @@ signals:
 private slots:
     void onProjectChanged();
     void onUndoStackIndexChanged();
+    void onFoundAllUniqueColours(const QVector<QColor> &colours);
 
 private:
     ImageCanvas *mCanvas;
     QVector<QColor> mColours;
+
+    AutoSwatchWorker mAutoSwatchWorker;
+    QThread mAutoSwatchWorkerThread;
 };
 
 #endif // AUTOSWATCHMODEL_H

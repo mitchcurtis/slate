@@ -118,6 +118,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qRegisterMetaType<QUndoStack*>();
     qRegisterMetaType<Tile*>();
     qRegisterMetaType<Tileset*>();
+    qRegisterMetaType<QVector<QColor>>();
 
     if (QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf") == -1) {
         qWarning() << "Failed to load FontAwesome font";

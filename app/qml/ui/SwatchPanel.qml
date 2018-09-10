@@ -30,6 +30,7 @@ Panel {
     id: root
     title: qsTr("Swatches")
     padding: 16
+    bottomPadding: 6
 
     property ImageCanvas canvas
     property Project project
@@ -52,12 +53,7 @@ Panel {
             Layout.fillHeight: true
 //            Layout.leftMargin: 12
 
-            ScrollBar.vertical: ScrollBar {
-                id: verticalScrollBar
-            }
-            ScrollBar.horizontal: ScrollBar {
-                id: horizontalScrollBar
-            }
+            ScrollBar.vertical: ScrollBar {}
 
             model: AutoSwatchModel {
                 canvas: root.canvas
@@ -95,6 +91,7 @@ Panel {
     }
 
     footer: ColumnLayout {
+        visible: root.expanded
         spacing: 0
 
         MenuSeparator {
@@ -107,7 +104,6 @@ Panel {
 
         RowLayout {
             id: footerRowLayout
-            visible: root.expanded
 
             Button {
                 objectName: "newLayerButton"
