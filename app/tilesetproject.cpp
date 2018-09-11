@@ -498,6 +498,15 @@ QRect TilesetProject::bounds() const
     return QRect(0, 0, mTilesWide, mTilesHigh);
 }
 
+QImage TilesetProject::exportedImage() const
+{
+    // Although other projects would return what's visible on the canvas,
+    // tileset projects are a bit different in that the tileset is what's being
+    // drawn on, so we're more interested in that than the collection of tiles
+    // that the user has drawn onto the canvas, which is more a preview.
+    return *mTileset->image();
+}
+
 QUrl TilesetProject::tilesetUrl() const
 {
     return mTilesetUrl;

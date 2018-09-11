@@ -28,8 +28,11 @@ import "." as Ui
 
 Panel {
     id: root
+    objectName: "swatchesPanel"
     title: qsTr("Swatches")
-    padding: 16
+    topPadding: 0
+    leftPadding: 0
+    rightPadding: 0
     bottomPadding: 6
 
     property ImageCanvas canvas
@@ -41,7 +44,7 @@ Panel {
 
         GridView {
             id: autoSwatchGridView
-            objectName: "autoSwatchListView"
+            objectName: "autoSwatchGridView"
             boundsBehavior: ListView.StopAtBounds
             visible: project && project.loaded
             clip: true
@@ -106,7 +109,7 @@ Panel {
             id: footerRowLayout
 
             Button {
-                objectName: "newLayerButton"
+                objectName: "newSwatchButton"
                 text: "+"
                 flat: true
                 focusPolicy: Qt.NoFocus

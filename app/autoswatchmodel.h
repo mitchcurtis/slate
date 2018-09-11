@@ -54,6 +54,7 @@ public:
     };
 
     explicit AutoSwatchModel(QObject *parent = nullptr);
+    ~AutoSwatchModel() override;
 
     ImageCanvas *canvas() const;
     void setCanvas(ImageCanvas *canvas);

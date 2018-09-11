@@ -153,6 +153,9 @@ void TestHelper::initTestCase()
     desaturateButton = window->findChild<QQuickItem*>("desaturateButton");
     QVERIFY(desaturateButton);
 
+    swatchesPanel = window->findChild<QQuickItem*>("swatchesPanel");
+    QVERIFY(swatchesPanel);
+
     QPixmap checkerPixmap = QPixmap(":/images/checker.png");
     QCOMPARE(checkerPixmap.isNull(), false);
     mCheckerImage = checkerPixmap.toImage();
@@ -488,7 +491,8 @@ bool TestHelper::drawPixelAtCursorPos()
         VERIFY(targetTile->tileset()->image()->copy(targetTile->sourceRect()) != originalTileImage);
         VERIFY(targetTile->tileset()->image()->copy(targetTile->sourceRect()) == expectedImage);
         VERIFY(tilesetProject->hasUnsavedChanges());
-        VERIFY(window->title().contains("*"));
+        // Don't check that the title contains the change marker, as that won't happen
+        // until release if this is the first change in the stack.
 
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
         VERIFY(targetTile->tileset()->image()->copy(targetTile->sourceRect()) == expectedImage);
@@ -502,7 +506,8 @@ bool TestHelper::drawPixelAtCursorPos()
         QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
         VERIFY(canvas->currentProjectImage()->pixelColor(cursorPos) == canvas->penForegroundColour());
         VERIFY(project->hasUnsavedChanges());
-        VERIFY(window->title().contains("*"));
+        // Don't check that the title contains the change marker, as that won't happen
+        // until release if this is the first change in the stack.
 
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
         VERIFY(canvas->currentProjectImage()->pixelColor(cursorPos) == canvas->penForegroundColour());
@@ -524,7 +529,9 @@ bool TestHelper::drawTileAtCursorPos()
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     const int penId = tileCanvas->penTile()->id();
-    VERIFY(tilesetProject->tileAt(cursorPos)->id() == penId);
+    const Tile *tile = tilesetProject->tileAt(cursorPos);
+    VERIFY(tile);
+    VERIFY(tile->id() == penId);
     return true;
 }
 
@@ -627,6 +634,24 @@ bool TestHelper::everyPixelIs(const QImage &image, const QColor &colour)
     }
 
     return true;
+}
+
+bool TestHelper::swatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour)
+{
+    const auto childItems = viewContentItem->childItems();
+    for (const QQuickItem *delegateItem : childItems) {
+        const QQuickItem *delegateContentItem = delegateItem->property("contentItem").value<QQuickItem*>();
+        VERIFY(delegateContentItem);
+        if (delegateContentItem->property("color").value<QColor>() == colour)
+            return true;
+    }
+
+    QString message;
+    QDebug debug(&message);
+    debug.nospace() << "Couldn't find a delegate in swatch view content item " << viewContentItem
+        << " whose contentItem colour is " << colour;
+    failureMessage = message.toLatin1();
+    return false;
 }
 
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
@@ -1378,6 +1403,11 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     // This is the old default. Some tests seem to choke with it set to true
     // (because of wheel events) and I haven't looked into it yet because it's not really important.
     canvas->setGesturesEnabled(false);
+
+    // Again, another old default. Adding yet another panel makes the colour panel lose some of its
+    // height, resulting in certain tool buttons not being clickable because they're hidden.
+    // It's easier to just show it where necessary.
+    VERIFY(swatchesPanel->setProperty("expanded", QVariant(false)));
 
     if (projectType == Project::TilesetType) {
         tilesetProject = qobject_cast<TilesetProject*>(project);

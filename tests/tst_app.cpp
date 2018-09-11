@@ -90,6 +90,8 @@ private Q_SLOTS:
     void eraseImageCanvas();
     void splitterSettingsMouse_data();
     void splitterSettingsMouse();
+    void autoSwatch_data();
+    void autoSwatch();
 
     void selectionToolImageCanvas();
     void selectionToolTileCanvas();
@@ -1291,6 +1293,7 @@ void tst_App::undoLayeredImageSizeChange()
 
     QVERIFY2(changeToolSize(4), failureMessage);
 
+    // Draw a 4x4 square with its centre at 2, 2.
     setCursorPosInScenePixels(2, 2);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), QColor(Qt::black));
@@ -2161,6 +2164,61 @@ void tst_App::splitterSettingsMouse()
     QCOMPARE(canvas->splitter()->isEnabled(), true);
     QCOMPARE(lockSplitterToolButton->isEnabled(), true);
     QCOMPARE(lockSplitterToolButton->property("checked").toBool(), false);
+}
+
+void tst_App::autoSwatch_data()
+{
+    addAllProjectTypes();
+}
+
+void tst_App::autoSwatch()
+{
+    QFETCH(Project::Type, projectType);
+
+    const bool isTilesetProject = projectType == Project::TilesetType;
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+
+    // The swatches panel is hidden by default when testing; see updateVariables().
+    QVERIFY(swatchesPanel->setProperty("expanded", QVariant(true)));
+
+    QQuickItem *autoSwatchGridView = window->findChild<QQuickItem*>("autoSwatchGridView");
+    QVERIFY(autoSwatchGridView);
+
+    QQuickItem *viewContentItem = autoSwatchGridView->property("contentItem").value<QQuickItem*>();
+    QVERIFY(viewContentItem);
+
+    // Check that the auto swatch has at least one colour at startup.
+    int originalAutoSwatchColourCount = 0;
+    if (isTilesetProject) {
+        // The tileset we're using in the tests has a bunch of colours.
+        QTRY_VERIFY(autoSwatchGridView->property("count").toInt() > 1);
+
+        setCursorPosInScenePixels(0, 0);
+        QVERIFY2(drawTileAtCursorPos(), failureMessage);
+    } else {
+        // White background = one white colour in the auto swatch.
+        QTRY_COMPARE(autoSwatchGridView->property("count").toInt(), 1);
+    }
+    originalAutoSwatchColourCount = autoSwatchGridView->property("count").toInt();
+
+    // White background for image projects by default, and the test tileset has a white background too.
+    QVERIFY2(swatchViewDelegateExists(viewContentItem, Qt::white), failureMessage);
+
+    // Draw a pixel with a colour that we know we haven't used yet.
+    setCursorPosInScenePixels(0, 0);
+    canvas->setPenForegroundColour(Qt::cyan);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    // There should be one more colour in the swatch.
+    QTRY_COMPARE(autoSwatchGridView->property("count").toInt(), originalAutoSwatchColourCount + 1);
+    QVERIFY2(swatchViewDelegateExists(viewContentItem, Qt::white), failureMessage);
+    QVERIFY2(swatchViewDelegateExists(viewContentItem, Qt::cyan), failureMessage);
+
+    // Undo the drawing; the swatch should revert to its previous contents.
+    QVERIFY2(triggerShortcut("undoShortcut", app.settings()->undoShortcut()), failureMessage);
+    QTRY_COMPARE(autoSwatchGridView->property("count").toInt(), originalAutoSwatchColourCount);
+    QVERIFY2(swatchViewDelegateExists(viewContentItem, Qt::white), failureMessage);
 }
 
 struct SelectionData

@@ -210,6 +210,7 @@ protected:
     Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
     Q_REQUIRED_RESULT bool fuzzyImageCompare(const QImage &image1, const QImage &image2);
     Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
+    Q_REQUIRED_RESULT bool swatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour);
 
     QByteArray failureMessage;
 
@@ -247,6 +248,7 @@ protected:
     QQuickItem *darkerButton;
     QQuickItem *saturateButton;
     QQuickItem *desaturateButton;
+    QQuickItem *swatchesPanel;
     QQuickItem *tilesetSwatch;
     QQuickItem *tilesetSwatchFlickable;
     QQuickItem *newLayerButton;
