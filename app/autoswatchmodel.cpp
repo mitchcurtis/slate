@@ -65,7 +65,7 @@ AutoSwatchModel::AutoSwatchModel(QObject *parent) :
     connect(&mAutoSwatchWorker, &AutoSwatchWorker::foundAllUniqueColours,
         this, &AutoSwatchModel::onFoundAllUniqueColours);
     connect(&mAutoSwatchWorker, &AutoSwatchWorker::foundAllUniqueColours,
-            &mAutoSwatchWorkerThread, &QThread::quit);
+        &mAutoSwatchWorkerThread, &QThread::quit);
 }
 
 AutoSwatchModel::~AutoSwatchModel()
@@ -98,6 +98,7 @@ void AutoSwatchModel::setCanvas(ImageCanvas *canvas)
 
     if (mCanvas) {
         connect(mCanvas, &ImageCanvas::projectChanged, this, &AutoSwatchModel::onProjectChanged);
+        connect(mCanvas, &ImageCanvas::pasteSelectionConfirmed, this, &AutoSwatchModel::updateColours);
     }
 }
 
@@ -138,14 +139,14 @@ void AutoSwatchModel::onProjectChanged()
 {
     if (mCanvas->project()) {
         connect(mCanvas->project()->undoStack(), &QUndoStack::indexChanged,
-            this, &AutoSwatchModel::onUndoStackIndexChanged);
+            this, &AutoSwatchModel::updateColours);
 
         // Force population.
-        onUndoStackIndexChanged();
+        updateColours();
     }
 }
 
-void AutoSwatchModel::onUndoStackIndexChanged()
+void AutoSwatchModel::updateColours()
 {
     // The index of the undo stack can be set in its destructor,
     // so we need to account for that here.

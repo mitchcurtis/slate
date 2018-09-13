@@ -257,6 +257,8 @@ protected:
     QQuickItem *moveLayerUpButton;
     QQuickItem *animationPlayPauseButton;
 
+    QVector<ImageCanvas::Tool> mTools;
+
     QScopedPointer<QSignalSpy> creationErrorOccurredSpy;
 
     QString tilesetBasename;

@@ -69,7 +69,7 @@ signals:
 
 private slots:
     void onProjectChanged();
-    void onUndoStackIndexChanged();
+    void updateColours();
     void onFoundAllUniqueColours(const QVector<QColor> &colours);
 
 private:

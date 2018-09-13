@@ -92,6 +92,8 @@ private Q_SLOTS:
     void splitterSettingsMouse();
     void autoSwatch_data();
     void autoSwatch();
+    void autoSwatchGridViewContentY();
+    void autoSwatchPasteConfirmation();
 
     void selectionToolImageCanvas();
     void selectionToolTileCanvas();
@@ -2221,6 +2223,67 @@ void tst_App::autoSwatch()
     QVERIFY2(swatchViewDelegateExists(viewContentItem, Qt::white), failureMessage);
 }
 
+// The contentY should not be reset between changes.
+void tst_App::autoSwatchGridViewContentY()
+{
+    QVERIFY2(createNewImageProject(16, 16, false), failureMessage);
+
+    QVERIFY(swatchesPanel->setProperty("expanded", QVariant(true)));
+
+    // Paste the image with lots of colours in.
+    QImage colourfulImage(":/resources/test-colourful.png");
+    QVERIFY(!colourfulImage.isNull());
+    qGuiApp->clipboard()->setImage(colourfulImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+    QTest::keyClick(window, Qt::Key_Escape);
+    QVERIFY(imageProject->hasUnsavedChanges());
+
+    // Ensure that it can be flicked.
+    QQuickItem *autoSwatchGridView = window->findChild<QQuickItem*>("autoSwatchGridView");
+    QVERIFY(autoSwatchGridView);
+    QTRY_COMPARE(autoSwatchGridView->property("count").toInt(), 255);
+    const qreal contentHeight = autoSwatchGridView->property("contentHeight").toReal();
+    QVERIFY(contentHeight > autoSwatchGridView->height());
+    // "flick" by setting contentY.
+    const qreal expectedContentY = contentHeight - autoSwatchGridView->height();
+    QVERIFY(expectedContentY > 0);
+    QVERIFY(autoSwatchGridView->setProperty("contentY", QVariant(expectedContentY)));
+
+    // Draw a pixel with a colour that doesn't exist in the image.
+    // The model should be reset and the view along with it, but
+    // we want to make sure that the contentY stays the same to avoid
+    // interrupting the user.
+    canvas->setPenForegroundColour(Qt::cyan);
+    setCursorPosInScenePixels(0, 0);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+    QQuickItem *viewContentItem = autoSwatchGridView->property("contentItem").value<QQuickItem*>();
+    QVERIFY(viewContentItem);
+    QTRY_VERIFY2(swatchViewDelegateExists(viewContentItem, Qt::cyan), failureMessage);
+    QTRY_COMPARE(autoSwatchGridView->property("contentY").toReal(), expectedContentY);
+}
+
+void tst_App::autoSwatchPasteConfirmation()
+{
+    QVERIFY2(createNewImageProject(16, 16, false), failureMessage);
+
+    QVERIFY(swatchesPanel->setProperty("expanded", QVariant(true)));
+
+    // Paste the image with lots of colours in.
+    QImage colourfulImage(":/resources/test-colourful.png");
+    QVERIFY(!colourfulImage.isNull());
+    qGuiApp->clipboard()->setImage(colourfulImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+
+    // Switch tool to confirm pasted selection.
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
+    QVERIFY(imageProject->hasUnsavedChanges());
+
+    // The auto swatch view should eventually be filled.
+    QQuickItem *autoSwatchGridView = window->findChild<QQuickItem*>("autoSwatchGridView");
+    QVERIFY(autoSwatchGridView);
+    QTRY_COMPARE(autoSwatchGridView->property("count").toInt(), 255);
+}
+
 struct SelectionData
 {
     SelectionData(const QPoint &pressScenePos = QPoint(),
@@ -4315,16 +4378,7 @@ void tst_App::disableToolsWhenLayerHidden()
     QQuickItem *layer1VisibilityCheckBox = layer1Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
     QVERIFY(layer1VisibilityCheckBox);
 
-    const QVector<ImageCanvas::Tool> tools {
-        ImageCanvas::PenTool,
-        ImageCanvas::EyeDropperTool,
-        ImageCanvas::EraserTool,
-        ImageCanvas::FillTool,
-        ImageCanvas::SelectionTool/*,
-        ImageCanvas::CropTool TODO: not implemented yet*/
-    };
-
-    foreach (ImageCanvas::Tool tool, tools) {
+    foreach (ImageCanvas::Tool tool, mTools) {
         // Hide the layer.
         mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
         QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);

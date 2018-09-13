@@ -267,6 +267,7 @@ signals:
     void altPressedChanged();
     void lineVisibleChanged();
     void lineLengthChanged();
+    void pasteSelectionConfirmed();
 
     // Used to signal CanvasPaneItem classes that they should redraw,
     // instead of them having to connect to lots of specific signals.

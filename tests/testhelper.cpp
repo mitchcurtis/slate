@@ -55,6 +55,12 @@ TestHelper::TestHelper(int &argc, char **argv) :
     animationPlayPauseButton(nullptr),
     tilesetBasename("test-tileset.png")
 {
+    mTools.append(ImageCanvas::PenTool);
+    mTools.append(ImageCanvas::EyeDropperTool);
+    mTools.append(ImageCanvas::EraserTool);
+    mTools.append(ImageCanvas::FillTool);
+    mTools.append(ImageCanvas::SelectionTool);/*,
+    mTools.append(ImageCanvas::CropTool); TODO: not implemented yet*/
 }
 
 TestHelper::~TestHelper()

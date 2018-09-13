@@ -17,7 +17,7 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.7
+import QtQuick 2.9
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.2
 import QtQuick.Window 2.0
@@ -54,20 +54,39 @@ Panel {
             Layout.fillWidth: true
             Layout.preferredHeight: 100
             Layout.fillHeight: true
-//            Layout.leftMargin: 12
+
+            property real contentYBeforeModelReset
+            property bool lockContentY
+
+            // Try to maintain the same contentY between model changes
+            // so that the view doesn't fly back to the top every time a new colour is added.
+            Binding {
+                target: autoSwatchGridView
+                property: "contentY"
+                value: autoSwatchGridView.contentYBeforeModelReset
+                when: autoSwatchGridView.lockContentY
+            }
+
+            Connections {
+                target: autoSwatchGridView.model
+                onModelAboutToBeReset: {
+                    autoSwatchGridView.contentYBeforeModelReset = autoSwatchGridView.contentY
+                    autoSwatchGridView.lockContentY = true
+                }
+                onModelReset: {
+                    Qt.callLater(function() {
+                        autoSwatchGridView.lockContentY = false
+                        autoSwatchGridView.contentY = autoSwatchGridView.contentYBeforeModelReset
+                    });
+                }
+            }
 
             ScrollBar.vertical: ScrollBar {}
 
             model: AutoSwatchModel {
                 canvas: root.canvas
             }
-//            model: ["red", "green", "yellow"]
-
             delegate: ItemDelegate {
-//                objectName: model.layer.name
-//                checkable: true
-//                checked: project && project.currentLayerIndex === index
-//                width: autoSwatchGridView.width
                 width: 16
                 height: 16
                 leftPadding: 0
@@ -76,21 +95,12 @@ Panel {
                 bottomPadding: 0
                 focusPolicy: Qt.NoFocus
                 contentItem: Rectangle {
-//                    color: modelData
                     color: model.colour
                 }
 
                 onClicked: canvas.penForegroundColour = modelData
             }
         }
-
-        // Necessary for when there is no loaded project so that the separator
-        // doesn't go halfway up the panel.
-//        Item {
-//            Layout.fillHeight: autoSwatchGridView.count == 0
-//        }
-
-
     }
 
     footer: ColumnLayout {

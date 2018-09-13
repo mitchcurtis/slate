@@ -455,7 +455,10 @@ void ImageCanvas::setTool(const Tool &tool)
     // The selection tool doesn't follow the undo rules, so we have to clear
     // the selected area if a different tool is chosen.
     if (mTool != SelectionTool) {
-        clearOrConfirmSelection();
+        if (mIsSelectionFromPaste)
+            confirmPasteSelection();
+        else
+            clearOrConfirmSelection();
     }
 
     if (mTool == FillTool || mTool == TexturedFillTool) {
@@ -1464,7 +1467,11 @@ void ImageCanvas::updateSelectionCursorGuideVisibility()
 
 void ImageCanvas::confirmPasteSelection()
 {
+    // This is what the PasteImageCanvasCommand would usually do in redo().
+    // Since we do it here and bypass the undo stack, we need to inform the auto swatch model that
+    // a change in the image contents occurred, which is why we emit pasteSelectionConfirmed.
     paintImageOntoPortionOfImage(currentLayerIndex(), mSelectionAreaBeforeFirstMove, mSelectionContents);
+    emit pasteSelectionConfirmed();
     clearSelection();
 }
 

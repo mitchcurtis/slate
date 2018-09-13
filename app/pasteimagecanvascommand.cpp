@@ -54,6 +54,9 @@ void PasteImageCanvasCommand::redo()
         mCanvas->paintImageOntoPortionOfImage(mLayerIndex, mArea, mNewImage);
         mCanvas->clearSelection();
     } else {
+        // Although this special-casing might seem odd, the whole thing allows
+        // pasting a selection and dragging it around without picking up the contents
+        // of the area underneath it, as would occur if we didn't do this.
         qCDebug(lcPasteImageCanvasCommand) << "skipping" << this
             << ", as ImageCanvas does it for us the first time";
     }
