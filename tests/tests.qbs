@@ -34,7 +34,6 @@ Project {
         files: [
             "../app/application.h",
             "../app/application.cpp",
-            "../app/config.qrc",
             "../app/fonts/fonts.qrc",
             "../app/images/images.qrc",
             "../app/qml/qml.qrc",
