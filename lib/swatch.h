@@ -38,6 +38,7 @@ public:
     QVector<SwatchColour> colours() const;
 
     Q_INVOKABLE void addColour(const QString &name, const QColor &colour);
+    Q_INVOKABLE void renameColour(int index, const QString &newName);
     Q_INVOKABLE void removeColour(int index);
 
     void read(const QJsonObject &json);
@@ -48,10 +49,15 @@ public:
 signals:
     void preColourAdded();
     void postColourAdded();
+
+    void colourRenamed(int index);
+
     void preColourRemoved(int index);
     void postColourRemoved();
 
 private:
+    bool isValidIndex(int index) const;
+
     QVector<SwatchColour> mColours;
 };
 

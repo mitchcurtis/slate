@@ -58,6 +58,7 @@ signals:
 private slots:
     void onPreColourAdded();
     void onPostColourAdded();
+    void onColourRenamed(int index);
     void onPreColourRemoved(int index);
     void onPostColourRemoved();
 

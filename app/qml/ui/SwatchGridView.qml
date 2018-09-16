@@ -12,7 +12,8 @@ GridView {
     cellWidth: 16
     cellHeight: 16
 
-    property bool supportsColourNames
+    property Menu swatchContextMenu
+    property bool readOnly
 
     delegate: Rectangle {
         id: colourDelegate
@@ -64,19 +65,25 @@ GridView {
         MouseArea {
             id: mouseArea
             hoverEnabled: true
+            acceptedButtons: readOnly ? Qt.LeftButton : Qt.LeftButton | Qt.RightButton
             anchors.fill: parent
 //            drag.target: parent
 
             onClicked: {
-                if (mouse.button === Qt.LeftButton)
+                if (mouse.button === Qt.LeftButton) {
                     canvas.penForegroundColour = model.colour
-//                        else if (mouse.button === Qt.RightButton)
-                    // context menu
+                } else if (mouse.button === Qt.RightButton) {
+                    swatchContextMenu.rightClickedColourIndex = index
+                    swatchContextMenu.rightClickedColourName = model.name
+                    swatchContextMenu.rightClickedColourX = colourDelegate.x
+                    swatchContextMenu.rightClickedColourY = colourDelegate.y
+                    swatchContextMenu.open()
+                }
             }
         }
 
-        ToolTip.text: !supportsColourNames || model.name.length === 0
-            ? model.colour : model.name + "(" + model.colour + ")"
+        ToolTip.text: readOnly || model.name.length === 0
+            ? model.colour : model.name + " (" + model.colour + ")"
         ToolTip.visible: mouseArea.containsMouse
         ToolTip.delay: toolTipDelay
     }

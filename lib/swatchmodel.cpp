@@ -55,6 +55,7 @@ void SwatchModel::setProject(Project *project)
     if (mProject) {
         connect(mProject->swatch(), &Swatch::preColourAdded, this, &SwatchModel::onPreColourAdded);
         connect(mProject->swatch(), &Swatch::postColourAdded, this, &SwatchModel::onPostColourAdded);
+        connect(mProject->swatch(), &Swatch::colourRenamed, this, &SwatchModel::onColourRenamed);
         connect(mProject->swatch(), &Swatch::preColourRemoved, this, &SwatchModel::onPreColourRemoved);
         connect(mProject->swatch(), &Swatch::postColourRemoved, this, &SwatchModel::onPostColourRemoved);
     }
@@ -106,6 +107,14 @@ void SwatchModel::onPreColourAdded()
 void SwatchModel::onPostColourAdded()
 {
     endInsertRows();
+}
+
+void SwatchModel::onColourRenamed(int index)
+{
+    QVector<int> roles;
+    roles.append(NameRole);
+    const QModelIndex modelIndex(createIndex(index, 0));
+    emit dataChanged(modelIndex, modelIndex, roles);
 }
 
 void SwatchModel::onPreColourRemoved(int index)

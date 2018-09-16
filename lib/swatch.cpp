@@ -45,12 +45,21 @@ void Swatch::addColour(const QString &name, const QColor &colour)
     emit postColourAdded();
 }
 
+void Swatch::renameColour(int index, const QString &newName)
+{
+    if (!isValidIndex(index))
+        return;
+
+    SwatchColour &colour = mColours[index];
+    qCDebug(lcSwatch) << "renaming colour" << colour.name() << "to" << newName;
+    colour.setName(newName);
+    emit colourRenamed(index);
+}
+
 void Swatch::removeColour(int index)
 {
-    if (index < 0 || index >= mColours.size()) {
-        qWarning() << "Invalid swatch colour index" << index;
+    if (!isValidIndex(index))
         return;
-    }
 
     qCDebug(lcSwatch) << "removing colour" << mColours.at(index).colour().name()
         << "with name" << mColours.at(index).name() << "from swatch";
@@ -82,4 +91,13 @@ void Swatch::write(QJsonObject &json) const
         colourArray.append(colourObject);
     }
     json["colours"] = colourArray;
+}
+
+bool Swatch::isValidIndex(int index) const
+{
+    if (index < 0 || index >= mColours.size()) {
+        qWarning() << "Invalid swatch colour index" << index;
+        return false;
+    }
+    return true;
 }

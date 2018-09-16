@@ -19,7 +19,7 @@
 
 import QtQuick 2.9
 import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.4
 import QtQuick.Window 2.0
 
 import App 1.0
@@ -38,7 +38,7 @@ Panel {
     property ImageCanvas canvas
     property Project project
 
-    property int draggedSwatchIndex: -1
+//    property int draggedSwatchIndex: -1
 
     contentItem: ColumnLayout {
         visible: root.expanded
@@ -63,7 +63,7 @@ Panel {
                 sourceComponent: SwatchGridView {
                     id: autoSwatchGridView
                     objectName: "autoSwatchGridView"
-                    supportsColourNames: false
+                    readOnly: true
 
                     property real contentYBeforeModelReset
                     property bool lockContentY
@@ -122,7 +122,8 @@ Panel {
             SwatchGridView {
                 id: swatchGridView
                 objectName: "swatchGridView"
-                supportsColourNames: true
+                readOnly: false
+                swatchContextMenu: contextMenu
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -179,7 +180,8 @@ Panel {
                 Layout.fillWidth: true
             }
 
-            Button {
+            // TODO: need to fix drag and drop to be able to use this
+            /*Button {
                 objectName: "deleteSwatchColourButton"
                 text: "\uf1f8"
                 font.family: "FontAwesome"
@@ -200,7 +202,77 @@ Panel {
                 }
 
 //                onClicked: project.swatch.removeColour(draggedSwatchIndex)
+            }*/
+        }
+    }
+
+    Menu {
+        id: contextMenu
+        objectName: "swatchContextMenu"
+        x: rightClickedColourIndex !== -1 ? rightClickedColourPos.x : 0
+        y: rightClickedColourIndex !== -1 ? rightClickedColourPos.y : 0
+        modal: true
+        dim: false
+
+        property int rightClickedColourIndex
+        property string rightClickedColourName
+        property int rightClickedColourX
+        property int rightClickedColourY
+
+        readonly property point rightClickedColourPos: rightClickedColourIndex !== -1 ? swatchGridView.contentItem.mapToItem(
+            root, rightClickedColourX, rightClickedColourY) : Qt.point(0, 0)
+
+        onClosed: {
+            rightClickedColourIndex = -1
+            rightClickedColourName = ""
+        }
+
+        MenuItem {
+            id: renameMenuItem
+            objectName: "renameSwatchColourMenuItem"
+            text: qsTr("Rename")
+            onTriggered: {
+                renameDialog.colourIndex = contextMenu.rightClickedColourIndex
+                renameDialog.oldName = contextMenu.rightClickedColourName
+                renameDialog.open()
             }
+        }
+
+        MenuItem {
+            objectName: "deleteSwatchColourMenuItem"
+            text: qsTr("Delete")
+            onTriggered: project.swatch.removeColour(contextMenu.rightClickedColourIndex)
+        }
+    }
+
+    Dialog {
+        id: renameDialog
+        title: qsTr("Rename colour swatch")
+        modal: true
+        dim: false
+        focus: true
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+
+        property string oldName
+        property int colourIndex
+
+        onAboutToShow: {
+            nameTextField.text = oldName
+            nameTextField.selectAll()
+            nameTextField.forceActiveFocus()
+        }
+        onAccepted: project.swatch.renameColour(colourIndex, nameTextField.text)
+        onClosed: {
+            colourIndex = -1
+            oldName = ""
+        }
+
+        TextField {
+            id: nameTextField
+            width: parent.width
+            onAccepted: renameDialog.accept()
         }
     }
 }
