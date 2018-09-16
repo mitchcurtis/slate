@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2018, Mitch Curtis
 
     This file is part of Slate.
 
@@ -33,6 +33,7 @@
 #include "tilecanvas.h"
 #include "project.h"
 #include "projectmanager.h"
+#include "swatch.h"
 #include "testhelper.h"
 #include "tileset.h"
 #include "utils.h"
@@ -433,6 +434,18 @@ void tst_App::saveAsAndLoad()
         QCOMPARE(canvas->guidesVisible(), true);
     }
 
+    // Add red to the swatch.
+    QVERIFY(swatchesPanel->setProperty("expanded", QVariant(true)));
+    QQuickItem *newSwatchColourButton = window->findChild<QQuickItem*>("newSwatchColourButton");
+    QVERIFY(newSwatchColourButton);
+    canvas->setPenForegroundColour(Qt::red);
+    mouseEventOnCentre(newSwatchColourButton, MouseClick);
+    QCOMPARE(project->swatch()->colours().size(), 1);
+    QVERIFY(project->swatch()->colours().contains(SwatchColour(QString(), Qt::red)));
+    // Having this visible interferes with the rest of the test, and since I'm too lazy
+    // to check why and it's not necessary to have it open, just close it.
+    QVERIFY(swatchesPanel->setProperty("expanded", QVariant(false)));
+
     QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
     QVERIFY(firstHorizontalRuler);
     const qreal rulerThickness = firstHorizontalRuler->height();
@@ -499,7 +512,7 @@ void tst_App::saveAsAndLoad()
     QCOMPARE(canvas->secondPane()->integerZoomLevel(), secondPaneZoomLevel);
     QCOMPARE(canvas->secondPane()->size(), secondPaneSize);
 
-    if (projectType == Project::ImageType || projectType == Project::LayeredImageType) {
+    if (projectType == Project::LayeredImageType) {
         // Test that the save shortcut works by drawing and then saving.
         setCursorPosInScenePixels(0, 0);
         QTest::mouseMove(window, cursorWindowPos);
@@ -508,6 +521,16 @@ void tst_App::saveAsAndLoad()
 
         QVERIFY2(triggerSaveProject(), failureMessage);
         QVERIFY(!project->hasUnsavedChanges());
+    }
+
+    QVector<SwatchColour> expectedSwatchColours;
+    expectedSwatchColours.append(SwatchColour(QString(), Qt::red));
+    if (project->swatch()->colours() != expectedSwatchColours) {
+        QString message;
+        QDebug stream(&message);
+        stream << "\n    Actual: " << project->swatch()->colours()
+               << "\n    Expected: " << expectedSwatchColours;
+        QFAIL(qPrintable(message));
     }
 }
 
@@ -2181,8 +2204,7 @@ void tst_App::autoSwatch()
 
     QVERIFY2(createNewProject(projectType), failureMessage);
 
-    // The swatches panel is hidden by default when testing; see updateVariables().
-    QVERIFY(swatchesPanel->setProperty("expanded", QVariant(true)));
+    QVERIFY2(enableAutoSwatch(), failureMessage);
 
     QQuickItem *autoSwatchGridView = window->findChild<QQuickItem*>("autoSwatchGridView");
     QVERIFY(autoSwatchGridView);
@@ -2228,7 +2250,7 @@ void tst_App::autoSwatchGridViewContentY()
 {
     QVERIFY2(createNewImageProject(16, 16, false), failureMessage);
 
-    QVERIFY(swatchesPanel->setProperty("expanded", QVariant(true)));
+    QVERIFY2(enableAutoSwatch(), failureMessage);
 
     // Paste the image with lots of colours in.
     QImage colourfulImage(":/resources/test-colourful.png");
@@ -2266,7 +2288,7 @@ void tst_App::autoSwatchPasteConfirmation()
 {
     QVERIFY2(createNewImageProject(16, 16, false), failureMessage);
 
-    QVERIFY(swatchesPanel->setProperty("expanded", QVariant(true)));
+    QVERIFY2(enableAutoSwatch(), failureMessage);
 
     // Paste the image with lots of colours in.
     QImage colourfulImage(":/resources/test-colourful.png");

@@ -38,67 +38,75 @@ Panel {
     property ImageCanvas canvas
     property Project project
 
+    property int draggedSwatchIndex: -1
+
     contentItem: ColumnLayout {
         visible: root.expanded
         spacing: 0
 
-        GridView {
-            id: autoSwatchGridView
-            objectName: "autoSwatchGridView"
-            boundsBehavior: ListView.StopAtBounds
-            visible: project && project.loaded
-            clip: true
-            cellWidth: 16
-            cellHeight: 16
+        Loader {
+            active: settings.autoSwatchEnabled
 
             Layout.fillWidth: true
             Layout.preferredHeight: 100
             Layout.fillHeight: true
 
-            property real contentYBeforeModelReset
-            property bool lockContentY
+            sourceComponent: SwatchGridView {
+                id: autoSwatchGridView
+                objectName: "autoSwatchGridView"
+                supportsColourNames: false
 
-            // Try to maintain the same contentY between model changes
-            // so that the view doesn't fly back to the top every time a new colour is added.
-            Binding {
-                target: autoSwatchGridView
-                property: "contentY"
-                value: autoSwatchGridView.contentYBeforeModelReset
-                when: autoSwatchGridView.lockContentY
-            }
+                property real contentYBeforeModelReset
+                property bool lockContentY
 
-            Connections {
-                target: autoSwatchGridView.model
-                onModelAboutToBeReset: {
-                    autoSwatchGridView.contentYBeforeModelReset = autoSwatchGridView.contentY
-                    autoSwatchGridView.lockContentY = true
-                }
-                onModelReset: {
-                    Qt.callLater(function() {
-                        autoSwatchGridView.lockContentY = false
-                        autoSwatchGridView.contentY = autoSwatchGridView.contentYBeforeModelReset
-                    });
-                }
-            }
-
-            ScrollBar.vertical: ScrollBar {}
-
-            model: AutoSwatchModel {
-                canvas: root.canvas
-            }
-            delegate: ItemDelegate {
-                width: 16
-                height: 16
-                leftPadding: 0
-                rightPadding: 0
-                topPadding: 0
-                bottomPadding: 0
-                focusPolicy: Qt.NoFocus
-                contentItem: Rectangle {
-                    color: model.colour
+                // Try to maintain the same contentY between model changes
+                // so that the view doesn't fly back to the top every time a new colour is added.
+                Binding {
+                    target: autoSwatchGridView
+                    property: "contentY"
+                    value: autoSwatchGridView.contentYBeforeModelReset
+                    when: autoSwatchGridView.lockContentY
                 }
 
-                onClicked: canvas.penForegroundColour = modelData
+                Connections {
+                    target: autoSwatchGridView.model
+                    onModelAboutToBeReset: {
+                        autoSwatchGridView.contentYBeforeModelReset = autoSwatchGridView.contentY
+                        autoSwatchGridView.lockContentY = true
+                    }
+                    onModelReset: {
+                        Qt.callLater(function() {
+                            autoSwatchGridView.lockContentY = false
+                            autoSwatchGridView.contentY = autoSwatchGridView.contentYBeforeModelReset
+                        });
+                    }
+                }
+
+                model: AutoSwatchModel {
+                    canvas: root.canvas
+                }
+            }
+        }
+        MenuSeparator {
+            visible: settings.autoSwatchEnabled
+            leftPadding: 12
+            topPadding: 0
+            rightPadding: 12
+            bottomPadding: 0
+
+            Layout.fillWidth: true
+        }
+        SwatchGridView {
+            id: swatchGridView
+            objectName: "swatchGridView"
+            supportsColourNames: true
+
+            Layout.fillWidth: true
+            Layout.preferredHeight: 100
+            Layout.fillHeight: true
+
+            model: SwatchModel {
+                project: root.project
             }
         }
     }
@@ -119,7 +127,7 @@ Panel {
             id: footerRowLayout
 
             Button {
-                objectName: "newSwatchButton"
+                objectName: "newSwatchColourButton"
                 text: "+"
                 flat: true
                 focusPolicy: Qt.NoFocus
@@ -130,78 +138,35 @@ Panel {
                 Layout.fillHeight: true
                 Layout.leftMargin: 6
 
-    //            onClicked: project.addNewLayer()
+                onClicked: project.swatch.addColour("", canvas.penForegroundColour)
             }
 
-    //        Button {
-    //            objectName: "moveLayerDownButton"
-    //            text: "\uf107"
-    //            font.family: "FontAwesome"
-    //            flat: true
-    //            focusPolicy: Qt.NoFocus
-    //            hoverEnabled: true
-    //            enabled: project && project.currentLayerIndex < project.layerCount - 1
+            Item {
+                Layout.fillWidth: true
+            }
 
-    //            Layout.maximumWidth: implicitHeight
-    //            Layout.fillWidth: true
-    //            Layout.fillHeight: true
+            Button {
+                objectName: "deleteSwatchColourButton"
+                text: "\uf1f8"
+                font.family: "FontAwesome"
+                flat: true
+                focusPolicy: Qt.NoFocus
+                enabled: project && dropArea.containsDrag
+                hoverEnabled: true
 
-    //            onClicked: project.moveCurrentLayerDown()
-    //        }
+                Layout.maximumWidth: implicitHeight
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.rightMargin: 6
 
-    //        Button {
-    //            objectName: "moveLayerUpButton"
-    //            text: "\uf106"
-    //            font.family: "FontAwesome"
-    //            flat: true
-    //            focusPolicy: Qt.NoFocus
-    //            hoverEnabled: true
-    //            enabled: project && project.currentLayerIndex > 0
+                DropArea {
+                    id: dropArea
+                    anchors.fill: parent
+                    onContainsDragChanged: print("containsDrag", containsDrag)
+                }
 
-    //            Layout.maximumWidth: implicitHeight
-    //            Layout.fillWidth: true
-    //            Layout.fillHeight: true
-
-    //            onClicked: project.moveCurrentLayerUp()
-    //        }
-
-    //        Button {
-    //            objectName: "duplicateLayerButton"
-    //            text: "\uf24d"
-    //            font.family: "FontAwesome"
-    //            flat: true
-    //            focusPolicy: Qt.NoFocus
-    //            hoverEnabled: true
-    //            enabled: project && project.currentLayerIndex >= 0 && project.currentLayerIndex < project.layerCount
-
-    //            Layout.maximumWidth: implicitHeight
-    //            Layout.fillWidth: true
-    //            Layout.fillHeight: true
-
-    //            onClicked: project.duplicateCurrentLayer()
-    //        }
-
-    //        Item {
-    //            Layout.fillWidth: true
-    //            Layout.fillHeight: true
-    //        }
-
-    //        Button {
-    //            objectName: "deleteLayerButton"
-    //            text: "\uf1f8"
-    //            font.family: "FontAwesome"
-    //            flat: true
-    //            focusPolicy: Qt.NoFocus
-    //            enabled: project && project.currentLayer && project.layerCount > 1
-    //            hoverEnabled: true
-
-    //            Layout.maximumWidth: implicitHeight
-    //            Layout.fillWidth: true
-    //            Layout.fillHeight: true
-    //            Layout.rightMargin: 6
-
-    //            onClicked: project.deleteCurrentLayer()
-    //        }
+//                onClicked: project.swatch.removeColour(draggedSwatchIndex)
+            }
         }
     }
 }

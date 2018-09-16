@@ -248,6 +248,18 @@ void Project::writeGuides(QJsonObject &projectJson) const
     projectJson[QLatin1String("guides")] = guidesArray;
 }
 
+void Project::readSwatch(const QJsonObject &projectJson)
+{
+    mSwatch.read(projectJson[QLatin1String("swatch")].toObject());
+}
+
+void Project::writeSwatch(QJsonObject &projectJson) const
+{
+    QJsonObject swatchObject;
+    mSwatch.write(swatchObject);
+    projectJson[QLatin1String("swatch")] = swatchObject;
+}
+
 ApplicationSettings *Project::settings() const
 {
     return mSettings;
@@ -322,6 +334,16 @@ void Project::removeGuide(const Guide &guide)
     if (mGuides.removeOne(guide)) {
         emit guidesChanged();
     }
+}
+
+Swatch *Project::swatch()
+{
+    return &mSwatch;
+}
+
+const Swatch *Project::swatch() const
+{
+    return &mSwatch;
 }
 
 int Project::currentLayerIndex() const

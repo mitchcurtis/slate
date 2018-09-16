@@ -451,6 +451,7 @@ void LayeredImageProject::load(const QUrl &url)
         setCurrentLayerIndex(projectObject.value("currentLayerIndex").toInt());
 
     readGuides(projectObject);
+    readSwatch(projectObject);
 
     mAutoExportEnabled = projectObject.value("autoExportEnabled").toBool(false);
 
@@ -551,6 +552,7 @@ void LayeredImageProject::doSaveAs(const QUrl &url)
     projectObject.insert("currentLayerIndex", mCurrentLayerIndex);
 
     writeGuides(projectObject);
+    writeSwatch(projectObject);
     emit readyForWritingToJson(&projectObject);
 
     if (mAutoExportEnabled) {

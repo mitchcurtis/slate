@@ -45,6 +45,7 @@
 #include "splitter.h"
 #include "spriteimage.h"
 #include "spriteimageprovider.h"
+#include "swatchmodel.h"
 #include "texturedfillparameters.h"
 #include "texturedfillpreviewitem.h"
 #include "tile.h"
@@ -76,6 +77,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     mSettings(new ApplicationSettings),
     mEngine(new QQmlApplicationEngine)
 {
+    qmlRegisterType<AutoSwatchModel>("App", 1, 0, "AutoSwatchModel");
     qmlRegisterType<FileValidator>("App", 1, 0, "FileValidator");
     qmlRegisterType<ImageCanvas>();
     qmlRegisterType<ImageCanvas>("App", 1, 0, "ImageCanvas");
@@ -90,12 +92,12 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterType<SaturationLightnessPicker>("App", 1, 0, "SaturationLightnessPickerTemplate");
     qmlRegisterType<SpriteImage>("App", 1, 0, "SpriteImage");
     qmlRegisterType<Splitter>();
+    qmlRegisterType<SwatchModel>("App", 1, 0, "SwatchModel");
     qmlRegisterType<TexturedFillPreviewItem>("App", 1, 0, "TexturedFillPreviewItem");
     qmlRegisterType<TileCanvas>();
     qmlRegisterType<TileCanvas>("App", 1, 0, "TileCanvas");
     qmlRegisterType<TileGrid>("App", 1, 0, "TileGrid");
     qmlRegisterType<TilesetSwatchImage>("App", 1, 0, "TilesetSwatchImage");
-    qmlRegisterType<AutoSwatchModel>("App", 1, 0, "AutoSwatchModel");
     // TODO: these can probably just be qmlRegisterType<Type>()
     // figure out the difference and update the docs
     qmlRegisterUncreatableType<AnimationPlayback>("App", 1, 0, "AnimationPlayback", QLatin1String("Cannot create objects of type AnimationPlayback"));
@@ -103,6 +105,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterUncreatableType<Project>("App", 1, 0, "Project", QLatin1String("Cannot create objects of type Project"));
     qmlRegisterUncreatableType<LayeredImageProject>("App", 1, 0, "LayeredImageProject",
         QLatin1String("Cannot create objects of type LayeredImageProject"));
+    qmlRegisterUncreatableType<Swatch>("App", 1, 0, "Swatch", QLatin1String("Cannot create objects of type Swatch"));
     qmlRegisterUncreatableType<TexturedFillParameter>("App", 1, 0, "TexturedFillParameter",
         QLatin1String("Cannot create objects of type TexturedFillParameter"));
     qmlRegisterUncreatableType<TexturedFillParameters>("App", 1, 0, "TexturedFillParameters",

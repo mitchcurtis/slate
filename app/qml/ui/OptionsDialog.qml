@@ -21,6 +21,7 @@ Dialog {
     function applyAllSettings() {
         settings.loadLastOnStartup = loadLastCheckBox.checked
         settings.gesturesEnabled = enableGesturesCheckBox.checked
+        settings.autoSwatchEnabled = enableAutoSwatchCheckBox.checked
         settings.checkerColour1 = checkerColour1TextField.colour
         settings.checkerColour2 = checkerColour2TextField.colour
         settings.fpsVisible = showFpsCheckBox.checked
@@ -36,6 +37,7 @@ Dialog {
     function clearChanges() {
         loadLastCheckBox.checked = settings.loadLastOnStartup
         enableGesturesCheckBox.checked = settings.gesturesEnabled
+        enableAutoSwatchCheckBox.checked = settings.autoSwatchEnabled
         checkerColour1TextField.text = settings.checkerColour1
         checkerColour2TextField.text = settings.checkerColour2
         showFpsCheckBox.checked = settings.fpsVisible
@@ -94,7 +96,7 @@ Dialog {
                     leftPadding: 0
                     checked: settings.gesturesEnabled
 
-                    ToolTip.text: qsTr("Enables the use of two-finger panning and pinch-to-zoom on macOS.")
+                    ToolTip.text: qsTr("Enables the use of two-finger panning and pinch-to-zoom on macOS")
                     ToolTip.visible: hovered
                     ToolTip.delay: toolTipDelay
                 }
@@ -164,6 +166,19 @@ Dialog {
                     id: showFpsCheckBox
                     leftPadding: 0
                     checked: settings.fpsVisible
+                }
+
+                Label {
+                    text: qsTr("Enable auto swatch (experimental)")
+                }
+                CheckBox {
+                    id: enableAutoSwatchCheckBox
+                    leftPadding: 0
+                    checked: settings.autoSwatchEnabled
+
+                    ToolTip.text: qsTr("Enables the use of a read-only swatch whose colours come from the image")
+                    ToolTip.visible: hovered
+                    ToolTip.delay: toolTipDelay
                 }
             }
         }

@@ -298,6 +298,31 @@ void ApplicationSettings::setGesturesEnabled(bool gesturesEnabled)
     emit gesturesEnabledChanged();
 }
 
+bool ApplicationSettings::defaultAutoSwatchEnabled() const
+{
+    return false;
+}
+
+bool ApplicationSettings::isAutoSwatchEnabled() const
+{
+    return contains("autoSwatchEnabled") ? value("autoSwatchEnabled").toBool() : defaultAutoSwatchEnabled();
+}
+
+void ApplicationSettings::setAutoSwatchEnabled(bool autoSwatchEnabled)
+{
+    const QVariant existingValue = value("autoSwatchEnabled");
+    bool existingBoolValue = defaultAutoSwatchEnabled();
+    if (contains("autoSwatchEnabled")) {
+        existingBoolValue = existingValue.toBool();
+    }
+
+    if (autoSwatchEnabled == existingBoolValue)
+        return;
+
+    setValue("autoSwatchEnabled", autoSwatchEnabled);
+    emit autoSwatchEnabledChanged();
+}
+
 QColor ApplicationSettings::defaultCheckerColour1() const
 {
     return QColor("#444444");

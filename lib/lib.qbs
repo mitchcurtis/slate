@@ -173,6 +173,12 @@ DynamicLibrary {
         "spriteimage.h",
         "spriteimageprovider.cpp",
         "spriteimageprovider.h",
+        "swatch.cpp",
+        "swatch.h",
+        "swatchcolour.cpp",
+        "swatchcolour.h",
+        "swatchmodel.cpp",
+        "swatchmodel.h",
         "texturedfillparameters.cpp",
         "texturedfillparameters.h",
         "texturedfillpreviewitem.cpp",
@@ -192,6 +198,6 @@ DynamicLibrary {
         "tilesetswatchimage.cpp",
         "tilesetswatchimage.h",
         "utils.cpp",
-        "utils.h"
+        "utils.h",
     ]
 }

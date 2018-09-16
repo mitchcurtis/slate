@@ -32,6 +32,7 @@
 
 #include "guide.h"
 #include "slate-global.h"
+#include "swatch.h"
 
 Q_DECLARE_LOGGING_CATEGORY(lcProject)
 Q_DECLARE_LOGGING_CATEGORY(lcProjectLifecycle)
@@ -53,6 +54,7 @@ class SLATE_EXPORT Project : public QObject
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
     Q_PROPERTY(QUndoStack *undoStack READ undoStack CONSTANT)
     Q_PROPERTY(ApplicationSettings *settings READ settings WRITE setSettings NOTIFY settingsChanged)
+    Q_PROPERTY(Swatch *swatch READ swatch CONSTANT)
 
 public:
     enum Type {
@@ -91,6 +93,9 @@ public:
     virtual void addGuide(const Guide &guide);
     virtual void moveGuide(const Guide &guide, int to);
     virtual void removeGuide(const Guide &guide);
+
+    Swatch *swatch();
+    const Swatch *swatch() const;
 
     virtual int currentLayerIndex() const;
 
@@ -147,6 +152,9 @@ protected:
     void readGuides(const QJsonObject &projectJson);
     void writeGuides(QJsonObject &projectJson) const;
 
+    void readSwatch(const QJsonObject &projectJson);
+    void writeSwatch(QJsonObject &projectJson) const;
+
     ApplicationSettings *mSettings;
 
     bool mFromNew;
@@ -166,6 +174,8 @@ protected:
     bool mHadUnsavedChangesBeforeMacroBegan;
 
     QVector<Guide> mGuides;
+
+    Swatch mSwatch;
 };
 
 #endif // PROJECT_H

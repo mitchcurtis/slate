@@ -57,5 +57,6 @@
         <file>ui/SplitterBar.qml</file>
         <file>ui/CanvasPaneRepeater.qml</file>
         <file>ui/SwatchPanel.qml</file>
+        <file>ui/SwatchGridView.qml</file>
     </qresource>
 </RCC>

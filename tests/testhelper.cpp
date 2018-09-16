@@ -642,13 +642,28 @@ bool TestHelper::everyPixelIs(const QImage &image, const QColor &colour)
     return true;
 }
 
+bool TestHelper::enableAutoSwatch()
+{
+    // The swatches panel is hidden by default when testing; see updateVariables().
+    // Sanity check first.
+    VERIFY(!swatchesPanel->property("expanded").toBool());
+    VERIFY(swatchesPanel->setProperty("expanded", QVariant(true)));
+
+    // Wait until the previous view is destroyed (if any).
+    TRY_VERIFY(!window->findChild<QQuickItem*>("autoSwatchGridView"));
+
+    // Sanity check.
+    VERIFY(!app.settings()->isAutoSwatchEnabled());
+    // Enable auto swatch.
+    app.settings()->setAutoSwatchEnabled(true);
+    return true;
+}
+
 bool TestHelper::swatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour)
 {
     const auto childItems = viewContentItem->childItems();
     for (const QQuickItem *delegateItem : childItems) {
-        const QQuickItem *delegateContentItem = delegateItem->property("contentItem").value<QQuickItem*>();
-        VERIFY(delegateContentItem);
-        if (delegateContentItem->property("color").value<QColor>() == colour)
+        if (delegateItem->property("color").value<QColor>() == colour)
             return true;
     }
 
@@ -1414,6 +1429,7 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     // height, resulting in certain tool buttons not being clickable because they're hidden.
     // It's easier to just show it where necessary.
     VERIFY(swatchesPanel->setProperty("expanded", QVariant(false)));
+    app.settings()->setAutoSwatchEnabled(false);
 
     if (projectType == Project::TilesetType) {
         tilesetProject = qobject_cast<TilesetProject*>(project);

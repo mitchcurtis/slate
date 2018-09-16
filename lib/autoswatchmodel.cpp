@@ -99,6 +99,9 @@ void AutoSwatchModel::setCanvas(ImageCanvas *canvas)
     if (mCanvas) {
         connect(mCanvas, &ImageCanvas::projectChanged, this, &AutoSwatchModel::onProjectChanged);
         connect(mCanvas, &ImageCanvas::pasteSelectionConfirmed, this, &AutoSwatchModel::updateColours);
+
+        if (mCanvas->project())
+            onProjectChanged();
     }
 }
 
@@ -142,6 +145,7 @@ void AutoSwatchModel::onProjectChanged()
             this, &AutoSwatchModel::updateColours);
 
         // Force population.
+        qCDebug(lcAutoSwatchModel) << "project changed; forcing auto swatch model population";
         updateColours();
     }
 }
