@@ -44,46 +44,62 @@ Panel {
         visible: root.expanded
         spacing: 0
 
-        Loader {
-            active: settings.autoSwatchEnabled
+        // We use RowLayouts here because we want the ScrollBar to be positioned
+        // outside of the view.
+        RowLayout {
+            id: autoSwatchRowLayout
+            spacing: 0
 
-            Layout.fillWidth: true
+            // Match the gap that the scrollbar leaves on the right.
+            Layout.leftMargin: 16
             Layout.preferredHeight: 100
-            Layout.fillHeight: true
 
-            sourceComponent: SwatchGridView {
-                id: autoSwatchGridView
-                objectName: "autoSwatchGridView"
-                supportsColourNames: false
+            Loader {
+                active: settings.autoSwatchEnabled
 
-                property real contentYBeforeModelReset
-                property bool lockContentY
+                Layout.fillWidth: true
+                Layout.fillHeight: true
 
-                // Try to maintain the same contentY between model changes
-                // so that the view doesn't fly back to the top every time a new colour is added.
-                Binding {
-                    target: autoSwatchGridView
-                    property: "contentY"
-                    value: autoSwatchGridView.contentYBeforeModelReset
-                    when: autoSwatchGridView.lockContentY
-                }
+                sourceComponent: SwatchGridView {
+                    id: autoSwatchGridView
+                    objectName: "autoSwatchGridView"
+                    supportsColourNames: false
 
-                Connections {
-                    target: autoSwatchGridView.model
-                    onModelAboutToBeReset: {
-                        autoSwatchGridView.contentYBeforeModelReset = autoSwatchGridView.contentY
-                        autoSwatchGridView.lockContentY = true
+                    property real contentYBeforeModelReset
+                    property bool lockContentY
+
+                    // Try to maintain the same contentY between model changes
+                    // so that the view doesn't fly back to the top every time a new colour is added.
+                    Binding {
+                        target: autoSwatchGridView
+                        property: "contentY"
+                        value: autoSwatchGridView.contentYBeforeModelReset
+                        when: autoSwatchGridView.lockContentY
                     }
-                    onModelReset: {
-                        Qt.callLater(function() {
-                            autoSwatchGridView.lockContentY = false
-                            autoSwatchGridView.contentY = autoSwatchGridView.contentYBeforeModelReset
-                        });
-                    }
-                }
 
-                model: AutoSwatchModel {
-                    canvas: root.canvas
+                    Connections {
+                        target: autoSwatchGridView.model
+                        onModelAboutToBeReset: {
+                            autoSwatchGridView.contentYBeforeModelReset = autoSwatchGridView.contentY
+                            autoSwatchGridView.lockContentY = true
+                        }
+                        onModelReset: {
+                            Qt.callLater(function() {
+                                autoSwatchGridView.lockContentY = false
+                                autoSwatchGridView.contentY = autoSwatchGridView.contentYBeforeModelReset
+                            });
+                        }
+                    }
+
+                    ScrollBar.vertical: ScrollBar {
+                        parent: autoSwatchRowLayout
+
+                        Layout.fillHeight: true
+                    }
+
+                    model: AutoSwatchModel {
+                        canvas: root.canvas
+                    }
                 }
             }
         }
@@ -96,17 +112,30 @@ Panel {
 
             Layout.fillWidth: true
         }
-        SwatchGridView {
-            id: swatchGridView
-            objectName: "swatchGridView"
-            supportsColourNames: true
+        RowLayout {
+            id: swatchRowLayout
+            spacing: 0
 
-            Layout.fillWidth: true
+            Layout.leftMargin: 16
             Layout.preferredHeight: 100
-            Layout.fillHeight: true
 
-            model: SwatchModel {
-                project: root.project
+            SwatchGridView {
+                id: swatchGridView
+                objectName: "swatchGridView"
+                supportsColourNames: true
+
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                ScrollBar.vertical: ScrollBar {
+                    parent: swatchRowLayout
+
+                    Layout.fillHeight: true
+                }
+
+                model: SwatchModel {
+                    project: root.project
+                }
             }
         }
     }
@@ -137,6 +166,11 @@ Panel {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 Layout.leftMargin: 6
+
+                ToolTip.text: qsTr("New swatch colour")
+                ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
+                ToolTip.timeout: toolTipTimeout
 
                 onClicked: project.swatch.addColour("", canvas.penForegroundColour)
             }

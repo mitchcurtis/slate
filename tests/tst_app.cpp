@@ -2248,6 +2248,8 @@ void tst_App::autoSwatch()
 // The contentY should not be reset between changes.
 void tst_App::autoSwatchGridViewContentY()
 {
+    QSKIP("Flaky experimental stuff");
+
     QVERIFY2(createNewImageProject(16, 16, false), failureMessage);
 
     QVERIFY2(enableAutoSwatch(), failureMessage);

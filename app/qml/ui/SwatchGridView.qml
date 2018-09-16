@@ -14,8 +14,6 @@ GridView {
 
     property bool supportsColourNames
 
-    ScrollBar.vertical: ScrollBar {}
-
     delegate: Rectangle {
         id: colourDelegate
         width: 16
@@ -77,7 +75,8 @@ GridView {
             }
         }
 
-        ToolTip.text: supportsColourNames ? model.name : model.colour
+        ToolTip.text: !supportsColourNames || model.name.length === 0
+            ? model.colour : model.name + "(" + model.colour + ")"
         ToolTip.visible: mouseArea.containsMouse
         ToolTip.delay: toolTipDelay
     }
