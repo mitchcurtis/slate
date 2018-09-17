@@ -1,7 +1,7 @@
 import qbs
 
 DynamicLibrary {
-    targetName: "lib"
+    targetName: "slate"
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["core", "gui", "quick", "widgets"]; versionAtLeast: "5.12" }

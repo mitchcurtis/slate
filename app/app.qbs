@@ -5,6 +5,9 @@ Project {
     minimumQbsVersion: "1.7.1"
 
     CppApplication {
+        name: "slate"
+        consoleApplication: false
+
         Depends { name: "Qt.core" }
         Depends { name: "Qt.quick" }
         Depends { name: "Qt.widgets" }
