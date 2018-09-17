@@ -9,6 +9,7 @@ import "." as Ui
 
 Panel {
     id: root
+    objectName: "tilesetSwatchPanel"
     title: qsTr("Tileset Swatch")
     implicitWidth: tilesetImage.implicitWidth
 

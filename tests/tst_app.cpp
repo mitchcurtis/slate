@@ -402,8 +402,7 @@ void tst_App::saveAsAndLoadTilesetProject()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage closedCanvasImage = imageGrabber.takeImage();
 
-    tilesetProject->load(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY2(loadProject(QUrl::fromLocalFile(savedProjectPath)), failureMessage);
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     QVERIFY(imageGrabber.takeImage() != closedCanvasImage);
@@ -540,6 +539,7 @@ void tst_App::animationPlayback()
     QCOMPARE(layeredImageProject->isUsingAnimation(), false);
 
     QVERIFY2(setAnimationPlayback(true), failureMessage);
+    QVERIFY2(togglePanel("animationPanel", true), failureMessage);
 
     // Open the settings popup to modify the settings slightly.
     QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
@@ -946,6 +946,7 @@ void tst_App::undoPixels()
 void tst_App::undoLargePixelPen()
 {
     QVERIFY2(createNewTilesetProject(), failureMessage);
+    QVERIFY2(togglePanel("tilesetSwatchPanel", true), failureMessage);
 
     QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
@@ -1315,6 +1316,7 @@ void tst_App::undoImageSizeChange()
 void tst_App::undoLayeredImageSizeChange()
 {
     QVERIFY2(createNewLayeredImageProject(12, 12), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     QVERIFY2(changeToolSize(4), failureMessage);
 
@@ -1384,6 +1386,7 @@ void tst_App::undoLayeredImageSizeChange()
 void tst_App::undoPixelFill()
 {
     QVERIFY2(createNewTilesetProject(), failureMessage);
+    QVERIFY2(togglePanel("tilesetSwatchPanel", true), failureMessage);
 
     QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
@@ -1448,6 +1451,7 @@ void tst_App::undoPixelFill()
 void tst_App::undoTileFill()
 {
     QVERIFY2(createNewTilesetProject(), failureMessage);
+    QVERIFY2(togglePanel("tilesetSwatchPanel", true), failureMessage);
 
     // Draw a block of tiles.
     setCursorPosInTiles(0, 0);
@@ -1536,6 +1540,7 @@ void tst_App::colours()
     QFETCH(Project::Type, projectType);
 
     QVERIFY2(createNewProject(projectType), failureMessage);
+    QVERIFY2(togglePanel("colourPanel", true), failureMessage);
     QCOMPARE(canvas->penForegroundColour(), QColor(Qt::black));
     QCOMPARE(canvas->penBackgroundColour(), QColor(Qt::white));
 
@@ -1697,6 +1702,7 @@ void tst_App::altEyedropper()
 void tst_App::eyedropper()
 {
     QVERIFY2(createNewTilesetProject(), failureMessage);
+    QVERIFY2(togglePanel("tilesetSwatchPanel", true), failureMessage);
 
     QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
@@ -1844,13 +1850,14 @@ void tst_App::penWhilePannedAndZoomed()
 void tst_App::useTilesetSwatch()
 {
     QVERIFY2(createNewTilesetProject(), failureMessage);
+    QVERIFY2(togglePanel("tilesetSwatchPanel", true), failureMessage);
 
     QVERIFY2(switchMode(TileCanvas::TileMode), failureMessage);
 
     QCOMPARE(tileCanvas->penTile(), tilesetProject->tilesetTileAt(0, 0));
 
     // Ensure that the tileset swatch flickable has the correct contentY.
-    QQuickItem *tilesetSwatchFlickable = tilesetSwatch->findChild<QQuickItem*>("tilesetSwatchFlickable");
+    QQuickItem *tilesetSwatchFlickable = tilesetSwatchPanel->findChild<QQuickItem*>("tilesetSwatchFlickable");
     QVERIFY(tilesetSwatchFlickable);
     QVERIFY(tilesetSwatchFlickable->property("contentY").isValid());
     QCOMPARE(tilesetSwatchFlickable->property("contentY").toReal(), 0.0);
@@ -1877,7 +1884,7 @@ void tst_App::useTilesetSwatch()
     QVERIFY(tileCanvas->penForegroundColour() != expectedTile->tileset()->image()->pixelColor(pixelPos));
 
     // Take a snapshot of the swatch to make sure that it's actually updated.
-    QVERIFY(imageGrabber.requestImage(tilesetSwatch));
+    QVERIFY(imageGrabber.requestImage(tilesetSwatchPanel));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage originalTilesetSnapshot = imageGrabber.takeImage();
 
@@ -1886,7 +1893,7 @@ void tst_App::useTilesetSwatch()
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QVERIFY(*expectedTile->tileset()->image() != originalTilesetImage);
 
-    QVERIFY(imageGrabber.requestImage(tilesetSwatch));
+    QVERIFY(imageGrabber.requestImage(tilesetSwatchPanel));
     QTRY_VERIFY(imageGrabber.isReady());
     QVERIFY(imageGrabber.takeImage() != originalTilesetSnapshot);
 }
@@ -2048,6 +2055,7 @@ void tst_App::cursorShapeAfterClickingLighter()
 void tst_App::colourPickerHexField()
 {
     QVERIFY2(createNewImageProject(), failureMessage);
+    QVERIFY2(togglePanel("colourPanel", true), failureMessage);
 
     QQuickItem *hexTextField = window->findChild<QQuickItem*>("hexTextField");
     QVERIFY(hexTextField);
@@ -2056,7 +2064,7 @@ void tst_App::colourPickerHexField()
     const QColor originalPenColour = canvas->penForegroundColour();
 
     mouseEventOnCentre(hexTextField, MouseClick);
-    QCOMPARE(hexTextField->property("activeFocus").toBool(), true);
+    ENSURE_ACTIVE_FOCUS(hexTextField);
 
     keySequence(window, QKeySequence::SelectAll);
     QTest::keyClick(window, Qt::Key_Backspace);
@@ -2203,7 +2211,6 @@ void tst_App::autoSwatch()
     const bool isTilesetProject = projectType == Project::TilesetType;
 
     QVERIFY2(createNewProject(projectType), failureMessage);
-
     QVERIFY2(enableAutoSwatch(), failureMessage);
 
     QQuickItem *autoSwatchGridView = window->findChild<QQuickItem*>("autoSwatchGridView");
@@ -3032,6 +3039,7 @@ void tst_App::fillImageCanvas()
 void tst_App::fillLayeredImageCanvas()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     // Add a new layer.
     mouseEventOnCentre(newLayerButton, MouseClick);
@@ -3494,6 +3502,7 @@ void tst_App::recentFiles()
 void tst_App::addAndRemoveLayers()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
@@ -3590,6 +3599,7 @@ void tst_App::addAndRemoveLayers()
 void tst_App::layerVisibility()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     // Make comparing grabbed image pixels easier.
     QVERIFY2(panTopLeftTo(0, 0), failureMessage);
@@ -3651,6 +3661,7 @@ void tst_App::layerVisibility()
 void tst_App::moveLayerUpAndDown()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     QCOMPARE(moveLayerDownButton->isEnabled(), false);
     QCOMPARE(moveLayerUpButton->isEnabled(), false);
@@ -3698,6 +3709,7 @@ void tst_App::moveLayerUpAndDown()
 void tst_App::mergeLayerUpAndDown()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     QObject *mergeLayerDownMenuItem = window->findChild<QObject*>("mergeLayerDownMenuItem");
     QVERIFY(mergeLayerDownMenuItem);
@@ -3811,6 +3823,7 @@ void tst_App::mergeLayerUpAndDown()
 void tst_App::renameLayers()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     QQuickItem *delegate = nullptr;
     QVERIFY2(verifyLayerName("Layer 1", &delegate), failureMessage);
@@ -3856,6 +3869,7 @@ void tst_App::renameLayers()
 void tst_App::duplicateLayers()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     QQuickItem *duplicateLayerButton = window->findChild<QQuickItem*>("duplicateLayerButton");
     QVERIFY(duplicateLayerButton);
@@ -3878,6 +3892,7 @@ void tst_App::duplicateLayers()
 void tst_App::saveAndLoadLayeredImageProject()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     // Make comparing grabbed image pixels easier.
     QVERIFY2(panTopLeftTo(0, 0), failureMessage);
@@ -3946,9 +3961,8 @@ void tst_App::saveAndLoadLayeredImageProject()
     // Load the saved file using the proper approach, as simply calling
     // layeredImageProject->load(saveUrl) will not trigger the contentY to
     // be set upon loading the project.
-    QVERIFY(QMetaObject::invokeMethod(window, "loadProject", Qt::DirectConnection, Q_ARG(QVariant, saveUrl)));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
-    QVERIFY2(updateVariables(false, Project::LayeredImageType), failureMessage);
+    QVERIFY2(loadProject(saveUrl), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
     // There may be a nicer way of knowing when the ListView is ready?
     do {
         layerListView = window->findChild<QQuickItem*>("layerListView");
@@ -3973,6 +3987,7 @@ void tst_App::saveAndLoadLayeredImageProject()
 void tst_App::layerVisibilityAfterMoving()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     // Make comparing grabbed image pixels easier.
     QVERIFY2(panTopLeftTo(0, 0), failureMessage);
@@ -4063,6 +4078,7 @@ void tst_App::selectionConfirmedWhenSwitchingLayers()
 
     // Create a new layered image project with the dimensions of the clipboard contents.
     QVERIFY2(createNewLayeredImageProject(100, 200), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
@@ -4097,6 +4113,7 @@ void tst_App::selectionConfirmedWhenSwitchingLayers()
 void tst_App::newLayerAfterMovingSelection()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     // Switch to the selection tool.
     QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
@@ -4120,6 +4137,7 @@ void tst_App::newLayerAfterMovingSelection()
 void tst_App::undoAfterMovingTwoSelections()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
@@ -4236,6 +4254,7 @@ void tst_App::autoExport()
 void tst_App::exportFileNamedLayers()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     layeredImageProject->setAutoExportEnabled(true);
 
@@ -4391,6 +4410,7 @@ void tst_App::exportFileNamedLayers()
 void tst_App::disableToolsWhenLayerHidden()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     // The cursor should be normal.
     setCursorPosInScenePixels(0, 0);
@@ -4469,6 +4489,7 @@ void tst_App::undoMoveContents()
 void tst_App::undoMoveContentsOfVisibleLayers()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     // Draw a red dot.
     layeredImageCanvas->setPenForegroundColour(Qt::red);

@@ -47,7 +47,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     redoButton(nullptr),
     penForegroundColourButton(nullptr),
     penBackgroundColourButton(nullptr),
-    tilesetSwatch(nullptr),
+    tilesetSwatchPanel(nullptr),
     tilesetSwatchFlickable(nullptr),
     newLayerButton(nullptr),
     moveLayerDownButton(nullptr),
@@ -159,6 +159,7 @@ void TestHelper::initTestCase()
     desaturateButton = window->findChild<QQuickItem*>("desaturateButton");
     QVERIFY(desaturateButton);
 
+    // This is not in a Loader, and hence it is always available.
     swatchesPanel = window->findChild<QQuickItem*>("swatchesPanel");
     QVERIFY(swatchesPanel);
 
@@ -645,9 +646,8 @@ bool TestHelper::everyPixelIs(const QImage &image, const QColor &colour)
 bool TestHelper::enableAutoSwatch()
 {
     // The swatches panel is hidden by default when testing; see updateVariables().
-    // Sanity check first.
-    VERIFY(!swatchesPanel->property("expanded").toBool());
-    VERIFY(swatchesPanel->setProperty("expanded", QVariant(true)));
+    if (!togglePanel("swatchesPanel", true))
+        return false;
 
     // Wait until the previous view is destroyed (if any).
     TRY_VERIFY(!window->findChild<QQuickItem*>("autoSwatchGridView"));
@@ -1157,8 +1157,7 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     VERIFY(newProjectPopup->property("visible").toBool());
     // TODO: remove this when https://bugreports.qt.io/browse/QTBUG-53420 is fixed
     newProjectPopup->property("contentItem").value<QQuickItem*>()->forceActiveFocus();
-    VERIFY2(newProjectPopup->property("activeFocus").toBool(),
-        qPrintable(QString::fromLatin1("NewProjectPopup doesn't have active focus (%1 does)").arg(window->activeFocusItem()->objectName())));
+    ENSURE_ACTIVE_FOCUS(newProjectPopup);
 
     QString newProjectButtonObjectName;
     if (projectType == Project::TilesetType) {
@@ -1425,10 +1424,6 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     // (because of wheel events) and I haven't looked into it yet because it's not really important.
     canvas->setGesturesEnabled(false);
 
-    // Again, another old default. Adding yet another panel makes the colour panel lose some of its
-    // height, resulting in certain tool buttons not being clickable because they're hidden.
-    // It's easier to just show it where necessary.
-    VERIFY(swatchesPanel->setProperty("expanded", QVariant(false)));
     app.settings()->setAutoSwatchEnabled(false);
 
     if (projectType == Project::TilesetType) {
@@ -1486,15 +1481,15 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
 
     if (projectType == Project::TilesetType) {
         // Establish references to TilesetProject-specific properties.
-        tilesetSwatch = window->findChild<QQuickItem*>("tilesetSwatch");
-        VERIFY(tilesetSwatch);
-        VERIFY(tilesetSwatch->isVisible() == true);
-        VERIFY(!qFuzzyIsNull(tilesetSwatch->width()));
+        tilesetSwatchPanel = window->findChild<QQuickItem*>("tilesetSwatchPanel");
+        VERIFY(tilesetSwatchPanel);
+        VERIFY(tilesetSwatchPanel->isVisible() == true);
+        VERIFY(!qFuzzyIsNull(tilesetSwatchPanel->width()));
         // This started failing recently for some reason, but giving it some time seems to help.
-        TRY_VERIFY(!qFuzzyIsNull(tilesetSwatch->height()));
+        TRY_VERIFY(!qFuzzyIsNull(tilesetSwatchPanel->height()));
 
         // Ensure that the tileset swatch flickable has the correct contentY.
-        tilesetSwatchFlickable = tilesetSwatch->findChild<QQuickItem*>("tilesetSwatchFlickable");
+        tilesetSwatchFlickable = tilesetSwatchPanel->findChild<QQuickItem*>("tilesetSwatchFlickable");
         VERIFY(tilesetSwatchFlickable);
         VERIFY(tilesetSwatchFlickable->property("contentY").isValid());
         VERIFY(tilesetSwatchFlickable->property("contentY").toReal() == 0.0);
@@ -1505,6 +1500,14 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     } else {
         VERIFY(window->findChild<QQuickItem*>("selectionToolButton"));
     }
+
+    // Make sure we call any functions that use the variables we set last.
+
+    // Having too many panels can result in the panel that a particular test is interested in being
+    // too small, meaning certain tool buttons cannot be clicked because they're hidden.
+    // It's more reliable to just show the relevant panels where necessary.
+    if (!collapseAllPanels())
+        return false;
 
     return true;
 }
@@ -1558,6 +1561,60 @@ bool TestHelper::setupTempProjectDir(const QStringList &resourceFilesToCopy, QSt
             *filesCopied << saveFilePath;
     }
 
+    return true;
+}
+
+bool TestHelper::collapseAllPanels()
+{
+    if (project->type() == Project::TilesetType) {
+        if (!togglePanel("tilesetSwatchPanel", false))
+            return false;
+    } else if (project->type() == Project::LayeredImageType) {
+        if (!togglePanel("layerPanel", false))
+            return false;
+    }
+
+    if (!togglePanel("colourPanel", false))
+        return false;
+
+    if (!togglePanel("swatchesPanel", false))
+        return false;
+
+    if (project->type() == Project::ImageType || project->type() == Project::LayeredImageType) {
+        if (!togglePanel("animationPanel", false))
+            return false;
+    }
+
+    return true;
+}
+
+bool TestHelper::togglePanel(const QString &panelObjectName, bool expanded)
+{
+    QQuickItem *panel = window->findChild<QQuickItem*>(panelObjectName);
+    VERIFY(panel);
+
+    if (panel->property("expanded").toBool() == expanded)
+        return true;
+
+    const qreal originalHeight = panel->height();
+    VERIFY(panel->setProperty("expanded", QVariant(expanded)));
+    VERIFY(panel->property("expanded").toBool() == expanded);
+    if (expanded) {
+        // Ensure that it has time to grow, otherwise stuff like input events will not work.
+        TRY_VERIFY2(panel->height() > originalHeight, qPrintable(QString::fromLatin1(
+            "Expected expanded height of %1 to be larger than collapsed height of %2, but it wasn't")
+                .arg(panelObjectName).arg(originalHeight)));
+    } else {
+        // If it's not visible, it's height might not update until it's visible again, apparently.
+        // That's fine with us.
+        if (panel->isVisible()) {
+            // Ensure that the panel isn't visually expanded. We don't want to hard-code what the collapsed height
+            // is, so we just make sure it's less than some large height.
+            TRY_VERIFY2(panel->height() < 100, qPrintable(QString::fromLatin1(
+                "Expected collapsed height of %1 to be small, but it's %2")
+                    .arg(panelObjectName).arg(panel->height())));
+        }
+    }
     return true;
 }
 

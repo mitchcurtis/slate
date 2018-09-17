@@ -191,6 +191,10 @@ protected:
     Q_REQUIRED_RESULT bool setupTempProjectDir(const QStringList &resourceFilesToCopy = QStringList(),
         QStringList *filesCopied = nullptr);
 
+    Q_REQUIRED_RESULT bool collapseAllPanels();
+    Q_REQUIRED_RESULT bool togglePanel(const QString &panelObjectName, bool expanded);
+    Q_REQUIRED_RESULT bool expandColourPanel();
+
     Q_REQUIRED_RESULT bool switchMode(TileCanvas::Mode mode);
     Q_REQUIRED_RESULT bool switchTool(ImageCanvas::Tool tool, InputType inputType = MouseInputType);
     Q_REQUIRED_RESULT bool setPenForegroundColour(QString argbString);
@@ -250,7 +254,7 @@ protected:
     QQuickItem *saturateButton;
     QQuickItem *desaturateButton;
     QQuickItem *swatchesPanel;
-    QQuickItem *tilesetSwatch;
+    QQuickItem *tilesetSwatchPanel;
     QQuickItem *tilesetSwatchFlickable;
     QQuickItem *newLayerButton;
     QQuickItem *duplicateLayerButton;

@@ -62,7 +62,7 @@ do { \
     VERIFY(expr); \
 } while (false)
 
-#define TRY_VERIFY(expr) TRY_VERIFY_WITH_TIMEOUT((expr), 5000)
+#define TRY_VERIFY(expr) TRY_VERIFY_WITH_TIMEOUT((expr), 1000)
 
 // Will try to wait for the expression to become true while allowing event processing
 #define TRY_VERIFY2_WITH_TIMEOUT(expr, messageExpression, timeout) \
@@ -71,6 +71,12 @@ do { \
     VERIFY2(expr, messageExpression); \
 } while (false)
 
-#define TRY_VERIFY2(expr, messageExpression) TRY_VERIFY2_WITH_TIMEOUT((expr), (messageExpression), 5000)
+#define TRY_VERIFY2(expr, messageExpression) TRY_VERIFY2_WITH_TIMEOUT((expr), (messageExpression), 1000)
+
+#define ENSURE_ACTIVE_FOCUS(object) \
+if (!object->property("activeFocus").toBool()) { \
+    failureMessage = qPrintable(QString::fromLatin1("Expected %1 to have active focus, but %2 has it") \
+        .arg(object->objectName()).arg(window->activeFocusItem()->objectName())); \
+}
 
 #endif // TESTUTILS_H

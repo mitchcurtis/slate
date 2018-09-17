@@ -48,6 +48,7 @@ Panel {
     }
 
     contentItem: ColumnLayout {
+        visible: root.expanded
         spacing: 0
 
         Flickable {

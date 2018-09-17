@@ -222,7 +222,6 @@ ApplicationWindow {
                 active: window.projectType === Project.TilesetType && window.canvas
                 sourceComponent: Ui.TilesetSwatch {
                     id: tilesetSwatch
-                    objectName: "tilesetSwatch"
                     tileCanvas: window.canvas
                     project: window.project
                     // Don't let e.g. the pencil icon go under us.
@@ -241,7 +240,6 @@ ApplicationWindow {
                 objectName: "layersLoader"
                 active: window.projectType === Project.LayeredImageType && window.canvas
                 sourceComponent: Ui.LayerPanel {
-                    objectName: "layerPanel"
                     layeredImageCanvas: window.canvas
                     project: window.project
                     z: canvasContainer.z - 1

@@ -28,6 +28,7 @@ import "." as Ui
 
 Panel {
     id: root
+    objectName: "layerPanel"
     title: qsTr("Layers")
     padding: 0
 
