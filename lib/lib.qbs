@@ -21,8 +21,8 @@ DynamicLibrary {
 //        cpp.cxxFlags: ["-Wno-unknown-pragmas"]
 //    }
 
-//    bundle.isBundle: false
-//    cpp.sonamePrefix: qbs.targetOS.contains("darwin") ? "@rpath" : undefined
+    bundle.isBundle: false
+    cpp.sonamePrefix: qbs.targetOS.contains("darwin") ? "@rpath" : undefined
 
     Export {
         Depends { name: "cpp" }
@@ -35,18 +35,11 @@ DynamicLibrary {
         cpp.includePaths: [product.sourceDirectory]
     }
 
-//    Group {
-//        qbs.install: true
-//        qbs.installDir: {
-//            if (qbs.targetOS.contains("windows"))
-//                return ""
-//            else if (qbs.targetOS.contains("darwin"))
-//                return "Tiled.app/Contents/Frameworks"
-//            else
-//                return "lib"
-//        }
-//        fileTagsFilter: "dynamiclibrary"
-//    }
+    Group {
+        qbs.install: qbs.targetOS.contains("darwin")
+        qbs.installDir: "slate.app/Contents/Frameworks"
+        fileTagsFilter: "dynamiclibrary"
+    }
 
     files: [
         "addguidecommand.cpp",
