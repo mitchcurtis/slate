@@ -1868,7 +1868,7 @@ void ImageCanvas::applyCurrentTool()
     case EyeDropperTool: {
         const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
         if (isWithinImage(scenePos)) {
-            setPenForegroundColour(currentProjectImage()->pixelColor(scenePos));
+            setPenColour(currentProjectImage()->pixelColor(scenePos));
         }
         break;
     }
@@ -2217,12 +2217,24 @@ void ImageCanvas::error(const QString &message)
     emit errorOccurred(message);
 }
 
-QColor ImageCanvas::penColour() const
+Qt::MouseButton ImageCanvas::pressedMouseButton() const
 {
     // For some tools, like the line tool, the mouse button won't be pressed at times,
     // so we take the last mouse button that was pressed.
-    const Qt::MouseButton button = mMouseButtonPressed == Qt::NoButton ? mLastMouseButtonPressed : mMouseButtonPressed;
-    return button == Qt::LeftButton ? mPenForegroundColour : mPenBackgroundColour;
+    return mMouseButtonPressed == Qt::NoButton ? mLastMouseButtonPressed : mMouseButtonPressed;
+}
+
+QColor ImageCanvas::penColour() const
+{
+    return pressedMouseButton() == Qt::LeftButton ? mPenForegroundColour : mPenBackgroundColour;
+}
+
+void ImageCanvas::setPenColour(const QColor &colour)
+{
+    if (pressedMouseButton() == Qt::LeftButton)
+        setPenForegroundColour(colour);
+    else
+        setPenBackgroundColour(colour);
 }
 
 void ImageCanvas::setHasBlankCursor(bool hasCustomCursor)

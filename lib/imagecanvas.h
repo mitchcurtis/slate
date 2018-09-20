@@ -353,7 +353,10 @@ protected:
     virtual void updateCursorPos(const QPoint &eventPos);
     void updateVisibleSceneArea();
     void error(const QString &message);
+
+    Qt::MouseButton pressedMouseButton() const;
     QColor penColour() const;
+    void setPenColour(const QColor &colour);
     void setHasBlankCursor(bool hasBlankCursor);
     void restoreToolBeforeAltPressed();
     virtual bool areToolsForbidden() const;

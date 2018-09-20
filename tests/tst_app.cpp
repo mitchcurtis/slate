@@ -77,6 +77,7 @@ private Q_SLOTS:
     void panes();
     void altEyedropper();
     void eyedropper();
+    void eyedropperBackgroundColour();
     void zoomAndPan();
     void zoomAndCentre();
     void penWhilePannedAndZoomed_data();
@@ -1737,6 +1738,26 @@ void tst_App::eyedropper()
     setCursorPosInTiles(1, 1);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(tileCanvas->penTile(), originalTile);
+}
+
+// Check that the eyedropper applies the colour to the background colour if it's selected (#75).
+void tst_App::eyedropperBackgroundColour()
+{
+    QVERIFY2(createNewImageProject(), failureMessage);
+    QVERIFY2(togglePanel("colourPanel", true), failureMessage);
+
+    // Draw a black pixel.
+    setCursorPosInScenePixels(QPoint(10, 10));
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    // Make the background colour active.
+    mouseEvent(penBackgroundColourButton,
+        QPoint(penBackgroundColourButton->width() - 1, penBackgroundColourButton->width() - 1), MouseClick);
+
+    // Select the black pixel; the background colour should then be black.
+    QVERIFY2(switchTool(ImageCanvas::EyeDropperTool), failureMessage);
+    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->penBackgroundColour(), QColor(Qt::black));
 }
 
 void tst_App::zoomAndPan()
