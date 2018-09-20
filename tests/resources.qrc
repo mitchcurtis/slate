@@ -3,5 +3,7 @@
         <file>resources/test-tile.png</file>
         <file>resources/test-tileset.png</file>
         <file>resources/test-colourful.png</file>
+        <file>resources/version-check-v0.2.1.slp</file>
+        <file>resources/version-check-v0.2.1.stp</file>
     </qresource>
 </RCC>

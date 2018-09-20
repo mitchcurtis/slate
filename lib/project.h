@@ -134,15 +134,17 @@ signals:
     void aboutToBeginMacro(const QString &text);
 
 public slots:
-    virtual void load(const QUrl &url);
-    virtual void close();
+    void load(const QUrl &url);
+    void close();
     virtual void save();
-    virtual void saveAs(const QUrl &url);
+    void saveAs(const QUrl &url);
     virtual void revert();
 
 protected:
     void error(const QString &message);
 
+    virtual void doLoad(const QUrl &url);
+    virtual void doClose();
     virtual void doSaveAs(const QUrl &url);
 
     void setComposingMacro(bool composingMacro, const QString &macroText = QString());

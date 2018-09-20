@@ -1,0 +1,31 @@
+{
+    "project": {
+        "currentLayerIndex": 0,
+        "firstPane": {
+            "offsetX": 720,
+            "offsetY": 460,
+            "sceneCentered": true,
+            "size": 1,
+            "zoomLevel": 1
+        },
+        "guides": [
+        ],
+        "lastFillToolUsed": "FillTool",
+        "layerListViewContentY": 0,
+        "layers": [
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAC0lEQVQImWP4DwQACfsD/eNV8pwAAAAASUVORK5CYII=",
+                "name": "Layer 1",
+                "opacity": 1,
+                "visible": true
+            }
+        ],
+        "secondPane": {
+            "offsetX": 0,
+            "offsetY": 460,
+            "sceneCentered": true,
+            "size": 0,
+            "zoomLevel": 1
+        }
+    }
+}

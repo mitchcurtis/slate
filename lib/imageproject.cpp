@@ -96,10 +96,8 @@ void ImageProject::createNew(int imageWidth, int imageHeight, bool transparentBa
     qCDebug(lcProject) << "finished creating new project";
 }
 
-void ImageProject::load(const QUrl &url)
+void ImageProject::doLoad(const QUrl &url)
 {
-    qCDebug(lcProject) << "loading project:" << url;
-
     mUsingTempImage = false;
 
     mImage = QImage(url.toLocalFile());
@@ -110,14 +108,10 @@ void ImageProject::load(const QUrl &url)
 
     setUrl(url);
     emit projectLoaded();
-
-    qCDebug(lcProject) << "loaded project";
 }
 
-void ImageProject::close()
+void ImageProject::doClose()
 {
-    qCDebug(lcProject) << "closing project...";
-
     setNewProject(false);
     mImage = QImage();
     mImageUrl = QUrl();
@@ -127,8 +121,6 @@ void ImageProject::close()
     mUsingAnimation = false;
     mAnimationPlayback.reset();
     emit projectClosed();
-
-    qCDebug(lcProject) << "... closed project";
 }
 
 void ImageProject::doSaveAs(const QUrl &url)

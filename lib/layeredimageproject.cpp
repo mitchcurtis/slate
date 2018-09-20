@@ -410,10 +410,8 @@ void LayeredImageProject::createNew(int imageWidth, int imageHeight, bool transp
     qCDebug(lcProject) << "finished creating new project";
 }
 
-void LayeredImageProject::load(const QUrl &url)
+void LayeredImageProject::doLoad(const QUrl &url)
 {
-    qCDebug(lcProject) << "loading project:" << url;
-
     const QString filePath = url.toLocalFile();
     if (!QFileInfo::exists(filePath)) {
         error(QString::fromLatin1("Layered image project does not exist:\n\n%1").arg(filePath));
@@ -467,14 +465,10 @@ void LayeredImageProject::load(const QUrl &url)
 
     setUrl(url);
     emit projectLoaded();
-
-    qCDebug(lcProject) << "loaded project";
 }
 
-void LayeredImageProject::close()
+void LayeredImageProject::doClose()
 {
-    qCDebug(lcProject) << "closing project...";
-
     setNewProject(false);
 
     // Workaround for QTBUG-62946; when it's fixed we can remove the new code
@@ -501,8 +495,6 @@ void LayeredImageProject::close()
     mAnimationPlayback.reset();
     mLayerListViewContentY = 0.0;
     emit projectClosed();
-
-    qCDebug(lcProject) << "... closed project";
 }
 
 void LayeredImageProject::doSaveAs(const QUrl &url)

@@ -138,12 +138,27 @@ bool Project::canSave() const
     return !mComposingMacro && (isNewProject() || hasUnsavedChanges());
 }
 
-void Project::load(const QUrl &)
+void Project::load(const QUrl &url)
 {
+    qCDebug(lcProject) << "loading project:" << url;
+
+    close();
+
+    doLoad(url);
+
+    qCDebug(lcProject) << "loaded project";
 }
 
 void Project::close()
 {
+    if (!hasLoaded())
+        return;
+
+    qCDebug(lcProject) << "closing project:" << mUrl;
+
+    doClose();
+
+    qCDebug(lcProject) << "closed project";
 }
 
 void Project::save()
@@ -177,6 +192,14 @@ void Project::revert()
 void Project::error(const QString &message)
 {
     emit errorOccurred(message);
+}
+
+void Project::doLoad(const QUrl &)
+{
+}
+
+void Project::doClose()
+{
 }
 
 void Project::doSaveAs(const QUrl &)

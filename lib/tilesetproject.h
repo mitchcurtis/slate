@@ -102,10 +102,10 @@ public slots:
         int tilesetTilesWide, int tilesetTilesHigh,
         int canvasTilesWide, int canvasTilesHigh,
         bool transparentBackground);
-    void load(const QUrl &url) override;
-    void close() override;
 
 protected:
+    void doLoad(const QUrl &url) override;
+    void doClose() override;
     void doSaveAs(const QUrl &url) override;
 
 private:

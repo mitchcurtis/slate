@@ -54,6 +54,7 @@ public:
     Q_INVOKABLE void beginCreation(Project::Type projectType);
     Q_INVOKABLE bool completeCreation();
 
+    Project::Type projectTypeForFileName(const QString &fileName) const;
     Q_INVOKABLE Project::Type projectTypeForUrl(const QUrl &url) const;
 
 signals:

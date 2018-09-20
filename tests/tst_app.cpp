@@ -55,6 +55,9 @@ private Q_SLOTS:
     void saveAsAndLoadTilesetProject();
     void saveAsAndLoad_data();
     void saveAsAndLoad();
+    void versionCheck_data();
+    void versionCheck();
+
     void animationPlayback();
     void keyboardShortcuts();
     void optionsShortcutCancelled();
@@ -532,6 +535,33 @@ void tst_App::saveAsAndLoad()
                << "\n    Expected: " << expectedSwatchColours;
         QFAIL(qPrintable(message));
     }
+}
+
+void tst_App::versionCheck_data()
+{
+    QTest::addColumn<QString>("projectFileName");
+
+    QTest::newRow("version-check-v0.2.1.slp") << QString::fromLatin1("version-check-v0.2.1.slp");
+//    QTest::newRow("version-check-v0.2.1.stp") << QString::fromLatin1("version-check-v0.2.1.stp");
+}
+
+// Tests that old project files can still be loaded.
+void tst_App::versionCheck()
+{
+    QFETCH(QString, projectFileName);
+
+    // Ensure that we have a temporary directory.
+    if (projectManager->projectTypeForFileName(projectFileName) == Project::LayeredImageType)
+        QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+    else
+        QVERIFY2(setupTempTilesetProjectDir(), failureMessage);
+
+    // Copy the project file from resources into our temporary directory.
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+
+    // Try to load the project; there shouldn't be any errors.
+    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
+    QVERIFY2(loadProject(QUrl::fromLocalFile(absolutePath)), failureMessage);
 }
 
 void tst_App::animationPlayback()

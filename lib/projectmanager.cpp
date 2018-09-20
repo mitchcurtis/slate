@@ -189,11 +189,15 @@ bool ProjectManager::completeCreation()
     return true;
 }
 
+Project::Type ProjectManager::projectTypeForFileName(const QString &fileName) const
+{
+    return fileName.endsWith(".stp") ? Project::TilesetType
+        : fileName.endsWith(".slp") ? Project::LayeredImageType : Project::ImageType;
+}
+
 Project::Type ProjectManager::projectTypeForUrl(const QUrl &url) const
 {
-    const QString urlString = url.toString();
-    return urlString.endsWith(".stp") ? Project::TilesetType
-        : urlString.endsWith(".slp") ? Project::LayeredImageType : Project::ImageType;
+    return projectTypeForFileName(url.toString());
 }
 
 void ProjectManager::onCreationFailed(const QString &errorMessage)

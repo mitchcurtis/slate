@@ -100,8 +100,6 @@ signals:
 public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
 
-    void load(const QUrl &url) override;
-    void close() override;
     bool exportImage(const QUrl &url);
     void resize(int width, int height);
     void moveContents(int x, int y, bool onlyVisibleContents);
@@ -118,6 +116,8 @@ public slots:
     void setLayerOpacity(int layerIndex, qreal opacity);
 
 protected:
+    void doLoad(const QUrl &url) override;
+    void doClose() override;
     void doSaveAs(const QUrl &url) override;
 
 private:

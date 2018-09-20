@@ -1408,16 +1408,26 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     project = projectManager->project();
     VERIFY(project);
 
+    // The old canvas might still exist, but if it doesn't have a project,
+    // then it's about to be destroyed, so wait for that to happen first
+    // before proceeding.
+    canvas = window->findChild<ImageCanvas*>();
+    if (!canvas->project())
+        TRY_VERIFY(!canvas);
+
     canvas = window->findChild<ImageCanvas*>();
     VERIFY(canvas);
-    // The old default was to split the screen,
-    // and so the tests might be depending on it to be split.
-    // Also, it's good to ensure that it's tested.
-    canvas->setSplitScreen(true);
-    VERIFY(canvas->isSplitScreen());
+    TRY_VERIFY(canvas->window());
+    if (isNewProject) {
+        // The old default was to split the screen,
+        // and so the tests might be depending on it to be split.
+        // Also, it's good to ensure that it's tested.
+        canvas->setSplitScreen(true);
+        VERIFY(canvas->isSplitScreen());
+    }
     VERIFY(splitScreenToolButton->isEnabled() == true);
     VERIFY(splitScreenToolButton->property("checked").toBool() == canvas->isSplitScreen());
-    VERIFY(lockSplitterToolButton->isEnabled() == true);
+    VERIFY(lockSplitterToolButton->isEnabled() == canvas->isSplitScreen());
     VERIFY(lockSplitterToolButton->property("checked").toBool() == !canvas->splitter()->isEnabled());
 
     // This is the old default. Some tests seem to choke with it set to true
@@ -1512,6 +1522,28 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     return true;
 }
 
+bool TestHelper::copyFileFromResourcesToTempProjectDir(const QString &baseName)
+{
+    QFile sourceFile(":/resources/" + baseName);
+    VERIFY2(sourceFile.open(QIODevice::ReadOnly), qPrintable(QString::fromLatin1(
+        "Failed to open %1: %2").arg(sourceFile.fileName()).arg(sourceFile.errorString())));
+    sourceFile.close();
+
+    const QString saveFilePath = tempProjectDir->path() + "/" + baseName;
+    VERIFY2(QFile::copy(sourceFile.fileName(), saveFilePath), qPrintable(QString::fromLatin1(
+        "Failed to copy %1 to %2: %3").arg(sourceFile.fileName()).arg(saveFilePath).arg(sourceFile.errorString())));
+
+    // A file copied from a file that is part of resources will always be read-only...
+    QFile copiedFile(saveFilePath);
+    VERIFY(copiedFile.size() > 0);
+
+    VERIFY(copiedFile.setPermissions(QFile::ReadUser | QFile::WriteUser));
+    VERIFY(copiedFile.size() > 0);
+    VERIFY2(copiedFile.open(QIODevice::ReadWrite), qPrintable(QString::fromLatin1(
+        "Error opening file at %1: %2").arg(saveFilePath).arg(copiedFile.errorString())));
+    return true;
+}
+
 bool TestHelper::setupTempTilesetProjectDir()
 {
     QStringList toCopy;
@@ -1538,27 +1570,14 @@ bool TestHelper::setupTempProjectDir(const QStringList &resourceFilesToCopy, QSt
     tempProjectDir.reset(new QTemporaryDir);
     VERIFY2(tempProjectDir->isValid(), qPrintable(tempProjectDir->errorString()));
 
-    foreach (const QString &basename, resourceFilesToCopy) {
-        QFile sourceFile(":/resources/" + basename);
-        VERIFY2(sourceFile.open(QIODevice::ReadOnly), qPrintable(QString::fromLatin1(
-            "Failed to open %1: %2").arg(sourceFile.fileName()).arg(sourceFile.errorString())));
-        sourceFile.close();
+    foreach (const QString &baseName, resourceFilesToCopy) {
+        if (!copyFileFromResourcesToTempProjectDir(baseName))
+            return false;
 
-        const QString saveFilePath = tempProjectDir->path() + "/" + basename;
-        VERIFY2(QFile::copy(sourceFile.fileName(), saveFilePath), qPrintable(QString::fromLatin1(
-            "Failed to copy %1 to %2: %3").arg(sourceFile.fileName()).arg(saveFilePath).arg(sourceFile.errorString())));
-
-        // A file copied from a file that is part of resources will always be read-only...
-        QFile copiedFile(saveFilePath);
-        VERIFY(copiedFile.size() > 0);
-
-        VERIFY(copiedFile.setPermissions(QFile::ReadUser | QFile::WriteUser));
-        VERIFY(copiedFile.size() > 0);
-        VERIFY2(copiedFile.open(QIODevice::ReadWrite), qPrintable(QString::fromLatin1(
-            "Error opening file at %1: %2").arg(saveFilePath).arg(copiedFile.errorString())));
-
-        if (filesCopied)
+        if (filesCopied) {
+            const QString saveFilePath = tempProjectDir->path() + "/" + baseName;
             *filesCopied << saveFilePath;
+        }
     }
 
     return true;

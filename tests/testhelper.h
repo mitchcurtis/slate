@@ -186,6 +186,7 @@ protected:
     Q_REQUIRED_RESULT bool loadProject(const QUrl &url);
     Q_REQUIRED_RESULT bool updateVariables(bool isNewProject, Project::Type newProjectType);
 
+    Q_REQUIRED_RESULT bool copyFileFromResourcesToTempProjectDir(const QString &baseName);
     Q_REQUIRED_RESULT bool setupTempTilesetProjectDir();
     Q_REQUIRED_RESULT bool setupTempLayeredImageProjectDir();
     Q_REQUIRED_RESULT bool setupTempProjectDir(const QStringList &resourceFilesToCopy = QStringList(),

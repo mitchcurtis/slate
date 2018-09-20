@@ -59,12 +59,11 @@ signals:
 public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
 
-    void load(const QUrl &url) override;
-    void close() override;
-
     void resize(int width, int height, bool smooth);
 
 protected:
+    void doLoad(const QUrl &url) override;
+    void doClose() override;
     void doSaveAs(const QUrl &url) override;
 
 private:

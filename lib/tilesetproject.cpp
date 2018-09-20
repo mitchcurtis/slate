@@ -131,10 +131,8 @@ void TilesetProject::createNew(QUrl tilesetUrl, int tileWidth, int tileHeight,
     qCDebug(lcProject) << "finished creating new project";
 }
 
-void TilesetProject::load(const QUrl &url)
+void TilesetProject::doLoad(const QUrl &url)
 {
-    qCDebug(lcProject) << "loading project:" << url;
-
     QFile jsonFile(url.toLocalFile());
     if (!jsonFile.open(QIODevice::ReadOnly)) {
         error(QString::fromLatin1("Tileset project files must have a .stp extension (%1)").arg(url.toLocalFile()));
@@ -190,14 +188,10 @@ void TilesetProject::load(const QUrl &url)
 
     setUrl(url);
     emit projectLoaded();
-
-    qCDebug(lcProject) << "loaded project";
 }
 
-void TilesetProject::close()
+void TilesetProject::doClose()
 {
-    qCDebug(lcProject) << "closing project...";
-
     setNewProject(false);
     setUrl(QUrl());
     mUsingTempImage = false;
@@ -206,8 +200,6 @@ void TilesetProject::close()
     setTileset(nullptr);
     mUndoStack.clear();
     emit projectClosed();
-
-    qCDebug(lcProject) << "... closed project";
 }
 
 void TilesetProject::doSaveAs(const QUrl &url)

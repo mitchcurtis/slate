@@ -36,7 +36,11 @@ Panel {
     property LayeredImageProject project
 
     // When the project has been loaded, restore the listview's position.
-    onProjectChanged: Qt.callLater(function() { layerListView.contentY = project.layerListViewContentY; })
+    onProjectChanged: Qt.callLater(function() {
+        // During tests, project can be null briefly. It seems to happen when going from .slp to .slp.
+        if (project)
+            layerListView.contentY = project.layerListViewContentY;
+    })
 
     Connections {
         target: project
