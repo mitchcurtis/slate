@@ -36,8 +36,15 @@ DynamicLibrary {
     }
 
     Group {
-        qbs.install: qbs.targetOS.contains("darwin")
-        qbs.installDir: "slate.app/Contents/Frameworks"
+        qbs.install: true
+        qbs.installDir: {
+            if (qbs.targetOS.contains("windows"))
+                return ""
+            else if (qbs.targetOS.contains("darwin"))
+                return "slate.app/Contents/Frameworks"
+            else
+                return "lib"
+        }
         fileTagsFilter: "dynamiclibrary"
     }
 
