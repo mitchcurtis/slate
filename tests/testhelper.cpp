@@ -1743,7 +1743,6 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
     case ImageCanvas::SelectionTool:
         if (inputType == MouseInputType) {
             VERIFY(selectionToolButton->isEnabled());
-            qDebug() << selectionToolButton << selectionToolButton->isVisible();
             mouseEventOnCentre(selectionToolButton, MouseClick);
         } else {
             keySequence(window, app.settings()->selectionToolShortcut());
