@@ -180,8 +180,9 @@ void TestHelper::cleanup()
 
 void TestHelper::resetCreationErrorSpy()
 {
-    if (projectManager->temporaryProject())
-        creationErrorOccurredSpy.reset(new QSignalSpy(projectManager->temporaryProject(), SIGNAL(errorOccurred(QString))));
+    if (projectManager->temporaryProject()) {
+        projectCreationFailedSpy.reset(new QSignalSpy(projectManager, SIGNAL(creationFailed(QString))));
+    }
 }
 
 void TestHelper::mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType)
@@ -1132,8 +1133,8 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         VERIFY(window->cursor().shape() == Qt::ArrowCursor);
     }
 
-    if (creationErrorOccurredSpy)
-        creationErrorOccurredSpy->clear();
+    if (projectCreationFailedSpy)
+        projectCreationFailedSpy->clear();
 
     // Click the new project button.
     if (!triggerNewProject())
@@ -1379,18 +1380,51 @@ bool TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
     return true;
 }
 
-bool TestHelper::loadProject(const QUrl &url)
+bool TestHelper::loadProject(const QUrl &url, const QString &expectedFailureMessage)
 {
-    if (creationErrorOccurredSpy)
-        creationErrorOccurredSpy->clear();
+    if (projectCreationFailedSpy)
+        projectCreationFailedSpy->clear();
 
     QWindow *window = qobject_cast<QWindow*>(app.qmlEngine()->rootObjects().first());
     VERIFY(window);
 
+    // Load it.
     VERIFY(QMetaObject::invokeMethod(window, "loadProject", Qt::DirectConnection, Q_ARG(QVariant, url)));
-    VERIFY_NO_CREATION_ERRORS_OCCURRED();
 
-    return updateVariables(false, projectManager->projectTypeForUrl(url));
+    if (expectedFailureMessage.isEmpty()) {
+        // Expect success.
+        VERIFY_NO_CREATION_ERRORS_OCCURRED();
+        return updateVariables(false, projectManager->projectTypeForUrl(url));
+    }
+
+    // Expect failure.
+    VERIFY2(!projectCreationFailedSpy->isEmpty() && projectCreationFailedSpy->first().first() == expectedFailureMessage,
+        qPrintable(QString::fromLatin1("Expected failure to load project %1 with the following error message: %2")
+            .arg(url.path()).arg(expectedFailureMessage)));
+
+    const QObject *errorPopup = findPopupFromTypeName("ErrorPopup");
+    VERIFY(errorPopup);
+    VERIFY(errorPopup->property("visible").toBool());
+    VERIFY(errorPopup->property("text").toString() == expectedFailureMessage);
+    VERIFY(errorPopup->property("focus").isValid());
+    VERIFY(errorPopup->property("focus").toBool());
+
+    // Check that the cursor goes back to an arrow when there's a modal popup visible,
+    // even if the mouse is over the canvas and not the popup.
+    QTest::mouseMove(window, canvas->mapToScene(QPointF(10, 10)).toPoint());
+    VERIFY(!canvas->hasActiveFocus());
+    VERIFY(window->cursor().shape() == Qt::ArrowCursor);
+
+    // Close the error message popup.
+    // QTest::mouseClick(window, Qt::LeftButton) didn't work on mac after a couple of data row runs,
+    // so we use the keyboard to close it instead.
+    QTest::keyClick(window, Qt::Key_Escape);
+    VERIFY(!errorPopup->property("visible").toBool());
+
+    if (projectCreationFailedSpy)
+        projectCreationFailedSpy->clear();
+
+    return true;
 }
 
 bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
@@ -1433,6 +1467,12 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     // This is the old default. Some tests seem to choke with it set to true
     // (because of wheel events) and I haven't looked into it yet because it's not really important.
     canvas->setGesturesEnabled(false);
+
+    canvas->setPenForegroundColour(Qt::black);
+    canvas->setPenBackgroundColour(Qt::white);
+    // This determines which colour the ColourSelector considers "current",
+    // and hence which value is shown in the hex field.
+    VERIFY(penForegroundColourButton->setProperty("checked", QVariant(true)));
 
     app.settings()->setAutoSwatchEnabled(false);
 

@@ -43,14 +43,14 @@
 class ProjectManager;
 
 #define QVERIFY_NO_CREATION_ERRORS_OCCURRED() \
-QVERIFY2(creationErrorOccurredSpy->isEmpty(), \
+QVERIFY2(projectCreationFailedSpy->isEmpty(), \
     qPrintable(QString::fromLatin1("Unexpected error occurred: ") + \
-    (!creationErrorOccurredSpy->isEmpty() ? creationErrorOccurredSpy->first().first().toString() : "")));
+    (!projectCreationFailedSpy->isEmpty() ? projectCreationFailedSpy->first().first().toString() : "")));
 
 #define VERIFY_NO_CREATION_ERRORS_OCCURRED() \
-VERIFY2(creationErrorOccurredSpy->isEmpty(), \
+VERIFY2(projectCreationFailedSpy->isEmpty(), \
     qPrintable(QString::fromLatin1("Unexpected error occurred: ") + \
-    (!creationErrorOccurredSpy->isEmpty() ? creationErrorOccurredSpy->first().first().toString() : "")));
+    (!projectCreationFailedSpy->isEmpty() ? projectCreationFailedSpy->first().first().toString() : "")));
 
 class QQuickItem;
 class QQuickWindow;
@@ -183,7 +183,7 @@ protected:
         bool transparentImageBackground = false);
     Q_REQUIRED_RESULT bool createNewLayeredImageProject(int imageWidth = 256, int imageHeight = 256,
         bool transparentImageBackground = false);
-    Q_REQUIRED_RESULT bool loadProject(const QUrl &url);
+    Q_REQUIRED_RESULT bool loadProject(const QUrl &url, const QString &expectedFailureMessage = QString());
     Q_REQUIRED_RESULT bool updateVariables(bool isNewProject, Project::Type newProjectType);
 
     Q_REQUIRED_RESULT bool copyFileFromResourcesToTempProjectDir(const QString &baseName);
@@ -265,7 +265,7 @@ protected:
 
     QVector<ImageCanvas::Tool> mTools;
 
-    QScopedPointer<QSignalSpy> creationErrorOccurredSpy;
+    QScopedPointer<QSignalSpy> projectCreationFailedSpy;
 
     QString tilesetBasename;
     QUrl tempTilesetUrl;

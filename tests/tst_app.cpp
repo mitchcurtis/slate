@@ -57,6 +57,7 @@ private Q_SLOTS:
     void saveAsAndLoad();
     void versionCheck_data();
     void versionCheck();
+    void loadTilesetProjectWithInvalidTileset();
 
     void animationPlayback();
     void keyboardShortcuts();
@@ -233,42 +234,13 @@ void tst_App::openClose()
     if (projectType == Project::TilesetType) {
         // Test an invalid tileset URL.
         QTest::ignoreMessage(QtWarningMsg, "QFSFileEngine::open: No file name specified");
-        const QUrl badUrl("doesnotexist");
 
-        QSignalSpy creationFailedSpy(projectManager.data(), SIGNAL(creationFailed(QString)));
-        QVERIFY(creationFailedSpy.isValid());
+        const QUrl badUrl("doesnotexist.stp");
+        const QString errorMessage = QLatin1String("Tileset project files must have a .stp extension ()");
+        QVERIFY2(loadProject(badUrl, errorMessage), failureMessage);
 
-        projectManager->beginCreation(Project::TilesetType);
-        projectManager->temporaryProject()->load(badUrl);
-        projectManager->completeCreation();
-
-        // The spy was reset, so we use creationFailed() to check the error.
-        QCOMPARE(creationErrorOccurredSpy->size(), 0);
-
-        QCOMPARE(project->url(), QUrl());
         // There was a project open before we attempted to load the invalid one.
         QCOMPARE(project->hasLoaded(), true);
-        const QString errorMessage = QLatin1String("Tileset project files must have a .stp extension ()");
-        QCOMPARE(creationFailedSpy.size(), 1);
-        QCOMPARE(creationFailedSpy.at(0).at(0).toString(), errorMessage);
-        const QObject *errorPopup = findPopupFromTypeName("ErrorPopup");
-        QVERIFY(errorPopup);
-        QVERIFY(errorPopup->property("visible").toBool());
-        QCOMPARE(errorPopup->property("text").toString(), errorMessage);
-        QVERIFY(errorPopup->property("focus").isValid());
-        QVERIFY(errorPopup->property("focus").toBool());
-
-        // Check that the cursor goes back to an arrow when there's a modal popup visible,
-        // even if the mouse is over the canvas and not the popup.
-        QTest::mouseMove(window, canvas->mapToScene(QPointF(10, 10)).toPoint());
-        QVERIFY(!canvas->hasActiveFocus());
-        QCOMPARE(window->cursor().shape(), Qt::ArrowCursor);
-
-        // Close the error message popup.
-        // QTest::mouseClick(window, Qt::LeftButton) didn't work on mac after a couple of data row runs,
-        // so we use the keyboard to close it instead.
-        QTest::keyClick(window, Qt::Key_Escape);
-        QVERIFY(!errorPopup->property("visible").toBool());
     }
 
     // Check that the cursor goes blank when the canvas has focus.
@@ -546,6 +518,7 @@ void tst_App::versionCheck_data()
 }
 
 // Tests that old project files can still be loaded.
+// TODO: save version in project file (#76)
 void tst_App::versionCheck()
 {
     QFETCH(QString, projectFileName);
@@ -562,6 +535,21 @@ void tst_App::versionCheck()
     // Try to load the project; there shouldn't be any errors.
     const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
     QVERIFY2(loadProject(QUrl::fromLocalFile(absolutePath)), failureMessage);
+}
+
+void tst_App::loadTilesetProjectWithInvalidTileset()
+{
+    // Set up a temporary directory for the test.
+    QVERIFY2(setupTempTilesetProjectDir(), failureMessage);
+
+    // Copy the files we need to our temporary directory.
+    const QString projectFileName = QLatin1String("invalid-tileset.stp");
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+
+    // Load it. It shouldn't crash.
+    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
+    const QString expectedFailureMessage = QLatin1String("Failed to open project's tileset at /nope/nope/nope");
+    QVERIFY2(loadProject(QUrl::fromLocalFile(absolutePath), expectedFailureMessage), failureMessage);
 }
 
 void tst_App::animationPlayback()
@@ -2110,6 +2098,7 @@ void tst_App::colourPickerHexField()
 
     QQuickItem *hexTextField = window->findChild<QQuickItem*>("hexTextField");
     QVERIFY(hexTextField);
+    QCOMPARE(canvas->penForegroundColour(), QColor(Qt::black));
     QCOMPARE(hexTextField->property("text").toString().prepend("#"), canvas->penForegroundColour().name());
 
     const QColor originalPenColour = canvas->penForegroundColour();
@@ -3979,7 +3968,7 @@ void tst_App::saveAndLoadLayeredImageProject()
     // Add enough layers that the ListView becomes flickable.
     QQuickItem *layerListView = window->findChild<QQuickItem*>("layerListView");
     QVERIFY(layerListView);
-    while (layerListView->property("contentHeight").toReal() < layerListView->height() * 2) {
+    while (layerListView->property("contentHeight").toReal() < layerListView->height() * 3) {
         mouseEventOnCentre(newLayerButton, MouseClick);
     }
     const int finalLayerCount = layeredImageProject->layerCount();

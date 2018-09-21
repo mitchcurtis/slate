@@ -146,7 +146,7 @@ void Project::load(const QUrl &url)
 
     doLoad(url);
 
-    qCDebug(lcProject) << "loaded project";
+    qCDebug(lcProject) << (hasLoaded() ? "loaded project" : "failed to load project");
 }
 
 void Project::close()
@@ -191,6 +191,7 @@ void Project::revert()
 
 void Project::error(const QString &message)
 {
+    qCDebug(lcProject) << "emitting errorOccurred with message" << message;
     emit errorOccurred(message);
 }
 

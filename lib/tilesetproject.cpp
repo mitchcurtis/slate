@@ -160,9 +160,9 @@ void TilesetProject::doLoad(const QUrl &url)
     QJsonObject tilesetObject = JsonUtils::strictValue(projectObject, "tileset").toObject();
     const int tilesetTilesWide = JsonUtils::strictValue(tilesetObject, "tilesWide").toInt();
     const int tilesetTilesHigh = JsonUtils::strictValue(tilesetObject, "tilesHigh").toInt();
-    QScopedPointer<Tileset> tempTileset(new Tileset(tilesetPath, tilesetTilesWide, tilesetTilesHigh, this));
+    Tileset *tempTileset = new Tileset(tilesetPath, tilesetTilesWide, tilesetTilesHigh, this);
     if (tempTileset->isValid()) {
-        setTileset(tempTileset.take());
+        setTileset(tempTileset);
     } else {
         error(QString::fromLatin1("Failed to open project's tileset at %1").arg(tilesetPath));
         return;
