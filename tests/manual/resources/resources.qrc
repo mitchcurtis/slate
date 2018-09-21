@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/test-tile.png</file>
+        <file>resources/test-tileset.png</file>
+        <file>resources/test-colourful.png</file>
+    </qresource>
+</RCC>
