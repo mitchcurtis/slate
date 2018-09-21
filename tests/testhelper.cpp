@@ -1314,6 +1314,14 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         VERIFY(!newImageProjectPopup->property("visible").toBool());
     }
 
+    // When run after e.g. selectionToolTileCanvas(), cancelSelectionToolImageCanvas()
+    // would randomly fail when it first tries to switch tools. selectionToolButton is visible,
+    // enabled, and its x position doesn't change during the test, but using qt.quick.mouse
+    // and qt.quick.mouse.target logging categories to check, it seems that toolSizeButton was getting
+    // the mouse event. I'm still not sure what causes the issue, but giving everything
+    // a chance to settle down helps.
+    QTest::qWait(0);
+
     return updateVariables(true, projectType);
 }
 
@@ -1696,42 +1704,58 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
     if (canvas->tool() == tool)
         return true;
 
+    if (inputType == KeyboardInputType)
+        ENSURE_ACTIVE_FOCUS(canvas);
+
     switch (tool) {
     case ImageCanvas::PenTool:
-        if (inputType == MouseInputType)
+        if (inputType == MouseInputType) {
+            VERIFY(penToolButton->isEnabled());
             mouseEventOnCentre(penToolButton, MouseClick);
-        else
+        } else {
             keySequence(window, app.settings()->penToolShortcut());
+        }
         break;
     case ImageCanvas::EyeDropperTool:
-        if (inputType == MouseInputType)
+        if (inputType == MouseInputType) {
+            VERIFY(eyeDropperToolButton->isEnabled());
             mouseEventOnCentre(eyeDropperToolButton, MouseClick);
-        else
+        } else {
             keySequence(window, app.settings()->eyeDropperToolShortcut());
+        }
         break;
     case ImageCanvas::FillTool:
-        if (inputType == MouseInputType)
+        if (inputType == MouseInputType) {
+            VERIFY(fillToolButton->isEnabled());
             mouseEventOnCentre(fillToolButton, MouseClick);
-        else
+        } else {
             keySequence(window, app.settings()->fillToolShortcut());
+        }
         break;
     case ImageCanvas::EraserTool:
-        if (inputType == MouseInputType)
+        if (inputType == MouseInputType) {
+            VERIFY(eraserToolButton->isEnabled());
             mouseEventOnCentre(eraserToolButton, MouseClick);
-        else
+        } else {
             keySequence(window, app.settings()->eraserToolShortcut());
+        }
         break;
     case ImageCanvas::SelectionTool:
-        if (inputType == MouseInputType)
+        if (inputType == MouseInputType) {
+            VERIFY(selectionToolButton->isEnabled());
+            qDebug() << selectionToolButton << selectionToolButton->isVisible();
             mouseEventOnCentre(selectionToolButton, MouseClick);
-        else
+        } else {
             keySequence(window, app.settings()->selectionToolShortcut());
+        }
         break;
     default:
         qWarning() << "tool not handled!";
         return false;
     }
-    return canvas->tool() == tool;
+
+    VERIFY(canvas->tool() == tool);
+    return true;
 }
 
 bool TestHelper::setPenForegroundColour(QString argbString)
