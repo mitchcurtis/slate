@@ -14,6 +14,9 @@ Project {
         // Additional import path used to resolve QML modules in Qt Creator's code model
         property pathList qmlImportPaths: []
 
+        cpp.useRPaths: qbs.targetOS.contains("darwin")
+        cpp.rpaths: ["@loader_path/../Frameworks"]
+
         cpp.cxxLanguageVersion: "c++11"
 
         cpp.defines: [
