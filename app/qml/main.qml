@@ -231,7 +231,7 @@ ApplicationWindow {
                 Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
                 Layout.fillWidth: true
                 Layout.minimumHeight: active && item.expanded ? item.header.implicitHeight + 300 : -1
-                Layout.maximumHeight: active ? (item.expanded ? -1 : item.header.implicitHeight) : -2
+                Layout.maximumHeight: active ? (item.expanded ? -1 : item.header.implicitHeight) : 0
                 Layout.fillHeight: active && item.expanded
                 Layout.topMargin: active ? 5 : 0
             }

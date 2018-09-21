@@ -58,6 +58,7 @@ private Q_SLOTS:
     void versionCheck_data();
     void versionCheck();
     void loadTilesetProjectWithInvalidTileset();
+    void loadLayeredImageProjectAfterTilesetProject();
 
     void animationPlayback();
     void keyboardShortcuts();
@@ -548,6 +549,22 @@ void tst_App::loadTilesetProjectWithInvalidTileset()
     const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
     const QString expectedFailureMessage = QLatin1String("Failed to open project's tileset at /nope/nope/nope");
     QVERIFY2(loadProject(QUrl::fromLocalFile(absolutePath), expectedFailureMessage), failureMessage);
+}
+
+// There was an issue where there would be a large gap between
+// the swatches and layers panels where the tileset swatch panel
+// used to be after switching to an .slp after having an .stp open.
+void tst_App::loadLayeredImageProjectAfterTilesetProject()
+{
+    QVERIFY2(createNewTilesetProject(), failureMessage);
+    QVERIFY2(triggerCloseProject(), failureMessage);
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    QQuickItem *layersLoader = window->findChild<QQuickItem*>("layersLoader");
+    QVERIFY(layersLoader);
+    QVERIFY(swatchesPanel);
+    // 5 is the spacing between panels.
+    QCOMPARE(layersLoader->y(), swatchesPanel->y() + swatchesPanel->height() + 5);
 }
 
 void tst_App::animationPlayback()
