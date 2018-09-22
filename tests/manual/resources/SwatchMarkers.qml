@@ -25,27 +25,27 @@ Item {
     id: root
 
     Screenshot.Marker {
-        parent: findChildHelper.findAnyChild(root.parent, "autoSwatchGridView")
-        anchors.centerIn: parent
+        parent: findChildHelper.findAnyChild(root.parent, "swatchesPanelHideShowToolButton")
+        anchors.right: parent.left
+        anchors.verticalCenter: parent.verticalCenter
         number: 1
     }
 
     Screenshot.Marker {
-        parent: findChildHelper.findAnyChild(root.parent, "swatchGridView")
+        parent: findChildHelper.findAnyChild(root.parent, "autoSwatchGridView")
         anchors.centerIn: parent
         number: 2
     }
 
     Screenshot.Marker {
-        parent: findChildHelper.findAnyChild(root.parent, "newSwatchColourButton")
-        anchors.left: parent.right
-        anchors.verticalCenter: parent.verticalCenter
+        parent: findChildHelper.findAnyChild(root.parent, "swatchGridView")
+        anchors.centerIn: parent
         number: 3
     }
 
     Screenshot.Marker {
-        parent: findChildHelper.findAnyChild(root.parent, "swatchesPanelHideShowToolButton")
-        anchors.right: parent.left
+        parent: findChildHelper.findAnyChild(root.parent, "newSwatchColourButton")
+        anchors.left: parent.right
         anchors.verticalCenter: parent.verticalCenter
         number: 4
     }

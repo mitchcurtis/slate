@@ -25,50 +25,50 @@ Item {
     id: root
 
     Screenshot.Marker {
+        parent: findChildHelper.findAnyChild(root.parent, "layerPanelHideShowToolButton")
+        anchors.right: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        number: 1
+    }
+
+    Screenshot.Marker {
         parent: findChildHelper.findAnyChild(root.parent, "object")
         anchors.centerIn: parent
-        number: 1
+        number: 2
     }
 
     Screenshot.Marker {
         parent: findChildHelper.findAnyChild(root.parent, "newLayerButton")
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.top
-        number: 2
+        number: 3
     }
 
     Screenshot.Marker {
         parent: findChildHelper.findAnyChild(root.parent, "moveLayerDownButton")
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.top
-        number: 3
+        number: 4
     }
 
     Screenshot.Marker {
         parent: findChildHelper.findAnyChild(root.parent, "moveLayerUpButton")
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.top
-        number: 4
+        number: 5
     }
 
     Screenshot.Marker {
         parent: findChildHelper.findAnyChild(root.parent, "duplicateLayerButton")
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.top
-        number: 5
+        number: 6
     }
 
     Screenshot.Marker {
         parent: findChildHelper.findAnyChild(root.parent, "deleteLayerButton")
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.top
-        number: 6
-    }
-
-    Screenshot.Marker {
-        parent: findChildHelper.findAnyChild(root.parent, "layerPanelHideShowToolButton")
-        anchors.right: parent.left
-        anchors.verticalCenter: parent.verticalCenter
         number: 7
     }
 }
