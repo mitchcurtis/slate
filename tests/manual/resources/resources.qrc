@@ -4,5 +4,6 @@
         <file>Marker.qml</file>
         <file>SwatchMarkers.qml</file>
         <file>qmldir</file>
+        <file>LayerMarkers.qml</file>
     </qresource>
 </RCC>
