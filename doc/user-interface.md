@@ -6,5 +6,5 @@
 
 1. Displays auto swatch colours if enabled (**Settings > Enable auto swatch (experimental)**).
 2. Displays custom swatch colours.
-3. Creates a new custom swatch.
+3. Creates a new custom swatch from the current colour.
 4. Toggles the visibility of the panel.
