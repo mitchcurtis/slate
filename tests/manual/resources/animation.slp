@@ -1,0 +1,95 @@
+{
+    "project": {
+        "animationPlayback": {
+            "fps": 4,
+            "frameCount": 6,
+            "frameHeight": 38,
+            "frameWidth": 36,
+            "frameX": 0,
+            "frameY": 0,
+            "loop": true,
+            "scale": 2.02
+        },
+        "currentLayerIndex": 1,
+        "firstPane": {
+            "offsetX": 180,
+            "offsetY": 365,
+            "sceneCentered": false,
+            "size": 1,
+            "zoomLevel": 5
+        },
+        "guides": [
+            {
+                "orientation": 2,
+                "position": 36
+            },
+            {
+                "orientation": 1,
+                "position": 25
+            },
+            {
+                "orientation": 2,
+                "position": 72
+            },
+            {
+                "orientation": 2,
+                "position": 108
+            },
+            {
+                "orientation": 2,
+                "position": 144
+            },
+            {
+                "orientation": 2,
+                "position": 180
+            }
+        ],
+        "hasUsedAnimation": true,
+        "lastFillToolUsed": "FillTool",
+        "layerListViewContentY": 0,
+        "layers": [
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAANgAAAAmCAYAAACmuFWEAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAh0lEQVR4nO3TQQ0AIBDAMMC/50PFQkJaBftsz8wsIHFeB8DPDAYhg0HIYBAyGIQMBiGDQchgEDIYhAwGIYNByGAQMhiEDAYhg0HIYBAyGIQMBiGDQchgEDIYhAwGIYNByGAQMhiEDAYhg0HIYBAyGIQMBiGDQchgEDIYhAwGIYNByGAQMhiELjsZBEieF0R9AAAAAElFTkSuQmCC",
+                "name": "background",
+                "opacity": 1,
+                "visible": true
+            },
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAANgAAAAmCAYAAACmuFWEAAAACXBIWXMAAAsTAAALEwEAmpwYAAABA0lEQVR4nO3XsU3DQBSA4cdSdGxAgdM6DIBimCEzgCMGIG5jCjagY6q0J4uzjtjYAn1f96TT0zW/ThcBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf8DV1AWvXX+dzg919TV15xTPb+836fx0f/e51l0iIg5d36Tzrq7ate4SEfHS9ft0fqyr/fcnl9EeT7t0brabw1p3iYhoj6fbdG62m48p+y4KbBhVzlKxDaPKWSq2YVQ5S8U2jCpnqdiGUeUsFdswqpxLYisOrDSqnLljK40qZ+7YSqPKmTu20qhy5o6tNKqcuWMrjSqnNDYv2C/wgo3zgv2AP9g4f7Bx//0Pdgaz33gGqMzuHQAAAABJRU5ErkJggg==",
+                "name": "shadow",
+                "opacity": 1,
+                "visible": true
+            },
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAANgAAAAmCAYAAACmuFWEAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB5ElEQVR4nO3aO07DQBRG4QtKlIqODVCxCToK1hFFomARWQaFJZQtpHVBR5kNsBpT3WBFnvE8PA/b56tJcpjMLxEREQAAAAAAAAAAAAAAACzI8XzpTj+/XekOoDb3sU9wPF+uw6plZAweMaa8P1ED649Llb7YDH5+ajqfqe9P8MCGxqVKHRaDd7PkCz1Vi4ptChqYbVwq92ExeDdLv9BTtqiYJu+BuYxL5TosBu9mDRd66hYV2uQ1MJ9xqdSHxeDdrOVCp2hRIU3OAwsZl0p1WAzezZoudKoW5dt05/PDh6Y1PvluuzE+7nP/6vU6LsYO5+nxwfr4/ctz1iZbT4oWZWoy9ZRosfWI5H+vxnpE3Ju8w00jMw0sxbjGWmw9Igx+rGfOF9pHjvsTFD0UNhSUcly2FlOPCINXS73QvlLfn+Dw27DboBzjMrUM9YgweJcekXlf6BAp70/wP5q/3t+ML5ZzXGMtKleTS4tK3eTTompqquk9C22J+qrUUFjucdlaFIN3U1NTTe9ZTEv0l337YaXGNdSiGPy6LnSMFPen6CBSOTRtt9tuig9eW0T+/6Yv2dT/rNH/jFFDUw3no6a8P8V/mTVg8HY1nQ8Q7dC03cfpu4pv0wMAAAAAAAAAAAAAAAB5/AG0mKT8G/rNrwAAAABJRU5ErkJggg==",
+                "name": "object",
+                "opacity": 1,
+                "visible": true
+            }
+        ],
+        "secondPane": {
+            "offsetX": -540,
+            "offsetY": 365,
+            "sceneCentered": true,
+            "size": 0,
+            "zoomLevel": 1
+        },
+        "swatch": {
+            "colours": [
+                {
+                    "colour": "#ae80ca",
+                    "name": ""
+                },
+                {
+                    "colour": "#ca80bb",
+                    "name": ""
+                },
+                {
+                    "colour": "#ca8094",
+                    "name": ""
+                }
+            ]
+        },
+        "usingAnimation": true
+    }
+}

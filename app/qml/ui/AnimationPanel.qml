@@ -52,6 +52,7 @@ Panel {
         spacing: 0
 
         Flickable {
+            objectName: "animationPanelFlickable"
             interactive: spriteImageContainer.implicitWidth > width || spriteImageContainer.implicitHeight > height
             clip: true
             contentWidth: spriteImageContainer.implicitWidth
@@ -95,6 +96,7 @@ Panel {
             }
 
             ProgressBar {
+                objectName: "animationProgressBar"
                 value: animationPlayback ? animationPlayback.currentFrameIndex / (animationPlayback.frameCount - 1) : 0
 
                 Layout.fillWidth: true

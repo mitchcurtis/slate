@@ -49,6 +49,7 @@ public:
 private Q_SLOTS:
     void swatch();
     void layers();
+    void animation();
 
 private:
     QObject *findItemChild(QObject *parent, const QString &objectName)
@@ -180,6 +181,51 @@ void tst_Screenshots::layers()
     auto grabResult = layersPanel->grabToImage();
     QTRY_VERIFY(!grabResult->image().isNull());
     QVERIFY(grabResult->image().save(mOutputDirectory.absoluteFilePath(QLatin1String("slate-layers-panel.png"))));
+}
+
+void tst_Screenshots::animation()
+{
+    // Ensure that we have a temporary directory.
+    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+
+    // Copy the project file from resources into our temporary directory.
+    const QString projectFileName = QLatin1String("animation.slp");
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+
+    // Try to load the project; there shouldn't be any errors.
+    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
+    QVERIFY2(loadProject(QUrl::fromLocalFile(absolutePath)), failureMessage);
+
+    // Show the animation panel.
+    QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
+    QVERIFY(animationPanel);
+    QVERIFY(animationPanel->setProperty("expanded", QVariant(true)));
+
+    // Show some other panels so that we're not too big.
+    QQuickItem *colourPanel = window->findChild<QQuickItem*>("colourPanel");
+    QVERIFY(colourPanel);
+    QVERIFY(colourPanel->setProperty("expanded", QVariant(true)));
+
+    // Load markers into scene.
+    QQmlComponent markerOverlayComponent(app.qmlEngine(), ":/resources/AnimationMarkers.qml");
+    QVERIFY2(markerOverlayComponent.isReady(), qPrintable(markerOverlayComponent.errorString()));
+
+    QQuickItem *markerOverlay = qobject_cast<QQuickItem*>(markerOverlayComponent.beginCreate(qmlContext(animationPanel)));
+    markerOverlay->setParent(animationPanel);
+    markerOverlay->setParentItem(animationPanel);
+    markerOverlayComponent.completeCreate();
+    QVERIFY(markerOverlay);
+
+    QVERIFY(QTest::qWaitForWindowExposed(window));
+
+    // If we don't do this, the scene isn't ready.
+    QSignalSpy swappedSpy(window, SIGNAL(frameSwapped()));
+    QTRY_VERIFY(!swappedSpy.isEmpty());
+
+    // Grab the image.
+    auto grabResult = animationPanel->grabToImage();
+    QTRY_VERIFY(!grabResult->image().isNull());
+    QVERIFY(grabResult->image().save(mOutputDirectory.absoluteFilePath(QLatin1String("slate-animation-panel.png"))));
 }
 
 int main(int argc, char *argv[])

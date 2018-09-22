@@ -5,5 +5,7 @@
         <file>SwatchMarkers.qml</file>
         <file>qmldir</file>
         <file>LayerMarkers.qml</file>
+        <file>AnimationMarkers.qml</file>
+        <file>animation.slp</file>
     </qresource>
 </RCC>
