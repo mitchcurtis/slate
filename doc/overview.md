@@ -1,12 +1,18 @@
 # Slate - Overview
 
-## Images
+## User Interface
+
+- [User Interface](https://github.com/mitchcurtis/slate/blob/master/doc/user-interface.md)
+
+## Project Types
+
+### Images
 
 ![Image Project icon](https://github.com/mitchcurtis/slate/blob/master/app/images/image-project.svg)
 
 Slate supports editing bitmap images directly. This project type has no layer support.
 
-## Layered Images
+### Layered Images
 
 ![Layered Image Project icon](https://github.com/mitchcurtis/slate/blob/master/app/images/layered-image-project.svg)
 
@@ -14,7 +20,7 @@ A layered image project can contain several images, each of which is stored as a
 
 - [Getting Started with Layered Image Projects](https://github.com/mitchcurtis/slate/blob/master/doc/getting-started-layered.md)
 
-## Tilesets
+### Tilesets
 
 ![Tileset Project icon](https://github.com/mitchcurtis/slate/blob/master/app/images/tileset-project.svg)
 

@@ -35,10 +35,47 @@ class tst_Screenshots : public TestHelper
 public:
     tst_Screenshots(int &argc, char **argv);
 
+    Q_INVOKABLE QObject *findAnyChild(QObject *parent, const QString &objectName)
+    {
+        // First, search the visual item hierarchy.
+        QObject *child = findItemChild(parent, objectName);
+        if (child)
+            return child;
+
+        // If it's not a visual child, it might be a QObject child.
+        return parent ? parent->findChild<QObject*>(objectName) : nullptr;
+    }
+
 private Q_SLOTS:
     void swatch();
 
 private:
+    QObject *findItemChild(QObject *parent, const QString &objectName)
+    {
+        if (!parent)
+            return nullptr;
+
+        QQuickItem *parentItem = qobject_cast<QQuickItem*>(parent);
+        if (!parentItem)
+            return nullptr;
+
+        auto childItems = parentItem->childItems();
+        for (int i = 0; i < childItems.size(); ++i) {
+            // Is this direct child of ours the child we're after?
+            QQuickItem *child = childItems.at(i);
+            if (child->objectName() == objectName)
+                return child;
+        }
+
+        for (int i = 0; i < childItems.size(); ++i) {
+            // Try the direct child's children.
+            auto child = findItemChild(childItems.at(i), objectName);
+            if (child)
+                return child;
+        }
+        return nullptr;
+    }
+
     QDir mOutputDirectory;
 };
 
@@ -52,19 +89,48 @@ tst_Screenshots::tst_Screenshots(int &argc, char **argv) :
     mOutputDirectory.mkdir("output");
     mOutputDirectory.cd("output");
 
+    // qmlRegisterSingletonType wasn't working, so we do it the hacky way.
+    app.qmlEngine()->rootContext()->setContextProperty("findChildHelper", this);
+
     qInfo() << "Saving screenshots to" << mOutputDirectory.path();
 }
 
 void tst_Screenshots::swatch()
 {
-    // TODO: load layers.slp
-    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    // Ensure that we have a temporary directory.
+    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+
+    // Copy the project file from resources into our temporary directory.
+    const QString projectFileName = QLatin1String("layers.slp");
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+
+    // Try to load the project; there shouldn't be any errors.
+    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
+    QVERIFY2(loadProject(QUrl::fromLocalFile(absolutePath)), failureMessage);
+
+    app.settings()->setAutoSwatchEnabled(true);
 
     QQuickItem *swatchesPanel = window->findChild<QQuickItem*>("swatchesPanel");
     QVERIFY(swatchesPanel);
     QVERIFY(swatchesPanel->setProperty("expanded", QVariant(true)));
+
+    // Load markers into scene.
+    QQmlComponent markerOverlayComponent(app.qmlEngine(), ":/resources/SwatchMarkers.qml");
+    QVERIFY2(markerOverlayComponent.isReady(), qPrintable(markerOverlayComponent.errorString()));
+
+    QQuickItem *markerOverlay = qobject_cast<QQuickItem*>(markerOverlayComponent.beginCreate(qmlContext(swatchesPanel)));
+    markerOverlay->setParent(swatchesPanel);
+    markerOverlay->setParentItem(swatchesPanel);
+    markerOverlayComponent.completeCreate();
+    QVERIFY(markerOverlay);
+
     QVERIFY(QTest::qWaitForWindowExposed(window));
 
+    // If we don't do this, the scene isn't ready.
+    QSignalSpy swappedSpy(window, SIGNAL(frameSwapped()));
+    QTRY_VERIFY(!swappedSpy.isEmpty());
+
+    // Grab the image.
     auto grabResult = swatchesPanel->grabToImage();
     QTRY_VERIFY(!grabResult->image().isNull());
     QVERIFY(grabResult->image().save(mOutputDirectory.absoluteFilePath(QLatin1String("slate-swatches-panel.png"))));

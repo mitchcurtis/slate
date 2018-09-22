@@ -37,13 +37,15 @@ Project {
         files: [
             "../../app/application.h",
             "../../app/application.cpp",
+            "../../app/config.qrc",
             "../../app/fonts/fonts.qrc",
             "../../app/images/images.qrc",
             "../../app/qml/qml.qrc",
             "../shared/testhelper.h",
             "../shared/testhelper.cpp",
             "../shared/testutils.h",
-            "screenshots.cpp"
+            "resources/resources.qrc",
+            "screenshots.cpp",
         ]
 
         Group {     // Properties for the produced executable
