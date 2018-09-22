@@ -5,6 +5,7 @@ import App 1.0
 
 Item {
     id: root
+    objectName: "colourSelector"
     implicitWidth: penForegroundColourToolButton.width * 1.5
     implicitHeight: penForegroundColourToolButton.height * 1.5
 

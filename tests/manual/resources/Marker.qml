@@ -21,11 +21,12 @@ import QtQuick 2.7
 
 Rectangle {
     id: root
-    width: 32
-    height: 32
+    width: small ? 20 : 32
+    height: small ? 20 : 32
     color: "#2196F3"
 
     property int number
+    property bool small
 
     Text {
         text: root.number

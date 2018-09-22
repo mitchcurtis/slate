@@ -17,9 +17,11 @@ Page {
     property Popup settingsPopup: null
 
     header: RowLayout {
+        objectName: root.objectName + "Header"
         spacing: 0
 
         Label {
+            objectName: parent.objectName + "TitleLabel"
             text: root.title
             font.bold: true
 

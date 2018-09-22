@@ -1,11 +1,11 @@
 <RCC>
     <qresource prefix="/resources">
-        <file>layers.slp</file>
         <file>Marker.qml</file>
         <file>SwatchMarkers.qml</file>
         <file>qmldir</file>
         <file>LayerMarkers.qml</file>
         <file>AnimationMarkers.qml</file>
         <file>animation.slp</file>
+        <file>ColourMarkers.qml</file>
     </qresource>
 </RCC>

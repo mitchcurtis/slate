@@ -104,15 +104,22 @@ void tst_Screenshots::panels_data()
     QTest::addColumn<QString>("markersQmlFilePath");
     QTest::addColumn<QString>("outputFileName");
 
+    QTest::addRow("colour")
+        << QString::fromLatin1("animation.slp")
+        << QString::fromLatin1("colourPanel")
+        << (QStringList() << QLatin1String("layerPanel"))
+        << QString::fromLatin1(":/resources/ColourMarkers.qml")
+        << QString::fromLatin1("slate-colour-panel.png");
+
     QTest::addRow("swatch")
-        << QString::fromLatin1("layers.slp")
+        << QString::fromLatin1("animation.slp")
         << QString::fromLatin1("swatchesPanel")
-        << (QStringList() << QLatin1String("swatchesPanel"))
+        << (QStringList() << QLatin1String("colourPanel"))
         << QString::fromLatin1(":/resources/SwatchMarkers.qml")
         << QString::fromLatin1("slate-swatches-panel.png");
 
     QTest::addRow("layers")
-        << QString::fromLatin1("layers.slp")
+        << QString::fromLatin1("animation.slp")
         << QString::fromLatin1("layerPanel")
         << (QStringList() << QLatin1String("colourPanel"))
         << QString::fromLatin1(":/resources/LayerMarkers.qml")
@@ -148,7 +155,7 @@ void tst_Screenshots::panels()
 
     for (const QString &panelObjectName : qAsConst(panelsToExpand)) {
         QQuickItem *panelToExpand = window->findChild<QQuickItem*>(panelObjectName);
-        QVERIFY(panelToExpand);
+        QVERIFY2(panelToExpand, qPrintable(panelObjectName));
         QVERIFY(panelToExpand->setProperty("expanded", QVariant(true)));
     }
 

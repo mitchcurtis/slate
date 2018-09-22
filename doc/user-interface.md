@@ -1,5 +1,20 @@
 # Slate - User Interface
 
+## Colour
+
+![Colour panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-colour-panel.png)
+
+1. Toggles the visibility of the panel.
+2. Switches between foreground and background colours.
+3. Shows the current colour as a hex value. Can be edited.
+4. Changes the hue of the current colour.
+5. Changes the saturation and lightness of the current colour.
+6. Changes the opacity of the current colour.
+7. Decreases the lightness of the current colour.
+8. Increases the lightness of the current colour.
+9. Decreases the saturation of the current colour.
+10. Increases the saturation of the current colour.
+
 ## Swatches
 
 ![Swatches panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-swatches-panel.png)

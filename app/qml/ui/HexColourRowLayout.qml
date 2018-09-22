@@ -6,6 +6,7 @@ import App 1.0
 
 RowLayout {
     id: root
+    objectName: "HexColourRowLayout"
 
     property ImageCanvas canvas
     property alias colourSelector: selector
