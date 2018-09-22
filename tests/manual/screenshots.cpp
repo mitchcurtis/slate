@@ -47,9 +47,8 @@ public:
     }
 
 private Q_SLOTS:
-    void swatch();
-    void layers();
-    void animation();
+    void panels_data();
+    void panels();
 
 private:
     QObject *findItemChild(QObject *parent, const QString &objectName)
@@ -97,13 +96,48 @@ tst_Screenshots::tst_Screenshots(int &argc, char **argv) :
     qInfo() << "Saving screenshots to" << mOutputDirectory.path();
 }
 
-void tst_Screenshots::swatch()
+void tst_Screenshots::panels_data()
 {
+    QTest::addColumn<QString>("projectFileName");
+    QTest::addColumn<QString>("panelToMark");
+    QTest::addColumn<QStringList>("panelsToExpand");
+    QTest::addColumn<QString>("markersQmlFilePath");
+    QTest::addColumn<QString>("outputFileName");
+
+    QTest::addRow("swatch")
+        << QString::fromLatin1("layers.slp")
+        << QString::fromLatin1("swatchesPanel")
+        << (QStringList() << QLatin1String("swatchesPanel"))
+        << QString::fromLatin1(":/resources/SwatchMarkers.qml")
+        << QString::fromLatin1("slate-swatches-panel.png");
+
+    QTest::addRow("layers")
+        << QString::fromLatin1("layers.slp")
+        << QString::fromLatin1("layerPanel")
+        << (QStringList() << QLatin1String("colourPanel"))
+        << QString::fromLatin1(":/resources/LayerMarkers.qml")
+        << QString::fromLatin1("slate-layers-panel.png");
+
+    QTest::addRow("animation")
+        << QString::fromLatin1("animation.slp")
+        << QString::fromLatin1("animationPanel")
+        << (QStringList() << QLatin1String("colourPanel") << QLatin1String("layerPanel"))
+        << QString::fromLatin1(":/resources/AnimationMarkers.qml")
+        << QString::fromLatin1("slate-animation-panel.png");
+}
+
+void tst_Screenshots::panels()
+{
+    QFETCH(QString, projectFileName);
+    QFETCH(QString, panelToMark);
+    QFETCH(QStringList, panelsToExpand);
+    QFETCH(QString, markersQmlFilePath);
+    QFETCH(QString, outputFileName);
+
     // Ensure that we have a temporary directory.
     QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
 
     // Copy the project file from resources into our temporary directory.
-    const QString projectFileName = QLatin1String("layers.slp");
     QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
 
     // Try to load the project; there shouldn't be any errors.
@@ -112,17 +146,23 @@ void tst_Screenshots::swatch()
 
     app.settings()->setAutoSwatchEnabled(true);
 
-    QQuickItem *swatchesPanel = window->findChild<QQuickItem*>("swatchesPanel");
-    QVERIFY(swatchesPanel);
-    QVERIFY(swatchesPanel->setProperty("expanded", QVariant(true)));
+    for (const QString &panelObjectName : qAsConst(panelsToExpand)) {
+        QQuickItem *panelToExpand = window->findChild<QQuickItem*>(panelObjectName);
+        QVERIFY(panelToExpand);
+        QVERIFY(panelToExpand->setProperty("expanded", QVariant(true)));
+    }
+
+    QQuickItem *panel = window->findChild<QQuickItem*>(panelToMark);
+    QVERIFY(panel);
+    QVERIFY(panel->setProperty("expanded", QVariant(true)));
 
     // Load markers into scene.
-    QQmlComponent markerOverlayComponent(app.qmlEngine(), ":/resources/SwatchMarkers.qml");
+    QQmlComponent markerOverlayComponent(app.qmlEngine(), markersQmlFilePath);
     QVERIFY2(markerOverlayComponent.isReady(), qPrintable(markerOverlayComponent.errorString()));
 
-    QQuickItem *markerOverlay = qobject_cast<QQuickItem*>(markerOverlayComponent.beginCreate(qmlContext(swatchesPanel)));
-    markerOverlay->setParent(swatchesPanel);
-    markerOverlay->setParentItem(swatchesPanel);
+    QQuickItem *markerOverlay = qobject_cast<QQuickItem*>(markerOverlayComponent.beginCreate(qmlContext(panel)));
+    markerOverlay->setParent(panel);
+    markerOverlay->setParentItem(panel);
     markerOverlayComponent.completeCreate();
     QVERIFY(markerOverlay);
 
@@ -133,99 +173,9 @@ void tst_Screenshots::swatch()
     QTRY_VERIFY(!swappedSpy.isEmpty());
 
     // Grab the image.
-    auto grabResult = swatchesPanel->grabToImage();
+    auto grabResult = panel->grabToImage();
     QTRY_VERIFY(!grabResult->image().isNull());
-    QVERIFY(grabResult->image().save(mOutputDirectory.absoluteFilePath(QLatin1String("slate-swatches-panel.png"))));
-}
-
-void tst_Screenshots::layers()
-{
-    // Ensure that we have a temporary directory.
-    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
-
-    // Copy the project file from resources into our temporary directory.
-    const QString projectFileName = QLatin1String("layers.slp");
-    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
-
-    // Try to load the project; there shouldn't be any errors.
-    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
-    QVERIFY2(loadProject(QUrl::fromLocalFile(absolutePath)), failureMessage);
-
-    // Show the layers panel.
-    QQuickItem *layersPanel = window->findChild<QQuickItem*>("layerPanel");
-    QVERIFY(layersPanel);
-    QVERIFY(layersPanel->setProperty("expanded", QVariant(true)));
-
-    // Show the colour panel as well, otherwise the layer panel is too tall.
-    QQuickItem *colourPanel = window->findChild<QQuickItem*>("colourPanel");
-    QVERIFY(colourPanel);
-    QVERIFY(colourPanel->setProperty("expanded", QVariant(true)));
-
-    // Load markers into scene.
-    QQmlComponent markerOverlayComponent(app.qmlEngine(), ":/resources/LayerMarkers.qml");
-    QVERIFY2(markerOverlayComponent.isReady(), qPrintable(markerOverlayComponent.errorString()));
-
-    QQuickItem *markerOverlay = qobject_cast<QQuickItem*>(markerOverlayComponent.beginCreate(qmlContext(layersPanel)));
-    markerOverlay->setParent(layersPanel);
-    markerOverlay->setParentItem(layersPanel);
-    markerOverlayComponent.completeCreate();
-    QVERIFY(markerOverlay);
-
-    QVERIFY(QTest::qWaitForWindowExposed(window));
-
-    // If we don't do this, the scene isn't ready.
-    QSignalSpy swappedSpy(window, SIGNAL(frameSwapped()));
-    QTRY_VERIFY(!swappedSpy.isEmpty());
-
-    // Grab the image.
-    auto grabResult = layersPanel->grabToImage();
-    QTRY_VERIFY(!grabResult->image().isNull());
-    QVERIFY(grabResult->image().save(mOutputDirectory.absoluteFilePath(QLatin1String("slate-layers-panel.png"))));
-}
-
-void tst_Screenshots::animation()
-{
-    // Ensure that we have a temporary directory.
-    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
-
-    // Copy the project file from resources into our temporary directory.
-    const QString projectFileName = QLatin1String("animation.slp");
-    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
-
-    // Try to load the project; there shouldn't be any errors.
-    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
-    QVERIFY2(loadProject(QUrl::fromLocalFile(absolutePath)), failureMessage);
-
-    // Show the animation panel.
-    QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
-    QVERIFY(animationPanel);
-    QVERIFY(animationPanel->setProperty("expanded", QVariant(true)));
-
-    // Show some other panels so that we're not too big.
-    QQuickItem *colourPanel = window->findChild<QQuickItem*>("colourPanel");
-    QVERIFY(colourPanel);
-    QVERIFY(colourPanel->setProperty("expanded", QVariant(true)));
-
-    // Load markers into scene.
-    QQmlComponent markerOverlayComponent(app.qmlEngine(), ":/resources/AnimationMarkers.qml");
-    QVERIFY2(markerOverlayComponent.isReady(), qPrintable(markerOverlayComponent.errorString()));
-
-    QQuickItem *markerOverlay = qobject_cast<QQuickItem*>(markerOverlayComponent.beginCreate(qmlContext(animationPanel)));
-    markerOverlay->setParent(animationPanel);
-    markerOverlay->setParentItem(animationPanel);
-    markerOverlayComponent.completeCreate();
-    QVERIFY(markerOverlay);
-
-    QVERIFY(QTest::qWaitForWindowExposed(window));
-
-    // If we don't do this, the scene isn't ready.
-    QSignalSpy swappedSpy(window, SIGNAL(frameSwapped()));
-    QTRY_VERIFY(!swappedSpy.isEmpty());
-
-    // Grab the image.
-    auto grabResult = animationPanel->grabToImage();
-    QTRY_VERIFY(!grabResult->image().isNull());
-    QVERIFY(grabResult->image().save(mOutputDirectory.absoluteFilePath(QLatin1String("slate-animation-panel.png"))));
+    QVERIFY(grabResult->image().save(mOutputDirectory.absoluteFilePath(outputFileName)));
 }
 
 int main(int argc, char *argv[])
