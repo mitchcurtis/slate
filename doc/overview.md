@@ -27,3 +27,12 @@ A layered image project can contain several images, each of which is stored as a
 Tileset projects have a tileset bitmap image that can be edited by first painting tiles onto the grid, and then editing those tiles. An accompanying project file is created to save the contents of the grid.
 
 - [Getting Started with Tilesets](https://github.com/mitchcurtis/slate/blob/master/doc/getting-started-tileset.md)
+
+### Comparison of Project Types
+
+Feature | Images (.png) | Layered Images (.slp) | Tilesets (.stp)
+------------ | ------------- | ------------- | -------------
+Guides | :white_check_mark: <sup>1</sup> | :white_check_mark: | :white_check_mark:
+Layers | :x: | :white_check_mark: | :x:
+Swatches | :white_check_mark: <sup>1</sup> | :white_check_mark: | :white_check_mark:
+Tilesets | :x: |  :x: | :white_check_mark:
