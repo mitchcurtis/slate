@@ -30,9 +30,15 @@ Tileset projects have a tileset bitmap image that can be edited by first paintin
 
 ### Comparison of Project Types
 
+The following table lists features and which project types support them.
+
 Feature | Images (.png) | Layered Images (.slp) | Tilesets (.stp)
 ------------ | ------------- | ------------- | -------------
 Guides | :white_check_mark: <sup>1</sup> | :white_check_mark: | :white_check_mark:
 Layers | :x: | :white_check_mark: | :x:
+Selection Tool | :white_check_mark: | :white_check_mark: | :x:
 Swatches | :white_check_mark: <sup>1</sup> | :white_check_mark: | :white_check_mark:
+Textured Fill Tool | :white_check_mark: | :white_check_mark: | :x:
 Tilesets | :x: |  :x: | :white_check_mark:
+
+<sup>1</sup> - Cannot be saved as there is no project file to save to.
