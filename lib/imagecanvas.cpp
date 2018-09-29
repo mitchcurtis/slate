@@ -2300,9 +2300,19 @@ bool ImageCanvas::event(QEvent *event)
                 || gestureEvent->gestureType() == Qt::EndNativeGesture) {
             if (!qFuzzyIsNull(gestureEvent->value())) {
                 mCurrentPane->setSceneCentered(false);
+
                 // Zooming is a bit slow without this.
-                static const int zoomFactor = 2;
-                applyZoom(mCurrentPane->zoomLevel() + gestureEvent->value() * zoomFactor, gestureEvent->pos());
+                static const qreal minZoomFactor = 3.0;
+                static const qreal maxZoomFactor = 10.0;
+
+                // Apply an easing curve to make zooming faster the more zoomed-in we are.
+                const qreal percentageOfMaxZoomLevel = mCurrentPane->zoomLevel() / mCurrentPane->maxZoomLevel();
+                const QEasingCurve zoomCurve(QEasingCurve::OutQuart);
+                const qreal scaledZoomFactor = qMax(minZoomFactor, zoomCurve.valueForProgress(percentageOfMaxZoomLevel) * maxZoomFactor);
+
+                const qreal zoomAmount = gestureEvent->value() * scaledZoomFactor;
+                const qreal newZoom = mCurrentPane->zoomLevel() + zoomAmount;
+                applyZoom(newZoom, gestureEvent->pos());
             }
             return true;
         }
