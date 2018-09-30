@@ -1311,7 +1311,7 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         QQuickItem *okButton = newImageProjectPopup->findChild<QQuickItem*>("newImageProjectOkButton");
         VERIFY(okButton);
         mouseEventOnCentre(okButton, MouseClick);
-        VERIFY(!newImageProjectPopup->property("visible").toBool());
+        TRY_VERIFY(!newImageProjectPopup->property("visible").toBool());
     }
 
     // When run after e.g. selectionToolTileCanvas(), cancelSelectionToolImageCanvas()

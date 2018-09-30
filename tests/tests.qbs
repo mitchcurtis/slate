@@ -6,7 +6,8 @@ Project {
 
     references: [
         "auto/test-app.qbs",
-        "manual/screenshots.qbs"
+        "manual/screenshots/screenshots.qbs",
+        "manual/memory-usage/memory-usage.qbs"
     ]
 }
 
