@@ -17,10 +17,10 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.8
-import QtQuick.Layouts 1.3
-import QtQuick.Window 2.2
-import QtQuick.Controls 2.1
+import QtQuick 2.12
+import QtQuick.Layouts 1.12
+import QtQuick.Window 2.12
+import QtQuick.Controls 2.5
 
 import Qt.labs.settings 1.0
 import Qt.labs.platform 1.0 as Platform
@@ -170,6 +170,7 @@ ApplicationWindow {
     }
 
     RowLayout {
+        id: mainRowLayout
         anchors.fill: parent
         spacing: 0
 
@@ -184,25 +185,23 @@ ApplicationWindow {
             Layout.fillHeight: true
         }
 
-        ColumnLayout {
-            id: panelColumnLayout
-            // Work around https://bugreports.qt.io/browse/QTBUG-70445
-            // by doing the spacing ourselves
-            spacing: 0
+        SplitView {
+            orientation: Qt.Vertical
 
             Layout.minimumWidth: 240
             Layout.maximumWidth: 240
-            Layout.alignment: Qt.AlignTop
+            Layout.maximumHeight: mainRowLayout.height
+            Layout.fillHeight: true
+//            Layout.alignment: Qt.AlignTop
 
             Ui.ColourPanel {
                 id: colourPanel
                 canvas: window.canvas
                 project: window.project
 
-                Layout.fillWidth: true
-                Layout.minimumHeight: expanded ? header.implicitHeight + 200 : -1
-                Layout.maximumHeight: expanded ? implicitHeight : header.implicitHeight
-                Layout.fillHeight: expanded
+                SplitView.minimumHeight: expanded ? header.implicitHeight + 200 : -1
+                SplitView.maximumHeight: expanded ? Infinity : header.implicitHeight
+                SplitView.fillHeight: expanded
             }
 
             Ui.SwatchPanel {
@@ -210,16 +209,16 @@ ApplicationWindow {
                 canvas: window.canvas
                 project: window.project
 
-                Layout.fillWidth: true
-                Layout.minimumHeight: expanded ? header.implicitHeight + 200 : -1
-                Layout.maximumHeight: expanded ? implicitHeight : header.implicitHeight
-                Layout.fillHeight: expanded
-                Layout.topMargin: 5
+                SplitView.minimumHeight: expanded ? header.implicitHeight + 200 : -1
+                SplitView.maximumHeight: expanded ? Infinity : header.implicitHeight
+                SplitView.fillHeight: expanded
+//                Layout.topMargin: 5
             }
 
             Loader {
                 objectName: "tilesetSwatchLoader"
                 active: window.projectType === Project.TilesetType && window.canvas
+                visible: active
                 sourceComponent: Ui.TilesetSwatch {
                     id: tilesetSwatch
                     tileCanvas: window.canvas
@@ -228,12 +227,12 @@ ApplicationWindow {
                     z: canvasContainer.z - 1
                 }
 
-                Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
-                Layout.fillWidth: true
-                Layout.minimumHeight: active && item.expanded ? item.header.implicitHeight + 300 : -1
-                Layout.maximumHeight: active ? (item.expanded ? -1 : item.header.implicitHeight) : 0
-                Layout.fillHeight: active && item.expanded
-                Layout.topMargin: active ? 5 : 0
+//                Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
+//                Layout.fillWidth: true
+                SplitView.minimumHeight: active && item.expanded ? item.header.implicitHeight + 300 : -1
+                SplitView.maximumHeight: active ? (item.expanded ? Infinity : item.header.implicitHeight) : 0
+                SplitView.fillHeight: active && item.expanded
+//                Layout.topMargin: active ? 5 : 0
             }
 
             Loader {
@@ -245,12 +244,12 @@ ApplicationWindow {
                     z: canvasContainer.z - 1
                 }
 
-                Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
-                Layout.fillWidth: true
-                Layout.minimumHeight: active && item.expanded ? item.header.implicitHeight + item.footer.implicitHeight + 100 : -1
-                Layout.maximumHeight: active ? (item.expanded ? -1 : item.header.implicitHeight) : 0
-                Layout.fillHeight: active && item.expanded
-                Layout.topMargin: active ? 5 : 0
+//                Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
+//                Layout.fillWidth: true
+                SplitView.minimumHeight: active && item.expanded ? item.header.implicitHeight + item.footer.implicitHeight + 100 : -1
+                SplitView.maximumHeight: active ? (item.expanded ? Infinity : item.header.implicitHeight) : 0
+                SplitView.fillHeight: active && item.expanded
+//                Layout.topMargin: active ? 5 : 0
             }
 
             Ui.AnimationPanel {
@@ -260,12 +259,12 @@ ApplicationWindow {
                 project: visible ? window.project : null
                 canvas: window.canvas
 
-                Layout.preferredWidth: visible ? colourPanel.implicitWidth : 0
-                Layout.fillWidth: true
-                Layout.minimumHeight: expanded ? header.implicitHeight + 200 : -1
-                Layout.maximumHeight: visible ? (expanded ? -1 : header.implicitHeight) : 0
-                Layout.fillHeight: expanded
-                Layout.topMargin: visible ? 5 : 0
+//                Layout.preferredWidth: visible ? colourPanel.implicitWidth : 0
+//                Layout.fillWidth: true
+                SplitView.minimumHeight: expanded ? header.implicitHeight + 200 : -1
+                SplitView.maximumHeight: visible ? (expanded ? Infinity : header.implicitHeight) : 0
+                SplitView.fillHeight: expanded
+//                Layout.topMargin: visible ? 5 : 0
             }
         }
     }
