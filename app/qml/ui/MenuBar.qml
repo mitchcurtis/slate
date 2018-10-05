@@ -41,8 +41,7 @@ Controls.MenuBar {
         Menu {
             id: recentFilesSubMenu
             objectName: "recentFilesSubMenu"
-            // Can't use qsTr() in submenu titles: https://bugreports.qt.io/browse/QTBUG-66876
-            title: "Recent Files"
+            title: qsTr("Recent Files")
             // This can use LayoutGroup if it's ever implemented: https://bugreports.qt.io/browse/QTBUG-44078
             width: 400
             enabled: recentFilesInstantiator.count > 0
