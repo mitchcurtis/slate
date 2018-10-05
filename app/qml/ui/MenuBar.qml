@@ -43,6 +43,8 @@ Controls.MenuBar {
             objectName: "recentFilesSubMenu"
             // Can't use qsTr() in submenu titles: https://bugreports.qt.io/browse/QTBUG-66876
             title: "Recent Files"
+            // This can use LayoutGroup if it's ever implemented: https://bugreports.qt.io/browse/QTBUG-44078
+            width: 400
             enabled: recentFilesInstantiator.count > 0
 
             onClosed: canvas.forceActiveFocus()
@@ -52,6 +54,8 @@ Controls.MenuBar {
                 objectName: "recentFilesInstantiator"
                 model: settings.recentFiles
                 delegate: MenuItem {
+                    // We should elide on the right when it's possible without losing the styling:
+                    // https://bugreports.qt.io/browse/QTBUG-70961
                     objectName: text + "MenuItem"
                     text: settings.displayableFilePath(modelData)
                     onTriggered: doIfChangesDiscarded(function() { loadProject(modelData) }, true)
