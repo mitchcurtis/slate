@@ -208,6 +208,7 @@ protected:
     Q_REQUIRED_RESULT bool changeToolSize(int size);
     Q_REQUIRED_RESULT bool moveContents(int x, int y, bool onlyVisibleLayers);
     int sliderValue(QQuickItem *slider) const;
+    Q_REQUIRED_RESULT bool selectColourAtCursorPos();
     Q_REQUIRED_RESULT bool drawPixelAtCursorPos();
     Q_REQUIRED_RESULT bool drawTileAtCursorPos();
     Q_REQUIRED_RESULT bool selectArea(const QRect &area);
@@ -217,6 +218,7 @@ protected:
     Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
     Q_REQUIRED_RESULT bool enableAutoSwatch();
     Q_REQUIRED_RESULT bool swatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour);
+    Q_REQUIRED_RESULT bool addSwatchWithForegroundColour();
 
     QByteArray failureMessage;
 

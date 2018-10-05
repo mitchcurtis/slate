@@ -48,6 +48,7 @@ Panel {
         // outside of the view.
         RowLayout {
             id: autoSwatchRowLayout
+            objectName: "autoSwatchRowLayout"
             spacing: 0
 
             // Match the gap that the scrollbar leaves on the right.
@@ -114,6 +115,7 @@ Panel {
         }
         RowLayout {
             id: swatchRowLayout
+            objectName: "swatchRowLayout"
             spacing: 0
 
             Layout.leftMargin: 16

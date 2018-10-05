@@ -478,6 +478,27 @@ int TestHelper::sliderValue(QQuickItem *slider) const
     return qFloor(value);
 }
 
+bool TestHelper::selectColourAtCursorPos()
+{
+    if (tilesetProject) {
+        FAIL("Not implemented yet");
+    } else {
+        if (!switchTool(TileCanvas::EyeDropperTool))
+            return false;
+
+        QTest::mouseMove(window, cursorWindowPos);
+        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        const QColor actualColour = canvas->penForegroundColour();
+        const QColor expectedColour = canvas->currentProjectImage()->pixelColor(cursorPos);
+        VERIFY2(actualColour == expectedColour,
+            qPrintable(QString::fromLatin1("Expected canvas foreground colour to be %1, but it's %2")
+                .arg(expectedColour.name(), actualColour.name())));
+
+        QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    }
+    return true;
+}
+
 bool TestHelper::drawPixelAtCursorPos()
 {
     if (tilesetProject) {
@@ -674,6 +695,44 @@ bool TestHelper::swatchViewDelegateExists(const QQuickItem *viewContentItem, con
         << " whose contentItem colour is " << colour;
     failureMessage = message.toLatin1();
     return false;
+}
+
+bool TestHelper::addSwatchWithForegroundColour()
+{
+    QQuickItem *swatchGridView = window->findChild<QQuickItem*>("swatchGridView");
+    VERIFY(swatchGridView);
+    VERIFY(QMetaObject::invokeMethod(swatchGridView, "forceLayout"));
+
+    QQuickItem *viewContentItem = swatchGridView->property("contentItem").value<QQuickItem*>();
+    VERIFY(viewContentItem);
+
+    const int previousDelegateCount = swatchGridView->property("count").toInt();
+    const QString expectedDelegateObjectName = QString::fromLatin1("swatchGridView_Delegate_%1_%2")
+        .arg(previousDelegateCount).arg(canvas->penForegroundColour().name());
+
+    // Add the swatch.
+    QQuickItem *newSwatchColourButton = window->findChild<QQuickItem*>("newSwatchColourButton");
+    VERIFY(newSwatchColourButton);
+    mouseEventOnCentre(newSwatchColourButton, MouseClick);
+    VERIFY(QMetaObject::invokeMethod(swatchGridView, "forceLayout"));
+    VERIFY(swatchGridView->property("count").toInt() == previousDelegateCount + 1);
+    // findChild() doesn't work here for some reason.
+    const auto childItems = viewContentItem->childItems();
+    QQuickItem *swatchDelegate = nullptr;
+    for (const auto childItem : qAsConst(childItems)) {
+        if (childItem->objectName() == expectedDelegateObjectName) {
+            swatchDelegate = childItem;
+            break;
+        }
+    }
+    if (!swatchDelegate) {
+        QString message;
+        QDebug stream(&message);
+        stream.nospace() << "Expected a swatch delegate to exist named " << expectedDelegateObjectName
+            << " but there wasn't. Swatch delegates: " << viewContentItem->childItems();
+        FAIL(qPrintable(message));
+    }
+    return true;
 }
 
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const

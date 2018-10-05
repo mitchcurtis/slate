@@ -97,10 +97,12 @@ private Q_SLOTS:
     void eraseImageCanvas();
     void splitterSettingsMouse_data();
     void splitterSettingsMouse();
+
     void autoSwatch_data();
     void autoSwatch();
     void autoSwatchGridViewContentY();
     void autoSwatchPasteConfirmation();
+    void swatches();
 
     void selectionToolImageCanvas();
     void selectionToolTileCanvas();
@@ -2362,6 +2364,29 @@ void tst_App::autoSwatchPasteConfirmation()
     QQuickItem *autoSwatchGridView = window->findChild<QQuickItem*>("autoSwatchGridView");
     QVERIFY(autoSwatchGridView);
     QTRY_COMPARE(autoSwatchGridView->property("count").toInt(), 255);
+}
+
+void tst_App::swatches()
+{
+    QVERIFY2(createNewImageProject(16, 16, false), failureMessage);
+
+    // Not necessary to have the colour panel visible, but helps when debugging.
+    QVERIFY2(togglePanel("colourPanel", true), failureMessage);
+    QVERIFY2(togglePanel("swatchesPanel", true), failureMessage);
+
+    // Paste an image in.
+    QImage colourfulImage(":/resources/test-colourful.png");
+    QVERIFY(!colourfulImage.isNull());
+    qGuiApp->clipboard()->setImage(colourfulImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+
+    // Select some colours from the image, adding a new swatch colour for each one.
+    QVERIFY2(switchTool(ImageCanvas::EyeDropperTool), failureMessage);
+    for (int x = 0; x < colourfulImage.width(); ++x) {
+        setCursorPosInScenePixels(x, 0);
+        QVERIFY2(selectColourAtCursorPos(), failureMessage);
+        QVERIFY2(addSwatchWithForegroundColour(), failureMessage);
+    }
 }
 
 struct SelectionData

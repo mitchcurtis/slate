@@ -17,6 +17,7 @@ GridView {
 
     delegate: Rectangle {
         id: colourDelegate
+        objectName: root.objectName + "_Delegate_" + index + "_" + color
         width: 16
         height: 16
         color: model.colour
