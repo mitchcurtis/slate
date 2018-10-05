@@ -34,6 +34,7 @@ The following table lists features and which project types support them.
 
 Feature | Images (.png) | Layered Images (.slp) | Tilesets (.stp)
 ------------ | ------------- | ------------- | -------------
+Grid | :x: | :x: | :white_check_mark:
 Guides | :white_check_mark: <sup>1</sup> | :white_check_mark: | :white_check_mark:
 Layers | :x: | :white_check_mark: | :x:
 Resize Image | :white_check_mark: | :white_check_mark: | :x:

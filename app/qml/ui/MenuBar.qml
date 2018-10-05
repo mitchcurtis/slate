@@ -320,7 +320,7 @@ Controls.MenuBar {
         MenuItem {
             objectName: "showGridMenuItem"
             text: qsTr("Show Grid")
-            enabled: canvas
+            enabled: canvas && projectType === Project.TilesetType
             checkable: true
             checked: settings.gridVisible
             onCheckedChanged: settings.gridVisible = checked
