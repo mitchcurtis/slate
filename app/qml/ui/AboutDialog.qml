@@ -28,28 +28,22 @@ import "." as Ui
 
 Dialog {
     id: root
-    objectName: "renameSwatchColourDialog"
-    title: qsTr("Rename swatch colour")
+    objectName: "aboutDialog"
+    title: qsTr("About Slate")
     modal: true
     dim: false
     focus: true
-    standardButtons: Dialog.Ok | Dialog.Cancel
+    standardButtons: Dialog.Ok
 
     property Project project
-    property string oldName
-    property int colourIndex
 
-    onAboutToShow: {
-        nameTextField.text = oldName
-        nameTextField.selectAll()
-        nameTextField.forceActiveFocus()
-    }
-    onAccepted: project.swatch.renameColour(colourIndex, nameTextField.text)
-
-    TextField {
-        id: nameTextField
-        objectName: "swatchNameTextField"
-        width: parent.width
-        onAccepted: root.accept()
+    ColumnLayout {
+        Label {
+            // https://bugreports.qt.io/browse/QBS-1400
+            text: qsTr("Built from revision %1").arg(BuildInfo.version)
+            font.bold: true
+            font.pixelSize: Qt.application.font.pixelSize * 1.1
+            Layout.fillWidth: true
+        }
     }
 }

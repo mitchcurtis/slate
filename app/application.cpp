@@ -26,6 +26,7 @@
 #include <QUndoStack>
 
 #include "autoswatchmodel.h"
+#include "buildinfo.h"
 #include "canvaspane.h"
 #include "canvaspaneitem.h"
 #include "filevalidator.h"
@@ -72,6 +73,11 @@ static QGuiApplication *createApplication(int &argc, char **argv, const QString 
     return app;
 }
 
+static QObject *buildInfoSingletonProvider(QQmlEngine *, QJSEngine *)
+{
+    return new BuildInfo;
+}
+
 Application::Application(int &argc, char **argv, const QString &applicationName) :
     mApplication(createApplication(argc, argv, applicationName)),
     mSettings(new ApplicationSettings),
@@ -110,6 +116,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
         QLatin1String("Cannot create objects of type TexturedFillParameter"));
     qmlRegisterUncreatableType<TexturedFillParameters>("App", 1, 0, "TexturedFillParameters",
         QLatin1String("Cannot create objects of type TexturedFillParameters"));
+    qmlRegisterSingletonType<BuildInfo>("App", 1, 0, "BuildInfo", buildInfoSingletonProvider);
 
     qRegisterMetaType<ApplicationSettings*>();
     qRegisterMetaType<ImageLayer*>();

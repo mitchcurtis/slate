@@ -5,6 +5,8 @@ DynamicLibrary {
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["core", "gui", "quick", "widgets"]; versionAtLeast: "5.12" }
+    // For version info.
+    Depends { name: "vcs" }
 
     cpp.cxxLanguageVersion: "c++11"
     cpp.visibility: "minimal"
@@ -77,6 +79,8 @@ DynamicLibrary {
         "applytilepencommand.h",
         "autoswatchmodel.cpp",
         "autoswatchmodel.h",
+        "buildinfo.cpp",
+        "buildinfo.h",
         "canvaspane.cpp",
         "canvaspane.h",
         "canvaspaneitem.cpp",

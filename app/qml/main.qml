@@ -17,10 +17,10 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.8
+import QtQuick 2.10
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.2
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.4
 
 import Qt.labs.settings 1.0
 import Qt.labs.platform 1.0 as Platform
@@ -158,6 +158,7 @@ ApplicationWindow {
         imageSizePopup: imageSizePopup
         moveContentsDialog: moveContentsDialog
         texturedFillSettingsDialog: texturedFillSettingsDialog
+        aboutDialog: aboutDialog
     }
 
     header: Ui.ToolBar {
@@ -416,30 +417,36 @@ ApplicationWindow {
 
     Ui.CanvasSizePopup {
         id: canvasSizePopup
-        x: Math.round(parent.width - width) / 2
-        y: Math.round(parent.height - height) / 2
+        parent: Overlay.overlay
+        anchors.centerIn: parent
         project: projectManager.project
     }
 
     Ui.ImageSizePopup {
         id: imageSizePopup
-        x: Math.round(parent.width - width) / 2
-        y: Math.round(parent.height - height) / 2
+        parent: Overlay.overlay
+        anchors.centerIn: parent
         project: projectManager.project
     }
 
     Ui.MoveContentsDialog {
         id: moveContentsDialog
-        x: Math.round(parent.width - width) / 2
-        y: Math.round(parent.height - height) / 2
+        parent: Overlay.overlay
+        anchors.centerIn: parent
         project: projectManager.project
     }
 
     Ui.TexturedFillSettingsDialog {
         id: texturedFillSettingsDialog
-        x: Math.round(parent.width - width) / 2
-        y: Math.round(parent.height - height) / 2
+        parent: Overlay.overlay
+        anchors.centerIn: parent
         project: projectManager.project
         canvas: window.canvas
+    }
+
+    Ui.AboutDialog {
+        id: aboutDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
     }
 }
