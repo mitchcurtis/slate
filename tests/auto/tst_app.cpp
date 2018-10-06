@@ -2388,40 +2388,12 @@ void tst_App::swatches()
         QVERIFY2(addSwatchWithForegroundColour(), failureMessage);
     }
 
-    // Rename one. First, open the context menu by right clicking on a delegate.
-    QQuickItem *delegate = findSwatchViewDelegateAtIndex(0);
-    mouseEventOnCentre(delegate, MouseClick, Qt::RightButton);
-    QObject *swatchContextMenu = findPopupFromTypeName("SwatchContextMenu");
-    QVERIFY(swatchContextMenu);
-    QTRY_VERIFY(swatchContextMenu->property("opened").toBool());
-
-    // Select the rename menu item.
-    QQuickItem *renameSwatchColourMenuItem = window->findChild<QQuickItem*>("renameSwatchColourMenuItem");
-    QVERIFY(renameSwatchColourMenuItem);
-    mouseEventOnCentre(renameSwatchColourMenuItem, MouseClick);
-    QTRY_VERIFY(!swatchContextMenu->property("opened").toBool());
-
-    QObject *renameSwatchColourDialog = findPopupFromTypeName("RenameSwatchColourDialog");
-    QVERIFY(renameSwatchColourDialog);
-    QTRY_VERIFY(renameSwatchColourDialog->property("opened").toBool());
-
-    // Do the renaming.
-    QQuickItem *swatchNameTextField = window->findChild<QQuickItem*>("swatchNameTextField");
-    QVERIFY(swatchNameTextField);
-    QVERIFY2(clearAndEnterText(swatchNameTextField, QLatin1String("test")), failureMessage);
-    QTest::keyClick(window, Qt::Key_Return);
-    QTRY_VERIFY(!renameSwatchColourDialog->property("opened").toBool());
+    // Rename one.
+    QVERIFY2(renameSwatchColour(0, QLatin1String("test")), failureMessage);
 
     // Delete them all.
     for (int i = project->swatch()->colours().size() - 1; i >= 0; --i) {
-        QQuickItem *delegate = findSwatchViewDelegateAtIndex(i);
-        mouseEventOnCentre(delegate, MouseClick, Qt::RightButton);
-        QTRY_VERIFY(swatchContextMenu->property("opened").toBool());
-
-        QQuickItem *deleteSwatchColourMenuItem = window->findChild<QQuickItem*>("deleteSwatchColourMenuItem");
-        QVERIFY(deleteSwatchColourMenuItem);
-        mouseEventOnCentre(deleteSwatchColourMenuItem, MouseClick);
-        QTRY_VERIFY(!swatchContextMenu->property("opened").toBool());
+        QVERIFY2(deleteSwatchColour(i), failureMessage);
     }
     QVERIFY(project->swatch()->colours().isEmpty());
 }

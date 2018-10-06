@@ -221,6 +221,8 @@ protected:
     Q_REQUIRED_RESULT bool swatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour);
     QQuickItem *findSwatchViewDelegateAtIndex(int index);
     Q_REQUIRED_RESULT bool addSwatchWithForegroundColour();
+    Q_REQUIRED_RESULT bool renameSwatchColour(int index, const QString &name);
+    Q_REQUIRED_RESULT bool deleteSwatchColour(int index);
 
     QByteArray failureMessage;
 

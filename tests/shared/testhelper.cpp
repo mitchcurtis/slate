@@ -769,6 +769,53 @@ bool TestHelper::addSwatchWithForegroundColour()
     return true;
 }
 
+bool TestHelper::renameSwatchColour(int index, const QString &name)
+{
+    // Open the context menu by right clicking on the delegate.
+    QQuickItem *delegate = findSwatchViewDelegateAtIndex(index);
+    VERIFY(delegate);
+    mouseEventOnCentre(delegate, MouseClick, Qt::RightButton);
+    QObject *swatchContextMenu = findPopupFromTypeName("SwatchContextMenu");
+    VERIFY(swatchContextMenu);
+    TRY_VERIFY(swatchContextMenu->property("opened").toBool());
+
+    // Select the rename menu item.
+    QQuickItem *renameSwatchColourMenuItem = window->findChild<QQuickItem*>("renameSwatchColourMenuItem");
+    VERIFY(renameSwatchColourMenuItem);
+    mouseEventOnCentre(renameSwatchColourMenuItem, MouseClick);
+    TRY_VERIFY(!swatchContextMenu->property("opened").toBool());
+
+    QObject *renameSwatchColourDialog = findPopupFromTypeName("RenameSwatchColourDialog");
+    VERIFY(renameSwatchColourDialog);
+    TRY_VERIFY(renameSwatchColourDialog->property("opened").toBool());
+
+    // Do the renaming.
+    QQuickItem *swatchNameTextField = window->findChild<QQuickItem*>("swatchNameTextField");
+    VERIFY(swatchNameTextField);
+    VERIFY2(clearAndEnterText(swatchNameTextField, name), failureMessage);
+    QTest::keyClick(window, Qt::Key_Return);
+    TRY_VERIFY(!renameSwatchColourDialog->property("opened").toBool());
+    return true;
+}
+
+bool TestHelper::deleteSwatchColour(int index)
+{
+    // Open the context menu by right clicking on the delegate.
+    QQuickItem *delegate = findSwatchViewDelegateAtIndex(index);
+    VERIFY(delegate);
+    mouseEventOnCentre(delegate, MouseClick, Qt::RightButton);
+
+    QObject *swatchContextMenu = findPopupFromTypeName("SwatchContextMenu");
+    VERIFY(swatchContextMenu);
+    TRY_VERIFY(swatchContextMenu->property("opened").toBool());
+
+    QQuickItem *deleteSwatchColourMenuItem = window->findChild<QQuickItem*>("deleteSwatchColourMenuItem");
+    VERIFY(deleteSwatchColourMenuItem);
+    mouseEventOnCentre(deleteSwatchColourMenuItem, MouseClick);
+    TRY_VERIFY(!swatchContextMenu->property("opened").toBool());
+    return true;
+}
+
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
 {
     QObject *popup = nullptr;
