@@ -2,7 +2,7 @@ import qbs
 
 QtGuiApplication {
     name: "app"
-    targetName: "slate"
+    targetName: "Slate"
 
     Depends { name: "Qt.core" }
     Depends { name: "Qt.quick" }
