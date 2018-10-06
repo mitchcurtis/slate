@@ -38,12 +38,17 @@ Dialog {
     property Project project
 
     ColumnLayout {
+        spacing: 12
+
         Label {
-            // https://bugreports.qt.io/browse/QBS-1400
-            text: qsTr("Built from revision %1").arg(BuildInfo.version)
+            text: qsTr("Built from %1").arg(BuildInfo.version)
             font.bold: true
             font.pixelSize: Qt.application.font.pixelSize * 1.1
             Layout.fillWidth: true
+        }
+
+        Label {
+            text: qsTr("Copyright 2018, Mitch Curtis")
         }
     }
 }
