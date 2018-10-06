@@ -2117,7 +2117,7 @@ void tst_App::colourPickerHexField()
     mouseEventOnCentre(hexTextField, MouseClick);
     ENSURE_ACTIVE_FOCUS(hexTextField);
 
-    keySequence(window, QKeySequence::SelectAll);
+    QTest::keySequence(window, QKeySequence::SelectAll);
     QTest::keyClick(window, Qt::Key_Backspace);
     QCOMPARE(hexTextField->property("text").toString(), QString());
     QCOMPARE(canvas->penForegroundColour(), originalPenColour);
@@ -2155,7 +2155,7 @@ void tst_App::colourPickerHexField()
     QCOMPARE(hexTextField->property("activeFocus").toBool(), true);
 
     // Clear the field.
-    keySequence(window, QKeySequence::SelectAll);
+    QTest::keySequence(window, QKeySequence::SelectAll);
     QTest::keyClick(window, Qt::Key_Backspace);
     QCOMPARE(hexTextField->property("text").toString(), QString());
 
@@ -2387,6 +2387,43 @@ void tst_App::swatches()
         QVERIFY2(selectColourAtCursorPos(), failureMessage);
         QVERIFY2(addSwatchWithForegroundColour(), failureMessage);
     }
+
+    // Rename one. First, open the context menu by right clicking on a delegate.
+    QQuickItem *delegate = findSwatchViewDelegateAtIndex(0);
+    mouseEventOnCentre(delegate, MouseClick, Qt::RightButton);
+    QObject *swatchContextMenu = findPopupFromTypeName("SwatchContextMenu");
+    QVERIFY(swatchContextMenu);
+    QTRY_VERIFY(swatchContextMenu->property("opened").toBool());
+
+    // Select the rename menu item.
+    QQuickItem *renameSwatchColourMenuItem = window->findChild<QQuickItem*>("renameSwatchColourMenuItem");
+    QVERIFY(renameSwatchColourMenuItem);
+    mouseEventOnCentre(renameSwatchColourMenuItem, MouseClick);
+    QTRY_VERIFY(!swatchContextMenu->property("opened").toBool());
+
+    QObject *renameSwatchColourDialog = findPopupFromTypeName("RenameSwatchColourDialog");
+    QVERIFY(renameSwatchColourDialog);
+    QTRY_VERIFY(renameSwatchColourDialog->property("opened").toBool());
+
+    // Do the renaming.
+    QQuickItem *swatchNameTextField = window->findChild<QQuickItem*>("swatchNameTextField");
+    QVERIFY(swatchNameTextField);
+    QVERIFY2(clearAndEnterText(swatchNameTextField, QLatin1String("test")), failureMessage);
+    QTest::keyClick(window, Qt::Key_Return);
+    QTRY_VERIFY(!renameSwatchColourDialog->property("opened").toBool());
+
+    // Delete them all.
+    for (int i = project->swatch()->colours().size() - 1; i >= 0; --i) {
+        QQuickItem *delegate = findSwatchViewDelegateAtIndex(i);
+        mouseEventOnCentre(delegate, MouseClick, Qt::RightButton);
+        QTRY_VERIFY(swatchContextMenu->property("opened").toBool());
+
+        QQuickItem *deleteSwatchColourMenuItem = window->findChild<QQuickItem*>("deleteSwatchColourMenuItem");
+        QVERIFY(deleteSwatchColourMenuItem);
+        mouseEventOnCentre(deleteSwatchColourMenuItem, MouseClick);
+        QTRY_VERIFY(!swatchContextMenu->property("opened").toBool());
+    }
+    QVERIFY(project->swatch()->colours().isEmpty());
 }
 
 struct SelectionData
@@ -2771,11 +2808,11 @@ void tst_App::copyPaste()
     QCOMPARE(canvas->selectionArea(), QRect(10, 10, 5, 5));
 
     // Copy it.
-    keySequence(window, QKeySequence::Copy);
+    QTest::keySequence(window, QKeySequence::Copy);
     QCOMPARE(QGuiApplication::clipboard()->image(), canvas->currentProjectImage()->copy(10, 10, 5, 5));
 
     // Paste. The project's image shouldn't change until the paste selection is confirmed.
-    keySequence(window, QKeySequence::Paste);
+    QTest::keySequence(window, QKeySequence::Paste);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::white));
     QCOMPARE(canvas->hasSelection(), true);
@@ -2788,14 +2825,14 @@ void tst_App::copyPaste()
     //QCOMPARE(imageGrabber.takeImage().pixelColor(2, 2), QColor(Qt::black));
 
     // Undo the paste while it's still selected.
-    //keySequence(window, app.settings()->undoShortcut());
+    //QTest::keySequence(window, app.settings()->undoShortcut());
     //QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
     //QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::white));
     //QCOMPARE(canvas->hasSelection(), false);
     //QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
 
     // Redo the paste. There shouldn't be any selection, but the image should have been applied.
-    //keySequence(window, app.settings()->redoShortcut());
+    //QTest::keySequence(window, app.settings()->redoShortcut());
     //QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     //QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
     //QCOMPARE(canvas->hasSelection(), false);
@@ -2822,7 +2859,7 @@ void tst_App::undoCopyPasteWithTransparency()
     QCOMPARE(canvas->selectionArea(), copyRect);
 
     // Copy it.
-    keySequence(window, QKeySequence::Copy);
+    QTest::keySequence(window, QKeySequence::Copy);
     QCOMPARE(QGuiApplication::clipboard()->image(), canvas->currentProjectImage()->copy(copyRect));
 
     // Deselect so that we paste at the top left.
@@ -2831,7 +2868,7 @@ void tst_App::undoCopyPasteWithTransparency()
     QVERIFY(!canvas->hasSelection());
 
     // Paste.
-    keySequence(window, QKeySequence::Paste);
+    QTest::keySequence(window, QKeySequence::Paste);
     QCOMPARE(canvas->hasSelection(), true);
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 3, 3));
 
@@ -2868,7 +2905,7 @@ void tst_App::pasteFromExternalSource()
     image.fill(Qt::blue);
     qGuiApp->clipboard()->setImage(image);
 
-    keySequence(window, QKeySequence::Paste);
+    QTest::keySequence(window, QKeySequence::Paste);
     QCOMPARE(canvas->tool(), ImageCanvas::SelectionTool);
     QCOMPARE(canvas->hasSelection(), true);
 

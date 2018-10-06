@@ -102,10 +102,12 @@ protected:
         MouseClick,
         MouseDoubleClick
     };
-    void mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType);
+    void mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType, Qt::MouseButton button = Qt::LeftButton);
     void mouseEvent(QQuickItem *item, const QPointF &localPos, TestMouseEventType eventType,
-        Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(), int delay = -1);
+        Qt::MouseButton button = Qt::LeftButton, Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(), int delay = -1);
     void wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees);
+    void keyClicks(const QString &text);
+    Q_REQUIRED_RESULT bool clearAndEnterText(QQuickItem *textField, const QString &text);
 
     QObject *findPopupFromTypeName(const QString &typeName) const;
     QQuickItem *findDialogButtonFromText(const QObject *dialog, const QString &text);
@@ -113,6 +115,7 @@ protected:
     QQuickItem *findListViewChild(QQuickItem *listView, const QString &childObjectName) const;
     QQuickItem *findListViewChild(const QString &listViewObjectName, const QString &childObjectName) const;
     static QQuickItem *findChildWithText(QQuickItem *item, const QString &text);
+    QQuickItem *findViewDelegateAtIndex(QQuickItem *view, int index);
 
     // Returns the position of the cursor in a tile's local coordinates.
     QPoint mapToTile(const QPoint &cursorPos) const;
@@ -127,8 +130,6 @@ protected:
     void setCursorPosInScenePixels(const QPoint &posInScenePixels);
     QPoint tilesetTileCentre(int xPosInTiles, int yPosInTiles) const;
     QPoint tilesetTileSceneCentre(int xPosInTiles, int yPosInTiles) const;
-    // Replace with result of QTBUG-53381 (if it ever gets added).
-    void keySequence(QWindow *window, QKeySequence sequence);
     int digits(int number);
     int digitAt(int number, int index);
 
@@ -218,6 +219,7 @@ protected:
     Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
     Q_REQUIRED_RESULT bool enableAutoSwatch();
     Q_REQUIRED_RESULT bool swatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour);
+    QQuickItem *findSwatchViewDelegateAtIndex(int index);
     Q_REQUIRED_RESULT bool addSwatchWithForegroundColour();
 
     QByteArray failureMessage;

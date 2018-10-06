@@ -58,5 +58,7 @@
         <file>ui/CanvasPaneRepeater.qml</file>
         <file>ui/SwatchPanel.qml</file>
         <file>ui/SwatchGridView.qml</file>
+        <file>ui/SwatchContextMenu.qml</file>
+        <file>ui/RenameSwatchColourDialog.qml</file>
     </qresource>
 </RCC>

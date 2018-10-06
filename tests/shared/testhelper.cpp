@@ -185,7 +185,7 @@ void TestHelper::resetCreationErrorSpy()
     }
 }
 
-void TestHelper::mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType)
+void TestHelper::mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType, Qt::MouseButton button)
 {
     QQuickWindow *itemWindow = item->window();
     Q_ASSERT(itemWindow);
@@ -193,35 +193,36 @@ void TestHelper::mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventTy
     const QPoint centre = item->mapToScene(QPointF(item->width() / 2, item->height() / 2)).toPoint();
     switch (eventType) {
     case MousePress:
-        QTest::mousePress(itemWindow, Qt::LeftButton, Qt::NoModifier, centre);
+        QTest::mousePress(itemWindow, button, Qt::NoModifier, centre);
         break;
     case MouseRelease:
-        QTest::mouseRelease(itemWindow, Qt::LeftButton, Qt::NoModifier, centre);
+        QTest::mouseRelease(itemWindow, button, Qt::NoModifier, centre);
         break;
     case MouseClick:
-        QTest::mouseClick(itemWindow, Qt::LeftButton, Qt::NoModifier, centre);
+        QTest::mouseClick(itemWindow, button, Qt::NoModifier, centre);
         break;
     case MouseDoubleClick:
-        QTest::mouseDClick(itemWindow, Qt::LeftButton, Qt::NoModifier, centre);
+        QTest::mouseDClick(itemWindow, button, Qt::NoModifier, centre);
         break;
     }
 }
 
-void TestHelper::mouseEvent(QQuickItem *item, const QPointF &localPos, TestMouseEventType eventType, Qt::KeyboardModifiers modifiers, int delay)
+void TestHelper::mouseEvent(QQuickItem *item, const QPointF &localPos,
+    TestMouseEventType eventType, Qt::MouseButton button, Qt::KeyboardModifiers modifiers, int delay)
 {
     const QPoint centre = item->mapToScene(localPos).toPoint();
     switch (eventType) {
     case MousePress:
-        QTest::mousePress(item->window(), Qt::LeftButton, modifiers, centre, delay);
+        QTest::mousePress(item->window(), button, modifiers, centre, delay);
         break;
     case MouseRelease:
-        QTest::mouseRelease(item->window(), Qt::LeftButton, modifiers, centre, delay);
+        QTest::mouseRelease(item->window(), button, modifiers, centre, delay);
         break;
     case MouseClick:
-        QTest::mouseClick(item->window(), Qt::LeftButton, modifiers, centre, delay);
+        QTest::mouseClick(item->window(), button, modifiers, centre, delay);
         break;
     case MouseDoubleClick:
-        QTest::mouseDClick(item->window(), Qt::LeftButton, modifiers, centre, delay);
+        QTest::mouseDClick(item->window(), button, modifiers, centre, delay);
         break;
     }
 }
@@ -232,6 +233,30 @@ void TestHelper::wheelEvent(QQuickItem *item, const QPoint &localPos, const int 
     QSpontaneKeyEvent::setSpontaneous(&wheelEvent);
     if (!qApp->notify(item->window(), &wheelEvent))
         QTest::qWarn("Wheel event not accepted by receiving window");
+}
+
+void TestHelper::keyClicks(const QString &text)
+{
+    for (const auto ch : qAsConst(text))
+        QTest::keySequence(window, QKeySequence(ch));
+}
+
+bool TestHelper::clearAndEnterText(QQuickItem *textField, const QString &text)
+{
+    VERIFY(textField->property("text").isValid());
+    VERIFY(textField->hasActiveFocus());
+
+    if (!textField->property("text").toString().isEmpty()) {
+        QTest::keySequence(window, QKeySequence::SelectAll);
+        VERIFY(!textField->property("selectedText").toString().isEmpty());
+
+        QTest::keySequence(window, QKeySequence::Backspace);
+        VERIFY(textField->property("text").toString().isEmpty());
+    }
+
+    keyClicks(text);
+    VERIFY(textField->property("text").toString() == text);
+    return true;
 }
 
 bool TestHelper::changeCanvasSize(int width, int height)
@@ -697,6 +722,15 @@ bool TestHelper::swatchViewDelegateExists(const QQuickItem *viewContentItem, con
     return false;
 }
 
+QQuickItem *TestHelper::findSwatchViewDelegateAtIndex(int index)
+{
+    QQuickItem *swatchGridView = window->findChild<QQuickItem*>("swatchGridView");
+    if (!swatchGridView)
+        return nullptr;
+
+    return findViewDelegateAtIndex(swatchGridView, index);
+}
+
 bool TestHelper::addSwatchWithForegroundColour()
 {
     QQuickItem *swatchGridView = window->findChild<QQuickItem*>("swatchGridView");
@@ -806,6 +840,25 @@ QQuickItem *TestHelper::findChildWithText(QQuickItem *item, const QString &text)
     return nullptr;
 }
 
+QQuickItem *TestHelper::findViewDelegateAtIndex(QQuickItem *view, int index)
+{
+    QQuickItem *viewContentItem = view->property("contentItem").value<QQuickItem*>();
+    if (!viewContentItem)
+        return nullptr;
+
+    const auto childItems = viewContentItem->childItems();
+    for (QQuickItem *child : childItems) {
+        QQmlContext *context = qmlContext(child);
+        if (!context)
+            continue;
+
+        QVariant indexProperty = context->contextProperty("index");
+        if (indexProperty.toInt() == index)
+            return child;
+    }
+    return nullptr;
+}
+
 QPoint TestHelper::mapToTile(const QPoint &cursorPos) const
 {
     return cursorPos - tileCanvas->mapToScene(QPointF(0, 0)).toPoint();
@@ -884,15 +937,6 @@ QPoint TestHelper::tilesetTileSceneCentre(int xPosInTiles, int yPosInTiles) cons
     return tilesetSwatchFlickable->mapToScene(QPointF(
          xPosInTiles * tilesetProject->tileWidth() + tilesetProject->tileWidth() / 2,
          yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2)).toPoint();
-}
-
-void TestHelper::keySequence(QWindow *window, QKeySequence sequence)
-{
-    for (int i = 0; i < sequence.count(); ++i) {
-        Qt::Key key = Qt::Key(sequence[i] & ~Qt::KeyboardModifierMask);
-        Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(sequence[i] & Qt::KeyboardModifierMask);
-        QTest::keyClick(window, key, modifiers);
-    }
 }
 
 int TestHelper::digits(int number)
@@ -1772,7 +1816,7 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
             VERIFY(penToolButton->isEnabled());
             mouseEventOnCentre(penToolButton, MouseClick);
         } else {
-            keySequence(window, app.settings()->penToolShortcut());
+            QTest::keySequence(window, app.settings()->penToolShortcut());
         }
         break;
     case ImageCanvas::EyeDropperTool:
@@ -1780,7 +1824,7 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
             VERIFY(eyeDropperToolButton->isEnabled());
             mouseEventOnCentre(eyeDropperToolButton, MouseClick);
         } else {
-            keySequence(window, app.settings()->eyeDropperToolShortcut());
+            QTest::keySequence(window, app.settings()->eyeDropperToolShortcut());
         }
         break;
     case ImageCanvas::FillTool:
@@ -1788,7 +1832,7 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
             VERIFY(fillToolButton->isEnabled());
             mouseEventOnCentre(fillToolButton, MouseClick);
         } else {
-            keySequence(window, app.settings()->fillToolShortcut());
+            QTest::keySequence(window, app.settings()->fillToolShortcut());
         }
         break;
     case ImageCanvas::EraserTool:
@@ -1796,7 +1840,7 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
             VERIFY(eraserToolButton->isEnabled());
             mouseEventOnCentre(eraserToolButton, MouseClick);
         } else {
-            keySequence(window, app.settings()->eraserToolShortcut());
+            QTest::keySequence(window, app.settings()->eraserToolShortcut());
         }
         break;
     case ImageCanvas::SelectionTool:
@@ -1804,7 +1848,7 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
             VERIFY(selectionToolButton->isEnabled());
             mouseEventOnCentre(selectionToolButton, MouseClick);
         } else {
-            keySequence(window, app.settings()->selectionToolShortcut());
+            QTest::keySequence(window, app.settings()->selectionToolShortcut());
         }
         break;
     default:

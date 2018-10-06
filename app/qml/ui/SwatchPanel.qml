@@ -208,73 +208,17 @@ Panel {
         }
     }
 
-    Menu {
+    SwatchContextMenu {
         id: contextMenu
-        objectName: "swatchContextMenu"
-        x: rightClickedColourIndex !== -1 ? rightClickedColourPos.x : 0
-        y: rightClickedColourIndex !== -1 ? rightClickedColourPos.y : 0
-        modal: true
-        dim: false
-
-        property int rightClickedColourIndex
-        property string rightClickedColourName
-        property int rightClickedColourX
-        property int rightClickedColourY
-
-        readonly property point rightClickedColourPos: rightClickedColourIndex !== -1 ? swatchGridView.contentItem.mapToItem(
-            root, rightClickedColourX, rightClickedColourY) : Qt.point(0, 0)
-
-        onClosed: {
-            rightClickedColourIndex = -1
-            rightClickedColourName = ""
-        }
-
-        MenuItem {
-            id: renameMenuItem
-            objectName: "renameSwatchColourMenuItem"
-            text: qsTr("Rename")
-            onTriggered: {
-                renameDialog.colourIndex = contextMenu.rightClickedColourIndex
-                renameDialog.oldName = contextMenu.rightClickedColourName
-                renameDialog.open()
-            }
-        }
-
-        MenuItem {
-            objectName: "deleteSwatchColourMenuItem"
-            text: qsTr("Delete")
-            onTriggered: project.swatch.removeColour(contextMenu.rightClickedColourIndex)
-        }
+        project: root.project
+        renameSwatchColourDialog: renameSwatchColourDialog
+        swatchPanel: root
     }
 
-    Dialog {
-        id: renameDialog
-        title: qsTr("Rename colour swatch")
-        modal: true
-        dim: false
-        focus: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
-        parent: Overlay.overlay
+    RenameSwatchColourDialog {
+        id: renameSwatchColourDialog
         anchors.centerIn: parent
-
-        property string oldName
-        property int colourIndex
-
-        onAboutToShow: {
-            nameTextField.text = oldName
-            nameTextField.selectAll()
-            nameTextField.forceActiveFocus()
-        }
-        onAccepted: project.swatch.renameColour(colourIndex, nameTextField.text)
-        onClosed: {
-            colourIndex = -1
-            oldName = ""
-        }
-
-        TextField {
-            id: nameTextField
-            width: parent.width
-            onAccepted: renameDialog.accept()
-        }
+        parent: Overlay.overlay
+        project: root.project
     }
 }
