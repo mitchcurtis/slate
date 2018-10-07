@@ -48,6 +48,17 @@ QtGuiApplication {
         qbs.installSourceBase: product.buildDirectory
     }
 
+    Properties {
+        condition: qbs.targetOS.contains("macos")
+        ib.appIconName: "slate-icon-mac"
+    }
+
+    Group {
+        name: "macOS (icons)"
+        condition: qbs.targetOS.contains("macos")
+        files: ["images/logo/slate.xcassets"]
+    }
+
     Group {
         name: "RC file (Windows)"
         files: ["slate.rc"]

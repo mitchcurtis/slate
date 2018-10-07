@@ -1,7 +1,7 @@
 # Slate - Pixel Art Editor
 
 <p align="center">
-  <img src="https://github.com/mitchcurtis/slate/blob/master/app/images/logo/slate-logo-web.svg" />
+  <img src="https://github.com/mitchcurtis/slate/blob/master/app/images/logo/slate-icon-web.svg" />
 </p>
 
 Slate is a bitmap editor available for Linux, Windows and Mac. With Slate, you can:
