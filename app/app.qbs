@@ -47,5 +47,10 @@ QtGuiApplication {
         qbs.installDir: "."
         qbs.installSourceBase: product.buildDirectory
     }
+
+    Group {
+        name: "RC file (Windows)"
+        files: ["slate.rc"]
+    }
 }
 
