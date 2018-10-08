@@ -8,6 +8,8 @@ QtGuiApplication {
     Depends { name: "Qt.quick" }
     Depends { name: "Qt.widgets" }
     Depends { name: "lib" }
+    // Provides support for Apple Interface Builder - aka asset catalogs.
+    Depends { name: "ib"; condition: qbs.targetOS.contains("macos") }
 
     // Additional import path used to resolve QML modules in Qt Creator's code model
     property pathList qmlImportPaths: []
@@ -48,9 +50,13 @@ QtGuiApplication {
         qbs.installSourceBase: product.buildDirectory
     }
 
+    // macOS icon stuff.
     Properties {
         condition: qbs.targetOS.contains("macos")
         ib.appIconName: "slate-icon-mac"
+        bundle.infoPlist: {
+            CFBundleIconFile: "images/logo/slate.xcassets/slate-icon-mac.appiconset"
+        }
     }
 
     Group {
@@ -59,6 +65,7 @@ QtGuiApplication {
         files: ["images/logo/slate.xcassets"]
     }
 
+    // Windows icon stuff.
     Group {
         name: "RC file (Windows)"
         files: ["slate.rc"]
