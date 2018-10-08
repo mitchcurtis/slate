@@ -54,9 +54,9 @@ QtGuiApplication {
     Properties {
         condition: qbs.targetOS.contains("macos")
         ib.appIconName: "slate-icon-mac"
-        bundle.infoPlist: {
-            CFBundleIconFile: "images/logo/slate.xcassets/slate-icon-mac.appiconset"
-        }
+//        bundle.infoPlist: {
+//            CFBundleIconFile: "images/logo/slate.xcassets/slate-icon-mac.appiconset"
+//        }
     }
 
     Group {
