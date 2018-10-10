@@ -34,7 +34,7 @@ public:
     SwatchColour();
     explicit SwatchColour(const QString &name, const QColor &colour);
 
-    void read(const QJsonObject &json);
+    bool read(const QJsonObject &json, QString &errorMessage);
     void write(QJsonObject &json) const;
 
     QString name() const;

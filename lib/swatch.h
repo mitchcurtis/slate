@@ -41,10 +41,11 @@ public:
     Q_INVOKABLE void renameColour(int index, const QString &newName);
     Q_INVOKABLE void removeColour(int index);
 
-    void read(const QJsonObject &json);
+    bool read(const QJsonObject &json, QString &errorMessage);
     void write(QJsonObject &json) const;
 
     void reset();
+    void copy(const Swatch &other);
 
 signals:
     void preColourAdded();
@@ -54,6 +55,9 @@ signals:
 
     void preColourRemoved(int index);
     void postColourRemoved();
+
+    void preImported();
+    void postImported();
 
 private:
     bool isValidIndex(int index) const;

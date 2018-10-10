@@ -420,12 +420,12 @@ void LayeredImageProject::doLoad(const QUrl &url)
 
     QFile jsonFile(filePath);
     if (!jsonFile.open(QIODevice::ReadOnly)) {
-        error(QString::fromLatin1("Layered image project files must have a .slp extension:\n\n%1").arg(filePath));
+        error(QString::fromLatin1("Failed to open layered image project's .slp file:\n\n%1").arg(filePath));
         return;
     }
 
     if (QFileInfo(jsonFile).suffix() != "slp") {
-        error(QString::fromLatin1("Failed to open layered image project's .slp file:\n\n%1").arg(filePath));
+        error(QString::fromLatin1("Layered image project files must have a .slp extension:\n\n%1").arg(filePath));
         return;
     }
 
@@ -449,7 +449,9 @@ void LayeredImageProject::doLoad(const QUrl &url)
         setCurrentLayerIndex(projectObject.value("currentLayerIndex").toInt());
 
     readGuides(projectObject);
-    readSwatch(projectObject);
+    // Allow older project files without swatch support (saved with version <= 0.2.1) to still be loaded.
+    if (!readSwatch(projectObject, IgnoreSerialisationFailures))
+        return;
 
     mAutoExportEnabled = projectObject.value("autoExportEnabled").toBool(false);
 

@@ -35,6 +35,12 @@ Panel {
     rightPadding: 0
     bottomPadding: 6
 
+    settingsPopup: SwatchSettingsContextMenu {
+        y: parent.height
+        parent: root.settingsPopupToolButton
+        onClosed: canvas.forceActiveFocus()
+    }
+
     property ImageCanvas canvas
     property Project project
 

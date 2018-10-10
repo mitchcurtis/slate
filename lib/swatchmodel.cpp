@@ -58,6 +58,8 @@ void SwatchModel::setProject(Project *project)
         connect(mProject->swatch(), &Swatch::colourRenamed, this, &SwatchModel::onColourRenamed);
         connect(mProject->swatch(), &Swatch::preColourRemoved, this, &SwatchModel::onPreColourRemoved);
         connect(mProject->swatch(), &Swatch::postColourRemoved, this, &SwatchModel::onPostColourRemoved);
+        connect(mProject->swatch(), &Swatch::preImported, this, &SwatchModel::onPreSwatchImported);
+        connect(mProject->swatch(), &Swatch::postImported, this, &SwatchModel::onPostSwatchImported);
     }
 }
 
@@ -125,4 +127,14 @@ void SwatchModel::onPreColourRemoved(int index)
 void SwatchModel::onPostColourRemoved()
 {
     endRemoveRows();
+}
+
+void SwatchModel::onPreSwatchImported()
+{
+    beginResetModel();
+}
+
+void SwatchModel::onPostSwatchImported()
+{
+    endResetModel();
 }

@@ -1557,8 +1557,8 @@ bool TestHelper::loadProject(const QUrl &url, const QString &expectedFailureMess
 
     // Expect failure.
     VERIFY2(!projectCreationFailedSpy->isEmpty() && projectCreationFailedSpy->first().first() == expectedFailureMessage,
-        qPrintable(QString::fromLatin1("Expected failure to load project %1 with the following error message: %2")
-            .arg(url.path()).arg(expectedFailureMessage)));
+        qPrintable(QString::fromLatin1("Expected failure to load project %1 with the following error message:\n%2\nBut got:\n%3")
+            .arg(url.path()).arg(expectedFailureMessage).arg(projectCreationFailedSpy->first().first().toString())));
 
     const QObject *errorPopup = findPopupFromTypeName("ErrorPopup");
     VERIFY(errorPopup);

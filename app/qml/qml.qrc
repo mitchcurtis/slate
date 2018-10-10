@@ -62,5 +62,6 @@
         <file>ui/RenameSwatchColourDialog.qml</file>
         <file>ui/LayerDelegate.qml</file>
         <file>ui/AboutDialog.qml</file>
+        <file>ui/SwatchSettingsContextMenu.qml</file>
     </qresource>
 </RCC>

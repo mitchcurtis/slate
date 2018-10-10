@@ -61,6 +61,8 @@ private slots:
     void onColourRenamed(int index);
     void onPreColourRemoved(int index);
     void onPostColourRemoved();
+    void onPreSwatchImported();
+    void onPostSwatchImported();
 
 private:
     Project *mProject;

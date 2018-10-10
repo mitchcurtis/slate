@@ -239,7 +239,7 @@ void tst_App::openClose()
         QTest::ignoreMessage(QtWarningMsg, "QFSFileEngine::open: No file name specified");
 
         const QUrl badUrl("doesnotexist.stp");
-        const QString errorMessage = QLatin1String("Tileset project files must have a .stp extension ()");
+        const QString errorMessage = QLatin1String("Failed to open tileset project's STP file at ");
         QVERIFY2(loadProject(badUrl, errorMessage), failureMessage);
 
         // There was a project open before we attempted to load the invalid one.
@@ -2368,7 +2368,7 @@ void tst_App::autoSwatchPasteConfirmation()
 
 void tst_App::swatches()
 {
-    QVERIFY2(createNewImageProject(16, 16, false), failureMessage);
+    QVERIFY2(createNewLayeredImageProject(16, 16, false), failureMessage);
 
     // Not necessary to have the colour panel visible, but helps when debugging.
     QVERIFY2(togglePanel("colourPanel", true), failureMessage);
@@ -2391,11 +2391,26 @@ void tst_App::swatches()
     // Rename one.
     QVERIFY2(renameSwatchColour(0, QLatin1String("test")), failureMessage);
 
+    // Export them. Can't interact with native dialogs here, so we just do it directly.
+    QSignalSpy errorSpy(project.data(), SIGNAL(errorOccurred(QString)));
+    QVERIFY(errorSpy.isValid());
+    const QUrl swatchUrl(QUrl::fromLocalFile(tempProjectDir->path() + "/swatch.json"));
+    project->exportSwatch(swatchUrl);
+    QVERIFY(errorSpy.isEmpty());
+
     // Delete them all.
     for (int i = project->swatch()->colours().size() - 1; i >= 0; --i) {
         QVERIFY2(deleteSwatchColour(i), failureMessage);
     }
     QVERIFY(project->swatch()->colours().isEmpty());
+
+    // Import them.
+    project->importSwatch(swatchUrl);
+    QVERIFY(errorSpy.isEmpty());
+    QVERIFY(!project->swatch()->colours().isEmpty());
+    // Ensure that the user can see them too.
+    QVERIFY(findSwatchViewDelegateAtIndex(0));
+    QVERIFY(findSwatchViewDelegateAtIndex(project->swatch()->colours().size() - 1));
 }
 
 struct SelectionData
