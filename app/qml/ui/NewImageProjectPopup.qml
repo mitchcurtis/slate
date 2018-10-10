@@ -7,15 +7,14 @@ import App 1.0
 
 Dialog {
     id: popup
+    title: qsTr("New Image Project")
+    contentWidth: 400
+    padding: 20
+    bottomPadding: 0
     modal: true
     closePolicy: Popup.CloseOnEscape
     focus: true
-    padding: 20
-    bottomPadding: 0
-    contentWidth: 400
 
-    // TODO: use the built-in title
-    property string popupTitle: qsTr("New Image Project")
     readonly property int imageWidth: imageWidthSpinBox.value
     readonly property int imageHeight: imageHeightSpinBox.value
     readonly property bool transparentBackground: transparentImageBackgroundCheckBox.checked
@@ -31,12 +30,6 @@ Dialog {
 
     contentItem: ColumnLayout {
         spacing: 14
-
-        Label {
-            text: title
-            font.pixelSize: popup.font.pixelSize * 1.5
-            Layout.alignment: Qt.AlignHCenter
-        }
 
         GridLayout {
             columns: 2

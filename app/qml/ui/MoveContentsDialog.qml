@@ -53,9 +53,6 @@ Dialog {
         GridLayout {
             columns: 2
 
-            // TODO: necessary?
-            Layout.topMargin: 4
-
             Label {
                 text: qsTr("Horizontal distance")
                 Layout.fillWidth: true

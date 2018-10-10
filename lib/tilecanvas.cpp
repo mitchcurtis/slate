@@ -450,7 +450,6 @@ void TileCanvas::updateCursorPos(const QPoint &eventPos)
     mCursorPaneX = eventPos.x() - (!inFirstPane ? firstPaneWidth : 0);
     mCursorPaneY = eventPos.y();
 
-    // TODO: when would this happen?
     const QSize zoomedTileSize = mCurrentPane->zoomedSize(mTilesetProject->tileSize());
     if (zoomedTileSize.isEmpty()) {
         mCursorSceneFX = -1;

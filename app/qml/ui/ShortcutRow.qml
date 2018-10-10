@@ -33,8 +33,9 @@ RowLayout {
 
         Layout.minimumWidth: 200
 
-        // The fix for QTBUG-57098 should have been implemented in C++ as well.
-        // TODO: it is available in QEvent
+        // The fix for QTBUG-57098 probably should have been implemented in C++ as well.
+        // I've tried implementing it in C++ with event() and converting the event
+        // to a QKeyEvent when the type is ShortcutOverride, but it didn't work.
         Keys.onShortcutOverride: event.accepted = (event.key === Qt.Key_Escape)
 
         ItemDelegate {

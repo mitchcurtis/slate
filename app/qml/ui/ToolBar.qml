@@ -18,21 +18,9 @@ ToolBar {
 
     property alias toolButtonGroup: toolButtonGroup
 
-    function switchTool(tool) {
-        root.ignoreToolChanges = true;
-        canvas.tool = tool;
-        root.ignoreToolChanges = false;
-    }
-
-    // TODO: figure out a nicer solution than this.
-    property bool ignoreToolChanges: false
-
     Connections {
         target: canvas
         onToolChanged: {
-            if (root.ignoreToolChanges)
-                return;
-
             switch (canvas.tool) {
             case TileCanvas.PenTool:
                 toolButtonGroup.checkedButton = penToolButton;
@@ -139,11 +127,7 @@ ToolBar {
             ToolTip.text: qsTr("Operate on either pixels or whole tiles")
             ToolTip.visible: hovered
 
-            onClicked: {
-                root.ignoreToolChanges = true;
-                canvas.mode = checked ? TileCanvas.TileMode : TileCanvas.PixelMode;
-                root.ignoreToolChanges = false;
-            }
+            onClicked: canvas.mode = checked ? TileCanvas.TileMode : TileCanvas.PixelMode
         }
 
         ToolSeparator {
@@ -170,7 +154,7 @@ ToolBar {
                 ToolTip.text: qsTr("Draw pixels%1 on the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(ImageCanvas.PenTool)
+                onClicked: canvas.tool = ImageCanvas.PenTool
             }
 
             Ui.IconToolButton {
@@ -183,7 +167,7 @@ ToolBar {
                 ToolTip.text: qsTr("Select colours%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(ImageCanvas.EyeDropperTool)
+                onClicked: canvas.tool = ImageCanvas.EyeDropperTool
             }
 
             Ui.IconToolButton {
@@ -196,7 +180,7 @@ ToolBar {
                 ToolTip.text: qsTr("Erase pixels%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(ImageCanvas.EraserTool)
+                onClicked: canvas.tool = ImageCanvas.EraserTool
             }
 
             ToolButton {
@@ -216,7 +200,7 @@ ToolBar {
                 ToolTip.text: isTilesetProject ? qsTr("Fill a contiguous area with pixels or tiles") : imageProjectToolTipText
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(canvas.lastFillToolUsed)
+                onClicked: canvas.tool = canvas.lastFillToolUsed
                 onPressAndHold: if (!isTilesetProject) fillMenu.open()
                 // TODO: respond to right clicks when https://bugreports.qt.io/browse/QTBUG-67331 is implemented
 
@@ -265,7 +249,7 @@ ToolBar {
                 ToolTip.text: qsTr("Select pixels within an area and move them")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(ImageCanvas.SelectionTool)
+                onClicked: canvas.tool = ImageCanvas.SelectionTool
             }
 
             Ui.IconToolButton {
@@ -279,7 +263,7 @@ ToolBar {
                 ToolTip.text: qsTr("Crop the canvas")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(ImageCanvas.CropTool)
+                onClicked: canvas.tool = ImageCanvas.CropTool
             }
 
             ToolSeparator {}
