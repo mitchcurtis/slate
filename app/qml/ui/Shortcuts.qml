@@ -15,7 +15,7 @@ Item {
 
     Shortcut {
         sequence: settings.quitShortcut
-        onActivated: Qt.quit()
+        onActivated: doIfChangesDiscarded(function() { Qt.quit() })
     }
 
     Shortcut {

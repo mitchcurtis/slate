@@ -144,6 +144,14 @@ Item {
                 enabled: project && project.loaded && project.unsavedChanges
                 onTriggered: project.revert()
             }
+
+            Platform.MenuSeparator {}
+
+            Platform.MenuItem {
+                objectName: "quitMenuItem"
+                text: qsTr("Quit Slate")
+                onTriggered: doIfChangesDiscarded(function() { Qt.quit() })
+            }
         }
 
         Platform.Menu {

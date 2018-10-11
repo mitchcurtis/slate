@@ -150,11 +150,21 @@ Controls.MenuBar {
             onClicked: doIfChangesDiscarded(function() { project.close() })
         }
 
+        MenuSeparator {}
+
         MenuItem {
             objectName: "revertMenuItem"
             text: qsTr("Revert")
             enabled: project ? project.loaded && project.unsavedChanges : false
             onClicked: project.revert()
+        }
+
+        MenuSeparator {}
+
+        MenuItem {
+            objectName: "quitMenuItem"
+            text: qsTr("Quit Slate")
+            onTriggered: doIfChangesDiscarded(function() { Qt.quit() })
         }
     }
 
