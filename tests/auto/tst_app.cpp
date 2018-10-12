@@ -123,6 +123,8 @@ private Q_SLOTS:
     void selectionEdgePan();
     void panThenMoveSelection();
     void selectionCursorGuide();
+    void rotateSelection_data();
+    void rotateSelection();
 
     void fillImageCanvas_data();
     void fillImageCanvas();
@@ -3104,6 +3106,48 @@ void tst_App::selectionCursorGuide()
     QVERIFY(layeredImageCanvas->hasSelection());
     // The guide shouldn't be visible while there's a selection.
     QVERIFY(!selectionCursorGuideItem->isVisible());
+}
+
+void tst_App::rotateSelection_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::rotateSelection()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVariantMap args;
+    args.insert("imageWidth", QVariant(10));
+    args.insert("imageHeight", QVariant(10));
+    QVERIFY2(createNewProject(projectType, args), failureMessage);
+
+    // Draw an "L".
+    QImage originalImage(10, 10, QImage::Format_ARGB32_Premultiplied);
+    originalImage.fill(Qt::transparent);
+    originalImage.setPixelColor(QPoint(4, 3), Qt::black);
+    originalImage.setPixelColor(QPoint(4, 4), Qt::black);
+    originalImage.setPixelColor(QPoint(4, 5), Qt::black);
+    originalImage.setPixelColor(QPoint(5, 5), Qt::black);
+
+    // When rotated 90 degrees, it should look like this:
+    //  ___
+    // |
+    QImage expected90Image(10, 10, QImage::Format_ARGB32_Premultiplied);
+    expected90Image.fill(Qt::transparent);
+    expected90Image.setPixelColor(QPoint(4, 4), Qt::black);
+    expected90Image.setPixelColor(QPoint(5, 4), Qt::black);
+    expected90Image.setPixelColor(QPoint(6, 4), Qt::black);
+    expected90Image.setPixelColor(QPoint(4, 5), Qt::black);
+
+    QVERIFY2(selectArea(QRect(3, 2, 4, 5)), failureMessage);
+    // TODO: go through ui
+    canvas->rotateSelection(90);
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->currentProjectImage()->copy());
+
+    // TODO: what does mspaint do with the selection area after rotating?
+    // ps removes it
 }
 
 void tst_App::fillImageCanvas_data()

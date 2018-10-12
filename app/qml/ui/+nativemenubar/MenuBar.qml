@@ -223,6 +223,20 @@ Item {
                 onTriggered: canvas.flipSelection(Qt.Vertical)
                 enabled: isImageProjectType && canvas && canvas.hasSelection
             }
+
+            Platform.MenuItem {
+                objectName: "rotateClockwiseMenuItem"
+                text: qsTr("Rotate 90° Clockwise")
+                onTriggered: canvas.rotateSelection(90)
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+            }
+
+            Platform.MenuItem {
+                objectName: "rotateCounterClockwiseMenuItem"
+                text: qsTr("Rotate 90° Counter Clockwise")
+                onTriggered: canvas.rotateSelection(-90)
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+            }
         }
 
         Platform.Menu {

@@ -283,6 +283,7 @@ public slots:
     void zoomIn();
     void zoomOut();
     void flipSelection(Qt::Orientation orientation);
+    void rotateSelection(int angle);
     void copySelection();
     void paste();
     void deleteSelectionOrContents();
@@ -325,6 +326,7 @@ protected:
     friend class DeleteImageCanvasSelectionCommand;
     friend class FlipImageCanvasSelectionCommand;
     friend class PasteImageCanvasCommand;
+    friend class RotateImageCanvasSelectionCommand;
 
     struct PixelCandidateData
     {
@@ -345,6 +347,7 @@ protected:
     void erasePortionOfImage(int layerIndex, const QRect &portion);
     virtual void replaceImage(int layerIndex, const QImage &replacementImage);
     void doFlipSelection(int layerIndex, const QRect &area, Qt::Orientation orientation);
+    void doRotateSelection(int layerIndex, const QRect &area, int angle);
 
     QPointF linePoint1() const;
     QPointF linePoint2() const;
