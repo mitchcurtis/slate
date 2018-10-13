@@ -25,13 +25,14 @@
 #include <QRect>
 
 namespace Utils {
-    QImage rotate(const QImage &image, int angle);
-
     QImage paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
 
     QImage replacePortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
 
     QImage erasePortionOfImage(const QImage &image, const QRect &portion);
+
+    QImage rotate(const QImage &image, int angle);
+    QImage rotateArea(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea);
 
     void strokeRectWithDashes(QPainter *painter, const QRect &rect);
 

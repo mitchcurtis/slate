@@ -2006,26 +2006,11 @@ void ImageCanvas::doFlipSelection(int layerIndex, const QRect &area, Qt::Orienta
 
 void ImageCanvas::doRotateSelection(int layerIndex, const QRect &area, int angle)
 {
-    // Ensure that the area is square so that the rotation doesn't clip some of the image.
-    QRect squareArea = area;
-    const QPoint centre = area.center();
-    if (squareArea.width() > squareArea.height())
-        squareArea.setHeight(squareArea.width());
-    else if (squareArea.height() > squareArea.width())
-        squareArea.setWidth(squareArea.height());
-    squareArea.moveCenter(centre);
-
-    // We want a square area for the rotation, but we only want a subset of it afterwards.
-    // Swaps width and height.
-    QRect rotatedArea = area.transposed();
-    rotatedArea.moveCenter(centre);
-
-    QImage squareRotatedImage = currentProjectImage()->copy(squareArea);
-    squareRotatedImage = Utils::rotate(squareRotatedImage, angle);
-    erasePortionOfImage(layerIndex, rotatedArea);
-
-    const QImage rotatedImagePortion = squareRotatedImage.copy(rotatedArea);
-    paintImageOntoPortionOfImage(layerIndex, rotatedArea, rotatedImagePortion);
+    QImage *image = imageForLayerAt(layerIndex);
+    QRect rotatedArea;
+    *image = Utils::rotateArea(*image, area, angle, rotatedArea);
+    setSelectionArea(rotatedArea);
+    requestContentPaint();
 }
 
 QPointF ImageCanvas::linePoint1() const

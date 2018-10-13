@@ -1979,7 +1979,9 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
 
     QTest::keyRelease(window, Qt::Key_Space);
-    VERIFY(window->cursor().shape() == Qt::BlankCursor);
+    // If we have a selection, the cursor might not be Qt::BlankCursor, and that's OK.
+    if (!canvas->hasSelection())
+        VERIFY(window->cursor().shape() == Qt::BlankCursor);
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
 
     return true;

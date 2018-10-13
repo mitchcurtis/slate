@@ -22,15 +22,6 @@
 #include <QDebug>
 #include <QPainter>
 
-QImage Utils::rotate(const QImage &image, int angle)
-{
-    const QPoint center = image.rect().center();
-    QMatrix matrix;
-    matrix.translate(center.x(), center.y());
-    matrix.rotate(angle);
-    return image.transformed(matrix);
-}
-
 QImage Utils::paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
 {
     QImage newImage = image;
@@ -55,6 +46,51 @@ QImage Utils::erasePortionOfImage(const QImage &image, const QRect &portion)
     painter.setCompositionMode(QPainter::CompositionMode_Clear);
     painter.fillRect(portion, Qt::transparent);
     return newImage;
+}
+
+QImage Utils::rotate(const QImage &image, int angle)
+{
+    const QPoint center = image.rect().center();
+    QMatrix matrix;
+    matrix.translate(center.x(), center.y());
+    matrix.rotate(angle);
+    return image.transformed(matrix);
+}
+
+/*!
+    1. Copies \a area in \a image.
+    2. Erases \a area in \a image, filling it with transparency.
+    3. Pastes the rotated image from step 1 at the centre of \a area.
+    4. Returns the final image and sets \a inRotatedArea as the area
+       representing the newly rotated \a area.
+*/
+QImage Utils::rotateArea(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea)
+{
+    QImage result = image;
+    const QPoint areaCentre = area.center();
+
+    // Create an image from the target area and then rotate it.
+    // The resulting image will be big enough to contain the rotation.
+    QImage rotatedImagePortion = image.copy(area);
+    QMatrix matrix;
+    matrix.translate(areaCentre.x(), areaCentre.y());
+    matrix.rotate(angle);
+    rotatedImagePortion = rotatedImagePortion.transformed(matrix);
+
+    // Remove what was behind the area and replace it with transparency.
+    result = erasePortionOfImage(result, area);
+
+    // Centre the rotated image over the target area's centre...
+    QRect rotatedArea = rotatedImagePortion.rect();
+    rotatedArea.moveCenter(areaCentre);
+
+    // ...and paint it onto the result.
+    QPainter painter(&result);
+    painter.drawImage(rotatedArea, rotatedImagePortion);
+
+    inRotatedArea = rotatedArea;
+
+    return result;
 }
 
 void Utils::strokeRectWithDashes(QPainter *painter, const QRect &rect)

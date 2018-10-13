@@ -3110,7 +3110,12 @@ void tst_App::selectionCursorGuide()
 
 void tst_App::rotateSelection_data()
 {
-    addImageProjectTypes();
+//    addImageProjectTypes();
+
+    QTest::addColumn<Project::Type>("projectType");
+
+//    QTest::newRow("ImageType") << Project::ImageType;
+    QTest::newRow("LayeredImageType") << Project::LayeredImageType;
 }
 
 void tst_App::rotateSelection()
@@ -3122,32 +3127,46 @@ void tst_App::rotateSelection()
     args.insert("imageHeight", QVariant(10));
     QVERIFY2(createNewProject(projectType, args), failureMessage);
 
-    // Draw an "L".
-    QImage originalImage(10, 10, QImage::Format_ARGB32_Premultiplied);
-    originalImage.fill(Qt::transparent);
-    originalImage.setPixelColor(QPoint(4, 3), Qt::black);
-    originalImage.setPixelColor(QPoint(4, 4), Qt::black);
-    originalImage.setPixelColor(QPoint(4, 5), Qt::black);
-    originalImage.setPixelColor(QPoint(5, 5), Qt::black);
+    // Paste an "L" onto the canvas.
+    const QImage originalImage(":/resources/rotateSelection-original.png");
+    qGuiApp->clipboard()->setImage(originalImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+    QCOMPARE(canvas->hasSelection(), true);
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->hasSelection(), false);
 
-    // When rotated 90 degrees, it should look like this:
-    //  ___
-    // |
-    QImage expected90Image(10, 10, QImage::Format_ARGB32_Premultiplied);
-    expected90Image.fill(Qt::transparent);
-    expected90Image.setPixelColor(QPoint(4, 4), Qt::black);
-    expected90Image.setPixelColor(QPoint(5, 4), Qt::black);
-    expected90Image.setPixelColor(QPoint(6, 4), Qt::black);
-    expected90Image.setPixelColor(QPoint(4, 5), Qt::black);
-
+    // Rotate 90 degrees.
     QVERIFY2(selectArea(QRect(3, 2, 4, 5)), failureMessage);
+    // Zoom to see what's going on.
+    QVERIFY2(zoomTo(30), failureMessage);
     // TODO: go through ui
     canvas->rotateSelection(90);
-    QTest::keyClick(window, Qt::Key_Escape);
-    QCOMPARE(canvas->currentProjectImage()->copy());
+    // mspaint keeps the selection after rotating
+    QCOMPARE(canvas->hasSelection(), true);
+    // For some reason, layered image project images are Format_ARGB32_Premultiplied.
+    // We don't care about the format, so just convert them.
+    QImage actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    const QImage expected90Image(":/resources/rotateSelection-90.png");
+    QCOMPARE(actualImage, expected90Image);
 
-    // TODO: what does mspaint do with the selection area after rotating?
-    // ps removes it
+    // Rotate 90 degrees again for a total of 180 degrees of rotation.
+    canvas->rotateSelection(90);
+    QCOMPARE(canvas->hasSelection(), true);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    const QImage expected180Image(":/resources/rotateSelection-180.png");
+    QCOMPARE(actualImage, expected180Image);
+
+    // Rotate 90 degrees again for a total of 270 degrees of rotation.
+    canvas->rotateSelection(90);
+    QCOMPARE(canvas->hasSelection(), true);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    const QImage expected270Image(":/resources/rotateSelection-270.png");
+    QCOMPARE(actualImage, expected270Image);
+
+    // TODO: test undo
+
+    // Clear selection.
+    QTest::keyClick(window, Qt::Key_Escape);
 }
 
 void tst_App::fillImageCanvas_data()
