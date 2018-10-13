@@ -21,6 +21,7 @@
 #define ROTATEIMAGECANVASSELECTIONCOMMAND_H
 
 #include <QDebug>
+#include <QImage>
 #include <QRect>
 #include <QUndoCommand>
 
@@ -31,7 +32,7 @@ class ImageCanvas;
 class SLATE_EXPORT RotateImageCanvasSelectionCommand : public QUndoCommand
 {
 public:
-    RotateImageCanvasSelectionCommand(ImageCanvas *canvas, const QRect &area,
+    RotateImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex, const QRect &area,
         int angle, QUndoCommand *parent = nullptr);
 
     void undo() override;
@@ -43,8 +44,11 @@ private:
     friend QDebug operator<<(QDebug debug, const RotateImageCanvasSelectionCommand *command);
 
     ImageCanvas *mCanvas;
+    int mLayerIndex;
     int mAngle;
     QRect mArea;
+    QRect mTotalAffectedArea;
+    QImage mPreviousImagePortion;
 };
 
 #endif // ROTATEIMAGECANVASSELECTIONCOMMAND_H

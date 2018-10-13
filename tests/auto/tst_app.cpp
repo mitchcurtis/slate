@@ -3163,7 +3163,22 @@ void tst_App::rotateSelection()
     const QImage expected270Image(":/resources/rotateSelection-270.png");
     QCOMPARE(actualImage, expected270Image);
 
-    // TODO: test undo
+    // Undo to 180.
+    mouseEventOnCentre(undoButton, MouseClick);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, expected180Image);
+    // mspaint gets rid of the selection upon undoing.
+    QCOMPARE(canvas->hasSelection(), false);
+
+    // Undo to 90.
+    mouseEventOnCentre(undoButton, MouseClick);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, expected90Image);
+
+    // Undo to the original.
+    mouseEventOnCentre(undoButton, MouseClick);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, originalImage);
 
     // Clear selection.
     QTest::keyClick(window, Qt::Key_Escape);

@@ -1670,7 +1670,7 @@ void ImageCanvas::rotateSelection(int angle)
 
     if (!mIsSelectionFromPaste) {
         mProject->beginMacro(QLatin1String("RotateSelection"));
-        mProject->addChange(new RotateImageCanvasSelectionCommand(this, mSelectionArea, angle));
+        mProject->addChange(new RotateImageCanvasSelectionCommand(this, currentLayerIndex(), mSelectionArea, angle));
         mProject->endMacro();
     } else { // TODO
         Q_ASSERT(false);
@@ -2004,13 +2004,17 @@ void ImageCanvas::doFlipSelection(int layerIndex, const QRect &area, Qt::Orienta
     paintImageOntoPortionOfImage(layerIndex, area, flippedImagePortion);
 }
 
-void ImageCanvas::doRotateSelection(int layerIndex, const QRect &area, int angle)
+QRect ImageCanvas::doRotateSelection(int layerIndex, const QRect &area, int angle)
 {
     QImage *image = imageForLayerAt(layerIndex);
     QRect rotatedArea;
     *image = Utils::rotateArea(*image, area, angle, rotatedArea);
-    setSelectionArea(rotatedArea);
+    // Only update the selection area when the commands are being created for the first time,
+    // not when they're being undone and redone.
+    if (mHasSelection)
+        setSelectionArea(rotatedArea);
     requestContentPaint();
+    return area.united(rotatedArea);
 }
 
 QPointF ImageCanvas::linePoint1() const

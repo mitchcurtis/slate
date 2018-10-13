@@ -23,10 +23,11 @@
 
 Q_LOGGING_CATEGORY(lcRotateImageCanvasSelectionCommand, "app.undo.rotateImageCanvasSelectionCommand")
 
-RotateImageCanvasSelectionCommand::RotateImageCanvasSelectionCommand(ImageCanvas *canvas,
+RotateImageCanvasSelectionCommand::RotateImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex,
         const QRect &area, int angle, QUndoCommand *parent) :
     QUndoCommand(parent),
     mCanvas(canvas),
+    mLayerIndex(layerIndex),
     mAngle(angle),
     mArea(area)
 {
@@ -36,13 +37,21 @@ RotateImageCanvasSelectionCommand::RotateImageCanvasSelectionCommand(ImageCanvas
 void RotateImageCanvasSelectionCommand::undo()
 {
     qCDebug(lcRotateImageCanvasSelectionCommand) << "undoing" << this;
-    mCanvas->doRotateSelection(mCanvas->currentLayerIndex(), mArea, -mAngle);
+    mCanvas->replacePortionOfImage(mLayerIndex, mTotalAffectedArea, mPreviousImagePortion);
+    // This matches what mspaint does; undoing a selection rotation causes the selection to be cleared.
+    mCanvas->clearSelection();
 }
 
 void RotateImageCanvasSelectionCommand::redo()
 {
     qCDebug(lcRotateImageCanvasSelectionCommand) << "redoing" << this;
-    mCanvas->doRotateSelection(mCanvas->currentLayerIndex(), mArea, mAngle);
+    // If rotating on a non-transparent background, we can't just call doRotateSelection()
+    // with a reversed angle, because it won't clean up the now-transparent areas.
+    // So, we store the whole affected area of the image: the rect that
+    // contains both mArea and the rotated area.
+    const QImage previousImage = *mCanvas->currentProjectImage();
+    mTotalAffectedArea = mCanvas->doRotateSelection(mLayerIndex, mArea, mAngle);
+    mPreviousImagePortion = previousImage.copy(mTotalAffectedArea);
 }
 
 int RotateImageCanvasSelectionCommand::id() const
@@ -53,6 +62,7 @@ int RotateImageCanvasSelectionCommand::id() const
 QDebug operator<<(QDebug debug, const RotateImageCanvasSelectionCommand *command)
 {
     debug.nospace() << "(RotateImageCanvasSelectionCommand area=" << command->mArea
+        << "totalAffectedArea=" << command->mTotalAffectedArea
         << "angle =" << command->mAngle
         << ")";
     return debug.space();
