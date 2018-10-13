@@ -55,22 +55,27 @@ It's fine to ask questions here on GitHub as well - just [create an issue](https
 There are two options for building:
 
 #### Qt Creator ####
-Open [slate.pro](https://github.com/mitchcurtis/slate/blob/master/slate.pro) in Qt Creator, configure the project using a kit with a Qt version that meets the requirement listed in the [Dependencies](#dependencies) section, and then build it.
+
+It's recommended to build using Qt Creator for convenience.
+
+Open [slate.qbs](https://github.com/mitchcurtis/slate/blob/master/slate.qbs) in Qt Creator, configure the project using a kit with a Qt version that meets the requirement listed in the [Dependencies](#dependencies) section, and then build it.
 
 #### Command Line ####
+
+First, follow Qbs' [setup guide](http://doc.qt.io/qbs/setup.html). Once you've set it up, choose one of the following approaches.
 
 In-source builds:
 
     cd /path/to/slate-source-dir
-    /path/to/qt/qmake
-    make (or nmake/jom on Windows)
+    qbs
 
 Shadow builds:
 
     mkdir slate-build
     cd slate-build
-    /path/to/qt/qmake /path/to/slate-source-dir/slate.pro
-    make (or nmake/jom on Windows)
+    qbs /path/to/slate-source-dir/slate.qbs
+    
+For more information about building Qbs applications, see [this page](http://doc.qt.io/qbs/building-applications.html).
 
 ---
 
