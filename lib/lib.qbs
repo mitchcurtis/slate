@@ -42,8 +42,6 @@ DynamicLibrary {
                 return ""
             else if (qbs.targetOS.contains("darwin"))
                 return "slate.app/Contents/Frameworks"
-            else
-                return "lib"
         }
         fileTagsFilter: "dynamiclibrary"
     }
