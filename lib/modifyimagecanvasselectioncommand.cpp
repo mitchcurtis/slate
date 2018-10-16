@@ -23,6 +23,16 @@
 
 Q_LOGGING_CATEGORY(lcMoveImageCanvasSelectionCommand, "app.undo.moveImageCanvasSelectionCommand")
 
+/*
+    We use one command for all types of image selection modifications
+    because we don't consider modifications to image selections as undoable:
+    after a selection is made and modified (via e.g. moves, rotations, etc.)
+    and then undone, it will go straight back to how the canvas was before those
+    modifications, rather than stepping back one modification at a time.
+
+    This also simplifies the code.
+*/
+
 ModifyImageCanvasSelectionCommand::ModifyImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex, ImageCanvas::SelectionModification modification,
         const QRect &previousArea, const QImage &previousAreaImagePortion,
         const QRect &newArea, bool fromPaste, const QImage &pasteContents, QUndoCommand *parent) :

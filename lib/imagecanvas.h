@@ -429,7 +429,7 @@ protected:
     void updateSelectionPreviewImage(SelectionModification reason);
     void moveSelectionArea();
     void moveSelectionAreaBy(const QPoint &pixelDistance);
-    void confirmSelectionMove(ClearSelectionFlag clearSelection = ClearSelection);
+    void confirmSelectionModification(ClearSelectionFlag clearSelection = ClearSelection);
     QRect clampSelectionArea(const QRect &selectionArea) const;
     QRect boundSelectionArea(const QRect &selectionArea) const;
     void clearSelection();
@@ -554,9 +554,8 @@ protected:
     bool mPotentiallySelecting;
     bool mHasSelection;
     bool mMovingSelection;
-    bool mHasMovedSelection;
     bool mIsSelectionFromPaste;
-    bool mConfirmingSelectionMove;
+    bool mConfirmingSelectionModification;
     // The current selection area. This is set as soon as we receive a mouse press event
     // outside of any existing selection, which means that it starts off with an "empty" size.
     QRect mSelectionArea;
