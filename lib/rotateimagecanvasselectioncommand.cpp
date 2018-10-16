@@ -52,6 +52,7 @@ void RotateImageCanvasSelectionCommand::redo()
     const QImage previousImage = *mCanvas->currentProjectImage();
     mTotalAffectedArea = mCanvas->doRotateSelection(mLayerIndex, mArea, mAngle);
     mPreviousImagePortion = previousImage.copy(mTotalAffectedArea);
+    qCDebug(lcRotateImageCanvasSelectionCommand) << "redid" << this;
 }
 
 int RotateImageCanvasSelectionCommand::id() const
@@ -62,8 +63,8 @@ int RotateImageCanvasSelectionCommand::id() const
 QDebug operator<<(QDebug debug, const RotateImageCanvasSelectionCommand *command)
 {
     debug.nospace() << "(RotateImageCanvasSelectionCommand area=" << command->mArea
-        << "totalAffectedArea=" << command->mTotalAffectedArea
-        << "angle =" << command->mAngle
+        << " totalAffectedArea=" << command->mTotalAffectedArea
+        << " angle =" << command->mAngle
         << ")";
     return debug.space();
 }

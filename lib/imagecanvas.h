@@ -233,6 +233,16 @@ public:
     virtual QImage *imageForLayerAt(int layerIndex);
     virtual int currentLayerIndex() const;
 
+    enum SelectionModification {
+        NoSelectionModification,
+        SelectionPaste,
+        SelectionMove,
+        SelectionFlip,
+        SelectionRotate
+    };
+    // For nice printing.
+    Q_ENUM(SelectionModification)
+
 signals:
     void projectChanged();
     void zoomLevelChanged();
@@ -322,7 +332,7 @@ protected:
     friend class ApplyPixelFillCommand;
     friend class ApplyPixelLineCommand;
     friend class ApplyPixelPenCommand;
-    friend class MoveImageCanvasSelectionCommand;
+    friend class ModifyImageCanvasSelectionCommand;
     friend class DeleteImageCanvasSelectionCommand;
     friend class FlipImageCanvasSelectionCommand;
     friend class PasteImageCanvasCommand;
@@ -416,7 +426,7 @@ protected:
     void beginSelectionMove();
     void updateOrMoveSelectionArea();
     void updateSelectionArea();
-    void updateSelectionPreviewImage();
+    void updateSelectionPreviewImage(SelectionModification reason);
     void moveSelectionArea();
     void moveSelectionAreaBy(const QPoint &pixelDistance);
     void confirmSelectionMove(ClearSelectionFlag clearSelection = ClearSelection);
@@ -433,6 +443,7 @@ protected:
     void confirmPasteSelection();
     void setSelectionFromPaste(bool isSelectionFromPaste);
     void panWithSelectionIfAtEdge(SelectionPanReason reason);
+    void setLastSelectionModification(SelectionModification selectionModification);
 
     void setAltPressed(bool altPressed);
 
@@ -549,17 +560,20 @@ protected:
     // The current selection area. This is set as soon as we receive a mouse press event
     // outside of any existing selection, which means that it starts off with an "empty" size.
     QRect mSelectionArea;
-    QRect mSelectionAreaBeforeFirstMove;
+    QRect mSelectionAreaBeforeFirstModification;
     // The selection area before the most recent move.
     QRect mSelectionAreaBeforeLastMove;
     // The last selection area with a non-empty size. This is set after a mouse release event.
     QRect mLastValidSelectionArea;
+    // The image contents of the selection.
     QImage mSelectionContents;
     // The entire image as it would look if the selection (that is currently being dragged)
     // was dropped where it is now.
     QImage mSelectionPreviewImage;
     QBasicTimer mSelectionEdgePanTimer;
     SelectionCursorGuide *mSelectionCursorGuide;
+    // The type of the last modification that was done to the selection.
+    SelectionModification mLastSelectionModification;
 
     QRect mCropArea;
 

@@ -17,22 +17,22 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef MOVEIMAGECANVASSELECTIONCOMMAND_H
-#define MOVEIMAGECANVASSELECTIONCOMMAND_H
+#ifndef MODIFYIMAGECANVASSELECTIONCOMMAND_H
+#define MODIFYIMAGECANVASSELECTIONCOMMAND_H
 
 #include <QDebug>
 #include <QImage>
 #include <QRect>
 #include <QUndoCommand>
 
+#include "imagecanvas.h"
 #include "slate-global.h"
 
-class ImageCanvas;
-
-class SLATE_EXPORT MoveImageCanvasSelectionCommand : public QUndoCommand
+class SLATE_EXPORT ModifyImageCanvasSelectionCommand : public QUndoCommand
 {
 public:
-    MoveImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex, const QRect &previousArea,
+    ModifyImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex,
+        ImageCanvas::SelectionModification modification, const QRect &previousArea,
         const QImage &previousAreaImagePortion, const QRect &newArea,
         bool fromPaste, const QImage &pasteContents, QUndoCommand *parent = nullptr);
 
@@ -42,10 +42,11 @@ public:
     int id() const override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const MoveImageCanvasSelectionCommand &command);
+    friend QDebug operator<<(QDebug debug, const ModifyImageCanvasSelectionCommand &command);
 
     ImageCanvas *mCanvas;
     int mLayerIndex;
+    ImageCanvas::SelectionModification mModification;
     QRect mPreviousArea;
     // The portion of the image under the selection before the selection was moved.
     QImage mPreviousAreaImagePortion;
@@ -57,4 +58,4 @@ private:
     bool mUsed;
 };
 
-#endif // MOVEIMAGECANVASSELECTIONCOMMAND_H
+#endif // MODIFYIMAGECANVASSELECTIONCOMMAND_H

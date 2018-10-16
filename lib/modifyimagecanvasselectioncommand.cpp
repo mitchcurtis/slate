@@ -17,19 +17,19 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "moveimagecanvasselectioncommand.h"
+#include "modifyimagecanvasselectioncommand.h"
 
-#include "imagecanvas.h"
 #include "imageproject.h"
 
 Q_LOGGING_CATEGORY(lcMoveImageCanvasSelectionCommand, "app.undo.moveImageCanvasSelectionCommand")
 
-MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex,
+ModifyImageCanvasSelectionCommand::ModifyImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex, ImageCanvas::SelectionModification modification,
         const QRect &previousArea, const QImage &previousAreaImagePortion,
         const QRect &newArea, bool fromPaste, const QImage &pasteContents, QUndoCommand *parent) :
     QUndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex),
+    mModification(modification),
     mPreviousArea(previousArea),
     mPreviousAreaImagePortion(previousAreaImagePortion),
     mNewArea(newArea),
@@ -41,7 +41,7 @@ MoveImageCanvasSelectionCommand::MoveImageCanvasSelectionCommand(ImageCanvas *ca
     qCDebug(lcMoveImageCanvasSelectionCommand) << "constructed" << this;
 }
 
-void MoveImageCanvasSelectionCommand::undo()
+void ModifyImageCanvasSelectionCommand::undo()
 {
     if (mFromPaste) {
         qCDebug(lcMoveImageCanvasSelectionCommand) << "undoing" << this << "- painting original/source/previous area"
@@ -60,7 +60,7 @@ void MoveImageCanvasSelectionCommand::undo()
     mCanvas->clearSelection();
 }
 
-void MoveImageCanvasSelectionCommand::redo()
+void ModifyImageCanvasSelectionCommand::redo()
 {
     qCDebug(lcMoveImageCanvasSelectionCommand) << "redoing" << this;
     if (!mFromPaste)
@@ -77,15 +77,16 @@ void MoveImageCanvasSelectionCommand::redo()
     mUsed = true;
 }
 
-int MoveImageCanvasSelectionCommand::id() const
+int ModifyImageCanvasSelectionCommand::id() const
 {
     return -1;
 }
 
-QDebug operator<<(QDebug debug, const MoveImageCanvasSelectionCommand &command)
+QDebug operator<<(QDebug debug, const ModifyImageCanvasSelectionCommand &command)
 {
     debug.nospace() << "(MoveImageCanvasSelectionCommand"
         << " layerIndex=" << command.mLayerIndex
+        << " modification=" << command.mModification
         << " size=" << command.mNewArea
         << " previousSize=" << command.mPreviousArea
         << " fromPaste=" << command.mFromPaste
