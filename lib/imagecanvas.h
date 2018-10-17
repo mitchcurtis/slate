@@ -426,7 +426,7 @@ protected:
     void beginSelectionMove();
     void updateOrMoveSelectionArea();
     void updateSelectionArea();
-    void updateSelectionPreviewImage(SelectionModification reason);
+    void updateSelectionPreviewImage(SelectionModification reason = NoSelectionModification);
     void moveSelectionArea();
     void moveSelectionAreaBy(const QPoint &pixelDistance);
     void confirmSelectionModification(ClearSelectionFlag clearSelection = ClearSelection);

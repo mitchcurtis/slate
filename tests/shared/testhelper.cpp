@@ -782,6 +782,11 @@ bool TestHelper::renameSwatchColour(int index, const QString &name)
     // Select the rename menu item.
     QQuickItem *renameSwatchColourMenuItem = window->findChild<QQuickItem*>("renameSwatchColourMenuItem");
     VERIFY(renameSwatchColourMenuItem);
+    // TODO: mouse event isn't getting through to the menu item without this.
+    // This is likely caused by https://codereview.qt-project.org/#/c/225747/
+    // and is probably the same issue encountered in the tests there.
+    // Replace with Qt API if https://bugreports.qt.io/browse/QTBUG-71224 ever gets done.
+    QTest::qWait(50);
     mouseEventOnCentre(renameSwatchColourMenuItem, MouseClick);
     TRY_VERIFY(!swatchContextMenu->property("opened").toBool());
 

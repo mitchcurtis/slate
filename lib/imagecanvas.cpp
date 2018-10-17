@@ -1263,8 +1263,6 @@ void ImageCanvas::updateSelectionPreviewImage(SelectionModification reason)
 {
     qCDebug(lcImageCanvasSelectionPreviewImage) << "updating selection preview image due to" << reason;
 
-    mSelectionContents.save("/Users/mitch/dev/selection-contents.png");
-
     if (!mIsSelectionFromPaste) {
         // Only if the selection wasn't pasted should we erase the area left behind.
         mSelectionPreviewImage = Utils::erasePortionOfImage(*currentProjectImage(), mSelectionAreaBeforeFirstModification);
@@ -1276,16 +1274,12 @@ void ImageCanvas::updateSelectionPreviewImage(SelectionModification reason)
             << "- new selection preview image:" << mSelectionPreviewImage;
     }
 
-    mSelectionPreviewImage.save("/Users/mitch/dev/selection-preview-image-after-erasing.png");
-
     // Then, move the dragged contents to their new location.
     // Doing this last ensures that the drag contents are painted over the transparency,
     // and not the other way around.
     qCDebug(lcImageCanvasSelectionPreviewImage) << "painting selection contents" << mSelectionContents
        << "within selection area" << mSelectionArea << "over top of current project image" << mSelectionPreviewImage;
     mSelectionPreviewImage = Utils::paintImageOntoPortionOfImage(mSelectionPreviewImage, mSelectionArea, mSelectionContents);
-
-    mSelectionPreviewImage.save("/Users/mitch/dev/selection-preview-image-after-painting.png");
 }
 
 void ImageCanvas::moveSelectionArea()
@@ -2563,7 +2557,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
                 // true has now been accompanied by a release. If there was mouse movement
                 // in between these two events, then we now have a selection.
                 // Temporary note: this check used to be "if (!mHasMovedSelection) {"
-                if (mLastSelectionModification != NoSelectionModification) {
+                if (mLastSelectionModification != SelectionMove) {
                     // We haven't moved the selection, meaning that there have been no
                     // changes to the canvas during this "event cycle".
                     if (mHasSelection) {
@@ -2801,14 +2795,10 @@ bool ImageCanvas::overrideShortcut(const QKeySequence &keySequence)
     if (keySequence == mProject->settings()->undoShortcut() && mHasSelection && !mIsSelectionFromPaste) {
         if (mLastSelectionModification != NoSelectionModification) {
             qCDebug(lcImageCanvasSelection) << "Undo activated while a selection that has previously been modified is active;"
-                << "confirming selection to create undo command, and then instantly undoing it";
-            // Create a selection modification command so that the undo can be redone...
-            confirmSelectionModification(ClearSelection);
-            // ... and then immediately undo it. This is weird, but it has
-            // to be done this way, because using the undo framework to take
-            // care of everything is not an option, as using one macro for several
-            // commands means that undo/redo is disabled. See Shortcuts.qml for more info.
-            mProject->undoStack()->undo();
+                << "clearing selection without touching the undo stack";
+
+            clearSelection();
+            requestContentPaint();
         } else {
             // Nothing was ever modified, and this isn't a paste, so we can simply clear the selection.
             qCDebug(lcImageCanvasSelection) << "Overriding undo shortcut to cancel selection that hadn't been modified";
