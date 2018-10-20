@@ -6,5 +6,11 @@
         <file>resources/version-check-v0.2.1.slp</file>
         <file>resources/version-check-v0.2.1.stp</file>
         <file>resources/invalid-tileset.stp</file>
+        <file>resources/rotateSelection-90.png</file>
+        <file>resources/rotateSelection-180.png</file>
+        <file>resources/rotateSelection-270.png</file>
+        <file>resources/rotateSelection-original.png</file>
+        <file>resources/rotateSelectionAtEdge-original.png</file>
+        <file>resources/rotateSelectionAtEdge-90.png</file>
     </qresource>
 </RCC>

@@ -260,17 +260,8 @@ ApplicationWindow {
     }
 
     readonly property var imageFilters: ["PNG files (*.png)", "BMP files (*.bmp)"]
-    readonly property string imageDefaultSuffix: "png"
     readonly property var layeredImageFilters: ["SLP files (*.slp)"]
-    readonly property string layeredImageDefaultSuffix: "slp"
     readonly property var tilesetFilters: ["STP files (*.stp)"]
-    readonly property string tilesetDefaultSuffix: "stp"
-
-    function defaultSuffixForProjectType(projectType) {
-        return projectType === Project.ImageType ? imageDefaultSuffix
-            : projectType === Project.LayeredImageType ? layeredImageDefaultSuffix
-            : tilesetDefaultSuffix;
-    }
 
     function nameFiltersForProjectType(projectType) {
         return projectType === Project.ImageType ? imageFilters
@@ -282,7 +273,7 @@ ApplicationWindow {
         id: openProjectDialog
         objectName: "openProjectDialog"
         nameFilters: ["All files (*)", "PNG files (*.png)", "BMP files (*.bmp)", "SLP files (*.slp)", "STP files (*.stp)"]
-        defaultSuffix: imageDefaultSuffix
+        defaultSuffix: projectManager.projectExtensionForType(Project.ImageType)
         onAccepted: loadProject(file)
     }
 
@@ -291,7 +282,7 @@ ApplicationWindow {
         objectName: "saveAsDialog"
         fileMode: Platform.FileDialog.SaveFile
         nameFilters: nameFiltersForProjectType(projectType)
-        defaultSuffix: defaultSuffixForProjectType(projectType)
+        defaultSuffix: projectManager.projectExtensionForType(projectType)
         onAccepted: project.saveAs(file)
     }
 
@@ -300,7 +291,7 @@ ApplicationWindow {
         objectName: "exportAsDialog"
         fileMode: Platform.FileDialog.SaveFile
         nameFilters: imageFilters
-        defaultSuffix: imageDefaultSuffix
+        defaultSuffix: projectManager.projectExtensionForType(Project.ImageType)
         onAccepted: project.exportImage(file)
     }
 

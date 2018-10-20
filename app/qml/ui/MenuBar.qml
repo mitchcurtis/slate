@@ -113,14 +113,14 @@ Controls.MenuBar {
         MenuItem {
             objectName: "saveMenuItem"
             text: qsTr("Save")
-            enabled: project ? project.canSave : false
+            enabled: project && project.canSave
             onClicked: projectManager.saveOrSaveAs()
         }
 
         MenuItem {
             objectName: "saveAsMenuItem"
             text: qsTr("Save As")
-            enabled: project ? project.loaded : false
+            enabled: project && project.loaded
             onClicked: saveAsDialog.open()
         }
 
@@ -128,7 +128,7 @@ Controls.MenuBar {
             id: exportMenuItem
             objectName: "exportMenuItem"
             text: qsTr("Export")
-            enabled: project ? project.loaded && projectType === Project.LayeredImageType : false
+            enabled: project && project.loaded && projectType === Project.LayeredImageType
             onClicked: exportDialog.open()
         }
 
@@ -146,7 +146,7 @@ Controls.MenuBar {
         MenuItem {
             objectName: "closeMenuItem"
             text: qsTr("Close")
-            enabled: project ? project.loaded : false
+            enabled: project && project.loaded
             onClicked: doIfChangesDiscarded(function() { project.close() })
         }
 
@@ -155,7 +155,7 @@ Controls.MenuBar {
         MenuItem {
             objectName: "revertMenuItem"
             text: qsTr("Revert")
-            enabled: project ? project.loaded && project.unsavedChanges : false
+            enabled: project && project.loaded && project.unsavedChanges
             onClicked: project.revert()
         }
 
@@ -177,15 +177,16 @@ Controls.MenuBar {
         MenuItem {
             objectName: "undoMenuItem"
             text: qsTr("Undo")
-            onClicked: project.undoStack.undo()
-            enabled: project ? project.undoStack.canUndo : false
+            // See Shortcuts.qml for why we do it this way.
+            enabled: project && canvas && (project.undoStack.canUndo || canvas.hasModifiedSelection)
+            onClicked: canvas.undo()
         }
 
         MenuItem {
             objectName: "redoMenuItem"
             text: qsTr("Redo")
+            enabled: project && project.undoStack.canRedo
             onClicked: project.undoStack.redo()
-            enabled: project ? project.undoStack.canRedo : false
         }
 
         MenuSeparator {}

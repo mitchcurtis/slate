@@ -162,8 +162,9 @@ Item {
             Platform.MenuItem {
                 objectName: "undoMenuItem"
                 text: qsTr("Undo")
-                onTriggered: project.undoStack.undo()
-                enabled: project && project.undoStack.canUndo
+                // See Shortcuts.qml for why we do it this way.
+                enabled: project && canvas && (project.undoStack.canUndo || canvas.hasModifiedSelection)
+                onTriggered: canvas.undo()
             }
 
             Platform.MenuItem {
@@ -221,6 +222,20 @@ Item {
                 objectName: "flipVerticallyMenuItem"
                 text: qsTr("Flip Vertically")
                 onTriggered: canvas.flipSelection(Qt.Vertical)
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+            }
+
+            Platform.MenuItem {
+                objectName: "rotateClockwiseMenuItem"
+                text: qsTr("Rotate 90° Clockwise")
+                onTriggered: canvas.rotateSelection(90)
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+            }
+
+            Platform.MenuItem {
+                objectName: "rotateCounterClockwiseMenuItem"
+                text: qsTr("Rotate 90° Counter Clockwise")
+                onTriggered: canvas.rotateSelection(-90)
                 enabled: isImageProjectType && canvas && canvas.hasSelection
             }
         }

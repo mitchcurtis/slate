@@ -558,13 +558,27 @@ bool TestHelper::drawPixelAtCursorPos()
 
         QTest::mouseMove(window, cursorWindowPos);
         QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-        VERIFY(canvas->currentProjectImage()->pixelColor(cursorPos) == canvas->penForegroundColour());
+        QColor actualColour = canvas->currentProjectImage()->pixelColor(cursorPos);
+        QColor expectedColour = canvas->penForegroundColour();
+        if (actualColour != expectedColour) {
+            QString message;
+            QDebug stream(&message);
+            stream << "Expected current project image pixel at" << cursorPos << "to be" << expectedColour.name()
+                << "after mouse press, but it's" << actualColour.name();
+            FAIL(qPrintable(message));
+        }
         VERIFY(project->hasUnsavedChanges());
         // Don't check that the title contains the change marker, as that won't happen
         // until release if this is the first change in the stack.
 
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-        VERIFY(canvas->currentProjectImage()->pixelColor(cursorPos) == canvas->penForegroundColour());
+        if (actualColour != expectedColour) {
+            QString message;
+            QDebug stream(&message);
+            stream << "Expected current project image pixel at" << cursorPos << "to be" << expectedColour.name()
+                << "after mouse release, but it's" << actualColour.name();
+            FAIL(qPrintable(message));
+        }
         VERIFY(project->hasUnsavedChanges());
         VERIFY(window->title().contains("*"));
     }
@@ -782,6 +796,11 @@ bool TestHelper::renameSwatchColour(int index, const QString &name)
     // Select the rename menu item.
     QQuickItem *renameSwatchColourMenuItem = window->findChild<QQuickItem*>("renameSwatchColourMenuItem");
     VERIFY(renameSwatchColourMenuItem);
+    // TODO: mouse event isn't getting through to the menu item without this.
+    // This is likely caused by https://codereview.qt-project.org/#/c/225747/
+    // and is probably the same issue encountered in the tests there.
+    // Replace with Qt API if https://bugreports.qt.io/browse/QTBUG-71224 ever gets done.
+    QTest::qWait(50);
     mouseEventOnCentre(renameSwatchColourMenuItem, MouseClick);
     TRY_VERIFY(!swatchContextMenu->property("opened").toBool());
 
@@ -1979,7 +1998,9 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
 
     QTest::keyRelease(window, Qt::Key_Space);
-    VERIFY(window->cursor().shape() == Qt::BlankCursor);
+    // If we have a selection, the cursor might not be Qt::BlankCursor, and that's OK.
+    if (!canvas->hasSelection())
+        VERIFY(window->cursor().shape() == Qt::BlankCursor);
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
 
     return true;

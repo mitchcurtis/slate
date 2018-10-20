@@ -123,6 +123,10 @@ private Q_SLOTS:
     void selectionEdgePan();
     void panThenMoveSelection();
     void selectionCursorGuide();
+    void rotateSelection_data();
+    void rotateSelection();
+    void rotateSelectionAtEdge_data();
+    void rotateSelectionAtEdge();
 
     void fillImageCanvas_data();
     void fillImageCanvas();
@@ -3104,6 +3108,152 @@ void tst_App::selectionCursorGuide()
     QVERIFY(layeredImageCanvas->hasSelection());
     // The guide shouldn't be visible while there's a selection.
     QVERIFY(!selectionCursorGuideItem->isVisible());
+}
+
+void tst_App::rotateSelection_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::rotateSelection()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVariantMap args;
+    args.insert("imageWidth", QVariant(10));
+    args.insert("imageHeight", QVariant(10));
+    QVERIFY2(createNewProject(projectType, args), failureMessage);
+
+    // Paste an "L" onto the canvas.
+    const QImage originalImage(":/resources/rotateSelection-original.png");
+    qGuiApp->clipboard()->setImage(originalImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+    QCOMPARE(canvas->hasSelection(), true);
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->hasSelection(), false);
+
+    if (projectType == Project::ImageType)
+        QVERIFY2(setupTempProjectDir(), failureMessage);
+
+    // Save and reload so we're on a clean slate.
+    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path()
+        + "/" + Project::typeToString(projectType)
+        + "." + app.projectManager()->projectExtensionForType(projectType));
+    project->saveAs(saveUrl);
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY2(loadProject(saveUrl), failureMessage);
+    QCOMPARE(project->hasUnsavedChanges(), false);
+    QCOMPARE(canvas->hasModifiedSelection(), false);
+    QCOMPARE(project->undoStack()->canUndo(), false);
+
+    // Select and rotate 90 degrees.
+    QVERIFY2(selectArea(QRect(3, 2, 4, 5)), failureMessage);
+    // For debugging: zoom to see what's going on.
+    // May cause failures if used before selectArea() though.
+//    QVERIFY2(zoomTo(30), failureMessage);
+    // TODO: go through ui
+    canvas->rotateSelection(90);
+    QCOMPARE(canvas->hasSelection(), true);
+    QCOMPARE(canvas->hasModifiedSelection(), true);
+    // See the undo shortcut in Shortcuts.qml for why this is the way it is.
+    QCOMPARE(project->undoStack()->canUndo(), false);
+    QCOMPARE(undoButton->isEnabled(), true);
+    // For some reason, layered image project images are Format_ARGB32_Premultiplied.
+    // We don't care about the format, so just convert them.
+    // Also, we need to use contentImage() since modifications to selections
+    // are now combined into one undo command when the selection is confirmed -
+    // the actual project's images contents won't change, so we need to get the selection preview image.
+    QImage actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    const QImage expected90Image(":/resources/rotateSelection-90.png");
+    QCOMPARE(actualImage, expected90Image);
+
+    // Confirm the changes, then try drawing to ensure everything works as expected so far.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->hasSelection(), false);
+    QCOMPARE(project->undoStack()->canUndo(), true);
+    QCOMPARE(actualImage, expected90Image);
+    setCursorPosInScenePixels(QPoint(0, 0));
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QImage expected90ImageModified = expected90Image;
+    expected90ImageModified.setPixelColor(0, 0, Qt::black);
+    QCOMPARE(actualImage, expected90ImageModified);
+
+    // Undo the drawing.
+    mouseEventOnCentre(undoButton, MouseClick);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, expected90Image);
+
+    // Undo the first rotation.
+    mouseEventOnCentre(undoButton, MouseClick);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, originalImage);
+
+    // Start again by selecting and rotating 90 degrees.
+    QVERIFY2(selectArea(QRect(3, 2, 4, 5)), failureMessage);
+    QCOMPARE(canvas->hasSelection(), true);
+    canvas->rotateSelection(90);
+    actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, expected90Image);
+
+    // Rotate 90 degrees again for a total of 180 degrees of rotation.
+    canvas->rotateSelection(90);
+    QCOMPARE(canvas->hasSelection(), true);
+    actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    const QImage expected180Image(":/resources/rotateSelection-180.png");
+    QCOMPARE(actualImage, expected180Image);
+
+    // Rotate 90 degrees again for a total of 270 degrees of rotation.
+    canvas->rotateSelection(90);
+    QCOMPARE(canvas->hasSelection(), true);
+    actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    const QImage expected270Image(":/resources/rotateSelection-270.png");
+    QCOMPARE(actualImage, expected270Image);
+
+    // Undoing selection modifications causes the original selection image contents
+    // to be restored, regardless of how many modifications have been made since.
+    mouseEventOnCentre(undoButton, MouseClick);
+    // mspaint gets rid of the selection upon undoing.
+    QCOMPARE(canvas->hasSelection(), false);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, originalImage);
+}
+
+void tst_App::rotateSelectionAtEdge_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::rotateSelectionAtEdge()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVariantMap args;
+    args.insert("imageWidth", QVariant(10));
+    args.insert("imageHeight", QVariant(10));
+    QVERIFY2(createNewProject(projectType, args), failureMessage);
+
+    // Paste an "L" onto the canvas.
+    const QImage originalImage(":/resources/rotateSelectionAtEdge-original.png");
+    qGuiApp->clipboard()->setImage(originalImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+    QCOMPARE(canvas->hasSelection(), true);
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->hasSelection(), false);
+
+    // Select a portion of the image that's at the edge of the canvas and rotate 90 degrees.
+    // The selection should be moved so that it's within the boundary of the image.
+    QVERIFY2(selectArea(QRect(0, 2, 2, 5)), failureMessage);
+    canvas->rotateSelection(90);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 4, 5, 2));
+    QImage actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    const QImage expected90Image(":/resources/rotateSelectionAtEdge-90.png");
+    QCOMPARE(actualImage, expected90Image);
+
+    // Undo the rotation.
+    mouseEventOnCentre(undoButton, MouseClick);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, originalImage);
 }
 
 void tst_App::fillImageCanvas_data()
