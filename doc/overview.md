@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Slate - Overview](#slate---overview)
+  - [User Interface](#user-interface)
+  - [Project Types](#project-types)
+    - [Images](#images)
+    - [Layered Images](#layered-images)
+    - [Tilesets](#tilesets)
+    - [Comparison of Project Types](#comparison-of-project-types)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Slate - Overview
 
 ## User Interface

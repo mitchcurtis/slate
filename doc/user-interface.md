@@ -1,5 +1,17 @@
 # Slate - User Interface
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [Tool Bar](#tool-bar)
+- [Colour](#colour)
+- [Swatches](#swatches)
+- [Layers](#layers)
+- [Animation](#animation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Tool Bar
 
 ![Tool bar](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-tool-bar.png)

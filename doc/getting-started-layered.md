@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Slate - Getting Started with Layered Image Projects](#slate---getting-started-with-layered-image-projects)
+  - [Creating a New Project](#creating-a-new-project)
+  - [Creating New Layers](#creating-new-layers)
+  - [Renaming Layers](#renaming-layers)
+  - [Moving Layers](#moving-layers)
+  - [Merging Layers](#merging-layers)
+  - [Duplicating Layers](#duplicating-layers)
+  - [Exporting Layers](#exporting-layers)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Slate - Getting Started with Layered Image Projects
 
 ## Creating a New Project
