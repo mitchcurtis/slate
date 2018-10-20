@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Contents**
+# Contents
 
 - [Slate - Getting Started with Tilesets](#slate---getting-started-with-tilesets)
   - [Step 1: Creating a New Project](#step-1-creating-a-new-project)
