@@ -1,15 +1,14 @@
+# Slate - Getting Started with Tilesets
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 # Contents
 
-- [Slate - Getting Started with Tilesets](#slate---getting-started-with-tilesets)
-  - [Step 1: Creating a New Project](#step-1-creating-a-new-project)
-    - [Step 2: Drawing Tiles](#step-2-drawing-tiles)
-    - [Step 3: Drawing Pixels](#step-3-drawing-pixels)
+- [Step 1: Creating a New Project](#step-1-creating-a-new-project)
+  - [Step 2: Drawing Tiles](#step-2-drawing-tiles)
+  - [Step 3: Drawing Pixels](#step-3-drawing-pixels)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-# Slate - Getting Started with Tilesets
 
 ## Step 1: Creating a New Project
 
