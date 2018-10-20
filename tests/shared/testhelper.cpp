@@ -558,13 +558,27 @@ bool TestHelper::drawPixelAtCursorPos()
 
         QTest::mouseMove(window, cursorWindowPos);
         QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-        VERIFY(canvas->currentProjectImage()->pixelColor(cursorPos) == canvas->penForegroundColour());
+        QColor actualColour = canvas->currentProjectImage()->pixelColor(cursorPos);
+        QColor expectedColour = canvas->penForegroundColour();
+        if (actualColour != expectedColour) {
+            QString message;
+            QDebug stream(&message);
+            stream << "Expected current project image pixel at" << cursorPos << "to be" << expectedColour.name()
+                << "after mouse press, but it's" << actualColour.name();
+            FAIL(qPrintable(message));
+        }
         VERIFY(project->hasUnsavedChanges());
         // Don't check that the title contains the change marker, as that won't happen
         // until release if this is the first change in the stack.
 
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-        VERIFY(canvas->currentProjectImage()->pixelColor(cursorPos) == canvas->penForegroundColour());
+        if (actualColour != expectedColour) {
+            QString message;
+            QDebug stream(&message);
+            stream << "Expected current project image pixel at" << cursorPos << "to be" << expectedColour.name()
+                << "after mouse release, but it's" << actualColour.name();
+            FAIL(qPrintable(message));
+        }
         VERIFY(project->hasUnsavedChanges());
         VERIFY(window->title().contains("*"));
     }

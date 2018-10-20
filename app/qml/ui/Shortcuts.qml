@@ -11,7 +11,7 @@ Item {
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
     property Item canvasContainer
     property ImageCanvas canvas
-    readonly property bool canvasHasActiveFocus: canvas ? canvas.activeFocus : false
+    readonly property bool canvasHasActiveFocus: canvas && canvas.activeFocus
 
     Shortcut {
         sequence: settings.quitShortcut
@@ -71,21 +71,14 @@ Item {
     Shortcut {
         objectName: "undoShortcut"
         sequence: settings.undoShortcut
-        enabled: canvasHasActiveFocus && project && (project.undoStack.canUndo || canvas.hasSelection)
-        onActivated: {
-            // A selection should be cleared when Ctrl + Z is pressed, as this is
-            // what mspaint does. However, it doesn't make sense for a selection
-            // to have its own undo command (as it's cleared after the first undo
-            // on selection moves).
-            // It's also not even possible to use the undo framework to implement
-            // support for mspaint's undo behaviour, because in order for the commands
-            // to be mergeable, a macro needs to be used, and when a macro is being composed,
-            // it's not even *possible* to undo/redo.
-            // So, we let ImageCanvas intercept the undo shortcut
-            // to handle this special case ourselves.
-            if (!canvas.overrideShortcut(sequence))
-                project.undoStack.undo()
-        }
+        // This is a bit hacky, but we want two things:
+        // #1: the user to be able to undo selection modifications before confirming them, as mspaint does
+        // #2: an undo command for selection modifications should only be pushed onto the stack when the
+        //     selection is confirmed (or "undone"; see ImageCanvas::interceptUndo()).
+        // Since these conflict with each other, we cheat a little bit and allow
+        // undos as long as the selection contents have been modified have to add the || canvas.hasModifiedSelection.
+        enabled: canvasHasActiveFocus && project && (project.undoStack.canUndo || canvas.hasModifiedSelection)
+        onActivated: canvas.undo()
     }
 
     Shortcut {

@@ -32,8 +32,10 @@ class SLATE_EXPORT ModifyImageCanvasSelectionCommand : public QUndoCommand
 {
 public:
     ModifyImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex,
-        ImageCanvas::SelectionModification modification, const QRect &previousArea,
-        const QImage &previousAreaImagePortion, const QRect &newArea,
+        ImageCanvas::SelectionModification modification,
+        const QRect &sourceArea, const QImage &sourceAreaImage,
+        const QRect &targetArea, const QImage &targetAreaImageBeforeModification,
+        const QImage &targetAreaImageAfterModification,
         bool fromPaste, const QImage &pasteContents, QUndoCommand *parent = nullptr);
 
     void undo() override;
@@ -42,17 +44,21 @@ public:
     int id() const override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const ModifyImageCanvasSelectionCommand &command);
+    friend QDebug operator<<(QDebug debug, const ModifyImageCanvasSelectionCommand *command);
 
     ImageCanvas *mCanvas;
     int mLayerIndex;
+    // The most recent modification, just for debug purposes right now.
     ImageCanvas::SelectionModification mModification;
-    QRect mPreviousArea;
+    // The area that the selection started off at.
+    QRect mSourceArea;
     // The portion of the image under the selection before the selection was moved.
-    QImage mPreviousAreaImagePortion;
-    QRect mNewArea;
-    // The portion of the image under the destination area, before the selection was moved.
-    QImage mNewAreaImagePortion;
+    QImage mSouceAreaImage;
+    // The area that the selection finished at, due to moving, rotating, etc.
+    QRect mTargetArea;
+    // The portion of the image under the destination area, after the selection was moved.
+    QImage mTargetAreaImageBeforeModification;
+    QImage mTargetAreaImageAfterModification;
     bool mFromPaste;
     QImage mPasteContents;
     bool mUsed;

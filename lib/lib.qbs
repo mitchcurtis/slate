@@ -162,8 +162,6 @@ DynamicLibrary {
         "projectmanager.h",
         "rectangularcursor.cpp",
         "rectangularcursor.h",
-        "rotateimagecanvasselectioncommand.cpp",
-        "rotateimagecanvasselectioncommand.h",
         "ruler.cpp",
         "ruler.h",
         "saturationlightnesspicker.cpp",

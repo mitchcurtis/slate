@@ -47,7 +47,6 @@
 #include "panedrawinghelper.h"
 #include "pasteimagecanvascommand.h"
 #include "project.h"
-#include "rotateimagecanvasselectioncommand.h"
 #include "selectioncursorguide.h"
 #include "tileset.h"
 #include "utils.h"
@@ -109,6 +108,7 @@ ImageCanvas::ImageCanvas() :
     mConfirmingSelectionModification(false),
     mSelectionCursorGuide(nullptr),
     mLastSelectionModification(NoSelectionModification),
+    mHasModifiedSelection(false),
     mAltPressed(false),
     mShiftPressed(false),
     mToolBeforeAltPressed(PenTool),
@@ -551,6 +551,11 @@ TexturedFillParameters *ImageCanvas::texturedFillParameters()
 bool ImageCanvas::hasSelection() const
 {
     return mHasSelection;
+}
+
+bool ImageCanvas::hasModifiedSelection() const
+{
+    return mHasModifiedSelection;
 }
 
 QRect ImageCanvas::selectionArea() const
@@ -1321,11 +1326,14 @@ void ImageCanvas::moveSelectionAreaBy(const QPoint &pixelDistance)
     requestContentPaint();
 }
 
-void ImageCanvas::confirmSelectionModification(ClearSelectionFlag clear)
+void ImageCanvas::confirmSelectionModification()
 {
     Q_ASSERT(mLastSelectionModification != NoSelectionModification);
+    qCDebug(lcImageCanvasSelection) << "confirming selection modification" << mLastSelectionModification;
 
-    const QImage previousImageAreaPortion = currentProjectImage()->copy(mSelectionAreaBeforeFirstModification);
+    const QImage sourceAreaImage = currentProjectImage()->copy(mSelectionAreaBeforeFirstModification);
+    const QImage targetAreaImageBeforeModification = currentProjectImage()->copy(mLastValidSelectionArea);
+    const QImage targetAreaImageAfterModification = mSelectionContents;
 
     // Calling beginMacro() causes Project::aboutToBeginMacro() to be
     // emitted, and we're connected to it, so we have to avoid recursing.
@@ -1333,14 +1341,15 @@ void ImageCanvas::confirmSelectionModification(ClearSelectionFlag clear)
 
     mProject->beginMacro(QLatin1String("ModifySelection"));
     mProject->addChange(new ModifyImageCanvasSelectionCommand(
-        this, currentLayerIndex(), mLastSelectionModification, mSelectionAreaBeforeFirstModification,
-            previousImageAreaPortion, mLastValidSelectionArea, mIsSelectionFromPaste, mSelectionContents));
+        this, currentLayerIndex(), mLastSelectionModification,
+        mSelectionAreaBeforeFirstModification, sourceAreaImage,
+        mLastValidSelectionArea, targetAreaImageBeforeModification, targetAreaImageAfterModification,
+        mIsSelectionFromPaste, (mIsSelectionFromPaste ? mSelectionContents : QImage())));
     mProject->endMacro();
 
     mConfirmingSelectionModification = false;
 
-    if (clear == ClearSelection)
-        clearSelection();
+    clearSelection();
 }
 
 // Limits selectionArea to the canvas' bounds, shrinking it if necessary.
@@ -1411,6 +1420,7 @@ void ImageCanvas::clearSelection()
     mSelectionPreviewImage = QImage();
     mSelectionContents = QImage();
     setLastSelectionModification(NoSelectionModification);
+    setHasModifiedSelection(false);
 }
 
 void ImageCanvas::clearOrConfirmSelection()
@@ -1578,6 +1588,24 @@ void ImageCanvas::setLastSelectionModification(ImageCanvas::SelectionModificatio
 {
     qCDebug(lcImageCanvasSelection) << "setting mLastSelectionModification to" << selectionModification;
     mLastSelectionModification = selectionModification;
+    if (mLastSelectionModification == SelectionMove
+            || mLastSelectionModification == SelectionFlip
+            || mLastSelectionModification == SelectionRotate) {
+        setHasModifiedSelection(true);
+    } else if (mLastSelectionModification == NoSelectionModification) {
+        setHasModifiedSelection(false);
+    }
+    // If it's paste, it should stay false.
+    // TODO: verify that pasting multiple times in succession works as expected
+}
+
+void ImageCanvas::setHasModifiedSelection(bool hasModifiedSelection)
+{
+    if (hasModifiedSelection == mHasModifiedSelection)
+        return;
+
+    mHasModifiedSelection = hasModifiedSelection;
+    emit hasModifiedSelectionChanged();
 }
 
 void ImageCanvas::reset()
@@ -1676,31 +1704,27 @@ void ImageCanvas::flipSelection(Qt::Orientation orientation)
 
 void ImageCanvas::rotateSelection(int angle)
 {
+    qCDebug(lcImageCanvasSelection) << "rotating selection area" << mSelectionArea << angle << "by degrees";
+
     if (!mHasSelection)
         return;
 
-//    if (!mIsSelectionFromPaste) {
-//        mProject->beginMacro(QLatin1String("RotateSelection"));
-//        mProject->addChange(new RotateImageCanvasSelectionCommand(this, currentLayerIndex(), mSelectionArea, angle));
-//        mProject->endMacro();
-//    } else { // TODO
-//        Q_ASSERT(false);
-//    }
-
-    if (mSelectionAreaBeforeFirstModification.isNull())
+    bool isFirstModification = false;
+    if (mSelectionAreaBeforeFirstModification.isNull()) {
         mSelectionAreaBeforeFirstModification = mSelectionArea;
+        isFirstModification = true;
+    }
 
-    QImage *image = imageForLayerAt(currentLayerIndex());
+    // Only use the project's image the first time; for every consecutive rotation,
+    // use the temporary image that is being modified until the selection is confirmed.
+    const QImage image = isFirstModification ? *imageForLayerAt(currentLayerIndex()) : mSelectionPreviewImage;
     QRect rotatedArea;
-    mSelectionContents = Utils::rotateArea(*image, mSelectionArea, angle, rotatedArea);
+    mSelectionContents = Utils::rotateArea(image, mSelectionArea, angle, rotatedArea);
     mSelectionContents = mSelectionContents.copy(rotatedArea);
 
-    // TODO: remove this comment
-    // Only update the selection area when the commands are being created for the first time,
-    // not when they're being undone and redone.
-//    if (mHasSelection)
     Q_ASSERT(mHasSelection);
-        setSelectionArea(rotatedArea);
+    setSelectionArea(rotatedArea);
+    mLastValidSelectionArea = mSelectionArea;
 
     setLastSelectionModification(SelectionRotate);
 
@@ -2557,7 +2581,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
                 // true has now been accompanied by a release. If there was mouse movement
                 // in between these two events, then we now have a selection.
                 // Temporary note: this check used to be "if (!mHasMovedSelection) {"
-                if (mLastSelectionModification != SelectionMove) {
+                if (!mHasModifiedSelection) {
                     // We haven't moved the selection, meaning that there have been no
                     // changes to the canvas during this "event cycle".
                     if (mHasSelection) {
@@ -2570,6 +2594,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
                             mLastValidSelectionArea = mSelectionArea;
                         }
                     } else {
+                        // There is no selection.
                         if (mIsSelectionFromPaste) {
                             // Pasting an image creates a selection, and clicking outside of that selection
                             // without moving it should apply the paste.
@@ -2720,7 +2745,7 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
         updateWindowCursorShape();
     } else if (event->key() == Qt::Key_Escape && mHasSelection) {
         if (mLastSelectionModification != NoSelectionModification && mLastSelectionModification != SelectionPaste) {
-            // We've moved the selection since creating it, so, like mspaint, escape confirms it.
+            // We've modified the selection since creating it, so, like mspaint, escape confirms it.
             confirmSelectionModification();
         } else if (mIsSelectionFromPaste) {
             // Pressing escape to clear a pasted selection should apply that selection, like mspaint.
@@ -2790,22 +2815,29 @@ void ImageCanvas::timerEvent(QTimerEvent *event)
     panWithSelectionIfAtEdge(SelectionPanTimerReason);
 }
 
-bool ImageCanvas::overrideShortcut(const QKeySequence &keySequence)
+void ImageCanvas::undo()
 {
-    if (keySequence == mProject->settings()->undoShortcut() && mHasSelection && !mIsSelectionFromPaste) {
+    if (mHasSelection && !mIsSelectionFromPaste) {
         if (mLastSelectionModification != NoSelectionModification) {
             qCDebug(lcImageCanvasSelection) << "Undo activated while a selection that has previously been modified is active;"
-                << "clearing selection without touching the undo stack";
+                << "confirming selection to create undo command, and then instantly undoing it";
 
-            clearSelection();
-            requestContentPaint();
+            // Create a move command so that the undo can be redone...
+            confirmSelectionModification();
+            // ... and then immediately undo it. This is weird, but it has
+            // to be done this way, because we want to behave like mspsaint, where pressing Ctrl+Z
+            // with a modified selection will undo *all* modifications done to the selection since it was created.
+            // Since we have special undo behaviour, we can't use the undo framework for all of it, and so
+            // we store the temporary state in mSelectionContents (which is displayed via mSelectionPreviewImage).
+            // See the undo shortcut in Shortcuts.qml for more info.
+            mProject->undoStack()->undo();
+//            requestContentPaint();
         } else {
             // Nothing was ever modified, and this isn't a paste, so we can simply clear the selection.
             qCDebug(lcImageCanvasSelection) << "Overriding undo shortcut to cancel selection that hadn't been modified";
             clearSelection();
         }
-        return true;
+    } else {
+        mProject->undoStack()->undo();
     }
-
-    return false;
 }

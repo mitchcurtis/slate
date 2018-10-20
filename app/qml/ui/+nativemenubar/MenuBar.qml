@@ -162,8 +162,9 @@ Item {
             Platform.MenuItem {
                 objectName: "undoMenuItem"
                 text: qsTr("Undo")
-                onTriggered: project.undoStack.undo()
-                enabled: project && project.undoStack.canUndo
+                // See Shortcuts.qml for why we do it this way.
+                enabled: project && canvas && (project.undoStack.canUndo || canvas.hasModifiedSelection)
+                onTriggered: canvas.undo()
             }
 
             Platform.MenuItem {

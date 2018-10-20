@@ -56,6 +56,7 @@ public:
 
     Project::Type projectTypeForFileName(const QString &fileName) const;
     Q_INVOKABLE Project::Type projectTypeForUrl(const QUrl &url) const;
+    Q_INVOKABLE QString projectExtensionForType(Project::Type projectType) const;
 
 signals:
     void projectChanged();

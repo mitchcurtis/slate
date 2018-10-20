@@ -90,13 +90,13 @@ ToolBar {
             Ui.IconToolButton {
                 objectName: "undoButton"
                 text: "\uf0e2"
-                enabled: project && project.undoStack.canUndo
+                enabled: project && canvas && (project.undoStack.canUndo || canvas.hasModifiedSelection)
                 hoverEnabled: true
 
                 ToolTip.text: qsTr("Undo the last canvas operation")
                 ToolTip.visible: hovered
 
-                onClicked: project.undoStack.undo()
+                onClicked: canvas.undo()
             }
 
             Ui.IconToolButton {

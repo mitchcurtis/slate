@@ -3110,18 +3110,16 @@ void tst_App::selectionCursorGuide()
 
 void tst_App::rotateSelection_data()
 {
-//    addImageProjectTypes();
-
-    QTest::addColumn<Project::Type>("projectType");
+    addImageProjectTypes();
+//    QTest::addColumn<Project::Type>("projectType");
 
 //    QTest::newRow("ImageType") << Project::ImageType;
-    QTest::newRow("LayeredImageType") << Project::LayeredImageType;
+//    QTest::newRow("LayeredImageType") << Project::LayeredImageType;
 }
 
 void tst_App::rotateSelection()
 {
     QFETCH(Project::Type, projectType);
-    return;
 
     QVariantMap args;
     args.insert("imageWidth", QVariant(10));
@@ -3136,53 +3134,93 @@ void tst_App::rotateSelection()
     QTest::keyClick(window, Qt::Key_Escape);
     QCOMPARE(canvas->hasSelection(), false);
 
-    // Rotate 90 degrees.
+    if (projectType == Project::ImageType)
+        setupTempProjectDir();
+
+    // Save and reload so we're on a clean slate.
+    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path()
+        + "/" + Project::typeToString(projectType)
+        + "." + app.projectManager()->projectExtensionForType(projectType));
+    project->saveAs(saveUrl);
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY2(loadProject(saveUrl), failureMessage);
+    QCOMPARE(project->hasUnsavedChanges(), false);
+    QCOMPARE(canvas->hasModifiedSelection(), false);
+    QCOMPARE(project->undoStack()->canUndo(), false);
+
+    // Select and rotate 90 degrees.
     QVERIFY2(selectArea(QRect(3, 2, 4, 5)), failureMessage);
-    // Zoom to see what's going on.
-    QVERIFY2(zoomTo(30), failureMessage);
+    // For debugging: zoom to see what's going on.
+    // May cause failures if used before selectArea() though.
+//    QVERIFY2(zoomTo(30), failureMessage);
     // TODO: go through ui
     canvas->rotateSelection(90);
-    // mspaint keeps the selection after rotating
     QCOMPARE(canvas->hasSelection(), true);
+    QCOMPARE(canvas->hasModifiedSelection(), true);
+    // See the undo shortcut in Shortcuts.qml for why this is the way it is.
+    QCOMPARE(project->undoStack()->canUndo(), false);
+    QCOMPARE(undoButton->isEnabled(), true);
     // For some reason, layered image project images are Format_ARGB32_Premultiplied.
     // We don't care about the format, so just convert them.
-    QImage actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    // Also, we need to use contentImage() since modifications to selections
+    // are now combined into one undo command when the selection is confirmed -
+    // the actual project's images contents won't change, so we need to get the selection preview image.
+    QImage actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
     const QImage expected90Image(":/resources/rotateSelection-90.png");
+    QCOMPARE(actualImage, expected90Image);
+
+    // Confirm the changes, then try drawing to ensure everything works as expected so far.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->hasSelection(), false);
+    QCOMPARE(project->undoStack()->canUndo(), true);
+    QCOMPARE(actualImage, expected90Image);
+    setCursorPosInScenePixels(QPoint(0, 0));
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QImage expected90ImageModified = expected90Image;
+    expected90ImageModified.setPixelColor(0, 0, Qt::black);
+    QCOMPARE(actualImage, expected90ImageModified);
+
+    // Undo the drawing.
+    mouseEventOnCentre(undoButton, MouseClick);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, expected90Image);
+
+    // Undo the first rotation.
+    mouseEventOnCentre(undoButton, MouseClick);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, originalImage);
+
+    // Start again by selecting and rotating 90 degrees.
+    QVERIFY2(selectArea(QRect(3, 2, 4, 5)), failureMessage);
+    QCOMPARE(canvas->hasSelection(), true);
+    canvas->rotateSelection(90);
+    actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
     QCOMPARE(actualImage, expected90Image);
 
     // Rotate 90 degrees again for a total of 180 degrees of rotation.
     canvas->rotateSelection(90);
     QCOMPARE(canvas->hasSelection(), true);
-    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
     const QImage expected180Image(":/resources/rotateSelection-180.png");
+//    expected180Image.save("/Users/mitch/dev/rotation-expected.png");
+//    actualImage.save("/Users/mitch/dev/rotation-actual.png");
     QCOMPARE(actualImage, expected180Image);
 
     // Rotate 90 degrees again for a total of 270 degrees of rotation.
     canvas->rotateSelection(90);
     QCOMPARE(canvas->hasSelection(), true);
-    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
     const QImage expected270Image(":/resources/rotateSelection-270.png");
     QCOMPARE(actualImage, expected270Image);
 
-    // Undo to 180.
+    // Undoing selection modifications causes the original selection image contents
+    // to be restored, regardless of how many modifications have been made since.
     mouseEventOnCentre(undoButton, MouseClick);
-    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
-    QCOMPARE(actualImage, expected180Image);
     // mspaint gets rid of the selection upon undoing.
     QCOMPARE(canvas->hasSelection(), false);
-
-    // Undo to 90.
-    mouseEventOnCentre(undoButton, MouseClick);
-    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
-    QCOMPARE(actualImage, expected90Image);
-
-    // Undo to the original.
-    mouseEventOnCentre(undoButton, MouseClick);
     actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
     QCOMPARE(actualImage, originalImage);
-
-    // Clear selection.
-    QTest::keyClick(window, Qt::Key_Escape);
 }
 
 void tst_App::fillImageCanvas_data()
