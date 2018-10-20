@@ -36,6 +36,8 @@ namespace Utils {
 
     void strokeRectWithDashes(QPainter *painter, const QRect &rect);
 
+    QRect ensureWithinArea(const QRect &rect, const QSize &boundsSize);
+
     template<typename T>
     QString enumToString(T enumValue)
     {

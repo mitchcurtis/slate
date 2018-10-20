@@ -61,7 +61,9 @@ QImage Utils::rotate(const QImage &image, int angle)
     1. Copies \a area in \a image.
     2. Erases \a area in \a image, filling it with transparency.
     3. Pastes the rotated image from step 1 at the centre of \a area.
-    4. Returns the final image and sets \a inRotatedArea as the area
+    4. Tries to move the rotated area within the bounds of the image if it's outside.
+    5. Crops the the rotated image if it's too large.
+    6. Returns the final image and sets \a inRotatedArea as the area
        representing the newly rotated \a area.
 */
 QImage Utils::rotateArea(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea)
@@ -83,6 +85,24 @@ QImage Utils::rotateArea(const QImage &image, const QRect &area, int angle, QRec
     // Centre the rotated image over the target area's centre...
     QRect rotatedArea = rotatedImagePortion.rect();
     rotatedArea.moveCenter(areaCentre);
+
+    // Move the rotated area if it's outside the bounds.
+    rotatedArea = ensureWithinArea(rotatedArea, image.size());
+
+    // If it's still out of bounds, it's probably too big
+    // (e.g. image width is not equal to height so rotating makes it too large).
+    // In that case, just crop it.
+    bool cropped = false;
+    if (rotatedArea.width() > image.width()) {
+        rotatedArea.setWidth(image.width());
+        cropped = true;
+    }
+    if (rotatedArea.height() > image.height()) {
+        rotatedArea.setHeight(image.height());
+        cropped = true;
+    }
+    if (cropped)
+        rotatedImagePortion = rotatedImagePortion.copy(0, 0, rotatedArea.width(), rotatedArea.height());
 
     // ...and paint it onto the result.
     QPainter painter(&result);
@@ -124,4 +144,21 @@ void Utils::strokeRectWithDashes(QPainter *painter, const QRect &rect)
     painter->fillPath(stroke, whiteColour);
 
     painter->restore();
+}
+
+QRect Utils::ensureWithinArea(const QRect &rect, const QSize &boundsSize)
+{
+    QRect newArea = rect;
+
+    if (rect.x() + rect.width() > boundsSize.width())
+        newArea.moveLeft(boundsSize.width() - rect.width());
+    else if (rect.x() < 0)
+        newArea.moveLeft(0);
+
+    if (rect.y() + rect.height() > boundsSize.height())
+        newArea.moveTop(boundsSize.height() - rect.height());
+    else if (rect.y() < 0)
+        newArea.moveTop(0);
+
+    return newArea;
 }

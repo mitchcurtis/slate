@@ -10,5 +10,7 @@
         <file>resources/rotateSelection-180.png</file>
         <file>resources/rotateSelection-270.png</file>
         <file>resources/rotateSelection-original.png</file>
+        <file>resources/rotateSelectionAtEdge-original.png</file>
+        <file>resources/rotateSelectionAtEdge-90.png</file>
     </qresource>
 </RCC>

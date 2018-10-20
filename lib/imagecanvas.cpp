@@ -1390,19 +1390,7 @@ QRect ImageCanvas::clampSelectionArea(const QRect &selectionArea) const
 // This should be used when the selection area has already been created and is being dragged.
 QRect ImageCanvas::boundSelectionArea(const QRect &selectionArea) const
 {
-    QRect newSelectionArea = selectionArea;
-
-    if (selectionArea.x() + selectionArea.width() > mProject->widthInPixels())
-        newSelectionArea.moveLeft(mProject->widthInPixels() - selectionArea.width());
-    else if (selectionArea.x() < 0)
-        newSelectionArea.moveLeft(0);
-
-    if (selectionArea.y() + selectionArea.height() > mProject->heightInPixels())
-        newSelectionArea.moveTop(mProject->heightInPixels() - selectionArea.height());
-    else if (selectionArea.y() < 0)
-        newSelectionArea.moveTop(0);
-
-    return newSelectionArea;
+    return Utils::ensureWithinArea(selectionArea, mProject->size());
 }
 
 void ImageCanvas::clearSelection()

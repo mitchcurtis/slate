@@ -125,6 +125,8 @@ private Q_SLOTS:
     void selectionCursorGuide();
     void rotateSelection_data();
     void rotateSelection();
+    void rotateSelectionAtEdge_data();
+    void rotateSelectionAtEdge();
 
     void fillImageCanvas_data();
     void fillImageCanvas();
@@ -3111,10 +3113,6 @@ void tst_App::selectionCursorGuide()
 void tst_App::rotateSelection_data()
 {
     addImageProjectTypes();
-//    QTest::addColumn<Project::Type>("projectType");
-
-//    QTest::newRow("ImageType") << Project::ImageType;
-//    QTest::newRow("LayeredImageType") << Project::LayeredImageType;
 }
 
 void tst_App::rotateSelection()
@@ -3135,7 +3133,7 @@ void tst_App::rotateSelection()
     QCOMPARE(canvas->hasSelection(), false);
 
     if (projectType == Project::ImageType)
-        setupTempProjectDir();
+        QVERIFY2(setupTempProjectDir(), failureMessage);
 
     // Save and reload so we're on a clean slate.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path()
@@ -3203,8 +3201,6 @@ void tst_App::rotateSelection()
     QCOMPARE(canvas->hasSelection(), true);
     actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
     const QImage expected180Image(":/resources/rotateSelection-180.png");
-//    expected180Image.save("/Users/mitch/dev/rotation-expected.png");
-//    actualImage.save("/Users/mitch/dev/rotation-actual.png");
     QCOMPARE(actualImage, expected180Image);
 
     // Rotate 90 degrees again for a total of 270 degrees of rotation.
@@ -3219,6 +3215,43 @@ void tst_App::rotateSelection()
     mouseEventOnCentre(undoButton, MouseClick);
     // mspaint gets rid of the selection upon undoing.
     QCOMPARE(canvas->hasSelection(), false);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, originalImage);
+}
+
+void tst_App::rotateSelectionAtEdge_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::rotateSelectionAtEdge()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVariantMap args;
+    args.insert("imageWidth", QVariant(10));
+    args.insert("imageHeight", QVariant(10));
+    QVERIFY2(createNewProject(projectType, args), failureMessage);
+
+    // Paste an "L" onto the canvas.
+    const QImage originalImage(":/resources/rotateSelectionAtEdge-original.png");
+    qGuiApp->clipboard()->setImage(originalImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+    QCOMPARE(canvas->hasSelection(), true);
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->hasSelection(), false);
+
+    // Select a portion of the image that's at the edge of the canvas and rotate 90 degrees.
+    // The selection should be moved so that it's within the boundary of the image.
+    QVERIFY2(selectArea(QRect(0, 2, 2, 5)), failureMessage);
+    canvas->rotateSelection(90);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 4, 5, 2));
+    QImage actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    const QImage expected90Image(":/resources/rotateSelectionAtEdge-90.png");
+    QCOMPARE(actualImage, expected90Image);
+
+    // Undo the rotation.
+    mouseEventOnCentre(undoButton, MouseClick);
     actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
     QCOMPARE(actualImage, originalImage);
 }
