@@ -226,6 +226,20 @@ Controls.MenuBar {
         MenuSeparator {}
 
         MenuItem {
+            objectName: "rotateClockwiseMenuItem"
+            text: qsTr("Rotate 90° Clockwise")
+            onClicked: canvas.rotateSelection(90)
+            enabled: isImageProjectType && canvas && canvas.hasSelection
+        }
+
+        MenuItem {
+            objectName: "rotateCounterClockwiseMenuItem"
+            text: qsTr("Rotate 90° Counter Clockwise")
+            onClicked: canvas.rotateSelection(-90)
+            enabled: isImageProjectType && canvas && canvas.hasSelection
+        }
+
+        MenuItem {
             objectName: "flipHorizontallyMenuItem"
             text: qsTr("Flip Horizontally")
             onClicked: canvas.flipSelection(Qt.Horizontal)

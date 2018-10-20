@@ -250,6 +250,8 @@ protected:
     QQuickItem *eraserToolButton;
     QQuickItem *selectionToolButton;
     QQuickItem *toolSizeButton;
+    QQuickItem *rotate90CcwToolButton;
+    QQuickItem *rotate90CwToolButton;
     QQuickItem *undoButton;
     QQuickItem *redoButton;
     QQuickItem *splitScreenToolButton;

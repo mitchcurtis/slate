@@ -43,6 +43,8 @@ TestHelper::TestHelper(int &argc, char **argv) :
     eraserToolButton(nullptr),
     selectionToolButton(nullptr),
     toolSizeButton(nullptr),
+    rotate90CcwToolButton(nullptr),
+    rotate90CwToolButton(nullptr),
     undoButton(nullptr),
     redoButton(nullptr),
     penForegroundColourButton(nullptr),
@@ -128,6 +130,12 @@ void TestHelper::initTestCase()
 
     toolSizeButton = window->findChild<QQuickItem*>("toolSizeButton");
     QVERIFY(toolSizeButton);
+
+    rotate90CcwToolButton = window->findChild<QQuickItem*>("rotate90CcwToolButton");
+    QVERIFY(rotate90CcwToolButton);
+
+    rotate90CwToolButton = window->findChild<QQuickItem*>("rotate90CwToolButton");
+    QVERIFY(rotate90CwToolButton);
 
     undoButton = window->findChild<QQuickItem*>("undoButton");
     QVERIFY(undoButton);

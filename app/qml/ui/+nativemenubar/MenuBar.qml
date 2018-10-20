@@ -212,20 +212,6 @@ Item {
             Platform.MenuSeparator {}
 
             Platform.MenuItem {
-                objectName: "flipHorizontallyMenuItem"
-                text: qsTr("Flip Horizontally")
-                onTriggered: canvas.flipSelection(Qt.Horizontal)
-                enabled: isImageProjectType && canvas && canvas.hasSelection
-            }
-
-            Platform.MenuItem {
-                objectName: "flipVerticallyMenuItem"
-                text: qsTr("Flip Vertically")
-                onTriggered: canvas.flipSelection(Qt.Vertical)
-                enabled: isImageProjectType && canvas && canvas.hasSelection
-            }
-
-            Platform.MenuItem {
                 objectName: "rotateClockwiseMenuItem"
                 text: qsTr("Rotate 90° Clockwise")
                 onTriggered: canvas.rotateSelection(90)
@@ -236,6 +222,20 @@ Item {
                 objectName: "rotateCounterClockwiseMenuItem"
                 text: qsTr("Rotate 90° Counter Clockwise")
                 onTriggered: canvas.rotateSelection(-90)
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+            }
+
+            Platform.MenuItem {
+                objectName: "flipHorizontallyMenuItem"
+                text: qsTr("Flip Horizontally")
+                onTriggered: canvas.flipSelection(Qt.Horizontal)
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+            }
+
+            Platform.MenuItem {
+                objectName: "flipVerticallyMenuItem"
+                text: qsTr("Flip Vertically")
+                onTriggered: canvas.flipSelection(Qt.Vertical)
                 enabled: isImageProjectType && canvas && canvas.hasSelection
             }
         }

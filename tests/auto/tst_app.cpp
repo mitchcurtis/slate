@@ -3124,13 +3124,22 @@ void tst_App::rotateSelection()
     args.insert("imageHeight", QVariant(10));
     QVERIFY2(createNewProject(projectType, args), failureMessage);
 
+    QCOMPARE(rotate90CcwToolButton->isEnabled(), false);
+    QCOMPARE(rotate90CwToolButton->isEnabled(), false);
+
     // Paste an "L" onto the canvas.
     const QImage originalImage(":/resources/rotateSelection-original.png");
     qGuiApp->clipboard()->setImage(originalImage);
     QVERIFY2(triggerPaste(), failureMessage);
     QCOMPARE(canvas->hasSelection(), true);
+    QCOMPARE(rotate90CcwToolButton->isEnabled(), true);
+    QCOMPARE(rotate90CwToolButton->isEnabled(), true);
+
+    // Deselect.
     QTest::keyClick(window, Qt::Key_Escape);
     QCOMPARE(canvas->hasSelection(), false);
+    QCOMPARE(rotate90CcwToolButton->isEnabled(), false);
+    QCOMPARE(rotate90CwToolButton->isEnabled(), false);
 
     if (projectType == Project::ImageType)
         QVERIFY2(setupTempProjectDir(), failureMessage);
@@ -3148,6 +3157,8 @@ void tst_App::rotateSelection()
 
     // Select and rotate 90 degrees.
     QVERIFY2(selectArea(QRect(3, 2, 4, 5)), failureMessage);
+    QCOMPARE(rotate90CcwToolButton->isEnabled(), true);
+    QCOMPARE(rotate90CwToolButton->isEnabled(), true);
     // For debugging: zoom to see what's going on.
     // May cause failures if used before selectArea() though.
 //    QVERIFY2(zoomTo(30), failureMessage);

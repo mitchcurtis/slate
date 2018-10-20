@@ -300,24 +300,11 @@ ToolBar {
             visible: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
             ToolButton {
-                id: rotate90CwToolButton
-                objectName: "rotate90CwToolButton"
-                hoverEnabled: true
-                focusPolicy: Qt.NoFocus
-
-                icon.source: "qrc:/images/rotate-90-cw.png"
-
-                ToolTip.text: qsTr("Rotate the selection by 90 degrees clockwise")
-                ToolTip.visible: hovered
-
-                onClicked: canvas.rotateSelection(90)
-            }
-
-            ToolButton {
                 id: rotate90CcwToolButton
                 objectName: "rotate90CcwToolButton"
                 hoverEnabled: true
                 focusPolicy: Qt.NoFocus
+                enabled: canvas && canvas.hasSelection
 
                 icon.source: "qrc:/images/rotate-90-ccw.png"
 
@@ -325,6 +312,21 @@ ToolBar {
                 ToolTip.visible: hovered
 
                 onClicked: canvas.rotateSelection(-90)
+            }
+
+            ToolButton {
+                id: rotate90CwToolButton
+                objectName: "rotate90CwToolButton"
+                hoverEnabled: true
+                focusPolicy: Qt.NoFocus
+                enabled: canvas && canvas.hasSelection
+
+                icon.source: "qrc:/images/rotate-90-cw.png"
+
+                ToolTip.text: qsTr("Rotate the selection by 90 degrees clockwise")
+                ToolTip.visible: hovered
+
+                onClicked: canvas.rotateSelection(90)
             }
 
             ToolSeparator {}
