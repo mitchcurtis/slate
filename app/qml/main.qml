@@ -175,6 +175,7 @@ ApplicationWindow {
 
         ColumnLayout {
             id: panelColumnLayout
+            objectName: "panelColumnLayout"
             // Work around https://bugreports.qt.io/browse/QTBUG-70445
             // by doing the spacing ourselves
             spacing: 0

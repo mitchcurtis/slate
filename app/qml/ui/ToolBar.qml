@@ -7,7 +7,7 @@ import "." as Ui
 
 ToolBar {
     id: root
-    objectName: "iconToolBar"
+    objectName: "toolBar"
 
     property Project project
     property int projectType: project ? project.type : 0
@@ -136,7 +136,7 @@ ToolBar {
 
         ButtonGroup {
             id: toolButtonGroup
-            objectName: "iconToolBarButtonGroup"
+            objectName: "toolBarButtonGroup"
             buttons: toolLayout.children
         }
 

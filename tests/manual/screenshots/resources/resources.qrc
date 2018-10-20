@@ -7,5 +7,6 @@
         <file>AnimationMarkers.qml</file>
         <file>animation.slp</file>
         <file>ColourMarkers.qml</file>
+        <file>ToolBarMarkers.qml</file>
     </qresource>
 </RCC>
