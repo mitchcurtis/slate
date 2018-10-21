@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
-   sodipodi:docname="rotate-90-cw.svg"
+   sodipodi:docname="rotate-90.svg"
    inkscape:export-filename="C:\dev\slate\app\images\rotate-90-cw.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96">
@@ -28,9 +28,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.627416"
-     inkscape:cx="13.795127"
-     inkscape:cy="11.588792"
+     inkscape:zoom="11.313708"
+     inkscape:cx="9.4416604"
+     inkscape:cy="12.507697"
      inkscape:document-units="px"
      inkscape:current-layer="g891"
      showgrid="true"
@@ -62,7 +62,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>

@@ -15,6 +15,14 @@
         <file>fill@2x.png</file>
         <file>fill@3X.png</file>
         <file>fill@4X.png</file>
+        <file>flip-horizontally.png</file>
+        <file>flip-horizontally@2x.png</file>
+        <file>flip-horizontally@3x.png</file>
+        <file>flip-horizontally@4x.png</file>
+        <file>flip-vertically.png</file>
+        <file>flip-vertically@2x.png</file>
+        <file>flip-vertically@3x.png</file>
+        <file>flip-vertically@4x.png</file>
         <file>image-project.png</file>
         <file>image-project@2x.png</file>
         <file>layered-image-project.png</file>

@@ -3,6 +3,7 @@ import qbs
 QtGuiApplication {
     name: "app"
     targetName: "Slate"
+    consoleApplication: false
 
     Depends { name: "Qt.core" }
     Depends { name: "Qt.quick" }
@@ -41,6 +42,13 @@ QtGuiApplication {
         "images/images.qrc",
         "qml/qml.qrc",
     ]
+
+    Group {
+        condition: !qbs.targetOS.contains("macos")
+        qbs.install: true
+        qbs.installSourceBase: product.buildDirectory
+        fileTagsFilter: product.type
+    }
 
     // This is necessary to install the app bundle (OS X)
     Group {

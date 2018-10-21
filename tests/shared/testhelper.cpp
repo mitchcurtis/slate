@@ -45,6 +45,8 @@ TestHelper::TestHelper(int &argc, char **argv) :
     toolSizeButton(nullptr),
     rotate90CcwToolButton(nullptr),
     rotate90CwToolButton(nullptr),
+    flipHorizontallyToolButton(nullptr),
+    flipVerticallyToolButton(nullptr),
     undoButton(nullptr),
     redoButton(nullptr),
     penForegroundColourButton(nullptr),
@@ -136,6 +138,12 @@ void TestHelper::initTestCase()
 
     rotate90CwToolButton = window->findChild<QQuickItem*>("rotate90CwToolButton");
     QVERIFY(rotate90CwToolButton);
+
+    flipHorizontallyToolButton = window->findChild<QQuickItem*>("flipHorizontallyToolButton");
+    QVERIFY(flipHorizontallyToolButton);
+
+    flipVerticallyToolButton = window->findChild<QQuickItem*>("flipVerticallyToolButton");
+    QVERIFY(flipVerticallyToolButton);
 
     undoButton = window->findChild<QQuickItem*>("undoButton");
     QVERIFY(undoButton);

@@ -10,13 +10,15 @@ ToolBar {
     objectName: "toolBar"
 
     property Project project
-    property int projectType: project ? project.type : 0
-    property bool isTilesetProject: projectType === Project.TilesetType
     property ImageCanvas canvas
     property Popup canvasSizePopup
     property Popup imageSizePopup
 
     property alias toolButtonGroup: toolButtonGroup
+
+    readonly property int projectType: project ? project.type : 0
+    readonly property bool isTilesetProject: projectType === Project.TilesetType
+    readonly property bool isImageProject: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
     Connections {
         target: canvas
@@ -304,7 +306,7 @@ ToolBar {
                 objectName: "rotate90CcwToolButton"
                 hoverEnabled: true
                 focusPolicy: Qt.NoFocus
-                enabled: canvas && canvas.hasSelection
+                enabled: isImageProject && canvas && canvas.hasSelection
 
                 icon.source: "qrc:/images/rotate-90-ccw.png"
 
@@ -319,7 +321,7 @@ ToolBar {
                 objectName: "rotate90CwToolButton"
                 hoverEnabled: true
                 focusPolicy: Qt.NoFocus
-                enabled: canvas && canvas.hasSelection
+                enabled: isImageProject && canvas && canvas.hasSelection
 
                 icon.source: "qrc:/images/rotate-90-cw.png"
 
@@ -327,6 +329,36 @@ ToolBar {
                 ToolTip.visible: hovered
 
                 onClicked: canvas.rotateSelection(90)
+            }
+
+            ToolButton {
+                id: flipHorizontallyToolButton
+                objectName: "flipHorizontallyToolButton"
+                hoverEnabled: true
+                focusPolicy: Qt.NoFocus
+                enabled: isImageProject && canvas && canvas.hasSelection
+
+                icon.source: "qrc:/images/flip-horizontally.png"
+
+                ToolTip.text: qsTr("Flip the selection horizontally")
+                ToolTip.visible: hovered
+
+                onClicked: canvas.flipSelection(Qt.Horizontal)
+            }
+
+            ToolButton {
+                id: flipVerticallyToolButton
+                objectName: "flipVerticallyToolButton"
+                hoverEnabled: true
+                focusPolicy: Qt.NoFocus
+                enabled: isImageProject && canvas && canvas.hasSelection
+
+                icon.source: "qrc:/images/flip-vertically.png"
+
+                ToolTip.text: qsTr("Flip the selection vertically")
+                ToolTip.visible: hovered
+
+                onClicked: canvas.flipSelection(Qt.Vertical)
             }
 
             ToolSeparator {}

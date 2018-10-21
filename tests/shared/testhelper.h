@@ -252,6 +252,8 @@ protected:
     QQuickItem *toolSizeButton;
     QQuickItem *rotate90CcwToolButton;
     QQuickItem *rotate90CwToolButton;
+    QQuickItem *flipHorizontallyToolButton;
+    QQuickItem *flipVerticallyToolButton;
     QQuickItem *undoButton;
     QQuickItem *redoButton;
     QQuickItem *splitScreenToolButton;

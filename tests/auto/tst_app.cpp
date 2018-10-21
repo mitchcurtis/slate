@@ -2915,6 +2915,9 @@ void tst_App::flipPastedImage()
 
     QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
+    QCOMPARE(flipHorizontallyToolButton->isEnabled(), false);
+    QCOMPARE(flipVerticallyToolButton->isEnabled(), false);
+
     QImage image(32, 32, QImage::Format_ARGB32_Premultiplied);
     image.fill(Qt::blue);
 
@@ -2925,6 +2928,8 @@ void tst_App::flipPastedImage()
     QVERIFY2(triggerPaste(), failureMessage);
     QCOMPARE(canvas->tool(), ImageCanvas::SelectionTool);
     QCOMPARE(canvas->hasSelection(), true);
+    QCOMPARE(flipHorizontallyToolButton->isEnabled(), true);
+    QCOMPARE(flipVerticallyToolButton->isEnabled(), true);
 
     QVERIFY2(triggerFlipVertically(), failureMessage);
     QVERIFY(imageGrabber.requestImage(canvas));
