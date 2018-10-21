@@ -63,10 +63,10 @@ QImage Utils::rotate(const QImage &image, int angle)
     3. Pastes the rotated image from step 1 at the centre of \a area.
     4. Tries to move the rotated area within the bounds of the image if it's outside.
     5. Crops the the rotated image if it's too large.
-    6. Returns the final image and sets \a inRotatedArea as the area
+    6. Returns the final rotated image portion and sets \a inRotatedArea as the area
        representing the newly rotated \a area.
 */
-QImage Utils::rotateArea(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea)
+QImage Utils::rotateAreaWithinImage(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea)
 {
     QImage result = image;
     const QPoint areaCentre = area.center();
@@ -104,13 +104,9 @@ QImage Utils::rotateArea(const QImage &image, const QRect &area, int angle, QRec
     if (cropped)
         rotatedImagePortion = rotatedImagePortion.copy(0, 0, rotatedArea.width(), rotatedArea.height());
 
-    // ...and paint it onto the result.
-    QPainter painter(&result);
-    painter.drawImage(rotatedArea, rotatedImagePortion);
-
     inRotatedArea = rotatedArea;
 
-    return result;
+    return rotatedImagePortion;
 }
 
 void Utils::strokeRectWithDashes(QPainter *painter, const QRect &rect)

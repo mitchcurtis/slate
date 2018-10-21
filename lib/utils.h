@@ -32,7 +32,7 @@ namespace Utils {
     QImage erasePortionOfImage(const QImage &image, const QRect &portion);
 
     QImage rotate(const QImage &image, int angle);
-    QImage rotateArea(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea);
+    QImage rotateAreaWithinImage(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea);
 
     void strokeRectWithDashes(QPainter *painter, const QRect &rect);
 

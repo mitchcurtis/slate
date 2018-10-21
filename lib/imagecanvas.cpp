@@ -1703,12 +1703,21 @@ void ImageCanvas::rotateSelection(int angle)
         isFirstModification = true;
     }
 
-    // Only use the project's image the first time; for every consecutive rotation,
-    // use the temporary image that is being modified until the selection is confirmed.
-    const QImage image = isFirstModification ? *imageForLayerAt(currentLayerIndex()) : mSelectionPreviewImage;
     QRect rotatedArea;
-    mSelectionContents = Utils::rotateArea(image, mSelectionArea, angle, rotatedArea);
-    mSelectionContents = mSelectionContents.copy(rotatedArea);
+    // Only use the project's image the first time; for every consecutive rotation,
+    // do the rotation on a fully transparent image and then paint it onto that.
+    // This avoids contents that are under the selection as its rotated being picked up
+    // and becoming part of the selection (rotateSelectionTransparentBackground() tests this).
+    if (isFirstModification) {
+        const QImage image = *imageForLayerAt(currentLayerIndex());
+        mSelectionContents = Utils::rotateAreaWithinImage(image, mSelectionArea, angle, rotatedArea);
+    } else {
+        QImage image(mProject->size(), QImage::Format_ARGB32_Premultiplied);
+        image.fill(Qt::transparent);
+        QPainter painter(&image);
+        painter.drawImage(mSelectionArea, mSelectionContents);
+        mSelectionContents = Utils::rotateAreaWithinImage(image, mSelectionArea, angle, rotatedArea);
+    }
 
     Q_ASSERT(mHasSelection);
     setSelectionArea(rotatedArea);
@@ -1718,8 +1727,6 @@ void ImageCanvas::rotateSelection(int angle)
 
     updateSelectionPreviewImage(SelectionRotate);
     requestContentPaint();
-
-//    return area.united(rotatedArea);
 }
 
 void ImageCanvas::copySelection()
@@ -2054,7 +2061,7 @@ QRect ImageCanvas::doRotateSelection(int layerIndex, const QRect &area, int angl
 {
     QImage *image = imageForLayerAt(layerIndex);
     QRect rotatedArea;
-    *image = Utils::rotateArea(*image, area, angle, rotatedArea);
+    *image = Utils::rotateAreaWithinImage(*image, area, angle, rotatedArea);
     // Only update the selection area when the commands are being created for the first time,
     // not when they're being undone and redone.
     if (mHasSelection)

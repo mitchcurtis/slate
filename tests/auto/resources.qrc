@@ -12,5 +12,8 @@
         <file>resources/rotateSelection-original.png</file>
         <file>resources/rotateSelectionAtEdge-original.png</file>
         <file>resources/rotateSelectionAtEdge-90.png</file>
+        <file>resources/rotateSelectionTransparentBackground-original.png</file>
+        <file>resources/rotateSelectionTransparentBackground-90.png</file>
+        <file>resources/rotateSelectionTransparentBackground-180.png</file>
     </qresource>
 </RCC>
