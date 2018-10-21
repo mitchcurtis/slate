@@ -28,12 +28,14 @@
 10. Switches the current tool to the selection tool.
 11. Changes the size of drawing tools.
 12. Rotates the selection by 90 degrees counter-clockwise.
-13. Rotate the selection by 90 degrees clockwise.
-14. Shows rulers.
-15. Shows guides.
-16. Locks guides.
-17. Toggles split screen.
-18. Locks split screen splitter.
+13. Rotates the selection by 90 degrees clockwise.
+14. Flips the selection horizontally.
+15. Flips the selection vertically.
+16. Shows rulers.
+17. Shows guides.
+18. Locks guides.
+19. Toggles split screen.
+20. Locks split screen splitter.
 
 ## Colour
 

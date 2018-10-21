@@ -39,6 +39,8 @@ Item {
             "toolSizeButton",
             "rotate90CcwToolButton",
             "rotate90CwToolButton",
+            "flipHorizontallyToolButton",
+            "flipVerticallyToolButton",
             "showRulersToolButton",
             "showGuidesToolButton",
             "lockGuidesToolButton",
