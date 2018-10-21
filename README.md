@@ -45,7 +45,9 @@ Slate was built for pixel art, and its goal is to simplify the creation of sprit
 
 ![Screenshot of Slate v0.4.0 on Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.4.0-mac-layers.png "Screenshot of Slate v0.4.0 on Mac")
 
-![Screenshot of Slate v0.0.10 on Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.0.10-mac.png "Screenshot of Slate v0.0.10 on Mac")
+<video controls>
+  <source src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.4.0-animation-mac.mp4" type="video/mp4">
+</video>
 
 ### Downloads ###
 
@@ -107,6 +109,7 @@ For more information about building Qbs applications, see [this page](http://doc
 
 ---
 
-The tileset in the screenshot was taken from the following page:
+List of assets used in the screenshots:
 
-http://opengameart.org/content/lpc-tile-atlas
+- https://opengameart.org/content/lpc-tile-atlas
+- https://opengameart.org/content/pixel-explosion-12-frames
