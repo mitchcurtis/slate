@@ -15,6 +15,8 @@ GridView {
     property Menu swatchContextMenu
     property bool readOnly
 
+    readonly property int minimumUsefulHeight: 16
+
     delegate: Rectangle {
         id: colourDelegate
         width: 16

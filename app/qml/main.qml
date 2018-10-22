@@ -192,16 +192,15 @@ ApplicationWindow {
             Layout.maximumWidth: 240
             Layout.maximumHeight: mainRowLayout.height
             Layout.fillHeight: true
-//            Layout.alignment: Qt.AlignTop
 
             Ui.ColourPanel {
                 id: colourPanel
                 canvas: window.canvas
                 project: window.project
 
-                SplitView.minimumHeight: expanded ? header.implicitHeight + 200 : -1
+                SplitView.minimumHeight: expanded ? minimumUsefulHeight : undefined
+                SplitView.preferredHeight: expanded ? header.implicitHeight + 200 : undefined
                 SplitView.maximumHeight: expanded ? Infinity : header.implicitHeight
-                SplitView.fillHeight: expanded
             }
 
             Ui.SwatchPanel {
@@ -209,10 +208,8 @@ ApplicationWindow {
                 canvas: window.canvas
                 project: window.project
 
-                SplitView.minimumHeight: expanded ? header.implicitHeight + 200 : -1
+                SplitView.minimumHeight: expanded ? minimumUsefulHeight : -1
                 SplitView.maximumHeight: expanded ? Infinity : header.implicitHeight
-                SplitView.fillHeight: expanded
-//                Layout.topMargin: 5
             }
 
             Loader {
@@ -227,29 +224,24 @@ ApplicationWindow {
                     z: canvasContainer.z - 1
                 }
 
-//                Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
-//                Layout.fillWidth: true
-                SplitView.minimumHeight: active && item.expanded ? item.header.implicitHeight + 300 : -1
+                SplitView.minimumHeight: active && item.expanded ? item.header.implicitHeight : undefined
                 SplitView.maximumHeight: active ? (item.expanded ? Infinity : item.header.implicitHeight) : 0
                 SplitView.fillHeight: active && item.expanded
-//                Layout.topMargin: active ? 5 : 0
             }
 
             Loader {
                 objectName: "layersLoader"
                 active: window.projectType === Project.LayeredImageType && window.canvas
+                visible: active
                 sourceComponent: Ui.LayerPanel {
                     layeredImageCanvas: window.canvas
                     project: window.project
                     z: canvasContainer.z - 1
                 }
 
-//                Layout.preferredWidth: active ? colourPanel.implicitWidth : 0
-//                Layout.fillWidth: true
-                SplitView.minimumHeight: active && item.expanded ? item.header.implicitHeight + item.footer.implicitHeight + 100 : -1
+                SplitView.minimumHeight: active && item.expanded ? item.minimumUsefulHeight : undefined
                 SplitView.maximumHeight: active ? (item.expanded ? Infinity : item.header.implicitHeight) : 0
                 SplitView.fillHeight: active && item.expanded
-//                Layout.topMargin: active ? 5 : 0
             }
 
             Ui.AnimationPanel {
@@ -259,12 +251,9 @@ ApplicationWindow {
                 project: visible ? window.project : null
                 canvas: window.canvas
 
-//                Layout.preferredWidth: visible ? colourPanel.implicitWidth : 0
-//                Layout.fillWidth: true
-                SplitView.minimumHeight: expanded ? header.implicitHeight + 200 : -1
+                SplitView.minimumHeight: expanded ? minimumUsefulHeight : undefined
                 SplitView.maximumHeight: visible ? (expanded ? Infinity : header.implicitHeight) : 0
                 SplitView.fillHeight: expanded
-//                Layout.topMargin: visible ? 5 : 0
             }
         }
     }

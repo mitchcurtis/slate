@@ -19,6 +19,7 @@ GridLayout {
     readonly property var spinBoxTextFromValueFunc: function(value) {
         return (value / spinBoxFactor).toFixed(2);
     }
+    readonly property int minimumUsefulHeight: hexColourRowLayout.implicitHeight// + pickerRowLayout.Layout.topMargin
 
     HexColourRowLayout {
         id: hexColourRowLayout
@@ -28,6 +29,7 @@ GridLayout {
     }
 
     RowLayout {
+        id: pickerRowLayout
         Layout.columnSpan: 2
         Layout.topMargin: 8
         Layout.bottomMargin: 8

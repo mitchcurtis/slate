@@ -35,6 +35,11 @@ Panel {
     property LayeredImageCanvas layeredImageCanvas
     property LayeredImageProject project
 
+    readonly property int minimumUsefulHeight: header.implicitHeight
+        // Estimate delegate height since we can't easily know what it is for all styles.
+        + 48
+        + footer.implicitHeight
+
     // When the project has been loaded, restore the listview's position.
     onProjectChanged: Qt.callLater(function() {
         // During tests, project can be null briefly. It seems to happen when going from .slp to .slp.

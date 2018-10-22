@@ -17,6 +17,10 @@ Panel {
     property ImageCanvas canvas
     property alias project: picker.project
 
+    readonly property int minimumUsefulHeight: header.implicitHeight
+        + picker.minimumUsefulHeight
+        + root.bottomPadding
+
     contentItem: Flickable {
         implicitWidth: picker.implicitWidth
         implicitHeight: picker.implicitHeight

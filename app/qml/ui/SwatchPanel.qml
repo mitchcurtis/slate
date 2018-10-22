@@ -38,6 +38,13 @@ Panel {
     property ImageCanvas canvas
     property Project project
 
+    readonly property int delegateSize: swatchGridView.cellWidth
+    readonly property int minimumUsefulHeight: header.implicitHeight
+        + swatchGridView.minimumUsefulHeight * 2
+        + swatchSeparator.implicitHeight
+        + footer.implicitHeight
+        + bottomPadding
+
 //    property int draggedSwatchIndex: -1
 
     contentItem: ColumnLayout {
@@ -104,6 +111,7 @@ Panel {
             }
         }
         MenuSeparator {
+            id: swatchSeparator
             visible: settings.autoSwatchEnabled
             leftPadding: 12
             topPadding: 0

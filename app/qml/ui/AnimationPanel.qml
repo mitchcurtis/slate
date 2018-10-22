@@ -38,6 +38,8 @@ Panel {
     property ImageCanvas canvas
     property AnimationPlayback animationPlayback: project ? project.animationPlayback : null
 
+    readonly property int minimumUsefulHeight: header.implicitHeight + 100
+
     settingsPopup: AnimationSettingsPopup {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
