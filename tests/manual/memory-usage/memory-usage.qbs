@@ -1,4 +1,5 @@
 import qbs
+import "../../../app/qml/qml.qbs" as AppQmlFiles
 
 Project {
     name: "screenshots"
@@ -40,12 +41,13 @@ Project {
             "../../../app/config.qrc",
             "../../../app/fonts/fonts.qrc",
             "../../../app/images/images.qrc",
-            "../../../app/qml/qml.qrc",
             "../../shared/testhelper.h",
             "../../shared/testhelper.cpp",
             "../../shared/testutils.h",
             "memory-usage.cpp",
         ]
+
+        AppQmlFiles {}
 
         Group {     // Properties for the produced executable
             fileTagsFilter: "application"

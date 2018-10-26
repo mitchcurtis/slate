@@ -1,12 +1,14 @@
 import qbs
 
-DynamicLibrary {
+Product {
     targetName: "slate"
+    type: Qt.core.staticBuild ? "staticlibrary" : "dynamiclibrary"
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["core", "gui", "quick", "widgets"]; versionAtLeast: "5.12" }
     // For version info.
     Depends { name: "vcs" }
+    Depends { name: "bundle" }
 
     cpp.cxxLanguageVersion: "c++11"
     cpp.visibility: "minimal"

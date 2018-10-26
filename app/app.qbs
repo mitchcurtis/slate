@@ -1,4 +1,5 @@
 import qbs
+import "qml/qml.qbs" as AppQmlFiles
 
 QtGuiApplication {
     name: "app"
@@ -39,9 +40,10 @@ QtGuiApplication {
         "main.cpp",
         "config.qrc",
         "fonts/fonts.qrc",
-        "images/images.qrc",
-        "qml/qml.qrc",
+        "images/images.qrc"
     ]
+
+    AppQmlFiles {}
 
     Group {
         condition: !qbs.targetOS.contains("macos")
