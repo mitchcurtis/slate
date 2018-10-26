@@ -5,7 +5,7 @@ Project {
     name: "screenshots"
     minimumQbsVersion: "1.7.1"
 
-    CppApplication {
+    QtGuiApplication {
         Depends { name: "Qt.core" }
         Depends { name: "Qt.quick" }
         Depends { name: "Qt.test" }

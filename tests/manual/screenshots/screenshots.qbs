@@ -1,7 +1,7 @@
 import qbs
 import "../../../app/qml/qml.qbs" as AppQmlFiles
 
-CppApplication {
+QtGuiApplication {
     name: "screenshots"
 
     Depends { name: "Qt.core" }
