@@ -46,6 +46,7 @@ QtGuiApplication {
     AppQmlFiles {}
 
     Group {
+        name: "Install (non-macOS)"
         condition: !qbs.targetOS.contains("macos")
         qbs.install: true
         qbs.installSourceBase: product.buildDirectory
@@ -54,6 +55,7 @@ QtGuiApplication {
 
     // This is necessary to install the app bundle (OS X)
     Group {
+        name: "bundle.content install"
         fileTagsFilter: ["bundle.content"]
         qbs.install: true
         qbs.installDir: "."
@@ -70,7 +72,7 @@ QtGuiApplication {
     }
 
     Group {
-        name: "macOS (icons)"
+        name: "Icons (macOS)"
         condition: qbs.targetOS.contains("macos")
         files: ["images/logo/slate.xcassets"]
     }
