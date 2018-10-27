@@ -125,12 +125,29 @@ ApplicationWindow {
 
     Connections {
         target: projectManager.project ? projectManager.project : null
+
         onErrorOccurred: errorPopup.showError(errorMessage)
+
+        onPreProjectSaved: {
+            // Save project state.
+            project.uiState.setValue("mainSplitViewState", mainSplitView.saveState())
+            project.uiState.setValue("panelSplitViewState", panelSplitView.saveState())
+        }
     }
 
     Connections {
         target: projectManager
+
         onCreationFailed: errorPopup.showError(errorMessage)
+
+        onProjectChanged: {
+            // Old project files and image projects don't have UI state.
+            if (project && project.uiState.contains("mainSplitViewState")) {
+                // Restore project state.
+                mainSplitView.restoreState(project.uiState.value("mainSplitViewState"))
+                panelSplitView.restoreState(project.uiState.value("panelSplitViewState"))
+            }
+        }
     }
 
     Ui.Shortcuts {
@@ -173,6 +190,7 @@ ApplicationWindow {
         }
 
         SplitView {
+            id: panelSplitView
             orientation: Qt.Vertical
 
             SplitView.minimumWidth: 200

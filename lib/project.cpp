@@ -157,6 +157,11 @@ void Project::close()
 
     qCDebug(lcProject) << "closing project:" << mUrl;
 
+    setNewProject(false);
+    setUrl(QUrl());
+    mUndoStack.clear();
+    mUiState.reset(QVariantMap());
+
     doClose();
 
     qCDebug(lcProject) << "closed project";
@@ -319,6 +324,21 @@ void Project::writeGuides(QJsonObject &projectJson) const
     projectJson[QLatin1String("guides")] = guidesArray;
 }
 
+void Project::readUiState(const QJsonObject &projectJson)
+{
+    QVariantMap uiState;
+    // Older versions (<= 0.4.0) didn't have uiState.
+    if (projectJson.contains("uiState"))
+        uiState = projectJson.value("uiState").toObject().toVariantMap();
+
+    mUiState.reset(uiState);
+}
+
+void Project::writeUiState(QJsonObject &projectJson)
+{
+    projectJson["uiState"] = QJsonObject::fromVariantMap(mUiState.map());
+}
+
 bool Project::readSwatch(const QJsonObject &projectJson, SerialisationFailurePolicy serialisationFailurePolicy)
 {
     Swatch swatch;
@@ -359,6 +379,11 @@ void Project::setSettings(ApplicationSettings *settings)
 QJsonObject *Project::cachedProjectJson()
 {
     return &mCachedProjectJson;
+}
+
+SerialisableState *Project::uiState()
+{
+    return &mUiState;
 }
 
 QSize Project::size() const

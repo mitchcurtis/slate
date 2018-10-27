@@ -170,6 +170,8 @@ Product {
         "selectioncursorguide.h",
         "selectionitem.cpp",
         "selectionitem.h",
+        "serialisablestate.cpp",
+        "serialisablestate.h",
         "slate-global.h",
         "splitter.cpp",
         "splitter.h",

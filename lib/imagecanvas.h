@@ -316,6 +316,8 @@ public slots:
     void cycleFillTools();
 
 protected slots:
+    void saveState();
+
     virtual void reset();
     virtual void onLoadedChanged();
 
@@ -331,7 +333,6 @@ protected slots:
     void onPaneSizeChanged();
     void onSplitterPositionChanged();
     void onGuidesChanged();
-    void onReadyForWritingToJson(QJsonObject* projectJson);
     void onAboutToBeginMacro(const QString &macroText);
     void recreateCheckerImage();
 
@@ -339,6 +340,7 @@ protected:
     void componentComplete() override;
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
+    void restoreState();
     void resizeChildren();
 
     friend class ApplyGreedyPixelFillCommand;

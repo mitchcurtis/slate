@@ -43,8 +43,7 @@ LayeredImageProject::LayeredImageProject() :
     mLayersCreated(0),
     mAutoExportEnabled(false),
     mUsingAnimation(false),
-    mHasUsedAnimation(false),
-    mLayerListViewContentY(0.0)
+    mHasUsedAnimation(false)
 {
     setObjectName(QLatin1String("LayeredImageProject"));
     qCDebug(lcProjectLifecycle) << "constructing" << this;
@@ -369,20 +368,6 @@ void LayeredImageProject::setUsingAnimation(bool isUsingAnimation)
     emit usingAnimationChanged();
 }
 
-qreal LayeredImageProject::layerListViewContentY() const
-{
-    return mLayerListViewContentY;
-}
-
-void LayeredImageProject::setLayerListViewContentY(qreal contentY)
-{
-    if (qFuzzyCompare(contentY, mLayerListViewContentY))
-        return;
-
-    mLayerListViewContentY = contentY;
-    emit layerListViewContentYChanged();
-}
-
 AnimationPlayback *LayeredImageProject::animationPlayback()
 {
     return &mAnimationPlayback;
@@ -450,8 +435,8 @@ void LayeredImageProject::doLoad(const QUrl &url)
 
     readGuides(projectObject);
     // Allow older project files without swatch support (saved with version <= 0.2.1) to still be loaded.
-    if (!readSwatch(projectObject, IgnoreSerialisationFailures))
-        return;
+    readSwatch(projectObject, IgnoreSerialisationFailures);
+    readUiState(projectObject);
 
     mAutoExportEnabled = projectObject.value("autoExportEnabled").toBool(false);
 
@@ -461,8 +446,13 @@ void LayeredImageProject::doLoad(const QUrl &url)
         mAnimationPlayback.read(projectObject.value("animationPlayback").toObject());
     }
 
-    mLayerListViewContentY = projectObject.value("layerListViewContentY").toDouble();
+    readUiState(projectObject);
 
+    // For compatibility with older versions (<= 0.4.0). See ImageCanvas::restoreState() for deprecation details.
+    // A project should have it stored in either uiState or directly in the project's top-level json, but not both.
+    if (projectObject.contains("layerListViewContentY"))
+        mUiState.setValue("layerListViewContentY", projectObject.value("layerListViewContentY").toDouble());
+    // Also compatibility code.
     mCachedProjectJson = projectObject;
 
     setUrl(url);
@@ -471,8 +461,6 @@ void LayeredImageProject::doLoad(const QUrl &url)
 
 void LayeredImageProject::doClose()
 {
-    setNewProject(false);
-
     // Workaround for QTBUG-62946; when it's fixed we can remove the new code
     // and go back to the old code
     emit preLayersCleared();
@@ -488,14 +476,11 @@ void LayeredImageProject::doClose()
 //        delete takeLayer(0);
 //    }
 
-    setUrl(QUrl());
-    mUndoStack.clear();
     mLayersCreated = 0;
     mAutoExportEnabled = false;
     mUsingAnimation = false;
     mHasUsedAnimation = false;
     mAnimationPlayback.reset();
-    mLayerListViewContentY = 0.0;
     emit projectClosed();
 }
 
@@ -547,7 +532,7 @@ void LayeredImageProject::doSaveAs(const QUrl &url)
 
     writeGuides(projectObject);
     writeSwatch(projectObject);
-    emit readyForWritingToJson(&projectObject);
+    writeUiState(projectObject);
 
     if (mAutoExportEnabled) {
         projectObject.insert("autoExportEnabled", true);
@@ -566,8 +551,6 @@ void LayeredImageProject::doSaveAs(const QUrl &url)
         mAnimationPlayback.write(animationObject);
         projectObject.insert("animationPlayback", animationObject);
     }
-
-    projectObject.insert("layerListViewContentY", mLayerListViewContentY);
 
     rootJson.insert("project", projectObject);
 

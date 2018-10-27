@@ -112,12 +112,9 @@ void ImageProject::doLoad(const QUrl &url)
 
 void ImageProject::doClose()
 {
-    setNewProject(false);
     mImage = QImage();
     mImageUrl = QUrl();
     mUsingTempImage = false;
-    setUrl(QUrl());
-    mUndoStack.clear();
     mUsingAnimation = false;
     mAnimationPlayback.reset();
     emit projectClosed();

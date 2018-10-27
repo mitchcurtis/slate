@@ -186,27 +186,21 @@ Project *ImageCanvas::project() const
     return mProject;
 }
 
-void ImageCanvas::setProject(Project *project)
+void ImageCanvas::restoreState()
 {
-    qCDebug(lcImageCanvas) << "setting project" << project << "on canvas" << this;
+    // Read the canvas data that was stored in the project, if there is any.
+    // New projects or projects that don't have their own Slate extension
+    // won't have any JSON data.
 
-    if (project == mProject)
-        return;
+    bool readPanes = false;
 
-    if (mProject) {
-        disconnectSignals();
-    }
-
-    mProject = project;
-    mImageProject = qobject_cast<ImageProject*>(mProject);
-
-    if (mProject) {
-        connectSignals();
-
-        // Read the canvas data that was stored in the project, if there is any.
-        // New projects or projects that don't have their own Slate extension
-        // won't have any JSON data.
-        QJsonObject *cachedProjectJson = project->cachedProjectJson();
+    if (mProject->cachedProjectJson()) {
+        // TODO:
+        // <= 0.4.0 compatibility code. Eventually, once every platform has had a release
+        // where uiState is saved (so that we can refer users to a version that can be used to
+        // make old project files compatible with newer versions by opening the project and saving it),
+        // we should remove this code and just use uiState.
+        QJsonObject *cachedProjectJson = mProject->cachedProjectJson();
 
         if (cachedProjectJson->contains("lastFillToolUsed")) {
             mLastFillToolUsed = static_cast<Tool>(QMetaEnum::fromType<Tool>().keyToValue(
@@ -224,12 +218,81 @@ void ImageCanvas::setProject(Project *project)
         }
         doSetSplitScreen(cachedProjectJson->value("splitScreen").toBool(false), DontResetPaneSizes);
         mSplitter.setEnabled(cachedProjectJson->value("splitterLocked").toBool(false));
-        if (!readPanes) {
-            // If there were no panes stored, then the project hasn't been saved yet,
-            // so we can do what we want with the panes.
-            setDefaultPaneSizes();
-            centrePanes();
+    } else {
+        // Versions > 0.4.0.
+        SerialisableState *uiState = mProject->uiState();
+
+        if (uiState->contains("lastFillToolUsed")) {
+            mLastFillToolUsed = static_cast<Tool>(QMetaEnum::fromType<Tool>().keyToValue(
+                qPrintable(uiState->value("lastFillToolUsed", QString()).toString())));
         }
+
+        if (uiState->contains("firstPane")) {
+            mFirstPane.read(QJsonObject::fromVariantMap(uiState->value("firstPane").toMap()));
+            readPanes = true;
+        }
+        if (uiState->contains("secondPane")) {
+            mSecondPane.read(QJsonObject::fromVariantMap(uiState->value("secondPane").toMap()));
+            readPanes = true;
+        }
+        doSetSplitScreen(uiState->value("splitScreen", false).toBool(), DontResetPaneSizes);
+        mSplitter.setEnabled(uiState->value("splitterLocked", false).toBool());
+    }
+
+    if (!readPanes) {
+        // If there were no panes stored, then the project hasn't been saved yet,
+        // so we can do what we want with the panes.
+        setDefaultPaneSizes();
+        centrePanes();
+    }
+}
+
+void ImageCanvas::saveState()
+{
+    // The line between what is UI state and what is project state in an image
+    // editor is a bit blurry. For example, guides are written by the project,
+    // but could also be considered UI state. In general, we consider UI state
+    // anything that is declared in QML and hence we do not and should not have
+    // access to in C++. However, in the interest of having less code (we would
+    // need to have access to the project's cached JSON data, which we're trying
+    // to move away from (see restoreState())), we also consider ImageCanvas
+    // state as UI state.
+
+    mProject->uiState()->setValue("lastFillToolUsed",
+        QMetaEnum::fromType<Tool>().valueToKey(mLastFillToolUsed));
+
+    QJsonObject firstPaneJson;
+    mFirstPane.write(firstPaneJson);
+    mProject->uiState()->setValue("firstPane", firstPaneJson.toVariantMap());
+
+    QJsonObject secondPaneJson;
+    mSecondPane.write(secondPaneJson);
+    mProject->uiState()->setValue("secondPane", secondPaneJson.toVariantMap());
+
+    if (mSplitScreen)
+        mProject->uiState()->setValue("splitScreen", true);
+    if (mSplitter.isEnabled())
+        mProject->uiState()->setValue("splitterLocked", true);
+}
+
+void ImageCanvas::setProject(Project *project)
+{
+    qCDebug(lcImageCanvas) << "setting project" << project << "on canvas" << this;
+
+    if (project == mProject)
+        return;
+
+    if (mProject) {
+        disconnectSignals();
+    }
+
+    mProject = project;
+    mImageProject = qobject_cast<ImageProject*>(mProject);
+
+    if (mProject) {
+        connectSignals();
+
+        restoreState();
 
         setAcceptedMouseButtons(Qt::AllButtons);
         setAcceptHoverEvents(true);
@@ -839,8 +902,7 @@ void ImageCanvas::connectSignals()
     connect(mProject, SIGNAL(projectClosed()), this, SLOT(reset()));
     connect(mProject, SIGNAL(sizeChanged()), this, SLOT(requestContentPaint()));
     connect(mProject, SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
-    connect(mProject, SIGNAL(readyForWritingToJson(QJsonObject*)),
-        this, SLOT(onReadyForWritingToJson(QJsonObject*)));
+    connect(mProject, SIGNAL(preProjectSaved()), this, SLOT(saveState()));
     connect(mProject, SIGNAL(aboutToBeginMacro(QString)),
         this, SLOT(onAboutToBeginMacro(QString)));
 
@@ -856,8 +918,7 @@ void ImageCanvas::disconnectSignals()
     mProject->disconnect(SIGNAL(projectClosed()), this, SLOT(reset()));
     mProject->disconnect(SIGNAL(sizeChanged()), this, SLOT(requestContentPaint()));
     mProject->disconnect(SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
-    mProject->disconnect(SIGNAL(readyForWritingToJson(QJsonObject*)),
-        this, SLOT(onReadyForWritingToJson(QJsonObject*)));
+    mProject->disconnect(SIGNAL(preProjectSaved()), this, SLOT(saveState()));
     mProject->disconnect(SIGNAL(aboutToBeginMacro(QString)),
         this, SLOT(onAboutToBeginMacro(QString)));
 
@@ -1149,25 +1210,6 @@ int ImageCanvas::guideIndexAtCursorPos()
 void ImageCanvas::onGuidesChanged()
 {
     mGuidesItem->update();
-}
-
-// TODO: make projectJson a reference to make this neater
-void ImageCanvas::onReadyForWritingToJson(QJsonObject *projectJson)
-{
-    (*projectJson)["lastFillToolUsed"] = QMetaEnum::fromType<Tool>().valueToKey(mLastFillToolUsed);
-
-    QJsonObject firstPaneJson;
-    mFirstPane.write(firstPaneJson);
-    (*projectJson)["firstPane"] = firstPaneJson;
-
-    QJsonObject secondPaneJson;
-    mSecondPane.write(secondPaneJson);
-    (*projectJson)["secondPane"] = secondPaneJson;
-
-    if (mSplitScreen)
-        (*projectJson)["splitScreen"] = true;
-    if (mSplitter.isEnabled())
-        (*projectJson)["splitterLocked"] = true;
 }
 
 void ImageCanvas::onAboutToBeginMacro(const QString &macroText)

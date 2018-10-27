@@ -31,6 +31,7 @@
 #include <QUndoStack>
 
 #include "guide.h"
+#include "serialisablestate.h"
 #include "slate-global.h"
 #include "swatch.h"
 
@@ -55,6 +56,7 @@ class SLATE_EXPORT Project : public QObject
     Q_PROPERTY(QUndoStack *undoStack READ undoStack CONSTANT)
     Q_PROPERTY(ApplicationSettings *settings READ settings WRITE setSettings NOTIFY settingsChanged)
     Q_PROPERTY(Swatch *swatch READ swatch CONSTANT)
+    Q_PROPERTY(SerialisableState *uiState READ uiState CONSTANT)
 
 public:
     enum Type {
@@ -116,6 +118,8 @@ public:
 
     QJsonObject *cachedProjectJson();
 
+    SerialisableState *uiState();
+
 signals:
     void projectCreated();
     void projectLoaded();
@@ -130,7 +134,6 @@ signals:
     void errorOccurred(const QString &errorMessage);
     void settingsChanged();
     void guidesChanged();
-    void readyForWritingToJson(QJsonObject *projectJson);
     void aboutToBeginMacro(const QString &text);
 
 public slots:
@@ -156,6 +159,8 @@ protected:
 
     void readGuides(const QJsonObject &projectJson);
     void writeGuides(QJsonObject &projectJson) const;
+    void readUiState(const QJsonObject &projectJson);
+    void writeUiState(QJsonObject &projectJson);
 
     enum SerialisationFailurePolicy {
         IgnoreSerialisationFailures,
@@ -171,11 +176,10 @@ protected:
     QUrl mUrl;
     QTemporaryDir mTempDir;
     bool mUsingTempImage;
+    // <= 0.4.0 compatibility (see comments in ImageCanvas::restoreState()).
     // Caching the project's json object allows the project to save and share
     // e.g. pane info without having to know about the canvas. This member is
-    // written to once after loading, and then the readyForWritingToJson()
-    // signal is emitted when saving to allow the canvas (and anyone else
-    // who may be interested) a chance to save data specific to the project.
+    // written to once after loading.
     QJsonObject mCachedProjectJson;
 
     QUndoStack mUndoStack;
@@ -186,6 +190,9 @@ protected:
     QVector<Guide> mGuides;
 
     Swatch mSwatch;
+
+    // Project-specific UI state. Note that this is only useful for projects with their own project file.
+    SerialisableState mUiState;
 };
 
 #endif // PROJECT_H
