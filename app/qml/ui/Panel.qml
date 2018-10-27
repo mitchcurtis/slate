@@ -15,6 +15,7 @@ Page {
 
     property bool expanded: true
     property Popup settingsPopup: null
+    property alias settingsPopupToolButton: settingsPopupToolButton
 
     header: RowLayout {
         objectName: root.objectName + "Header"
@@ -33,6 +34,7 @@ Page {
         }
 
         ToolButton {
+            id: settingsPopupToolButton
             objectName: root.objectName + "SettingsToolButton"
             text: "\uf013"
             font.family: "FontAwesome"

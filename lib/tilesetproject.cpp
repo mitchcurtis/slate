@@ -135,12 +135,12 @@ void TilesetProject::doLoad(const QUrl &url)
 {
     QFile jsonFile(url.toLocalFile());
     if (!jsonFile.open(QIODevice::ReadOnly)) {
-        error(QString::fromLatin1("Tileset project files must have a .stp extension (%1)").arg(url.toLocalFile()));
+        error(QString::fromLatin1("Failed to open tileset project's STP file at %1").arg(url.toLocalFile()));
         return;
     }
 
     if (QFileInfo(jsonFile).suffix() != "stp") {
-        error(QString::fromLatin1("Failed to open tileset project's STP file at %1").arg(url.toLocalFile()));
+        error(QString::fromLatin1("Tileset project files must have a .stp extension (%1)").arg(url.toLocalFile()));
         return;
     }
 
@@ -183,7 +183,9 @@ void TilesetProject::doLoad(const QUrl &url)
     }
 
     readGuides(projectObject);
-    readSwatch(projectObject);
+    // Allow older project files without swatch support (saved with version <= 0.2.1) to still be loaded.
+    if (!readSwatch(projectObject, IgnoreSerialisationFailures))
+        return;
     mCachedProjectJson = projectObject;
 
     setUrl(url);

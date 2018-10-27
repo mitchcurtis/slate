@@ -1,5 +1,42 @@
 # Slate - User Interface
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+# Contents
+
+- [Tool Bar](#tool-bar)
+- [Colour](#colour)
+- [Swatches](#swatches)
+- [Layers](#layers)
+- [Animation](#animation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Tool Bar
+
+![Tool bar](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-tool-bar.png)
+
+1. Changes the size of the canvas.
+2. Changes the size of the image.
+3. Undo the last canvas operation.
+4. Redo the last undone canvas operation
+5. Toggles between operating on pixels or whole tiles.
+6. Switches the current tool to the pen tool.
+7. Switches the current tool to the eye dropper (colour picker) tool.
+8. Switches the current tool to the eraser tool.
+9. Switches the current tool to the fill tool.
+10. Switches the current tool to the selection tool.
+11. Changes the size of drawing tools.
+12. Rotates the selection by 90 degrees counter-clockwise.
+13. Rotates the selection by 90 degrees clockwise.
+14. Flips the selection horizontally.
+15. Flips the selection vertically.
+16. Shows rulers.
+17. Shows guides.
+18. Locks guides.
+19. Toggles split screen.
+20. Locks split screen splitter.
+
 ## Colour
 
 ![Colour panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-colour-panel.png)

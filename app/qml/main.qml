@@ -29,18 +29,6 @@ import App 1.0
 
 import "ui" as Ui
 
-/*
-    TODO:
-    - cursor ruler that follows the cursor as it moves to make it easy to
-      line stuff up
-    - fix performance when drawing pixels
-    - fix performance when resizing on Windows
-    - tutorial?
-    - add "lighten/darken current colour" feature with convenient keyboard shortcuts.
-      it could display a fading indicator like the zoom level does, comparing the
-      proposed colour next to the old one. could be a mouse wheel shortcut.
-*/
-
 ApplicationWindow {
     id: window
     objectName: "window"
@@ -158,6 +146,7 @@ ApplicationWindow {
         imageSizePopup: imageSizePopup
         moveContentsDialog: moveContentsDialog
         texturedFillSettingsDialog: texturedFillSettingsDialog
+        aboutDialog: aboutDialog
     }
 
     header: Ui.ToolBar {
@@ -259,17 +248,8 @@ ApplicationWindow {
     }
 
     readonly property var imageFilters: ["PNG files (*.png)", "BMP files (*.bmp)"]
-    readonly property string imageDefaultSuffix: "png"
     readonly property var layeredImageFilters: ["SLP files (*.slp)"]
-    readonly property string layeredImageDefaultSuffix: "slp"
     readonly property var tilesetFilters: ["STP files (*.stp)"]
-    readonly property string tilesetDefaultSuffix: "stp"
-
-    function defaultSuffixForProjectType(projectType) {
-        return projectType === Project.ImageType ? imageDefaultSuffix
-            : projectType === Project.LayeredImageType ? layeredImageDefaultSuffix
-            : tilesetDefaultSuffix;
-    }
 
     function nameFiltersForProjectType(projectType) {
         return projectType === Project.ImageType ? imageFilters
@@ -281,7 +261,7 @@ ApplicationWindow {
         id: openProjectDialog
         objectName: "openProjectDialog"
         nameFilters: ["All files (*)", "PNG files (*.png)", "BMP files (*.bmp)", "SLP files (*.slp)", "STP files (*.stp)"]
-        defaultSuffix: imageDefaultSuffix
+        defaultSuffix: projectManager.projectExtensionForType(Project.ImageType)
         onAccepted: loadProject(file)
     }
 
@@ -290,7 +270,7 @@ ApplicationWindow {
         objectName: "saveAsDialog"
         fileMode: Platform.FileDialog.SaveFile
         nameFilters: nameFiltersForProjectType(projectType)
-        defaultSuffix: defaultSuffixForProjectType(projectType)
+        defaultSuffix: projectManager.projectExtensionForType(projectType)
         onAccepted: project.saveAs(file)
     }
 
@@ -299,7 +279,7 @@ ApplicationWindow {
         objectName: "exportAsDialog"
         fileMode: Platform.FileDialog.SaveFile
         nameFilters: imageFilters
-        defaultSuffix: imageDefaultSuffix
+        defaultSuffix: projectManager.projectExtensionForType(Project.ImageType)
         onAccepted: project.exportImage(file)
     }
 
@@ -404,30 +384,37 @@ ApplicationWindow {
 
     Ui.CanvasSizePopup {
         id: canvasSizePopup
-        x: Math.round(parent.width - width) / 2
-        y: Math.round(parent.height - height) / 2
+        parent: Overlay.overlay
+        anchors.centerIn: parent
         project: projectManager.project
     }
 
     Ui.ImageSizePopup {
         id: imageSizePopup
-        x: Math.round(parent.width - width) / 2
-        y: Math.round(parent.height - height) / 2
+        parent: Overlay.overlay
+        anchors.centerIn: parent
         project: projectManager.project
     }
 
     Ui.MoveContentsDialog {
         id: moveContentsDialog
-        x: Math.round(parent.width - width) / 2
-        y: Math.round(parent.height - height) / 2
+        parent: Overlay.overlay
+        anchors.centerIn: parent
         project: projectManager.project
     }
 
     Ui.TexturedFillSettingsDialog {
         id: texturedFillSettingsDialog
-        x: Math.round(parent.width - width) / 2
-        y: Math.round(parent.height - height) / 2
+        parent: Overlay.overlay
+        anchors.centerIn: parent
         project: projectManager.project
         canvas: window.canvas
     }
+
+    Ui.AboutDialog {
+        id: aboutDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+    }
 }
+

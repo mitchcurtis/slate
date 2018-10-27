@@ -1,3 +1,22 @@
+/*
+    Copyright 2018, Mitch Curtis
+
+    This file is part of Slate.
+
+    Slate is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Slate is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Slate. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import QtQml 2.2
 import QtQuick 2.9
 import QtQuick.Layouts 1.2
@@ -18,6 +37,7 @@ Controls.MenuBar {
     property var imageSizePopup
     property var moveContentsDialog
     property var texturedFillSettingsDialog
+    property var aboutDialog
 
     Menu {
         id: fileMenu
@@ -41,8 +61,9 @@ Controls.MenuBar {
         Menu {
             id: recentFilesSubMenu
             objectName: "recentFilesSubMenu"
-            // Can't use qsTr() in submenu titles: https://bugreports.qt.io/browse/QTBUG-66876
-            title: "Recent Files"
+            title: qsTr("Recent Files")
+            // This can use LayoutGroup if it's ever implemented: https://bugreports.qt.io/browse/QTBUG-44078
+            width: 400
             enabled: recentFilesInstantiator.count > 0
 
             onClosed: canvas.forceActiveFocus()
@@ -52,6 +73,8 @@ Controls.MenuBar {
                 objectName: "recentFilesInstantiator"
                 model: settings.recentFiles
                 delegate: MenuItem {
+                    // We should elide on the right when it's possible without losing the styling:
+                    // https://bugreports.qt.io/browse/QTBUG-70961
                     objectName: text + "MenuItem"
                     text: settings.displayableFilePath(modelData)
                     onTriggered: doIfChangesDiscarded(function() { loadProject(modelData) }, true)
@@ -90,14 +113,14 @@ Controls.MenuBar {
         MenuItem {
             objectName: "saveMenuItem"
             text: qsTr("Save")
-            enabled: project ? project.canSave : false
+            enabled: project && project.canSave
             onClicked: projectManager.saveOrSaveAs()
         }
 
         MenuItem {
             objectName: "saveAsMenuItem"
             text: qsTr("Save As")
-            enabled: project ? project.loaded : false
+            enabled: project && project.loaded
             onClicked: saveAsDialog.open()
         }
 
@@ -105,7 +128,7 @@ Controls.MenuBar {
             id: exportMenuItem
             objectName: "exportMenuItem"
             text: qsTr("Export")
-            enabled: project ? project.loaded && projectType === Project.LayeredImageType : false
+            enabled: project && project.loaded && projectType === Project.LayeredImageType
             onClicked: exportDialog.open()
         }
 
@@ -123,15 +146,25 @@ Controls.MenuBar {
         MenuItem {
             objectName: "closeMenuItem"
             text: qsTr("Close")
-            enabled: project ? project.loaded : false
+            enabled: project && project.loaded
             onClicked: doIfChangesDiscarded(function() { project.close() })
         }
+
+        MenuSeparator {}
 
         MenuItem {
             objectName: "revertMenuItem"
             text: qsTr("Revert")
-            enabled: project ? project.loaded && project.unsavedChanges : false
+            enabled: project && project.loaded && project.unsavedChanges
             onClicked: project.revert()
+        }
+
+        MenuSeparator {}
+
+        MenuItem {
+            objectName: "quitMenuItem"
+            text: qsTr("Quit Slate")
+            onTriggered: doIfChangesDiscarded(function() { Qt.quit() })
         }
     }
 
@@ -144,15 +177,16 @@ Controls.MenuBar {
         MenuItem {
             objectName: "undoMenuItem"
             text: qsTr("Undo")
-            onClicked: project.undoStack.undo()
-            enabled: project ? project.undoStack.canUndo : false
+            // See Shortcuts.qml for why we do it this way.
+            enabled: project && canvas && (project.undoStack.canUndo || canvas.hasModifiedSelection)
+            onClicked: canvas.undo()
         }
 
         MenuItem {
             objectName: "redoMenuItem"
             text: qsTr("Redo")
+            enabled: project && project.undoStack.canRedo
             onClicked: project.undoStack.redo()
-            enabled: project ? project.undoStack.canRedo : false
         }
 
         MenuSeparator {}
@@ -190,6 +224,20 @@ Controls.MenuBar {
         }
 
         MenuSeparator {}
+
+        MenuItem {
+            objectName: "rotateClockwiseMenuItem"
+            text: qsTr("Rotate 90° Clockwise")
+            onClicked: canvas.rotateSelection(90)
+            enabled: isImageProjectType && canvas && canvas.hasSelection
+        }
+
+        MenuItem {
+            objectName: "rotateCounterClockwiseMenuItem"
+            text: qsTr("Rotate 90° Counter Clockwise")
+            onClicked: canvas.rotateSelection(-90)
+            enabled: isImageProjectType && canvas && canvas.hasSelection
+        }
 
         MenuItem {
             objectName: "flipHorizontallyMenuItem"
@@ -320,7 +368,7 @@ Controls.MenuBar {
         MenuItem {
             objectName: "showGridMenuItem"
             text: qsTr("Show Grid")
-            enabled: canvas
+            enabled: canvas && projectType === Project.TilesetType
             checkable: true
             checked: settings.gridVisible
             onCheckedChanged: settings.gridVisible = checked
@@ -406,6 +454,12 @@ Controls.MenuBar {
             objectName: "onlineDocumentationMenuItem"
             text: qsTr("Online Documentation...")
             onTriggered: Qt.openUrlExternally("https://github.com/mitchcurtis/slate/blob/master/doc/overview.md")
+        }
+
+        MenuItem {
+            objectName: "aboutMenuItem"
+            text: qsTr("About Slate")
+            onTriggered: aboutDialog.open()
         }
     }
 }

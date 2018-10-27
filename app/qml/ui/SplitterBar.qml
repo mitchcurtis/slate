@@ -5,6 +5,7 @@ import App 1.0
 import "."
 
 Rectangle {
+    objectName: "splitterBar"
     x: Math.max(0, Math.floor(canvas.firstPane.size * parent.width) - 1)
     width: 1
     height: parent.height

@@ -42,7 +42,7 @@
 #include "flipimagecanvasselectioncommand.h"
 #include "guidesitem.h"
 #include "imageproject.h"
-#include "moveimagecanvasselectioncommand.h"
+#include "modifyimagecanvasselectioncommand.h"
 #include "moveguidecommand.h"
 #include "panedrawinghelper.h"
 #include "pasteimagecanvascommand.h"
@@ -55,6 +55,8 @@ Q_LOGGING_CATEGORY(lcImageCanvas, "app.canvas")
 Q_LOGGING_CATEGORY(lcImageCanvasCursorShape, "app.canvas.cursorshape")
 Q_LOGGING_CATEGORY(lcImageCanvasLifecycle, "app.canvas.lifecycle")
 Q_LOGGING_CATEGORY(lcImageCanvasSelection, "app.canvas.selection")
+Q_LOGGING_CATEGORY(lcImageCanvasSelectionCursorGuideVisibility, "app.canvas.selection.cursorguidevisibility")
+Q_LOGGING_CATEGORY(lcImageCanvasSelectionPreviewImage, "app.canvas.selection.previewimage")
 
 ImageCanvas::ImageCanvas() :
     mProject(nullptr),
@@ -102,10 +104,11 @@ ImageCanvas::ImageCanvas() :
     mPotentiallySelecting(false),
     mHasSelection(false),
     mMovingSelection(false),
-    mHasMovedSelection(false),
     mIsSelectionFromPaste(false),
-    mConfirmingSelectionMove(false),
+    mConfirmingSelectionModification(false),
     mSelectionCursorGuide(nullptr),
+    mLastSelectionModification(NoSelectionModification),
+    mHasModifiedSelection(false),
     mAltPressed(false),
     mShiftPressed(false),
     mToolBeforeAltPressed(PenTool),
@@ -548,6 +551,11 @@ TexturedFillParameters *ImageCanvas::texturedFillParameters()
 bool ImageCanvas::hasSelection() const
 {
     return mHasSelection;
+}
+
+bool ImageCanvas::hasModifiedSelection() const
+{
+    return mHasModifiedSelection;
 }
 
 QRect ImageCanvas::selectionArea() const
@@ -1165,7 +1173,7 @@ void ImageCanvas::onReadyForWritingToJson(QJsonObject *projectJson)
 void ImageCanvas::onAboutToBeginMacro(const QString &macroText)
 {
     // See Project::beginMacro() for the justification for this function's existence.
-    if (mConfirmingSelectionMove)
+    if (mConfirmingSelectionModification)
         return;
 
     if (macroText.contains(QLatin1String("Selection"))) {
@@ -1215,17 +1223,17 @@ void ImageCanvas::beginSelectionMove()
     setMovingSelection(true);
     mSelectionAreaBeforeLastMove = mSelectionArea;
 
-    if (mSelectionAreaBeforeFirstMove.isEmpty()) {
+    if (mSelectionAreaBeforeFirstModification.isEmpty()) {
         // When the selection is moved for the first time in its life,
         // copy the contents within it so that we can moved them around as a preview.
         qCDebug(lcImageCanvasSelection) << "copying currentProjectImage()" << *currentProjectImage() << "into mSelectionContents";
-        mSelectionAreaBeforeFirstMove = mSelectionArea;
-        mSelectionContents = currentProjectImage()->copy(mSelectionAreaBeforeFirstMove);
+        mSelectionAreaBeforeFirstModification = mSelectionArea;
+        mSelectionContents = currentProjectImage()->copy(mSelectionAreaBeforeFirstModification);
         // Technically we don't need to call this until the selection has actually moved,
         // but updateCursorPos() calls pixelColor() on the result of contentImage(), which will be an invalid
         // image until we've updated the selection preview image (since shouldDrawSelectionPreviewImage() will
         // return true due to mMovingSelection being true).
-        updateSelectionPreviewImage();
+        updateSelectionPreviewImage(SelectionMove);
     }
 }
 
@@ -1256,25 +1264,25 @@ void ImageCanvas::updateSelectionArea()
     setSelectionArea(newSelectionArea);
 }
 
-void ImageCanvas::updateSelectionPreviewImage()
+void ImageCanvas::updateSelectionPreviewImage(SelectionModification reason)
 {
-    qCDebug(lcImageCanvasSelection) << "updating selection preview image...";
+    qCDebug(lcImageCanvasSelectionPreviewImage) << "updating selection preview image due to" << reason;
 
     if (!mIsSelectionFromPaste) {
         // Only if the selection wasn't pasted should we erase the area left behind.
-        mSelectionPreviewImage = Utils::erasePortionOfImage(*currentProjectImage(), mSelectionAreaBeforeFirstMove);
-        qCDebug(lcImageCanvasSelection) << "... selection is not from paste; erasing area left behind"
+        mSelectionPreviewImage = Utils::erasePortionOfImage(*currentProjectImage(), mSelectionAreaBeforeFirstModification);
+        qCDebug(lcImageCanvasSelectionPreviewImage) << "... selection is not from paste; erasing area left behind"
             << "- new selection preview image:" << mSelectionPreviewImage;
     } else {
         mSelectionPreviewImage = *currentProjectImage();
-        qCDebug(lcImageCanvasSelection) << "... selection is from a paste; not touching existing canvas content"
+        qCDebug(lcImageCanvasSelectionPreviewImage) << "... selection is from a paste; not touching existing canvas content"
             << "- new selection preview image:" << mSelectionPreviewImage;
     }
 
     // Then, move the dragged contents to their new location.
     // Doing this last ensures that the drag contents are painted over the transparency,
     // and not the other way around.
-    qCDebug(lcImageCanvasSelection) << "painting selection contents" << mSelectionContents
+    qCDebug(lcImageCanvasSelectionPreviewImage) << "painting selection contents" << mSelectionContents
        << "within selection area" << mSelectionArea << "over top of current project image" << mSelectionPreviewImage;
     mSelectionPreviewImage = Utils::paintImageOntoPortionOfImage(mSelectionPreviewImage, mSelectionArea, mSelectionContents);
 }
@@ -1288,9 +1296,10 @@ void ImageCanvas::moveSelectionArea()
     newSelectionArea.translate(distanceMoved);
     setSelectionArea(boundSelectionArea(newSelectionArea));
 
-    updateSelectionPreviewImage();
+    // TODO: move this to be second-last once all tests are passing
+    updateSelectionPreviewImage(SelectionMove);
 
-    mHasMovedSelection = true;
+    setLastSelectionModification(SelectionMove);
 
     requestContentPaint();
 }
@@ -1305,9 +1314,10 @@ void ImageCanvas::moveSelectionAreaBy(const QPoint &pixelDistance)
     const QRect newSelectionArea = mSelectionArea.translated(pixelDistance.x(), pixelDistance.y());
     setSelectionArea(boundSelectionArea(newSelectionArea));
 
-    updateSelectionPreviewImage();
+    // see TODO in the function above
+    updateSelectionPreviewImage(SelectionMove);
 
-    mHasMovedSelection = true;
+    setLastSelectionModification(SelectionMove);
 
     setMovingSelection(false);
     mLastValidSelectionArea = mSelectionArea;
@@ -1316,26 +1326,30 @@ void ImageCanvas::moveSelectionAreaBy(const QPoint &pixelDistance)
     requestContentPaint();
 }
 
-void ImageCanvas::confirmSelectionMove(ClearSelectionFlag clear)
+void ImageCanvas::confirmSelectionModification()
 {
-    Q_ASSERT(mHasMovedSelection);
+    Q_ASSERT(mLastSelectionModification != NoSelectionModification);
+    qCDebug(lcImageCanvasSelection) << "confirming selection modification" << mLastSelectionModification;
 
-    const QImage previousImageAreaPortion = currentProjectImage()->copy(mSelectionAreaBeforeFirstMove);
+    const QImage sourceAreaImage = currentProjectImage()->copy(mSelectionAreaBeforeFirstModification);
+    const QImage targetAreaImageBeforeModification = currentProjectImage()->copy(mLastValidSelectionArea);
+    const QImage targetAreaImageAfterModification = mSelectionContents;
 
     // Calling beginMacro() causes Project::aboutToBeginMacro() to be
     // emitted, and we're connected to it, so we have to avoid recursing.
-    mConfirmingSelectionMove = true;
+    mConfirmingSelectionModification = true;
 
-    mProject->beginMacro(QLatin1String("MoveSelection"));
-    mProject->addChange(new MoveImageCanvasSelectionCommand(
-        this, currentLayerIndex(), mSelectionAreaBeforeFirstMove, previousImageAreaPortion, mLastValidSelectionArea,
-            mIsSelectionFromPaste, mSelectionContents));
+    mProject->beginMacro(QLatin1String("ModifySelection"));
+    mProject->addChange(new ModifyImageCanvasSelectionCommand(
+        this, currentLayerIndex(), mLastSelectionModification,
+        mSelectionAreaBeforeFirstModification, sourceAreaImage,
+        mLastValidSelectionArea, targetAreaImageBeforeModification, targetAreaImageAfterModification,
+        mIsSelectionFromPaste, (mIsSelectionFromPaste ? mSelectionContents : QImage())));
     mProject->endMacro();
 
-    mConfirmingSelectionMove = false;
+    mConfirmingSelectionModification = false;
 
-    if (clear == ClearSelection)
-        clearSelection();
+    clearSelection();
 }
 
 // Limits selectionArea to the canvas' bounds, shrinking it if necessary.
@@ -1376,19 +1390,7 @@ QRect ImageCanvas::clampSelectionArea(const QRect &selectionArea) const
 // This should be used when the selection area has already been created and is being dragged.
 QRect ImageCanvas::boundSelectionArea(const QRect &selectionArea) const
 {
-    QRect newSelectionArea = selectionArea;
-
-    if (selectionArea.x() + selectionArea.width() > mProject->widthInPixels())
-        newSelectionArea.moveLeft(mProject->widthInPixels() - selectionArea.width());
-    else if (selectionArea.x() < 0)
-        newSelectionArea.moveLeft(0);
-
-    if (selectionArea.y() + selectionArea.height() > mProject->heightInPixels())
-        newSelectionArea.moveTop(mProject->heightInPixels() - selectionArea.height());
-    else if (selectionArea.y() < 0)
-        newSelectionArea.moveTop(0);
-
-    return newSelectionArea;
+    return Utils::ensureWithinArea(selectionArea, mProject->size());
 }
 
 void ImageCanvas::clearSelection()
@@ -1399,20 +1401,21 @@ void ImageCanvas::clearSelection()
     mPotentiallySelecting = false;
     setHasSelection(false);
     setMovingSelection(false);
-    mHasMovedSelection = false;
     setSelectionFromPaste(false);
-    mSelectionAreaBeforeFirstMove = QRect(0, 0, 0, 0);
+    mSelectionAreaBeforeFirstModification = QRect(0, 0, 0, 0);
     mSelectionAreaBeforeLastMove = QRect(0, 0, 0, 0);
     mLastValidSelectionArea = QRect(0, 0, 0, 0);
     mSelectionPreviewImage = QImage();
     mSelectionContents = QImage();
+    setLastSelectionModification(NoSelectionModification);
+    setHasModifiedSelection(false);
 }
 
 void ImageCanvas::clearOrConfirmSelection()
 {
     if (mHasSelection) {
-        if (mHasMovedSelection)
-            confirmSelectionMove();
+        if (mLastSelectionModification != NoSelectionModification && mLastSelectionModification != SelectionPaste)
+            confirmSelectionModification();
         else
             clearSelection();
     }
@@ -1441,7 +1444,8 @@ bool ImageCanvas::cursorOverSelection() const
 
 bool ImageCanvas::shouldDrawSelectionPreviewImage() const
 {
-    return mMovingSelection || mHasMovedSelection || mIsSelectionFromPaste;
+    return mMovingSelection || mIsSelectionFromPaste
+        || mLastSelectionModification != NoSelectionModification;
 }
 
 bool ImageCanvas::shouldDrawSelectionCursorGuide() const
@@ -1451,7 +1455,7 @@ bool ImageCanvas::shouldDrawSelectionCursorGuide() const
 
 void ImageCanvas::updateSelectionCursorGuideVisibility()
 {
-    qCDebug(lcImageCanvasSelection)
+    qCDebug(lcImageCanvasSelectionCursorGuideVisibility)
         << "mTool == SelectionTool:" << (mTool == SelectionTool)
         << "!mHasSelection:" << !mHasSelection
         << "mContainsMouse:" << mContainsMouse;
@@ -1470,7 +1474,7 @@ void ImageCanvas::confirmPasteSelection()
     // This is what the PasteImageCanvasCommand would usually do in redo().
     // Since we do it here and bypass the undo stack, we need to inform the auto swatch model that
     // a change in the image contents occurred, which is why we emit pasteSelectionConfirmed.
-    paintImageOntoPortionOfImage(currentLayerIndex(), mSelectionAreaBeforeFirstMove, mSelectionContents);
+    paintImageOntoPortionOfImage(currentLayerIndex(), mSelectionAreaBeforeFirstModification, mSelectionContents);
     emit pasteSelectionConfirmed();
     clearSelection();
 }
@@ -1568,6 +1572,30 @@ void ImageCanvas::panWithSelectionIfAtEdge(ImageCanvas::SelectionPanReason reaso
     }
 }
 
+void ImageCanvas::setLastSelectionModification(ImageCanvas::SelectionModification selectionModification)
+{
+    qCDebug(lcImageCanvasSelection) << "setting mLastSelectionModification to" << selectionModification;
+    mLastSelectionModification = selectionModification;
+    if (mLastSelectionModification == SelectionMove
+            || mLastSelectionModification == SelectionFlip
+            || mLastSelectionModification == SelectionRotate) {
+        setHasModifiedSelection(true);
+    } else if (mLastSelectionModification == NoSelectionModification) {
+        setHasModifiedSelection(false);
+    }
+    // If it's paste, it should stay false.
+    // TODO: verify that pasting multiple times in succession works as expected
+}
+
+void ImageCanvas::setHasModifiedSelection(bool hasModifiedSelection)
+{
+    if (hasModifiedSelection == mHasModifiedSelection)
+        return;
+
+    mHasModifiedSelection = hasModifiedSelection;
+    emit hasModifiedSelectionChanged();
+}
+
 void ImageCanvas::reset()
 {
     mFirstPane.reset();
@@ -1657,9 +1685,48 @@ void ImageCanvas::flipSelection(Qt::Orientation orientation)
         mProject->endMacro();
     } else {
         mSelectionContents = mSelectionContents.mirrored(orientation == Qt::Horizontal, orientation == Qt::Vertical);
-        updateSelectionPreviewImage();
+        updateSelectionPreviewImage(SelectionFlip);
         requestContentPaint();
     }
+}
+
+void ImageCanvas::rotateSelection(int angle)
+{
+    qCDebug(lcImageCanvasSelection) << "rotating selection area" << mSelectionArea << angle << "by degrees";
+
+    if (!mHasSelection)
+        return;
+
+    bool isFirstModification = false;
+    if (mSelectionAreaBeforeFirstModification.isNull()) {
+        mSelectionAreaBeforeFirstModification = mSelectionArea;
+        isFirstModification = true;
+    }
+
+    QRect rotatedArea;
+    // Only use the project's image the first time; for every consecutive rotation,
+    // do the rotation on a fully transparent image and then paint it onto that.
+    // This avoids contents that are under the selection as its rotated being picked up
+    // and becoming part of the selection (rotateSelectionTransparentBackground() tests this).
+    if (isFirstModification) {
+        const QImage image = *imageForLayerAt(currentLayerIndex());
+        mSelectionContents = Utils::rotateAreaWithinImage(image, mSelectionArea, angle, rotatedArea);
+    } else {
+        QImage image(mProject->size(), QImage::Format_ARGB32_Premultiplied);
+        image.fill(Qt::transparent);
+        QPainter painter(&image);
+        painter.drawImage(mSelectionArea, mSelectionContents);
+        mSelectionContents = Utils::rotateAreaWithinImage(image, mSelectionArea, angle, rotatedArea);
+    }
+
+    Q_ASSERT(mHasSelection);
+    setSelectionArea(rotatedArea);
+    mLastValidSelectionArea = mSelectionArea;
+
+    setLastSelectionModification(SelectionRotate);
+
+    updateSelectionPreviewImage(SelectionRotate);
+    requestContentPaint();
 }
 
 void ImageCanvas::copySelection()
@@ -1719,11 +1786,12 @@ void ImageCanvas::paste()
 
     // This part is also important, as it ensures that beginSelectionMove()
     // doesn't overwrite the paste contents.
-    mSelectionAreaBeforeFirstMove = mSelectionArea;
+    mSelectionAreaBeforeFirstModification = mSelectionArea;
+    setLastSelectionModification(SelectionPaste);
 
     // moveSelectionArea() does this for us when we're moving, but for the initial
     // paste, we must do it ourselves.
-    updateSelectionPreviewImage();
+    updateSelectionPreviewImage(SelectionPaste);
 
     requestContentPaint();
 }
@@ -1987,6 +2055,19 @@ void ImageCanvas::doFlipSelection(int layerIndex, const QRect &area, Qt::Orienta
         .mirrored(orientation == Qt::Horizontal, orientation == Qt::Vertical);
     erasePortionOfImage(layerIndex, area);
     paintImageOntoPortionOfImage(layerIndex, area, flippedImagePortion);
+}
+
+QRect ImageCanvas::doRotateSelection(int layerIndex, const QRect &area, int angle)
+{
+    QImage *image = imageForLayerAt(layerIndex);
+    QRect rotatedArea;
+    *image = Utils::rotateAreaWithinImage(*image, area, angle, rotatedArea);
+    // Only update the selection area when the commands are being created for the first time,
+    // not when they're being undone and redone.
+    if (mHasSelection)
+        setSelectionArea(rotatedArea);
+    requestContentPaint();
+    return area.united(rotatedArea);
 }
 
 QPointF ImageCanvas::linePoint1() const
@@ -2494,7 +2575,8 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
                 // The mouse press that caused mPotentiallySelecting to be set to
                 // true has now been accompanied by a release. If there was mouse movement
                 // in between these two events, then we now have a selection.
-                if (!mHasMovedSelection) {
+                // Temporary note: this check used to be "if (!mHasMovedSelection) {"
+                if (!mHasModifiedSelection) {
                     // We haven't moved the selection, meaning that there have been no
                     // changes to the canvas during this "event cycle".
                     if (mHasSelection) {
@@ -2507,6 +2589,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
                             mLastValidSelectionArea = mSelectionArea;
                         }
                     } else {
+                        // There is no selection.
                         if (mIsSelectionFromPaste) {
                             // Pasting an image creates a selection, and clicking outside of that selection
                             // without moving it should apply the paste.
@@ -2522,10 +2605,15 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
                     // We have moved the selection since creating it, but we're not
                     // currently moving it, which means that the user just clicked outside of it,
                     // which means we clear it.
-                    confirmSelectionMove();
+                    confirmSelectionModification();
                 }
             }
         } else {
+            // mspaint and photoshop both exhibit the same behaviour here:
+            // moving a selection several times and then undoing once will undo all movement.
+            // It's for this reason that we don't create a move command here.
+            // They handle rotation differently though: mspaint will undo all rotation since
+            // the selection was created, whereas photoshop will only undo one rotation at a time.
             moveSelectionArea();
             setMovingSelection(false);
             if (!mSelectionArea.size().isEmpty())
@@ -2651,9 +2739,9 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
         mSpacePressed = true;
         updateWindowCursorShape();
     } else if (event->key() == Qt::Key_Escape && mHasSelection) {
-        if (mHasMovedSelection) {
-            // We've moved the selection since creating it, so, like mspaint, escape confirms it.
-            confirmSelectionMove();
+        if (mLastSelectionModification != NoSelectionModification && mLastSelectionModification != SelectionPaste) {
+            // We've modified the selection since creating it, so, like mspaint, escape confirms it.
+            confirmSelectionModification();
         } else if (mIsSelectionFromPaste) {
             // Pressing escape to clear a pasted selection should apply that selection, like mspaint.
             confirmPasteSelection();
@@ -2722,26 +2810,29 @@ void ImageCanvas::timerEvent(QTimerEvent *event)
     panWithSelectionIfAtEdge(SelectionPanTimerReason);
 }
 
-bool ImageCanvas::overrideShortcut(const QKeySequence &keySequence)
+void ImageCanvas::undo()
 {
-    if (keySequence == mProject->settings()->undoShortcut() && mHasSelection && !mIsSelectionFromPaste) {
-        if (mHasMovedSelection) {
-            qCDebug(lcImageCanvasSelection) << "Undo activated while a selection that has previously been moved is active;"
-                << "confirming selection to create move command, and then instantly undoing it";
+    if (mHasSelection && !mIsSelectionFromPaste) {
+        if (mLastSelectionModification != NoSelectionModification) {
+            qCDebug(lcImageCanvasSelection) << "Undo activated while a selection that has previously been modified is active;"
+                << "confirming selection to create undo command, and then instantly undoing it";
+
             // Create a move command so that the undo can be redone...
-            confirmSelectionMove(ClearSelection);
+            confirmSelectionModification();
             // ... and then immediately undo it. This is weird, but it has
-            // to be done this way, because using the undo framework to take
-            // care of everything is not an option, as using one macro for several
-            // commands means that undo/redo is disable. See Shortcuts.qml for more info.
+            // to be done this way, because we want to behave like mspsaint, where pressing Ctrl+Z
+            // with a modified selection will undo *all* modifications done to the selection since it was created.
+            // Since we have special undo behaviour, we can't use the undo framework for all of it, and so
+            // we store the temporary state in mSelectionContents (which is displayed via mSelectionPreviewImage).
+            // See the undo shortcut in Shortcuts.qml for more info.
             mProject->undoStack()->undo();
+//            requestContentPaint();
         } else {
-            // Nothing was ever moved, and this isn't a paste, so we can simply clear the selection.
-            qCDebug(lcImageCanvasSelection) << "Overriding undo shortcut to cancel selection that hadn't been moved";
+            // Nothing was ever modified, and this isn't a paste, so we can simply clear the selection.
+            qCDebug(lcImageCanvasSelection) << "Overriding undo shortcut to cancel selection that hadn't been modified";
             clearSelection();
         }
-        return true;
+    } else {
+        mProject->undoStack()->undo();
     }
-
-    return false;
 }

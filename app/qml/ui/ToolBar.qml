@@ -7,32 +7,22 @@ import "." as Ui
 
 ToolBar {
     id: root
-    objectName: "iconToolBar"
+    objectName: "toolBar"
 
     property Project project
-    property int projectType: project ? project.type : 0
-    property bool isTilesetProject: projectType === Project.TilesetType
     property ImageCanvas canvas
     property Popup canvasSizePopup
     property Popup imageSizePopup
 
     property alias toolButtonGroup: toolButtonGroup
 
-    function switchTool(tool) {
-        root.ignoreToolChanges = true;
-        canvas.tool = tool;
-        root.ignoreToolChanges = false;
-    }
-
-    // TODO: figure out a nicer solution than this.
-    property bool ignoreToolChanges: false
+    readonly property int projectType: project ? project.type : 0
+    readonly property bool isTilesetProject: projectType === Project.TilesetType
+    readonly property bool isImageProject: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
     Connections {
         target: canvas
         onToolChanged: {
-            if (root.ignoreToolChanges)
-                return;
-
             switch (canvas.tool) {
             case TileCanvas.PenTool:
                 toolButtonGroup.checkedButton = penToolButton;
@@ -102,13 +92,13 @@ ToolBar {
             Ui.IconToolButton {
                 objectName: "undoButton"
                 text: "\uf0e2"
-                enabled: project && project.undoStack.canUndo
+                enabled: project && canvas && (project.undoStack.canUndo || canvas.hasModifiedSelection)
                 hoverEnabled: true
 
                 ToolTip.text: qsTr("Undo the last canvas operation")
                 ToolTip.visible: hovered
 
-                onClicked: project.undoStack.undo()
+                onClicked: canvas.undo()
             }
 
             Ui.IconToolButton {
@@ -139,11 +129,7 @@ ToolBar {
             ToolTip.text: qsTr("Operate on either pixels or whole tiles")
             ToolTip.visible: hovered
 
-            onClicked: {
-                root.ignoreToolChanges = true;
-                canvas.mode = checked ? TileCanvas.TileMode : TileCanvas.PixelMode;
-                root.ignoreToolChanges = false;
-            }
+            onClicked: canvas.mode = checked ? TileCanvas.TileMode : TileCanvas.PixelMode
         }
 
         ToolSeparator {
@@ -152,7 +138,7 @@ ToolBar {
 
         ButtonGroup {
             id: toolButtonGroup
-            objectName: "iconToolBarButtonGroup"
+            objectName: "toolBarButtonGroup"
             buttons: toolLayout.children
         }
 
@@ -170,7 +156,7 @@ ToolBar {
                 ToolTip.text: qsTr("Draw pixels%1 on the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(ImageCanvas.PenTool)
+                onClicked: canvas.tool = ImageCanvas.PenTool
             }
 
             Ui.IconToolButton {
@@ -183,7 +169,7 @@ ToolBar {
                 ToolTip.text: qsTr("Select colours%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(ImageCanvas.EyeDropperTool)
+                onClicked: canvas.tool = ImageCanvas.EyeDropperTool
             }
 
             Ui.IconToolButton {
@@ -196,7 +182,7 @@ ToolBar {
                 ToolTip.text: qsTr("Erase pixels%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(ImageCanvas.EraserTool)
+                onClicked: canvas.tool = ImageCanvas.EraserTool
             }
 
             ToolButton {
@@ -216,7 +202,7 @@ ToolBar {
                 ToolTip.text: isTilesetProject ? qsTr("Fill a contiguous area with pixels or tiles") : imageProjectToolTipText
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(canvas.lastFillToolUsed)
+                onClicked: canvas.tool = canvas.lastFillToolUsed
                 onPressAndHold: if (!isTilesetProject) fillMenu.open()
                 // TODO: respond to right clicks when https://bugreports.qt.io/browse/QTBUG-67331 is implemented
 
@@ -265,7 +251,7 @@ ToolBar {
                 ToolTip.text: qsTr("Select pixels within an area and move them")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(ImageCanvas.SelectionTool)
+                onClicked: canvas.tool = ImageCanvas.SelectionTool
             }
 
             Ui.IconToolButton {
@@ -279,7 +265,7 @@ ToolBar {
                 ToolTip.text: qsTr("Crop the canvas")
                 ToolTip.visible: hovered
 
-                onClicked: switchTool(ImageCanvas.CropTool)
+                onClicked: canvas.tool = ImageCanvas.CropTool
             }
 
             ToolSeparator {}
@@ -308,6 +294,74 @@ ToolBar {
 
         ToolSeparator {
             id: toolSeparator
+        }
+
+        Row {
+            id: transformLayout
+            spacing: 5
+            visible: projectType === Project.ImageType || projectType === Project.LayeredImageType
+
+            ToolButton {
+                id: rotate90CcwToolButton
+                objectName: "rotate90CcwToolButton"
+                hoverEnabled: true
+                focusPolicy: Qt.NoFocus
+                enabled: isImageProject && canvas && canvas.hasSelection
+
+                icon.source: "qrc:/images/rotate-90-ccw.png"
+
+                ToolTip.text: qsTr("Rotate the selection by 90 degrees counter-clockwise")
+                ToolTip.visible: hovered
+
+                onClicked: canvas.rotateSelection(-90)
+            }
+
+            ToolButton {
+                id: rotate90CwToolButton
+                objectName: "rotate90CwToolButton"
+                hoverEnabled: true
+                focusPolicy: Qt.NoFocus
+                enabled: isImageProject && canvas && canvas.hasSelection
+
+                icon.source: "qrc:/images/rotate-90-cw.png"
+
+                ToolTip.text: qsTr("Rotate the selection by 90 degrees clockwise")
+                ToolTip.visible: hovered
+
+                onClicked: canvas.rotateSelection(90)
+            }
+
+            ToolButton {
+                id: flipHorizontallyToolButton
+                objectName: "flipHorizontallyToolButton"
+                hoverEnabled: true
+                focusPolicy: Qt.NoFocus
+                enabled: isImageProject && canvas && canvas.hasSelection
+
+                icon.source: "qrc:/images/flip-horizontally.png"
+
+                ToolTip.text: qsTr("Flip the selection horizontally")
+                ToolTip.visible: hovered
+
+                onClicked: canvas.flipSelection(Qt.Horizontal)
+            }
+
+            ToolButton {
+                id: flipVerticallyToolButton
+                objectName: "flipVerticallyToolButton"
+                hoverEnabled: true
+                focusPolicy: Qt.NoFocus
+                enabled: isImageProject && canvas && canvas.hasSelection
+
+                icon.source: "qrc:/images/flip-vertically.png"
+
+                ToolTip.text: qsTr("Flip the selection vertically")
+                ToolTip.visible: hovered
+
+                onClicked: canvas.flipSelection(Qt.Vertical)
+            }
+
+            ToolSeparator {}
         }
 
         Row {

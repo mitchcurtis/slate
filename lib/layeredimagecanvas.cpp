@@ -88,8 +88,8 @@ void LayeredImageCanvas::onLayerOpacityChanged()
 void LayeredImageCanvas::onPreCurrentLayerChanged()
 {
     // TODO: move paste branch into clearOrConfirmSelection();?
-    if (mHasMovedSelection)
-        confirmSelectionMove();
+    if (mLastSelectionModification != NoSelectionModification && mLastSelectionModification != SelectionPaste)
+        confirmSelectionModification();
     else if (mIsSelectionFromPaste)
         confirmPasteSelection();
     else

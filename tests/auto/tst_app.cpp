@@ -97,10 +97,12 @@ private Q_SLOTS:
     void eraseImageCanvas();
     void splitterSettingsMouse_data();
     void splitterSettingsMouse();
+
     void autoSwatch_data();
     void autoSwatch();
     void autoSwatchGridViewContentY();
     void autoSwatchPasteConfirmation();
+    void swatches();
 
     void selectionToolImageCanvas();
     void selectionToolTileCanvas();
@@ -121,6 +123,12 @@ private Q_SLOTS:
     void selectionEdgePan();
     void panThenMoveSelection();
     void selectionCursorGuide();
+    void rotateSelection_data();
+    void rotateSelection();
+    void rotateSelectionAtEdge_data();
+    void rotateSelectionAtEdge();
+    void rotateSelectionTransparentBackground_data();
+    void rotateSelectionTransparentBackground();
 
     void fillImageCanvas_data();
     void fillImageCanvas();
@@ -237,7 +245,7 @@ void tst_App::openClose()
         QTest::ignoreMessage(QtWarningMsg, "QFSFileEngine::open: No file name specified");
 
         const QUrl badUrl("doesnotexist.stp");
-        const QString errorMessage = QLatin1String("Tileset project files must have a .stp extension ()");
+        const QString errorMessage = QLatin1String("Failed to open tileset project's STP file at ");
         QVERIFY2(loadProject(badUrl, errorMessage), failureMessage);
 
         // There was a project open before we attempted to load the invalid one.
@@ -2115,7 +2123,7 @@ void tst_App::colourPickerHexField()
     mouseEventOnCentre(hexTextField, MouseClick);
     ENSURE_ACTIVE_FOCUS(hexTextField);
 
-    keySequence(window, QKeySequence::SelectAll);
+    QTest::keySequence(window, QKeySequence::SelectAll);
     QTest::keyClick(window, Qt::Key_Backspace);
     QCOMPARE(hexTextField->property("text").toString(), QString());
     QCOMPARE(canvas->penForegroundColour(), originalPenColour);
@@ -2153,7 +2161,7 @@ void tst_App::colourPickerHexField()
     QCOMPARE(hexTextField->property("activeFocus").toBool(), true);
 
     // Clear the field.
-    keySequence(window, QKeySequence::SelectAll);
+    QTest::keySequence(window, QKeySequence::SelectAll);
     QTest::keyClick(window, Qt::Key_Backspace);
     QCOMPARE(hexTextField->property("text").toString(), QString());
 
@@ -2362,6 +2370,53 @@ void tst_App::autoSwatchPasteConfirmation()
     QQuickItem *autoSwatchGridView = window->findChild<QQuickItem*>("autoSwatchGridView");
     QVERIFY(autoSwatchGridView);
     QTRY_COMPARE(autoSwatchGridView->property("count").toInt(), 255);
+}
+
+void tst_App::swatches()
+{
+    QVERIFY2(createNewLayeredImageProject(16, 16, false), failureMessage);
+
+    // Not necessary to have the colour panel visible, but helps when debugging.
+    QVERIFY2(togglePanel("colourPanel", true), failureMessage);
+    QVERIFY2(togglePanel("swatchesPanel", true), failureMessage);
+
+    // Paste an image in.
+    QImage colourfulImage(":/resources/test-colourful.png");
+    QVERIFY(!colourfulImage.isNull());
+    qGuiApp->clipboard()->setImage(colourfulImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+
+    // Select some colours from the image, adding a new swatch colour for each one.
+    QVERIFY2(switchTool(ImageCanvas::EyeDropperTool), failureMessage);
+    for (int x = 0; x < colourfulImage.width(); ++x) {
+        setCursorPosInScenePixels(x, 0);
+        QVERIFY2(selectColourAtCursorPos(), failureMessage);
+        QVERIFY2(addSwatchWithForegroundColour(), failureMessage);
+    }
+
+    // Rename one.
+    QVERIFY2(renameSwatchColour(0, QLatin1String("test")), failureMessage);
+
+    // Export them. Can't interact with native dialogs here, so we just do it directly.
+    QSignalSpy errorSpy(project.data(), SIGNAL(errorOccurred(QString)));
+    QVERIFY(errorSpy.isValid());
+    const QUrl swatchUrl(QUrl::fromLocalFile(tempProjectDir->path() + "/swatch.json"));
+    project->exportSwatch(swatchUrl);
+    QVERIFY(errorSpy.isEmpty());
+
+    // Delete them all.
+    for (int i = project->swatch()->colours().size() - 1; i >= 0; --i) {
+        QVERIFY2(deleteSwatchColour(i), failureMessage);
+    }
+    QVERIFY(project->swatch()->colours().isEmpty());
+
+    // Import them.
+    project->importSwatch(swatchUrl);
+    QVERIFY(errorSpy.isEmpty());
+    QVERIFY(!project->swatch()->colours().isEmpty());
+    // Ensure that the user can see them too.
+    QVERIFY(findSwatchViewDelegateAtIndex(0));
+    QVERIFY(findSwatchViewDelegateAtIndex(project->swatch()->colours().size() - 1));
 }
 
 struct SelectionData
@@ -2746,11 +2801,11 @@ void tst_App::copyPaste()
     QCOMPARE(canvas->selectionArea(), QRect(10, 10, 5, 5));
 
     // Copy it.
-    keySequence(window, QKeySequence::Copy);
+    QTest::keySequence(window, QKeySequence::Copy);
     QCOMPARE(QGuiApplication::clipboard()->image(), canvas->currentProjectImage()->copy(10, 10, 5, 5));
 
     // Paste. The project's image shouldn't change until the paste selection is confirmed.
-    keySequence(window, QKeySequence::Paste);
+    QTest::keySequence(window, QKeySequence::Paste);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::white));
     QCOMPARE(canvas->hasSelection(), true);
@@ -2763,14 +2818,14 @@ void tst_App::copyPaste()
     //QCOMPARE(imageGrabber.takeImage().pixelColor(2, 2), QColor(Qt::black));
 
     // Undo the paste while it's still selected.
-    //keySequence(window, app.settings()->undoShortcut());
+    //QTest::keySequence(window, app.settings()->undoShortcut());
     //QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
     //QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::white));
     //QCOMPARE(canvas->hasSelection(), false);
     //QCOMPARE(canvas->selectionArea(), QRect(0, 0, 0, 0));
 
     // Redo the paste. There shouldn't be any selection, but the image should have been applied.
-    //keySequence(window, app.settings()->redoShortcut());
+    //QTest::keySequence(window, app.settings()->redoShortcut());
     //QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     //QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
     //QCOMPARE(canvas->hasSelection(), false);
@@ -2797,7 +2852,7 @@ void tst_App::undoCopyPasteWithTransparency()
     QCOMPARE(canvas->selectionArea(), copyRect);
 
     // Copy it.
-    keySequence(window, QKeySequence::Copy);
+    QTest::keySequence(window, QKeySequence::Copy);
     QCOMPARE(QGuiApplication::clipboard()->image(), canvas->currentProjectImage()->copy(copyRect));
 
     // Deselect so that we paste at the top left.
@@ -2806,7 +2861,7 @@ void tst_App::undoCopyPasteWithTransparency()
     QVERIFY(!canvas->hasSelection());
 
     // Paste.
-    keySequence(window, QKeySequence::Paste);
+    QTest::keySequence(window, QKeySequence::Paste);
     QCOMPARE(canvas->hasSelection(), true);
     QCOMPARE(canvas->selectionArea(), QRect(0, 0, 3, 3));
 
@@ -2843,7 +2898,7 @@ void tst_App::pasteFromExternalSource()
     image.fill(Qt::blue);
     qGuiApp->clipboard()->setImage(image);
 
-    keySequence(window, QKeySequence::Paste);
+    QTest::keySequence(window, QKeySequence::Paste);
     QCOMPARE(canvas->tool(), ImageCanvas::SelectionTool);
     QCOMPARE(canvas->hasSelection(), true);
 
@@ -2860,6 +2915,9 @@ void tst_App::flipPastedImage()
 
     QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
+    QCOMPARE(flipHorizontallyToolButton->isEnabled(), false);
+    QCOMPARE(flipVerticallyToolButton->isEnabled(), false);
+
     QImage image(32, 32, QImage::Format_ARGB32_Premultiplied);
     image.fill(Qt::blue);
 
@@ -2870,6 +2928,8 @@ void tst_App::flipPastedImage()
     QVERIFY2(triggerPaste(), failureMessage);
     QCOMPARE(canvas->tool(), ImageCanvas::SelectionTool);
     QCOMPARE(canvas->hasSelection(), true);
+    QCOMPARE(flipHorizontallyToolButton->isEnabled(), true);
+    QCOMPARE(flipVerticallyToolButton->isEnabled(), true);
 
     QVERIFY2(triggerFlipVertically(), failureMessage);
     QVERIFY(imageGrabber.requestImage(canvas));
@@ -3055,6 +3115,205 @@ void tst_App::selectionCursorGuide()
     QVERIFY(layeredImageCanvas->hasSelection());
     // The guide shouldn't be visible while there's a selection.
     QVERIFY(!selectionCursorGuideItem->isVisible());
+}
+
+void tst_App::rotateSelection_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::rotateSelection()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVariantMap args;
+    args.insert("imageWidth", QVariant(10));
+    args.insert("imageHeight", QVariant(10));
+    QVERIFY2(createNewProject(projectType, args), failureMessage);
+
+    QCOMPARE(rotate90CcwToolButton->isEnabled(), false);
+    QCOMPARE(rotate90CwToolButton->isEnabled(), false);
+
+    // Paste an "L" onto the canvas.
+    const QImage originalImage(":/resources/rotateSelection-original.png");
+    qGuiApp->clipboard()->setImage(originalImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+    QCOMPARE(canvas->hasSelection(), true);
+    QCOMPARE(rotate90CcwToolButton->isEnabled(), true);
+    QCOMPARE(rotate90CwToolButton->isEnabled(), true);
+
+    // Deselect.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->hasSelection(), false);
+    QCOMPARE(rotate90CcwToolButton->isEnabled(), false);
+    QCOMPARE(rotate90CwToolButton->isEnabled(), false);
+
+    if (projectType == Project::ImageType)
+        QVERIFY2(setupTempProjectDir(), failureMessage);
+
+    // Save and reload so we're on a clean slate.
+    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path()
+        + "/" + Project::typeToString(projectType)
+        + "." + app.projectManager()->projectExtensionForType(projectType));
+    project->saveAs(saveUrl);
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY2(loadProject(saveUrl), failureMessage);
+    QCOMPARE(project->hasUnsavedChanges(), false);
+    QCOMPARE(canvas->hasModifiedSelection(), false);
+    QCOMPARE(project->undoStack()->canUndo(), false);
+
+    // Select and rotate 90 degrees.
+    QVERIFY2(selectArea(QRect(3, 2, 4, 5)), failureMessage);
+    QCOMPARE(rotate90CcwToolButton->isEnabled(), true);
+    QCOMPARE(rotate90CwToolButton->isEnabled(), true);
+    // For debugging: zoom to see what's going on.
+    // May cause failures if used before selectArea() though.
+//    QVERIFY2(zoomTo(30), failureMessage);
+    // TODO: go through ui
+    canvas->rotateSelection(90);
+    QCOMPARE(canvas->hasSelection(), true);
+    QCOMPARE(canvas->hasModifiedSelection(), true);
+    // See the undo shortcut in Shortcuts.qml for why this is the way it is.
+    QCOMPARE(project->undoStack()->canUndo(), false);
+    QCOMPARE(undoButton->isEnabled(), true);
+    // For some reason, layered image project images are Format_ARGB32_Premultiplied.
+    // We don't care about the format, so just convert them.
+    // Also, we need to use contentImage() since modifications to selections
+    // are now combined into one undo command when the selection is confirmed -
+    // the actual project's images contents won't change, so we need to get the selection preview image.
+    QImage actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    const QImage expected90Image(":/resources/rotateSelection-90.png");
+    QCOMPARE(actualImage, expected90Image);
+
+    // Confirm the changes, then try drawing to ensure everything works as expected so far.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->hasSelection(), false);
+    QCOMPARE(project->undoStack()->canUndo(), true);
+    QCOMPARE(actualImage, expected90Image);
+    setCursorPosInScenePixels(QPoint(0, 0));
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QImage expected90ImageModified = expected90Image;
+    expected90ImageModified.setPixelColor(0, 0, Qt::black);
+    QCOMPARE(actualImage, expected90ImageModified);
+
+    // Undo the drawing.
+    mouseEventOnCentre(undoButton, MouseClick);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, expected90Image);
+
+    // Undo the first rotation.
+    mouseEventOnCentre(undoButton, MouseClick);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, originalImage);
+
+    // Start again by selecting and rotating 90 degrees.
+    QVERIFY2(selectArea(QRect(3, 2, 4, 5)), failureMessage);
+    QCOMPARE(canvas->hasSelection(), true);
+    canvas->rotateSelection(90);
+    actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, expected90Image);
+
+    // Rotate 90 degrees again for a total of 180 degrees of rotation.
+    canvas->rotateSelection(90);
+    QCOMPARE(canvas->hasSelection(), true);
+    actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    const QImage expected180Image(":/resources/rotateSelection-180.png");
+    QCOMPARE(actualImage, expected180Image);
+
+    // Rotate 90 degrees again for a total of 270 degrees of rotation.
+    canvas->rotateSelection(90);
+    QCOMPARE(canvas->hasSelection(), true);
+    actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    const QImage expected270Image(":/resources/rotateSelection-270.png");
+    QCOMPARE(actualImage, expected270Image);
+
+    // Undoing selection modifications causes the original selection image contents
+    // to be restored, regardless of how many modifications have been made since.
+    mouseEventOnCentre(undoButton, MouseClick);
+    // mspaint gets rid of the selection upon undoing.
+    QCOMPARE(canvas->hasSelection(), false);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, originalImage);
+}
+
+void tst_App::rotateSelectionAtEdge_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::rotateSelectionAtEdge()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVariantMap args;
+    args.insert("imageWidth", QVariant(10));
+    args.insert("imageHeight", QVariant(10));
+    QVERIFY2(createNewProject(projectType, args), failureMessage);
+
+    // Paste an "L" onto the canvas.
+    const QImage originalImage(":/resources/rotateSelectionAtEdge-original.png");
+    qGuiApp->clipboard()->setImage(originalImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+    QCOMPARE(canvas->hasSelection(), true);
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->hasSelection(), false);
+
+    // Select a portion of the image that's at the edge of the canvas and rotate 90 degrees.
+    // The selection should be moved so that it's within the boundary of the image.
+    QVERIFY2(selectArea(QRect(0, 2, 2, 5)), failureMessage);
+    canvas->rotateSelection(90);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 4, 5, 2));
+    QImage actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    const QImage expected90Image(":/resources/rotateSelectionAtEdge-90.png");
+    QCOMPARE(actualImage, expected90Image);
+
+    // Undo the rotation.
+    mouseEventOnCentre(undoButton, MouseClick);
+    actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
+    QCOMPARE(actualImage, originalImage);
+}
+
+void tst_App::rotateSelectionTransparentBackground_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::rotateSelectionTransparentBackground()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVariantMap args;
+    args.insert("imageWidth", QVariant(10));
+    args.insert("imageHeight", QVariant(10));
+    args.insert("transparentImageBackground", QVariant(true));
+    QVERIFY2(createNewProject(projectType, args), failureMessage);
+
+    // Paste an "L" onto the canvas.
+    const QImage originalImage(":/resources/rotateSelectionTransparentBackground-original.png");
+    qGuiApp->clipboard()->setImage(originalImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+    QCOMPARE(canvas->hasSelection(), true);
+
+    // Confirm it.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->hasSelection(), false);
+
+    // Select the centre of the image and rotate 90 degrees.
+    // The selection shouldn't contents shouldn't pick up pixels from outside of it as it rotates.
+    QVERIFY2(selectArea(QRect(3, 2, 4, 6)), failureMessage);
+    canvas->rotateSelection(90);
+    QCOMPARE(canvas->selectionArea(), QRect(2, 3, 6, 4));
+    QImage actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    const QImage expected90Image(":/resources/rotateSelectionTransparentBackground-90.png");
+    QCOMPARE(actualImage, expected90Image);
+
+    // Rotate 90 degrees again for a total of 180 degrees of rotation.
+    canvas->rotateSelection(90);
+    actualImage = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    const QImage expected180Image(":/resources/rotateSelectionTransparentBackground-180.png");
+    QCOMPARE(actualImage.pixelColor(0, 0), expected180Image.pixelColor(0, 0));
+    QCOMPARE(actualImage, expected180Image);
 }
 
 void tst_App::fillImageCanvas_data()

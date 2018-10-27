@@ -200,6 +200,16 @@ Project::Type ProjectManager::projectTypeForUrl(const QUrl &url) const
     return projectTypeForFileName(url.toString());
 }
 
+QString ProjectManager::projectExtensionForType(Project::Type projectType) const
+{
+    switch (projectType) {
+    case Project::ImageType: return QLatin1String("png");
+    case Project::LayeredImageType: return QLatin1String("slp");
+    case Project::TilesetType: return QLatin1String("stp");
+    default: return QString();
+    }
+}
+
 void ProjectManager::onCreationFailed(const QString &errorMessage)
 {
     qCDebug(lcProjectManager) << "creation of" << mTemporaryProject->typeString() << "project failed;" << errorMessage;

@@ -7,12 +7,13 @@ import App 1.0
 
 Dialog {
     id: popup
+    title: qsTr("New Tileset Project")
+    contentWidth: 400
+    padding: 20
+    bottomPadding: 0
     modal: true
     closePolicy: Popup.CloseOnEscape
     focus: true
-    padding: 20
-    bottomPadding: 0
-    contentWidth: 400
 
     readonly property bool validExistingFile: useExistingTilesetCheckBox.checked && validator.fileValid
     readonly property bool validExistingFileOrNew: !useExistingTilesetCheckBox.checked || (useExistingTilesetCheckBox.checked && validator.fileValid)
@@ -64,13 +65,6 @@ Dialog {
 
     contentItem: ColumnLayout {
         spacing: 14
-
-        Label {
-            text: qsTr("New Tileset Project")
-            font.pixelSize: fontMetrics.font.pixelSize * 1.5
-
-            Layout.alignment: Qt.AlignHCenter
-        }
 
         GridLayout {
             columns: 2

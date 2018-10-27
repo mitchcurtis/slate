@@ -49,6 +49,7 @@ public:
 private Q_SLOTS:
     void panels_data();
     void panels();
+    void toolBar();
 
 private:
     QObject *findItemChild(QObject *parent, const QString &objectName)
@@ -183,6 +184,68 @@ void tst_Screenshots::panels()
     auto grabResult = panel->grabToImage();
     QTRY_VERIFY(!grabResult->image().isNull());
     QVERIFY(grabResult->image().save(mOutputDirectory.absoluteFilePath(outputFileName)));
+}
+
+void tst_Screenshots::toolBar()
+{
+    // Ensure that we have a temporary directory.
+    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+
+    // Copy the project file from resources into our temporary directory.
+    const QString projectFileName = QLatin1String("animation.slp");
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+
+    // Try to load the project; there shouldn't be any errors.
+    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
+    QVERIFY2(loadProject(QUrl::fromLocalFile(absolutePath)), failureMessage);
+
+    QQuickItem *toolBar = window->findChild<QQuickItem*>("toolBar");
+    QVERIFY(toolBar);
+
+    // Load markers into scene.
+    QQmlComponent markerOverlayComponent(app.qmlEngine(), QLatin1String(":/resources/ToolBarMarkers.qml"));
+    QVERIFY2(markerOverlayComponent.isReady(), qPrintable(markerOverlayComponent.errorString()));
+
+    QQuickItem *markerOverlay = qobject_cast<QQuickItem*>(markerOverlayComponent.beginCreate(qmlContext(toolBar)));
+    markerOverlay->setParent(toolBar);
+    markerOverlay->setParentItem(toolBar);
+    markerOverlayComponent.completeCreate();
+    QVERIFY(markerOverlay);
+
+    QVERIFY(QTest::qWaitForWindowExposed(window));
+
+    // Hide stuff that we don't want to be visible in the screenshot.
+    // Use opacity instead of visible so that the layouts don't change.
+    QQuickItem *panelColumnLayout = window->findChild<QQuickItem*>("panelColumnLayout");
+    QVERIFY(panelColumnLayout);
+    panelColumnLayout->setOpacity(0);
+
+    if (canvas->guidesVisible()) {
+        QVERIFY2(triggerGuidesVisible(), failureMessage);
+        QCOMPARE(canvas->guidesVisible(), false);
+    }
+
+    QQuickItem *splitterBar = window->findChild<QQuickItem*>("splitterBar");
+    QVERIFY(splitterBar);
+    splitterBar->setOpacity(0);
+
+    // If we don't do this, the scene isn't ready.
+    QSignalSpy swappedSpy(window, SIGNAL(frameSwapped()));
+    QTRY_VERIFY(!swappedSpy.isEmpty());
+
+    // We want the tool bar, but we also need to leave some space under it to
+    // fit the markers in. So, grab the whole scene and then cut out a portion of it.
+    auto grabResult = window->contentItem()->grabToImage();
+    QTRY_VERIFY(!grabResult->image().isNull());
+    const QImage toolBarGrab = grabResult->image().copy(QRect(0, 0, toolBar->width(), toolBar->height() + 32));
+    QVERIFY(toolBarGrab.save(mOutputDirectory.absoluteFilePath(QLatin1String("slate-tool-bar.png"))));
+
+    panelColumnLayout->setOpacity(1);
+
+    QVERIFY2(triggerGuidesVisible(), failureMessage);
+    QCOMPARE(canvas->guidesVisible(), true);
+
+    splitterBar->setOpacity(1);
 }
 
 int main(int argc, char *argv[])

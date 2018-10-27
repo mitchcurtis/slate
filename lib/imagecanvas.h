@@ -85,6 +85,7 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(QColor penBackgroundColour READ penBackgroundColour WRITE setPenBackgroundColour NOTIFY penBackgroundColourChanged)
     Q_PROPERTY(TexturedFillParameters *texturedFillParameters READ texturedFillParameters CONSTANT FINAL)
     Q_PROPERTY(bool hasSelection READ hasSelection NOTIFY hasSelectionChanged)
+    Q_PROPERTY(bool hasModifiedSelection READ hasModifiedSelection NOTIFY hasModifiedSelectionChanged)
     Q_PROPERTY(QRect selectionArea READ selectionArea NOTIFY selectionAreaChanged)
     Q_PROPERTY(bool hasBlankCursor READ hasBlankCursor NOTIFY hasBlankCursorChanged)
     Q_PROPERTY(bool altPressed READ isAltPressed NOTIFY altPressedChanged)
@@ -210,6 +211,7 @@ public:
     TexturedFillParameters *texturedFillParameters();
 
     bool hasSelection() const;
+    bool hasModifiedSelection() const;
 
     QRect selectionArea() const;
     void setSelectionArea(const QRect &selectionArea);
@@ -222,7 +224,18 @@ public:
     int lineLength() const;
     qreal lineAngle() const;
 
-    Q_INVOKABLE bool overrideShortcut(const QKeySequence &keySequence);
+    // Essentially currentProjectImage() for regular image canvas, but may return a
+    // preview image if there is a selection active. For layered image canvases, this
+    // should return all layers flattened into one image, or the same flattened image
+    // as part of a selection preview image.
+    //
+    // This function calls getContentImage() and caches the result so that we have
+    // cheap lookup of pixel data, which is useful for e.g. mCursorPixelColour.
+    //
+    // Public for auto test access.
+    QImage contentImage();
+
+    Q_INVOKABLE void undo();
 
     // The image that is currently being drawn on. For regular image canvases, this is
     // the project's image. For layered image canvases, this is the image belonging to
@@ -232,6 +245,16 @@ public:
 
     virtual QImage *imageForLayerAt(int layerIndex);
     virtual int currentLayerIndex() const;
+
+    enum SelectionModification {
+        NoSelectionModification,
+        SelectionPaste,
+        SelectionMove,
+        SelectionFlip,
+        SelectionRotate
+    };
+    // For nice printing.
+    Q_ENUM(SelectionModification)
 
 signals:
     void projectChanged();
@@ -264,6 +287,7 @@ signals:
     void penBackgroundColourChanged();
     void hasBlankCursorChanged();
     void hasSelectionChanged();
+    void hasModifiedSelectionChanged();
     void selectionAreaChanged();
     void altPressedChanged();
     void lineVisibleChanged();
@@ -283,6 +307,7 @@ public slots:
     void zoomIn();
     void zoomOut();
     void flipSelection(Qt::Orientation orientation);
+    void rotateSelection(int angle);
     void copySelection();
     void paste();
     void deleteSelectionOrContents();
@@ -321,7 +346,7 @@ protected:
     friend class ApplyPixelFillCommand;
     friend class ApplyPixelLineCommand;
     friend class ApplyPixelPenCommand;
-    friend class MoveImageCanvasSelectionCommand;
+    friend class ModifyImageCanvasSelectionCommand;
     friend class DeleteImageCanvasSelectionCommand;
     friend class FlipImageCanvasSelectionCommand;
     friend class PasteImageCanvasCommand;
@@ -345,6 +370,7 @@ protected:
     void erasePortionOfImage(int layerIndex, const QRect &portion);
     virtual void replaceImage(int layerIndex, const QImage &replacementImage);
     void doFlipSelection(int layerIndex, const QRect &area, Qt::Orientation orientation);
+    QRect doRotateSelection(int layerIndex, const QRect &area, int angle);
 
     QPointF linePoint1() const;
     QPointF linePoint2() const;
@@ -367,14 +393,6 @@ protected:
     void setCurrentPane(CanvasPane *pane);
     CanvasPane *hoveredPane(const QPoint &pos);
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
-    // Essentially currentProjectImage() for regular image canvas, but may return a
-    // preview image if there is a selection active. For layered image canvases, this
-    // should return all layers flattened into one image, or the same flattened image
-    // as part of a selection preview image.
-    //
-    // This function calls getContentImage() and caches the result so that we have
-    // cheap lookup of pixel data, which is useful for e.g. mCursorPixelColour.
-    QImage contentImage();
     virtual QImage getContentImage();
     void drawLine(QPainter *painter) const;
     void centrePanes(bool respectSceneCentred = true);
@@ -399,11 +417,6 @@ protected:
 
     bool isPanning() const;
 
-    enum ClearSelectionFlag {
-        DontClearSelection,
-        ClearSelection
-    };
-
     enum SelectionPanReason {
         SelectionPanMouseMovementReason,
         SelectionPanTimerReason
@@ -413,10 +426,10 @@ protected:
     void beginSelectionMove();
     void updateOrMoveSelectionArea();
     void updateSelectionArea();
-    void updateSelectionPreviewImage();
+    void updateSelectionPreviewImage(SelectionModification reason = NoSelectionModification);
     void moveSelectionArea();
     void moveSelectionAreaBy(const QPoint &pixelDistance);
-    void confirmSelectionMove(ClearSelectionFlag clearSelection = ClearSelection);
+    void confirmSelectionModification();
     QRect clampSelectionArea(const QRect &selectionArea) const;
     QRect boundSelectionArea(const QRect &selectionArea) const;
     void clearSelection();
@@ -430,6 +443,8 @@ protected:
     void confirmPasteSelection();
     void setSelectionFromPaste(bool isSelectionFromPaste);
     void panWithSelectionIfAtEdge(SelectionPanReason reason);
+    void setLastSelectionModification(SelectionModification selectionModification);
+    void setHasModifiedSelection(bool hasModifiedSelection);
 
     void setAltPressed(bool altPressed);
 
@@ -491,6 +506,7 @@ protected:
     GuidesItem *mGuidesItem;
     SelectionItem *mSelectionItem;
 
+    // Used for setCursorPixelColour().
     QImage mCachedContentImage;
 
     // The position of the cursor in view coordinates.
@@ -540,23 +556,27 @@ protected:
     bool mPotentiallySelecting;
     bool mHasSelection;
     bool mMovingSelection;
-    bool mHasMovedSelection;
     bool mIsSelectionFromPaste;
-    bool mConfirmingSelectionMove;
+    bool mConfirmingSelectionModification;
     // The current selection area. This is set as soon as we receive a mouse press event
     // outside of any existing selection, which means that it starts off with an "empty" size.
     QRect mSelectionArea;
-    QRect mSelectionAreaBeforeFirstMove;
+    QRect mSelectionAreaBeforeFirstModification;
     // The selection area before the most recent move.
     QRect mSelectionAreaBeforeLastMove;
     // The last selection area with a non-empty size. This is set after a mouse release event.
     QRect mLastValidSelectionArea;
+    // The image contents of the selection.
     QImage mSelectionContents;
     // The entire image as it would look if the selection (that is currently being dragged)
     // was dropped where it is now.
     QImage mSelectionPreviewImage;
     QBasicTimer mSelectionEdgePanTimer;
     SelectionCursorGuide *mSelectionCursorGuide;
+    // The type of the last modification that was done to the selection.
+    SelectionModification mLastSelectionModification;
+    // True if the selection was moved, flipped, rotated, etc.
+    bool mHasModifiedSelection;
 
     QRect mCropArea;
 

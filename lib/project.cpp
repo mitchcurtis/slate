@@ -22,6 +22,7 @@
 #include <QDateTime>
 #include <QImage>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
 #include <QMetaEnum>
@@ -189,6 +190,52 @@ void Project::revert()
     qCDebug(lcProject) << "... reverted changes";
 }
 
+void Project::importSwatch(const QUrl &swatchUrl)
+{
+    const QString filePath = swatchUrl.toLocalFile();
+    if (!QFileInfo::exists(filePath)) {
+        error(QString::fromLatin1("Swatch file does not exist:\n\n%1").arg(filePath));
+        return;
+    }
+
+    QFile jsonFile(filePath);
+    if (!jsonFile.open(QIODevice::ReadOnly)) {
+        error(QString::fromLatin1("Failed to open swatch file:\n\n%1").arg(filePath));
+        return;
+    }
+
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonFile.readAll());
+    QJsonObject rootJson = jsonDoc.object();
+    readSwatch(rootJson, ErrorOutOnSerialisationFailures);
+}
+
+void Project::exportSwatch(const QUrl &swatchUrl)
+{
+    QFile jsonFile;
+    const QString filePath = swatchUrl.toLocalFile();
+    if (QFile::exists(filePath)) {
+        jsonFile.setFileName(filePath);
+        if (!jsonFile.open(QIODevice::WriteOnly)) {
+            error(QString::fromLatin1("Failed to open swatch file:\n\n%1").arg(filePath));
+            return;
+        }
+    } else {
+        jsonFile.setFileName(filePath);
+        if (!jsonFile.open(QIODevice::WriteOnly)) {
+            error(QString::fromLatin1("Failed to create swatch file:\n\n%1").arg(filePath));
+            return;
+        }
+    }
+
+    QJsonObject rootJson;
+    writeSwatch(rootJson);
+
+    QJsonDocument jsonDoc(rootJson);
+    const qint64 bytesWritten = jsonFile.write(jsonDoc.toJson());
+    if (bytesWritten == -1)
+        error(QString::fromLatin1("Failed to write to swatch file:\n\n%1").arg(jsonFile.errorString()));
+}
+
 void Project::error(const QString &message)
 {
     qCDebug(lcProject) << "emitting errorOccurred with message" << message;
@@ -234,7 +281,7 @@ QUrl Project::createTemporaryImage(int width, int height, const QColor &colour)
     tempImage.fill(colour);
 
     const QString dateString = QDateTime::currentDateTime().toString(QLatin1String("hh-mm-ss-zzz"));
-    const QString fileName = QString::fromLatin1("%1/tileset-%2.png").arg(mTempDir.path()).arg(dateString);
+    const QString fileName = QString::fromLatin1("%1/tmp-image-%2.png").arg(mTempDir.path()).arg(dateString);
     if (!tempImage.save(fileName)) {
         error(QString::fromLatin1("Failed to save temporary image to %1").arg(fileName));
         return QUrl();
@@ -272,9 +319,20 @@ void Project::writeGuides(QJsonObject &projectJson) const
     projectJson[QLatin1String("guides")] = guidesArray;
 }
 
-void Project::readSwatch(const QJsonObject &projectJson)
+bool Project::readSwatch(const QJsonObject &projectJson, SerialisationFailurePolicy serialisationFailurePolicy)
 {
-    mSwatch.read(projectJson[QLatin1String("swatch")].toObject());
+    Swatch swatch;
+    QString errorMessage;
+
+    const QJsonObject swatchJson = projectJson[QLatin1String("swatch")].toObject();
+    const bool readSuccessfully = swatch.read(swatchJson, errorMessage);
+    if (!readSuccessfully && serialisationFailurePolicy == ErrorOutOnSerialisationFailures) {
+        error(QLatin1String("Failed to read swatch: ") + errorMessage);
+        return false;
+    }
+
+    mSwatch.copy(swatch);
+    return true;
 }
 
 void Project::writeSwatch(QJsonObject &projectJson) const

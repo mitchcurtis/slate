@@ -140,6 +140,9 @@ public slots:
     void saveAs(const QUrl &url);
     virtual void revert();
 
+    void importSwatch(const QUrl &swatchUrl);
+    void exportSwatch(const QUrl &swatchUrl);
+
 protected:
     void error(const QString &message);
 
@@ -154,7 +157,12 @@ protected:
     void readGuides(const QJsonObject &projectJson);
     void writeGuides(QJsonObject &projectJson) const;
 
-    void readSwatch(const QJsonObject &projectJson);
+    enum SerialisationFailurePolicy {
+        IgnoreSerialisationFailures,
+        ErrorOutOnSerialisationFailures
+    };
+
+    bool readSwatch(const QJsonObject &projectJson, SerialisationFailurePolicy serialisationFailurePolicy);
     void writeSwatch(QJsonObject &projectJson) const;
 
     ApplicationSettings *mSettings;

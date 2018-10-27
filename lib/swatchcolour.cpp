@@ -51,10 +51,23 @@ void SwatchColour::setColour(const QColor &colour)
     mColour = colour;
 }
 
-void SwatchColour::read(const QJsonObject &json)
+bool SwatchColour::read(const QJsonObject &json, QString &errorMessage)
 {
-    mName = json.value(QLatin1String("name")).toString();
-    mColour = QColor(json.value(QLatin1String("colour")).toString());
+    const QJsonValue nameJson = json.value(QLatin1String("name"));
+    if (nameJson.isUndefined()) {
+        errorMessage = QLatin1String("Missing name property in SwatchColour");
+        return false;
+    }
+    mName = nameJson.toString();
+
+    const QJsonValue colourJson = json.value(QLatin1String("colour"));
+    if (colourJson.isUndefined()) {
+        errorMessage = QLatin1String("Missing colour property in SwatchColour");
+        return false;
+    }
+    mColour = QColor(colourJson.toString());
+
+    return true;
 }
 
 void SwatchColour::write(QJsonObject &json) const

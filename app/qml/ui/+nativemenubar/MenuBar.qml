@@ -1,3 +1,22 @@
+/*
+    Copyright 2018, Mitch Curtis
+
+    This file is part of Slate.
+
+    Slate is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Slate is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Slate. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import Qt.labs.platform 1.0 as Platform
 import QtQml 2.2
 import QtQuick 2.9
@@ -14,6 +33,7 @@ Item {
     property var imageSizePopup
     property var moveContentsDialog
     property var texturedFillSettingsDialog
+    property var aboutDialog
 
     Platform.MenuBar {
         Platform.Menu {
@@ -124,6 +144,14 @@ Item {
                 enabled: project && project.loaded && project.unsavedChanges
                 onTriggered: project.revert()
             }
+
+            Platform.MenuSeparator {}
+
+            Platform.MenuItem {
+                objectName: "quitMenuItem"
+                text: qsTr("Quit Slate")
+                onTriggered: doIfChangesDiscarded(function() { Qt.quit() })
+            }
         }
 
         Platform.Menu {
@@ -134,8 +162,9 @@ Item {
             Platform.MenuItem {
                 objectName: "undoMenuItem"
                 text: qsTr("Undo")
-                onTriggered: project.undoStack.undo()
-                enabled: project && project.undoStack.canUndo
+                // See Shortcuts.qml for why we do it this way.
+                enabled: project && canvas && (project.undoStack.canUndo || canvas.hasModifiedSelection)
+                onTriggered: canvas.undo()
             }
 
             Platform.MenuItem {
@@ -181,6 +210,20 @@ Item {
             }
 
             Platform.MenuSeparator {}
+
+            Platform.MenuItem {
+                objectName: "rotateClockwiseMenuItem"
+                text: qsTr("Rotate 90° Clockwise")
+                onTriggered: canvas.rotateSelection(90)
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+            }
+
+            Platform.MenuItem {
+                objectName: "rotateCounterClockwiseMenuItem"
+                text: qsTr("Rotate 90° Counter Clockwise")
+                onTriggered: canvas.rotateSelection(-90)
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+            }
 
             Platform.MenuItem {
                 objectName: "flipHorizontallyMenuItem"
@@ -303,7 +346,7 @@ Item {
             Platform.MenuItem {
                 objectName: "showGridMenuItem"
                 text: qsTr("Show Grid")
-                enabled: canvas
+                enabled: canvas && projectType === Project.TilesetType
                 checkable: true
                 checked: settings.gridVisible
                 onTriggered: settings.gridVisible = checked
@@ -385,6 +428,12 @@ Item {
                 objectName: "onlineDocumentationMenuItem"
                 text: qsTr("Online Documentation...")
                 onTriggered: Qt.openUrlExternally("https://github.com/mitchcurtis/slate/blob/master/doc/overview.md")
+            }
+
+            Platform.MenuItem {
+                objectName: "aboutMenuItem"
+                text: qsTr("About Slate")
+                onTriggered: aboutDialog.open()
             }
         }
     }

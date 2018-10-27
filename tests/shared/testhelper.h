@@ -102,10 +102,12 @@ protected:
         MouseClick,
         MouseDoubleClick
     };
-    void mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType);
+    void mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType, Qt::MouseButton button = Qt::LeftButton);
     void mouseEvent(QQuickItem *item, const QPointF &localPos, TestMouseEventType eventType,
-        Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(), int delay = -1);
+        Qt::MouseButton button = Qt::LeftButton, Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(), int delay = -1);
     void wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees);
+    void keyClicks(const QString &text);
+    Q_REQUIRED_RESULT bool clearAndEnterText(QQuickItem *textField, const QString &text);
 
     QObject *findPopupFromTypeName(const QString &typeName) const;
     QQuickItem *findDialogButtonFromText(const QObject *dialog, const QString &text);
@@ -113,6 +115,7 @@ protected:
     QQuickItem *findListViewChild(QQuickItem *listView, const QString &childObjectName) const;
     QQuickItem *findListViewChild(const QString &listViewObjectName, const QString &childObjectName) const;
     static QQuickItem *findChildWithText(QQuickItem *item, const QString &text);
+    QQuickItem *findViewDelegateAtIndex(QQuickItem *view, int index);
 
     // Returns the position of the cursor in a tile's local coordinates.
     QPoint mapToTile(const QPoint &cursorPos) const;
@@ -127,8 +130,6 @@ protected:
     void setCursorPosInScenePixels(const QPoint &posInScenePixels);
     QPoint tilesetTileCentre(int xPosInTiles, int yPosInTiles) const;
     QPoint tilesetTileSceneCentre(int xPosInTiles, int yPosInTiles) const;
-    // Replace with result of QTBUG-53381 (if it ever gets added).
-    void keySequence(QWindow *window, QKeySequence sequence);
     int digits(int number);
     int digitAt(int number, int index);
 
@@ -208,6 +209,7 @@ protected:
     Q_REQUIRED_RESULT bool changeToolSize(int size);
     Q_REQUIRED_RESULT bool moveContents(int x, int y, bool onlyVisibleLayers);
     int sliderValue(QQuickItem *slider) const;
+    Q_REQUIRED_RESULT bool selectColourAtCursorPos();
     Q_REQUIRED_RESULT bool drawPixelAtCursorPos();
     Q_REQUIRED_RESULT bool drawTileAtCursorPos();
     Q_REQUIRED_RESULT bool selectArea(const QRect &area);
@@ -217,6 +219,10 @@ protected:
     Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
     Q_REQUIRED_RESULT bool enableAutoSwatch();
     Q_REQUIRED_RESULT bool swatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour);
+    QQuickItem *findSwatchViewDelegateAtIndex(int index);
+    Q_REQUIRED_RESULT bool addSwatchWithForegroundColour();
+    Q_REQUIRED_RESULT bool renameSwatchColour(int index, const QString &name);
+    Q_REQUIRED_RESULT bool deleteSwatchColour(int index);
 
     QByteArray failureMessage;
 
@@ -244,6 +250,10 @@ protected:
     QQuickItem *eraserToolButton;
     QQuickItem *selectionToolButton;
     QQuickItem *toolSizeButton;
+    QQuickItem *rotate90CcwToolButton;
+    QQuickItem *rotate90CwToolButton;
+    QQuickItem *flipHorizontallyToolButton;
+    QQuickItem *flipVerticallyToolButton;
     QQuickItem *undoButton;
     QQuickItem *redoButton;
     QQuickItem *splitScreenToolButton;

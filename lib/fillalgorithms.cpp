@@ -48,6 +48,8 @@ QColor FillColourProvider::colour(const QColor &baseColour) const
 QVector<QPoint> imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour)
 {
+    qCDebug(lcPixelFloodFill) << "attempting to fill starting with pixel at" << startPos << "...";
+
     QSet<QPoint> filledPositions;
     const QRect imageBounds(0, 0, image->width(), image->height());
     if (!imageBounds.contains(startPos)) {
@@ -112,13 +114,23 @@ QVector<QPoint> imagePixelFloodFill(const QImage *image, const QPoint &startPos,
         }
     }
 
-    // TODO: convert from QSet => QVector manually, as this is just silly
-    return filledPositions.toList().toVector();
+    // Converting from QSet => QVector manually is better than the alternative
+    // QSet => QList => QVector, since QSet offers no API for conversion to QVector:
+    // https://bugreports.qt.io/browse/QTBUG-71067
+    QVector<QPoint> filledPositionsVector;
+    filledPositionsVector.reserve(filledPositions.size());
+    for (const QPoint point : qAsConst(filledPositions))
+        filledPositionsVector.append(point);
+
+    qCDebug(lcPixelFloodFill) << "... filled" << filledPositionsVector.size() << "pixels.";
+    return filledPositionsVector;
 }
 
 QImage imagePixelFloodFill2(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour, const FillColourProvider &fillColourProvider)
 {
+    qCDebug(lcPixelFloodFill) << "attempting to fill starting with pixel at" << startPos << "...";
+
     QImage filledImage = *image;
     const QRect imageBounds(0, 0, filledImage.width(), filledImage.height());
     if (!imageBounds.contains(startPos)) {
@@ -188,6 +200,7 @@ QImage imagePixelFloodFill2(const QImage *image, const QPoint &startPos, const Q
         }
     }
 
+    qCDebug(lcPixelFloodFill) << "... filled" << filledPositions.size() << "pixels.";
     return filledImage;
 }
 

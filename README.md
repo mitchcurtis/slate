@@ -1,5 +1,9 @@
 # Slate - Pixel Art Editor
 
+<p align="center">
+  <img src="https://github.com/mitchcurtis/slate/blob/master/app/images/logo/slate-icon-web.svg" />
+</p>
+
 Slate is a bitmap editor available for Linux, Windows and Mac. With Slate, you can:
 
 - Edit images directly
@@ -9,11 +13,39 @@ Slate is a bitmap editor available for Linux, Windows and Mac. With Slate, you c
 
 Slate was built for pixel art, and its goal is to simplify the creation of sprites and tilesets by offering a user-friendly, customisable interface.
 
+<!--
+    Note: generate the table of contents for each file with the following commands:
+
+    cd ~/dev/slate
+    doctoc . --github --title '# Contents'
+-->
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+# Contents
+
+  - [Screenshots](#screenshots)
+  - [Downloads](#downloads)
+  - [Installing](#installing)
+  - [Documentation](#documentation)
+  - [Discussion](#discussion)
+  - [Notes](#notes)
+- [Building From Source](#building-from-source)
+  - [Dependencies](#dependencies)
+  - [Cloning](#cloning)
+  - [Building](#building)
+    - [Qt Creator](#qt-creator)
+    - [Command Line](#command-line)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+### Screenshots
+
 ![Screenshot of Slate on Linux](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.1.0-tileset-linux.png "Screenshot of Slate on Linux")
 
-![Screenshot of Slate v0.1.0 on Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.1.0-mac-layers.png "Screenshot of Slate v0.1.0 on Mac")
+![Screenshot of Slate v0.4.0 on Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.4.0-layers-mac.png "Screenshot of Slate v0.4.0 on Mac")
 
-![Screenshot of Slate v0.0.10 on Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.0.10-mac.png "Screenshot of Slate v0.0.10 on Mac")
+![Screenshot of Slate v0.4.0 on Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.4.0-animation-mac.png "Screenshot of Slate v0.4.0 on Mac")
 
 ### Downloads ###
 
@@ -51,25 +83,31 @@ It's fine to ask questions here on GitHub as well - just [create an issue](https
 There are two options for building:
 
 #### Qt Creator ####
-Open [slate.pro](https://github.com/mitchcurtis/slate/blob/master/slate.pro) in Qt Creator, configure the project using a kit with a Qt version that meets the requirement listed in the [Dependencies](#dependencies) section, and then build it.
+
+It's recommended to build using Qt Creator for convenience.
+
+Open [slate.qbs](https://github.com/mitchcurtis/slate/blob/master/slate.qbs) in Qt Creator, configure the project using a kit with a Qt version that meets the requirement listed in the [Dependencies](#dependencies) section, and then build it.
 
 #### Command Line ####
+
+First, follow Qbs' [setup guide](http://doc.qt.io/qbs/setup.html). Once you've set it up, choose one of the following approaches.
 
 In-source builds:
 
     cd /path/to/slate-source-dir
-    /path/to/qt/qmake
-    make (or nmake/jom on Windows)
+    qbs
 
 Shadow builds:
 
     mkdir slate-build
     cd slate-build
-    /path/to/qt/qmake /path/to/slate-source-dir/slate.pro
-    make (or nmake/jom on Windows)
+    qbs /path/to/slate-source-dir/slate.qbs
+    
+For more information about building Qbs applications, see [this page](http://doc.qt.io/qbs/building-applications.html).
 
 ---
 
-The tileset in the screenshot was taken from the following page:
+List of assets used in the screenshots:
 
-http://opengameart.org/content/lpc-tile-atlas
+- https://opengameart.org/content/lpc-tile-atlas
+- https://opengameart.org/content/pixel-explosion-12-frames

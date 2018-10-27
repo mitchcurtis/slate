@@ -1,5 +1,15 @@
 # Slate - Getting Started with Tilesets
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+# Contents
+
+- [Step 1: Creating a New Project](#step-1-creating-a-new-project)
+  - [Step 2: Drawing Tiles](#step-2-drawing-tiles)
+  - [Step 3: Drawing Pixels](#step-3-drawing-pixels)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Step 1: Creating a New Project
 
 Whether you have an existing tileset or wish to create a new one from scratch, the first step is to create a new project. There are two ways to do this: Ctrl+N or via the File menu.

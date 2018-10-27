@@ -43,6 +43,10 @@ TestHelper::TestHelper(int &argc, char **argv) :
     eraserToolButton(nullptr),
     selectionToolButton(nullptr),
     toolSizeButton(nullptr),
+    rotate90CcwToolButton(nullptr),
+    rotate90CwToolButton(nullptr),
+    flipHorizontallyToolButton(nullptr),
+    flipVerticallyToolButton(nullptr),
     undoButton(nullptr),
     redoButton(nullptr),
     penForegroundColourButton(nullptr),
@@ -129,6 +133,18 @@ void TestHelper::initTestCase()
     toolSizeButton = window->findChild<QQuickItem*>("toolSizeButton");
     QVERIFY(toolSizeButton);
 
+    rotate90CcwToolButton = window->findChild<QQuickItem*>("rotate90CcwToolButton");
+    QVERIFY(rotate90CcwToolButton);
+
+    rotate90CwToolButton = window->findChild<QQuickItem*>("rotate90CwToolButton");
+    QVERIFY(rotate90CwToolButton);
+
+    flipHorizontallyToolButton = window->findChild<QQuickItem*>("flipHorizontallyToolButton");
+    QVERIFY(flipHorizontallyToolButton);
+
+    flipVerticallyToolButton = window->findChild<QQuickItem*>("flipVerticallyToolButton");
+    QVERIFY(flipVerticallyToolButton);
+
     undoButton = window->findChild<QQuickItem*>("undoButton");
     QVERIFY(undoButton);
 
@@ -185,7 +201,7 @@ void TestHelper::resetCreationErrorSpy()
     }
 }
 
-void TestHelper::mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType)
+void TestHelper::mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType, Qt::MouseButton button)
 {
     QQuickWindow *itemWindow = item->window();
     Q_ASSERT(itemWindow);
@@ -193,35 +209,36 @@ void TestHelper::mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventTy
     const QPoint centre = item->mapToScene(QPointF(item->width() / 2, item->height() / 2)).toPoint();
     switch (eventType) {
     case MousePress:
-        QTest::mousePress(itemWindow, Qt::LeftButton, Qt::NoModifier, centre);
+        QTest::mousePress(itemWindow, button, Qt::NoModifier, centre);
         break;
     case MouseRelease:
-        QTest::mouseRelease(itemWindow, Qt::LeftButton, Qt::NoModifier, centre);
+        QTest::mouseRelease(itemWindow, button, Qt::NoModifier, centre);
         break;
     case MouseClick:
-        QTest::mouseClick(itemWindow, Qt::LeftButton, Qt::NoModifier, centre);
+        QTest::mouseClick(itemWindow, button, Qt::NoModifier, centre);
         break;
     case MouseDoubleClick:
-        QTest::mouseDClick(itemWindow, Qt::LeftButton, Qt::NoModifier, centre);
+        QTest::mouseDClick(itemWindow, button, Qt::NoModifier, centre);
         break;
     }
 }
 
-void TestHelper::mouseEvent(QQuickItem *item, const QPointF &localPos, TestMouseEventType eventType, Qt::KeyboardModifiers modifiers, int delay)
+void TestHelper::mouseEvent(QQuickItem *item, const QPointF &localPos,
+    TestMouseEventType eventType, Qt::MouseButton button, Qt::KeyboardModifiers modifiers, int delay)
 {
     const QPoint centre = item->mapToScene(localPos).toPoint();
     switch (eventType) {
     case MousePress:
-        QTest::mousePress(item->window(), Qt::LeftButton, modifiers, centre, delay);
+        QTest::mousePress(item->window(), button, modifiers, centre, delay);
         break;
     case MouseRelease:
-        QTest::mouseRelease(item->window(), Qt::LeftButton, modifiers, centre, delay);
+        QTest::mouseRelease(item->window(), button, modifiers, centre, delay);
         break;
     case MouseClick:
-        QTest::mouseClick(item->window(), Qt::LeftButton, modifiers, centre, delay);
+        QTest::mouseClick(item->window(), button, modifiers, centre, delay);
         break;
     case MouseDoubleClick:
-        QTest::mouseDClick(item->window(), Qt::LeftButton, modifiers, centre, delay);
+        QTest::mouseDClick(item->window(), button, modifiers, centre, delay);
         break;
     }
 }
@@ -232,6 +249,30 @@ void TestHelper::wheelEvent(QQuickItem *item, const QPoint &localPos, const int 
     QSpontaneKeyEvent::setSpontaneous(&wheelEvent);
     if (!qApp->notify(item->window(), &wheelEvent))
         QTest::qWarn("Wheel event not accepted by receiving window");
+}
+
+void TestHelper::keyClicks(const QString &text)
+{
+    for (const auto ch : qAsConst(text))
+        QTest::keySequence(window, QKeySequence(ch));
+}
+
+bool TestHelper::clearAndEnterText(QQuickItem *textField, const QString &text)
+{
+    VERIFY(textField->property("text").isValid());
+    VERIFY(textField->hasActiveFocus());
+
+    if (!textField->property("text").toString().isEmpty()) {
+        QTest::keySequence(window, QKeySequence::SelectAll);
+        VERIFY(!textField->property("selectedText").toString().isEmpty());
+
+        QTest::keySequence(window, QKeySequence::Backspace);
+        VERIFY(textField->property("text").toString().isEmpty());
+    }
+
+    keyClicks(text);
+    VERIFY(textField->property("text").toString() == text);
+    return true;
 }
 
 bool TestHelper::changeCanvasSize(int width, int height)
@@ -478,6 +519,27 @@ int TestHelper::sliderValue(QQuickItem *slider) const
     return qFloor(value);
 }
 
+bool TestHelper::selectColourAtCursorPos()
+{
+    if (tilesetProject) {
+        FAIL("Not implemented yet");
+    } else {
+        if (!switchTool(TileCanvas::EyeDropperTool))
+            return false;
+
+        QTest::mouseMove(window, cursorWindowPos);
+        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        const QColor actualColour = canvas->penForegroundColour();
+        const QColor expectedColour = canvas->currentProjectImage()->pixelColor(cursorPos);
+        VERIFY2(actualColour == expectedColour,
+            qPrintable(QString::fromLatin1("Expected canvas foreground colour to be %1, but it's %2")
+                .arg(expectedColour.name(), actualColour.name())));
+
+        QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    }
+    return true;
+}
+
 bool TestHelper::drawPixelAtCursorPos()
 {
     if (tilesetProject) {
@@ -512,13 +574,27 @@ bool TestHelper::drawPixelAtCursorPos()
 
         QTest::mouseMove(window, cursorWindowPos);
         QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-        VERIFY(canvas->currentProjectImage()->pixelColor(cursorPos) == canvas->penForegroundColour());
+        QColor actualColour = canvas->currentProjectImage()->pixelColor(cursorPos);
+        QColor expectedColour = canvas->penForegroundColour();
+        if (actualColour != expectedColour) {
+            QString message;
+            QDebug stream(&message);
+            stream << "Expected current project image pixel at" << cursorPos << "to be" << expectedColour.name()
+                << "after mouse press, but it's" << actualColour.name();
+            FAIL(qPrintable(message));
+        }
         VERIFY(project->hasUnsavedChanges());
         // Don't check that the title contains the change marker, as that won't happen
         // until release if this is the first change in the stack.
 
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-        VERIFY(canvas->currentProjectImage()->pixelColor(cursorPos) == canvas->penForegroundColour());
+        if (actualColour != expectedColour) {
+            QString message;
+            QDebug stream(&message);
+            stream << "Expected current project image pixel at" << cursorPos << "to be" << expectedColour.name()
+                << "after mouse release, but it's" << actualColour.name();
+            FAIL(qPrintable(message));
+        }
         VERIFY(project->hasUnsavedChanges());
         VERIFY(window->title().contains("*"));
     }
@@ -676,6 +752,105 @@ bool TestHelper::swatchViewDelegateExists(const QQuickItem *viewContentItem, con
     return false;
 }
 
+QQuickItem *TestHelper::findSwatchViewDelegateAtIndex(int index)
+{
+    QQuickItem *swatchGridView = window->findChild<QQuickItem*>("swatchGridView");
+    if (!swatchGridView)
+        return nullptr;
+
+    return findViewDelegateAtIndex(swatchGridView, index);
+}
+
+bool TestHelper::addSwatchWithForegroundColour()
+{
+    QQuickItem *swatchGridView = window->findChild<QQuickItem*>("swatchGridView");
+    VERIFY(swatchGridView);
+    VERIFY(QMetaObject::invokeMethod(swatchGridView, "forceLayout"));
+
+    QQuickItem *viewContentItem = swatchGridView->property("contentItem").value<QQuickItem*>();
+    VERIFY(viewContentItem);
+
+    const int previousDelegateCount = swatchGridView->property("count").toInt();
+    const QString expectedDelegateObjectName = QString::fromLatin1("swatchGridView_Delegate_%1_%2")
+        .arg(previousDelegateCount).arg(canvas->penForegroundColour().name());
+
+    // Add the swatch.
+    QQuickItem *newSwatchColourButton = window->findChild<QQuickItem*>("newSwatchColourButton");
+    VERIFY(newSwatchColourButton);
+    mouseEventOnCentre(newSwatchColourButton, MouseClick);
+    VERIFY(QMetaObject::invokeMethod(swatchGridView, "forceLayout"));
+    VERIFY(swatchGridView->property("count").toInt() == previousDelegateCount + 1);
+    // findChild() doesn't work here for some reason.
+    const auto childItems = viewContentItem->childItems();
+    QQuickItem *swatchDelegate = nullptr;
+    for (const auto childItem : qAsConst(childItems)) {
+        if (childItem->objectName() == expectedDelegateObjectName) {
+            swatchDelegate = childItem;
+            break;
+        }
+    }
+    if (!swatchDelegate) {
+        QString message;
+        QDebug stream(&message);
+        stream.nospace() << "Expected a swatch delegate to exist named " << expectedDelegateObjectName
+            << " but there wasn't. Swatch delegates: " << viewContentItem->childItems();
+        FAIL(qPrintable(message));
+    }
+    return true;
+}
+
+bool TestHelper::renameSwatchColour(int index, const QString &name)
+{
+    // Open the context menu by right clicking on the delegate.
+    QQuickItem *delegate = findSwatchViewDelegateAtIndex(index);
+    VERIFY(delegate);
+    mouseEventOnCentre(delegate, MouseClick, Qt::RightButton);
+    QObject *swatchContextMenu = findPopupFromTypeName("SwatchContextMenu");
+    VERIFY(swatchContextMenu);
+    TRY_VERIFY(swatchContextMenu->property("opened").toBool());
+
+    // Select the rename menu item.
+    QQuickItem *renameSwatchColourMenuItem = window->findChild<QQuickItem*>("renameSwatchColourMenuItem");
+    VERIFY(renameSwatchColourMenuItem);
+    // TODO: mouse event isn't getting through to the menu item without this.
+    // This is likely caused by https://codereview.qt-project.org/#/c/225747/
+    // and is probably the same issue encountered in the tests there.
+    // Replace with Qt API if https://bugreports.qt.io/browse/QTBUG-71224 ever gets done.
+    QTest::qWait(50);
+    mouseEventOnCentre(renameSwatchColourMenuItem, MouseClick);
+    TRY_VERIFY(!swatchContextMenu->property("opened").toBool());
+
+    QObject *renameSwatchColourDialog = findPopupFromTypeName("RenameSwatchColourDialog");
+    VERIFY(renameSwatchColourDialog);
+    TRY_VERIFY(renameSwatchColourDialog->property("opened").toBool());
+
+    // Do the renaming.
+    QQuickItem *swatchNameTextField = window->findChild<QQuickItem*>("swatchNameTextField");
+    VERIFY(swatchNameTextField);
+    VERIFY2(clearAndEnterText(swatchNameTextField, name), failureMessage);
+    QTest::keyClick(window, Qt::Key_Return);
+    TRY_VERIFY(!renameSwatchColourDialog->property("opened").toBool());
+    return true;
+}
+
+bool TestHelper::deleteSwatchColour(int index)
+{
+    // Open the context menu by right clicking on the delegate.
+    QQuickItem *delegate = findSwatchViewDelegateAtIndex(index);
+    VERIFY(delegate);
+    mouseEventOnCentre(delegate, MouseClick, Qt::RightButton);
+
+    QObject *swatchContextMenu = findPopupFromTypeName("SwatchContextMenu");
+    VERIFY(swatchContextMenu);
+    TRY_VERIFY(swatchContextMenu->property("opened").toBool());
+
+    QQuickItem *deleteSwatchColourMenuItem = window->findChild<QQuickItem*>("deleteSwatchColourMenuItem");
+    VERIFY(deleteSwatchColourMenuItem);
+    mouseEventOnCentre(deleteSwatchColourMenuItem, MouseClick);
+    TRY_VERIFY(!swatchContextMenu->property("opened").toBool());
+    return true;
+}
+
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
 {
     QObject *popup = nullptr;
@@ -743,6 +918,25 @@ QQuickItem *TestHelper::findChildWithText(QQuickItem *item, const QString &text)
             if (match)
                 return match;
         }
+    }
+    return nullptr;
+}
+
+QQuickItem *TestHelper::findViewDelegateAtIndex(QQuickItem *view, int index)
+{
+    QQuickItem *viewContentItem = view->property("contentItem").value<QQuickItem*>();
+    if (!viewContentItem)
+        return nullptr;
+
+    const auto childItems = viewContentItem->childItems();
+    for (QQuickItem *child : childItems) {
+        QQmlContext *context = qmlContext(child);
+        if (!context)
+            continue;
+
+        QVariant indexProperty = context->contextProperty("index");
+        if (indexProperty.toInt() == index)
+            return child;
     }
     return nullptr;
 }
@@ -825,15 +1019,6 @@ QPoint TestHelper::tilesetTileSceneCentre(int xPosInTiles, int yPosInTiles) cons
     return tilesetSwatchFlickable->mapToScene(QPointF(
          xPosInTiles * tilesetProject->tileWidth() + tilesetProject->tileWidth() / 2,
          yPosInTiles * tilesetProject->tileHeight() + tilesetProject->tileHeight() / 2)).toPoint();
-}
-
-void TestHelper::keySequence(QWindow *window, QKeySequence sequence)
-{
-    for (int i = 0; i < sequence.count(); ++i) {
-        Qt::Key key = Qt::Key(sequence[i] & ~Qt::KeyboardModifierMask);
-        Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(sequence[i] & Qt::KeyboardModifierMask);
-        QTest::keyClick(window, key, modifiers);
-    }
 }
 
 int TestHelper::digits(int number)
@@ -1407,8 +1592,8 @@ bool TestHelper::loadProject(const QUrl &url, const QString &expectedFailureMess
 
     // Expect failure.
     VERIFY2(!projectCreationFailedSpy->isEmpty() && projectCreationFailedSpy->first().first() == expectedFailureMessage,
-        qPrintable(QString::fromLatin1("Expected failure to load project %1 with the following error message: %2")
-            .arg(url.path()).arg(expectedFailureMessage)));
+        qPrintable(QString::fromLatin1("Expected failure to load project %1 with the following error message:\n%2\nBut got:\n%3")
+            .arg(url.path()).arg(expectedFailureMessage).arg(projectCreationFailedSpy->first().first().toString())));
 
     const QObject *errorPopup = findPopupFromTypeName("ErrorPopup");
     VERIFY(errorPopup);
@@ -1713,7 +1898,7 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
             VERIFY(penToolButton->isEnabled());
             mouseEventOnCentre(penToolButton, MouseClick);
         } else {
-            keySequence(window, app.settings()->penToolShortcut());
+            QTest::keySequence(window, app.settings()->penToolShortcut());
         }
         break;
     case ImageCanvas::EyeDropperTool:
@@ -1721,7 +1906,7 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
             VERIFY(eyeDropperToolButton->isEnabled());
             mouseEventOnCentre(eyeDropperToolButton, MouseClick);
         } else {
-            keySequence(window, app.settings()->eyeDropperToolShortcut());
+            QTest::keySequence(window, app.settings()->eyeDropperToolShortcut());
         }
         break;
     case ImageCanvas::FillTool:
@@ -1729,7 +1914,7 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
             VERIFY(fillToolButton->isEnabled());
             mouseEventOnCentre(fillToolButton, MouseClick);
         } else {
-            keySequence(window, app.settings()->fillToolShortcut());
+            QTest::keySequence(window, app.settings()->fillToolShortcut());
         }
         break;
     case ImageCanvas::EraserTool:
@@ -1737,7 +1922,7 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
             VERIFY(eraserToolButton->isEnabled());
             mouseEventOnCentre(eraserToolButton, MouseClick);
         } else {
-            keySequence(window, app.settings()->eraserToolShortcut());
+            QTest::keySequence(window, app.settings()->eraserToolShortcut());
         }
         break;
     case ImageCanvas::SelectionTool:
@@ -1745,7 +1930,7 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
             VERIFY(selectionToolButton->isEnabled());
             mouseEventOnCentre(selectionToolButton, MouseClick);
         } else {
-            keySequence(window, app.settings()->selectionToolShortcut());
+            QTest::keySequence(window, app.settings()->selectionToolShortcut());
         }
         break;
     default:
@@ -1829,7 +2014,9 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
 
     QTest::keyRelease(window, Qt::Key_Space);
-    VERIFY(window->cursor().shape() == Qt::BlankCursor);
+    // If we have a selection, the cursor might not be Qt::BlankCursor, and that's OK.
+    if (!canvas->hasSelection())
+        VERIFY(window->cursor().shape() == Qt::BlankCursor);
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
 
     return true;

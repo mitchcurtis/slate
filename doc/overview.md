@@ -1,5 +1,18 @@
 # Slate - Overview
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+# Contents
+
+- [User Interface](#user-interface)
+- [Project Types](#project-types)
+  - [Images](#images)
+  - [Layered Images](#layered-images)
+  - [Tilesets](#tilesets)
+  - [Comparison of Project Types](#comparison-of-project-types)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## User Interface
 
 - [User Interface](https://github.com/mitchcurtis/slate/blob/master/doc/user-interface.md)
@@ -34,6 +47,7 @@ The following table lists features and which project types support them.
 
 Feature | Images (.png) | Layered Images (.slp) | Tilesets (.stp)
 ------------ | ------------- | ------------- | -------------
+Grid | :x: | :x: | :white_check_mark:
 Guides | :white_check_mark: <sup>1</sup> | :white_check_mark: | :white_check_mark:
 Layers | :x: | :white_check_mark: | :x:
 Resize Image | :white_check_mark: | :white_check_mark: | :x:
