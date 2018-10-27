@@ -158,10 +158,9 @@ ApplicationWindow {
         imageSizePopup: imageSizePopup
     }
 
-    RowLayout {
-        id: mainRowLayout
+    SplitView {
+        id: mainSplitView
         anchors.fill: parent
-        spacing: 0
 
         Ui.CanvasContainer {
             id: canvasContainer
@@ -169,18 +168,16 @@ ApplicationWindow {
 
             checkedToolButton: toolBar.toolButtonGroup.checkedButton
 
-            Layout.preferredWidth: window.width / 3
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            SplitView.preferredWidth: window.width / 3
+            SplitView.fillWidth: true
         }
 
         SplitView {
             orientation: Qt.Vertical
 
-            Layout.minimumWidth: 240
-            Layout.maximumWidth: 240
-            Layout.maximumHeight: mainRowLayout.height
-            Layout.fillHeight: true
+            SplitView.minimumWidth: 200
+            SplitView.preferredWidth: 240
+            SplitView.maximumWidth: window.width / 3
 
             Ui.ColourPanel {
                 id: colourPanel
