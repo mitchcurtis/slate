@@ -22,6 +22,7 @@ Panel {
         + root.bottomPadding
 
     contentItem: Flickable {
+        objectName: root.objectName + "Flickable"
         implicitWidth: picker.implicitWidth
         implicitHeight: picker.implicitHeight
         contentWidth: picker.implicitWidth

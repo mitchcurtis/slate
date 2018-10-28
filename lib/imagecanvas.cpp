@@ -194,7 +194,7 @@ void ImageCanvas::restoreState()
 
     bool readPanes = false;
 
-    if (mProject->cachedProjectJson()) {
+    if (mProject->cachedProjectJson()->contains("lastFillToolUsed")) {
         // TODO:
         // <= 0.4.0 compatibility code. Eventually, once every platform has had a release
         // where uiState is saved (so that we can refer users to a version that can be used to

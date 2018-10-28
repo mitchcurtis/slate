@@ -571,8 +571,8 @@ void tst_App::loadLayeredImageProjectAfterTilesetProject()
     QQuickItem *layersLoader = window->findChild<QQuickItem*>("layersLoader");
     QVERIFY(layersLoader);
     QVERIFY(swatchesPanel);
-    // 5 is the spacing between panels.
-    QCOMPARE(layersLoader->y(), swatchesPanel->y() + swatchesPanel->height() + 5);
+    const int splitViewHandleSize = 6;
+    QCOMPARE(layersLoader->y(), swatchesPanel->y() + swatchesPanel->height() + splitViewHandleSize);
 }
 
 void tst_App::animationPlayback()
@@ -1624,6 +1624,14 @@ void tst_App::colours()
     // TODO: fix issue where hue slider handle is missing
     // For now, we work around it.
     mouseEvent(hueSlider, QPointF(hueSlider->width() / 2, hueSlider->height() / 2), MouseClick);
+
+    // Ensure that the buttons are visible in the panel.
+    QQuickItem *colourPanelFlickable = window->findChild<QQuickItem*>("colourPanelFlickable");
+    QVERIFY(colourPanelFlickable);
+    const qreal colourPanelFlickableContentHeight = colourPanelFlickable->property("contentHeight").toReal();
+    const qreal colourPanelFlickableContentY = colourPanelFlickableContentHeight - colourPanelFlickable->height();
+    QVERIFY(colourPanelFlickableContentY > 0);
+    QVERIFY(colourPanelFlickable->setProperty("contentY", colourPanelFlickableContentY));
 
     // Test that the "Lighter" button works.
     QColor oldColour = canvas->penForegroundColour();
