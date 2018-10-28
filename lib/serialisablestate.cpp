@@ -19,6 +19,10 @@
 
 #include "serialisablestate.h"
 
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcSerialisableState, "app.serialisableState")
+
 /*
     This exists for the following reasons:
 
@@ -78,6 +82,8 @@ QVariant SerialisableState::value(const QString &key, const QVariant &defaultVal
 
 void SerialisableState::setValue(const QString &key, const QVariant &value)
 {
+    qCDebug(lcSerialisableState) << "setting serialisable value at key" << key
+        << "to" << value;
     mState[key] = value;
 }
 

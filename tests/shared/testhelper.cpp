@@ -941,6 +941,37 @@ QQuickItem *TestHelper::findViewDelegateAtIndex(QQuickItem *view, int index)
     return nullptr;
 }
 
+QQuickItem *TestHelper::findSplitViewHandle(const QString &splitViewObjectName, int handleIndex) const
+{
+    QQuickItem *splitView = window->findChild<QQuickItem*>(splitViewObjectName);
+    if (!splitView)
+        return nullptr;
+
+    const QVariant orientationProperty = splitView->property("orientation");
+    if (!orientationProperty.isValid())
+        return nullptr;
+
+    const Qt::Orientation orientation = orientationProperty.value<Qt::Orientation>();
+    const bool horizontal = orientation == Qt::Horizontal;
+
+    // Just a guess since we have no other identifying information.
+    const int maxSplitterSize = 10;
+
+    const QList<QQuickItem*> childItems = splitView->childItems();
+    QList<QQuickItem*> handleItems;
+    for (QQuickItem *child : childItems) {
+        if (horizontal && child->width() >= 1 && child->width() <= maxSplitterSize)
+            handleItems.append(child);
+        else if (!horizontal && child->height() >= 1 && child->height() <= maxSplitterSize)
+            handleItems.append(child);
+    }
+
+    if (handleIndex < 0 || handleIndex >= handleItems.size())
+        return nullptr;
+
+    return handleItems.at(handleIndex);
+}
+
 QPoint TestHelper::mapToTile(const QPoint &cursorPos) const
 {
     return cursorPos - tileCanvas->mapToScene(QPointF(0, 0)).toPoint();
@@ -1867,6 +1898,46 @@ bool TestHelper::togglePanel(const QString &panelObjectName, bool expanded)
                     .arg(panelObjectName).arg(panel->height())));
         }
     }
+    return true;
+}
+
+bool TestHelper::dragSplitViewHandle(const QString &splitViewObjectName, int index,
+    const QPoint &newHandleCentreRelativeToSplitView, QPoint *oldHandleCentreRelativeToSplitView)
+{
+    QPointer<QQuickItem> splitView = window->findChild<QQuickItem*>(splitViewObjectName);
+    VERIFY(splitView);
+
+    QPointer<QQuickItem> handleItem = findSplitViewHandle(splitViewObjectName, index);
+    VERIFY(handleItem);
+
+    const QPoint handleRelativeCentre = handleItem->mapToItem(splitView, QPointF(
+        handleItem->width() / 2, handleItem->height() / 2)).toPoint();
+
+    if (oldHandleCentreRelativeToSplitView)
+        *oldHandleCentreRelativeToSplitView = handleRelativeCentre;
+
+    const QPoint handleCentre = splitView->mapToScene(QPointF(
+        handleRelativeCentre.x(), handleRelativeCentre.y())).toPoint();
+    const QPoint newCentre = splitView->mapToScene(QPointF(
+        newHandleCentreRelativeToSplitView.x(), newHandleCentreRelativeToSplitView.y())).toPoint();
+
+    QTest::mouseMove(window, handleCentre);
+    QQmlProperty handleHoveredProperty(handleItem.data(), "SplitHandle.hovered", qmlContext(handleItem.data()));
+    VERIFY(handleHoveredProperty.isValid());
+    VERIFY(handleHoveredProperty.read().toBool() == true);
+    QQmlProperty handlePressedProperty(handleItem.data(), "SplitHandle.pressed", qmlContext(handleItem.data()));
+    VERIFY(handlePressedProperty.isValid());
+    VERIFY(handlePressedProperty.read().toBool() == false);
+
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, handleCentre);
+    VERIFY(handlePressedProperty.read().toBool() == true);
+
+    QTest::mouseMove(window, newCentre);
+    VERIFY(handlePressedProperty.read().toBool() == true);
+
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, newCentre);
+    VERIFY(handleHoveredProperty.read().toBool() == true);
+    VERIFY(handlePressedProperty.read().toBool() == false);
     return true;
 }
 

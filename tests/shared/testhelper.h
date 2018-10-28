@@ -116,6 +116,7 @@ protected:
     QQuickItem *findListViewChild(const QString &listViewObjectName, const QString &childObjectName) const;
     static QQuickItem *findChildWithText(QQuickItem *item, const QString &text);
     QQuickItem *findViewDelegateAtIndex(QQuickItem *view, int index);
+    QQuickItem* findSplitViewHandle(const QString &splitViewObjectName, int handleIndex) const;
 
     // Returns the position of the cursor in a tile's local coordinates.
     QPoint mapToTile(const QPoint &cursorPos) const;
@@ -196,6 +197,9 @@ protected:
     Q_REQUIRED_RESULT bool collapseAllPanels();
     Q_REQUIRED_RESULT bool togglePanel(const QString &panelObjectName, bool expanded);
     Q_REQUIRED_RESULT bool expandColourPanel();
+
+    Q_REQUIRED_RESULT bool dragSplitViewHandle(const QString &splitViewObjectName, int index,
+        const QPoint &newHandleCentreRelativeToSplitView, QPoint *oldHandleCentreRelativeToSplitView = nullptr);
 
     Q_REQUIRED_RESULT bool switchMode(TileCanvas::Mode mode);
     Q_REQUIRED_RESULT bool switchTool(ImageCanvas::Tool tool, InputType inputType = MouseInputType);

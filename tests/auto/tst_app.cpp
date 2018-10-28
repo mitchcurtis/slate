@@ -420,7 +420,7 @@ void tst_App::saveAsAndLoad()
 
     // Add red to the swatch.
     QVERIFY(swatchesPanel->setProperty("expanded", QVariant(true)));
-    QQuickItem *newSwatchColourButton = window->findChild<QQuickItem*>("newSwatchColourButton");
+    QPointer<QQuickItem> newSwatchColourButton = window->findChild<QQuickItem*>("newSwatchColourButton");
     QVERIFY(newSwatchColourButton);
     canvas->setPenForegroundColour(Qt::red);
     mouseEventOnCentre(newSwatchColourButton, MouseClick);
@@ -460,14 +460,29 @@ void tst_App::saveAsAndLoad()
     const QPoint splitterCentre(canvas->width() / 2, canvas->height() / 2);
     QTest::mouseMove(window, splitterCentre);
     QCOMPARE(window->cursor().shape(), Qt::SplitHCursor);
-
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, splitterCentre);
     QTest::mouseMove(window, QPoint(canvas->width() / 4, canvas->height() / 2));
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, QPoint(canvas->width() / 4, canvas->height() / 2));
     QVERIFY(qAbs(canvas->firstPane()->size() - 0.25) < 0.001);
     QVERIFY(qAbs(canvas->secondPane()->size() - 0.75) < 0.001);
 
-    // Store the original offsets, etc.
+    // Test SplitView state serialisation.
+    // First, resize the panel column.
+    QPointer<QQuickItem> panelSplitView = window->findChild<QQuickItem*>("panelSplitView");
+    QVERIFY(panelSplitView);
+    const qreal defaultPanelSplitViewWidth = panelSplitView->width();
+    QPointer<QQuickItem> mainSplitViewHandle = findSplitViewHandle("mainSplitView", 0);
+    QVERIFY(mainSplitViewHandle);
+    const QPoint mainSplitViewHandleCentreAfterMoving = QPoint(
+        panelSplitView->width() / 2 - 10, panelSplitView->height() / 2);
+    QPoint mainSplitViewHandleCentre;
+    QVERIFY2(dragSplitViewHandle("mainSplitView", 0,
+        mainSplitViewHandleCentreAfterMoving, &mainSplitViewHandleCentre), failureMessage);
+    const qreal resizedPanelSplitViewWidth = panelSplitView->width();
+    QVERIFY(resizedPanelSplitViewWidth > defaultPanelSplitViewWidth);
+
+    // Store the expected pane offsets, etc.
+    // Do it after resizing the splitview to avoid it affecting it.
     const QPoint firstPaneOffset = canvas->firstPane()->integerOffset();
     const int firstPaneZoomLevel = canvas->firstPane()->integerZoomLevel();
     const qreal firstPaneSize = canvas->firstPane()->size();
@@ -481,20 +496,24 @@ void tst_App::saveAsAndLoad()
     QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QCOMPARE(project->url().toLocalFile(), savedProjectPath);
 
+    // Resize the SplitView back to its old proportions so that we
+    // can check that the state is actually restored,
+    // as the view won't be destroyed between saving and loading,
+    // so it will keep its values if we don't do this.
+    QVERIFY2(dragSplitViewHandle("mainSplitView", 0, mainSplitViewHandleCentre), failureMessage);
+    QCOMPARE(panelSplitView->width(), defaultPanelSplitViewWidth);
+
     // Close the project.
     QVERIFY2(triggerCloseProject(), failureMessage);
     QVERIFY(!project->hasLoaded());
 
     // Load the saved file.
     QVERIFY2(loadProject(QUrl::fromLocalFile(savedProjectPath)), failureMessage);
-    QCOMPARE(project->guides().size(), 1);
-    QCOMPARE(project->guides().first().position(), 10);
-    QCOMPARE(canvas->firstPane()->integerOffset(), firstPaneOffset);
-    QCOMPARE(canvas->firstPane()->integerZoomLevel(), firstPaneZoomLevel);
-    QCOMPARE(canvas->firstPane()->size(), firstPaneSize);
-    QCOMPARE(canvas->secondPane()->integerOffset(), secondPaneOffset);
-    QCOMPARE(canvas->secondPane()->integerZoomLevel(), secondPaneZoomLevel);
-    QCOMPARE(canvas->secondPane()->size(), secondPaneSize);
+
+    // Test SplitView state serialisation.
+    panelSplitView = window->findChild<QQuickItem*>("panelSplitView");
+    QVERIFY(panelSplitView);
+    QTRY_COMPARE_WITH_TIMEOUT(panelSplitView->width(), resizedPanelSplitViewWidth, 100);
 
     if (projectType == Project::LayeredImageType) {
         // Test that the save shortcut works by drawing and then saving.
@@ -504,6 +523,16 @@ void tst_App::saveAsAndLoad()
         QVERIFY2(triggerSaveProject(), failureMessage);
         QVERIFY(!project->hasUnsavedChanges());
     }
+
+    // Check guides and panes.
+    QCOMPARE(project->guides().size(), 1);
+    QCOMPARE(project->guides().first().position(), 10);
+    QCOMPARE(canvas->firstPane()->integerOffset(), firstPaneOffset);
+    QCOMPARE(canvas->firstPane()->integerZoomLevel(), firstPaneZoomLevel);
+    QCOMPARE(canvas->firstPane()->size(), firstPaneSize);
+    QCOMPARE(canvas->secondPane()->integerOffset(), secondPaneOffset);
+    QCOMPARE(canvas->secondPane()->integerZoomLevel(), secondPaneZoomLevel);
+    QCOMPARE(canvas->secondPane()->size(), secondPaneSize);
 
     QVector<SwatchColour> expectedSwatchColours;
     expectedSwatchColours.append(SwatchColour(QString(), Qt::red));

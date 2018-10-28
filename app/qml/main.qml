@@ -177,7 +177,10 @@ ApplicationWindow {
 
     SplitView {
         id: mainSplitView
+        objectName: "mainSplitView"
         anchors.fill: parent
+
+        Layout.fillWidth: true
 
         Ui.CanvasContainer {
             id: canvasContainer
@@ -191,6 +194,7 @@ ApplicationWindow {
 
         SplitView {
             id: panelSplitView
+            objectName: "panelSplitView"
             orientation: Qt.Vertical
 
             SplitView.minimumWidth: 200
