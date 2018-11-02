@@ -11,6 +11,12 @@ Project {
         Depends { name: "Qt.test" }
         Depends { name: "Qt.widgets" }
         Depends { name: "lib" }
+        // Workaround for static builds until https://bugreports.qt.io/browse/QBS-1409 is fixed
+        Depends {
+            name: "Qt"
+            condition: Qt.core.staticBuild && qbs.targetOS.contains("linux")
+            submodules: ["qxcb-egl-integration"]
+        }
 
         // Additional import path used to resolve QML modules in Qt Creator's code model
         property pathList qmlImportPaths: []
