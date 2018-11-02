@@ -88,5 +88,38 @@ QtGuiApplication {
         name: "RC file (Windows)"
         files: ["slate.rc"]
     }
-}
 
+    // Linux desktop + icon stuff.
+    Group {
+        name: "Desktop file (Linux)"
+        condition: qbs.targetOS.contains("linux")
+        qbs.install: true
+        qbs.installDir: "share/applications"
+        files: ["Slate.desktop"]
+    }
+
+    Group {
+        name: "Icon 16x16 (Linux)"
+        condition: qbs.targetOS.contains("linux")
+        qbs.install: true
+        qbs.installDir: "share/icons/hicolor/16x16/apps"
+        // Just reuse the macOS files for simplicity.
+        files: [ "images/logo/slate.xcassets/slate-icon-mac.appiconset/slate-icon-16.png" ]
+    }
+
+    Group {
+        name: "Icon 32x32 (Linux)"
+        condition: qbs.targetOS.contains("linux")
+        qbs.install: true
+        qbs.installDir: "share/icons/hicolor/32x32/apps"
+        files: [ "images/logo/slate.xcassets/slate-icon-mac.appiconset/slate-icon-32.png" ]
+    }
+
+    Group {
+         name: "Icon scalable (Linux)"
+         condition: qbs.targetOS.contains("linux")
+         qbs.install: true
+         qbs.installDir: "share/icons/hicolor/scalable/apps"
+         files: [ "images/logo/slate-icon-web.svg" ]
+     }
+}
