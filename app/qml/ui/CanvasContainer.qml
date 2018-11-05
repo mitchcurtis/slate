@@ -37,8 +37,7 @@ Item {
         source: project && project.typeString.length > 0 ? project.typeString + "Canvas.qml" : ""
         focus: true
         width: parent.width
-        anchors.top: parent.top
-        anchors.bottom: statusBar.top
+        height: parent.height - statusBar.height
 
         property QtObject args: QtObject {
             // We want this property to be updated before "source" above, as we need
@@ -80,8 +79,9 @@ Item {
 
     StatusBar {
         id: statusBar
-        z: 1
-        width: parent.width
+//        z: 1
+        parent: ApplicationWindow.window.contentItem
+        width: canvasContainer.width
         anchors.bottom: parent.bottom
         project: canvasContainer.project
         canvas: canvasContainer.canvas
