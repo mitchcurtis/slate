@@ -2082,7 +2082,7 @@ QPointF ImageCanvas::linePoint2() const
 
 QRect ImageCanvas::normalisedLineRect() const
 {
-    const int margin = qCeil(M_SQRT2 * mToolSize / 2);
+    const int margin = qCeil(M_SQRT2 * mToolSize / 2.0);
     return QRect(linePoint1().toPoint(), linePoint2().toPoint()).normalized()
             .marginsAdded({margin, margin, margin, margin});
 }
