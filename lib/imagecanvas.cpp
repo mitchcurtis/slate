@@ -2082,7 +2082,9 @@ QPointF ImageCanvas::linePoint2() const
 
 QRect ImageCanvas::normalisedLineRect() const
 {
-    return QRect(linePoint1().toPoint(), linePoint2().toPoint()).normalized();
+    const int margin = qCeil(M_SQRT2 * mToolSize / 2);
+    return QRect(linePoint1().toPoint(), linePoint2().toPoint()).normalized()
+            .marginsAdded({margin, margin, margin, margin});
 }
 
 void ImageCanvas::updateCursorPos(const QPoint &eventPos)
