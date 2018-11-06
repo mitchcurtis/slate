@@ -2082,6 +2082,10 @@ QPointF ImageCanvas::linePoint2() const
 
 QRect ImageCanvas::normalisedLineRect() const
 {
+    // sqrt(2) is the ratio between the hypotenuse of a square and its side;
+    // a simplification of Pythagoras’ theorem.
+    // The bounds could be tighter by taking into account the specific rotation of the brush,
+    // but the sqrt(2) ensures it is big enough for any rotation.
     const int margin = qCeil(M_SQRT2 * mToolSize / 2.0);
     return QRect(linePoint1().toPoint(), linePoint2().toPoint()).normalized()
             .marginsAdded({margin, margin, margin, margin});
