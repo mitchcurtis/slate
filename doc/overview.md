@@ -10,6 +10,8 @@
   - [Layered Images](#layered-images)
   - [Tilesets](#tilesets)
   - [Comparison of Project Types](#comparison-of-project-types)
+- [Features](#features)
+  - [Animation](#animation)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
