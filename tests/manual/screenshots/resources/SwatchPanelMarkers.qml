@@ -23,6 +23,7 @@ import "." as Screenshot
 
 Item {
     id: root
+    objectName: "deleteMe"
 
     Screenshot.Marker {
         parent: findChildHelper.findAnyChild(root.parent, "swatchesPanelHideShowToolButton")

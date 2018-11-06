@@ -275,13 +275,13 @@ bool TestHelper::clearAndEnterText(QQuickItem *textField, const QString &text)
     return true;
 }
 
-bool TestHelper::changeCanvasSize(int width, int height)
+bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDialog)
 {
     // Open the canvas size popup.
     mouseEventOnCentre(canvasSizeButton, MouseClick);
     const QObject *canvasSizePopup = findPopupFromTypeName("CanvasSizePopup");
     VERIFY(canvasSizePopup);
-    VERIFY(canvasSizePopup->property("visible").toBool());
+    TRY_VERIFY2(canvasSizePopup->property("opened").toBool(), "Failed to open CanvasSizePopup");
 
     // Change the values and then cancel.
     // TODO: use actual input events...
@@ -302,32 +302,38 @@ bool TestHelper::changeCanvasSize(int width, int height)
     QQuickItem *cancelButton = canvasSizePopup->findChild<QQuickItem*>("canvasSizePopupCancelButton");
     VERIFY(cancelButton);
     mouseEventOnCentre(cancelButton, MouseClick);
-    VERIFY(!canvasSizePopup->property("visible").toBool());
+    TRY_VERIFY2(!canvasSizePopup->property("visible").toBool(), "Failed to cancel CanvasSizePopup");
     VERIFY(project->size().width() == originalWidthSpinBoxValue);
     VERIFY(project->size().height() == originalHeightSpinBoxValue);
+    VERIFY(canvas->hasActiveFocus());
 
     // Open the popup again.
     mouseEventOnCentre(canvasSizeButton, MouseClick);
     VERIFY(canvasSizePopup);
-    VERIFY(canvasSizePopup->property("visible").toBool());
+    TRY_VERIFY2(canvasSizePopup->property("opened").toBool(), "Failed to reopen CanvasSizePopup");
     // The old values should be restored.
     VERIFY(widthSpinBox->property("value").toInt() == originalWidthSpinBoxValue);
     VERIFY(heightSpinBox->property("value").toInt() == originalHeightSpinBoxValue);
+    VERIFY(widthSpinBox->hasActiveFocus());
 
-    // Change the values and then press OK.
+    // Change the values.
     VERIFY(widthSpinBox->setProperty("value", width));
     VERIFY(widthSpinBox->property("value").toInt() == width);
     VERIFY(heightSpinBox->setProperty("value", height));
     VERIFY(heightSpinBox->property("value").toInt() == height);
 
-    QQuickItem *okButton = canvasSizePopup->findChild<QQuickItem*>("canvasSizePopupOkButton");
-    VERIFY(okButton);
-    mouseEventOnCentre(okButton, MouseClick);
-    VERIFY(!canvasSizePopup->property("visible").toBool());
-    VERIFY(project->size().width() == width);
-    VERIFY(project->size().height() == height);
-    VERIFY(widthSpinBox->property("value").toInt() == width);
-    VERIFY(heightSpinBox->property("value").toInt() == height);
+    if (closeDialog == CloseDialog) {
+        // Press OK to close the dialog.
+        QQuickItem *okButton = canvasSizePopup->findChild<QQuickItem*>("canvasSizePopupOkButton");
+        VERIFY(okButton);
+        mouseEventOnCentre(okButton, MouseClick);
+        TRY_VERIFY2(!canvasSizePopup->property("visible").toBool(), "Failed to accept CanvasSizePopup");
+        VERIFY(project->size().width() == width);
+        VERIFY(project->size().height() == height);
+        VERIFY(widthSpinBox->property("value").toInt() == width);
+        VERIFY(heightSpinBox->property("value").toInt() == height);
+        VERIFY(canvas->hasActiveFocus());
+    }
 
     return true;
 }
@@ -851,6 +857,68 @@ bool TestHelper::deleteSwatchColour(int index)
     return true;
 }
 
+bool TestHelper::addNewGuide(Qt::Orientation orientation, int position)
+{
+    if (!app.settings()->areRulersVisible()) {
+        if (!triggerRulersVisible())
+            return false;
+        VERIFY(app.settings()->areRulersVisible());
+    }
+
+    const bool horizontal = orientation == Qt::Horizontal;
+    const int originalGuideCount = project->guides().size();
+    const int newGuideIndex = originalGuideCount;
+    const QPoint originalOffset = canvas->currentPane()->integerOffset();
+    const qreal originalZoomLevel = canvas->currentPane()->zoomLevel();
+
+    QQuickItem *ruler = canvas->findChild<QQuickItem*>(horizontal
+        ? "firstHorizontalRuler" : "firstVerticalRuler");
+    VERIFY(ruler);
+    const qreal rulerThickness = horizontal ? ruler->height() : ruler->width();
+
+    // Pan so that the top left of the canvas is at the rulers' corners.
+    if (!panTopLeftTo(rulerThickness, rulerThickness))
+        return false;
+
+    canvas->currentPane()->setZoomLevel(1.0);
+
+    // Drop a horizontal guide onto the canvas.
+    const QPoint pressPos(
+        horizontal ? 50 : rulerThickness / 2,
+        horizontal ? rulerThickness / 2 : 50);
+    setCursorPosInPixels(pressPos);
+    QTest::mouseMove(window, cursorWindowPos);
+    VERIFY(!canvas->pressedRuler());
+
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    VERIFY(canvas->pressedRuler());
+
+    // Do the actual moving onto the canvas.
+    const QPoint releasePos(
+        horizontal ? 50 : rulerThickness + position,
+        horizontal ? rulerThickness + position : 50);
+    setCursorPosInPixels(releasePos);
+    QTest::mouseMove(window, cursorWindowPos);
+
+    // Now it should be visible on the canvas.
+    VERIFY(imageGrabber.requestImage(canvas));
+    TRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithGuide = imageGrabber.takeImage();
+    VERIFY(grabWithGuide.pixelColor(releasePos.x(), releasePos.y()) == QColor(Qt::cyan));
+
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+
+    VERIFY(!canvas->pressedRuler());
+    VERIFY2(project->guides().size() == originalGuideCount + 1, qPrintable(QString::fromLatin1(
+        "Expected %1 guide(s), but got %2").arg(originalGuideCount + 1).arg(project->guides().size())));
+    VERIFY(project->guides().at(newGuideIndex).position() == position);
+    VERIFY(project->undoStack()->canUndo());
+
+    canvas->currentPane()->setOffset(originalOffset);
+    canvas->currentPane()->setZoomLevel(originalZoomLevel);
+    return true;
+}
+
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
 {
     QObject *popup = nullptr;
@@ -1326,16 +1394,8 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         return false;
 
     // Check that we get prompted to discard any changes.
-    if (project && project->hasUnsavedChanges()) {
-        const QObject *discardChangesDialog = window->contentItem()->findChild<QObject*>("discardChangesDialog");
-        VERIFY(discardChangesDialog);
-        VERIFY(discardChangesDialog->property("visible").toBool());
-
-        QQuickItem *discardChangesButton = findDialogButtonFromObjectName(discardChangesDialog, "discardChangesDialogButton");
-        VERIFY(discardChangesButton);
-        mouseEventOnCentre(discardChangesButton, MouseClick);
-        VERIFY(!discardChangesDialog->property("visible").toBool());
-    }
+    if (project && project->hasUnsavedChanges())
+        discardChanges();
 
     // Ensure that the new project popup is visible.
     const QObject *newProjectPopup = findPopupFromTypeName("NewProjectPopup");
@@ -1755,6 +1815,19 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     return true;
 }
 
+bool TestHelper::discardChanges()
+{
+    const QObject *discardChangesDialog = window->contentItem()->findChild<QObject*>("discardChangesDialog");
+    VERIFY(discardChangesDialog);
+    TRY_VERIFY(discardChangesDialog->property("opened").toBool());
+
+    QQuickItem *discardChangesButton = findDialogButtonFromObjectName(discardChangesDialog, "discardChangesDialogButton");
+    VERIFY(discardChangesButton);
+    mouseEventOnCentre(discardChangesButton, MouseClick);
+    TRY_VERIFY(!discardChangesDialog->property("visible").toBool());
+    return true;
+}
+
 bool TestHelper::copyFileFromResourcesToTempProjectDir(const QString &baseName)
 {
     QFile sourceFile(":/resources/" + baseName);
@@ -1870,6 +1943,16 @@ bool TestHelper::togglePanel(const QString &panelObjectName, bool expanded)
     return true;
 }
 
+bool TestHelper::togglePanels(const QStringList &panelObjectNames, bool expanded)
+{
+    for (const QString &panelObjectName : qAsConst(panelObjectNames)) {
+        if (!togglePanel(panelObjectName, expanded))
+            return false;
+    }
+
+    return true;
+}
+
 bool TestHelper::switchMode(TileCanvas::Mode mode)
 {
     if (tileCanvas->mode() == mode)
@@ -1981,7 +2064,8 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     const QPoint expectedOffset = originalOffset + QPoint(xDistance, yDistance);
 
     QTest::keyPress(window, Qt::Key_Space);
-    VERIFY(window->cursor().shape() == Qt::OpenHandCursor);
+    VERIFY2(window->cursor().shape() == Qt::OpenHandCursor, qPrintable(QString::fromLatin1(
+        "Expected Qt::OpenHandCursor after Qt::Key_Space press, but got %1").arg(window->cursor().shape())));
     VERIFY(canvas->currentPane()->integerOffset() == originalOffset);
     //        VERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
@@ -1991,7 +2075,8 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     //        QImage lastImage = currentImage;
 
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, pressPos);
-    VERIFY(window->cursor().shape() == Qt::ClosedHandCursor);
+    VERIFY2(window->cursor().shape() == Qt::ClosedHandCursor, qPrintable(QString::fromLatin1(
+        "Expected Qt::ClosedHandCursor after mouse press, but got %1").arg(window->cursor().shape())));
     VERIFY(canvas->currentPane()->integerOffset() == originalOffset);
     //        VERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
@@ -2001,7 +2086,8 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     //        lastImage = currentImage;
 
     QTest::mouseMove(window, pressPos + QPoint(xDistance, yDistance));
-    VERIFY(window->cursor().shape() == Qt::ClosedHandCursor);
+    VERIFY2(window->cursor().shape() == Qt::ClosedHandCursor, qPrintable(QString::fromLatin1(
+        "Expected Qt::ClosedHandCursor after mouse move, but got %1").arg(window->cursor().shape())));
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
     //        VERIFY(imageGrabber.requestImage(canvas));
     //        // Pane offset changed.
@@ -2010,13 +2096,18 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     //        lastImage = currentImage;
 
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, pressPos + QPoint(xDistance, yDistance));
-    VERIFY(window->cursor().shape() == Qt::OpenHandCursor);
+    VERIFY2(window->cursor().shape() == Qt::OpenHandCursor, qPrintable(QString::fromLatin1(
+        "Expected Qt::ClosedHandCursor after mouse release, but got %1").arg(window->cursor().shape())));
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
 
     QTest::keyRelease(window, Qt::Key_Space);
     // If we have a selection, the cursor might not be Qt::BlankCursor, and that's OK.
-    if (!canvas->hasSelection())
-        VERIFY(window->cursor().shape() == Qt::BlankCursor);
+    if (!canvas->hasSelection()) {
+        // Move the mouse away from any guides, etc.
+        QTest::mouseMove(window, QPoint(0, 0));
+        VERIFY2(window->cursor().shape() == Qt::BlankCursor, qPrintable(QString::fromLatin1(
+            "Expected Qt::BlankCursor after Qt::Key_Space release, but got %1").arg(window->cursor().shape())));
+    }
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
 
     return true;

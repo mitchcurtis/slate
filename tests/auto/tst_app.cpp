@@ -590,7 +590,7 @@ void tst_App::animationPlayback()
 
     QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
     QVERIFY(animationSettingsPopup);
-    QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), true);
+    QTRY_COMPARE(animationSettingsPopup->property("opened").toBool(), true);
 
     // Increase FPS.
     QQuickItem *animationFpsSpinBox = window->findChild<QQuickItem*>("animationFpsSpinBox");
@@ -3663,28 +3663,7 @@ void tst_App::rulersAndGuides()
     QCOMPARE(project->undoStack()->canUndo(), false);
 
     // Drop a horizontal guide onto the canvas.
-    setCursorPosInPixels(QPoint(50, rulerThickness / 2));
-    QTest::mouseMove(window, cursorWindowPos);
-    QVERIFY(!canvas->pressedRuler());
-
-    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QVERIFY(canvas->pressedRuler());
-
-    // Do the actual moving onto the canvas.
-    setCursorPosInPixels(QPoint(50, rulerThickness + 10));
-    QTest::mouseMove(window, cursorWindowPos);
-
-    // Now it should be visible on the canvas.
-    QVERIFY(imageGrabber.requestImage(canvas));
-    QTRY_VERIFY(imageGrabber.isReady());
-    const QImage grabWithGuide = imageGrabber.takeImage();
-    QCOMPARE(grabWithGuide.pixelColor(50, rulerThickness + 10), QColor(Qt::cyan));
-
-    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QVERIFY(!canvas->pressedRuler());
-    QCOMPARE(project->guides().size(), 1);
-    QCOMPARE(project->guides().first().position(), 10);
-    QCOMPARE(project->undoStack()->canUndo(), true);
+    QVERIFY2(addNewGuide(Qt::Horizontal, 10), failureMessage);
 
     // Undo.
     mouseEventOnCentre(undoButton, MouseClick);

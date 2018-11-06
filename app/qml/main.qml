@@ -39,7 +39,8 @@ ApplicationWindow {
         : ""
     visible: true
 
-//    onActiveFocusItemChanged: print(activeFocusItem)
+//    onActiveFocusItemChanged: print("active focus: " + activeFocusItem + ", parent: "
+//        + (activeFocusItem ? activeFocusItem.parent : null))
 
     property Project project: projectManager.project
     property int projectType: project && projectManager.ready ? project.type : 0
@@ -59,7 +60,8 @@ ApplicationWindow {
     // If we set the image URL immediately, it can happen before
     // the error popup is ready.
     Component.onCompleted: {
-        contentItem.objectName = "applicationWindowContentItem";
+        contentItem.parent.objectName = "applicationWindowRootItem"
+        contentItem.objectName = "applicationWindowContentItem"
 
         if (settings.loadLastOnStartup && settings.recentFiles.length > 0) {
             loadProject(settings.recentFiles[0])
@@ -400,6 +402,7 @@ ApplicationWindow {
         parent: Overlay.overlay
         anchors.centerIn: parent
         project: projectManager.project
+        canvas: window.canvas
     }
 
     Ui.ImageSizePopup {

@@ -138,6 +138,11 @@ protected:
         KeyboardInputType
     };
 
+    enum CloseDialogFlag {
+        CloseDialog,
+        DoNotCloseDialog
+    };
+
     // Platform-dependent actions
     Q_REQUIRED_RESULT bool triggerShortcut(const QString &objectName, const QString &sequenceAsString);
     Q_REQUIRED_RESULT bool triggerNewProject();
@@ -186,6 +191,7 @@ protected:
         bool transparentImageBackground = false);
     Q_REQUIRED_RESULT bool loadProject(const QUrl &url, const QString &expectedFailureMessage = QString());
     Q_REQUIRED_RESULT bool updateVariables(bool isNewProject, Project::Type newProjectType);
+    Q_REQUIRED_RESULT bool discardChanges();
 
     Q_REQUIRED_RESULT bool copyFileFromResourcesToTempProjectDir(const QString &baseName);
     Q_REQUIRED_RESULT bool setupTempTilesetProjectDir();
@@ -195,6 +201,7 @@ protected:
 
     Q_REQUIRED_RESULT bool collapseAllPanels();
     Q_REQUIRED_RESULT bool togglePanel(const QString &panelObjectName, bool expanded);
+    Q_REQUIRED_RESULT bool togglePanels(const QStringList &panelObjectNames, bool expanded);
     Q_REQUIRED_RESULT bool expandColourPanel();
 
     Q_REQUIRED_RESULT bool switchMode(TileCanvas::Mode mode);
@@ -204,7 +211,7 @@ protected:
     Q_REQUIRED_RESULT bool panBy(int xDistance, int yDistance);
     Q_REQUIRED_RESULT bool zoomTo(int zoomLevel);
     Q_REQUIRED_RESULT bool zoomTo(int zoomLevel, const QPoint &pos);
-    Q_REQUIRED_RESULT bool changeCanvasSize(int width, int height);
+    Q_REQUIRED_RESULT bool changeCanvasSize(int width, int height, CloseDialogFlag closeDialog = CloseDialog);
     Q_REQUIRED_RESULT bool changeImageSize(int width, int height);
     Q_REQUIRED_RESULT bool changeToolSize(int size);
     Q_REQUIRED_RESULT bool moveContents(int x, int y, bool onlyVisibleLayers);
@@ -223,6 +230,8 @@ protected:
     Q_REQUIRED_RESULT bool addSwatchWithForegroundColour();
     Q_REQUIRED_RESULT bool renameSwatchColour(int index, const QString &name);
     Q_REQUIRED_RESULT bool deleteSwatchColour(int index);
+
+    Q_REQUIRED_RESULT bool addNewGuide(Qt::Orientation orientation, int position);
 
     QByteArray failureMessage;
 

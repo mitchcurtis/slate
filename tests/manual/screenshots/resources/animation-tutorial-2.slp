@@ -1,0 +1,59 @@
+{
+    "project": {
+        "currentLayerIndex": 1,
+        "firstPane": {
+            "offsetX": 40,
+            "offsetY": 189,
+            "sceneCentered": false,
+            "size": 1,
+            "zoomLevel": 5
+        },
+        "guides": [
+        ],
+        "lastFillToolUsed": "FillTool",
+        "layerListViewContentY": 0,
+        "layers": [
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAANgAAAAmCAYAAACmuFWEAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAjklEQVR4nO3TwQ2AQAzAMMr+O5cliA4he4J8Mru714fMzJxugLfcpwPgzwwGIYNByGAQMhiEDAYhg0HIYBAyGIQMBiGDQchgEDIYhAwGIYNByGAQMhiEDAYhg0HIYBAyGIQMBiGDQchgEDIYhAwGIYNByGAQMhiEDAYhg0HIYBAyGIQMBiGDQchgEDIYhB46hQRM4ZvzjwAAAABJRU5ErkJggg==",
+                "name": "background",
+                "opacity": 1,
+                "visible": true
+            },
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAANgAAAAmCAYAAACmuFWEAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAb0lEQVR4nO3XsQ2AIBBAUVjKPaydwImcwNo9nMqWmJAQCAXwXnfNdT+XCwEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGEFsXXPezpfN57G/rTphFVWD/qHLExuqKAyuNKkdsrMgFg478YNDRB79QFAZusRQbAAAAAElFTkSuQmCC",
+                "name": "shadow",
+                "opacity": 1,
+                "visible": true
+            },
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAANgAAAAmCAYAAACmuFWEAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA30lEQVR4nO3aPQrCMBiAYRXFgzl4DhEcPESP4SBIr+Dq4OboBTxNHUr8AVuaVPAnzzM3aZcXwtcMBgAAAAAAAAAA/JFif67K06X69HfAtxn13aDYn29hiQye9QrsMa5AZHCXHNiruAKRQS0psLa4ApFBQmBd4gpERu6iAouJKxAZOescWEpcgcjI1TDm4eX20BjKdDJuXLdZzKLeA/8i6oi4W82jQxEXOYsecsREJi5ylzSm7xKZuKDHj+a2yMQFtV5XpV5FJi54s+X2UK3Lo1E8AAAAAAAAAAAAAAC/4QqcdEfSmZlYdgAAAABJRU5ErkJggg==",
+                "name": "object",
+                "opacity": 1,
+                "visible": true
+            }
+        ],
+        "secondPane": {
+            "offsetX": -540,
+            "offsetY": 189,
+            "sceneCentered": true,
+            "size": 0,
+            "zoomLevel": 1
+        },
+        "swatch": {
+            "colours": [
+                {
+                    "colour": "#ae80ca",
+                    "name": ""
+                },
+                {
+                    "colour": "#ca80bb",
+                    "name": ""
+                },
+                {
+                    "colour": "#ca8094",
+                    "name": ""
+                }
+            ]
+        }
+    }
+}
