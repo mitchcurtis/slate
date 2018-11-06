@@ -47,3 +47,5 @@ The "Preview Scale" determines how large the animation preview is.
 Click OK to confirm the settings. Hit the play button to see the animation:
 
 ![Animation](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-tutorial.gif)
+
+The final project can be downloaded [here](https://github.com/mitchcurtis/slate/blob/master/tests/manual/screenshots/resources/animation-tutorial-3.slp).
