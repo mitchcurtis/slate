@@ -2107,6 +2107,7 @@ bool TestHelper::panBy(int xDistance, int yDistance)
         QTest::mouseMove(window, QPoint(0, 0));
         VERIFY2(window->cursor().shape() == Qt::BlankCursor, qPrintable(QString::fromLatin1(
             "Expected Qt::BlankCursor after Qt::Key_Space release, but got %1").arg(window->cursor().shape())));
+        QTest::mouseMove(window, pressPos + QPoint(xDistance, yDistance));
     }
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
 
