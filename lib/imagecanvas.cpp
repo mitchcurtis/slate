@@ -958,12 +958,15 @@ QImage ImageCanvas::getContentImage()
     // Draw the pixel-pen-line indicator over the content.
     if (isLineVisible()) {
         QPainter linePainter(&image);
-        drawLine(&linePainter, linePoint1(), linePoint2());
+        // Draw the line on top of what has already been painted using a special composition mode.
+        // This ensures that e.g. a translucent red overwrites whatever pixels it
+        // lies on, rather than blending with them.
+        drawLine(&linePainter, linePoint1(), linePoint2(), QPainter::CompositionMode_Source);
     }
     return image;
 }
 
-void ImageCanvas::drawLine(QPainter *painter, const QPointF point1, const QPointF point2) const
+void ImageCanvas::drawLine(QPainter *painter, const QPointF point1, const QPointF point2, const QPainter::CompositionMode mode) const
 {
     painter->save();
 
@@ -975,10 +978,7 @@ void ImageCanvas::drawLine(QPainter *painter, const QPointF point1, const QPoint
     painter->setPen(pen);
 
     QLineF line(point1, point2);
-    // Draw the line on top of what has already been painted using a special composition mode.
-    // This ensures that e.g. a translucent red overwrites whatever pixels it
-    // lies on, rather than blending with them.
-    painter->setCompositionMode(QPainter::CompositionMode_Source);
+    painter->setCompositionMode(mode);
     painter->drawLine(line);
 
     painter->restore();
@@ -1905,20 +1905,12 @@ void ImageCanvas::applyCurrentTool()
 
     switch (mTool) {
     case PenTool: {
-        // The undo command for lines needs the project image before and after
-        // the line was drawn on it.
-        const QRect lineRect = normalisedLineRect(linePoint1(), linePoint2());
-        const QImage imageWithoutLine = currentProjectImage()->copy(lineRect);
-
-        QImage imageWithLine = *currentProjectImage();
-        QPainter painter(&imageWithLine);
-        drawLine(&painter, linePoint1(), linePoint2());
-        painter.end();
-        imageWithLine = imageWithLine.copy(lineRect);
-
         mProject->beginMacro(QLatin1String("PixelLineTool"));
-        mProject->addChange(new ApplyPixelLineCommand(this, mProject->currentLayerIndex(),
-            imageWithLine, imageWithoutLine, lineRect, mPressScenePosition, mLastPixelPenPressScenePosition));
+        // Draw the line on top of what has already been painted using a special composition mode.
+        // This ensures that e.g. a translucent red overwrites whatever pixels it
+        // lies on, rather than blending with them.
+        mProject->addChange(new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), *currentProjectImage(), linePoint1(), linePoint2(),
+            mPressScenePosition, mLastPixelPenPressScenePosition, QPainter::CompositionMode_Source));
         break;
     }
     case EyeDropperTool: {
@@ -1929,14 +1921,10 @@ void ImageCanvas::applyCurrentTool()
         break;
     }
     case EraserTool: {
-        const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
-        if (candidateData.scenePositions.isEmpty()) {
-            return;
-        }
-
         mProject->beginMacro(QLatin1String("PixelEraserTool"));
-        mProject->addChange(new ApplyPixelEraserCommand(this, mProject->currentLayerIndex(),
-                candidateData.scenePositions, candidateData.previousColours));
+        // Draw the line on top of what has already been painted using a special composition mode to erase pixels.
+        mProject->addChange(new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), *currentProjectImage(), linePoint1(), linePoint2(),
+            mPressScenePosition, mLastPixelPenPressScenePosition, QPainter::CompositionMode_Clear));
         break;
     }
     case FillTool: {

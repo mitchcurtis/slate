@@ -20,23 +20,31 @@
 #include "applypixellinecommand.h"
 
 #include <QLoggingCategory>
+#include <QPainter>
+#include <QImage>
 
 #include "commands.h"
 
 Q_LOGGING_CATEGORY(lcApplyPixelLineCommand, "app.undo.applyPixelLineCommand")
 
-ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex, const QImage &imageWithLine,
-    const QImage &imageWithoutLine, const QRect &lineRect,
-    const QPoint &newLastPixelPenReleaseScenePos, const QPoint &oldLastPixelPenReleaseScenePos, QUndoCommand *parent) :
+// The undo command for lines needs the project image before and after
+// the line was drawn on it.
+ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex, QImage &currentProjectImage, const QPointF point1, const QPointF point2,
+    const QPoint &newLastPixelPenReleaseScenePos, const QPoint &oldLastPixelPenReleaseScenePos, const QPainter::CompositionMode mode, QUndoCommand *parent) :
     QUndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex),
-    mImageWithLine(imageWithLine),
-    mImageWithoutLine(imageWithoutLine),
-    mLineRect(lineRect),
+    mImageWithLine(currentProjectImage),
+    mLineRect(mCanvas->normalisedLineRect(point1, point2)),
+    mImageWithoutLine(currentProjectImage.copy(mLineRect)),
     mNewLastPixelPenReleaseScenePos(newLastPixelPenReleaseScenePos),
     mOldLastPixelPenReleaseScenePos(oldLastPixelPenReleaseScenePos)
 {
+    QPainter painter(&mImageWithLine);
+    mCanvas->drawLine(&painter, point1, point2, mode);
+    painter.end();
+    mImageWithLine = mImageWithLine.copy(mLineRect);
+
     qCDebug(lcApplyPixelLineCommand) << "constructed" << this;
 }
 

@@ -29,6 +29,7 @@
 #include <QTimerEvent>
 #include <QUndoStack>
 #include <QWheelEvent>
+#include <QPainter>
 
 #include "canvaspane.h"
 #include "ruler.h"
@@ -394,7 +395,7 @@ protected:
     CanvasPane *hoveredPane(const QPoint &pos);
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
     virtual QImage getContentImage();
-    void drawLine(QPainter *painter, const QPointF point1, const QPointF point2) const;
+    void drawLine(QPainter *painter, const QPointF point1, const QPointF point2, const QPainter::CompositionMode mode) const;
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,

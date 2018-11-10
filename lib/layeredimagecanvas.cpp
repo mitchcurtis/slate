@@ -169,7 +169,10 @@ QImage LayeredImageCanvas::getContentImage()
             } else if (isLineVisible()) {
                 layerImage = *mLayeredImageProject->currentLayer()->image();
                 QPainter linePainter(&layerImage);
-                drawLine(&linePainter, linePoint1(), linePoint2());
+                // Draw the line on top of what has already been painted using a special composition mode.
+                // This ensures that e.g. a translucent red overwrites whatever pixels it
+                // lies on, rather than blending with them.
+                drawLine(&linePainter, linePoint1(), linePoint2(), QPainter::CompositionMode_Source);
             }
         }
         return layerImage;
