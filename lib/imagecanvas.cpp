@@ -958,20 +958,20 @@ QImage ImageCanvas::getContentImage()
     // Draw the pixel-pen-line indicator over the content.
     if (isLineVisible()) {
         QPainter linePainter(&image);
-        drawLine(&linePainter);
+        drawLine(&linePainter, linePoint1(), linePoint2());
     }
     return image;
 }
 
-void ImageCanvas::drawLine(QPainter *painter) const
+void ImageCanvas::drawLine(QPainter *painter, const QPointF point1, const QPointF point2) const
 {
     painter->save();
 
-    const QPointF point1 = linePoint1();
-    const QPointF point2 = linePoint2();
     QPen pen;
     pen.setColor(penColour());
     pen.setWidth(mToolSize);
+    pen.setCapStyle(Qt::PenCapStyle::RoundCap);
+    pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
     painter->setPen(pen);
 
     QLineF line(point1, point2);
@@ -1905,32 +1905,20 @@ void ImageCanvas::applyCurrentTool()
 
     switch (mTool) {
     case PenTool: {
-        if (!mShiftPressed) {
-            const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
-            if (candidateData.scenePositions.isEmpty()) {
-                return;
-            }
+        // The undo command for lines needs the project image before and after
+        // the line was drawn on it.
+        const QRect lineRect = normalisedLineRect(linePoint1(), linePoint2());
+        const QImage imageWithoutLine = currentProjectImage()->copy(lineRect);
 
-            mProject->beginMacro(QLatin1String("PixelPenTool"));
-            mProject->addChange(new ApplyPixelPenCommand(this, mProject->currentLayerIndex(),
-                candidateData.scenePositions, candidateData.previousColours, penColour()));
-        } else {
-            // The undo command for lines needs the project image before and after
-            // the line was drawn on it.
-            const QRect lineRect = normalisedLineRect();
-            const QImage imageWithoutLine = currentProjectImage()->copy(lineRect);
+        QImage imageWithLine = *currentProjectImage();
+        QPainter painter(&imageWithLine);
+        drawLine(&painter, linePoint1(), linePoint2());
+        painter.end();
+        imageWithLine = imageWithLine.copy(lineRect);
 
-            QImage imageWithLine = *currentProjectImage();
-            QPainter painter(&imageWithLine);
-            drawLine(&painter);
-            painter.end();
-            imageWithLine = imageWithLine.copy(lineRect);
-
-            mProject->beginMacro(QLatin1String("PixelLineTool"));
-            mProject->addChange(new ApplyPixelLineCommand(this, mProject->currentLayerIndex(),
-                imageWithLine, imageWithoutLine, lineRect, mPressScenePosition, mLastPixelPenPressScenePosition));
-            mProject->endMacro();
-        }
+        mProject->beginMacro(QLatin1String("PixelLineTool"));
+        mProject->addChange(new ApplyPixelLineCommand(this, mProject->currentLayerIndex(),
+            imageWithLine, imageWithoutLine, lineRect, mPressScenePosition, mLastPixelPenPressScenePosition));
         break;
     }
     case EyeDropperTool: {
@@ -2080,14 +2068,14 @@ QPointF ImageCanvas::linePoint2() const
     return QPointF(mCursorSceneX, mCursorSceneY);
 }
 
-QRect ImageCanvas::normalisedLineRect() const
+QRect ImageCanvas::normalisedLineRect(const QPointF point1, const QPointF point2) const
 {
     // sqrt(2) is the ratio between the hypotenuse of a square and its side;
     // a simplification of Pythagoras’ theorem.
     // The bounds could be tighter by taking into account the specific rotation of the brush,
     // but the sqrt(2) ensures it is big enough for any rotation.
     const int margin = qCeil(M_SQRT2 * mToolSize / 2.0);
-    return QRect(linePoint1().toPoint(), linePoint2().toPoint()).normalized()
+    return QRect(point1.toPoint(), point2.toPoint()).normalized()
             .marginsAdded({margin, margin, margin, margin});
 }
 
@@ -2502,6 +2490,10 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
             }
         }
 
+        if (!mShiftPressed) {
+            mLastPixelPenPressScenePosition = mPressScenePosition;
+        }
+
         if (mTool != SelectionTool) {
             applyCurrentTool();
             return;
@@ -2525,6 +2517,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
 {
     QQuickItem::mouseMoveEvent(event);
 
+    const QPoint oldCursorScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
     updateCursorPos(event->pos());
 
     if (!mProject->hasLoaded())
@@ -2542,8 +2535,12 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
         } else if (mPressedGuideIndex != -1) {
             mGuidesItem->update();
         } else {
-            if (!isPanning()) {
+            if (!isPanning()) {                
                 if (mTool != SelectionTool) {
+                    mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
+                    if (!mShiftPressed) {
+                        mLastPixelPenPressScenePosition = oldCursorScenePosition;
+                    }
                     applyCurrentTool();
                 } else {
                     panWithSelectionIfAtEdge(SelectionPanMouseMovementReason);

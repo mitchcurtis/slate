@@ -169,7 +169,7 @@ QImage LayeredImageCanvas::getContentImage()
             } else if (isLineVisible()) {
                 layerImage = *mLayeredImageProject->currentLayer()->image();
                 QPainter linePainter(&layerImage);
-                drawLine(&linePainter);
+                drawLine(&linePainter, linePoint1(), linePoint2());
             }
         }
         return layerImage;
