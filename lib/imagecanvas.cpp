@@ -979,7 +979,13 @@ void ImageCanvas::drawLine(QPainter *painter, const QPointF point1, const QPoint
 
     QLineF line(point1, point2);
     painter->setCompositionMode(mode);
-    painter->drawLine(line);
+    // Zero-length line doesn't draw so handle case with drawPoint
+    if (line.length() == 0.0) {
+        painter->drawPoint(point1);
+    }
+    else {
+        painter->drawLine(line);
+    }
 
     painter->restore();
 }
