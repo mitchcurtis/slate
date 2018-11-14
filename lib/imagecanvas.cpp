@@ -989,8 +989,14 @@ void ImageCanvas::drawLine(QPainter *painter, const QPointF point1, const QPoint
     QPen pen;
     pen.setColor(penColour());
     pen.setWidth(mToolSize);
-    pen.setCapStyle(Qt::PenCapStyle::RoundCap);
-    pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+    if (mToolShape == ToolShape::SquareToolShape) {
+        pen.setCapStyle(Qt::PenCapStyle::SquareCap);
+        pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
+    }
+    else {
+        pen.setCapStyle(Qt::PenCapStyle::RoundCap);
+        pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+    }
     painter->setPen(pen);
 
     QLineF line(point1, point2);
