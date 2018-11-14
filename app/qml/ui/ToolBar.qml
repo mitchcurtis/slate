@@ -298,9 +298,8 @@ ToolBar {
             hoverEnabled: true
             focusPolicy: Qt.NoFocus
 
-//            icon.source: "qrc:/images/change-tool-size.png"
             readonly property bool squareShape: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
-            icon.source: squareShape ? "qrc:/images/fill.png" : "qrc:/images/textured-fill.png"
+            icon.source: squareShape ? "qrc:/images/square-tool-shape.png" : "qrc:/images/circle-tool-shape.png"
 
             ToolTip.text: qsTr("Choose brush shape")
             ToolTip.visible: hovered
@@ -321,7 +320,7 @@ ToolBar {
 
                 MenuItem {
                     text: qsTr("Square")
-                    icon.source: "qrc:/images/fill.png"
+                    icon.source: "qrc:/images/square-tool-shape.png"
                     autoExclusive: true
                     checkable: true
                     checked: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
@@ -329,7 +328,7 @@ ToolBar {
                 }
                 MenuItem {
                     text: qsTr("Circle")
-                    icon.source: "qrc:/images/textured-fill.png"
+                    icon.source: "qrc:/images/circle-tool-shape.png"
                     autoExclusive: true
                     checkable: true
                     checked: canvas && canvas.toolShape === ImageCanvas.CircleToolShape
