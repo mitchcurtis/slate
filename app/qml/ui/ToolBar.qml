@@ -292,6 +292,51 @@ ToolBar {
             }
         }
 
+        ToolButton {
+            id: toolShapeButton
+            objectName: "toolShapeButton"
+            hoverEnabled: true
+            focusPolicy: Qt.NoFocus
+
+//            icon.source: "qrc:/images/change-tool-size.png"
+            readonly property bool squareShape: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
+            icon.source: squareShape ? "qrc:/images/fill.png" : "qrc:/images/textured-fill.png"
+
+            ToolTip.text: qsTr("Choose brush shape")
+            ToolTip.visible: hovered
+
+            onClicked: shapeMenu.visible = !shapeMenu.visible
+
+            ToolButtonMenuIndicator {
+                color: toolShapeButton.icon.color
+                anchors.right: parent.contentItem.right
+                anchors.bottom: parent.contentItem.bottom
+                anchors.margins: 6
+            }
+
+            Menu {
+                id: shapeMenu
+                y: toolShapeButton.height
+                width: 260
+
+                MenuItem {
+                    text: qsTr("Square")
+                    icon.source: "qrc:/images/fill.png"
+                    autoExclusive: true
+                    checkable: true
+                    checked: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
+                    onTriggered: canvas.toolShape = ImageCanvas.SquareToolShape
+                }
+                MenuItem {
+                    text: qsTr("Circle")
+                    icon.source: "qrc:/images/textured-fill.png"
+                    autoExclusive: true
+                    checkable: true
+                    checked: canvas && canvas.toolShape === ImageCanvas.CircleToolShape
+                    onTriggered: canvas.toolShape = ImageCanvas.CircleToolShape
+                }
+            }        }
+
         ToolSeparator {
             id: toolSeparator
         }

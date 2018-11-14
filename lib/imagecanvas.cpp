@@ -96,6 +96,7 @@ ImageCanvas::ImageCanvas() :
     mScrollZoom(false),
     mGesturesEnabled(false),
     mTool(PenTool),
+    mToolShape(SquareToolShape),
     mLastFillToolUsed(FillTool),
     mToolSize(1),
     mMaxToolSize(100),
@@ -476,6 +477,21 @@ void ImageCanvas::setTool(const Tool &tool)
     toolChange();
 
     emit toolChanged();
+}
+
+ImageCanvas::ToolShape ImageCanvas::toolShape() const
+{
+    return mToolShape;
+}
+
+void ImageCanvas::setToolShape(const ImageCanvas::ToolShape &toolShape)
+{
+    if (toolShape == mToolShape)
+        return;
+
+    mToolShape = toolShape;
+
+    emit toolShapeChanged();
 }
 
 ImageCanvas::Tool ImageCanvas::lastFillToolUsed() const
