@@ -7,12 +7,12 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="512"
-   height="512"
+   width="64"
+   height="64"
    id="svg3037"
    version="1.1"
-   sodipodi:docname="win10.svg"
-   inkscape:version="0.92.1 r15371">
+   sodipodi:docname="os-icon-win.svg"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -22,15 +22,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1366"
-     inkscape:window-height="741"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
      id="namedview165"
      showgrid="false"
-     inkscape:zoom="0.26025391"
-     inkscape:cx="420.13872"
-     inkscape:cy="459.57435"
-     inkscape:window-x="0"
-     inkscape:window-y="27"
+     inkscape:zoom="5.8888737"
+     inkscape:cx="20.726388"
+     inkscape:cy="56.8836"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg3037" />
   <defs
@@ -49,7 +49,7 @@
   </metadata>
   <g
      id="g10102"
-     transform="matrix(1.2134499,0,0,1.2134499,-84.367031,-15.594213)"
+     transform="matrix(0.15168123,0,0,0.15168123,-10.255488,-1.94927)"
      style="fill:#000000">
     <path
        id="path10072"
