@@ -49,7 +49,11 @@ Slate was built for pixel art, and its goal is to simplify the creation of sprit
 
 ### Downloads ###
 
-See the [releases](https://github.com/mitchcurtis/slate/releases) page for the available downloads.
+[Linux](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.png "Linux") - [Slate 0.4.1](https://github.com/mitchcurtis/slate/releases/download/v0.4.1/Slate-v0.4.1-linux.zip)
+[Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.png "Mac") - [Slate 0.4.2](https://github.com/mitchcurtis/slate/releases/download/v0.4.2/Slate-v0.4.2-mac.dmg.zip)
+[Windows](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.png "Windows") - [Slate 0.4.0](https://github.com/mitchcurtis/slate/releases/download/v0.4.0/Slate-v0.4.0-windows.zip)
+
+See the [releases](https://github.com/mitchcurtis/slate/releases) page for full list of available downloads.
 
 ### Installing ###
 
@@ -76,7 +80,7 @@ It's fine to ask questions here on GitHub as well - just [create an issue](https
 
 ### Cloning ###
 
-`master` is the default branch where all work is done, and is not guaranteed to be stable. I [tag](https://github.com/mitchcurtis/slate/tags) releases, so if you're looking for a stable build to try out, it's best to pick the latest one from `git tag -l`. 
+`master` is the default branch where all work is done, and is not guaranteed to be stable. I [tag](https://github.com/mitchcurtis/slate/tags) releases, so if you're looking for a stable build to try out, it's best to pick the latest one from `git tag -l`.
 
 ### Building ###
 
@@ -102,7 +106,7 @@ Shadow builds:
     mkdir slate-build
     cd slate-build
     qbs /path/to/slate-source-dir/slate.qbs
-    
+
 For more information about building Qbs applications, see [this page](http://doc.qt.io/qbs/building-applications.html).
 
 ---
@@ -111,3 +115,5 @@ List of assets used in the screenshots:
 
 - https://opengameart.org/content/lpc-tile-atlas
 - https://opengameart.org/content/pixel-explosion-12-frames
+
+OS icons taken from [font-os](https://github.com/JeyKeu/font-os).
