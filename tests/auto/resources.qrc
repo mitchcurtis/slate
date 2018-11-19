@@ -17,5 +17,7 @@
         <file>resources/rotateSelectionTransparentBackground-180.png</file>
         <file>resources/undoThickRoundPen-1.png</file>
         <file>resources/undoThickRoundPen-2.png</file>
+        <file>resources/penSubpixelPositionWithThickBrush-circle.png</file>
+        <file>resources/penSubpixelPositionWithThickBrush-square.png</file>
     </qresource>
 </RCC>
