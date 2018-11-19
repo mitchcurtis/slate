@@ -297,6 +297,7 @@ ToolBar {
             objectName: "toolShapeButton"
             hoverEnabled: true
             focusPolicy: Qt.NoFocus
+            visible: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
             readonly property bool squareShape: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
             icon.source: squareShape ? "qrc:/images/square-tool-shape.png" : "qrc:/images/circle-tool-shape.png"
