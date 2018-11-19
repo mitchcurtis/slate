@@ -77,6 +77,7 @@ private Q_SLOTS:
     void undoTileFill();
     void undoThickSquarePen();
     void undoThickRoundPen();
+    void penSubpixelPosition();
     void colours_data();
     void colours();
     void colourPickerSaturationHex();
@@ -1607,6 +1608,122 @@ void tst_App::undoThickRoundPen()
     // Undo it.
     mouseEventOnCentre(undoButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 5, 5)), undoneImage);
+}
+
+void tst_App::penSubpixelPosition()
+{
+    QVERIFY2(createNewImageProject(), failureMessage);
+
+    // Ensure that the first pane is current by hovering it.
+    setCursorPosInScenePixels(QPoint(1, 1));
+    QTest::mouseMove(window, cursorWindowPos);
+    QCOMPARE(canvas->currentPane(), canvas->firstPane());
+
+    // For some reason it crashes on macOS here, so do it manually.
+    canvas->currentPane()->setZoomLevel(30);
+    QCOMPARE(canvas->currentPane(), canvas->firstPane());
+
+    // Ensure that we can see the top left corner as a sanity check while visually debugging.
+    QVERIFY2(panTopLeftTo(100, 100), failureMessage);
+    QCOMPARE(canvas->currentPane(), canvas->firstPane());
+
+    /*
+        This test ensures that the pen tool draws at the correct position
+        when the canvas is zoomed in. Specifically, the centre of the brush's crosshair
+        should be the centre of the drawn pixel. In the diagram below, the centre
+        of the crosshair is "between" {0, 0} and {1, 1}. Each check moves it one pixel
+        diagonally to make sure the correct pixel is drawn in.
+
+              0         1
+         +---------+---------+
+         |         |         |
+       0 |         |         |
+         |         |         |
+         +---------o---------+
+         |         |         |
+       1 |         |         |
+         |         |         |
+         +---------+---------+
+    */
+    setCursorPosInScenePixels(QPoint(1, 1));
+    const QPoint originalPos = cursorWindowPos;
+    QTest::mouseMove(window, cursorWindowPos);
+
+    /*
+        {0, 0} should be filled in since the centre of the crosshair is now over it.
+
+              0         1
+         +---------+---------+
+         |         |         |
+       0 |         |         |
+         |       o |         |
+         +---------|---------+
+         |         |         |
+       1 |         |         |
+         |         |         |
+         +---------+---------+
+    */
+    cursorWindowPos = originalPos + QPoint(-1, -1);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+
+    /*
+        {1, 0} should be filled in since the centre of the crosshair is now over it.
+
+              0         1
+         +---------+---------+
+         |         |         |
+       0 |         |         |
+         |         | o       |
+         +---------|---------+
+         |         |         |
+       1 |         |         |
+         |         |         |
+         +---------+---------+
+    */
+    cursorWindowPos = originalPos + QPoint(1, -1);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 0), QColor(Qt::black));
+
+    /*
+        {1, 1} should be filled in since the centre of the crosshair is now over it.
+
+              0         1
+         +---------+---------+
+         |         |         |
+       0 |         |         |
+         |         |         |
+         +---------|---------+
+         |         | o       |
+       1 |         |         |
+         |         |         |
+         +---------+---------+
+    */
+    cursorWindowPos = originalPos + QPoint(1, 1);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
+
+    /*
+        {0, 1} should be filled in since the centre of the crosshair is now over it.
+
+              0         1
+         +---------+---------+
+         |         |         |
+       0 |         |         |
+         |         |         |
+         +---------|---------+
+         |       o |         |
+       1 |         |         |
+         |         |         |
+         +---------+---------+
+    */
+    cursorWindowPos = originalPos + QPoint(-1, 1);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 1), QColor(Qt::black));
 }
 
 void tst_App::colours_data()

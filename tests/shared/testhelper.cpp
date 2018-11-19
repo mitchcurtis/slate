@@ -471,6 +471,8 @@ bool TestHelper::changeToolShape(ImageCanvas::ToolShape toolShape)
         mouseEventOnCentre(circleToolShapeMenuItem, MouseClick);
         VERIFY(canvas->toolShape() == ImageCanvas::CircleToolShape);
     }
+
+    return true;
 }
 
 bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
@@ -1099,8 +1101,11 @@ void TestHelper::setCursorPosInScenePixels(int xPosInScenePixels, int yPosInScen
 void TestHelper::setCursorPosInScenePixels(const QPoint &posInScenePixels)
 {
     cursorPos = posInScenePixels;
-    cursorWindowPos = canvas->mapToScene(QPointF(posInScenePixels.x(), posInScenePixels.y())).toPoint()
-            + canvas->firstPane()->integerOffset();
+    const int integerZoomLevel = canvas->currentPane()->integerZoomLevel();
+    const QPointF localZoomedPixelPos = QPointF(
+        posInScenePixels.x() * integerZoomLevel,
+        posInScenePixels.y() * integerZoomLevel);
+    cursorWindowPos = canvas->mapToScene(localZoomedPixelPos).toPoint() + canvas->firstPane()->integerOffset();
 }
 
 QPoint TestHelper::tilesetTileCentre(int xPosInTiles, int yPosInTiles) const
@@ -1422,8 +1427,10 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         return false;
 
     // Check that we get prompted to discard any changes.
-    if (project && project->hasUnsavedChanges())
-        discardChanges();
+    if (project && project->hasUnsavedChanges()) {
+        if (!discardChanges())
+            return false;
+    }
 
     // Ensure that the new project popup is visible.
     const QObject *newProjectPopup = findPopupFromTypeName("NewProjectPopup");
@@ -2050,7 +2057,8 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
         return false;
     }
 
-    VERIFY(canvas->tool() == tool);
+    VERIFY2(canvas->tool() == tool, qPrintable(QString::fromLatin1(
+        "Expected tool %1 but current tool is %2").arg(tool).arg(canvas->tool())));
     return true;
 }
 
