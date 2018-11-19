@@ -15,5 +15,7 @@
         <file>resources/rotateSelectionTransparentBackground-original.png</file>
         <file>resources/rotateSelectionTransparentBackground-90.png</file>
         <file>resources/rotateSelectionTransparentBackground-180.png</file>
+        <file>resources/undoThickRoundPen-1.png</file>
+        <file>resources/undoThickRoundPen-2.png</file>
     </qresource>
 </RCC>

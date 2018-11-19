@@ -75,7 +75,8 @@ private Q_SLOTS:
     void undoLayeredImageSizeChange();
     void undoPixelFill();
     void undoTileFill();
-    void undoThickPen();
+    void undoThickSquarePen();
+    void undoThickRoundPen();
     void colours_data();
     void colours();
     void colourPickerSaturationHex();
@@ -1525,7 +1526,7 @@ void tst_App::undoTileFill()
     QCOMPARE(tilesetProject->tileAtTilePos(QPoint(1, 0)), targetTile);
 }
 
-void tst_App::undoThickPen()
+void tst_App::undoThickSquarePen()
 {
     QVERIFY2(createNewImageProject(), failureMessage);
 
@@ -1554,11 +1555,8 @@ void tst_App::undoThickPen()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 1), QColor(Qt::black));
 
     setCursorPosInScenePixels(QPoint(1, 2));
-//    QTest::qWait(2000);
     QTest::mouseMove(window, cursorWindowPos);
-//    QTest::qWait(2000);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-//    QTest::qWait(30000);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 2), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 2), QColor(Qt::black));
 
@@ -1568,6 +1566,47 @@ void tst_App::undoThickPen()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 0), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 2), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 2), QColor(Qt::white));
+}
+
+void tst_App::undoThickRoundPen()
+{
+    QVERIFY2(createNewImageProject(), failureMessage);
+
+    QVERIFY2(changeToolSize(4), failureMessage);
+    QVERIFY2(changeToolShape(ImageCanvas::CircleToolShape), failureMessage);
+
+    QImage expectedClickImage(":/resources/undoThickRoundPen-1.png");
+    QVERIFY(!expectedClickImage.isNull());
+
+    QImage undoneImage(4, 4, QImage::Format_ARGB32);
+    undoneImage.fill(Qt::white);
+
+    // First, try a single click.
+    setCursorPosInScenePixels(QPoint(2, 2));
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 4, 4)), expectedClickImage);
+
+    // Undo it.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 4, 4)), undoneImage);
+
+    QImage expectedDragImage(":/resources/undoThickRoundPen-2.png");
+    QVERIFY(!expectedDragImage.isNull());
+
+    undoneImage = QImage(5, 5, QImage::Format_ARGB32);
+    undoneImage.fill(Qt::white);
+
+    // Next, try dragging.
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+
+    setCursorPosInScenePixels(QPoint(3, 3));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 5, 5)), expectedDragImage);
+
+    // Undo it.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 5, 5)), undoneImage);
 }
 
 void tst_App::colours_data()
