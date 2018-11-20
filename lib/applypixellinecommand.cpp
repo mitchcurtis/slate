@@ -30,7 +30,8 @@ Q_LOGGING_CATEGORY(lcApplyPixelLineCommand, "app.undo.applyPixelLineCommand")
 // The undo command for lines needs the project image before and after
 // the line was drawn on it.
 ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex, QImage &currentProjectImage, const QPointF point1, const QPointF point2,
-    const QPoint &newLastPixelPenReleaseScenePos, const QPoint &oldLastPixelPenReleaseScenePos, const QPainter::CompositionMode mode, QUndoCommand *parent) :
+                                             const QPointF &newLastPixelPenReleaseScenePos, const QPointF &oldLastPixelPenReleaseScenePos,
+                                             const QPainter::CompositionMode mode, QUndoCommand *parent) :
     QUndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex),
