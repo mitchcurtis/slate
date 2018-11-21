@@ -144,6 +144,7 @@ ApplicationWindow {
     menuBar: Ui.MenuBar {
         id: menuBar
         canvas: window.canvas
+        hueSaturationDialog: hueSaturationDialog
         canvasSizePopup: canvasSizePopup
         imageSizePopup: imageSizePopup
         moveContentsDialog: moveContentsDialog
@@ -395,6 +396,14 @@ ApplicationWindow {
                 DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
             }
         }
+    }
+
+    Ui.HueSaturationDialog {
+        id: hueSaturationDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        project: projectManager.project
+        canvas: window.canvas
     }
 
     Ui.CanvasSizePopup {

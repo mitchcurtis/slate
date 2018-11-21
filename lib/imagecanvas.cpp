@@ -578,6 +578,11 @@ void ImageCanvas::setSelectionArea(const QRect &selectionArea)
     emit selectionAreaChanged();
 }
 
+bool ImageCanvas::isAdjustingImage() const
+{
+    return !mSelectionContentsBeforeImageAdjustment.isNull();
+}
+
 QColor ImageCanvas::cursorPixelColour() const
 {
     return mCursorPixelColour;
@@ -1578,7 +1583,8 @@ void ImageCanvas::setLastSelectionModification(ImageCanvas::SelectionModificatio
     mLastSelectionModification = selectionModification;
     if (mLastSelectionModification == SelectionMove
             || mLastSelectionModification == SelectionFlip
-            || mLastSelectionModification == SelectionRotate) {
+            || mLastSelectionModification == SelectionRotate
+            || mLastSelectionModification == SelectionHsl) {
         setHasModifiedSelection(true);
     } else if (mLastSelectionModification == NoSelectionModification) {
         setHasModifiedSelection(false);
@@ -1727,6 +1733,90 @@ void ImageCanvas::rotateSelection(int angle)
 
     updateSelectionPreviewImage(SelectionRotate);
     requestContentPaint();
+}
+
+// How we do HSL modifications:
+//
+// We apply the HSL modification directly on the selection contents,
+// just as we do for e.g. rotation. This is easier than having a separate,
+// intermediate preview pane.
+//
+// Why these begin/end functions exist:
+//
+// If we only had modifySelectionHsl(), each cumulative HSL modification
+// would be applied to the result of the last. The visible result of this is
+// that it's not possible to move the saturation slider back and forth
+// without losing detail in the image, for example.
+// By keeping track of when the HSL modifications begin and end, we can
+// ensure that all modifications are done on the original image.
+//
+// Also, no other modifications to the canvas are possible while
+// the Hue/Saturation dialog is open, so we don't have to worry about conflict there.
+void ImageCanvas::beginModifyingSelectionHsl()
+{
+    if (!mHasSelection) {
+        qWarning() << "Can't modify HSL without a selection";
+        return;
+    }
+
+    if (!mSelectionContentsBeforeImageAdjustment.isNull()) {
+        qWarning() << "Already modifying selection's HSL";
+        return;
+    }
+
+    qCDebug(lcImageCanvasSelection) << "beginning modification of selection's HSL";
+
+    if (mSelectionAreaBeforeFirstModification.isNull()) {
+        mSelectionAreaBeforeFirstModification = mSelectionArea;
+        mSelectionContents = currentProjectImage()->copy(mSelectionAreaBeforeFirstModification);
+    }
+
+    // Store the original selection contents before we start modifying it
+    // so that each modification is done on a copy of the contents instead of the original contents.
+    mSelectionContentsBeforeImageAdjustment = mSelectionContents;
+    mLastSelectionModificationBeforeImageAdjustment = mLastSelectionModification;
+    emit adjustingImageChanged();
+}
+
+void ImageCanvas::modifySelectionHsl(qreal hue, qreal saturation, qreal lightness)
+{
+    if (!isAdjustingImage()) {
+        qWarning() << "Not adjusting an image; can't modify selection's HSL";
+        return;
+    }
+
+    qCDebug(lcImageCanvasSelection).nospace() << "modifying HSL of selection"
+        << mSelectionArea << " with h=" << hue << " s=" << saturation << " l=" << lightness;
+
+    // Copy the original so we don't just modify the result of the last adjustment (if any).
+    mSelectionContents = mSelectionContentsBeforeImageAdjustment;
+
+    Utils::modifyHsl(mSelectionContents, hue, saturation, lightness);
+
+    // Set this so that the check in shouldDrawSelectionPreviewImage() evaluates to true.
+    setLastSelectionModification(SelectionHsl);
+
+    updateSelectionPreviewImage(SelectionHsl);
+    requestContentPaint();
+}
+
+void ImageCanvas::endModifyingSelectionHsl(AdjustmentAction adjustmentAction)
+{
+    qCDebug(lcImageCanvasSelection) << "ended modification of selection's HSL";
+
+    if (adjustmentAction == RollbackAdjustment) {
+        mSelectionContents = mSelectionContentsBeforeImageAdjustment;
+        setLastSelectionModification(mLastSelectionModificationBeforeImageAdjustment);
+        updateSelectionPreviewImage(SelectionHsl);
+        requestContentPaint();
+    } else {
+        // Commit the adjustments. We don't need to request a repaint
+        // since nothing has changed since the last one.
+        setLastSelectionModification(SelectionHsl);
+    }
+
+    mSelectionContentsBeforeImageAdjustment = QImage();
+    emit adjustingImageChanged();
 }
 
 void ImageCanvas::copySelection()

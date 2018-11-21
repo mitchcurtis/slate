@@ -15,5 +15,12 @@
         <file>resources/rotateSelectionTransparentBackground-original.png</file>
         <file>resources/rotateSelectionTransparentBackground-90.png</file>
         <file>resources/rotateSelectionTransparentBackground-180.png</file>
+        <file>resources/hueSaturation-original.png</file>
+        <file>resources/hueSaturation-hue-decreased.png</file>
+        <file>resources/hueSaturation-hue-increased.png</file>
+        <file>resources/hueSaturation-lightness-decreased.png</file>
+        <file>resources/hueSaturation-lightness-increased.png</file>
+        <file>resources/hueSaturation-saturation-decreased.png</file>
+        <file>resources/hueSaturation-saturation-increased.png</file>
     </qresource>
 </RCC>

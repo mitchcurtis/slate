@@ -129,6 +129,8 @@ private Q_SLOTS:
     void rotateSelectionAtEdge();
     void rotateSelectionTransparentBackground_data();
     void rotateSelectionTransparentBackground();
+    void hueSaturation_data();
+    void hueSaturation();
 
     void fillImageCanvas_data();
     void fillImageCanvas();
@@ -3314,6 +3316,135 @@ void tst_App::rotateSelectionTransparentBackground()
     const QImage expected180Image(":/resources/rotateSelectionTransparentBackground-180.png");
     QCOMPARE(actualImage.pixelColor(0, 0), expected180Image.pixelColor(0, 0));
     QCOMPARE(actualImage, expected180Image);
+}
+
+void tst_App::hueSaturation_data()
+{
+    QTest::addColumn<Project::Type>("projectType");
+    QTest::addColumn<QString>("expectedImagePath");
+    QTest::addColumn<QString>("textFieldObjectName");
+    QTest::addColumn<bool>("increase");
+
+    QMap<QString, Project::Type> projectTypes;
+    projectTypes.insert("ImageType", Project::ImageType);
+    projectTypes.insert("LayeredImageType", Project::LayeredImageType);
+    foreach (const auto projectTypeString, projectTypes.keys()) {
+        const Project::Type projectType = projectTypes.value(projectTypeString);
+
+        QTest::newRow(qPrintable(projectTypeString + QLatin1String(",increasedHue")))
+            << projectType << ":/resources/hueSaturation-hue-increased.png" << "hueSaturationDialogHueTextField" << true;
+        QTest::newRow(qPrintable(projectTypeString + QLatin1String(",decreasedHue")))
+            << projectType << ":/resources/hueSaturation-hue-decreased.png" << "hueSaturationDialogHueTextField" << false;
+
+        QTest::newRow(qPrintable(projectTypeString + QLatin1String(",increasedSaturation")))
+            << projectType << ":/resources/hueSaturation-saturation-increased.png" << "hueSaturationDialogSaturationTextField" << true;
+        QTest::newRow(qPrintable(projectTypeString + QLatin1String(",decreasedSaturation")))
+            << projectType << ":/resources/hueSaturation-saturation-decreased.png" << "hueSaturationDialogSaturationTextField" << false;
+
+        QTest::newRow(qPrintable(projectTypeString + QLatin1String(",increasedLightness")))
+            << projectType << ":/resources/hueSaturation-lightness-increased.png" << "hueSaturationDialogLightnessTextField" << true;
+        QTest::newRow(qPrintable(projectTypeString + QLatin1String(",decreasedLightness")))
+            << projectType << ":/resources/hueSaturation-lightness-decreased.png" << "hueSaturationDialogLightnessTextField" << false;
+    }
+}
+
+void tst_App::hueSaturation()
+{
+    QFETCH(Project::Type, projectType);
+    QFETCH(QString, expectedImagePath);
+    QFETCH(QString, textFieldObjectName);
+    QFETCH(bool, increase);
+
+    QVariantMap args;
+    args.insert("imageWidth", QVariant(10));
+    args.insert("imageHeight", QVariant(10));
+    args.insert("transparentImageBackground", QVariant(true));
+    QVERIFY2(createNewProject(projectType, args), failureMessage);
+
+    // Zoom in to make visual debugging easier.
+    canvas->setSplitScreen(false);
+    canvas->currentPane()->setZoomLevel(48);
+
+    // Paste in the original image.
+    const QImage originalImage(":/resources/hueSaturation-original.png");
+    QVERIFY(!originalImage.isNull());
+    qGuiApp->clipboard()->setImage(originalImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+    QTest::keyClick(window, Qt::Key_Escape);
+    QVERIFY(project->hasUnsavedChanges());
+
+    // Select everything.
+    QTest::keySequence(window, QKeySequence::SelectAll);
+
+    // Open the dialog manually cause native menus.
+    QObject *hueSaturationDialog = window->findChild<QObject*>("hueSaturationDialog");
+    QVERIFY(hueSaturationDialog);
+    QVERIFY(QMetaObject::invokeMethod(hueSaturationDialog, "open"));
+    QTRY_COMPARE(hueSaturationDialog->property("opened").toBool(), true);
+
+    // Increase/decrease the value.
+    QQuickItem *hueSaturationDialogHueTextField
+        = window->findChild<QQuickItem*>(textFieldObjectName);
+    QVERIFY(hueSaturationDialogHueTextField);
+    hueSaturationDialogHueTextField->forceActiveFocus();
+    QVERIFY(hueSaturationDialogHueTextField->hasActiveFocus());
+    // Tried to do this with QTest::keyClick() but I couldn't get it to work:
+    // hyphens and backspace (with text selected) did nothing with the default style.
+    for (int i = 0; i < 10; ++i)
+        QTest::keyClick(window, increase ? Qt::Key_Up : Qt::Key_Down);
+    qreal hslValue = hueSaturationDialogHueTextField->property("text").toString().toDouble();
+    const qreal expectedHslValue = increase ? 0.10 : -0.10;
+    QVERIFY2(qAbs(hslValue - expectedHslValue) < 0.01,
+        qPrintable(QString::fromLatin1("Expected HSL value of %1 but got %2").arg(expectedHslValue).arg(hslValue)));
+
+    const QImage expectedImage(expectedImagePath);
+    QVERIFY(!expectedImage.isNull());
+    // The changes should be rendered...
+    canvas->contentImage().convertToFormat(QImage::Format_ARGB32).save("/Users/mitch/dev/actual.png");
+    expectedImage.save("/Users/mitch/dev/expected.png");
+    QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage);
+    // ... but not committed yet.
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
+
+    // Cancel the dialog; the changes should not be applied.
+    QQuickItem *hueSaturationDialogCancelButton
+        = window->findChild<QQuickItem*>("hueSaturationDialogCancelButton");
+    QVERIFY(hueSaturationDialogCancelButton);
+    mouseEventOnCentre(hueSaturationDialogCancelButton, MouseClick);
+    QTRY_COMPARE(hueSaturationDialog->property("visible").toBool(), false);
+    QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), originalImage);
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
+
+    // Re-open the dialog and increase/decrease the value again.
+    QVERIFY(QMetaObject::invokeMethod(hueSaturationDialog, "open"));
+    QTRY_COMPARE(hueSaturationDialog->property("opened").toBool(), true);
+    // There was an issue where reopening the dialog after changing some values the last
+    // time it was opened (even if it was cancelled) would cause the selection contents to disappear.
+    QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), originalImage);
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
+    hueSaturationDialogHueTextField->forceActiveFocus();
+    QVERIFY(hueSaturationDialogHueTextField->hasActiveFocus());
+    for (int i = 0; i < 10; ++i)
+        QTest::keyClick(window, increase ? Qt::Key_Up : Qt::Key_Down);
+    hslValue = hueSaturationDialogHueTextField->property("text").toString().toDouble();
+    QVERIFY2(qAbs(hslValue - expectedHslValue) < 0.01,
+        qPrintable(QString::fromLatin1("Expected HSL value of %1 but got %2").arg(expectedHslValue).arg(hslValue)));
+
+    // The changes should be rendered...
+    QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage);
+    // ... but not committed yet.
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
+
+    // Accept the dialog; the changes should be applied.
+    QQuickItem *hueSaturationDialogOkButton
+        = window->findChild<QQuickItem*>("hueSaturationDialogOkButton");
+    QVERIFY(hueSaturationDialogOkButton);
+    mouseEventOnCentre(hueSaturationDialogOkButton, MouseClick);
+    QTRY_COMPARE(hueSaturationDialog->property("visible").toBool(), false);
+    // Confirm the selection to make the changes to the project's image.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage);
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), expectedImage);
 }
 
 void tst_App::fillImageCanvas_data()

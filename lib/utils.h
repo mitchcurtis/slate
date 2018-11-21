@@ -34,6 +34,8 @@ namespace Utils {
     QImage rotate(const QImage &image, int angle);
     QImage rotateAreaWithinImage(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea);
 
+    void modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness);
+
     void strokeRectWithDashes(QPainter *painter, const QRect &rect);
 
     QRect ensureWithinArea(const QRect &rect, const QSize &boundsSize);

@@ -29,6 +29,7 @@ Item {
     property int projectType: project ? project.type : 0
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
+    property var hueSaturationDialog
     property var canvasSizePopup
     property var imageSizePopup
     property var moveContentsDialog
@@ -242,7 +243,21 @@ Item {
 
         Platform.Menu {
             objectName: "imageMenuBarItem"
-                title: qsTr("Image")
+            title: qsTr("Image")
+
+            Platform.Menu {
+                objectName: "adjustmentsMenuItem"
+                title: qsTr("Adjustments")
+
+                Platform.MenuItem {
+                    objectName: "hueSaturationMenuItem"
+                    text: qsTr("Hue/Saturation...")
+                    enabled: isImageProjectType && canvas && canvas.hasSelection
+                    onTriggered: hueSaturationDialog.open()
+                }
+            }
+
+            Platform.MenuSeparator {}
 
             Platform.MenuItem {
                 objectName: "changeCanvasSizeMenuItem"

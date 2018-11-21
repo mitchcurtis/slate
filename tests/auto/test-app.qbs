@@ -47,7 +47,6 @@ QtGuiApplication {
         "../../app/application.cpp",
         "../../app/fonts/fonts.qrc",
         "../../app/images/images.qrc",
-        "../../app/qml/qml.qrc",
         "resources.qrc",
         "tst_app.cpp",
         "../shared/testhelper.h",

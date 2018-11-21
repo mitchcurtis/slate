@@ -158,3 +158,19 @@ QRect Utils::ensureWithinArea(const QRect &rect, const QSize &boundsSize)
 
     return newArea;
 }
+
+void Utils::modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness)
+{
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            const QColor rgb = image.pixelColor(x, y);
+            QColor hsl = rgb.toHsl();
+            hsl.setHslF(
+                qBound(0.0, hsl.hueF() + hue, 1.0),
+                qBound(0.0, hsl.saturationF() + saturation, 1.0),
+                qBound(0.0, hsl.lightnessF() + lightness, 1.0),
+                rgb.alphaF());
+            image.setPixelColor(x, y, hsl.toRgb());
+        }
+    }
+}

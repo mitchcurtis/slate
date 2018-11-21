@@ -33,6 +33,7 @@ Controls.MenuBar {
     property int projectType: project ? project.type : 0
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
+    property var hueSaturationDialog
     property var canvasSizePopup
     property var imageSizePopup
     property var moveContentsDialog
@@ -259,6 +260,20 @@ Controls.MenuBar {
         title: qsTr("Image")
 
         onClosed: canvas.forceActiveFocus()
+
+        Menu {
+            objectName: "adjustmentsMenuItem"
+            title: qsTr("Adjustments")
+
+            MenuItem {
+                objectName: "hueSaturationMenuItem"
+                text: qsTr("Hue/Saturation...")
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+                onTriggered: hueSaturationDialog.open()
+            }
+        }
+
+        MenuSeparator {}
 
         MenuItem {
             objectName: "changeCanvasSizeMenuItem"

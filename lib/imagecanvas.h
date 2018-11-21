@@ -87,6 +87,7 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool hasSelection READ hasSelection NOTIFY hasSelectionChanged)
     Q_PROPERTY(bool hasModifiedSelection READ hasModifiedSelection NOTIFY hasModifiedSelectionChanged)
     Q_PROPERTY(QRect selectionArea READ selectionArea NOTIFY selectionAreaChanged)
+    Q_PROPERTY(bool adjustingImage READ isAdjustingImage NOTIFY adjustingImageChanged)
     Q_PROPERTY(bool hasBlankCursor READ hasBlankCursor NOTIFY hasBlankCursorChanged)
     Q_PROPERTY(bool altPressed READ isAltPressed NOTIFY altPressedChanged)
     Q_PROPERTY(bool lineVisible READ isLineVisible NOTIFY lineVisibleChanged)
@@ -216,6 +217,8 @@ public:
     QRect selectionArea() const;
     void setSelectionArea(const QRect &selectionArea);
 
+    bool isAdjustingImage() const;
+
     bool hasBlankCursor() const;
 
     bool isAltPressed() const;
@@ -251,10 +254,18 @@ public:
         SelectionPaste,
         SelectionMove,
         SelectionFlip,
-        SelectionRotate
+        SelectionRotate,
+        SelectionHsl
     };
     // For nice printing.
     Q_ENUM(SelectionModification)
+
+    enum AdjustmentAction {
+        RollbackAdjustment,
+        CommitAdjustment
+    };
+
+    Q_ENUM(AdjustmentAction)
 
 signals:
     void projectChanged();
@@ -289,6 +300,7 @@ signals:
     void hasSelectionChanged();
     void hasModifiedSelectionChanged();
     void selectionAreaChanged();
+    void adjustingImageChanged();
     void altPressedChanged();
     void lineVisibleChanged();
     void lineLengthChanged();
@@ -306,8 +318,12 @@ public slots:
     void centreView();
     void zoomIn();
     void zoomOut();
+
     void flipSelection(Qt::Orientation orientation);
     void rotateSelection(int angle);
+    void beginModifyingSelectionHsl();
+    void modifySelectionHsl(qreal hue, qreal saturation, qreal lightness);
+    void endModifyingSelectionHsl(AdjustmentAction adjustmentAction);
     void copySelection();
     void paste();
     void deleteSelectionOrContents();
@@ -571,6 +587,9 @@ protected:
     // The entire image as it would look if the selection (that is currently being dragged)
     // was dropped where it is now.
     QImage mSelectionPreviewImage;
+    // See the definition of beginModifyingSelectionHsl() for info.
+    QImage mSelectionContentsBeforeImageAdjustment;
+    SelectionModification mLastSelectionModificationBeforeImageAdjustment;
     QBasicTimer mSelectionEdgePanTimer;
     SelectionCursorGuide *mSelectionCursorGuide;
     // The type of the last modification that was done to the selection.
