@@ -35,16 +35,27 @@ ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex
     QUndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex),
-    mImageWithLine(currentProjectImage),
-    mLineRect(mCanvas->normalisedLineRect(point1, point2)),
-    mImageWithoutLine(currentProjectImage.copy(mLineRect)),
     mNewLastPixelPenReleaseScenePos(newLastPixelPenReleaseScenePos),
-    mOldLastPixelPenReleaseScenePos(oldLastPixelPenReleaseScenePos)
+    mOldLastPixelPenReleaseScenePos(oldLastPixelPenReleaseScenePos),
+    subImageDatas()
 {
-    QPainter painter(&mImageWithLine);
-    mCanvas->drawLine(&painter, point1, point2, mode);
-    painter.end();
-    mImageWithLine = mImageWithLine.copy(mLineRect);
+    const QRect lineRect = mCanvas->normalisedLineRect(point1, point2);
+    const QList<ImageCanvas::SubImage> subImages = canvas->subImagesInBounds(lineRect);
+    for (auto const &subImage : subImages) {
+        const QRect subImageLineRect = lineRect.translated(-subImage.offset).intersected(subImage.bounds);
+        SubImageData subImageData;
+        subImageData.subImage = subImage;
+        subImageData.lineRect = subImageLineRect;
+        subImageData.imageWithoutLine = currentProjectImage.copy(subImageLineRect);
+
+        QPainter painter(&currentProjectImage);
+        painter.setClipRect(subImageLineRect);
+        mCanvas->drawLine(&painter, point1 - subImage.offset, point2 - subImage.offset, mode);
+        painter.end();
+
+        subImageData.imageWithLine = currentProjectImage.copy(subImageLineRect);
+        subImageDatas.append(subImageData);
+    }
 
     qCDebug(lcApplyPixelLineCommand) << "constructed" << this;
 }
@@ -57,13 +68,17 @@ ApplyPixelLineCommand::~ApplyPixelLineCommand()
 void ApplyPixelLineCommand::undo()
 {
     qCDebug(lcApplyPixelLineCommand) << "undoing" << this;
-    mCanvas->applyPixelLineTool(mLayerIndex, mImageWithoutLine, mLineRect, mOldLastPixelPenReleaseScenePos);
+    for (auto const &subImageData : subImageDatas) {
+        mCanvas->applyPixelLineTool(mLayerIndex, subImageData.imageWithoutLine, subImageData.lineRect, mOldLastPixelPenReleaseScenePos);
+    }
 }
 
 void ApplyPixelLineCommand::redo()
 {
     qCDebug(lcApplyPixelLineCommand) << "redoing" << this;
-    mCanvas->applyPixelLineTool(mLayerIndex, mImageWithLine, mLineRect, mNewLastPixelPenReleaseScenePos);
+    for (auto const &subImageData : subImageDatas) {
+        mCanvas->applyPixelLineTool(mLayerIndex, subImageData.imageWithLine, subImageData.lineRect, mNewLastPixelPenReleaseScenePos);
+    }
 }
 
 int ApplyPixelLineCommand::id() const
@@ -80,7 +95,7 @@ QDebug operator<<(QDebug debug, const ApplyPixelLineCommand *command)
 {
     debug.nospace() << "(ApplyPixelLineCommand"
         << " layerIndex=" << command->mLayerIndex
-        << ", lineRect" << command->mLineRect
+//        << ", lineRect" << command->mLineRect
         << ", newLastPixelPenReleaseScenePos=" << command->mNewLastPixelPenReleaseScenePos
         << ", oldLastPixelPenReleaseScenePos=" << command->mOldLastPixelPenReleaseScenePos
         << ")";

@@ -39,6 +39,7 @@ public:
     QString fileName() const;
     void setFileName(const QString &fileName);
     const QImage *image() const;
+    QImage *image();
     void setPixelColor(int x, int y, const QColor &colour);
     void copy(const QPoint &sourceTopLeft, const QPoint &targetTopLeft);
     void rotateCounterClockwise(const QPoint &tileTopLeft);

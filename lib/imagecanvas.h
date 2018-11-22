@@ -234,6 +234,17 @@ public:
     int lineLength() const;
     qreal lineAngle() const;
 
+    struct SubImage {
+        bool operator==(const SubImage &other) const {
+            return bounds == other.bounds && offset == other.offset;
+        }
+
+        QRect bounds;
+        QPoint offset;
+    };
+
+    virtual QList<SubImage> subImagesInBounds(const QRect &bounds) const;
+
     // Essentially currentProjectImage() for regular image canvas, but may return a
     // preview image if there is a selection active. For layered image canvases, this
     // should return all layers flattened into one image, or the same flattened image
@@ -600,5 +611,17 @@ protected:
     bool mSpacePressed;
     bool mHasBlankCursor;
 };
+
+inline uint qHash(const ImageCanvas::SubImage &key, const uint seed = 0) {
+    return qHashBits(&key, sizeof(ImageCanvas::SubImage), seed);
+}
+
+inline QDebug operator<<(QDebug debug, const ImageCanvas::SubImage &subImage)
+{
+    QDebugStateSaver saver(debug);
+    debug.nospace() << "SubImage(" << subImage.bounds << ", " << subImage.offset << ')';
+
+    return debug;
+}
 
 #endif // IMAGECANVAS_H

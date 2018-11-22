@@ -822,6 +822,15 @@ qreal ImageCanvas::lineAngle() const
     return line.angle();
 }
 
+QList<ImageCanvas::SubImage> ImageCanvas::subImagesInBounds(const QRect &bounds) const
+{
+    QList<SubImage> subImages;
+    if (bounds.intersects(mProject->bounds())) {
+        subImages.append(SubImage{mProject->bounds(), {}});
+    }
+    return subImages;
+}
+
 void ImageCanvas::setAltPressed(bool altPressed)
 {
     if (altPressed == mAltPressed)
@@ -1017,7 +1026,7 @@ void ImageCanvas::drawLine(QPainter *painter, QPointF point1, QPointF point2, co
     const QLineF line(point1, point2);
 
     painter->setCompositionMode(mode);
-    // Zero-length line doesn't with round pen draw so handle case with drawPoint
+    // Zero-length line doesn't draw with round pen so handle case with drawPoint
     if (line.p1() == line.p2()) {
         painter->drawPoint(line.p1());
     }

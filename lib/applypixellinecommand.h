@@ -46,11 +46,16 @@ private:
 
     ImageCanvas *mCanvas;
     int mLayerIndex;
-    QImage mImageWithLine;
-    QRect mLineRect;
-    QImage mImageWithoutLine;
     QPointF mNewLastPixelPenReleaseScenePos;
     QPointF mOldLastPixelPenReleaseScenePos;
+
+    struct SubImageData {
+        ImageCanvas::SubImage subImage;
+        QRect lineRect;
+        QImage imageWithoutLine;
+        QImage imageWithLine;
+    };
+    QList<SubImageData> subImageDatas;
 };
 
 
