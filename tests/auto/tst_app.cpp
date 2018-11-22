@@ -75,7 +75,11 @@ private Q_SLOTS:
     void undoLayeredImageSizeChange();
     void undoPixelFill();
     void undoTileFill();
-    void undoThickPen();
+    void undoThickSquarePen();
+    void undoThickRoundPen();
+    void penSubpixelPosition();
+    void penSubpixelPositionWithThickBrush_data();
+    void penSubpixelPositionWithThickBrush();
     void colours_data();
     void colours();
     void colourPickerSaturationHex();
@@ -1525,7 +1529,7 @@ void tst_App::undoTileFill()
     QCOMPARE(tilesetProject->tileAtTilePos(QPoint(1, 0)), targetTile);
 }
 
-void tst_App::undoThickPen()
+void tst_App::undoThickSquarePen()
 {
     QVERIFY2(createNewImageProject(), failureMessage);
 
@@ -1554,11 +1558,8 @@ void tst_App::undoThickPen()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 1), QColor(Qt::black));
 
     setCursorPosInScenePixels(QPoint(1, 2));
-//    QTest::qWait(2000);
     QTest::mouseMove(window, cursorWindowPos);
-//    QTest::qWait(2000);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-//    QTest::qWait(30000);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 2), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 2), QColor(Qt::black));
 
@@ -1568,6 +1569,223 @@ void tst_App::undoThickPen()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 0), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 2), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 2), QColor(Qt::white));
+}
+
+void tst_App::undoThickRoundPen()
+{
+    QVERIFY2(createNewImageProject(), failureMessage);
+
+    QVERIFY2(changeToolSize(4), failureMessage);
+    QVERIFY2(changeToolShape(ImageCanvas::CircleToolShape), failureMessage);
+
+    QImage expectedClickImage(":/resources/undoThickRoundPen-1.png");
+    QVERIFY(!expectedClickImage.isNull());
+
+    QImage undoneImage(4, 4, QImage::Format_ARGB32);
+    undoneImage.fill(Qt::white);
+
+    // First, try a single click.
+    setCursorPosInScenePixels(QPoint(2, 2));
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 4, 4)), expectedClickImage);
+
+    // Undo it.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 4, 4)), undoneImage);
+
+    QImage expectedDragImage(":/resources/undoThickRoundPen-2.png");
+    QVERIFY(!expectedDragImage.isNull());
+
+    undoneImage = QImage(5, 5, QImage::Format_ARGB32);
+    undoneImage.fill(Qt::white);
+
+    // Next, try dragging.
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+
+    setCursorPosInScenePixels(QPoint(3, 3));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 5, 5)), expectedDragImage);
+
+    // Undo it.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 5, 5)), undoneImage);
+}
+
+void tst_App::penSubpixelPosition()
+{
+    QVERIFY2(createNewImageProject(), failureMessage);
+
+    // Ensure that the first pane is current by hovering it.
+    setCursorPosInScenePixels(QPoint(1, 1));
+    QTest::mouseMove(window, cursorWindowPos);
+    QCOMPARE(canvas->currentPane(), canvas->firstPane());
+
+    // For some reason it crashes on macOS here, so do it manually.
+    canvas->currentPane()->setZoomLevel(30);
+    QCOMPARE(canvas->currentPane(), canvas->firstPane());
+
+    // Ensure that we can see the top left corner as a sanity check while visually debugging.
+    QVERIFY2(panTopLeftTo(100, 100), failureMessage);
+    QCOMPARE(canvas->currentPane(), canvas->firstPane());
+
+    /*
+        This test ensures that the pen tool draws at the correct position
+        when the canvas is zoomed in. Specifically, the centre of the brush's crosshair
+        should be the centre of the drawn pixel. In the diagram below, the centre
+        of the crosshair is "between" {0, 0} and {1, 1}. Each check moves it one pixel
+        diagonally to make sure the correct pixel is drawn in.
+
+              0         1
+         +---------+---------+
+         |         |         |
+       0 |         |         |
+         |         |         |
+         +---------o---------+
+         |         |         |
+       1 |         |         |
+         |         |         |
+         +---------+---------+
+    */
+    setCursorPosInScenePixels(QPoint(1, 1));
+    const QPoint originalPos = cursorWindowPos;
+    QTest::mouseMove(window, cursorWindowPos);
+
+    /*
+        {0, 0} should be filled in since the centre of the crosshair is now over it.
+
+              0         1
+         +---------+---------+
+         |         |         |
+       0 |         |         |
+         |       o |         |
+         +---------|---------+
+         |         |         |
+       1 |         |         |
+         |         |         |
+         +---------+---------+
+    */
+    cursorWindowPos = originalPos + QPoint(-1, -1);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+
+    /*
+        {1, 0} should be filled in since the centre of the crosshair is now over it.
+
+              0         1
+         +---------+---------+
+         |         |         |
+       0 |         |         |
+         |         | o       |
+         +---------|---------+
+         |         |         |
+       1 |         |         |
+         |         |         |
+         +---------+---------+
+    */
+    cursorWindowPos = originalPos + QPoint(1, -1);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 0), QColor(Qt::black));
+
+    /*
+        {1, 1} should be filled in since the centre of the crosshair is now over it.
+
+              0         1
+         +---------+---------+
+         |         |         |
+       0 |         |         |
+         |         |         |
+         +---------|---------+
+         |         | o       |
+       1 |         |         |
+         |         |         |
+         +---------+---------+
+    */
+    cursorWindowPos = originalPos + QPoint(1, 1);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
+
+    /*
+        {0, 1} should be filled in since the centre of the crosshair is now over it.
+
+              0         1
+         +---------+---------+
+         |         |         |
+       0 |         |         |
+         |         |         |
+         +---------|---------+
+         |       o |         |
+       1 |         |         |
+         |         |         |
+         +---------+---------+
+    */
+    cursorWindowPos = originalPos + QPoint(-1, 1);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 1), QColor(Qt::black));
+}
+
+void tst_App::penSubpixelPositionWithThickBrush_data()
+{
+    QTest::addColumn<ImageCanvas::ToolShape>("toolShape");
+    QTest::addColumn<QString>("expectedImagePath");
+
+    QTest::newRow("square") << ImageCanvas::SquareToolShape
+        << ":/resources/penSubpixelPositionWithThickBrush-square.png";
+    QTest::newRow("circle") << ImageCanvas::CircleToolShape
+        << ":/resources/penSubpixelPositionWithThickBrush-circle.png";
+}
+
+// Same as penSubpixelPosition() except with a thicker brush.
+void tst_App::penSubpixelPositionWithThickBrush()
+{
+    QFETCH(ImageCanvas::ToolShape, toolShape);
+    QFETCH(QString, expectedImagePath);
+
+    QVERIFY2(createNewImageProject(4, 4), failureMessage);
+
+    QVERIFY2(changeToolShape(toolShape), failureMessage);
+
+    // Ensure that the first pane is current by hovering it.
+    setCursorPosInScenePixels(QPoint(1, 1));
+    QTest::mouseMove(window, cursorWindowPos);
+    QCOMPARE(canvas->currentPane(), canvas->firstPane());
+
+    // For some reason it crashes on macOS here, so do it manually.
+    canvas->currentPane()->setZoomLevel(30);
+    QCOMPARE(canvas->currentPane(), canvas->firstPane());
+
+    // Ensure that we can see the top left corner as a sanity check while visually debugging.
+    QVERIFY2(panTopLeftTo(100, 100), failureMessage);
+    QCOMPARE(canvas->currentPane(), canvas->firstPane());
+
+    // Set up the original position.
+    setCursorPosInScenePixels(QPoint(1, 1));
+    const QPoint originalPos = cursorWindowPos;
+    QTest::mouseMove(window, cursorWindowPos);
+
+    QVector<QPoint> mousePositions;
+    mousePositions << originalPos + QPoint(-1, -1);
+    mousePositions << originalPos + QPoint(1, -1);
+    mousePositions << originalPos + QPoint(1, 1);
+    mousePositions << originalPos + QPoint(-1, 1);
+
+    const QImage expectedImage(expectedImagePath);
+    QVERIFY(!expectedImage.isNull());
+
+    for (const QPoint &mousePosition : qAsConst(mousePositions)) {
+        cursorWindowPos = mousePosition;
+        QTest::mouseMove(window, cursorWindowPos);
+        QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        // TODO: for debugging, can be removed when fixed
+//        canvas->currentProjectImage()->copy(QRect(0, 0, 4, 4)).save("/Users/mitch/dev/actual.png");
+//        expectedImage.save("/Users/mitch/dev/expected.png");
+        QEXPECT_FAIL("", "TODO: fix me", Continue);
+        QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 4, 4)), expectedImage);
+    }
 }
 
 void tst_App::colours_data()

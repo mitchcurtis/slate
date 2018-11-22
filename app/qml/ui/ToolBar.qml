@@ -297,6 +297,7 @@ ToolBar {
             objectName: "toolShapeButton"
             hoverEnabled: true
             focusPolicy: Qt.NoFocus
+            visible: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
             readonly property bool squareShape: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
             icon.source: squareShape ? "qrc:/images/square-tool-shape.png" : "qrc:/images/circle-tool-shape.png"
@@ -304,7 +305,7 @@ ToolBar {
             ToolTip.text: qsTr("Choose brush shape")
             ToolTip.visible: hovered
 
-            onClicked: shapeMenu.visible = !shapeMenu.visible
+            onClicked: toolShapeMenu.visible = !toolShapeMenu.visible
 
             ToolButtonMenuIndicator {
                 color: toolShapeButton.icon.color
@@ -314,11 +315,13 @@ ToolBar {
             }
 
             Menu {
-                id: shapeMenu
+                id: toolShapeMenu
+                objectName: "toolShapeMenu"
                 y: toolShapeButton.height
                 width: 260
 
                 MenuItem {
+                    objectName: "squareToolShapeMenuItem"
                     text: qsTr("Square")
                     icon.source: "qrc:/images/square-tool-shape.png"
                     autoExclusive: true
@@ -327,6 +330,7 @@ ToolBar {
                     onTriggered: canvas.toolShape = ImageCanvas.SquareToolShape
                 }
                 MenuItem {
+                    objectName: "circleToolShapeMenuItem"
                     text: qsTr("Circle")
                     icon.source: "qrc:/images/circle-tool-shape.png"
                     autoExclusive: true
@@ -334,7 +338,8 @@ ToolBar {
                     checked: canvas && canvas.toolShape === ImageCanvas.CircleToolShape
                     onTriggered: canvas.toolShape = ImageCanvas.CircleToolShape
                 }
-            }        }
+            }
+        }
 
         ToolSeparator {
             id: toolSeparator
