@@ -42,7 +42,9 @@ ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex
     const QRect lineRect = mCanvas->normalisedLineRect(point1, point2);
     const QList<ImageCanvas::SubImage> subImages = canvas->subImagesInBounds(lineRect);
     for (auto const &subImage : subImages) {
+        // subimage-space to scene-space offset
         const QPoint offset = subImage.bounds.topLeft() - subImage.offset;
+        // line rect offset to scene space and clipped to subimage bounds
         const QRect subImageLineRect = subImage.bounds.intersected(lineRect.translated(offset));
 
         SubImageData subImageData;
@@ -51,7 +53,9 @@ ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex
         subImageData.imageWithoutLine = currentProjectImage.copy(subImageLineRect);
 
         QPainter painter(&currentProjectImage);
+        // Clip drawing to subimage
         painter.setClipRect(subImageLineRect);
+        // Draw line with offset to subimage
         mCanvas->drawLine(&painter, point1 + offset, point2 + offset, mode);
         painter.end();
 
