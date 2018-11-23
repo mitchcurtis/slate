@@ -1748,6 +1748,7 @@ void tst_App::penSubpixelPositionWithThickBrush()
     QVERIFY2(createNewImageProject(4, 4), failureMessage);
 
     QVERIFY2(changeToolShape(toolShape), failureMessage);
+    QVERIFY2(changeToolSize(4), failureMessage);
 
     // Ensure that the first pane is current by hovering it.
     setCursorPosInScenePixels(QPoint(1, 1));
@@ -1763,7 +1764,7 @@ void tst_App::penSubpixelPositionWithThickBrush()
     QCOMPARE(canvas->currentPane(), canvas->firstPane());
 
     // Set up the original position.
-    setCursorPosInScenePixels(QPoint(1, 1));
+    setCursorPosInScenePixels(QPoint(2, 2));
     const QPoint originalPos = cursorWindowPos;
     QTest::mouseMove(window, cursorWindowPos);
 
@@ -1780,10 +1781,6 @@ void tst_App::penSubpixelPositionWithThickBrush()
         cursorWindowPos = mousePosition;
         QTest::mouseMove(window, cursorWindowPos);
         QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-        // TODO: for debugging, can be removed when fixed
-//        canvas->currentProjectImage()->copy(QRect(0, 0, 4, 4)).save("/Users/mitch/dev/actual.png");
-//        expectedImage.save("/Users/mitch/dev/expected.png");
-        QEXPECT_FAIL("", "TODO: fix me", Continue);
         QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 4, 4)), expectedImage);
     }
 }
