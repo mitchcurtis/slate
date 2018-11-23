@@ -27,6 +27,7 @@
 
 #include "applypixelerasercommand.h"
 #include "applypixelfillcommand.h"
+#include "applypixellinecommand.h"
 #include "applypixelpencommand.h"
 #include "applytilecanvaspixelfillcommand.h"
 #include "applytileerasercommand.h"
@@ -35,6 +36,7 @@
 #include "fillalgorithms.h"
 #include "tileset.h"
 #include "tilesetproject.h"
+#include "utils.h"
 
 TileCanvas::TileCanvas() :
     mTilesetProject(nullptr),
@@ -320,13 +322,20 @@ void TileCanvas::applyCurrentTool()
     switch (mTool) {
     case PenTool: {
         if (mMode == PixelMode) {
-            const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
-            if (candidateData.scenePositions.isEmpty()) {
-                return;
-            }
+//            const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
+//            if (candidateData.scenePositions.isEmpty()) {
+//                return;
+//            }
 
-            mTilesetProject->beginMacro(QLatin1String("PixelPenTool"));
-            mTilesetProject->addChange(new ApplyPixelPenCommand(this, -1, candidateData.scenePositions, candidateData.previousColours, penColour()));
+//            mTilesetProject->beginMacro(QLatin1String("PixelPenTool"));
+//            mTilesetProject->addChange(new ApplyPixelPenCommand(this, -1, candidateData.scenePositions, candidateData.previousColours, penColour()));
+            mProject->beginMacro(QLatin1String("PixelLineTool"));
+            // Draw the line on top of what has already been painted using a special composition mode.
+            // This ensures that e.g. a translucent red overwrites whatever pixels it
+            // lies on, rather than blending with them.
+            mProject->addChange(new ApplyPixelLineCommand(this, -1, *mTilesetProject->tileset()->image(), linePoint1(), linePoint2(),
+                mPressScenePosition, mLastPixelPenPressScenePosition, QPainter::CompositionMode_Source));
+            break;
         } else {
             const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
             const Tile *tile = mTilesetProject->tileAt(scenePos);
@@ -410,7 +419,28 @@ void TileCanvas::applyCurrentTool()
 QPoint TileCanvas::scenePosToTilePixelPos(const QPoint &scenePos) const
 {
     return QPoint(scenePos.x() % mTilesetProject->tileWidth(),
-        scenePos.y() % mTilesetProject->tileHeight());
+                  scenePos.y() % mTilesetProject->tileHeight());
+}
+
+QRect TileCanvas::sceneRectToTileRect(const QRect &sceneRect) const
+{
+    return QRect(QPoint(Utils::divFloor(sceneRect.left(), mTilesetProject->tileWidth()), Utils::divFloor(sceneRect.top(), mTilesetProject->tileHeight())),
+                 QPoint(Utils::divFloor(sceneRect.right(), mTilesetProject->tileWidth()), Utils::divFloor(sceneRect.bottom(), mTilesetProject->tileHeight())));
+}
+
+QList<ImageCanvas::SubImage> TileCanvas::subImagesInBounds(const QRect &bounds) const
+{
+    const QRect tileRect = sceneRectToTileRect(bounds);
+    QList<ImageCanvas::SubImage> subImages;
+    for (int y = tileRect.top(); y <= tileRect.bottom(); ++y) {
+        for (int x = tileRect.left(); x <= tileRect.right(); ++x) {
+            const Tile *const tile = mTilesetProject->tileAtTilePos({x, y});
+            if (tile) {
+                subImages.append({tile->sourceRect(), {x * mTilesetProject->tileWidth(), y * mTilesetProject->tileHeight()}});
+            }
+        }
+    }
+    return subImages;
 }
 
 // This function actually operates on the image.
@@ -432,6 +462,15 @@ void TileCanvas::applyPixelPenTool(int layerIndex, const QPoint &scenePos, const
 void TileCanvas::applyTilePenTool(const QPoint &tilePos, int id)
 {
     mTilesetProject->setTileAtPixelPos(tilePos, id);
+    requestContentPaint();
+}
+
+void TileCanvas::applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition)
+{
+    mLastPixelPenPressScenePositionF = lastPixelPenReleaseScenePosition;
+    QPainter painter(mTilesetProject->tileset()->image());
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.drawImage(lineRect, lineImage);
     requestContentPaint();
 }
 

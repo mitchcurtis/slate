@@ -822,6 +822,15 @@ qreal ImageCanvas::lineAngle() const
     return line.angle();
 }
 
+QList<ImageCanvas::SubImage> ImageCanvas::subImagesInBounds(const QRect &bounds) const
+{
+    QList<SubImage> subImages;
+    if (bounds.intersects(mProject->bounds())) {
+        subImages.append(SubImage{mProject->bounds(), {}});
+    }
+    return subImages;
+}
+
 void ImageCanvas::setAltPressed(bool altPressed)
 {
     if (altPressed == mAltPressed)
@@ -982,7 +991,7 @@ QImage ImageCanvas::getContentImage()
     return image;
 }
 
-void ImageCanvas::drawLine(QPainter *painter, const QPointF point1, const QPointF point2, const QPainter::CompositionMode mode) const
+void ImageCanvas::drawLine(QPainter *painter, QPointF point1, QPointF point2, const QPainter::CompositionMode mode) const
 {
     painter->save();
 
@@ -999,11 +1008,27 @@ void ImageCanvas::drawLine(QPainter *painter, const QPointF point1, const QPoint
     }
     painter->setPen(pen);
 
-    QLineF line(point1, point2);
+    // Offset odd sized pens to pixel centre to centre pen
+    const QPointF penOffset = (mToolSize % 2 == 1) ? QPointF(0.5, 0.5) : QPointF(0.0, 0.0);
+
+    // Snap points to points to pixel grid
+    if (mToolSize > 1) {
+        point1 = (point1 + penOffset).toPoint() - penOffset;
+        point2 = (point2 + penOffset).toPoint() - penOffset;
+    }
+    else {
+        // Handle inconsitant width 1 pen behaviour, off pixel centres so results in non-ideal asymetrical lines but
+        // would require either redrawing previous segment as part of stroke or custom line function to prevent spurs
+        point1 = QPointF(qFloor(point1.x()), qFloor(point1.y()));
+        point2 = QPointF(qFloor(point2.x()), qFloor(point2.y()));
+    }
+
+    const QLineF line(point1, point2);
+
     painter->setCompositionMode(mode);
-    // Zero-length line doesn't draw so handle case with drawPoint
-    if (line.length() == 0.0) {
-        painter->drawPoint(point1);
+    // Zero-length line doesn't draw with round pen so handle case with drawPoint
+    if (line.p1() == line.p2()) {
+        painter->drawPoint(line.p1());
     }
     else {
         painter->drawLine(line);
@@ -1648,6 +1673,7 @@ void ImageCanvas::reset()
     mLastMouseButtonPressed = Qt::NoButton;
     mPressPosition = QPoint(0, 0);
     mPressScenePosition = QPoint(0, 0);
+    mPressScenePositionF = QPointF(0.0, 0.0);
     mCurrentPaneOffsetBeforePress = QPoint(0, 0);
     mFirstPaneVisibleSceneArea = QRect();
     mSecondPaneVisibleSceneArea = QRect();
@@ -1938,7 +1964,7 @@ void ImageCanvas::applyCurrentTool()
         // This ensures that e.g. a translucent red overwrites whatever pixels it
         // lies on, rather than blending with them.
         mProject->addChange(new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), *currentProjectImage(), linePoint1(), linePoint2(),
-            mPressScenePosition, mLastPixelPenPressScenePosition, QPainter::CompositionMode_Source));
+            mPressScenePositionF, mLastPixelPenPressScenePositionF, QPainter::CompositionMode_Source));
         break;
     }
     case EyeDropperTool: {
@@ -1952,7 +1978,7 @@ void ImageCanvas::applyCurrentTool()
         mProject->beginMacro(QLatin1String("PixelEraserTool"));
         // Draw the line on top of what has already been painted using a special composition mode to erase pixels.
         mProject->addChange(new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), *currentProjectImage(), linePoint1(), linePoint2(),
-            mPressScenePosition, mLastPixelPenPressScenePosition, QPainter::CompositionMode_Clear));
+            mPressScenePositionF, mLastPixelPenPressScenePositionF, QPainter::CompositionMode_Clear));
         break;
     }
     case FillTool: {
@@ -2015,9 +2041,9 @@ void ImageCanvas::applyPixelPenTool(int layerIndex, const QPoint &scenePos, cons
 }
 
 void ImageCanvas::applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect,
-    const QPoint &lastPixelPenReleaseScenePosition)
+    const QPointF &lastPixelPenReleaseScenePosition)
 {
-    mLastPixelPenPressScenePosition = lastPixelPenReleaseScenePosition;
+    mLastPixelPenPressScenePositionF = lastPixelPenReleaseScenePosition;
     QPainter painter(imageForLayerAt(layerIndex));
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.drawImage(lineRect, lineImage);
@@ -2076,12 +2102,12 @@ QRect ImageCanvas::doRotateSelection(int layerIndex, const QRect &area, int angl
 
 QPointF ImageCanvas::linePoint1() const
 {
-    return mLastPixelPenPressScenePosition;
+    return mLastPixelPenPressScenePositionF;
 }
 
 QPointF ImageCanvas::linePoint2() const
 {
-    return QPointF(mCursorSceneX, mCursorSceneY);
+    return QPointF(mCursorSceneFX, mCursorSceneFY);
 }
 
 QRect ImageCanvas::normalisedLineRect(const QPointF point1, const QPointF point2) const
@@ -2090,7 +2116,7 @@ QRect ImageCanvas::normalisedLineRect(const QPointF point1, const QPointF point2
     // a simplification of Pythagoras’ theorem.
     // The bounds could be tighter by taking into account the specific rotation of the brush,
     // but the sqrt(2) ensures it is big enough for any rotation.
-    const int margin = qCeil(M_SQRT2 * mToolSize / 2.0);
+    const int margin = qCeil(M_SQRT2 * mToolSize / 2.0) + 1;
     return QRect(point1.toPoint(), point2.toPoint()).normalized()
             .marginsAdded({margin, margin, margin, margin});
 }
@@ -2483,6 +2509,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
     mLastMouseButtonPressed = mMouseButtonPressed;
     mPressPosition = event->pos();
     mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
+    mPressScenePositionF = QPointF(mCursorSceneFX, mCursorSceneFY);
     mCurrentPaneOffsetBeforePress = mCurrentPane->integerOffset();
     setContainsMouse(true);
 
@@ -2507,7 +2534,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
         }
 
         if (!mShiftPressed) {
-            mLastPixelPenPressScenePosition = mPressScenePosition;
+            mLastPixelPenPressScenePositionF = mPressScenePositionF;
         }
 
         if (mTool != SelectionTool) {
@@ -2533,7 +2560,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
 {
     QQuickItem::mouseMoveEvent(event);
 
-    const QPoint oldCursorScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
+    const QPointF oldCursorScenePosition = QPointF(mCursorSceneFX, mCursorSceneFY);
     updateCursorPos(event->pos());
 
     if (!mProject->hasLoaded())
@@ -2551,11 +2578,12 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
         } else if (mPressedGuideIndex != -1) {
             mGuidesItem->update();
         } else {
-            if (!isPanning()) {                
+            if (!isPanning()) {
                 if (mTool != SelectionTool) {
                     mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
+                    mPressScenePositionF = QPointF(mCursorSceneFX, mCursorSceneFY);
                     if (!mShiftPressed) {
-                        mLastPixelPenPressScenePosition = oldCursorScenePosition;
+                        mLastPixelPenPressScenePositionF = oldCursorScenePosition;
                     }
                     applyCurrentTool();
                 } else {

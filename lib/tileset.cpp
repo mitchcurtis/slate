@@ -56,6 +56,11 @@ const QImage *Tileset::image() const
     return &mImage;
 }
 
+QImage *Tileset::image()
+{
+    return &mImage;
+}
+
 void Tileset::setPixelColor(int x, int y, const QColor &colour)
 {
     mImage.setPixelColor(x, y, colour);
