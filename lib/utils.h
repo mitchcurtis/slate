@@ -48,6 +48,28 @@ namespace Utils {
         debug << enumValue;
         return string;
     }
+
+    template<typename T>
+    inline T divFloor(const T dividend, const T divisor) {
+        T quotient = dividend / divisor;
+        const T remainder = dividend % divisor;
+        if ((remainder != 0) && ((remainder < 0) != (divisor < 0))) --quotient;
+        return quotient;
+    }
+    template<typename T>
+    inline T divCeil(const T dividend, const T divisor) {
+        return divFloor(dividend + (divisor - 1), divisor);
+    }
+    template<typename T>
+    inline T modFloor(const T dividend, const T divisor) {
+        T remainder = dividend % divisor;
+        if ((remainder != 0) && ((remainder < 0) != (divisor < 0))) remainder += divisor;
+        return remainder;
+    }
+    template<typename T>
+    inline T modCeil(const T dividend, const T divisor) {
+        return modFloor(dividend + (divisor - 1), divisor);
+    }
 }
 
 #endif // UTILS_H

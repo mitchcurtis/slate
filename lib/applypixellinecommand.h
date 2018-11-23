@@ -30,9 +30,9 @@
 class SLATE_EXPORT ApplyPixelLineCommand : public QUndoCommand
 {
 public:
-    ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex, const QImage &imageWithLine,
-        const QImage &imageWithoutLine, const QRect &lineRect, const QPoint &newLastPixelPenReleaseScenePos,
-        const QPoint &oldLastPixelPenReleaseScenePos, QUndoCommand *parent = nullptr);
+    ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex, QImage &currentProjectImage, const QPointF point1, const QPointF point2,
+                          const QPointF &newLastPixelPenReleaseScenePos, const QPointF &oldLastPixelPenReleaseScenePos,
+                          const QPainter::CompositionMode mode, QUndoCommand *parent = nullptr);
     ~ApplyPixelLineCommand();
 
     void undo() override;
@@ -46,11 +46,16 @@ private:
 
     ImageCanvas *mCanvas;
     int mLayerIndex;
-    QImage mImageWithLine;
-    QImage mImageWithoutLine;
-    QRect mLineRect;
-    QPoint mNewLastPixelPenReleaseScenePos;
-    QPoint mOldLastPixelPenReleaseScenePos;
+    QPointF mNewLastPixelPenReleaseScenePos;
+    QPointF mOldLastPixelPenReleaseScenePos;
+
+    struct SubImageData {
+        ImageCanvas::SubImage subImage;
+        QRect lineRect;
+        QImage imageWithoutLine;
+        QImage imageWithLine;
+    };
+    QList<SubImageData> subImageDatas;
 };
 
 

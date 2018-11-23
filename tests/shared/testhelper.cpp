@@ -133,6 +133,9 @@ void TestHelper::initTestCase()
     toolSizeButton = window->findChild<QQuickItem*>("toolSizeButton");
     QVERIFY(toolSizeButton);
 
+    toolShapeButton = window->findChild<QQuickItem*>("toolShapeButton");
+    QVERIFY(toolShapeButton);
+
     rotate90CcwToolButton = window->findChild<QQuickItem*>("rotate90CcwToolButton");
     QVERIFY(rotate90CcwToolButton);
 
@@ -441,6 +444,33 @@ bool TestHelper::changeToolSize(int size)
     // Close the popup.
     QTest::keyClick(window, Qt::Key_Escape);
     VERIFY(toolSizePopup->property("visible").toBool() == false);
+
+    return true;
+}
+
+bool TestHelper::changeToolShape(ImageCanvas::ToolShape toolShape)
+{
+    if (canvas->toolShape() == toolShape)
+        return true;
+
+    mouseEventOnCentre(toolShapeButton, MouseClick);
+    const QObject *toolShapeMenu = window->findChild<QObject*>("toolShapeMenu");
+    VERIFY(toolShapeMenu);
+    TRY_VERIFY(toolShapeMenu->property("opened").toBool() == true);
+
+    if (toolShape == ImageCanvas::SquareToolShape) {
+        QQuickItem *squareToolShapeMenuItem = toolShapeMenu->findChild<QQuickItem*>("squareToolShapeMenuItem");
+        VERIFY(squareToolShapeMenuItem);
+
+        mouseEventOnCentre(squareToolShapeMenuItem, MouseClick);
+        VERIFY(canvas->toolShape() == ImageCanvas::SquareToolShape);
+    } else {
+        QQuickItem *circleToolShapeMenuItem = toolShapeMenu->findChild<QQuickItem*>("circleToolShapeMenuItem");
+        VERIFY(circleToolShapeMenuItem);
+
+        mouseEventOnCentre(circleToolShapeMenuItem, MouseClick);
+        VERIFY(canvas->toolShape() == ImageCanvas::CircleToolShape);
+    }
 
     return true;
 }
@@ -1071,8 +1101,11 @@ void TestHelper::setCursorPosInScenePixels(int xPosInScenePixels, int yPosInScen
 void TestHelper::setCursorPosInScenePixels(const QPoint &posInScenePixels)
 {
     cursorPos = posInScenePixels;
-    cursorWindowPos = canvas->mapToScene(QPointF(posInScenePixels.x(), posInScenePixels.y())).toPoint()
-            + canvas->firstPane()->integerOffset();
+    const int integerZoomLevel = canvas->currentPane()->integerZoomLevel();
+    const QPointF localZoomedPixelPos = QPointF(
+        posInScenePixels.x() * integerZoomLevel,
+        posInScenePixels.y() * integerZoomLevel);
+    cursorWindowPos = canvas->mapToScene(localZoomedPixelPos).toPoint() + canvas->firstPane()->integerOffset();
 }
 
 QPoint TestHelper::tilesetTileCentre(int xPosInTiles, int yPosInTiles) const
@@ -1394,8 +1427,10 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         return false;
 
     // Check that we get prompted to discard any changes.
-    if (project && project->hasUnsavedChanges())
-        discardChanges();
+    if (project && project->hasUnsavedChanges()) {
+        if (!discardChanges())
+            return false;
+    }
 
     // Ensure that the new project popup is visible.
     const QObject *newProjectPopup = findPopupFromTypeName("NewProjectPopup");
@@ -1726,6 +1761,7 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     // This determines which colour the ColourSelector considers "current",
     // and hence which value is shown in the hex field.
     VERIFY(penForegroundColourButton->setProperty("checked", QVariant(true)));
+    canvas->setToolShape(ImageCanvas::SquareToolShape);
 
     app.settings()->setAutoSwatchEnabled(false);
 
@@ -2021,7 +2057,8 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
         return false;
     }
 
-    VERIFY(canvas->tool() == tool);
+    VERIFY2(canvas->tool() == tool, qPrintable(QString::fromLatin1(
+        "Expected tool %1 but current tool is %2").arg(tool).arg(canvas->tool())));
     return true;
 }
 

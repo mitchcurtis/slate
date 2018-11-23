@@ -29,6 +29,7 @@
 #include <QTimerEvent>
 #include <QUndoStack>
 #include <QWheelEvent>
+#include <QPainter>
 
 #include "canvaspane.h"
 #include "ruler.h"
@@ -81,6 +82,7 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(Tool lastFillToolUsed READ lastFillToolUsed NOTIFY lastFillToolUsedChanged)
     Q_PROPERTY(int toolSize READ toolSize WRITE setToolSize NOTIFY toolSizeChanged)
     Q_PROPERTY(int maxToolSize READ maxToolSize CONSTANT)
+    Q_PROPERTY(ToolShape toolShape READ toolShape WRITE setToolShape NOTIFY toolShapeChanged)
     Q_PROPERTY(QColor penForegroundColour READ penForegroundColour WRITE setPenForegroundColour NOTIFY penForegroundColourChanged)
     Q_PROPERTY(QColor penBackgroundColour READ penBackgroundColour WRITE setPenBackgroundColour NOTIFY penBackgroundColourChanged)
     Q_PROPERTY(TexturedFillParameters *texturedFillParameters READ texturedFillParameters CONSTANT FINAL)
@@ -105,8 +107,13 @@ public:
         TexturedFillTool,
         CropTool
     };
-
     Q_ENUM(Tool)
+
+    enum ToolShape {
+        SquareToolShape,
+        CircleToolShape,
+    };
+    Q_ENUM(ToolShape)
 
     ImageCanvas();
     ~ImageCanvas() override;
@@ -197,6 +204,9 @@ public:
     Tool tool() const;
     void setTool(const Tool &tool);
 
+    ToolShape toolShape() const;
+    void setToolShape(const ToolShape &toolShape);
+
     Tool lastFillToolUsed() const;
 
     int toolSize() const;
@@ -226,6 +236,17 @@ public:
     bool isLineVisible() const;
     int lineLength() const;
     qreal lineAngle() const;
+
+    struct SubImage {
+        bool operator==(const SubImage &other) const {
+            return bounds == other.bounds && offset == other.offset;
+        }
+
+        QRect bounds;
+        QPoint offset;
+    };
+
+    virtual QList<SubImage> subImagesInBounds(const QRect &bounds) const;
 
     // Essentially currentProjectImage() for regular image canvas, but may return a
     // preview image if there is a selection active. For layered image canvases, this
@@ -292,6 +313,7 @@ signals:
 //    void rulerForegroundColourChanged();
 //    void rulerBackgroundColourChanged();
     void toolChanged();
+    void toolShapeChanged();
     void lastFillToolUsedChanged();
     void toolSizeChanged();
     void penForegroundColourChanged();
@@ -380,7 +402,7 @@ protected:
 
     virtual void applyCurrentTool();
     virtual void applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false);
-    virtual void applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPoint &lastPixelPenReleaseScenePosition);
+    virtual void applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition);
     void paintImageOntoPortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage);
     void replacePortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage);
     void erasePortionOfImage(int layerIndex, const QRect &portion);
@@ -390,7 +412,7 @@ protected:
 
     QPointF linePoint1() const;
     QPointF linePoint2() const;
-    QRect normalisedLineRect() const;
+    QRect normalisedLineRect(const QPointF point1, const QPointF point2) const;
 
     virtual void updateCursorPos(const QPoint &eventPos);
     void updateVisibleSceneArea();
@@ -410,7 +432,7 @@ protected:
     CanvasPane *hoveredPane(const QPoint &pos);
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
     virtual QImage getContentImage();
-    void drawLine(QPainter *painter) const;
+    void drawLine(QPainter *painter, QPointF point1, QPointF point2, const QPainter::CompositionMode mode) const;
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,
@@ -545,6 +567,7 @@ protected:
     // The position at which the mouse is currently pressed.
     QPoint mPressPosition;
     QPoint mPressScenePosition;
+    QPointF mPressScenePositionF;
     // The scene position at which the mouse was pressed before the most-recent press.
     QPoint mCurrentPaneOffsetBeforePress;
     QRect mFirstPaneVisibleSceneArea;
@@ -553,6 +576,7 @@ protected:
     bool mGesturesEnabled;
 
     Tool mTool;
+    ToolShape mToolShape;
     Tool mLastFillToolUsed;
     int mToolSize;
     int mMaxToolSize;
@@ -566,6 +590,7 @@ protected:
     // It is set by the pixel tool as the last pixel in the command,
     // and by the pixel line tool command.
     QPoint mLastPixelPenPressScenePosition;
+    QPointF mLastPixelPenPressScenePositionF;
     // An image as large as the rectangle that contains the line that is being previewed.
     QImage mLinePreviewImage;
 
@@ -605,5 +630,17 @@ protected:
     bool mSpacePressed;
     bool mHasBlankCursor;
 };
+
+inline uint qHash(const ImageCanvas::SubImage &key, const uint seed = 0) {
+    return qHashBits(&key, sizeof(ImageCanvas::SubImage), seed);
+}
+
+inline QDebug operator<<(QDebug debug, const ImageCanvas::SubImage &subImage)
+{
+    QDebugStateSaver saver(debug);
+    debug.nospace() << "SubImage(" << subImage.bounds << ", " << subImage.offset << ')';
+
+    return debug;
+}
 
 #endif // IMAGECANVAS_H
