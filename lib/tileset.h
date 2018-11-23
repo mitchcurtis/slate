@@ -47,6 +47,8 @@ public:
     int tilesWide() const;
     int tilesHigh() const;
 
+    void notifyImageChanged();
+
 public slots:
 
 signals:

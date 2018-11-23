@@ -465,13 +465,14 @@ void TileCanvas::applyTilePenTool(const QPoint &tilePos, int id)
     requestContentPaint();
 }
 
-void TileCanvas::applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition)
+void TileCanvas::applyPixelLineTool(int, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition)
 {
     mLastPixelPenPressScenePositionF = lastPixelPenReleaseScenePosition;
     QPainter painter(mTilesetProject->tileset()->image());
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.drawImage(lineRect, lineImage);
     requestContentPaint();
+    mTilesetProject->tileset()->notifyImageChanged();
 }
 
 void TileCanvas::updateCursorPos(const QPoint &eventPos)

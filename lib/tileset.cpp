@@ -105,6 +105,14 @@ int Tileset::tilesHigh() const
     return mTilesHigh;
 }
 
+// It's easier to just allow calling code to modify the tileset image through
+// the pointer (e.g. by painting with QPainter) and then call this than force
+// them to use setPixelColour().
+void Tileset::notifyImageChanged()
+{
+    emit imageChanged();
+}
+
 // TODO: this information could be set by the project
 int Tileset::tileWidth() const
 {
