@@ -323,6 +323,25 @@ void ApplicationSettings::setAutoSwatchEnabled(bool autoSwatchEnabled)
     emit autoSwatchEnabledChanged();
 }
 
+qreal ApplicationSettings::defaultWindowOpacity() const
+{
+    return 1.0;
+}
+
+qreal ApplicationSettings::windowOpacity() const
+{
+    return contains("windowOpacity") ? value("windowOpacity").toReal() : defaultWindowOpacity();
+}
+
+void ApplicationSettings::setWindowOpacity(qreal opacity)
+{
+    if (windowOpacity() == opacity)
+        return;
+
+    setValue("windowOpacity", opacity);
+    emit windowOpacityChanged();
+}
+
 QColor ApplicationSettings::defaultCheckerColour1() const
 {
     return QColor("#444444");

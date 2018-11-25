@@ -46,6 +46,7 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(bool fpsVisible READ isFpsVisible WRITE setFpsVisible NOTIFY fpsVisibleChanged)
     Q_PROPERTY(bool gesturesEnabled READ areGesturesEnabled WRITE setGesturesEnabled NOTIFY gesturesEnabledChanged)
     Q_PROPERTY(bool autoSwatchEnabled READ isAutoSwatchEnabled WRITE setAutoSwatchEnabled NOTIFY autoSwatchEnabledChanged)
+    Q_PROPERTY(qreal windowOpacity READ windowOpacity WRITE setWindowOpacity NOTIFY windowOpacityChanged)
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
 
@@ -132,6 +133,10 @@ public:
     bool defaultAutoSwatchEnabled() const;
     bool isAutoSwatchEnabled() const;
     void setAutoSwatchEnabled(bool autoSwatchEnabled);
+
+    qreal defaultWindowOpacity() const;
+    qreal windowOpacity() const;
+    void setWindowOpacity(qreal opacity);
 
     QColor defaultCheckerColour1() const;
     QColor checkerColour1() const;
@@ -302,6 +307,7 @@ signals:
     void fpsVisibleChanged();
     void gesturesEnabledChanged();
     void autoSwatchEnabledChanged();
+    void windowOpacityChanged();
     void checkerColour1Changed();
     void checkerColour2Changed();
 

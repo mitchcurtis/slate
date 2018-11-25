@@ -1,7 +1,7 @@
 import QtQml.Models 2.2
-import QtQuick 2.6
+import QtQuick 2.11
 import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.4
 
 import App 1.0
 
@@ -25,6 +25,7 @@ Dialog {
         settings.checkerColour1 = checkerColour1TextField.colour
         settings.checkerColour2 = checkerColour2TextField.colour
         settings.fpsVisible = showFpsCheckBox.checked
+        settings.windowOpacity = windowOpacitySlider.value
 
         for (var i = 0; i < shortcutModel.count; ++i) {
             var row = shortcutModel.get(i)
@@ -41,6 +42,7 @@ Dialog {
         checkerColour1TextField.text = settings.checkerColour1
         checkerColour2TextField.text = settings.checkerColour2
         showFpsCheckBox.checked = settings.fpsVisible
+        windowOpacitySlider.value = settings.windowOpacity
 
         for (var i = 0; i < shortcutModel.count; ++i) {
             var row = shortcutModel.get(i)
@@ -75,110 +77,149 @@ Dialog {
                 Layout.preferredHeight: 10
             }
 
-            GridLayout {
-                columns: 2
-                columnSpacing: 12
+            ScrollView {
+                ScrollBar.horizontal.policy: ScrollBar.AsNeeded
 
-                Label {
-                    text: qsTr("Load last project on startup")
-                }
-                CheckBox {
-                    id: loadLastCheckBox
-                    leftPadding: 0
-                    checked: settings.loadLastOnStartup
-                }
+                Layout.fillWidth: true
+                Layout.fillHeight: true
 
-                Label {
-                    text: qsTr("Enable gestures (macOS only)")
-                }
-                CheckBox {
-                    id: enableGesturesCheckBox
-                    leftPadding: 0
-                    checked: settings.gesturesEnabled
+                GridLayout {
+                    columns: 2
+                    columnSpacing: 12
 
-                    ToolTip.text: qsTr("Enables the use of two-finger panning and pinch-to-zoom on macOS")
-                    ToolTip.visible: hovered
-                    ToolTip.delay: toolTipDelay
-                }
+                    width: parent.width
 
-                Label {
-                    text: qsTr("Transparency grid colours")
-                }
-                RowLayout {
-                    spacing: 8
-
-                    Layout.alignment: Qt.AlignHCenter
-
-                    TextMetrics {
-                        id: colourInputFontMetrics
-                        // '.' is never part of the text, but it gives us some wiggle room.
-                        text: "444444."
-                        font: checkerColour1TextField.font
+                    Label {
+                        text: qsTr("Load last project on startup")
+                    }
+                    CheckBox {
+                        id: loadLastCheckBox
+                        leftPadding: 0
+                        checked: settings.loadLastOnStartup
                     }
 
-                    Item {
-                        implicitWidth: 32
-                        implicitHeight: 32
+                    Label {
+                        text: qsTr("Enable gestures (macOS only)")
+                    }
+                    CheckBox {
+                        id: enableGesturesCheckBox
+                        leftPadding: 0
+                        checked: settings.gesturesEnabled
 
-                        Flow {
-                            anchors.fill: parent
+                        ToolTip.text: qsTr("Enables the use of two-finger panning and pinch-to-zoom on macOS")
+                        ToolTip.visible: hovered
+                        ToolTip.delay: toolTipDelay
+                    }
 
-                            Repeater {
-                                model: 16
-                                delegate: Rectangle {
-                                    width: 8
-                                    height: 8
-                                    color: index % 2 == 0
-                                        ? (evenRow ? checkerColour2TextField.colour : checkerColour1TextField.colour)
-                                        : (evenRow ? checkerColour1TextField.colour : checkerColour2TextField.colour)
+                    Label {
+                        text: qsTr("Window opacity")
+                    }
+                    Slider {
+                        id: windowOpacitySlider
+                        from: 0.5
+                        value: settings.windowOpacity
+                        to: 1
+                        stepSize: 0.05
+                        objectName: "windowOpacitySlider"
 
-                                    readonly property int evenRow: Math.floor(index / 4) % 2 == 0
+                        ToolTip.text: qsTr("Changes the opacity of the window. Useful for tracing over an image in another window.")
+                        ToolTip.visible: hovered
+                        ToolTip.delay: toolTipDelay
+
+                        Binding {
+                            target: dialog.ApplicationWindow.window
+                            property: "opacity"
+                            value: windowOpacitySlider.value
+                            when: windowOpacitySlider.pressed
+                        }
+
+                        ToolTip {
+                            y: -implicitHeight - 12
+                            parent: windowOpacitySlider.handle
+                            visible: windowOpacitySlider.pressed
+                            text: windowOpacitySlider.value.toFixed(1)
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Transparency grid colours")
+                    }
+                    RowLayout {
+                        spacing: 8
+
+                        Layout.alignment: Qt.AlignHCenter
+
+                        TextMetrics {
+                            id: colourInputFontMetrics
+                            // '.' is never part of the text, but it gives us some wiggle room.
+                            text: "444444."
+                            font: checkerColour1TextField.font
+                        }
+
+                        Item {
+                            implicitWidth: 32
+                            implicitHeight: 32
+
+                            Flow {
+                                anchors.fill: parent
+
+                                Repeater {
+                                    model: 16
+                                    delegate: Rectangle {
+                                        width: 8
+                                        height: 8
+                                        color: index % 2 == 0
+                                            ? (evenRow ? checkerColour2TextField.colour : checkerColour1TextField.colour)
+                                            : (evenRow ? checkerColour1TextField.colour : checkerColour2TextField.colour)
+
+                                        readonly property int evenRow: Math.floor(index / 4) % 2 == 0
+                                    }
                                 }
                             }
                         }
+                        TextField {
+                            id: checkerColour1TextField
+                            objectName: "checkerColour1TextField"
+                            implicitWidth: colourInputFontMetrics.width
+                            text: settings.checkerColour1
+                            inputMask: "hhhhhh"
+                            selectByMouse: true
+
+                            readonly property color colour: "#" + text
+                        }
+                        TextField {
+                            id: checkerColour2TextField
+                            objectName: "checkerColour2TextField"
+                            text: settings.checkerColour2
+                            implicitWidth: colourInputFontMetrics.width
+                            inputMask: "hhhhhh"
+                            selectByMouse: true
+
+                            readonly property color colour: "#" + text
+                        }
                     }
-                    TextField {
-                        id: checkerColour1TextField
-                        objectName: "checkerColour1TextField"
-                        implicitWidth: colourInputFontMetrics.width
-                        text: settings.checkerColour1
-                        inputMask: "hhhhhh"
-                        selectByMouse: true
 
-                        readonly property color colour: "#" + text
+                    Label {
+                        text: qsTr("Show FPS")
                     }
-                    TextField {
-                        id: checkerColour2TextField
-                        objectName: "checkerColour2TextField"
-                        text: settings.checkerColour2
-                        implicitWidth: colourInputFontMetrics.width
-                        inputMask: "hhhhhh"
-                        selectByMouse: true
-
-                        readonly property color colour: "#" + text
+                    CheckBox {
+                        id: showFpsCheckBox
+                        leftPadding: 0
+                        checked: settings.fpsVisible
                     }
-                }
 
-                Label {
-                    text: qsTr("Show FPS")
-                }
-                CheckBox {
-                    id: showFpsCheckBox
-                    leftPadding: 0
-                    checked: settings.fpsVisible
-                }
+                    Label {
+                        text: qsTr("Enable auto swatch (experimental)")
+                    }
+                    CheckBox {
+                        id: enableAutoSwatchCheckBox
+                        leftPadding: 0
+                        checked: settings.autoSwatchEnabled
 
-                Label {
-                    text: qsTr("Enable auto swatch (experimental)")
-                }
-                CheckBox {
-                    id: enableAutoSwatchCheckBox
-                    leftPadding: 0
-                    checked: settings.autoSwatchEnabled
-
-                    ToolTip.text: qsTr("Enables the use of a read-only swatch whose colours come from the image")
-                    ToolTip.visible: hovered
-                    ToolTip.delay: toolTipDelay
+                        ToolTip.text: qsTr("Enables the use of a read-only swatch whose colours come from the image")
+                        ToolTip.visible: hovered
+                        ToolTip.delay: toolTipDelay
+                    }
                 }
             }
         }

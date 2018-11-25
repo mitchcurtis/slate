@@ -37,6 +37,7 @@ ApplicationWindow {
     title: project && project.loaded
         ? ((project.url.toString().length > 0 ? project.displayUrl : "Untitled") + (project.unsavedChanges ? "*" : ""))
         : ""
+    opacity: settings.windowOpacity
     visible: true
 
 //    onActiveFocusItemChanged: print("active focus: " + activeFocusItem + ", parent: "
