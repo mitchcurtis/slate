@@ -60,6 +60,7 @@ private Q_SLOTS:
     void loadTilesetProjectWithInvalidTileset();
     void loadLayeredImageProjectAfterTilesetProject();
 
+    void animationPlayback_data();
     void animationPlayback();
     void keyboardShortcuts();
     void optionsShortcutCancelled();
@@ -581,13 +582,28 @@ void tst_App::loadLayeredImageProjectAfterTilesetProject()
     QCOMPARE(layersLoader->y(), swatchesPanel->y() + swatchesPanel->height() + 5);
 }
 
+void tst_App::animationPlayback_data()
+{
+    addImageProjectTypes();
+}
+
 void tst_App::animationPlayback()
 {
-    QVERIFY2(createNewLayeredImageProject(), failureMessage);
-    QCOMPARE(layeredImageProject->isUsingAnimation(), false);
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+    QCOMPARE(isUsingAnimation(), false);
 
     QVERIFY2(setAnimationPlayback(true), failureMessage);
-    QVERIFY2(togglePanel("animationPanel", true), failureMessage);
+    // Ensure that the animation panel is visible and expanded when animation playback is enabled.
+    QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
+    QVERIFY(animationPanel);
+    QVERIFY(animationPanel->property("visible").toBool());
+    QVERIFY(isPanelExpanded("animationPanel"));
+
+    // TODO: fix the test to allow testing down to the next projectType check
+    if (projectType == Project::ImageType)
+        return;
 
     // Open the settings popup to modify the settings slightly.
     QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
@@ -652,11 +668,13 @@ void tst_App::animationPlayback()
         animationFrameCountSpinBox->height() / 2), MouseClick);
     QCOMPARE(animationFrameCountSpinBox->property("value").toInt(), 4 + 1);
 
-    // Click in the middle of the slider to increase the sacle.
+    // Click in the middle of the slider to increase the scale.
     QQuickItem *animationPreviewScaleSlider = window->findChild<QQuickItem*>("animationPreviewScaleSlider");
     QVERIFY(animationPreviewScaleSlider);
     mouseEventOnCentre(animationPreviewScaleSlider, MouseClick);
-    const qreal modifiedScaleValue = layeredImageProject->animationPlayback()->scale();
+    AnimationPlayback *animationPlayback = projectType == Project::ImageType
+        ? imageProject->animationPlayback() : layeredImageProject->animationPlayback();
+    const qreal modifiedScaleValue = animationPlayback->scale();
     QVERIFY(modifiedScaleValue > 1.0);
 
     // Accept and close the settings popup.
@@ -665,16 +683,19 @@ void tst_App::animationPlayback()
     mouseEventOnCentre(saveButton, MouseClick);
     QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);
     QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->frameWidth(), 256 / 4 + 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->frameHeight(), 256 + 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->frameCount(), 4 + 1);
+    QCOMPARE(animationPlayback->frameWidth(), 256 / 4 + 1);
+    QCOMPARE(animationPlayback->frameHeight(), 256 + 1);
+    QCOMPARE(animationPlayback->frameCount(), 4 + 1);
 
     mouseEventOnCentre(animationPlayPauseButton, MouseClick);
-    QCOMPARE(layeredImageProject->animationPlayback()->isPlaying(), true);
-    QCOMPARE(layeredImageProject->animationPlayback()->currentFrameIndex(), 0);
+    QCOMPARE(animationPlayback->isPlaying(), true);
+    QCOMPARE(animationPlayback->currentFrameIndex(), 0);
+
+    if (projectType == Project::ImageType)
+        return;
 
     // Let it play a bit.
-    QTRY_VERIFY(layeredImageProject->animationPlayback()->currentFrameIndex() > 0);
+    QTRY_VERIFY(animationPlayback->currentFrameIndex() > 0);
 
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animationStuffSaved.slp"));
@@ -685,12 +706,12 @@ void tst_App::animationPlayback()
     // Close.
     QVERIFY2(triggerCloseProject(), failureMessage);
     QVERIFY(!layeredImageProject->hasLoaded());
-    QCOMPARE(layeredImageProject->isUsingAnimation(), false);
+    QCOMPARE(isUsingAnimation(), false);
 
     // Load the saved file and check that our custom settings were remembered.
     layeredImageProject->load(saveUrl);
     QVERIFY_NO_CREATION_ERRORS_OCCURRED();
-    QCOMPARE(layeredImageProject->isUsingAnimation(), true);
+    QCOMPARE(isUsingAnimation(), true);
     QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
     QCOMPARE(layeredImageProject->animationPlayback()->frameX(), 1);
     QCOMPARE(layeredImageProject->animationPlayback()->frameY(), 1);

@@ -44,14 +44,15 @@ ApplicationWindow {
 //        + (activeFocusItem ? activeFocusItem.parent : null))
 
     property Project project: projectManager.project
-    property int projectType: project && projectManager.ready ? project.type : 0
+    readonly property int projectType: project && projectManager.ready ? project.type : 0
+    readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
     property ImageCanvas canvas: canvasContainer.canvas
     property alias newProjectPopup: newProjectPopup
     property alias openProjectDialog: openProjectDialog
     property alias saveChangesDialog: discardChangesDialog
     property alias moveContentsDialog: moveContentsDialog
-    property int toolTipDelay: 500
-    property int toolTipTimeout: 2000
+    readonly property int toolTipDelay: 500
+    readonly property int toolTipTimeout: 2000
 
     onClosing: {
         close.accepted = false
@@ -249,8 +250,7 @@ ApplicationWindow {
 
             Ui.AnimationPanel {
                 id: animationPanel
-                visible: window.project && window.project.loaded && window.projectType === Project.LayeredImageType
-                    && window.project.usingAnimation
+                visible: window.project && window.project.loaded && isImageProjectType && window.project.usingAnimation
                 project: visible ? window.project : null
                 canvas: window.canvas
 

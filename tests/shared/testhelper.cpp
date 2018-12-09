@@ -1146,6 +1146,16 @@ int TestHelper::digitAt(int number, int index)
     return index < digits.size() ? digits.at(index) : 0;
 }
 
+bool TestHelper::isUsingAnimation() const
+{
+    return imageProject ? imageProject->isUsingAnimation() : layeredImageProject->isUsingAnimation();
+}
+
+AnimationPlayback *TestHelper::animationPlayback()
+{
+    return imageProject ? imageProject->animationPlayback() : layeredImageProject->animationPlayback();
+}
+
 bool TestHelper::triggerShortcut(const QString &objectName, const QString &sequenceAsString)
 {
     QObject *shortcut = window->findChild<QObject*>(objectName);
@@ -1265,10 +1275,10 @@ bool TestHelper::triggerAnimationPlayback()
 
 bool TestHelper::setAnimationPlayback(bool usingAnimation)
 {
-    if (layeredImageProject->isUsingAnimation() != usingAnimation) {
+    if (isUsingAnimation() != usingAnimation) {
         if (!triggerAnimationPlayback())
             return false;
-        VERIFY(layeredImageProject->isUsingAnimation() == usingAnimation);
+        VERIFY(isUsingAnimation() == usingAnimation);
     }
     return true;
 }
@@ -1623,7 +1633,11 @@ bool TestHelper::createNewImageProject(int imageWidth, int imageHeight, bool tra
     args.insert("imageWidth", imageWidth);
     args.insert("imageHeight", imageHeight);
     args.insert("transparentImageBackground", transparentImageBackground);
-    return createNewProject(Project::ImageType, args);
+
+    if (!createNewProject(Project::ImageType, args))
+        return false;
+
+    return true;
 }
 
 bool TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)
@@ -1661,9 +1675,6 @@ bool TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
 
     moveLayerDownButton = window->findChild<QQuickItem*>("moveLayerDownButton");
     VERIFY(moveLayerDownButton);
-
-    animationPlayPauseButton = window->findChild<QQuickItem*>("animationPlayPauseButton");
-    VERIFY(animationPlayPauseButton);
 
     return true;
 }
@@ -1740,6 +1751,11 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     canvas = window->findChild<ImageCanvas*>();
     VERIFY(canvas);
     TRY_VERIFY(canvas->window());
+
+    animationPlayPauseButton = window->findChild<QQuickItem*>("animationPlayPauseButton");
+    if (projectType == Project::ImageType || projectType == Project::LayeredImageType)
+        VERIFY(animationPlayPauseButton);
+
     if (isNewProject) {
         // The old default was to split the screen,
         // and so the tests might be depending on it to be split.
@@ -1925,6 +1941,13 @@ bool TestHelper::setupTempProjectDir(const QStringList &resourceFilesToCopy, QSt
     return true;
 }
 
+bool TestHelper::isPanelExpanded(const QString &panelObjectName)
+{
+    QQuickItem *panel = window->findChild<QQuickItem*>(panelObjectName);
+    VERIFY(panel);
+    return panel->property("expanded").toBool();
+}
+
 bool TestHelper::collapseAllPanels()
 {
     if (project->type() == Project::TilesetType) {
@@ -1942,7 +1965,12 @@ bool TestHelper::collapseAllPanels()
         return false;
 
     if (project->type() == Project::ImageType || project->type() == Project::LayeredImageType) {
-        if (!togglePanel("animationPanel", false))
+        // Don't change the expanded state if the panel is not even visible,
+        // as we want it to be the default (true) for tests involving animation playback
+        // to ensure that it shows when enabled.
+        QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
+        VERIFY(animationPanel);
+        if (animationPanel->isVisible() && !togglePanel("animationPanel", false))
             return false;
     }
 
