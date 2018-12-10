@@ -24,6 +24,7 @@ Dialog {
         settings.autoSwatchEnabled = enableAutoSwatchCheckBox.checked
         settings.checkerColour1 = checkerColour1TextField.colour
         settings.checkerColour2 = checkerColour2TextField.colour
+        settings.alwaysShowCrosshair = alwaysShowCrosshairCheckBox.checked
         settings.fpsVisible = showFpsCheckBox.checked
         settings.windowOpacity = windowOpacitySlider.value
 
@@ -42,6 +43,7 @@ Dialog {
         checkerColour1TextField.text = settings.checkerColour1
         checkerColour2TextField.text = settings.checkerColour2
         showFpsCheckBox.checked = settings.fpsVisible
+        alwaysShowCrosshairCheckBox.checked = settings.alwaysShowCrosshair
         windowOpacitySlider.value = settings.windowOpacity
 
         for (var i = 0; i < shortcutModel.count; ++i) {
@@ -206,6 +208,19 @@ Dialog {
                         id: showFpsCheckBox
                         leftPadding: 0
                         checked: settings.fpsVisible
+                    }
+
+                    Label {
+                        text: qsTr("Always show crosshair cursor")
+                    }
+                    CheckBox {
+                        id: alwaysShowCrosshairCheckBox
+                        leftPadding: 0
+                        checked: settings.alwaysShowCrosshair
+
+                        ToolTip.text: qsTr("Don't hide crosshair cursor when rectangle cursor is visible")
+                        ToolTip.visible: hovered
+                        ToolTip.delay: toolTipDelay
                     }
 
                     Label {

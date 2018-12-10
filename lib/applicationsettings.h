@@ -46,6 +46,7 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(bool fpsVisible READ isFpsVisible WRITE setFpsVisible NOTIFY fpsVisibleChanged)
     Q_PROPERTY(bool gesturesEnabled READ areGesturesEnabled WRITE setGesturesEnabled NOTIFY gesturesEnabledChanged)
     Q_PROPERTY(bool autoSwatchEnabled READ isAutoSwatchEnabled WRITE setAutoSwatchEnabled NOTIFY autoSwatchEnabledChanged)
+    Q_PROPERTY(bool alwaysShowCrosshair READ isAlwaysShowCrosshair WRITE setAlwaysShowCrosshair NOTIFY alwaysShowCrosshairChanged)
     Q_PROPERTY(qreal windowOpacity READ windowOpacity WRITE setWindowOpacity NOTIFY windowOpacityChanged)
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
@@ -133,6 +134,10 @@ public:
     bool defaultAutoSwatchEnabled() const;
     bool isAutoSwatchEnabled() const;
     void setAutoSwatchEnabled(bool autoSwatchEnabled);
+
+    bool defaultAlwaysShowCrosshair() const;
+    bool isAlwaysShowCrosshair() const;
+    void setAlwaysShowCrosshair(bool alwaysShowCrosshair);
 
     qreal defaultWindowOpacity() const;
     qreal windowOpacity() const;
@@ -307,6 +312,7 @@ signals:
     void fpsVisibleChanged();
     void gesturesEnabledChanged();
     void autoSwatchEnabledChanged();
+    void alwaysShowCrosshairChanged();
     void windowOpacityChanged();
     void checkerColour1Changed();
     void checkerColour2Changed();
