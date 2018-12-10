@@ -133,6 +133,9 @@ protected:
     int digits(int number);
     int digitAt(int number, int index);
 
+    bool isUsingAnimation() const;
+    AnimationPlayback *animationPlayback();
+
     enum InputType {
         MouseInputType,
         KeyboardInputType
@@ -200,6 +203,7 @@ protected:
         QStringList *filesCopied = nullptr);
 
     Q_REQUIRED_RESULT bool collapseAllPanels();
+    Q_REQUIRED_RESULT bool isPanelExpanded(const QString &panelObjectName);
     Q_REQUIRED_RESULT bool togglePanel(const QString &panelObjectName, bool expanded);
     Q_REQUIRED_RESULT bool togglePanels(const QStringList &panelObjectNames, bool expanded);
     Q_REQUIRED_RESULT bool expandColourPanel();
