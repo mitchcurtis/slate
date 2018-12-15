@@ -80,6 +80,8 @@ Dialog {
             }
 
             ScrollView {
+                clip: true
+
                 ScrollBar.horizontal.policy: ScrollBar.AsNeeded
 
                 Layout.fillWidth: true
