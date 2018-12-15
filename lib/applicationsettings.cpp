@@ -323,6 +323,31 @@ void ApplicationSettings::setAutoSwatchEnabled(bool autoSwatchEnabled)
     emit autoSwatchEnabledChanged();
 }
 
+bool ApplicationSettings::defaultAlwaysShowCrosshair() const
+{
+    return false;
+}
+
+bool ApplicationSettings::isAlwaysShowCrosshair() const
+{
+    return contains("alwaysShowCrosshair") ? value("alwaysShowCrosshair").toBool() : defaultAlwaysShowCrosshair();
+}
+
+void ApplicationSettings::setAlwaysShowCrosshair(bool alwaysShowCrosshair)
+{
+    const QVariant existingValue = value("alwaysShowCrosshair");
+    bool existingBoolValue = defaultAlwaysShowCrosshair();
+    if (contains("alwaysShowCrosshair")) {
+        existingBoolValue = existingValue.toBool();
+    }
+
+    if (alwaysShowCrosshair == existingBoolValue)
+        return;
+
+    setValue("alwaysShowCrosshair", alwaysShowCrosshair);
+    emit alwaysShowCrosshairChanged();
+}
+
 qreal ApplicationSettings::defaultWindowOpacity() const
 {
     return 1.0;

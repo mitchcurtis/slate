@@ -53,7 +53,7 @@ Item {
         y: canvas ? canvas.cursorY - height / 2 : 0
         z: 1
         colour: canvas ? canvas.invertedCursorPixelColour : defaultColour
-        visible: canvas && canvas.hasBlankCursor && !canvas.useIconCursor && canvas.useCrosshairCursor
+        visible: canvas && canvas.hasBlankCursor && !canvas.useIconCursor && (canvas.useCrosshairCursor || settings.alwaysShowCrosshair)
     }
 
     RectangularCursor {
