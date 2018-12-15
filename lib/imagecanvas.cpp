@@ -97,6 +97,7 @@ ImageCanvas::ImageCanvas() :
     mGesturesEnabled(false),
     mTool(PenTool),
     mToolShape(SquareToolShape),
+    mToolBlendMode(ReplaceToolBlendMode),
     mLastFillToolUsed(FillTool),
     mToolSize(1),
     mMaxToolSize(100),
@@ -489,6 +490,21 @@ void ImageCanvas::setToolShape(const ImageCanvas::ToolShape &toolShape)
     mToolShape = toolShape;
 
     emit toolShapeChanged();
+}
+
+ImageCanvas::ToolBlendMode ImageCanvas::toolBlendMode() const
+{
+    return mToolBlendMode;
+}
+
+void ImageCanvas::setToolBlendMode(const ImageCanvas::ToolBlendMode &toolBlendMode)
+{
+    if (toolBlendMode == mToolBlendMode)
+        return;
+
+    mToolBlendMode = toolBlendMode;
+
+    emit toolBlendModeChanged();
 }
 
 ImageCanvas::Tool ImageCanvas::lastFillToolUsed() const
@@ -2090,6 +2106,15 @@ QImage ImageCanvas::greedyTexturedFillPixels() const
     return greedyTexturedFill(currentProjectImage(), scenePos, previousColour, penColour(), mTexturedFillParameters);
 }
 
+QPainter::CompositionMode ImageCanvas::qPainterBlendMode() const
+{
+    static const QMap<ToolBlendMode, QPainter::CompositionMode> mapping{
+        {BlendToolBlendMode, QPainter::CompositionMode_SourceOver},
+        {ReplaceToolBlendMode, QPainter::CompositionMode_Source},
+    };
+    return mapping[mToolBlendMode];
+}
+
 void ImageCanvas::applyCurrentTool()
 {
     if (areToolsForbidden())
@@ -2101,7 +2126,7 @@ void ImageCanvas::applyCurrentTool()
         // This ensures that e.g. a translucent red overwrites whatever pixels it
         // lies on, rather than blending with them.
         QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {linePoint1(), linePoint2()}, mLastPixelPenPressScenePosition,
-            QPainter::CompositionMode_Source, true, mProject->undoStack()->command(mProject->undoStack()->index() - 1));
+            qPainterBlendMode(), true, mProject->undoStack()->command(mProject->undoStack()->index() - 1));
         command->setText(QLatin1String("PixelLineTool"));
         mProject->addChange(command);
         break;

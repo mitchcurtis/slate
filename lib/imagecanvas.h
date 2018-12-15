@@ -83,6 +83,7 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(int toolSize READ toolSize WRITE setToolSize NOTIFY toolSizeChanged)
     Q_PROPERTY(int maxToolSize READ maxToolSize CONSTANT)
     Q_PROPERTY(ToolShape toolShape READ toolShape WRITE setToolShape NOTIFY toolShapeChanged)
+    Q_PROPERTY(ToolBlendMode toolBlendMode READ toolBlendMode WRITE setToolBlendMode NOTIFY toolBlendModeChanged)
     Q_PROPERTY(QColor penForegroundColour READ penForegroundColour WRITE setPenForegroundColour NOTIFY penForegroundColourChanged)
     Q_PROPERTY(QColor penBackgroundColour READ penBackgroundColour WRITE setPenBackgroundColour NOTIFY penBackgroundColourChanged)
     Q_PROPERTY(TexturedFillParameters *texturedFillParameters READ texturedFillParameters CONSTANT FINAL)
@@ -114,6 +115,12 @@ public:
         CircleToolShape,
     };
     Q_ENUM(ToolShape)
+
+    enum ToolBlendMode {
+        BlendToolBlendMode,
+        ReplaceToolBlendMode,
+    };
+    Q_ENUM(ToolBlendMode)
 
     ImageCanvas();
     ~ImageCanvas() override;
@@ -206,6 +213,9 @@ public:
 
     ToolShape toolShape() const;
     void setToolShape(const ToolShape &toolShape);
+
+    ToolBlendMode toolBlendMode() const;
+    void setToolBlendMode(const ToolBlendMode &toolBlendMode);
 
     Tool lastFillToolUsed() const;
 
@@ -333,6 +343,7 @@ signals:
 //    void rulerBackgroundColourChanged();
     void toolChanged();
     void toolShapeChanged();
+    void toolBlendModeChanged();
     void lastFillToolUsedChanged();
     void toolSizeChanged();
     void penForegroundColourChanged();
@@ -419,6 +430,7 @@ protected:
     QImage texturedFillPixels() const;
     QImage greedyTexturedFillPixels() const;
 
+    QPainter::CompositionMode qPainterBlendMode() const;
     virtual void applyCurrentTool();
     virtual void applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false);
     virtual void applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition);
@@ -599,6 +611,7 @@ protected:
 
     Tool mTool;
     ToolShape mToolShape;
+    ToolBlendMode mToolBlendMode;
     Tool mLastFillToolUsed;
     int mToolSize;
     int mMaxToolSize;

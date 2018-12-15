@@ -340,6 +340,55 @@ ToolBar {
             }
         }
 
+        ToolButton {
+            id: toolBlendModeButton
+            objectName: "toolBlendModeButton"
+            hoverEnabled: true
+            focusPolicy: Qt.NoFocus
+
+            readonly property bool blendBlendMode: canvas && canvas.toolBlendMode === ImageCanvas.BlendToolBlendMode
+            icon.source: blendBlendMode ? "qrc:/images/blend-tool-blend-mode.png" : "qrc:/images/replace-tool-blend-mode.png"
+
+            ToolTip.text: qsTr("Choose blending mode")
+            ToolTip.visible: hovered
+
+            onClicked: toolBlendModeMenu.visible = !toolBlendModeMenu.visible
+
+
+            ToolButtonMenuIndicator {
+                color: toolBlendModeButton.icon.color
+                anchors.right: parent.contentItem.right
+                anchors.bottom: parent.contentItem.bottom
+                anchors.margins: 6
+            }
+
+            Menu {
+                id: toolBlendModeMenu
+                objectName: "toolBlendModeMenu"
+                y: toolBlendModeButton.height
+                width: 260
+
+                MenuItem {
+                    objectName: "blendToolBlendModeMenuItem"
+                    text: qsTr("Blend")
+                    icon.source: "qrc:/images/blend-tool-blend-mode.png"
+                    autoExclusive: true
+                    checkable: true
+                    checked: canvas && canvas.toolBlendMode === ImageCanvas.BlendToolBlendMode
+                    onTriggered: canvas.toolBlendMode = ImageCanvas.BlendToolBlendMode
+                }
+                MenuItem {
+                    objectName: "replaceToolBlendModeMenuItem"
+                    text: qsTr("Replace")
+                    icon.source: "qrc:/images/replace-tool-blend-mode.png"
+                    autoExclusive: true
+                    checkable: true
+                    checked: canvas && canvas.toolBlendMode === ImageCanvas.ReplaceToolBlendMode
+                    onTriggered: canvas.toolBlendMode = ImageCanvas.ReplaceToolBlendMode
+                }
+            }
+        }
+
         ToolSeparator {
             id: toolSeparator
         }

@@ -347,7 +347,7 @@ void TileCanvas::applyCurrentTool()
             // This ensures that e.g. a translucent red overwrites whatever pixels it
             // lies on, rather than blending with them.
             QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {linePoint1(), linePoint2()}, mLastPixelPenPressScenePosition,
-                QPainter::CompositionMode_Source, true, mProject->undoStack()->command(mProject->undoStack()->index() - 1));
+                qPainterBlendMode(), true, mProject->undoStack()->command(mProject->undoStack()->index() - 1));
             command->setText(QLatin1String("PixelLineTool"));
             mProject->addChange(command);
         } else {
