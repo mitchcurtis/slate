@@ -11,7 +11,7 @@ Item {
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
     property Item canvasContainer
     property ImageCanvas canvas
-    readonly property bool canvasHasActiveFocus: canvas && canvas.activeFocus    
+    readonly property bool canvasHasActiveFocus: canvas && canvas.activeFocus
 
     Shortcut {
         sequence: settings.quitShortcut
