@@ -323,6 +323,31 @@ void ApplicationSettings::setAutoSwatchEnabled(bool autoSwatchEnabled)
     emit autoSwatchEnabledChanged();
 }
 
+bool ApplicationSettings::defaultAlwaysShowCrosshair() const
+{
+    return false;
+}
+
+bool ApplicationSettings::isAlwaysShowCrosshair() const
+{
+    return contains("alwaysShowCrosshair") ? value("alwaysShowCrosshair").toBool() : defaultAlwaysShowCrosshair();
+}
+
+void ApplicationSettings::setAlwaysShowCrosshair(bool alwaysShowCrosshair)
+{
+    const QVariant existingValue = value("alwaysShowCrosshair");
+    bool existingBoolValue = defaultAlwaysShowCrosshair();
+    if (contains("alwaysShowCrosshair")) {
+        existingBoolValue = existingValue.toBool();
+    }
+
+    if (alwaysShowCrosshair == existingBoolValue)
+        return;
+
+    setValue("alwaysShowCrosshair", alwaysShowCrosshair);
+    emit alwaysShowCrosshairChanged();
+}
+
 qreal ApplicationSettings::defaultWindowOpacity() const
 {
     return 1.0;
@@ -420,6 +445,7 @@ void ApplicationSettings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("swatchRightShortcut"));
         allShortcuts.append(QLatin1String("swatchUpShortcut"));
         allShortcuts.append(QLatin1String("swatchDownShortcut"));
+        allShortcuts.append(QLatin1String("fullScreenToggleShortcut"));
     }
 
     foreach (const QString &shortcut, allShortcuts) {
@@ -1005,4 +1031,19 @@ QString ApplicationSettings::swatchDownShortcut() const
 void ApplicationSettings::setSwatchDownShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("swatchDownShortcut", defaultSwatchDownShortcut, swatchDownShortcutChanged)
+}
+
+QString ApplicationSettings::defaultFullScreenToggleShortcut() const
+{
+    return QLatin1String("F11");
+}
+
+QString ApplicationSettings::fullScreenToggleShortcut() const
+{
+    GET_SHORTCUT("fullScreenToggleShortcut", defaultFullScreenToggleShortcut)
+}
+
+void ApplicationSettings::setFullScreenToggleShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("fullScreenToggleShortcut", defaultFullScreenToggleShortcut, fullScreenToggleShortcutChanged)
 }

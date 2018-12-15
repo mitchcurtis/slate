@@ -1,5 +1,6 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.4
+import QtQuick.Window 2.2
 
 import App 1.0
 
@@ -561,6 +562,25 @@ ToolBar {
                 ToolTip.visible: hovered
 
                 onClicked: canvas.splitter.enabled = !checked
+            }
+        }
+
+        ToolSeparator {}
+
+        Row {
+            Ui.IconToolButton {
+                id: fullScreenButton
+                text: "\uF108"
+                enabled: true
+                hoverEnabled: true
+                focusPolicy: Qt.NoFocus
+                checkable: true
+                checked: window.visibility === Window.FullScreen
+
+                ToolTip.text: qsTr("Toggle fullscreen window")
+                ToolTip.visible: hovered
+
+                onClicked: toggleFullScreen()
             }
         }
     }

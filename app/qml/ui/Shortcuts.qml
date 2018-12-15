@@ -312,4 +312,10 @@ Item {
         enabled: projectType === Project.TilesetType
         onActivated: canvas.swatchDown()
     }
+
+    Shortcut {
+        objectName: "fullScreenToggleShortcut"
+        sequence: settings.fullScreenToggleShortcut
+        onActivated: toggleFullScreen()
+    }
 }
