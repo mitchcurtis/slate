@@ -1,5 +1,6 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.1
+import QtQuick.Window 2.11
 
 import App 1.0
 
@@ -19,6 +20,8 @@ ToolBar {
     readonly property int projectType: project ? project.type : 0
     readonly property bool isTilesetProject: projectType === Project.TilesetType
     readonly property bool isImageProject: projectType === Project.ImageType || projectType === Project.LayeredImageType
+
+    property int oldWindowVisibility: Window.Windowed
 
     Connections {
         target: canvas
@@ -497,6 +500,31 @@ ToolBar {
                 ToolTip.visible: hovered
 
                 onClicked: canvas.splitter.enabled = !checked
+            }
+        }
+
+        ToolSeparator {}
+
+        Row {
+            Ui.IconToolButton {
+                id: fullScreenButton
+                text: "\uF0B2"
+                enabled: true
+                hoverEnabled: true
+                focusPolicy: Qt.NoFocus
+
+                ToolTip.text: qsTr("Toggle fullscreen window")
+                ToolTip.visible: hovered
+
+                onClicked: {
+                    if (window.visibility === Window.FullScreen) {
+                        window.visibility = oldWindowVisibility;
+                    }
+                    else {
+                        oldWindowVisibility = window.visibility
+                        window.visibility = Window.FullScreen
+                    }
+                }
             }
         }
     }
