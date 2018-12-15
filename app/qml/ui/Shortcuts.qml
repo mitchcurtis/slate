@@ -1,5 +1,4 @@
 import QtQuick 2.6
-import QtQuick.Window 2.11
 
 import App 1.0
 

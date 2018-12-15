@@ -1,6 +1,5 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.1
-import QtQuick.Window 2.11
 
 import App 1.0
 
@@ -20,8 +19,6 @@ ToolBar {
     readonly property int projectType: project ? project.type : 0
     readonly property bool isTilesetProject: projectType === Project.TilesetType
     readonly property bool isImageProject: projectType === Project.ImageType || projectType === Project.LayeredImageType
-
-    property int oldWindowVisibility: Window.Windowed
 
     Connections {
         target: canvas
