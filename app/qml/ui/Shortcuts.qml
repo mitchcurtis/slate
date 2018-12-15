@@ -1,4 +1,5 @@
 import QtQuick 2.6
+import QtQuick.Window 2.11
 
 import App 1.0
 
@@ -11,7 +12,7 @@ Item {
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
     property Item canvasContainer
     property ImageCanvas canvas
-    readonly property bool canvasHasActiveFocus: canvas && canvas.activeFocus
+    readonly property bool canvasHasActiveFocus: canvas && canvas.activeFocus    
 
     Shortcut {
         sequence: settings.quitShortcut
@@ -311,5 +312,11 @@ Item {
         sequence: settings.swatchDownShortcut
         enabled: projectType === Project.TilesetType
         onActivated: canvas.swatchDown()
+    }
+
+    Shortcut {
+        objectName: "fullScreenToggleShortcut"
+        sequence: settings.fullScreenToggleShortcut
+        onActivated: toggleFullScreen()
     }
 }

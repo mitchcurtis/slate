@@ -420,6 +420,7 @@ void ApplicationSettings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("swatchRightShortcut"));
         allShortcuts.append(QLatin1String("swatchUpShortcut"));
         allShortcuts.append(QLatin1String("swatchDownShortcut"));
+        allShortcuts.append(QLatin1String("fullScreenToggleShortcut"));
     }
 
     foreach (const QString &shortcut, allShortcuts) {
@@ -1005,4 +1006,19 @@ QString ApplicationSettings::swatchDownShortcut() const
 void ApplicationSettings::setSwatchDownShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("swatchDownShortcut", defaultSwatchDownShortcut, swatchDownShortcutChanged)
+}
+
+QString ApplicationSettings::defaultFullScreenToggleShortcut() const
+{
+    return QLatin1String("F11");
+}
+
+QString ApplicationSettings::fullScreenToggleShortcut() const
+{
+    GET_SHORTCUT("fullScreenToggleShortcut", defaultFullScreenToggleShortcut)
+}
+
+void ApplicationSettings::setFullScreenToggleShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("fullScreenToggleShortcut", defaultFullScreenToggleShortcut, fullScreenToggleShortcutChanged)
 }

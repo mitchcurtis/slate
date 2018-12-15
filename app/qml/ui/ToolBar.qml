@@ -516,15 +516,7 @@ ToolBar {
                 ToolTip.text: qsTr("Toggle fullscreen window")
                 ToolTip.visible: hovered
 
-                onClicked: {
-                    if (window.visibility === Window.FullScreen) {
-                        window.visibility = oldWindowVisibility;
-                    }
-                    else {
-                        oldWindowVisibility = window.visibility
-                        window.visibility = Window.FullScreen
-                    }
-                }
+                onClicked: toggleFullScreen()
             }
         }
     }
