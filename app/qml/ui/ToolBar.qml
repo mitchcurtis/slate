@@ -1,5 +1,5 @@
 import QtQuick 2.6
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.4
 
 import App 1.0
 
@@ -197,7 +197,7 @@ ToolBar {
                     qsTr("Fill a contiguous area with %1pixels.\nHold Shift to fill all pixels matching the target colour.")
                         .arg(!regularFill ? "semi-randomised" : "")
 
-                icon.source: regularFill ? "qrc:/images/fill.png" : "qrc:/images/textured-fill.png"
+                icon.source: fillToolGroup.checkedAction.icon.source
 
                 ToolTip.text: isTilesetProject ? qsTr("Fill a contiguous area with pixels or tiles") : imageProjectToolTipText
                 ToolTip.visible: hovered
@@ -214,27 +214,35 @@ ToolBar {
                     visible: !isTilesetProject
                 }
 
-                Menu {
-                    id: fillMenu
-                    y: fillToolButton.height
-                    width: 260
+                ActionGroup {
+                    id: fillToolGroup
+                    exclusive: true
 
-                    MenuItem {
+                    Action {
+                        id: fillTool
                         text: qsTr("Fill Tool")
                         icon.source: "qrc:/images/fill.png"
-                        autoExclusive: true
                         checkable: true
                         checked: canvas && canvas.lastFillToolUsed === ImageCanvas.FillTool
                         onTriggered: canvas.tool = ImageCanvas.FillTool
                     }
-                    MenuItem {
+
+                    Action {
+                        id: texturedFillTool
                         text: qsTr("Textured Fill Tool")
                         icon.source: "qrc:/images/textured-fill.png"
-                        autoExclusive: true
                         checkable: true
                         checked: canvas && canvas.lastFillToolUsed === ImageCanvas.TexturedFillTool
                         onTriggered: canvas.tool = ImageCanvas.TexturedFillTool
                     }
+                }
+
+                Menu {
+                    id: fillMenu
+                    y: parent.height
+
+                    MenuItem { action: fillTool }
+                    MenuItem { action: texturedFillTool }
                 }
             }
 
@@ -298,13 +306,12 @@ ToolBar {
             hoverEnabled: true
             focusPolicy: Qt.NoFocus
 
-            readonly property bool squareShape: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
-            icon.source: squareShape ? "qrc:/images/square-tool-shape.png" : "qrc:/images/circle-tool-shape.png"
+            icon.source: toolShapeGroup.checkedAction.icon.source
 
             ToolTip.text: qsTr("Choose brush shape")
             ToolTip.visible: hovered
 
-            onClicked: toolShapeMenu.visible = !toolShapeMenu.visible
+            onClicked: toolShapeMenu.open()
 
             ToolButtonMenuIndicator {
                 color: toolShapeButton.icon.color
@@ -313,30 +320,35 @@ ToolBar {
                 anchors.margins: 6
             }
 
-            Menu {
-                id: toolShapeMenu
-                objectName: "toolShapeMenu"
-                y: toolShapeButton.height
-                width: 260
+            ActionGroup {
+                id: toolShapeGroup
+                exclusive: true
 
-                MenuItem {
-                    objectName: "squareToolShapeMenuItem"
+                Action {
+                    id: squareToolShape
                     text: qsTr("Square")
                     icon.source: "qrc:/images/square-tool-shape.png"
-                    autoExclusive: true
                     checkable: true
                     checked: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
                     onTriggered: canvas.toolShape = ImageCanvas.SquareToolShape
                 }
-                MenuItem {
-                    objectName: "circleToolShapeMenuItem"
+
+                Action {
+                    id: circleToolShape
                     text: qsTr("Circle")
                     icon.source: "qrc:/images/circle-tool-shape.png"
-                    autoExclusive: true
                     checkable: true
                     checked: canvas && canvas.toolShape === ImageCanvas.CircleToolShape
                     onTriggered: canvas.toolShape = ImageCanvas.CircleToolShape
                 }
+            }
+
+            Menu {
+                id: toolShapeMenu
+                y: parent.height
+
+                MenuItem { action: squareToolShape }
+                MenuItem { action: circleToolShape }
             }
         }
 
@@ -346,14 +358,12 @@ ToolBar {
             hoverEnabled: true
             focusPolicy: Qt.NoFocus
 
-            readonly property bool blendBlendMode: canvas && canvas.toolBlendMode === ImageCanvas.BlendToolBlendMode
-            icon.source: blendBlendMode ? "qrc:/images/blend-tool-blend-mode.png" : "qrc:/images/replace-tool-blend-mode.png"
+            icon.source: toolBlendModeGroup.checkedAction.icon.source
 
             ToolTip.text: qsTr("Choose blending mode")
             ToolTip.visible: hovered
 
-            onClicked: toolBlendModeMenu.visible = !toolBlendModeMenu.visible
-
+            onClicked: toolBlendModeMenu.open()
 
             ToolButtonMenuIndicator {
                 color: toolBlendModeButton.icon.color
@@ -362,30 +372,35 @@ ToolBar {
                 anchors.margins: 6
             }
 
-            Menu {
-                id: toolBlendModeMenu
-                objectName: "toolBlendModeMenu"
-                y: toolBlendModeButton.height
-                width: 260
+            ActionGroup {
+                id: toolBlendModeGroup
+                exclusive: true
 
-                MenuItem {
-                    objectName: "blendToolBlendModeMenuItem"
+                Action {
+                    id: blendToolBlendMode
                     text: qsTr("Blend")
                     icon.source: "qrc:/images/blend-tool-blend-mode.png"
-                    autoExclusive: true
                     checkable: true
                     checked: canvas && canvas.toolBlendMode === ImageCanvas.BlendToolBlendMode
                     onTriggered: canvas.toolBlendMode = ImageCanvas.BlendToolBlendMode
                 }
-                MenuItem {
-                    objectName: "replaceToolBlendModeMenuItem"
+
+                Action {
+                    id: replaceToolBlendMode
                     text: qsTr("Replace")
                     icon.source: "qrc:/images/replace-tool-blend-mode.png"
-                    autoExclusive: true
                     checkable: true
                     checked: canvas && canvas.toolBlendMode === ImageCanvas.ReplaceToolBlendMode
                     onTriggered: canvas.toolBlendMode = ImageCanvas.ReplaceToolBlendMode
                 }
+            }
+
+            Menu {
+                id: toolBlendModeMenu
+                y: parent.height
+
+                MenuItem { action: blendToolBlendMode }
+                MenuItem { action: replaceToolBlendMode }
             }
         }
 
