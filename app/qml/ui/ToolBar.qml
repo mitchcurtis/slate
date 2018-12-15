@@ -1,5 +1,6 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.1
+import QtQuick.Window 2.2
 
 import App 1.0
 
@@ -505,10 +506,12 @@ ToolBar {
         Row {
             Ui.IconToolButton {
                 id: fullScreenButton
-                text: "\uF0B2"
+                text: "\uF108"
                 enabled: true
                 hoverEnabled: true
                 focusPolicy: Qt.NoFocus
+                checkable: true
+                checked: window.visibility === Window.FullScreen
 
                 ToolTip.text: qsTr("Toggle fullscreen window")
                 ToolTip.visible: hovered
