@@ -54,6 +54,27 @@ TileCanvas::~TileCanvas()
     qCDebug(lcImageCanvasLifecycle) << "destructing TileCanvas" << this;
 }
 
+QImage *TileCanvas::currentProjectImage()
+{
+    return mTilesetProject->tileset()->image();
+}
+
+const QImage *TileCanvas::currentProjectImage() const
+{
+    return const_cast<TileCanvas *>(this)->currentProjectImage();
+}
+
+QImage *TileCanvas::imageForLayerAt(int layerIndex)
+{
+    Q_ASSERT(layerIndex == -1);
+    return mTilesetProject->tileset()->image();
+}
+
+const QImage *TileCanvas::imageForLayerAt(int layerIndex) const
+{
+    return const_cast<TileCanvas *>(this)->imageForLayerAt(layerIndex);
+}
+
 TileCanvas::Mode TileCanvas::mode() const
 {
     return mMode;
@@ -322,20 +343,13 @@ void TileCanvas::applyCurrentTool()
     switch (mTool) {
     case PenTool: {
         if (mMode == PixelMode) {
-//            const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
-//            if (candidateData.scenePositions.isEmpty()) {
-//                return;
-//            }
-
-//            mTilesetProject->beginMacro(QLatin1String("PixelPenTool"));
-//            mTilesetProject->addChange(new ApplyPixelPenCommand(this, -1, candidateData.scenePositions, candidateData.previousColours, penColour()));
-            mProject->beginMacro(QLatin1String("PixelLineTool"));
             // Draw the line on top of what has already been painted using a special composition mode.
             // This ensures that e.g. a translucent red overwrites whatever pixels it
             // lies on, rather than blending with them.
-            mProject->addChange(new ApplyPixelLineCommand(this, -1, *mTilesetProject->tileset()->image(), linePoint1(), linePoint2(),
-                mPressScenePosition, mLastPixelPenPressScenePosition, QPainter::CompositionMode_Source));
-            break;
+            QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {linePoint1(), linePoint2()}, mLastPixelPenPressScenePosition,
+                QPainter::CompositionMode_Source, true, mProject->undoStack()->command(mProject->undoStack()->index() - 1));
+            command->setText(QLatin1String("PixelLineTool"));
+            mProject->addChange(command);
         } else {
             const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
             const Tile *tile = mTilesetProject->tileAt(scenePos);
@@ -367,13 +381,11 @@ void TileCanvas::applyCurrentTool()
     }
     case EraserTool: {
         if (mMode == PixelMode) {
-            const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
-            if (candidateData.scenePositions.isEmpty()) {
-                return;
-            }
-
-            mTilesetProject->beginMacro(QLatin1String("PixelEraserTool"));
-            mTilesetProject->addChange(new ApplyPixelEraserCommand(this, -1, candidateData.scenePositions, candidateData.previousColours));
+            // Draw the line on top of what has already been painted using a special composition mode to erase pixels.
+            QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {linePoint1(), linePoint2()}, mLastPixelPenPressScenePosition,
+                QPainter::CompositionMode_Clear, true, mProject->undoStack()->command(mProject->undoStack()->index() - 1));
+            command->setText(QLatin1String("PixelEraserTool"));
+            mProject->addChange(command);
         } else {
             const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
             const Tile *tile = mTilesetProject->tileAt(scenePos);
@@ -428,19 +440,27 @@ QRect TileCanvas::sceneRectToTileRect(const QRect &sceneRect) const
                  QPoint(Utils::divFloor(sceneRect.right(), mTilesetProject->tileWidth()), Utils::divFloor(sceneRect.bottom(), mTilesetProject->tileHeight())));
 }
 
-QList<ImageCanvas::SubImage> TileCanvas::subImagesInBounds(const QRect &bounds) const
+ImageCanvas::SubImage TileCanvas::getSubImage(const int index) const
+{
+    const Tile *const tile = mTilesetProject->tilesetTileAtId(index);
+    Q_ASSERT(tile);
+
+    return {0, tile->sourceRect(), {0, 0}};
+}
+
+QList<ImageCanvas::SubImageInstance> TileCanvas::subImageInstancesInBounds(const QRect &bounds) const
 {
     const QRect tileRect = sceneRectToTileRect(bounds);
-    QList<ImageCanvas::SubImage> subImages;
+    QList<ImageCanvas::SubImageInstance> instances;
     for (int y = tileRect.top(); y <= tileRect.bottom(); ++y) {
         for (int x = tileRect.left(); x <= tileRect.right(); ++x) {
             const Tile *const tile = mTilesetProject->tileAtTilePos({x, y});
             if (tile) {
-                subImages.append({tile->sourceRect(), {x * mTilesetProject->tileWidth(), y * mTilesetProject->tileHeight()}});
+                instances.append({tile->id(), {x * mTilesetProject->tileWidth(), y * mTilesetProject->tileHeight()}});
             }
         }
     }
-    return subImages;
+    return instances;
 }
 
 // This function actually operates on the image.

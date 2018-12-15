@@ -239,14 +239,32 @@ public:
 
     struct SubImage {
         bool operator==(const SubImage &other) const {
-            return bounds == other.bounds && offset == other.offset;
+            return imageIndex == other.imageIndex && bounds == other.bounds && origin == other.origin;
         }
 
+        // Index of master image
+        int imageIndex;
+        // Image-space bounds
         QRect bounds;
-        QPoint offset;
+        // Local-space origin
+        QPoint origin;
     };
 
-    virtual QList<SubImage> subImagesInBounds(const QRect &bounds) const;
+    virtual SubImage getSubImage(const int index) const;
+
+    struct SubImageInstance {
+        bool operator==(const SubImageInstance &other) const {
+            return index == other.index && position == other.position;
+        }
+
+        // Index of master subimage
+        int index;
+        // Scene-space position
+        QPoint position;
+        // Other transform?
+    };
+
+    virtual QList<SubImageInstance> subImageInstancesInBounds(const QRect &bounds) const;
 
     // Essentially currentProjectImage() for regular image canvas, but may return a
     // preview image if there is a selection active. For layered image canvases, this
@@ -268,6 +286,7 @@ public:
     virtual const QImage *currentProjectImage() const;
 
     virtual QImage *imageForLayerAt(int layerIndex);
+    virtual const QImage *imageForLayerAt(int layerIndex) const;
     virtual int currentLayerIndex() const;
 
     enum SelectionModification {
@@ -413,6 +432,7 @@ protected:
     QPointF linePoint1() const;
     QPointF linePoint2() const;
     QRect normalisedLineRect(const QPointF point1, const QPointF point2) const;
+    static QRect strokeBounds(const QVector<QPointF> stroke, const int toolSize);
 
     virtual void updateCursorPos(const QPoint &eventPos);
     void updateVisibleSceneArea();
@@ -434,6 +454,7 @@ protected:
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
     virtual QImage getContentImage();
     void drawLine(QPainter *painter, QPointF point1, QPointF point2, const QPainter::CompositionMode mode) const;
+    void drawStroke(QPainter *painter, const QVector<QPointF> &stroke, const QPainter::CompositionMode mode) const;
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,
@@ -632,14 +653,22 @@ protected:
     bool mHasBlankCursor;
 };
 
-inline uint qHash(const ImageCanvas::SubImage &key, const uint seed = 0) {
-    return qHashBits(&key, sizeof(ImageCanvas::SubImage), seed);
+inline uint qHash(const ImageCanvas::SubImageInstance &key, const uint seed = 0) {
+    return qHashBits(&key, sizeof(ImageCanvas::SubImageInstance), seed);
 }
 
 inline QDebug operator<<(QDebug debug, const ImageCanvas::SubImage &subImage)
 {
     QDebugStateSaver saver(debug);
-    debug.nospace() << "SubImage(" << subImage.bounds << ", " << subImage.offset << ')';
+    debug.nospace() << "SubImageInstance(" << subImage.imageIndex << ", " << subImage.bounds << ", " << subImage.origin << ')';
+
+    return debug;
+}
+
+inline QDebug operator<<(QDebug debug, const ImageCanvas::SubImageInstance &subImageInstance)
+{
+    QDebugStateSaver saver(debug);
+    debug.nospace() << "SubImageInstance(" << subImageInstance.index << ", " << subImageInstance.position << ')';
 
     return debug;
 }
