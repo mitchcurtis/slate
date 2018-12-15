@@ -25,10 +25,8 @@
 #include <QQuickWindow>
 #include <QtMath>
 
-#include "applypixelerasercommand.h"
 #include "applypixelfillcommand.h"
 #include "applypixellinecommand.h"
-#include "applypixelpencommand.h"
 #include "applytilecanvaspixelfillcommand.h"
 #include "applytileerasercommand.h"
 #include "applytilefillcommand.h"
@@ -483,16 +481,6 @@ void TileCanvas::applyTilePenTool(const QPoint &tilePos, int id)
 {
     mTilesetProject->setTileAtPixelPos(tilePos, id);
     requestContentPaint();
-}
-
-void TileCanvas::applyPixelLineTool(int, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition)
-{
-    mLastPixelPenPressScenePositionF = lastPixelPenReleaseScenePosition;
-    QPainter painter(mTilesetProject->tileset()->image());
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
-    painter.drawImage(lineRect, lineImage);
-    requestContentPaint();
-    mTilesetProject->tileset()->notifyImageChanged();
 }
 
 void TileCanvas::updateCursorPos(const QPoint &eventPos)

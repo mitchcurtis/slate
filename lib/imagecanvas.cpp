@@ -32,10 +32,8 @@
 #include "addguidecommand.h"
 #include "applicationsettings.h"
 #include "applygreedypixelfillcommand.h"
-#include "applypixelerasercommand.h"
 #include "applypixelfillcommand.h"
 #include "applypixellinecommand.h"
-#include "applypixelpencommand.h"
 #include "deleteguidecommand.h"
 #include "deleteimagecanvasselectioncommand.h"
 #include "fillalgorithms.h"
@@ -2202,16 +2200,6 @@ void ImageCanvas::applyPixelPenTool(int layerIndex, const QPoint &scenePos, cons
     imageForLayerAt(layerIndex)->setPixelColor(scenePos, colour);
     if (markAsLastRelease)
         mLastPixelPenPressScenePosition = scenePos;
-    requestContentPaint();
-}
-
-void ImageCanvas::applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect,
-    const QPointF &lastPixelPenReleaseScenePosition)
-{
-    mLastPixelPenPressScenePositionF = lastPixelPenReleaseScenePosition;
-    QPainter painter(imageForLayerAt(layerIndex));
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
-    painter.drawImage(lineRect, lineImage);
     requestContentPaint();
 }
 

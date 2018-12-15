@@ -132,7 +132,6 @@ private:
     void applyCurrentTool() override;
     void applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false) override;
     void applyTilePenTool(const QPoint &tilePos, int id);
-    void applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition) override;
 
     void updateCursorPos(const QPoint &eventPos) override;
     void error(const QString &message);

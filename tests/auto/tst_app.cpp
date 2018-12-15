@@ -28,7 +28,6 @@
 #include <QQuickWindow>
 
 #include "application.h"
-#include "applypixelpencommand.h"
 #include "imagelayer.h"
 #include "tilecanvas.h"
 #include "project.h"
