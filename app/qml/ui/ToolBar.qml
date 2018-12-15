@@ -499,5 +499,22 @@ ToolBar {
                 onClicked: canvas.splitter.enabled = !checked
             }
         }
+
+        ToolSeparator {}
+
+        Row {
+            Ui.IconToolButton {
+                id: fullScreenButton
+                text: "\uF0B2"
+                enabled: true
+                hoverEnabled: true
+                focusPolicy: Qt.NoFocus
+
+                ToolTip.text: qsTr("Toggle fullscreen window")
+                ToolTip.visible: hovered
+
+                onClicked: toggleFullScreen()
+            }
+        }
     }
 }

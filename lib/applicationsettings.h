@@ -88,6 +88,7 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QString swatchRightShortcut READ swatchRightShortcut WRITE setSwatchRightShortcut NOTIFY swatchRightShortcutChanged)
     Q_PROPERTY(QString swatchUpShortcut READ swatchUpShortcut WRITE setSwatchUpShortcut NOTIFY swatchUpShortcutChanged)
     Q_PROPERTY(QString swatchDownShortcut READ swatchDownShortcut WRITE setSwatchDownShortcut NOTIFY swatchDownShortcutChanged)
+    Q_PROPERTY(QString fullScreenToggleShortcut READ fullScreenToggleShortcut WRITE setFullScreenToggleShortcut NOTIFY fullScreenToggleShortcutChanged)
 
 public:
     explicit ApplicationSettings(QObject *parent = 0);
@@ -301,6 +302,10 @@ public:
     QString swatchDownShortcut() const;
     void setSwatchDownShortcut(const QString &shortcut);
 
+    QString defaultFullScreenToggleShortcut() const;
+    QString fullScreenToggleShortcut() const;
+    void setFullScreenToggleShortcut(const QString &shortcut);
+
 signals:
     void loadLastOnStartupChanged();
     void recentFilesChanged();
@@ -354,6 +359,7 @@ signals:
     void swatchRightShortcutChanged();
     void swatchUpShortcutChanged();
     void swatchDownShortcutChanged();
+    void fullScreenToggleShortcutChanged();
 };
 
 #endif // APPLICATIONSETTINGS_H

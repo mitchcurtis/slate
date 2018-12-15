@@ -411,6 +411,10 @@ Dialog {
                         shortcutName: "swatchDownShortcut"
                         shortcutDisplayName: qsTr("Move Swatch Selection Down")
                     }
+                    ShortcutRow {
+                        shortcutName: "fullScreenToggleShortcut"
+                        shortcutDisplayName: qsTr("Toggle fullscreen")
+                    }
                 }
             }
         }

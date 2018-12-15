@@ -53,6 +53,7 @@ ApplicationWindow {
     property alias moveContentsDialog: moveContentsDialog
     readonly property int toolTipDelay: 500
     readonly property int toolTipTimeout: 2000
+    property int oldWindowVisibility: Window.Windowed
 
     onClosing: {
         close.accepted = false
@@ -116,6 +117,18 @@ ApplicationWindow {
             project.save();
         } else {
             saveAsDialog.open();
+        }
+    }
+
+    function toggleFullScreen() {
+        onActivated: {
+            if (window.visibility === Window.FullScreen) {
+                window.visibility = oldWindowVisibility;
+            }
+            else {
+                oldWindowVisibility = window.visibility
+                window.visibility = Window.FullScreen
+            }
         }
     }
 
