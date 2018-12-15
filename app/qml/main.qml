@@ -121,14 +121,12 @@ ApplicationWindow {
     }
 
     function toggleFullScreen() {
-        onActivated: {
-            if (window.visibility === Window.FullScreen) {
-                window.visibility = oldWindowVisibility;
-            }
-            else {
-                oldWindowVisibility = window.visibility
-                window.visibility = Window.FullScreen
-            }
+        if (window.visibility === Window.FullScreen) {
+            window.visibility = oldWindowVisibility
+        }
+        else {
+            oldWindowVisibility = window.visibility
+            window.visibility = Window.FullScreen
         }
     }
 
