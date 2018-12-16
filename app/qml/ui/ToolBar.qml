@@ -208,10 +208,6 @@ ToolBar {
                 // TODO: respond to right clicks when https://bugreports.qt.io/browse/QTBUG-67331 is implemented
 
                 ToolButtonMenuIndicator {
-                    color: fillToolButton.icon.color
-                    anchors.right: parent.contentItem.right
-                    anchors.bottom: parent.contentItem.bottom
-                    anchors.margins: 6
                     visible: !isTilesetProject
                 }
 
@@ -293,6 +289,8 @@ ToolBar {
 
             onClicked: toolSizeSliderPopup.open()
 
+            ToolButtonMenuIndicator {}
+
             ToolSizePopup {
                 id: toolSizeSliderPopup
                 x: parent.width / 2 - width / 2
@@ -314,18 +312,13 @@ ToolBar {
 
             onClicked: toolShapeMenu.open()
 
-            ToolButtonMenuIndicator {
-                color: toolShapeButton.icon.color
-                anchors.right: parent.contentItem.right
-                anchors.bottom: parent.contentItem.bottom
-                anchors.margins: 6
-            }
+            ToolButtonMenuIndicator {}
 
             ActionGroup {
                 id: toolShapeGroup
                 exclusive: true
-                onTriggered: canvas.toolShape = action.shape;
-                checkedAction: actions[canvas.toolShape]
+                onTriggered: if (canvas) canvas.toolShape = action.shape
+                checkedAction: canvas ? actions[canvas.toolShape] : squareToolShape
 
                 Action {
                     id: squareToolShape
@@ -366,18 +359,13 @@ ToolBar {
 
             onClicked: toolBlendModeMenu.open()
 
-            ToolButtonMenuIndicator {
-                color: toolBlendModeButton.icon.color
-                anchors.right: parent.contentItem.right
-                anchors.bottom: parent.contentItem.bottom
-                anchors.margins: 6
-            }
+            ToolButtonMenuIndicator {}
 
             ActionGroup {
                 id: toolBlendModeGroup
                 exclusive: true
-                onTriggered: canvas.toolBlendMode = action.blendMode;
-                checkedAction: actions[canvas.toolBlendMode]
+                onTriggered: if (canvas) canvas.toolBlendMode = action.blendMode
+                checkedAction: canvas ? actions[canvas.toolBlendMode] : replaceToolBlendMode
 
                 Action {
                     id: blendToolBlendMode
