@@ -291,7 +291,7 @@ ToolBar {
             ToolTip.text: qsTr("Change the size of drawing tools")
             ToolTip.visible: hovered && !toolSizeSliderPopup.visible
 
-            onClicked: toolSizeSliderPopup.visible = !toolSizeSliderPopup.visible
+            onClicked: toolSizeSliderPopup.open()
 
             ToolSizePopup {
                 id: toolSizeSliderPopup
@@ -324,14 +324,15 @@ ToolBar {
             ActionGroup {
                 id: toolShapeGroup
                 exclusive: true
+                onTriggered: canvas.toolShape = action.shape;
+                checkedAction: actions[canvas.toolShape]
 
                 Action {
                     id: squareToolShape
                     text: qsTr("Square")
                     icon.source: "qrc:/images/square-tool-shape.png"
                     checkable: true
-                    checked: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
-                    onTriggered: canvas.toolShape = ImageCanvas.SquareToolShape
+                    property int shape: ImageCanvas.SquareToolShape
                 }
 
                 Action {
@@ -339,8 +340,7 @@ ToolBar {
                     text: qsTr("Circle")
                     icon.source: "qrc:/images/circle-tool-shape.png"
                     checkable: true
-                    checked: canvas && canvas.toolShape === ImageCanvas.CircleToolShape
-                    onTriggered: canvas.toolShape = ImageCanvas.CircleToolShape
+                    property int shape: ImageCanvas.CircleToolShape
                 }
             }
 
@@ -376,14 +376,15 @@ ToolBar {
             ActionGroup {
                 id: toolBlendModeGroup
                 exclusive: true
+                onTriggered: canvas.toolBlendMode = action.blendMode;
+                checkedAction: actions[canvas.toolBlendMode]
 
                 Action {
                     id: blendToolBlendMode
                     text: qsTr("Blend")
                     icon.source: "qrc:/images/blend-tool-blend-mode.png"
                     checkable: true
-                    checked: canvas && canvas.toolBlendMode === ImageCanvas.BlendToolBlendMode
-                    onTriggered: canvas.toolBlendMode = ImageCanvas.BlendToolBlendMode
+                    property int blendMode: ImageCanvas.BlendToolBlendMode
                 }
 
                 Action {
@@ -391,8 +392,7 @@ ToolBar {
                     text: qsTr("Replace")
                     icon.source: "qrc:/images/replace-tool-blend-mode.png"
                     checkable: true
-                    checked: canvas && canvas.toolBlendMode === ImageCanvas.ReplaceToolBlendMode
-                    onTriggered: canvas.toolBlendMode = ImageCanvas.ReplaceToolBlendMode
+                    property int blendMode: ImageCanvas.ReplaceToolBlendMode
                 }
             }
 

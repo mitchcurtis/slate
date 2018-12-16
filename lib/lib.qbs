@@ -77,6 +77,8 @@ Product {
         "applytilepencommand.h",
         "autoswatchmodel.cpp",
         "autoswatchmodel.h",
+        "bufferedundocommand.cpp",
+        "bufferedundocommand.h",
         "buildinfo.cpp",
         "buildinfo.h",
         "canvaspane.cpp",

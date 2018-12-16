@@ -47,7 +47,6 @@ private:
 
     void undoRect(QPainter &painter, const QRect &rect) const;
     void redoRect(QPainter &painter, const QRect &rect) const;
-    void resizeUndoRedoBuffers(const QRect &rect);
 
     ImageCanvas *mCanvas;
     int mLayerIndex;

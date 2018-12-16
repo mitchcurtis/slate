@@ -71,37 +71,29 @@ void ApplyPixelLineCommand::redo()
 
     // First "redo" so draw and store undo/redo buffers
     if (needDraw) {
-        // Find intersections and offsets of draw area and subimages
-        QVector<QRect> subImageRects;
+        // Find intersections of subimages with draw area
+        QMap<int, QRegion> subImageRegions;
         for (auto const &instance : mCanvas->subImageInstancesInBounds(mDrawBounds)) {
             const ImageCanvas::SubImage subImage = mCanvas->getSubImage(instance.index);
             const QPoint instanceDrawOffset = subImage.bounds.topLeft() - instance.position;
-            const QRect imageSpaceDrawBounds = mDrawBounds.translated(instanceDrawOffset).intersected(subImage.bounds);
-            subImageRects.append(imageSpaceDrawBounds);
+            subImageRegions[instance.index] += mDrawBounds.translated(instanceDrawOffset).intersected(subImage.bounds);
         }
 
-        // Find draw offsets for each instance in stroke bounds
-        struct DrawRect {
-            QRect bounds;
-            QPoint offset;
-        };
+        // Add subimage regions to draw region
         QRegion bufferDrawRegion;
-        QVector<DrawRect> instanceDrawRects;
-        const QRect fullStrokeBounds = ImageCanvas::strokeBounds(mStroke, mCanvas->toolSize());
-        for (auto const &subImageDrawRect : subImageRects) {
-            for (auto const &instance : mCanvas->subImageInstancesInBounds(fullStrokeBounds)) {
-                const ImageCanvas::SubImage subImage = mCanvas->getSubImage(instance.index);
-                const QPoint instanceDrawOffset = subImage.bounds.topLeft() - instance.position;
-                const QRect intersection = fullStrokeBounds.translated(instanceDrawOffset).intersected(subImageDrawRect);
-                if (!intersection.isEmpty()) {
-                    const DrawRect drawRect{intersection, instanceDrawOffset};
-                    instanceDrawRects.append(drawRect);
-                    bufferDrawRegion = bufferDrawRegion.united(intersection);
-                }
-            }
+        for (auto const &region : subImageRegions) {
+            bufferDrawRegion += region;
         }
 
-        if (!instanceDrawRects.isEmpty()) {
+        // Find offsets of subimage instances within stroke area
+        QMap<int, QVector<QPoint>> instanceOffsets;
+        for (auto const &instance : mCanvas->subImageInstancesInBounds(ImageCanvas::strokeBounds(mStroke, mCanvas->toolSize()))) {
+            const ImageCanvas::SubImage subImage = mCanvas->getSubImage(instance.index);
+            const QPoint instanceDrawOffset = subImage.bounds.topLeft() - instance.position;
+            if (subImageRegions.contains(instance.index)) instanceOffsets[instance.index] += instanceDrawOffset;
+        }
+
+        if (!subImageRegions.isEmpty()) {
             QPainter painter;
 
             const QRegion bufferRegionIntersection = bufferDrawRegion.intersected(mBufferRegion);
@@ -141,11 +133,15 @@ void ApplyPixelLineCommand::redo()
 
             // Draw stroke to image
             painter.begin(mCanvas->imageForLayerAt(mLayerIndex));
-            for (auto const &drawRect : instanceDrawRects) {
+            for (auto const &key : subImageRegions.keys()) {
                 painter.save();
-                painter.setClipRect(drawRect.bounds);
-                painter.translate(drawRect.offset);
-                mCanvas->drawStroke(&painter, mStroke, mCompositionMode);
+                painter.setClipRegion(subImageRegions[key]);
+                for (auto const &offset : instanceOffsets[key]) {
+                    painter.save();
+                    painter.translate(offset);
+                    mCanvas->drawStroke(&painter, mStroke, mCompositionMode);
+                    painter.restore();
+                }
                 painter.restore();
             }
             painter.end();
@@ -161,6 +157,7 @@ void ApplyPixelLineCommand::redo()
 
         needDraw = false;
     }
+
     // Otherwise copy image from redo buffer
     else {
         QPainter painter(mCanvas->imageForLayerAt(mLayerIndex));
