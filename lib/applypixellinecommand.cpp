@@ -22,6 +22,7 @@
 #include <QLoggingCategory>
 #include <QPainter>
 #include <QImage>
+#include <QtMath>
 
 #include "commands.h"
 
@@ -206,7 +207,6 @@ void ApplyPixelLineCommand::undoRect(QPainter &painter, const QRect &rect) const
 {
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.drawImage(rect, mUndoBuffer, rect.translated(-mBufferBounds.topLeft()));
-//    painter.fillRect(rect, QColor(0, 0, 255));
 }
 
 void ApplyPixelLineCommand::redoRect(QPainter &painter, const QRect &rect) const

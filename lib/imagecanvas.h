@@ -247,6 +247,23 @@ public:
     int lineLength() const;
     qreal lineAngle() const;
 
+    struct Brush {
+        Brush() : image(), handle() {}
+        Brush(const Brush &other) : image(other.image), handle(other.handle) {}
+
+        bool operator==(const Brush &other) const {
+            return image == other.image && handle == other.handle;
+        }
+        Brush &operator=(const Brush &other) {
+            image = other.image;
+            handle = other.handle;
+            return *this;
+        }
+
+        QImage image;
+        QPointF handle;
+    };
+
     struct SubImage {
         bool operator==(const SubImage &other) const {
             return imageIndex == other.imageIndex && bounds == other.bounds && origin == other.origin;
@@ -444,6 +461,8 @@ protected:
     QPointF linePoint2() const;
     QRect normalisedLineRect(const QPointF point1, const QPointF point2) const;
     static QRect strokeBounds(const QVector<QPointF> stroke, const int toolSize);
+    void markBrushDirty();
+    const Brush &brush();
 
     virtual void updateCursorPos(const QPoint &eventPos);
     void updateVisibleSceneArea();
@@ -464,8 +483,19 @@ protected:
     CanvasPane *hoveredPane(const QPoint &pos);
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
     virtual QImage getContentImage();
-    void drawLine(QPainter *painter, QPointF point1, QPointF point2, const QPainter::CompositionMode mode) const;
-    void drawStroke(QPainter *painter, const QVector<QPointF> &stroke, const QPainter::CompositionMode mode) const;
+    static void drawPixel(QImage &image, const QRect &clip, const QPoint point, const QRgb colour);
+    static void drawSpan(QImage &image, const QRect &clip, const int x0, const int x1, const int y, const QRgb colour);
+    static void fillRectangle(QImage &image, const QRect &clip, const QRectF &rect, const QRgb colour);
+    static void fillRectangle(QImage &image, const QRect &clip, const QPointF pos, const QSizeF size, const QRgb colour, const bool fromCentre = false);
+    static void fillRectangle(QImage &image, const QRect &clip, const QPointF point0, const QPointF point1, const QRgb colour, const bool fromCentre = false);
+    static void fillEllipse(QImage &image, const QRect &clip, const QRectF &rect, const QRgb colour);
+    static void fillEllipse(QImage &image, const QRect &clip, const QPointF origin, const QSizeF radius, const QRgb colour);
+    static void fillEllipse(QImage &image, const QRect &clip, const QPointF point0, const QPointF point1, const QRgb colour, const bool fromCentre = false);
+    static void strokeSegment(QPainter *const painter, const Brush &brush, const QPointF point0, const QPointF point1);
+    static Brush createBrush(const QRgb colour, const ToolShape shape, const QSize &size, const QPointF handle = {0.5, 0.5}, const bool relativeHandle = true);
+    static void drawBrush(QPainter *const painter, const Brush &brush, const QPointF pos);
+    void drawLine(QPainter *const painter, QPointF point1, QPointF point2, const QPainter::CompositionMode mode);
+    void drawStroke(QPainter *const painter, const QVector<QPointF> &stroke, const QPainter::CompositionMode mode);
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,
@@ -616,6 +646,8 @@ protected:
     int mMaxToolSize;
     QColor mPenForegroundColour;
     QColor mPenBackgroundColour;
+    Brush mBrush;
+    bool mBrushDirty;
 
     TexturedFillParameters mTexturedFillParameters;
 
