@@ -30,7 +30,7 @@
 class SLATE_EXPORT ApplyPixelLineCommand : public QUndoCommand
 {
 public:
-    ApplyPixelLineCommand(ImageCanvas *const canvas, const int layerIndex, const QVector<QPointF> &stroke, const QPointF &oldLastPixelPenReleaseScenePos,
+    ApplyPixelLineCommand(ImageCanvas *const canvas, const int layerIndex, const ImageCanvas::Stroke &stroke, const QPointF &oldLastPixelPenReleaseScenePos,
         const QPainter::CompositionMode compositionMode, const bool allowMerge, const QUndoCommand *const previousCommand = nullptr, QUndoCommand *const parent = nullptr);
     virtual ~ApplyPixelLineCommand() override;
 
@@ -53,7 +53,7 @@ private:
     QPointF mOldLastPixelPenReleaseScenePos;
     QPainter::CompositionMode mCompositionMode;
 
-    QVector<QPointF> mStroke;
+    ImageCanvas::Stroke mStroke;
     QRect mDrawBounds;
     QRegion mBufferRegion;
     QImage mUndoBuffer;

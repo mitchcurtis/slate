@@ -125,6 +125,8 @@ public:
     ImageCanvas();
     ~ImageCanvas() override;
 
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+
     Project *project() const;
     void setProject(Project *project);
 
@@ -246,6 +248,13 @@ public:
     bool isLineVisible() const;
     int lineLength() const;
     qreal lineAngle() const;
+
+    struct StrokePoint {
+        QPointF pos;
+        qreal pressure;
+    };
+
+    typedef QVector<StrokePoint> Stroke;
 
     struct Brush {
         Brush() : image(), handle() {}
@@ -459,10 +468,10 @@ protected:
 
     QPointF linePoint1() const;
     QPointF linePoint2() const;
-    QRect normalisedLineRect(const QPointF point1, const QPointF point2) const;
-    static QRect strokeBounds(const QVector<QPointF> stroke, const int toolSize);
+    static QRect strokeBounds(const Stroke &stroke, const int toolSize);
     void markBrushDirty();
     const Brush &brush();
+    qreal pressure() const;
 
     virtual void updateCursorPos(const QPoint &eventPos);
     void updateVisibleSceneArea();
@@ -491,11 +500,11 @@ protected:
     static void fillEllipse(QImage &image, const QRect &clip, const QRectF &rect, const QRgb colour);
     static void fillEllipse(QImage &image, const QRect &clip, const QPointF origin, const QSizeF radius, const QRgb colour);
     static void fillEllipse(QImage &image, const QRect &clip, const QPointF point0, const QPointF point1, const QRgb colour, const bool fromCentre = false);
-    static void strokeSegment(QPainter *const painter, const Brush &brush, const QPointF point0, const QPointF point1);
+    static void strokeSegment(QPainter *const painter, const Brush &brush, const StrokePoint &point0, const StrokePoint &point1);
     static Brush createBrush(const QRgb colour, const ToolShape shape, const QSize &size, const QPointF handle = {0.5, 0.5}, const bool relativeHandle = true);
-    static void drawBrush(QPainter *const painter, const Brush &brush, const QPointF pos);
-    void drawLine(QPainter *const painter, QPointF point1, QPointF point2, const QPainter::CompositionMode mode);
-    void drawStroke(QPainter *const painter, const QVector<QPointF> &stroke, const QPainter::CompositionMode mode);
+    static void drawBrush(QPainter *const painter, const Brush &brush, const QPointF pos, const qreal scale);
+    void drawLine(QPainter *const painter, const StrokePoint &point1, const StrokePoint &point2, const QPainter::CompositionMode mode);
+    void drawStroke(QPainter *const painter, const Stroke &stroke, const QPainter::CompositionMode mode);
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,
@@ -570,6 +579,9 @@ protected:
     void focusInEvent(QFocusEvent *event) override;
     void focusOutEvent(QFocusEvent *event) override;
     void timerEvent(QTimerEvent *event) override;
+    void tabletEvent(QTabletEvent *event);
+
+    void updateWindow(QQuickWindow *const window);
 
     Project *mProject;
 
@@ -638,6 +650,8 @@ protected:
     bool mScrollZoom;
     bool mGesturesEnabled;
 
+    qreal mPressure;
+    bool mIsTabletEvent;
     Tool mTool;
     ToolShape mToolShape;
     ToolBlendMode mToolBlendMode;
@@ -694,7 +708,9 @@ protected:
     bool mShiftPressed;
     Tool mToolBeforeAltPressed;
     bool mSpacePressed;
-    bool mHasBlankCursor;
+    bool mHasBlankCursor;    
+
+    QQuickWindow *mWindow;
 };
 
 inline uint qHash(const ImageCanvas::SubImageInstance &key, const uint seed = 0) {

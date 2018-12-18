@@ -93,6 +93,8 @@ ImageCanvas::ImageCanvas() :
     mLastMouseButtonPressed(Qt::NoButton),
     mScrollZoom(false),
     mGesturesEnabled(false),
+    mPressure(0.0),
+    mIsTabletEvent(false),
     mTool(PenTool),
     mToolShape(SquareToolShape),
     mToolBlendMode(ReplaceToolBlendMode),
@@ -115,7 +117,8 @@ ImageCanvas::ImageCanvas() :
     mShiftPressed(false),
     mToolBeforeAltPressed(PenTool),
     mSpacePressed(false),
-    mHasBlankCursor(false)
+    mHasBlankCursor(false),
+    mWindow(nullptr)
 {
     setEnabled(false);
     setFlag(QQuickItem::ItemIsFocusScope);
@@ -174,6 +177,10 @@ ImageCanvas::ImageCanvas() :
     connect(&mSplitter, SIGNAL(positionChanged()), this, SLOT(onSplitterPositionChanged()));
 
     recreateCheckerImage();
+
+    // Need to capture tablet events from application and window
+    qApp->installEventFilter(this);
+    QObject::connect(this, &QQuickItem::windowChanged, this, &ImageCanvas::updateWindow);
 
     qCDebug(lcImageCanvasLifecycle) << "constructing ImageCanvas" << this;
 }
@@ -1031,7 +1038,7 @@ QImage ImageCanvas::getContentImage()
         // Draw the line on top of what has already been painted using a special composition mode.
         // This ensures that e.g. a translucent red overwrites whatever pixels it
         // lies on, rather than blending with them.
-        drawLine(&linePainter, linePoint1(), linePoint2(), qPainterBlendMode());
+        drawLine(&linePainter, {linePoint1(), 1.0}, {linePoint2(), 1.0}, qPainterBlendMode());
     }
     return image;
 }
@@ -1142,15 +1149,17 @@ void ImageCanvas::fillEllipse(QImage &image, const QRect &clip, const QPointF po
     fillEllipse(image, clip, origin, radius, colour);
 }
 
-void ImageCanvas::strokeSegment(QPainter *const painter, const Brush &brush, const QPointF point0, const QPointF point1)
+void ImageCanvas::strokeSegment(QPainter *const painter, const Brush &brush, const StrokePoint &point0, const StrokePoint &point1)
 {
-    const QPointF delta = {point1.x() - point0.x(), point1.y() - point0.y()};
-    const qreal steps = qMax(qAbs(delta.x()), qAbs(delta.y()));
+    const QPointF posDelta = {point1.pos.x() - point0.pos.x(), point1.pos.y() - point0.pos.y()};
+    const qreal pressureDelta = point1.pressure - point0.pressure;
+    const qreal steps = qMax(qAbs(posDelta.x()), qAbs(posDelta.y()));
     if (steps > 0.0) {
         const qreal step = 1.0 / steps;
         for (qreal pos = 0.0; pos < 1.0; pos += step) {
-            QPointF point = point0 + pos * delta;
-            drawBrush(painter, brush, point);
+            const QPointF point = point0.pos + pos * posDelta;
+            const qreal pressure = point0.pressure + pos * pressureDelta;
+            drawBrush(painter, brush, point, pressure);
         }
     }
 }
@@ -1179,21 +1188,21 @@ ImageCanvas::Brush ImageCanvas::createBrush(const QRgb colour, const ImageCanvas
     return brush;
 }
 
-void ImageCanvas::drawBrush(QPainter *const painter, const ImageCanvas::Brush &brush, const QPointF pos)
+void ImageCanvas::drawBrush(QPainter *const painter, const ImageCanvas::Brush &brush, const QPointF pos, const qreal scale)
 {
     const QPointF penOffset = {(brush.image.width() % 2 == 0) ? 0.5 : 0.0,
                                (brush.image.height() % 2 == 0) ? 0.5 : 0.0};
 
-    const QPoint point = QPoint(qFloor(pos.x() - brush.handle.x() + penOffset.x()), qFloor(pos.y() - brush.handle.y() + penOffset.y()));
-    painter->drawImage(point, brush.image);
+    const QPoint point = QPoint(qFloor(pos.x() - brush.handle.x() * scale + penOffset.x()), qFloor(pos.y() - brush.handle.y() * scale + penOffset.y()));
+    painter->drawImage(QRect(point, brush.image.rect().size() * scale), brush.image, brush.image.rect());
 }
 
-void ImageCanvas::drawLine(QPainter *const painter, QPointF point1, QPointF point2, const QPainter::CompositionMode mode)
+void ImageCanvas::drawLine(QPainter *const painter, const StrokePoint &point1, const StrokePoint &point2, const QPainter::CompositionMode mode)
 {
     drawStroke(painter, {point1, point2}, mode);
 }
 
-void ImageCanvas::drawStroke(QPainter *const painter, const QVector<QPointF> &stroke, const QPainter::CompositionMode mode)
+void ImageCanvas::drawStroke(QPainter *const painter, const Stroke &stroke, const QPainter::CompositionMode mode)
 {
     painter->save();
 
@@ -1215,9 +1224,9 @@ void ImageCanvas::drawStroke(QPainter *const painter, const QVector<QPointF> &st
         return (point + penOffset).toPoint() - penOffset;
     };
 
-    auto strokeIsSinglePoint = [snapPenToPixel](const QVector<QPointF> &stroke) {
+    auto strokeIsSinglePoint = [snapPenToPixel](const Stroke &stroke) {
         for (int i = 1; i < stroke.length(); ++i) {
-            if (snapPenToPixel(stroke[i]) != snapPenToPixel(stroke[i - 1])) {
+            if (snapPenToPixel(stroke[i].pos) != snapPenToPixel(stroke[i - 1].pos)) {
                 return false;
             }
         }
@@ -1237,19 +1246,19 @@ void ImageCanvas::drawStroke(QPainter *const painter, const QVector<QPointF> &st
         return mergedStroke;
     };
 
-//    const QVector<QPointF> processedStroke = mergePoints(stroke, 1);
-    const QVector<QPointF> processedStroke = stroke;
+//    const Stroke processedStroke = mergePoints(stroke, 1);
+    const Stroke processedStroke = stroke;
 
     painter->setCompositionMode(mode);
     // Zero-length line doesn't draw with round pen so handle case with drawPoint
     if (strokeIsSinglePoint(processedStroke)) {
-        QPointF point = snapPenToPixel(processedStroke[0]);
+        StrokePoint point = {snapPenToPixel(processedStroke[0].pos), processedStroke[0].pressure};
 //        // Handle inconsitent width 1 pen behaviour off single points drawing offset
 //        if (mToolSize == 1) {
 //            point -= QPoint(1, 1);
 //        }
 //        painter->drawPoint(point);
-        drawBrush(painter, brush(), point);
+        drawBrush(painter, brush(), point.pos, point.pressure);
 
     }
     else {
@@ -1260,10 +1269,10 @@ void ImageCanvas::drawStroke(QPainter *const painter, const QVector<QPointF> &st
 //        }
 //        painter->drawPath(path);
         for (int i = 1; i < processedStroke.length(); ++i) {
-            const QPointF &from = processedStroke[i - 1];
-            const QPointF &to = processedStroke[i];
-            QPointF fromSnapped(qFloor(from.x()) + 0.5, qFloor(from.y()) + 0.5);
-            QPointF toSnapped(qFloor(to.x()) + 0.5, qFloor(to.y()) + 0.5);
+            const StrokePoint &from = processedStroke[i - 1];
+            const StrokePoint &to = processedStroke[i];
+            StrokePoint fromSnapped{{qFloor(from.pos.x()) + 0.5, qFloor(from.pos.y()) + 0.5}, from.pressure};
+            StrokePoint toSnapped{{qFloor(to.pos.x()) + 0.5, qFloor(to.pos.y()) + 0.5}, to.pressure};
             strokeSegment(painter, brush(), fromSnapped, toSnapped);
         }
     }
@@ -1913,6 +1922,8 @@ void ImageCanvas::reset()
     mFirstPaneVisibleSceneArea = QRect();
     mSecondPaneVisibleSceneArea = QRect();
 
+    mIsTabletEvent = false;
+    mPressure = 0.0;
     setPenForegroundColour(Qt::black);
     setPenBackgroundColour(Qt::white);
     markBrushDirty();
@@ -2291,7 +2302,7 @@ void ImageCanvas::applyCurrentTool()
         // Draw the line on top of what has already been painted using a special composition mode.
         // This ensures that e.g. a translucent red overwrites whatever pixels it
         // lies on, rather than blending with them.
-        QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {linePoint1(), linePoint2()}, mLastPixelPenPressScenePosition,
+        QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {{linePoint1(), pressure()}, {linePoint2(), pressure()}}, mLastPixelPenPressScenePosition,
             qPainterBlendMode(), true, mProject->undoStack()->command(mProject->undoStack()->index() - 1));
         command->setText(QLatin1String("PixelLineTool"));
         mProject->addChange(command);
@@ -2306,7 +2317,7 @@ void ImageCanvas::applyCurrentTool()
     }
     case EraserTool: {
         // Draw the line on top of what has already been painted using a special composition mode to erase pixels.
-        QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {linePoint1(), linePoint2()}, mLastPixelPenPressScenePosition,
+        QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {{linePoint1(), pressure()}, {linePoint2(), pressure()}}, mLastPixelPenPressScenePosition,
             QPainter::CompositionMode_Clear, true, mProject->undoStack()->command(mProject->undoStack()->index() - 1));
         command->setText(QLatin1String("PixelEraserTool"));
         mProject->addChange(command);
@@ -2431,12 +2442,7 @@ QPointF ImageCanvas::linePoint2() const
     return QPointF(mCursorSceneFX, mCursorSceneFY);
 }
 
-QRect ImageCanvas::normalisedLineRect(const QPointF point1, const QPointF point2) const
-{
-    return strokeBounds({point1, point2}, mToolSize);
-}
-
-QRect ImageCanvas::strokeBounds(const QVector<QPointF> stroke, const int toolSize)
+QRect ImageCanvas::strokeBounds(const Stroke &stroke, const int toolSize)
 {
     // sqrt(2) is the ratio between the hypotenuse of a square and its side;
     // a simplification of Pythagoras’ theorem.
@@ -2446,7 +2452,7 @@ QRect ImageCanvas::strokeBounds(const QVector<QPointF> stroke, const int toolSiz
 
     QRect bounds;
     for (auto point : stroke) {
-        bounds = bounds.united(QRect(point.toPoint(), QSize()).marginsAdded({margin, margin, margin, margin}));
+        bounds = bounds.united(QRect(point.pos.toPoint(), QSize()).marginsAdded({margin, margin, margin, margin}));
     }
     return bounds;
 }
@@ -2463,6 +2469,12 @@ const ImageCanvas::Brush &ImageCanvas::brush()
         mBrushDirty = false;
     }
     return mBrush;
+}
+
+qreal ImageCanvas::pressure() const
+{
+    // Use tablet pressure if tablet button pressed, otherwise must be mouse so use full pressure
+    return mIsTabletEvent ? mPressure : 1.0;
 }
 
 void ImageCanvas::updateCursorPos(const QPoint &eventPos)
@@ -2749,6 +2761,33 @@ void ImageCanvas::restoreToolBeforeAltPressed()
 bool ImageCanvas::areToolsForbidden() const
 {
     return false;
+}
+
+bool ImageCanvas::eventFilter(QObject *watched, QEvent *event)
+{
+    static const QSet<QEvent::Type> tabletEvents {
+        QEvent::TabletMove, QEvent::TabletPress, QEvent::TabletRelease,
+        QEvent::TabletEnterProximity, QEvent::TabletLeaveProximity,
+        QEvent::TabletTrackingChange
+    };
+//    if (tabletEvents.contains(event->type())) return QCoreApplication::sendEvent(this, static_cast<QTabletEvent *>(event));
+    if (tabletEvents.contains(event->type())) {
+        const QTabletEvent *const otherTabletEvent = static_cast<QTabletEvent *>(event);
+        QTabletEvent ownTabletEvent(otherTabletEvent->type(), mapFromGlobal(otherTabletEvent->globalPosF()), otherTabletEvent->globalPosF(),
+                                    otherTabletEvent->device(), otherTabletEvent->pointerType(), otherTabletEvent->pressure(),
+                                    otherTabletEvent->xTilt(), otherTabletEvent->yTilt(), otherTabletEvent->tangentialPressure(),
+                                    otherTabletEvent->rotation(), otherTabletEvent->z(), otherTabletEvent->modifiers(), otherTabletEvent->uniqueId(),
+                                    otherTabletEvent->button(), otherTabletEvent->buttons());
+        // Filter out when on canvas
+        if (contains(ownTabletEvent.posF())) {
+            tabletEvent(&ownTabletEvent);
+//            return true;
+        }
+        // Don't filter out when off canvas so can still generate mouse events for gui
+        else return false;
+    }
+
+    return QQuickItem::eventFilter(watched, event);
 }
 
 bool ImageCanvas::event(QEvent *event)
@@ -3200,6 +3239,21 @@ void ImageCanvas::timerEvent(QTimerEvent *event)
     }
 
     panWithSelectionIfAtEdge(SelectionPanTimerReason);
+}
+
+void ImageCanvas::tabletEvent(QTabletEvent *event)
+{
+    mIsTabletEvent = (event->buttons() != Qt::NoButton);
+    mPressure = event->pressure();
+    qDebug() << "tabletEvent!" << mIsTabletEvent << mPressure << event->button() << event->buttons();
+    event->accept();
+}
+
+void ImageCanvas::updateWindow(QQuickWindow *const window)
+{
+    if (mWindow) mWindow->removeEventFilter(this);
+    mWindow = window;
+    if (mWindow) mWindow->installEventFilter(this);
 }
 
 void ImageCanvas::undo()

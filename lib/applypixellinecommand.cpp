@@ -28,7 +28,7 @@
 
 Q_LOGGING_CATEGORY(lcApplyPixelLineCommand, "app.undo.applyPixelLineCommand")
 
-ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *const canvas, const int layerIndex, const QVector<QPointF> &stroke, const QPointF &oldLastPixelPenReleaseScenePos,
+ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *const canvas, const int layerIndex, const ImageCanvas::Stroke &stroke, const QPointF &oldLastPixelPenReleaseScenePos,
         const QPainter::CompositionMode compositionMode, const bool allowMerge, const QUndoCommand *const previousCommand, QUndoCommand *const parent) :
     QUndoCommand(parent),
     mCanvas(canvas), mLayerIndex(layerIndex),
@@ -168,7 +168,7 @@ void ApplyPixelLineCommand::redo()
     }
 
     mCanvas->requestContentPaint();
-    mCanvas->mLastPixelPenPressScenePositionF = mStroke.last();
+    mCanvas->mLastPixelPenPressScenePositionF = mStroke.last().pos;
 }
 
 int ApplyPixelLineCommand::id() const
@@ -198,7 +198,7 @@ bool ApplyPixelLineCommand::canMerge(const QUndoCommand *const command) const
     if (!command) return false;
     if (command->id() != id()) return false;
     const ApplyPixelLineCommand *previousCommand = static_cast<const ApplyPixelLineCommand*>(command);
-    if (previousCommand->mStroke.last() != mStroke.first() || previousCommand->mCanvas != mCanvas) return false;
+    if (previousCommand->mStroke.last().pos != mStroke.first().pos || previousCommand->mCanvas != mCanvas) return false;
 
     return true;
 }
@@ -219,7 +219,7 @@ QDebug operator<<(QDebug debug, const ApplyPixelLineCommand *command)
 {
     debug.nospace() << "(ApplyPixelLineCommand"
         << " layerIndex=" << command->mLayerIndex
-        << ", stroke" << command->mStroke
+//        << ", stroke" << command->mStroke
         << ", oldLastPixelPenReleaseScenePos=" << command->mOldLastPixelPenReleaseScenePos
         << ")";
     return debug.space();

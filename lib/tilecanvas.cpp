@@ -344,7 +344,7 @@ void TileCanvas::applyCurrentTool()
             // Draw the line on top of what has already been painted using a special composition mode.
             // This ensures that e.g. a translucent red overwrites whatever pixels it
             // lies on, rather than blending with them.
-            QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {linePoint1(), linePoint2()}, mLastPixelPenPressScenePosition,
+            QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {{linePoint1(), pressure()}, {linePoint2(), pressure()}}, mLastPixelPenPressScenePosition,
                 qPainterBlendMode(), true, mProject->undoStack()->command(mProject->undoStack()->index() - 1));
             command->setText(QLatin1String("PixelLineTool"));
             mProject->addChange(command);
@@ -380,7 +380,7 @@ void TileCanvas::applyCurrentTool()
     case EraserTool: {
         if (mMode == PixelMode) {
             // Draw the line on top of what has already been painted using a special composition mode to erase pixels.
-            QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {linePoint1(), linePoint2()}, mLastPixelPenPressScenePosition,
+            QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {{linePoint1(), pressure()}, {linePoint2(), pressure()}}, mLastPixelPenPressScenePosition,
                 QPainter::CompositionMode_Clear, true, mProject->undoStack()->command(mProject->undoStack()->index() - 1));
             command->setText(QLatin1String("PixelEraserTool"));
             mProject->addChange(command);
