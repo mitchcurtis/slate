@@ -252,33 +252,6 @@ void TileCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeo
     centrePanes();
 }
 
-TileCanvas::PixelCandidateData TileCanvas::penEraserPixelCandidates(Tool tool) const
-{
-    PixelCandidateData candidateData;
-
-    const QPoint topLeft(qRound(mCursorSceneFX - mToolSize / 2.0), qRound(mCursorSceneFY - mToolSize / 2.0));
-    const QPoint bottomRight(qRound(mCursorSceneFX + mToolSize / 2.0), qRound(mCursorSceneFY + mToolSize / 2.0));
-    QPoint scenePos(topLeft);
-    for (; scenePos.y() < bottomRight.y(); ++scenePos.ry()) {
-        for (scenePos.rx() = topLeft.x(); scenePos.x() < bottomRight.x(); ++scenePos.rx()) {
-            const Tile *tile = mTilesetProject->tileAt(scenePos);
-            if (tile) {
-                const QPoint tilePixelPos = scenePosToTilePixelPos(scenePos);
-                const QColor previousColour = tile->pixelColor(tilePixelPos);
-                // Don't do anything if the colours are the same; this prevents issues
-                // with undos not undoing everything across tiles.
-                const bool hasEffect = tool == PenTool ? penColour() != previousColour : previousColour != QColor(Qt::transparent);
-                if (hasEffect) {
-                    candidateData.scenePositions.append(scenePos);
-                    candidateData.previousColours.append(previousColour);
-                }
-            }
-        }
-    }
-
-    return candidateData;
-}
-
 TileCanvas::PixelCandidateData TileCanvas::fillPixelCandidates() const
 {
     PixelCandidateData candidateData;

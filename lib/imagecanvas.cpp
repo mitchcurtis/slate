@@ -93,14 +93,14 @@ ImageCanvas::ImageCanvas() :
     mLastMouseButtonPressed(Qt::NoButton),
     mScrollZoom(false),
     mGesturesEnabled(false),
-    mPressure(0.0),
+    mTabletPressure(0.0),
     mIsTabletEvent(false),
     mTool(PenTool),
     mToolShape(SquareToolShape),
     mToolBlendMode(ReplaceToolBlendMode),
     mLastFillToolUsed(FillTool),
-    mToolSize(1),
-    mMaxToolSize(100),
+    mLowerToolSize(1), mUpperToolSize(1), mMaxToolSize(100), mToolSizeUsePressure(true),
+    mLowerToolOpacity(0.0), mUpperToolOpacity(1.0), mToolOpacityUsePressure(true),
     mPenForegroundColour(Qt::black),
     mPenBackgroundColour(Qt::white),
     mBrush(),
@@ -531,25 +531,101 @@ void ImageCanvas::setLastFillToolUsed(Tool lastFillToolUsed)
     emit lastFillToolUsedChanged();
 }
 
-int ImageCanvas::toolSize() const
+int ImageCanvas::lowerToolSize() const
 {
-    return mToolSize;
+    return mLowerToolSize;
 }
 
-void ImageCanvas::setToolSize(int toolSize)
+void ImageCanvas::setLowerToolSize(int lowerToolSize)
 {
-    const int clamped = qBound(1, toolSize, mMaxToolSize);
-    if (clamped == mToolSize)
+    const int clamped = qBound(1, lowerToolSize, mMaxToolSize);
+    if (clamped == mLowerToolSize)
         return;
 
-    mToolSize = clamped;
-    emit toolSizeChanged();
+    mLowerToolSize = clamped;
+    emit lowerToolSizeChanged();
+    markBrushDirty();
+}
+
+int ImageCanvas::upperToolSize() const
+{
+    return mUpperToolSize;
+}
+
+void ImageCanvas::setUpperToolSize(int upperToolSize)
+{
+    const int clamped = qBound(1, upperToolSize, mMaxToolSize);
+    if (clamped == mUpperToolSize)
+        return;
+
+    mUpperToolSize = clamped;
+    emit upperToolSizeChanged();
     markBrushDirty();
 }
 
 int ImageCanvas::maxToolSize() const
 {
     return mMaxToolSize;
+}
+
+bool ImageCanvas::toolSizeUsePressure() const {
+    return mToolSizeUsePressure;
+}
+
+void ImageCanvas::setToolSizeUsePressure(bool toolSizeUsePressure)
+{
+    if (toolSizeUsePressure == mToolSizeUsePressure)
+        return;
+
+    mToolSizeUsePressure = toolSizeUsePressure;
+
+    emit toolSizeUsePressureChanged();
+}
+
+qreal ImageCanvas::lowerToolOpacity() const
+{
+    return mLowerToolOpacity;
+}
+
+void ImageCanvas::setLowerToolOpacity(qreal lowerToolOpacity)
+{
+    const qreal clamped = qBound(0.0, lowerToolOpacity, 1.0);
+    if (qFuzzyCompare(clamped, mLowerToolOpacity))
+        return;
+
+    mLowerToolOpacity = clamped;
+    emit lowerToolOpacityChanged();
+    markBrushDirty();
+}
+
+qreal ImageCanvas::upperToolOpacity() const
+{
+    return mUpperToolOpacity;
+}
+
+void ImageCanvas::setUpperToolOpacity(qreal upperToolOpacity)
+{
+    const qreal clamped = qBound(0.0, upperToolOpacity, 1.0);
+    if (qFuzzyCompare(clamped, mUpperToolOpacity))
+        return;
+
+    mUpperToolOpacity = clamped;
+    emit upperToolOpacityChanged();
+    markBrushDirty();
+}
+
+bool ImageCanvas::toolOpacityUsePressure() const {
+    return mToolOpacityUsePressure;
+}
+
+void ImageCanvas::setToolOpacityUsePressure(bool toolOpacityUsePressure)
+{
+    if (toolOpacityUsePressure == mToolOpacityUsePressure)
+        return;
+
+    mToolOpacityUsePressure = toolOpacityUsePressure;
+
+    emit toolOpacityUsePressureChanged();
 }
 
 QColor ImageCanvas::penForegroundColour() const
@@ -1206,27 +1282,27 @@ void ImageCanvas::drawStroke(QPainter *const painter, const Stroke &stroke, cons
 {
     painter->save();
 
-    QPen pen;
-    pen.setColor(penColour());
-    pen.setWidth(mToolSize);
-    if (mToolShape == ToolShape::SquareToolShape) {
-        pen.setCapStyle(Qt::PenCapStyle::SquareCap);
-        pen.setJoinStyle(Qt::PenJoinStyle::BevelJoin);
-    }
-    else {
-        pen.setCapStyle(Qt::PenCapStyle::RoundCap);
-        pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
-    }
-    painter->setPen(pen);
+//    QPen pen;
+//    pen.setColor(penColour());
+//    pen.setWidth(mToolSize);
+//    if (mToolShape == ToolShape::SquareToolShape) {
+//        pen.setCapStyle(Qt::PenCapStyle::SquareCap);
+//        pen.setJoinStyle(Qt::PenJoinStyle::BevelJoin);
+//    }
+//    else {
+//        pen.setCapStyle(Qt::PenCapStyle::RoundCap);
+//        pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+//    }
+//    painter->setPen(pen);
 
-    auto snapPenToPixel = [this](const QPointF point){
-        const QPointF penOffset = (mToolSize % 2 == 1) ? QPointF(0.5, 0.5) : QPointF(0.0, 0.0);
+    auto snapPenToPixel = [this](const QPointF point, const int toolSize){
+        const QPointF penOffset = (toolSize % 2 == 1) ? QPointF(0.5, 0.5) : QPointF(0.0, 0.0);
         return (point + penOffset).toPoint() - penOffset;
     };
 
-    auto strokeIsSinglePoint = [snapPenToPixel](const Stroke &stroke) {
+    auto strokeIsSinglePoint = [snapPenToPixel](const Stroke &stroke, const int toolSize) {
         for (int i = 1; i < stroke.length(); ++i) {
-            if (snapPenToPixel(stroke[i].pos) != snapPenToPixel(stroke[i - 1].pos)) {
+            if (snapPenToPixel(stroke[i].pos, toolSize) != snapPenToPixel(stroke[i - 1].pos, toolSize)) {
                 return false;
             }
         }
@@ -1251,8 +1327,8 @@ void ImageCanvas::drawStroke(QPainter *const painter, const Stroke &stroke, cons
 
     painter->setCompositionMode(mode);
     // Zero-length line doesn't draw with round pen so handle case with drawPoint
-    if (strokeIsSinglePoint(processedStroke)) {
-        StrokePoint point = {snapPenToPixel(processedStroke[0].pos), processedStroke[0].pressure};
+    if (strokeIsSinglePoint(processedStroke, mUpperToolSize)) {
+        StrokePoint point = {snapPenToPixel(processedStroke[0].pos, mUpperToolSize), processedStroke[0].pressure};
 //        // Handle inconsitent width 1 pen behaviour off single points drawing offset
 //        if (mToolSize == 1) {
 //            point -= QPoint(1, 1);
@@ -1923,7 +1999,7 @@ void ImageCanvas::reset()
     mSecondPaneVisibleSceneArea = QRect();
 
     mIsTabletEvent = false;
-    mPressure = 0.0;
+    mTabletPressure = 0.0;
     setPenForegroundColour(Qt::black);
     setPenBackgroundColour(Qt::white);
     markBrushDirty();
@@ -2206,30 +2282,6 @@ void ImageCanvas::cycleFillTools()
     setTool(mLastFillToolUsed == FillTool ? TexturedFillTool : FillTool);
 }
 
-ImageCanvas::PixelCandidateData ImageCanvas::penEraserPixelCandidates(Tool tool) const
-{
-    PixelCandidateData candidateData;
-
-    QPoint topLeft(qRound(mCursorSceneFX - mToolSize / 2.0), qRound(mCursorSceneFY - mToolSize / 2.0));
-    topLeft = clampToImageBounds(topLeft);
-    QPoint bottomRight(qRound(mCursorSceneFX + mToolSize / 2.0), qRound(mCursorSceneFY + mToolSize / 2.0));
-    bottomRight = clampToImageBounds(bottomRight);
-    QPoint scenePos(topLeft);
-    for (; scenePos.y() < bottomRight.y(); ++scenePos.ry()) {
-        for (scenePos.rx() = topLeft.x(); scenePos.x() < bottomRight.x(); ++scenePos.rx()) {
-            const QColor previousColour = currentProjectImage()->pixelColor(scenePos);
-            // Let the pen tool draw over the same colour, as the line tool requires
-            // a press point to start from, which we don't get if we make this a no-op.
-            if (tool == PenTool || (tool == EraserTool && previousColour != QColor(Qt::transparent))) {
-                candidateData.scenePositions.append(scenePos);
-                candidateData.previousColours.append(previousColour);
-            }
-        }
-    }
-
-    return candidateData;
-}
-
 QImage ImageCanvas::fillPixels() const
 {
     const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
@@ -2442,13 +2494,13 @@ QPointF ImageCanvas::linePoint2() const
     return QPointF(mCursorSceneFX, mCursorSceneFY);
 }
 
-QRect ImageCanvas::strokeBounds(const Stroke &stroke, const int toolSize)
+QRect ImageCanvas::strokeBounds(const Stroke &stroke, const int upperToolSize)
 {
     // sqrt(2) is the ratio between the hypotenuse of a square and its side;
     // a simplification of Pythagoras’ theorem.
     // The bounds could be tighter by taking into account the specific rotation of the brush,
     // but the sqrt(2) ensures it is big enough for any rotation.
-    const int margin = qCeil(M_SQRT2 * toolSize / 2.0 + 0.5 + 2);
+    const int margin = qCeil(M_SQRT2 * upperToolSize / 2.0 + 0.5 + 2);
 
     QRect bounds;
     for (auto point : stroke) {
@@ -2465,7 +2517,7 @@ void ImageCanvas::markBrushDirty()
 const ImageCanvas::Brush &ImageCanvas::brush()
 {
     if (mBrushDirty) {
-        mBrush = createBrush(penColour().rgba(), mToolShape, {mToolSize, mToolSize});
+        mBrush = createBrush(penColour().rgba(), mToolShape, {mUpperToolSize, mUpperToolSize});
         mBrushDirty = false;
     }
     return mBrush;
@@ -2474,7 +2526,7 @@ const ImageCanvas::Brush &ImageCanvas::brush()
 qreal ImageCanvas::pressure() const
 {
     // Use tablet pressure if tablet button pressed, otherwise must be mouse so use full pressure
-    return mIsTabletEvent ? mPressure : 1.0;
+    return mIsTabletEvent ? mTabletPressure : 1.0;
 }
 
 void ImageCanvas::updateCursorPos(const QPoint &eventPos)
@@ -2772,15 +2824,15 @@ bool ImageCanvas::eventFilter(QObject *watched, QEvent *event)
     };
 //    if (tabletEvents.contains(event->type())) return QCoreApplication::sendEvent(this, static_cast<QTabletEvent *>(event));
     if (tabletEvents.contains(event->type())) {
-        const QTabletEvent *const otherTabletEvent = static_cast<QTabletEvent *>(event);
-        QTabletEvent ownTabletEvent(otherTabletEvent->type(), mapFromGlobal(otherTabletEvent->globalPosF()), otherTabletEvent->globalPosF(),
-                                    otherTabletEvent->device(), otherTabletEvent->pointerType(), otherTabletEvent->pressure(),
-                                    otherTabletEvent->xTilt(), otherTabletEvent->yTilt(), otherTabletEvent->tangentialPressure(),
-                                    otherTabletEvent->rotation(), otherTabletEvent->z(), otherTabletEvent->modifiers(), otherTabletEvent->uniqueId(),
-                                    otherTabletEvent->button(), otherTabletEvent->buttons());
-        // Filter out when on canvas
-        if (contains(ownTabletEvent.posF())) {
-            tabletEvent(&ownTabletEvent);
+        const QTabletEvent *const other = static_cast<QTabletEvent *>(event);
+        QTabletEvent own(other->type(), mapFromGlobal(other->globalPosF()), other->globalPosF(),
+                                    other->device(), other->pointerType(), other->pressure(),
+                                    other->xTilt(), other->yTilt(), other->tangentialPressure(),
+                                    other->rotation(), other->z(), other->modifiers(), other->uniqueId(),
+                                    other->button(), other->buttons());
+        // Filter out when on canvas, not perfect as still activates when in popup sitting on top of canvas
+        if (mContainsMouse) {
+            tabletEvent(&own);
 //            return true;
         }
         // Don't filter out when off canvas so can still generate mouse events for gui
@@ -3244,8 +3296,8 @@ void ImageCanvas::timerEvent(QTimerEvent *event)
 void ImageCanvas::tabletEvent(QTabletEvent *event)
 {
     mIsTabletEvent = (event->buttons() != Qt::NoButton);
-    mPressure = event->pressure();
-    qDebug() << "tabletEvent!" << mIsTabletEvent << mPressure << event->button() << event->buttons();
+    mTabletPressure = event->pressure();
+    qDebug() << "tabletEvent!" << mIsTabletEvent << mTabletPressure << event->button() << event->buttons();
     event->accept();
 }
 

@@ -80,8 +80,13 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool containsMouse READ containsMouse NOTIFY containsMouseChanged)
     Q_PROPERTY(Tool tool READ tool WRITE setTool NOTIFY toolChanged)
     Q_PROPERTY(Tool lastFillToolUsed READ lastFillToolUsed NOTIFY lastFillToolUsedChanged)
-    Q_PROPERTY(int toolSize READ toolSize WRITE setToolSize NOTIFY toolSizeChanged)
+    Q_PROPERTY(int lowerToolSize READ lowerToolSize WRITE setLowerToolSize NOTIFY lowerToolSizeChanged)
+    Q_PROPERTY(int upperToolSize READ upperToolSize WRITE setUpperToolSize NOTIFY upperToolSizeChanged)
     Q_PROPERTY(int maxToolSize READ maxToolSize CONSTANT)
+    Q_PROPERTY(bool toolSizeUsePressure READ toolSizeUsePressure WRITE setToolSizeUsePressure NOTIFY toolSizeUsePressureChanged)
+    Q_PROPERTY(qreal lowerToolOpacity READ lowerToolOpacity WRITE setLowerToolOpacity NOTIFY lowerToolOpacityChanged)
+    Q_PROPERTY(qreal upperToolOpacity READ upperToolOpacity WRITE setUpperToolOpacity NOTIFY upperToolOpacityChanged)
+    Q_PROPERTY(bool toolOpacityUsePressure READ toolOpacityUsePressure WRITE setToolOpacityUsePressure NOTIFY toolOpacityUsePressureChanged)
     Q_PROPERTY(ToolShape toolShape READ toolShape WRITE setToolShape NOTIFY toolShapeChanged)
     Q_PROPERTY(ToolBlendMode toolBlendMode READ toolBlendMode WRITE setToolBlendMode NOTIFY toolBlendModeChanged)
     Q_PROPERTY(QColor penForegroundColour READ penForegroundColour WRITE setPenForegroundColour NOTIFY penForegroundColourChanged)
@@ -221,9 +226,20 @@ public:
 
     Tool lastFillToolUsed() const;
 
-    int toolSize() const;
-    void setToolSize(int toolSize);
+    int lowerToolSize() const;
+    void setLowerToolSize(int lowerToolSize);
+    int upperToolSize() const;
+    void setUpperToolSize(int upperToolSize);
     int maxToolSize() const;
+    bool toolSizeUsePressure() const;
+    void setToolSizeUsePressure(bool toolSizeUsePressure);
+
+    qreal lowerToolOpacity() const;
+    void setLowerToolOpacity(qreal lowerToolOpacity);
+    qreal upperToolOpacity() const;
+    void setUpperToolOpacity(qreal upperToolOpacity);
+    bool toolOpacityUsePressure() const;
+    void setToolOpacityUsePressure(bool toolOpacityUsePressure);
 
     QColor penForegroundColour() const;
     void setPenForegroundColour(const QColor &penForegroundColour);
@@ -371,7 +387,12 @@ signals:
     void toolShapeChanged();
     void toolBlendModeChanged();
     void lastFillToolUsedChanged();
-    void toolSizeChanged();
+    void lowerToolSizeChanged();
+    void upperToolSizeChanged();
+    void toolSizeUsePressureChanged();
+    void lowerToolOpacityChanged();
+    void upperToolOpacityChanged();
+    void toolOpacityUsePressureChanged();
     void penForegroundColourChanged();
     void penBackgroundColourChanged();
     void hasBlankCursorChanged();
@@ -450,7 +471,6 @@ protected:
         QVector<QPoint> scenePositions;
         QVector<QColor> previousColours;
     };
-    virtual PixelCandidateData penEraserPixelCandidates(Tool tool) const;
     QImage fillPixels() const;
     QImage greedyFillPixels() const;
     QImage texturedFillPixels() const;
@@ -468,7 +488,7 @@ protected:
 
     QPointF linePoint1() const;
     QPointF linePoint2() const;
-    static QRect strokeBounds(const Stroke &stroke, const int toolSize);
+    static QRect strokeBounds(const Stroke &stroke, const int upperToolSize);
     void markBrushDirty();
     const Brush &brush();
     qreal pressure() const;
@@ -650,14 +670,17 @@ protected:
     bool mScrollZoom;
     bool mGesturesEnabled;
 
-    qreal mPressure;
+    qreal mTabletPressure;
     bool mIsTabletEvent;
     Tool mTool;
     ToolShape mToolShape;
     ToolBlendMode mToolBlendMode;
     Tool mLastFillToolUsed;
-    int mToolSize;
+    int mLowerToolSize, mUpperToolSize;
     int mMaxToolSize;
+    bool mToolSizeUsePressure;
+    qreal mLowerToolOpacity, mUpperToolOpacity;
+    bool mToolOpacityUsePressure;
     QColor mPenForegroundColour;
     QColor mPenBackgroundColour;
     Brush mBrush;

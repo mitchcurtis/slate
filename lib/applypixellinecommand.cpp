@@ -34,7 +34,7 @@ ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *const canvas, const in
     mCanvas(canvas), mLayerIndex(layerIndex),
     mOldLastPixelPenReleaseScenePos(oldLastPixelPenReleaseScenePos),
     mCompositionMode(compositionMode),
-    mStroke(stroke), mDrawBounds(ImageCanvas::strokeBounds(mStroke, mCanvas->toolSize())),
+    mStroke(stroke), mDrawBounds(ImageCanvas::strokeBounds(mStroke, mCanvas->upperToolSize())),
     mBufferRegion(), mUndoBuffer(), mRedoBuffer(), mBufferBounds(),
     mAllowMerge(allowMerge), mPreviousCommand(previousCommand), needDraw(true)
 {
@@ -88,7 +88,7 @@ void ApplyPixelLineCommand::redo()
 
         // Find offsets of subimage instances within stroke area
         QMap<int, QVector<QPoint>> instanceOffsets;
-        for (auto const &instance : mCanvas->subImageInstancesInBounds(ImageCanvas::strokeBounds(mStroke, mCanvas->toolSize()))) {
+        for (auto const &instance : mCanvas->subImageInstancesInBounds(ImageCanvas::strokeBounds(mStroke, mCanvas->upperToolSize()))) {
             const ImageCanvas::SubImage subImage = mCanvas->getSubImage(instance.index);
             const QPoint instanceDrawOffset = subImage.bounds.topLeft() - instance.position;
             if (subImageRegions.contains(instance.index)) instanceOffsets[instance.index] += instanceDrawOffset;

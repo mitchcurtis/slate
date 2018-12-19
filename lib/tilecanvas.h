@@ -115,7 +115,6 @@ private:
     friend class ApplyTileFillCommand;
     friend class ApplyTileCanvasPixelFillCommand;
 
-    PixelCandidateData penEraserPixelCandidates(Tool tool) const override;
     PixelCandidateData fillPixelCandidates() const;
     PixelCandidateData greedyFillPixelCandidates() const;
 
