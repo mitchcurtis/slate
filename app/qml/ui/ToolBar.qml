@@ -300,49 +300,49 @@ ToolBar {
         }
 
         ToolButton {
-            id: toolShapeButton
-            objectName: "toolShapeButton"
+            id: brushTypeButton
+            objectName: "brushTypeButton"
             hoverEnabled: true
             focusPolicy: Qt.NoFocus
 
-            icon.source: toolShapeGroup.checkedAction.icon.source
+            icon.source: brushTypeGroup.checkedAction.icon.source
 
             ToolTip.text: qsTr("Choose brush shape")
             ToolTip.visible: hovered
 
-            onClicked: toolShapeMenu.open()
+            onClicked: brushTypeMenu.open()
 
             ToolButtonMenuIndicator {}
 
             ActionGroup {
-                id: toolShapeGroup
+                id: brushTypeGroup
                 exclusive: true
-                onTriggered: if (canvas) canvas.toolShape = action.shape
-                checkedAction: canvas ? actions[canvas.toolShape] : squareToolShape
+                onTriggered: if (canvas) canvas.brushType = action.brushType
+                checkedAction: canvas ? actions[canvas.brushType] : squareBrushType
 
                 Action {
-                    id: squareToolShape
+                    id: squareBrushType
                     text: qsTr("Square")
                     icon.source: "qrc:/images/square-tool-shape.png"
                     checkable: true
-                    property int shape: ImageCanvas.SquareToolShape
+                    property int brushType: Brush.SquareType
                 }
 
                 Action {
-                    id: circleToolShape
+                    id: circleBrushType
                     text: qsTr("Circle")
                     icon.source: "qrc:/images/circle-tool-shape.png"
                     checkable: true
-                    property int shape: ImageCanvas.CircleToolShape
+                    property int brushType: Brush.CircleType
                 }
             }
 
             Menu {
-                id: toolShapeMenu
+                id: brushTypeMenu
                 y: parent.height
 
-                MenuItem { action: squareToolShape }
-                MenuItem { action: circleToolShape }
+                MenuItem { action: squareBrushType}
+                MenuItem { action: circleBrushType }
             }
         }
 

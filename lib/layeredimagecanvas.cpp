@@ -159,20 +159,13 @@ int LayeredImageCanvas::currentLayerIndex() const
     return mLayeredImageProject->currentLayerIndex();
 }
 
-QImage LayeredImageCanvas::getContentImage()
+QImage LayeredImageCanvas::getComposedImage()
 {
     return mLayeredImageProject->flattenedImage([=](int index) {
         QImage layerImage;
         if (index == mLayeredImageProject->currentLayerIndex()) {
             if (shouldDrawSelectionPreviewImage()) {
                 layerImage = mSelectionPreviewImage;
-            } else if (isLineVisible()) {
-                layerImage = *mLayeredImageProject->currentLayer()->image();
-                QPainter linePainter(&layerImage);
-                // Draw the line on top of what has already been painted using a special composition mode.
-                // This ensures that e.g. a translucent red overwrites whatever pixels it
-                // lies on, rather than blending with them.
-                drawLine(&linePainter, {linePoint1(), 1.0}, {linePoint2(), 1.0}, qPainterBlendMode());
             }
         }
         return layerImage;

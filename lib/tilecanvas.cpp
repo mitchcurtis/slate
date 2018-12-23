@@ -132,36 +132,37 @@ void TileCanvas::setCursorTilePixelY(int cursorTilePixelY)
 
 void TileCanvas::reset()
 {
-    mFirstPane.reset();
-    mSecondPane.reset();
-    setCurrentPane(nullptr);
-    mSplitter.setPosition(mFirstPane.size());
-    mSplitter.setPressed(false);
-    mSplitter.setHovered(false);
-    setCursorX(0);
-    setCursorY(0);
-    mCursorPaneX = 0;
-    mCursorPaneY = 0;
-    mCursorSceneX = 0;
-    mCursorSceneY = 0;
+//    mFirstPane.reset();
+//    mSecondPane.reset();
+//    setCurrentPane(nullptr);
+//    mSplitter.setPosition(mFirstPane.size());
+//    mSplitter.setPressed(false);
+//    mSplitter.setHovered(false);
+//    setCursorX(0);
+//    setCursorY(0);
+//    mCursorPaneX = 0;
+//    mCursorPaneY = 0;
+//    mCursorSceneX = 0;
+//    mCursorSceneY = 0;
     setCursorTilePixelX(0);
     setCursorTilePixelY(0);
-    mContainsMouse = false;
-    mMouseButtonPressed = Qt::NoButton;
-    mPressPosition = QPoint(0, 0);
-    mCurrentPaneOffsetBeforePress = QPoint(0, 0);
-    setAltPressed(false);
-    mToolBeforeAltPressed = PenTool;
-    mSpacePressed = false;
-    mHasBlankCursor = false;
+//    mContainsMouse = false;
+//    mMouseButtonPressed = Qt::NoButton;
+//    mPressPosition = QPoint(0, 0);
+//    mCurrentPaneOffsetBeforePress = QPoint(0, 0);
+//    setAltPressed(false);
+//    mToolBeforeAltPressed = PenTool;
+//    mSpacePressed = false;
+//    mHasBlankCursor = false;
 
-    // Things that we don't want to set, as they
-    // don't really need to be reset each time:
-    // - mode
-    // - tool
-    // - toolSize
+//    // Things that we don't want to set, as they
+//    // don't really need to be reset each time:
+//    // - mode
+//    // - tool
+//    // - toolSize
 
-    requestContentPaint();
+//    requestContentPaint();
+    ImageCanvas::reset();
 }
 
 void TileCanvas::swatchLeft()
@@ -311,14 +312,15 @@ TileCanvas::TileCandidateData TileCanvas::fillTileCandidates() const
 
 void TileCanvas::applyCurrentTool()
 {
+    const QUndoCommand *const continueCommand = mToolContinue ? mProject->undoStack()->command(mProject->undoStack()->index() - 1) : nullptr;
+
     switch (mTool) {
     case PenTool: {
         if (mMode == PixelMode) {
             // Draw the line on top of what has already been painted using a special composition mode.
             // This ensures that e.g. a translucent red overwrites whatever pixels it
             // lies on, rather than blending with them.
-            QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {{linePoint1(), pressure()}, {linePoint2(), pressure()}}, mLastPixelPenPressScenePosition,
-                qPainterBlendMode(), true, mProject->undoStack()->command(mProject->undoStack()->index() - 1));
+            QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), mNewStroke, brush(), penColour(), qPainterBlendMode(), continueCommand);
             command->setText(QLatin1String("PixelLineTool"));
             mProject->addChange(command);
         } else {
@@ -353,8 +355,7 @@ void TileCanvas::applyCurrentTool()
     case EraserTool: {
         if (mMode == PixelMode) {
             // Draw the line on top of what has already been painted using a special composition mode to erase pixels.
-            QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), {{linePoint1(), pressure()}, {linePoint2(), pressure()}}, mLastPixelPenPressScenePosition,
-                QPainter::CompositionMode_Clear, true, mProject->undoStack()->command(mProject->undoStack()->index() - 1));
+            QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), mNewStroke, brush(), penColour(), QPainter::CompositionMode_Clear, continueCommand);
             command->setText(QLatin1String("PixelEraserTool"));
             mProject->addChange(command);
         } else {

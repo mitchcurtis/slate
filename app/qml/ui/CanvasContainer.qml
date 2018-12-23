@@ -61,8 +61,8 @@ Item {
         x: canvas ? Math.floor(canvas.cursorX - width / 2) : 0
         y: canvas ? Math.floor(canvas.cursorY - height / 2) : 0
         z: 1
-        width: canvas ? canvas.toolSize * canvas.currentPaneZoomLevel : 0
-        height: canvas ? canvas.toolSize * canvas.currentPaneZoomLevel : 0
+        width: canvas ? canvas.upperToolSize * canvas.currentPaneZoomLevel : 0
+        height: canvas ? canvas.upperToolSize * canvas.currentPaneZoomLevel : 0
         visible: canvas && canvas.hasBlankCursor && !canvas.useIconCursor && !canvas.useCrosshairCursor
     }
 

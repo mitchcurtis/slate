@@ -37,6 +37,7 @@
 #include "slate-global.h"
 #include "splitter.h"
 #include "texturedfillparameters.h"
+#include "brush.h"
 
 Q_DECLARE_LOGGING_CATEGORY(lcImageCanvas)
 Q_DECLARE_LOGGING_CATEGORY(lcImageCanvasLifecycle)
@@ -87,7 +88,7 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(qreal lowerToolOpacity READ lowerToolOpacity WRITE setLowerToolOpacity NOTIFY lowerToolOpacityChanged)
     Q_PROPERTY(qreal upperToolOpacity READ upperToolOpacity WRITE setUpperToolOpacity NOTIFY upperToolOpacityChanged)
     Q_PROPERTY(bool toolOpacityUsePressure READ toolOpacityUsePressure WRITE setToolOpacityUsePressure NOTIFY toolOpacityUsePressureChanged)
-    Q_PROPERTY(ToolShape toolShape READ toolShape WRITE setToolShape NOTIFY toolShapeChanged)
+    Q_PROPERTY(Brush::Type brushType READ brushType WRITE setBrushType NOTIFY brushTypeChanged)
     Q_PROPERTY(ToolBlendMode toolBlendMode READ toolBlendMode WRITE setToolBlendMode NOTIFY toolBlendModeChanged)
     Q_PROPERTY(QColor penForegroundColour READ penForegroundColour WRITE setPenForegroundColour NOTIFY penForegroundColourChanged)
     Q_PROPERTY(QColor penBackgroundColour READ penBackgroundColour WRITE setPenBackgroundColour NOTIFY penBackgroundColourChanged)
@@ -114,12 +115,6 @@ public:
         CropTool
     };
     Q_ENUM(Tool)
-
-    enum ToolShape {
-        SquareToolShape,
-        CircleToolShape,
-    };
-    Q_ENUM(ToolShape)
 
     enum ToolBlendMode {
         BlendToolBlendMode,
@@ -218,8 +213,8 @@ public:
     Tool tool() const;
     void setTool(const Tool &tool);
 
-    ToolShape toolShape() const;
-    void setToolShape(const ToolShape &toolShape);
+    Brush::Type brushType() const;
+    void setBrushType(const Brush::Type &brushType);
 
     ToolBlendMode toolBlendMode() const;
     void setToolBlendMode(const ToolBlendMode &toolBlendMode);
@@ -266,28 +261,21 @@ public:
     qreal lineAngle() const;
 
     struct StrokePoint {
+        bool operator==(const StrokePoint &other) const {
+            return pos == other.pos && qFuzzyCompare(pressure, other.pressure);
+        }
+        bool operator!=(const StrokePoint &other) const {
+            return !(*this == other);
+        }
+
         QPointF pos;
         qreal pressure;
     };
 
     typedef QVector<StrokePoint> Stroke;
 
-    struct Brush {
-        Brush() : image(), handle() {}
-        Brush(const Brush &other) : image(other.image), handle(other.handle) {}
-
-        bool operator==(const Brush &other) const {
-            return image == other.image && handle == other.handle;
-        }
-        Brush &operator=(const Brush &other) {
-            image = other.image;
-            handle = other.handle;
-            return *this;
-        }
-
-        QImage image;
-        QPointF handle;
-    };
+    static void strokeSegment(QPainter *const painter, const Brush &brush, const QColor &colour, const StrokePoint &point0, const StrokePoint &point1, const qreal scaleMin, const qreal scaleMax);
+    static void drawBrush(QPainter *const painter, const Brush &brush, const QColor &colour, const QPointF pos, const qreal scale = 1.0, const qreal rotation = 0.0);
 
     struct SubImage {
         bool operator==(const SubImage &other) const {
@@ -384,7 +372,7 @@ signals:
 //    void rulerForegroundColourChanged();
 //    void rulerBackgroundColourChanged();
     void toolChanged();
-    void toolShapeChanged();
+    void brushTypeChanged();
     void toolBlendModeChanged();
     void lastFillToolUsedChanged();
     void lowerToolSizeChanged();
@@ -427,6 +415,7 @@ public slots:
     void paste();
     void deleteSelectionOrContents();
     void selectAll();
+    void brushFromSelection();
 
     void cycleFillTools();
 
@@ -488,7 +477,8 @@ protected:
 
     QPointF linePoint1() const;
     QPointF linePoint2() const;
-    static QRect strokeBounds(const Stroke &stroke, const int upperToolSize);
+    static QRectF brushBounds(const Brush &brush, const qreal scale);
+    static QRect strokeBounds(const Stroke &stroke, const Brush &brush);
     void markBrushDirty();
     const Brush &brush();
     qreal pressure() const;
@@ -511,20 +501,9 @@ protected:
     void setCurrentPane(CanvasPane *pane);
     CanvasPane *hoveredPane(const QPoint &pos);
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
+    virtual QImage getComposedImage();
     virtual QImage getContentImage();
-    static void drawPixel(QImage &image, const QRect &clip, const QPoint point, const QRgb colour);
-    static void drawSpan(QImage &image, const QRect &clip, const int x0, const int x1, const int y, const QRgb colour);
-    static void fillRectangle(QImage &image, const QRect &clip, const QRectF &rect, const QRgb colour);
-    static void fillRectangle(QImage &image, const QRect &clip, const QPointF pos, const QSizeF size, const QRgb colour, const bool fromCentre = false);
-    static void fillRectangle(QImage &image, const QRect &clip, const QPointF point0, const QPointF point1, const QRgb colour, const bool fromCentre = false);
-    static void fillEllipse(QImage &image, const QRect &clip, const QRectF &rect, const QRgb colour);
-    static void fillEllipse(QImage &image, const QRect &clip, const QPointF origin, const QSizeF radius, const QRgb colour);
-    static void fillEllipse(QImage &image, const QRect &clip, const QPointF point0, const QPointF point1, const QRgb colour, const bool fromCentre = false);
-    static void strokeSegment(QPainter *const painter, const Brush &brush, const StrokePoint &point0, const StrokePoint &point1);
-    static Brush createBrush(const QRgb colour, const ToolShape shape, const QSize &size, const QPointF handle = {0.5, 0.5}, const bool relativeHandle = true);
-    static void drawBrush(QPainter *const painter, const Brush &brush, const QPointF pos, const qreal scale);
-    void drawLine(QPainter *const painter, const StrokePoint &point1, const StrokePoint &point2, const QPainter::CompositionMode mode);
-    void drawStroke(QPainter *const painter, const Stroke &stroke, const QPainter::CompositionMode mode);
+    void drawStroke(QPainter *const painter, const Stroke &stroke, const Brush &brush, const QColor &colour, const QPainter::CompositionMode mode);
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,
@@ -662,7 +641,8 @@ protected:
     // The position at which the mouse is currently pressed.
     QPoint mPressPosition;
     QPoint mPressScenePosition;
-    QPointF mPressScenePositionF;
+    bool mToolContinue;
+    Stroke mOldStroke, mNewStroke;
     // The scene position at which the mouse was pressed before the most-recent press.
     QPoint mCurrentPaneOffsetBeforePress;
     QRect mFirstPaneVisibleSceneArea;
@@ -673,7 +653,7 @@ protected:
     qreal mTabletPressure;
     bool mIsTabletEvent;
     Tool mTool;
-    ToolShape mToolShape;
+    Brush::Type mBrushType;
     ToolBlendMode mToolBlendMode;
     Tool mLastFillToolUsed;
     int mLowerToolSize, mUpperToolSize;
@@ -693,9 +673,6 @@ protected:
     // It is set by the pixel tool as the last pixel in the command,
     // and by the pixel line tool command.
     QPoint mLastPixelPenPressScenePosition;
-    QPointF mLastPixelPenPressScenePositionF;
-    // An image as large as the rectangle that contains the line that is being previewed.
-    QImage mLinePreviewImage;
 
     bool mPotentiallySelecting;
     bool mHasSelection;
@@ -743,7 +720,7 @@ inline uint qHash(const ImageCanvas::SubImageInstance &key, const uint seed = 0)
 inline QDebug operator<<(QDebug debug, const ImageCanvas::SubImage &subImage)
 {
     QDebugStateSaver saver(debug);
-    debug.nospace() << "SubImageInstance(" << subImage.imageIndex << ", " << subImage.bounds << ", " << subImage.origin << ')';
+    debug.nospace() << "SubImage(" << subImage.imageIndex << ", " << subImage.bounds << ", " << subImage.origin << ')';
 
     return debug;
 }
@@ -754,6 +731,12 @@ inline QDebug operator<<(QDebug debug, const ImageCanvas::SubImageInstance &subI
     debug.nospace() << "SubImageInstance(" << subImageInstance.index << ", " << subImageInstance.position << ')';
 
     return debug;
+}
+
+inline QDebug operator<<(QDebug debug, const ImageCanvas::StrokePoint &point)
+{
+    debug.nospace() << "StrokePoint(" << point.pos << ", " << point.pressure << ")";
+    return debug.space();
 }
 
 #endif // IMAGECANVAS_H

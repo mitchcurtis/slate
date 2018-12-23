@@ -448,32 +448,32 @@ bool TestHelper::changeToolSize(int size)
     return true;
 }
 
-bool TestHelper::changeToolShape(ImageCanvas::ToolShape toolShape)
-{
-    if (canvas->toolShape() == toolShape)
-        return true;
+//bool TestHelper::changeToolShape(ImageCanvas::ToolShape toolShape)
+//{
+//    if (canvas->toolShape() == toolShape)
+//        return true;
 
-    mouseEventOnCentre(toolShapeButton, MouseClick);
-    const QObject *toolShapeMenu = window->findChild<QObject*>("toolShapeMenu");
-    VERIFY(toolShapeMenu);
-    TRY_VERIFY(toolShapeMenu->property("opened").toBool() == true);
+//    mouseEventOnCentre(toolShapeButton, MouseClick);
+//    const QObject *toolShapeMenu = window->findChild<QObject*>("toolShapeMenu");
+//    VERIFY(toolShapeMenu);
+//    TRY_VERIFY(toolShapeMenu->property("opened").toBool() == true);
 
-    if (toolShape == ImageCanvas::SquareToolShape) {
-        QQuickItem *squareToolShapeMenuItem = toolShapeMenu->findChild<QQuickItem*>("squareToolShapeMenuItem");
-        VERIFY(squareToolShapeMenuItem);
+//    if (toolShape == ImageCanvas::SquareToolShape) {
+//        QQuickItem *squareToolShapeMenuItem = toolShapeMenu->findChild<QQuickItem*>("squareToolShapeMenuItem");
+//        VERIFY(squareToolShapeMenuItem);
 
-        mouseEventOnCentre(squareToolShapeMenuItem, MouseClick);
-        VERIFY(canvas->toolShape() == ImageCanvas::SquareToolShape);
-    } else {
-        QQuickItem *circleToolShapeMenuItem = toolShapeMenu->findChild<QQuickItem*>("circleToolShapeMenuItem");
-        VERIFY(circleToolShapeMenuItem);
+//        mouseEventOnCentre(squareToolShapeMenuItem, MouseClick);
+//        VERIFY(canvas->toolShape() == ImageCanvas::SquareToolShape);
+//    } else {
+//        QQuickItem *circleToolShapeMenuItem = toolShapeMenu->findChild<QQuickItem*>("circleToolShapeMenuItem");
+//        VERIFY(circleToolShapeMenuItem);
 
-        mouseEventOnCentre(circleToolShapeMenuItem, MouseClick);
-        VERIFY(canvas->toolShape() == ImageCanvas::CircleToolShape);
-    }
+//        mouseEventOnCentre(circleToolShapeMenuItem, MouseClick);
+//        VERIFY(canvas->toolShape() == ImageCanvas::CircleToolShape);
+//    }
 
-    return true;
-}
+//    return true;
+//}
 
 bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
 {
@@ -1777,7 +1777,7 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     // This determines which colour the ColourSelector considers "current",
     // and hence which value is shown in the hex field.
     VERIFY(penForegroundColourButton->setProperty("checked", QVariant(true)));
-    canvas->setToolShape(ImageCanvas::SquareToolShape);
+//    canvas->setToolShape(ImageCanvas::SquareToolShape);
 
     app.settings()->setAutoSwatchEnabled(false);
 

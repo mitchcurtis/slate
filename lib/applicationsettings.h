@@ -39,6 +39,7 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(bool loadLastOnStartup READ loadLastOnStartup WRITE setLoadLastOnStartup NOTIFY loadLastOnStartupChanged)
     Q_PROPERTY(QStringList recentFiles READ recentFiles NOTIFY recentFilesChanged)
     Q_PROPERTY(bool gridVisible READ isGridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
+    Q_PROPERTY(bool brushPreviewVisible READ isBrushPreviewVisible WRITE setBrushPreviewVisible NOTIFY brushPreviewVisibleChanged)
     Q_PROPERTY(bool rulersVisible READ areRulersVisible WRITE setRulersVisible NOTIFY rulersVisibleChanged)
     Q_PROPERTY(bool guidesVisible READ areGuidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
     Q_PROPERTY(bool guidesLocked READ areGuidesLocked WRITE setGuidesLocked NOTIFY guidesLockedChanged)
@@ -91,7 +92,7 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QString fullScreenToggleShortcut READ fullScreenToggleShortcut WRITE setFullScreenToggleShortcut NOTIFY fullScreenToggleShortcutChanged)
 
 public:
-    explicit ApplicationSettings(QObject *parent = 0);
+    explicit ApplicationSettings(QObject *parent = nullptr);
 
     bool loadLastOnStartup() const;
     void setLoadLastOnStartup(bool loadLastOnStartup);
@@ -107,6 +108,10 @@ public:
     bool isGridVisible() const;
     void setGridVisible(bool isGridVisible);
     bool defaultGridVisible() const;
+
+    bool isBrushPreviewVisible() const;
+    void setBrushPreviewVisible(bool isBrushPreviewVisible);
+    bool defaultBrushPreviewVisible() const;
 
     bool areRulersVisible() const;
     void setRulersVisible(bool rulersVisible);
@@ -310,6 +315,7 @@ signals:
     void loadLastOnStartupChanged();
     void recentFilesChanged();
     void gridVisibleChanged();
+    void brushPreviewVisibleChanged();
     void rulersVisibleChanged();
     void guidesVisibleChanged();
     void guidesLockedChanged();

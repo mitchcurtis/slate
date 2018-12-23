@@ -28,15 +28,16 @@
 
 Q_LOGGING_CATEGORY(lcApplyPixelLineCommand, "app.undo.applyPixelLineCommand")
 
-ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *const canvas, const int layerIndex, const ImageCanvas::Stroke &stroke, const QPointF &oldLastPixelPenReleaseScenePos,
-        const QPainter::CompositionMode compositionMode, const bool allowMerge, const QUndoCommand *const previousCommand, QUndoCommand *const parent) :
+ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *const canvas, const int layerIndex, const ImageCanvas::Stroke &stroke, const Brush &brush, const QColor &colour,
+        const QPainter::CompositionMode compositionMode, const QUndoCommand *const previousCommand, QUndoCommand *const parent) :
     QUndoCommand(parent),
     mCanvas(canvas), mLayerIndex(layerIndex),
-    mOldLastPixelPenReleaseScenePos(oldLastPixelPenReleaseScenePos),
+    mBrush(brush), mColour(colour),
+    mOldStroke(mCanvas->mOldStroke),
     mCompositionMode(compositionMode),
-    mStroke(stroke), mDrawBounds(ImageCanvas::strokeBounds(mStroke, mCanvas->upperToolSize())),
+    mStroke(stroke), mStrokeUpdateStartIndex(0),
     mBufferRegion(), mUndoBuffer(), mRedoBuffer(), mBufferBounds(),
-    mAllowMerge(allowMerge), mPreviousCommand(previousCommand), needDraw(true)
+    mPreviousCommand(previousCommand), needDraw(true)
 {
     qCDebug(lcApplyPixelLineCommand) << "constructed" << this;
 }
@@ -55,9 +56,9 @@ void ApplyPixelLineCommand::undo()
     for (auto const &rect : mBufferRegion) {
         undoRect(painter, rect);
     }
-    mCanvas->requestContentPaint();
 
-    mCanvas->mLastPixelPenPressScenePositionF = mOldLastPixelPenReleaseScenePos;
+    mCanvas->requestContentPaint();
+    mCanvas->mOldStroke = mOldStroke;
 }
 
 void ApplyPixelLineCommand::redo()
@@ -65,7 +66,7 @@ void ApplyPixelLineCommand::redo()
     qCDebug(lcApplyPixelLineCommand) << "redoing" << this;
 
     // Merging so initially skip drawing then draw after merge
-    if (mAllowMerge && canMerge(mPreviousCommand)) {
+    if (canMerge(mPreviousCommand)) {
         // Do nothing
         return;
     }
@@ -74,6 +75,7 @@ void ApplyPixelLineCommand::redo()
     if (needDraw) {
         // Find intersections of subimages with draw area
         QMap<int, QRegion> subImageRegions;
+        QRect mDrawBounds = ImageCanvas::strokeBounds(mStroke.mid(mStrokeUpdateStartIndex), mBrush);
         for (auto const &instance : mCanvas->subImageInstancesInBounds(mDrawBounds)) {
             const ImageCanvas::SubImage subImage = mCanvas->getSubImage(instance.index);
             const QPoint instanceDrawOffset = subImage.bounds.topLeft() - instance.position;
@@ -88,7 +90,7 @@ void ApplyPixelLineCommand::redo()
 
         // Find offsets of subimage instances within stroke area
         QMap<int, QVector<QPoint>> instanceOffsets;
-        for (auto const &instance : mCanvas->subImageInstancesInBounds(ImageCanvas::strokeBounds(mStroke, mCanvas->upperToolSize()))) {
+        for (auto const &instance : mCanvas->subImageInstancesInBounds(ImageCanvas::strokeBounds(mStroke, mBrush))) {
             const ImageCanvas::SubImage subImage = mCanvas->getSubImage(instance.index);
             const QPoint instanceDrawOffset = subImage.bounds.topLeft() - instance.position;
             if (subImageRegions.contains(instance.index)) instanceOffsets[instance.index] += instanceDrawOffset;
@@ -140,7 +142,7 @@ void ApplyPixelLineCommand::redo()
                 for (auto const &offset : instanceOffsets[key]) {
                     painter.save();
                     painter.translate(offset);
-                    mCanvas->drawStroke(&painter, mStroke, mCompositionMode);
+                    mCanvas->drawStroke(&painter, mStroke, mBrush, mColour, mCompositionMode);
                     painter.restore();
                 }
                 painter.restore();
@@ -168,7 +170,7 @@ void ApplyPixelLineCommand::redo()
     }
 
     mCanvas->requestContentPaint();
-    mCanvas->mLastPixelPenPressScenePositionF = mStroke.last().pos;
+    mCanvas->mOldStroke = mStroke;
 }
 
 int ApplyPixelLineCommand::id() const
@@ -182,11 +184,11 @@ bool ApplyPixelLineCommand::mergeWith(const QUndoCommand *const command)
     if (!newCommand || !newCommand->canMerge(this)) return false;
 
     // Merge new stroke with old stroke
-    mDrawBounds = newCommand->mDrawBounds;
+    mStrokeUpdateStartIndex = mStroke.length() - 1;
     mStroke.append(newCommand->mStroke.mid(1));
 
     // Draw merged stroke
-    mAllowMerge = false;
+    mPreviousCommand = nullptr;
     needDraw = true;
     redo();
 
@@ -195,10 +197,11 @@ bool ApplyPixelLineCommand::mergeWith(const QUndoCommand *const command)
 
 bool ApplyPixelLineCommand::canMerge(const QUndoCommand *const command) const
 {
-    if (!command) return false;
-    if (command->id() != id()) return false;
-    const ApplyPixelLineCommand *previousCommand = static_cast<const ApplyPixelLineCommand*>(command);
-    if (previousCommand->mStroke.last().pos != mStroke.first().pos || previousCommand->mCanvas != mCanvas) return false;
+    if (!mPreviousCommand || !command || command->id() != id()) return false;
+    const ApplyPixelLineCommand *mergeCommand = static_cast<const ApplyPixelLineCommand*>(command);
+    if (mCanvas != mergeCommand->mCanvas || mLayerIndex != mergeCommand->mLayerIndex ||
+        mBrush != mergeCommand->mBrush || mColour != mergeCommand->mColour ||
+        mStroke.first() != mergeCommand->mStroke.last()) return false;
 
     return true;
 }
@@ -217,10 +220,10 @@ void ApplyPixelLineCommand::redoRect(QPainter &painter, const QRect &rect) const
 
 QDebug operator<<(QDebug debug, const ApplyPixelLineCommand *command)
 {
-    debug.nospace() << "(ApplyPixelLineCommand"
-        << " layerIndex=" << command->mLayerIndex
-//        << ", stroke" << command->mStroke
-        << ", oldLastPixelPenReleaseScenePos=" << command->mOldLastPixelPenReleaseScenePos
+    debug.nospace() << "ApplyPixelLineCommand("
+        << "layerIndex=" << command->mLayerIndex
+        << ", stroke=" << command->mStroke
+        << ", oldStroke=" << command->mOldStroke
         << ")";
     return debug.space();
 }

@@ -1598,7 +1598,7 @@ void tst_App::undoThickRoundPen()
     QVERIFY2(createNewImageProject(), failureMessage);
 
     QVERIFY2(changeToolSize(4), failureMessage);
-    QVERIFY2(changeToolShape(ImageCanvas::CircleToolShape), failureMessage);
+//    QVERIFY2(changeToolShape(ImageCanvas::CircleToolShape), failureMessage);
 
     QImage expectedClickImage(":/resources/undoThickRoundPen-1.png");
     QVERIFY(!expectedClickImage.isNull());
@@ -1752,24 +1752,24 @@ void tst_App::penSubpixelPosition()
 
 void tst_App::penSubpixelPositionWithThickBrush_data()
 {
-    QTest::addColumn<ImageCanvas::ToolShape>("toolShape");
+//    QTest::addColumn<ImageCanvas::ToolShape>("toolShape");
     QTest::addColumn<QString>("expectedImagePath");
 
-    QTest::newRow("square") << ImageCanvas::SquareToolShape
-        << ":/resources/penSubpixelPositionWithThickBrush-square.png";
-    QTest::newRow("circle") << ImageCanvas::CircleToolShape
-        << ":/resources/penSubpixelPositionWithThickBrush-circle.png";
+//    QTest::newRow("square") << ImageCanvas::SquareToolShape
+//        << ":/resources/penSubpixelPositionWithThickBrush-square.png";
+//    QTest::newRow("circle") << ImageCanvas::CircleToolShape
+//        << ":/resources/penSubpixelPositionWithThickBrush-circle.png";
 }
 
 // Same as penSubpixelPosition() except with a thicker brush.
 void tst_App::penSubpixelPositionWithThickBrush()
 {
-    QFETCH(ImageCanvas::ToolShape, toolShape);
+//    QFETCH(ImageCanvas::ToolShape, toolShape);
     QFETCH(QString, expectedImagePath);
 
     QVERIFY2(createNewImageProject(4, 4), failureMessage);
 
-    QVERIFY2(changeToolShape(toolShape), failureMessage);
+//    QVERIFY2(changeToolShape(toolShape), failureMessage);
     QVERIFY2(changeToolSize(4), failureMessage);
 
     // Ensure that the first pane is current by hovering it.
