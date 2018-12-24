@@ -43,71 +43,40 @@ TileCanvasPaneItem::~TileCanvasPaneItem()
 
 void TileCanvasPaneItem::paint(QPainter *painter)
 {
+    CanvasPaneItem::paint(painter);
+
     if (!mCanvas->project() || !mCanvas->project()->hasLoaded())
         return;
 
     PaneDrawingHelper paneDrawingHelper(mCanvas, painter, mPane, mPaneIndex);
 
-    TileCanvas *tileCanvas = qobject_cast<TileCanvas*>(mCanvas);
+    const TileCanvas *const tileCanvas = qobject_cast<TileCanvas*>(mCanvas);
     Q_ASSERT(tileCanvas);
 
-    TilesetProject *tilesetProject = qobject_cast<TilesetProject*>(tileCanvas->project());
+    const TilesetProject *const tilesetProject = qobject_cast<TilesetProject*>(tileCanvas->project());
     Q_ASSERT(tilesetProject);
 
-    const QSize zoomedTileSize = mPane->zoomedSize(tilesetProject->tileSize());
-    // Try to only draw as much as could possibly fit within the pane.
-//    const int horizontalStartTile = pane.offset().x() < 0 ? qFloor(qAbs(pane.offset().x()) / zoomedTileSize.width()) : 0;
-//    const int verticalStartTile = pane.offset().y() < 0 ? qFloor(qAbs(pane.offset().y()) / zoomedTileSize.height()) : 0;
-    const int tilesAcross = tilesetProject->tilesWide();//qMin(mProject->tilesWide(), qCeil(paneWidth / zoomedTileSize.width()) + 1);
-    const int tilesDown = tilesetProject->tilesHigh();//qMin(mProject->tilesHigh(), qCeil(height() / zoomedTileSize.width()) + 1);
+    const QSize zoomedTileSize = tilesetProject->tileSize() * mPane->integerZoomLevel();
 
-    // Draw the checkered pixmap that acts as an indicator for transparency.
-    // We use the unbounded canvas size here, otherwise the drawn area is too small past a certain zoom level.
-    painter->drawTiledPixmap(0, 0, zoomedTileSize.width() * tilesAcross, zoomedTileSize.height() * tilesDown, mCanvas->mCheckerPixmap);
+    const QRect tilesRect{QPoint{0, 0}, QSize{tilesetProject->tilesWide(), tilesetProject->tilesHigh()}};
 
-    for (int y = 0; y < tilesDown; ++y) {
-        for (int x = 0; x < tilesAcross; ++x) {
-            const QPoint topLeftInScene(x * tilesetProject->tileWidth(), y * tilesetProject->tileHeight());
-            const QRect rect(x * zoomedTileSize.width(), y * zoomedTileSize.height(),
-                zoomedTileSize.width(), zoomedTileSize.height());
-
-            // If the tile pen is in use and it's over this tile, draw it, otherwise draw the current tile
-            // at that location as usual.
-            bool previewTile = false;
-            if (tileCanvas->mTilePenPreview) {
-                QRect tileSceneRect(topLeftInScene.x(), topLeftInScene.y(), tilesetProject->tileWidth(), tilesetProject->tileHeight());
-                previewTile = tileSceneRect.contains(tileCanvas->cursorSceneX(), tileCanvas->cursorSceneY());
+    if (tileCanvas->mGridVisible) {
+        painter->setPen(tileCanvas->mGridColour);
+        for (int y = tilesRect.top(); y <= tilesRect.bottom(); ++y) {
+            for (int x = tilesRect.left(); x <= tilesRect.right(); ++x) {
+                // Draw top edge for tile
+                painter->drawLine(x * zoomedTileSize.width(), y * zoomedTileSize.height(), (x + 1) * zoomedTileSize.width(), y * zoomedTileSize.height());
+                // Draw left edge for tile
+                painter->drawLine(x * zoomedTileSize.width(), y * zoomedTileSize.height(), x * zoomedTileSize.width(), (y + 1) * zoomedTileSize.height());
             }
-
-            if (previewTile) {
-                painter->drawImage(rect, *tileCanvas->mPenTile->tileset()->image(), tileCanvas->mPenTile->sourceRect());
-            } else {
-                const Tile *tile = tilesetProject->tileAt(topLeftInScene);
-                if (tile) {
-                    painter->drawImage(rect, *tile->tileset()->image(), tile->sourceRect());
-                }
-            }
-
-            if (tileCanvas->mGridVisible) {
-                QPen pen(tileCanvas->mGridColour);
-                painter->setPen(pen);
-
-                painter->drawLine(rect.x(), rect.y(), rect.x(), rect.y() + rect.height() - 1);
-
-                if (x == tilesAcross - 1) {
-                    // If this is the right-most edge tile, draw a line on the outside of it.
-                    painter->drawLine(rect.x() + zoomedTileSize.width(), rect.y(),
-                        rect.x() + zoomedTileSize.width(), rect.y() + rect.height() - 1);
-                }
-
-                painter->drawLine(rect.x() + 1, rect.y(), rect.x() + rect.width() - 1, rect.y());
-
-                if (y == tilesDown - 1) {
-                    // If this is the bottom-most edge tile, draw a line on the outside of it.
-                    painter->drawLine(rect.x(), rect.y() + zoomedTileSize.height(),
-                        rect.x() + rect.width(), rect.y() + zoomedTileSize.width());
-                }
-            }
+        }
+        // Draw bottom-most edges
+        for (int x = tilesRect.left(), y = tilesRect.bottom() + 1; x <= tilesRect.right(); ++x) {
+            painter->drawLine(x * zoomedTileSize.width(), y * zoomedTileSize.height(), (x + 1) * zoomedTileSize.width(), y * zoomedTileSize.height());
+        }
+        // Draw right-most edges
+        for (int y = tilesRect.top(), x = tilesRect.right() + 1; y <= tilesRect.bottom(); ++y) {
+            painter->drawLine(x * zoomedTileSize.width(), y * zoomedTileSize.height(), x * zoomedTileSize.width(), (y + 1) * zoomedTileSize.height());
         }
     }
 }

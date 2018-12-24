@@ -248,6 +248,29 @@ bool TileCanvas::supportsSelectionTool() const
     return false;
 }
 
+QImage TileCanvas::getComposedImage()
+{
+    const QSize size(mTilesetProject->tilesWide() * mTilesetProject->tileWidth(), mTilesetProject->tilesHigh() * mTilesetProject->tileHeight());
+
+    QImage image(size,  QImage::Format_ARGB32);
+    image.fill(qRgba(0, 0, 0, 0));
+    QPainter painter(&image);
+
+    const QRect tilesRect{QPoint{0, 0}, QSize{mTilesetProject->tilesWide(), mTilesetProject->tilesHigh()}};
+
+    for (int y = tilesRect.top(); y <= tilesRect.bottom(); ++y) {
+        for (int x = tilesRect.left(); x <= tilesRect.right(); ++x) {
+            const QPoint pos(x * mTilesetProject->tileWidth(), y * mTilesetProject->tileHeight());
+            const Tile *tile = mTilesetProject->tileAtTilePos(QPoint(x, y));
+            if (tile) {
+                painter.drawImage(pos, *tile->tileset()->image(), tile->sourceRect());
+            }
+        }
+    }
+
+    return image;
+}
+
 void TileCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
     QQuickItem::geometryChanged(newGeometry, oldGeometry);

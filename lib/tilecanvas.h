@@ -103,6 +103,7 @@ protected:
     void disconnectSignals() override;
     void toolChange() override;
     bool supportsSelectionTool() const override;
+    virtual QImage getComposedImage() override;
 
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 

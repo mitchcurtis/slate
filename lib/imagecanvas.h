@@ -272,6 +272,14 @@ public:
             return !(*this == other);
         }
 
+        StrokePoint snapped(const QPointF snapOffset = {0.0, 0.0}) const {
+            return StrokePoint{{qRound(pos.x() + snapOffset.x()) - snapOffset.x(), qRound(pos.y() + snapOffset.y()) - snapOffset.y()}, pressure};
+        }
+
+        QPoint pixel() const {
+            return QPoint{qFloor(pos.x()), qFloor(pos.y())};
+        }
+
         QPointF pos;
         qreal pressure;
     };
@@ -297,9 +305,9 @@ public:
             return (pos - 1.0) * steps;
         }
 
-        StrokePoint snapped(const int index, QPointF snapOffset, const bool snapToPixel = true) {
+        StrokePoint snapped(const int index, const QPointF snapOffset = {0.0, 0.0}, const bool snapToPixel = true) {
             if (!snapToPixel) return at(index);
-            else return StrokePoint{{qRound(at(index).pos.x() + snapOffset.x()) - snapOffset.x(), qRound(at(index).pos.y() + snapOffset.y()) - snapOffset.y()}, at(index).pressure};
+            else return at(index).snapped(snapOffset);
         }
 
         void draw(QPainter *const painter, const Brush &brush, const qreal scaleMin, const qreal scaleMax, const QColor &colour, const QPainter::CompositionMode mode, const bool snapToPixel = false) {
@@ -528,8 +536,6 @@ protected:
     void doFlipSelection(int layerIndex, const QRect &area, Qt::Orientation orientation);
     QRect doRotateSelection(int layerIndex, const QRect &area, int angle);
 
-    QPointF linePoint1() const;
-    QPointF linePoint2() const;
     void markBrushDirty();
     const Brush &brush();
     qreal pressure() const;
