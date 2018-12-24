@@ -37,6 +37,7 @@
 #include "utils.h"
 
 TileCanvas::TileCanvas() :
+    ImageCanvas (),
     mTilesetProject(nullptr),
     mCursorTilePixelX(0),
     mCursorTilePixelY(0),

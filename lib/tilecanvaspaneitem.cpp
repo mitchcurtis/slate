@@ -61,6 +61,10 @@ void TileCanvasPaneItem::paint(QPainter *painter)
     const int tilesAcross = tilesetProject->tilesWide();//qMin(mProject->tilesWide(), qCeil(paneWidth / zoomedTileSize.width()) + 1);
     const int tilesDown = tilesetProject->tilesHigh();//qMin(mProject->tilesHigh(), qCeil(height() / zoomedTileSize.width()) + 1);
 
+    // Draw the checkered pixmap that acts as an indicator for transparency.
+    // We use the unbounded canvas size here, otherwise the drawn area is too small past a certain zoom level.
+    painter->drawTiledPixmap(0, 0, zoomedTileSize.width() * tilesAcross, zoomedTileSize.height() * tilesDown, mCanvas->mCheckerPixmap);
+
     for (int y = 0; y < tilesDown; ++y) {
         for (int x = 0; x < tilesAcross; ++x) {
             const QPoint topLeftInScene(x * tilesetProject->tileWidth(), y * tilesetProject->tileHeight());
