@@ -30,7 +30,7 @@
 class SLATE_EXPORT ApplyPixelLineCommand : public QUndoCommand
 {
 public:
-    ApplyPixelLineCommand(ImageCanvas *const canvas, const int layerIndex, const ImageCanvas::Stroke &stroke, const Brush &brush, const QColor &colour,
+    ApplyPixelLineCommand(ImageCanvas *const canvas, const int layerIndex, const ImageCanvas::Stroke &stroke, const qreal scaleMin, const qreal scaleMax, const Brush &brush, const QColor &colour,
         const QPainter::CompositionMode compositionMode, const QUndoCommand *const previousCommand = nullptr, QUndoCommand *const parent = nullptr);
     virtual ~ApplyPixelLineCommand() override;
 
@@ -52,6 +52,7 @@ private:
     int mLayerIndex;
     Brush mBrush;
     QColor mColour;
+    qreal mScaleMin, mScaleMax;
     ImageCanvas::Stroke mOldStroke;
     QPainter::CompositionMode mCompositionMode;
 

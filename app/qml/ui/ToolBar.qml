@@ -335,6 +335,14 @@ ToolBar {
                     checkable: true
                     property int brushType: Brush.CircleType
                 }
+
+                Action {
+                    id: imageBrushType
+                    text: qsTr("Image")
+                    icon.source: "qrc:/images/circle-tool-shape.png"
+                    checkable: true
+                    property int brushType: Brush.ImageType
+                }
             }
 
             Menu {
@@ -343,6 +351,7 @@ ToolBar {
 
                 MenuItem { action: squareBrushType}
                 MenuItem { action: circleBrushType }
+                MenuItem { action: imageBrushType }
             }
         }
 

@@ -958,6 +958,20 @@ QList<ImageCanvas::SubImageInstance> ImageCanvas::subImageInstancesInBounds(cons
     return instances;
 }
 
+QColor ImageCanvas::pickColour(const QPointF point) const
+{
+    const QPoint pixel{qFloor(point.x()), qFloor(point.y())};
+    auto instances = subImageInstancesInBounds(QRect(pixel, QSize(1, 1)));
+    if (!instances.isEmpty()) {
+        auto instance = instances.last();
+        auto subImage = getSubImage(instance.index);
+        auto image = imageForLayerAt(mProject->currentLayerIndex());
+        const QPoint instanceDrawOffset = subImage.bounds.topLeft() - instance.position;
+        return image->pixelColor(pixel + instanceDrawOffset);
+    }
+    else return QColor();
+}
+
 void ImageCanvas::setAltPressed(bool altPressed)
 {
     if (altPressed == mAltPressed)
@@ -1124,13 +1138,7 @@ QImage ImageCanvas::getContentImage()
 
     // Draw the brush/line preview to the image
     if (showPreview) {
-        Stroke previewStroke;
-        if (mShiftPressed && !mOldStroke.isEmpty()) previewStroke.append(mOldStroke.last());
-        previewStroke.append({{mCursorSceneFX, mCursorSceneFY}, 1.0});
-        QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), previewStroke, brush(), penColour(), qPainterBlendMode());
-        command->setText(QLatin1String("PixelLineTool"));
-        tempUndoStack.push(command);
-//        applyCurrentTool();
+        applyCurrentTool(&tempUndoStack);
     }
 
     image = getComposedImage();
@@ -1141,22 +1149,6 @@ QImage ImageCanvas::getContentImage()
     }
 
     return image;
-}
-
-void ImageCanvas::strokeSegment(QPainter *const painter, const Brush &brush, const QColor &colour, const StrokePoint &point0, const StrokePoint &point1, const qreal scaleMin, const qreal scaleMax)
-{
-    const QPointF posDelta = {point1.pos.x() - point0.pos.x(), point1.pos.y() - point0.pos.y()};
-    const qreal pressureDelta = point1.pressure - point0.pressure;
-    const qreal steps = qMax(qAbs(posDelta.x()), qAbs(posDelta.y()));
-    if (steps > 0.0) {
-        const qreal step = 1.0 / steps;
-        for (qreal pos = 0.0; pos < 1.0 || qFuzzyCompare(pos, 1.0); pos += step) {
-            const QPointF point = point0.pos + pos * posDelta;
-            const qreal pressure = point0.pressure + pos * pressureDelta;
-            const qreal scale = scaleMin + pressure * (scaleMax - scaleMin);
-            drawBrush(painter, brush, colour, point, scale);
-        }
-    }
 }
 
 void ImageCanvas::drawBrush(QPainter *const painter, const Brush &brush, const QColor &colour, const QPointF pos, const qreal scale, const qreal rotation)
@@ -1171,49 +1163,6 @@ void ImageCanvas::drawBrush(QPainter *const painter, const Brush &brush, const Q
     painter->setTransform(brushTransform, true);
     // Draw brush image
     brush.draw(painter,  {0.0, 0.0}, colour);
-    painter->restore();
-}
-
-void ImageCanvas::drawStroke(QPainter *const painter, const Stroke &stroke, const Brush &brush, const QColor &colour, const QPainter::CompositionMode mode)
-{
-    painter->save();
-
-    auto snapPenToPixel = [](const QPointF point, const int toolSize){
-        const QPointF penOffset = (toolSize % 2 == 1) ? QPointF(0.5, 0.5) : QPointF(0.0, 0.0);
-        return (point + penOffset).toPoint() - penOffset;
-//        return point;
-    };
-
-    auto mergePoints = [](const QVector<QPointF> &stroke, const qreal mergeThreshold = 2.0){
-        QVector<QPointF> mergedStroke;
-        int lastPoint = 0;
-        mergedStroke.append(stroke[0]);
-        for (int i = 1; i < stroke.length(); ++i) {
-            if (QLineF(stroke[i], stroke[lastPoint]).length() > mergeThreshold) {
-                mergedStroke.append(stroke[i]);
-                lastPoint = i;
-            }
-        }
-        return mergedStroke;
-    };
-
-//    const Stroke processedStroke = mergePoints(stroke, 1);
-    const Stroke processedStroke = stroke;
-
-    painter->setCompositionMode(mode);
-    if (processedStroke.length() == 1) {
-        StrokePoint point = {snapPenToPixel(processedStroke[0].pos, mUpperToolSize), processedStroke[0].pressure};
-        drawBrush(painter, brush, colour, point.pos, point.pressure);
-    }
-    else {
-        for (int i = 1; i < processedStroke.length(); ++i) {
-            StrokePoint from = {snapPenToPixel(processedStroke[i - 1].pos, mUpperToolSize), processedStroke[i - 1].pressure};
-            StrokePoint to = {snapPenToPixel(processedStroke[i].pos, mUpperToolSize), processedStroke[i].pressure};
-            const qreal scaleMin = qreal(mLowerToolSize) / qreal(mUpperToolSize);
-            strokeSegment(painter, brush, colour, from, to, scaleMin, 1.0);
-        }
-    }
-
     painter->restore();
 }
 
@@ -2143,6 +2092,9 @@ void ImageCanvas::brushFromSelection()
 
     mBrush = Brush(currentProjectImage()->copy(mSelectionArea));
     mBrushDirty = false;
+
+    setBrushType(Brush::ImageType);
+    setUpperToolSize(qMax(mBrush.size.width(), mBrush.size.height()));
 }
 
 void ImageCanvas::cycleFillTools()
@@ -2212,35 +2164,34 @@ QPainter::CompositionMode ImageCanvas::qPainterBlendMode() const
     return mapping[mToolBlendMode];
 }
 
-void ImageCanvas::applyCurrentTool()
+void ImageCanvas::applyCurrentTool(QUndoStack *const alternateStack)
 {
     if (areToolsForbidden())
         return;
 
-    const QUndoCommand *const continueCommand = mToolContinue ? mProject->undoStack()->command(mProject->undoStack()->index() - 1) : nullptr;
+    // For tool preview use alternate undo stack if given
+    QUndoStack *const stack = alternateStack ? alternateStack : mProject->undoStack();
+    const QUndoCommand *const continueCommand = (mToolContinue && stack->index() > 0) ? stack->command(stack->index() - 1) : nullptr;
+    QUndoCommand *command = nullptr;
+
+    const int brushSize = qMax(brush().size.width(), brush().size.height());
+    const qreal scaleMax = qreal(mUpperToolSize) / qreal(brushSize);
+    const qreal scaleMin = mToolSizeUsePressure ? qreal(mLowerToolSize) / qreal(brushSize) : scaleMax;
 
     switch (mTool) {
     case PenTool: {
-        // Draw the line on top of what has already been painted using a special composition mode.
-        // This ensures that e.g. a translucent red overwrites whatever pixels it
-        // lies on, rather than blending with them.
-        QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), mNewStroke, brush(), penColour(), qPainterBlendMode(), continueCommand);
+        command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), mNewStroke, scaleMin, scaleMax, brush(), penColour(), qPainterBlendMode(), continueCommand);
         command->setText(QLatin1String("PixelLineTool"));
-        mProject->addChange(command);
         break;
     }
     case EyeDropperTool: {
-        const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
-        if (isWithinImage(scenePos)) {
-            setPenColour(currentProjectImage()->pixelColor(scenePos));
-        }
+        const QColor pickedColour = pickColour(mNewStroke.last().pos);
+        if (pickedColour.isValid()) setPenColour(pickedColour);
         break;
     }
     case EraserTool: {
-        // Draw the line on top of what has already been painted using a special composition mode to erase pixels.
-        QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), mNewStroke, brush(), penColour(), QPainter::CompositionMode_Clear, continueCommand);
+        command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), mNewStroke, scaleMin, scaleMax, brush(), penColour(), QPainter::CompositionMode_Clear, continueCommand);
         command->setText(QLatin1String("PixelEraserTool"));
-        mProject->addChange(command);
         break;
     }
     case FillTool: {
@@ -2249,20 +2200,15 @@ void ImageCanvas::applyCurrentTool()
             if (filledImage.isNull())
                 return;
 
-            mProject->beginMacro(QLatin1String("PixelFillTool"));
-            mProject->addChange(new ApplyPixelFillCommand(this, mProject->currentLayerIndex(),
-                *currentProjectImage(), filledImage));
-            // TODO: see if the tests pass with these added
-            // mProject->endMacro();
+            command = new ApplyPixelFillCommand(this, mProject->currentLayerIndex(), *currentProjectImage(), filledImage);
+            command->setText(QLatin1String("PixelFillTool"));
         } else {
             const QImage filledImage = greedyFillPixels();
             if (filledImage.isNull())
                 return;
 
-            mProject->beginMacro(QLatin1String("GreedyPixelFillTool"));
-            mProject->addChange(new ApplyGreedyPixelFillCommand(this, mProject->currentLayerIndex(),
-                *currentProjectImage(), filledImage));
-            // mProject->endMacro();
+            command = new ApplyGreedyPixelFillCommand(this, mProject->currentLayerIndex(), *currentProjectImage(), filledImage);
+            command->setText(QLatin1String("GreedyPixelFillTool"));
         }
         break;
     }
@@ -2272,24 +2218,25 @@ void ImageCanvas::applyCurrentTool()
             if (filledImage.isNull())
                 return;
 
-            mProject->beginMacro(QLatin1String("PixelTexturedFillTool"));
-            mProject->addChange(new ApplyPixelFillCommand(this, mProject->currentLayerIndex(),
-                *currentProjectImage(), filledImage));
-            // mProject->endMacro();
+            command = new ApplyPixelFillCommand(this, mProject->currentLayerIndex(), *currentProjectImage(), filledImage);
+            command->setText(QLatin1String("PixelTexturedFillTool"));
         } else {
             const QImage filledImage = greedyFillPixels();
             if (filledImage.isNull())
                 return;
 
-            mProject->beginMacro(QLatin1String("GreedyPixelTexturedFillTool"));
-            mProject->addChange(new ApplyGreedyPixelFillCommand(this, mProject->currentLayerIndex(),
-                *currentProjectImage(), filledImage));
-            // mProject->endMacro();
+            command = new ApplyGreedyPixelFillCommand(this, mProject->currentLayerIndex(), *currentProjectImage(), filledImage);
+            command->setText(QLatin1String("GreedyPixelTexturedFillTool"));
         }
         break;
     }
     default:
         break;
+    }
+
+    if (command) {
+//        mProject->addChange(command);
+        stack->push(command);
     }
 }
 
@@ -2352,34 +2299,6 @@ QRect ImageCanvas::doRotateSelection(int layerIndex, const QRect &area, int angl
     return area.united(rotatedArea);
 }
 
-QRectF ImageCanvas::brushBounds(const Brush &brush, const qreal scale)
-{
-    QRectF rect = brush.pixmap.rect();
-    rect.translate(-brush.handle * scale);
-    return rect;
-}
-
-QRect ImageCanvas::strokeBounds(const Stroke &stroke, const Brush &brush)
-{
-    // sqrt(2) is the ratio between the hypotenuse of a square and its side;
-    // a simplification of Pythagoras’ theorem.
-    // The bounds could be tighter by taking into account the specific rotation of the brush,
-    // but the sqrt(2) ensures it is big enough for any rotation.
-//    const int margin = qCeil(M_SQRT2 * upperToolSize / 2.0 + 0.5 + 2);
-
-//    QRect bounds;
-//    for (auto point : stroke) {
-//        bounds = bounds.united(QRect(point.pos.toPoint(), QSize()).marginsAdded({margin, margin, margin, margin}));
-//    }
-//    return bounds;
-
-    QRectF bounds;
-    for (auto point : stroke) {
-        bounds = bounds.united(brushBounds(brush, point.pressure).translated(point.pos));
-    }
-    return bounds.toAlignedRect();
-}
-
 void ImageCanvas::markBrushDirty()
 {
     mBrushDirty = true;
@@ -2388,7 +2307,12 @@ void ImageCanvas::markBrushDirty()
 const Brush &ImageCanvas::brush()
 {
     if (mBrushDirty) {
-        mBrush = Brush(mBrushType, {mUpperToolSize, mUpperToolSize});
+        if (mBrushType == Brush::ImageType) {
+
+        }
+        else {
+            mBrush = Brush(mBrushType, {mUpperToolSize, mUpperToolSize});
+        }
         mBrushDirty = false;
     }
     return mBrush;
@@ -2891,7 +2815,10 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
             if (!isPanning()) {
                 if (mTool != SelectionTool) {
                     mToolContinue = true;
-                    mNewStroke = {mOldStroke.last(), StrokePoint{{mCursorSceneFX, mCursorSceneFY}, pressure()}};
+                    mNewStroke = {StrokePoint{{mCursorSceneFX, mCursorSceneFY}, pressure()}};
+                    if (!mOldStroke.isEmpty()) {
+                        mNewStroke.prepend(mOldStroke.last());
+                    }
                     mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
                     applyCurrentTool();
                 } else {
@@ -3038,8 +2965,11 @@ void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
 
     updateWindowCursorShape();
 
-    if ((mTool == PenTool && mShiftPressed) || mProject->settings()->isBrushPreviewVisible())
+    mNewStroke = {{{mCursorSceneFX, mCursorSceneFY}, 1.0}};
+    if (isLineVisible() && !mOldStroke.isEmpty()) mNewStroke.prepend(mOldStroke.last());
+    if (isLineVisible() || mProject->settings()->isBrushPreviewVisible()) {
         requestContentPaint();
+    }
 }
 
 void ImageCanvas::hoverLeaveEvent(QHoverEvent *event)

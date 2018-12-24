@@ -30,6 +30,7 @@
 #include <QUndoStack>
 #include <QWheelEvent>
 #include <QPainter>
+#include <QtMath>
 
 #include "canvaspane.h"
 #include "ruler.h"
@@ -272,9 +273,56 @@ public:
         qreal pressure;
     };
 
-    typedef QVector<StrokePoint> Stroke;
+    class Stroke : public QVector<StrokePoint> {
+    public:
+        using QVector::QVector;
+        Stroke(const QVector<StrokePoint> &vector) : QVector<StrokePoint>(vector) {}
 
-    static void strokeSegment(QPainter *const painter, const Brush &brush, const QColor &colour, const StrokePoint &point0, const StrokePoint &point1, const qreal scaleMin, const qreal scaleMax);
+        static qreal strokeSegment(QPainter *const painter, const Brush &brush, const QColor &colour, const StrokePoint &point0, const StrokePoint &point1, const qreal scaleMin, const qreal scaleMax, const qreal stepOffset = 0.0) {
+            const QPointF posDelta = {point1.pos.x() - point0.pos.x(), point1.pos.y() - point0.pos.y()};
+            const qreal pressureDelta = point1.pressure - point0.pressure;
+            const qreal steps = qMax(qMax(qAbs(posDelta.x()), qAbs(posDelta.y())), 1.0);
+            const qreal step = 1.0 / steps;
+            qreal pos = stepOffset * step;
+            while (pos < 1.0 || qFuzzyCompare(pos, 1.0)) {
+                const QPointF point = point0.pos + pos * posDelta;
+                const qreal pressure = point0.pressure + pos * pressureDelta;
+                const qreal scale = scaleMin + pressure * (scaleMax - scaleMin);
+                drawBrush(painter, brush, colour, point, scale);
+                pos += step;
+            }
+            return (pos - 1.0) * steps;
+        }
+
+        StrokePoint snapped(const int index, QPointF snapOffset, const bool snapToPixel = true) {
+            if (!snapToPixel) return at(index);
+            else return StrokePoint{{qRound(at(index).pos.x() + snapOffset.x()) - snapOffset.x(), qRound(at(index).pos.y() + snapOffset.y()) - snapOffset.y()}, at(index).pressure};
+        }
+
+        void draw(QPainter *const painter, const Brush &brush, const qreal scaleMin, const qreal scaleMax, const QColor &colour, const QPainter::CompositionMode mode, const bool snapToPixel = false) {
+            painter->save();
+            painter->setCompositionMode(mode);
+            if (length() == 1) {
+                strokeSegment(painter, brush, colour, snapped(0, brush.handle, snapToPixel), snapped(0, brush.handle, snapToPixel), scaleMin, scaleMax);
+            }
+            else {
+                qreal stepOffset = 0.0;
+                for (int i = 1; i < length(); ++i) {
+                    stepOffset = strokeSegment(painter, brush, colour, snapped(i - 1, brush.handle, snapToPixel), snapped(i, brush.handle, snapToPixel), scaleMin, scaleMax, stepOffset);
+                }
+            }
+            painter->restore();
+        }
+
+        QRect bounds(const Brush &brush, const qreal scaleMin, const qreal scaleMax) {
+            QRectF bounds;
+            for (auto point : *this) {
+                bounds = bounds.united(brush.bounds(scaleMin + point.pressure * (scaleMax - scaleMin)).translated(point.pos));
+            }
+            return bounds.toAlignedRect();
+        }
+    };
+
     static void drawBrush(QPainter *const painter, const Brush &brush, const QColor &colour, const QPointF pos, const qreal scale = 1.0, const qreal rotation = 0.0);
 
     struct SubImage {
@@ -305,6 +353,7 @@ public:
     };
 
     virtual QList<SubImageInstance> subImageInstancesInBounds(const QRect &bounds) const;
+    QColor pickColour(const QPointF point) const;
 
     // Essentially currentProjectImage() for regular image canvas, but may return a
     // preview image if there is a selection active. For layered image canvases, this
@@ -466,7 +515,7 @@ protected:
     QImage greedyTexturedFillPixels() const;
 
     QPainter::CompositionMode qPainterBlendMode() const;
-    virtual void applyCurrentTool();
+    virtual void applyCurrentTool(QUndoStack *const alternateStack = nullptr);
     virtual void applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false);
     void paintImageOntoPortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage);
     void replacePortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage);
@@ -477,8 +526,6 @@ protected:
 
     QPointF linePoint1() const;
     QPointF linePoint2() const;
-    static QRectF brushBounds(const Brush &brush, const qreal scale);
-    static QRect strokeBounds(const Stroke &stroke, const Brush &brush);
     void markBrushDirty();
     const Brush &brush();
     qreal pressure() const;
@@ -503,7 +550,6 @@ protected:
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
     virtual QImage getComposedImage();
     virtual QImage getContentImage();
-    void drawStroke(QPainter *const painter, const Stroke &stroke, const Brush &brush, const QColor &colour, const QPainter::CompositionMode mode);
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,

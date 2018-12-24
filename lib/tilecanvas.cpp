@@ -310,20 +310,24 @@ TileCanvas::TileCandidateData TileCanvas::fillTileCandidates() const
     return candidateData;
 }
 
-void TileCanvas::applyCurrentTool()
+void TileCanvas::applyCurrentTool(QUndoStack *const alternateStack)
 {
-    const QUndoCommand *const continueCommand = mToolContinue ? mProject->undoStack()->command(mProject->undoStack()->index() - 1) : nullptr;
+    if (areToolsForbidden())
+        return;
+
+    // Use image canvas tool if compatible
+    if (mMode == PixelMode && QSet<Tool>{PenTool, EraserTool, EyeDropperTool}.contains(mTool)) {
+        ImageCanvas::applyCurrentTool(alternateStack);
+        return;
+    }
+
+    // For tool preview use alternate undo stack if given
+    QUndoStack *const stack = alternateStack ? alternateStack : mProject->undoStack();
+    QUndoCommand *command = nullptr;
 
     switch (mTool) {
     case PenTool: {
-        if (mMode == PixelMode) {
-            // Draw the line on top of what has already been painted using a special composition mode.
-            // This ensures that e.g. a translucent red overwrites whatever pixels it
-            // lies on, rather than blending with them.
-            QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), mNewStroke, brush(), penColour(), qPainterBlendMode(), continueCommand);
-            command->setText(QLatin1String("PixelLineTool"));
-            mProject->addChange(command);
-        } else {
+        if (mMode == TileMode) {
             const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
             const Tile *tile = mTilesetProject->tileAt(scenePos);
             const int previousTileId = tile ? tile->id() : Tile::invalidId();
@@ -333,32 +337,25 @@ void TileCanvas::applyCurrentTool()
                 return;
             }
 
-            mTilesetProject->beginMacro(QLatin1String("TilePenTool"));
             const int xTile = scenePos.x() / mTilesetProject->tileWidth();
             const int yTile = scenePos.y() / mTilesetProject->tileHeight();
-            mTilesetProject->addChange(new ApplyTilePenCommand(this, QPoint(xTile, yTile), previousTileId, newTileId));
+            command = new ApplyTilePenCommand(this, QPoint(xTile, yTile), previousTileId, newTileId);
+            command->setText(QLatin1String("TilePenTool"));
         }
         break;
     }
     case EyeDropperTool: {
-        const QPoint tilePos = QPoint(mCursorSceneX, mCursorSceneY);
-        Tile *tile = mTilesetProject->tileAt(tilePos);
-        if (tile) {
-            if (mMode == PixelMode) {
-                setPenForegroundColour(tile->pixelColor(mCursorTilePixelX, mCursorTilePixelY));
-            } else {
+        if (mMode == TileMode) {
+            const QPoint tilePos = QPoint(mCursorSceneX, mCursorSceneY);
+            Tile *tile = mTilesetProject->tileAt(tilePos);
+            if (tile) {
                 setPenTile(tile);
             }
         }
         break;
     }
     case EraserTool: {
-        if (mMode == PixelMode) {
-            // Draw the line on top of what has already been painted using a special composition mode to erase pixels.
-            QUndoCommand *const command = new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), mNewStroke, brush(), penColour(), QPainter::CompositionMode_Clear, continueCommand);
-            command->setText(QLatin1String("PixelEraserTool"));
-            mProject->addChange(command);
-        } else {
+        if (mMode == TileMode) {
             const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
             const Tile *tile = mTilesetProject->tileAt(scenePos);
             const int previousTileId = tile ? tile->id() : Tile::invalidId();
@@ -368,8 +365,9 @@ void TileCanvas::applyCurrentTool()
 
             const int xTile = scenePos.x() / mTilesetProject->tileWidth();
             const int yTile = scenePos.y() / mTilesetProject->tileHeight();
-            mTilesetProject->beginMacro(QLatin1String("PixelEraserTool"));
-            mTilesetProject->addChange(new ApplyTileEraserCommand(this, QPoint(xTile, yTile), previousTileId));
+
+            command = new ApplyTileEraserCommand(this, QPoint(xTile, yTile), previousTileId);
+            command->setText(QLatin1String("PixelEraserTool"));
         }
         break;
     }
@@ -380,23 +378,26 @@ void TileCanvas::applyCurrentTool()
                 return;
             }
 
-            mTilesetProject->beginMacro(QLatin1String("PixelFillTool"));
-            mTilesetProject->addChange(new ApplyTileCanvasPixelFillCommand(this, candidateData.scenePositions,
-                candidateData.previousColours.first(), penColour()));
+            command = new ApplyTileCanvasPixelFillCommand(this, candidateData.scenePositions, candidateData.previousColours.first(), penColour());
+            command->setText(QLatin1String("PixelFillTool"));
         } else {
             const TileCandidateData candidateData = fillTileCandidates();
             if (candidateData.tilePositions.isEmpty()) {
                 return;
             }
 
-            mTilesetProject->beginMacro(QLatin1String("TileFillTool"));
-            mTilesetProject->addChange(new ApplyTileFillCommand(this, candidateData.tilePositions,
-                candidateData.previousTile, candidateData.newTileId));
+            command = new ApplyTileFillCommand(this, candidateData.tilePositions, candidateData.previousTile, candidateData.newTileId);
+            command->setText(QLatin1String("TileFillTool"));
         }
         break;
     }
     default:
         break;
+    }
+
+    if (command) {
+//        mProject->addChange(command);
+        stack->push(command);
     }
 }
 

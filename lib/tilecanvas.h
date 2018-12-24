@@ -128,7 +128,7 @@ private:
     };
     TileCandidateData fillTileCandidates() const;
 
-    void applyCurrentTool() override;
+    void applyCurrentTool(QUndoStack *const alternateStack = nullptr) override;
     void applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false) override;
     void applyTilePenTool(const QPoint &tilePos, int id);
 

@@ -51,8 +51,7 @@ public:
         return transform;
     }
 
-    QRectF bounds(const qreal scale)
-    {
+    QRectF bounds(const qreal scale) const {
         return QRectF(-handle * scale, size * scale);
     }
 

@@ -28,11 +28,12 @@
 
 Q_LOGGING_CATEGORY(lcApplyPixelLineCommand, "app.undo.applyPixelLineCommand")
 
-ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *const canvas, const int layerIndex, const ImageCanvas::Stroke &stroke, const Brush &brush, const QColor &colour,
+ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *const canvas, const int layerIndex, const ImageCanvas::Stroke &stroke, const qreal scaleMin, const qreal scaleMax, const Brush &brush, const QColor &colour,
         const QPainter::CompositionMode compositionMode, const QUndoCommand *const previousCommand, QUndoCommand *const parent) :
     QUndoCommand(parent),
     mCanvas(canvas), mLayerIndex(layerIndex),
     mBrush(brush), mColour(colour),
+    mScaleMin(scaleMin), mScaleMax(scaleMax),
     mOldStroke(mCanvas->mOldStroke),
     mCompositionMode(compositionMode),
     mStroke(stroke), mStrokeUpdateStartIndex(0),
@@ -75,7 +76,7 @@ void ApplyPixelLineCommand::redo()
     if (needDraw) {
         // Find intersections of subimages with draw area
         QMap<int, QRegion> subImageRegions;
-        QRect mDrawBounds = ImageCanvas::strokeBounds(mStroke.mid(mStrokeUpdateStartIndex), mBrush);
+        QRect mDrawBounds = ImageCanvas::Stroke(mStroke.mid(mStrokeUpdateStartIndex)).bounds(mBrush, mScaleMin, mScaleMax);
         for (auto const &instance : mCanvas->subImageInstancesInBounds(mDrawBounds)) {
             const ImageCanvas::SubImage subImage = mCanvas->getSubImage(instance.index);
             const QPoint instanceDrawOffset = subImage.bounds.topLeft() - instance.position;
@@ -90,7 +91,7 @@ void ApplyPixelLineCommand::redo()
 
         // Find offsets of subimage instances within stroke area
         QMap<int, QVector<QPoint>> instanceOffsets;
-        for (auto const &instance : mCanvas->subImageInstancesInBounds(ImageCanvas::strokeBounds(mStroke, mBrush))) {
+        for (auto const &instance : mCanvas->subImageInstancesInBounds(mStroke.bounds(mBrush, mScaleMin, mScaleMax))) {
             const ImageCanvas::SubImage subImage = mCanvas->getSubImage(instance.index);
             const QPoint instanceDrawOffset = subImage.bounds.topLeft() - instance.position;
             if (subImageRegions.contains(instance.index)) instanceOffsets[instance.index] += instanceDrawOffset;
@@ -142,7 +143,7 @@ void ApplyPixelLineCommand::redo()
                 for (auto const &offset : instanceOffsets[key]) {
                     painter.save();
                     painter.translate(offset);
-                    mCanvas->drawStroke(&painter, mStroke, mBrush, mColour, mCompositionMode);
+                    mStroke.draw(&painter, mBrush, mScaleMin, mScaleMax, mColour, mCompositionMode, true);
                     painter.restore();
                 }
                 painter.restore();
