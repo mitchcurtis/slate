@@ -13,78 +13,52 @@ Popup {
     property ImageCanvas canvas
 
     contentItem: ColumnLayout {
-        Slider {
-            id: toolSizeSlider
-            objectName: "toolSizeSlider"
-            from: 1
-            to: canvas ? canvas.maxToolSize : 1
-            stepSize: 1
-            visible: canvas && canvas.toolSizeUsePressure == false
-            Layout.fillWidth: true
-
-            onValueChanged: if (canvas) canvas.upperToolSize = value
-
-            Binding {
-                target: toolSizeSlider
-                property: "value"
-                value: canvas ? canvas.upperToolSize : 1
-                when: canvas
-            }
-        }
-
-        RangeSlider {
-            id: toolSizeRangeSlider
-            objectName: "toolSizeRangeSlider"
-            from: 1
-            to: canvas ? canvas.maxToolSize : 1
-            stepSize: 1
-            visible: canvas && canvas.toolSizeUsePressure == true
-            Layout.fillWidth: true
-
-            first.onValueChanged: if (canvas) canvas.lowerToolSize = first.value
-            second.onValueChanged: if (canvas) canvas.upperToolSize = second.value
-
-            Binding {
-                target: toolSizeRangeSlider
-                property: "first.value"
-                value: canvas ? canvas.lowerToolSize : 1
-                when: canvas
-            }
-
-            Binding {
-                target: toolSizeRangeSlider
-                property: "second.value"
-                value: canvas ? canvas.upperToolSize : 1
-                when: canvas
-            }
-        }
 
         RowLayout {
-            SpinBox {
-                editable: true
+            Slider {
+                id: toolSizeSlider
+                objectName: "toolSizeSlider"
+                from: 1
+                to: canvas ? canvas.maxToolSize : 1
+                stepSize: 1
+                visible: canvas && canvas.toolSizeUsePressure == false
+                Layout.fillWidth: true
+
+                onValueChanged: if (canvas) canvas.upperToolSize = value
+
+                Binding {
+                    target: toolSizeSlider
+                    property: "value"
+                    value: canvas ? canvas.upperToolSize : 1
+                    when: canvas
+                }
+            }
+
+            RangeSlider {
+                id: toolSizeRangeSlider
+                objectName: "toolSizeRangeSlider"
                 from: 1
                 to: canvas ? canvas.maxToolSize : 1
                 stepSize: 1
                 visible: canvas && canvas.toolSizeUsePressure == true
+                Layout.fillWidth: true
 
-                value: canvas ? canvas.lowerToolSize : 1
-                onValueChanged: if (canvas) canvas.lowerToolSize = value
+                first.onValueChanged: if (canvas) canvas.lowerToolSize = first.value
+                second.onValueChanged: if (canvas) canvas.upperToolSize = second.value
 
-                ToolTip.text: qsTr("Lower tool size")
-                ToolTip.visible: hovered
-            }
+                Binding {
+                    target: toolSizeRangeSlider
+                    property: "first.value"
+                    value: canvas ? canvas.lowerToolSize : 1
+                    when: canvas
+                }
 
-            SpinBox {
-                editable: true
-                from: 1
-                to: canvas ? canvas.maxToolSize : 1
-                stepSize: 1
-
-                value: canvas ? canvas.upperToolSize : 1
-                onValueChanged: if (canvas) canvas.upperToolSize = value
-
-                ToolTip.text: canvas && canvas.toolSizeUsePressure ? qsTr("Upper tool size") : qsTr("Tool size")
-                ToolTip.visible: hovered
+                Binding {
+                    target: toolSizeRangeSlider
+                    property: "second.value"
+                    value: canvas ? canvas.upperToolSize : 1
+                    when: canvas
+                }
             }
 
             Ui.IconToolButton {
@@ -100,6 +74,37 @@ Popup {
                 ToolTip.visible: hovered
 
                 onClicked: canvas.toolSizeUsePressure = checked
+            }
+        }
+
+        RowLayout {
+            SpinBox {
+                editable: true
+                from: 1
+                to: canvas ? canvas.maxToolSize : 1
+                stepSize: 1
+                visible: canvas && canvas.toolSizeUsePressure == true
+                Layout.fillWidth: true
+
+                value: canvas ? canvas.lowerToolSize : 1
+                onValueChanged: if (canvas) canvas.lowerToolSize = value
+
+                ToolTip.text: qsTr("Lower tool size")
+                ToolTip.visible: hovered
+            }
+
+            SpinBox {
+                editable: true
+                from: 1
+                to: canvas ? canvas.maxToolSize : 1
+                stepSize: 1
+                Layout.fillWidth: true
+
+                value: canvas ? canvas.upperToolSize : 1
+                onValueChanged: if (canvas) canvas.upperToolSize = value
+
+                ToolTip.text: canvas && canvas.toolSizeUsePressure ? qsTr("Upper tool size") : qsTr("Tool size")
+                ToolTip.visible: hovered
             }
         }
     }

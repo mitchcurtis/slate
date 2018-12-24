@@ -339,7 +339,7 @@ ToolBar {
                 Action {
                     id: imageBrushType
                     text: qsTr("Image")
-                    icon.source: "qrc:/images/circle-tool-shape.png"
+                    icon.source: "qrc:/images/image-tool-shape.png"
                     checkable: true
                     property int brushType: Brush.ImageType
                 }
