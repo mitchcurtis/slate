@@ -516,6 +516,7 @@ private:
 
 protected:
     friend class CanvasPaneItem;
+    friend class TileCanvasPaneItem;
 
     // The background colour of the entire pane.
     QColor mBackgroundColour;
