@@ -85,6 +85,7 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(int lowerToolSize READ lowerToolSize WRITE setLowerToolSize NOTIFY lowerToolSizeChanged)
     Q_PROPERTY(int upperToolSize READ upperToolSize WRITE setUpperToolSize NOTIFY upperToolSizeChanged)
     Q_PROPERTY(int maxToolSize READ maxToolSize CONSTANT)
+    Q_PROPERTY(QRectF brushRect READ brushRect NOTIFY brushRectChanged)
     Q_PROPERTY(bool toolSizeUsePressure READ toolSizeUsePressure WRITE setToolSizeUsePressure NOTIFY toolSizeUsePressureChanged)
     Q_PROPERTY(qreal lowerToolOpacity READ lowerToolOpacity WRITE setLowerToolOpacity NOTIFY lowerToolOpacityChanged)
     Q_PROPERTY(qreal upperToolOpacity READ upperToolOpacity WRITE setUpperToolOpacity NOTIFY upperToolOpacityChanged)
@@ -229,6 +230,8 @@ public:
     int maxToolSize() const;
     bool toolSizeUsePressure() const;
     void setToolSizeUsePressure(bool toolSizeUsePressure);
+
+    QRectF brushRect();
 
     qreal lowerToolOpacity() const;
     void setLowerToolOpacity(qreal lowerToolOpacity);
@@ -426,6 +429,7 @@ signals:
     void lastFillToolUsedChanged();
     void lowerToolSizeChanged();
     void upperToolSizeChanged();
+    void brushRectChanged();
     void toolSizeUsePressureChanged();
     void lowerToolOpacityChanged();
     void upperToolOpacityChanged();

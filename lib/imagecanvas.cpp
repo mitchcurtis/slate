@@ -103,8 +103,8 @@ ImageCanvas::ImageCanvas() :
     mBrushType(Brush::SquareType),
     mToolBlendMode(ReplaceToolBlendMode),
     mLastFillToolUsed(FillTool),
-    mLowerToolSize(1), mUpperToolSize(1), mMaxToolSize(100), mToolSizeUsePressure(true),
-    mLowerToolOpacity(0.0), mUpperToolOpacity(1.0), mToolOpacityUsePressure(true),
+    mLowerToolSize(1), mUpperToolSize(1), mMaxToolSize(100), mToolSizeUsePressure(false),
+    mLowerToolOpacity(0.0), mUpperToolOpacity(1.0), mToolOpacityUsePressure(false),
     mPenForegroundColour(Qt::black),
     mPenBackgroundColour(Qt::white),
     mBrush(),
@@ -584,6 +584,11 @@ void ImageCanvas::setToolSizeUsePressure(bool toolSizeUsePressure)
     mToolSizeUsePressure = toolSizeUsePressure;
 
     emit toolSizeUsePressureChanged();
+}
+
+QRectF ImageCanvas::brushRect()
+{
+    return mBrush.bounds(1.0);
 }
 
 qreal ImageCanvas::lowerToolOpacity() const
@@ -2314,6 +2319,7 @@ const Brush &ImageCanvas::brush()
             mBrush = Brush(mBrushType, {mUpperToolSize, mUpperToolSize});
         }
         mBrushDirty = false;
+        emit brushRectChanged();
     }
     return mBrush;
 }
