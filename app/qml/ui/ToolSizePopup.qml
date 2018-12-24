@@ -8,8 +8,6 @@ import "." as Ui
 
 Popup {
     objectName: "toolSizePopup"
-    modal: true
-    dim: false
     focus: true
 
     property ImageCanvas canvas

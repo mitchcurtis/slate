@@ -548,7 +548,6 @@ void ImageCanvas::setLowerToolSize(int lowerToolSize)
 
     mLowerToolSize = clamped;
     emit lowerToolSizeChanged();
-    markBrushDirty();
 }
 
 int ImageCanvas::upperToolSize() const
@@ -604,7 +603,6 @@ void ImageCanvas::setLowerToolOpacity(qreal lowerToolOpacity)
 
     mLowerToolOpacity = clamped;
     emit lowerToolOpacityChanged();
-    markBrushDirty();
 }
 
 qreal ImageCanvas::upperToolOpacity() const
@@ -620,7 +618,6 @@ void ImageCanvas::setUpperToolOpacity(qreal upperToolOpacity)
 
     mUpperToolOpacity = clamped;
     emit upperToolOpacityChanged();
-    markBrushDirty();
 }
 
 bool ImageCanvas::toolOpacityUsePressure() const {
