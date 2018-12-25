@@ -225,12 +225,6 @@ bool TileCanvas::supportsSelectionTool() const
     return false;
 }
 
-void TileCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
-{
-    QQuickItem::geometryChanged(newGeometry, oldGeometry);
-    centrePanes();
-}
-
 TileCanvas::PixelCandidateData TileCanvas::penEraserPixelCandidates(Tool tool) const
 {
     PixelCandidateData candidateData;
