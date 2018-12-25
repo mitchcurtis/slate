@@ -97,8 +97,6 @@ protected:
     void toolChange() override;
     bool supportsSelectionTool() const override;
 
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
-
     void onLoadedChanged() override;
 
 private:
