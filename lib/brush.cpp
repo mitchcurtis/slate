@@ -110,18 +110,27 @@ void Brush::fillEllipse(QImage &image, const QRect &clip, const QRectF &rect, co
     }
 }
 
-void Brush::draw(QPainter *const painter, const QPointF &point, const QColor &colour) const
+void Brush::draw(QPainter *const painter, const QColor &colour, const QPointF pos, const qreal scale, const qreal rotation) const
 {
+    QTransform brushTransform;
+    brushTransform.rotate(rotation);
+    brushTransform.scale(scale, scale);
+
     painter->save();
+    // Transform to cursor position
+    painter->translate(pos);
+    painter->setTransform(brushTransform, true);
+    // Draw brush image
     // Apply brush transfom
     painter->setTransform(transform(), true);
     // Draw brush image
     if (QSet<QImage::Format>{QImage::Format_Mono, QImage::Format_MonoLSB}.contains(pixmap.toImage().format())) {
         painter->setPen(colour);
         painter->setBackgroundMode(Qt::TransparentMode);
-        painter->drawPixmap(point, pixmap);
-    } else {
-        painter->drawPixmap(point, pixmap);
+        painter->drawPixmap(QPointF(0.0, 0.0), pixmap);
+    }
+    else {
+        painter->drawPixmap(QPointF(0.0, 0.0), pixmap);
     }
     painter->restore();
 }

@@ -40,7 +40,7 @@ public:
     static void fillRectangle(QImage &image, const QRect &clip, const QRectF &rect, const QRgb colour);
     static void fillEllipse(QImage &image, const QRect &clip, const QRectF &rect, const QRgb colour);
 
-    void draw(QPainter *const painter, const QPointF &point, const QColor &colour) const;
+    void draw(QPainter *const painter, const QColor &colour, const QPointF pos = {0.0, 0.0}, const qreal scale = 1.0, const qreal rotation = 0.0) const;
 
     Type type;
     QSize size;

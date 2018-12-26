@@ -1163,21 +1163,6 @@ QImage ImageCanvas::getContentImage()
     return image;
 }
 
-void ImageCanvas::drawBrush(QPainter *const painter, const Brush &brush, const QColor &colour, const QPointF pos, const qreal scale, const qreal rotation)
-{
-    QTransform brushTransform;
-    brushTransform.rotate(rotation);
-    brushTransform.scale(scale, scale);
-
-    painter->save();
-    // Transform to cursor position
-    painter->translate(pos);
-    painter->setTransform(brushTransform, true);
-    // Draw brush image
-    brush.draw(painter,  {0.0, 0.0}, colour);
-    painter->restore();
-}
-
 void ImageCanvas::centrePanes(bool respectSceneCentred)
 {
     if (!mProject)

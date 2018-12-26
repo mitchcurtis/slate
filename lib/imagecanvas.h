@@ -39,6 +39,7 @@
 #include "splitter.h"
 #include "texturedfillparameters.h"
 #include "brush.h"
+#include "stroke.h"
 
 Q_DECLARE_LOGGING_CATEGORY(lcImageCanvas)
 Q_DECLARE_LOGGING_CATEGORY(lcImageCanvasLifecycle)
@@ -263,78 +264,6 @@ public:
     bool isLineVisible() const;
     int lineLength() const;
     qreal lineAngle() const;
-
-    struct StrokePoint {
-        bool operator==(const StrokePoint &other) const {
-            return pos == other.pos && qFuzzyCompare(pressure, other.pressure);
-        }
-        bool operator!=(const StrokePoint &other) const {
-            return !(*this == other);
-        }
-
-        StrokePoint snapped(const QPointF snapOffset = {0.0, 0.0}) const {
-            return StrokePoint{{qRound(pos.x() + snapOffset.x()) - snapOffset.x(), qRound(pos.y() + snapOffset.y()) - snapOffset.y()}, pressure};
-        }
-
-        QPoint pixel() const {
-            return QPoint{qFloor(pos.x()), qFloor(pos.y())};
-        }
-
-        QPointF pos;
-        qreal pressure;
-    };
-
-    class Stroke : public QVector<StrokePoint> {
-    public:
-        using QVector::QVector;
-        Stroke(const QVector<StrokePoint> &vector) : QVector<StrokePoint>(vector) {}
-
-        static qreal strokeSegment(QPainter *const painter, const Brush &brush, const QColor &colour, const StrokePoint &point0, const StrokePoint &point1, const qreal scaleMin, const qreal scaleMax, const qreal stepOffset = 0.0) {
-            const QPointF posDelta = {point1.pos.x() - point0.pos.x(), point1.pos.y() - point0.pos.y()};
-            const qreal pressureDelta = point1.pressure - point0.pressure;
-            const qreal steps = qMax(qMax(qAbs(posDelta.x()), qAbs(posDelta.y())), 1.0);
-            const qreal step = 1.0 / steps;
-            qreal pos = stepOffset * step;
-            while (pos < 1.0 || qFuzzyCompare(pos, 1.0)) {
-                const QPointF point = point0.pos + pos * posDelta;
-                const qreal pressure = point0.pressure + pos * pressureDelta;
-                const qreal scale = scaleMin + pressure * (scaleMax - scaleMin);
-                drawBrush(painter, brush, colour, point, scale);
-                pos += step;
-            }
-            return (pos - 1.0) * steps;
-        }
-
-        StrokePoint snapped(const int index, const QPointF snapOffset = {0.0, 0.0}, const bool snapToPixel = true) {
-            if (!snapToPixel) return at(index);
-            else return at(index).snapped(snapOffset);
-        }
-
-        void draw(QPainter *const painter, const Brush &brush, const qreal scaleMin, const qreal scaleMax, const QColor &colour, const QPainter::CompositionMode mode, const bool snapToPixel = false) {
-            painter->save();
-            painter->setCompositionMode(mode);
-            if (length() == 1) {
-                strokeSegment(painter, brush, colour, snapped(0, brush.handle, snapToPixel), snapped(0, brush.handle, snapToPixel), scaleMin, scaleMax);
-            }
-            else {
-                qreal stepOffset = 0.0;
-                for (int i = 1; i < length(); ++i) {
-                    stepOffset = strokeSegment(painter, brush, colour, snapped(i - 1, brush.handle, snapToPixel), snapped(i, brush.handle, snapToPixel), scaleMin, scaleMax, stepOffset);
-                }
-            }
-            painter->restore();
-        }
-
-        QRect bounds(const Brush &brush, const qreal scaleMin, const qreal scaleMax) {
-            QRectF bounds;
-            for (auto point : *this) {
-                bounds = bounds.united(brush.bounds(scaleMin + point.pressure * (scaleMax - scaleMin)).translated(point.pos));
-            }
-            return bounds.toAlignedRect();
-        }
-    };
-
-    static void drawBrush(QPainter *const painter, const Brush &brush, const QColor &colour, const QPointF pos, const qreal scale = 1.0, const qreal rotation = 0.0);
 
     struct SubImage {
         bool operator==(const SubImage &other) const {
@@ -787,12 +716,6 @@ inline QDebug operator<<(QDebug debug, const ImageCanvas::SubImageInstance &subI
     debug.nospace() << "SubImageInstance(" << subImageInstance.index << ", " << subImageInstance.position << ')';
 
     return debug;
-}
-
-inline QDebug operator<<(QDebug debug, const ImageCanvas::StrokePoint &point)
-{
-    debug.nospace() << "StrokePoint(" << point.pos << ", " << point.pressure << ")";
-    return debug.space();
 }
 
 #endif // IMAGECANVAS_H

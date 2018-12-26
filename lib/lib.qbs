@@ -177,6 +177,8 @@ Product {
         "spriteimage.h",
         "spriteimageprovider.cpp",
         "spriteimageprovider.h",
+        "stroke.cpp",
+        "stroke.h",
         "swatch.cpp",
         "swatch.h",
         "swatchcolour.cpp",
