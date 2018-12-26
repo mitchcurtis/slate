@@ -204,6 +204,15 @@ Item {
             Platform.MenuSeparator {}
 
             Platform.MenuItem {
+                objectName: "brushFromSelectionMenuItem"
+                text: qsTr("Brush From Selection")
+                onTriggered: canvas.brushFromSelection()
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+            }
+
+            Platform.MenuSeparator {}
+
+            Platform.MenuItem {
                 objectName: "texturedFillSettingsMenuItem"
                 text: qsTr("Textured Fill Settings...")
                 onTriggered: texturedFillSettingsDialog.open()
@@ -357,6 +366,14 @@ Item {
             }
 
             Platform.MenuSeparator {}
+
+            Platform.MenuItem {
+                objectName: "showBrushPreview"
+                text: qsTr("Show Brush Preview")
+                checkable: true
+                checked: settings.brushPreviewVisible
+                onCheckedChanged: settings.brushPreviewVisible = checked
+            }
 
             Platform.MenuItem {
                 objectName: "showGridMenuItem"
