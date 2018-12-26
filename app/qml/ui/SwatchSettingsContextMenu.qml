@@ -17,7 +17,8 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick.Controls 2.3
+import QtQuick.Controls 2.12
+import App 1.0
 
 import Qt.labs.platform 1.0 as Platform
 
@@ -25,8 +26,23 @@ Menu {
     objectName: "swatchSettingsContextMenu"
 
     MenuItem {
-        text: qsTr("Import Swatch...")
-        onTriggered: importDialog.open()
+        id: importSlateSwatchMenuItem
+        text: qsTr("Import Slate Swatch...")
+
+        readonly property int swatchFormat: Project.SlateSwatch
+        readonly property var nameFilters: ["JSON files (*.json)"]
+
+        onTriggered: importMenuItemClicked(importSlateSwatchMenuItem)
+    }
+
+    MenuItem {
+        id: importPaintNetSwatchMenuItem
+        text: qsTr("Import Paint.NET Swatch...")
+
+        readonly property int swatchFormat: Project.PaintNetSwatch
+        readonly property var nameFilters: ["Text files (*.txt)"]
+
+        onTriggered: importMenuItemClicked(importPaintNetSwatchMenuItem)
     }
 
     MenuItem {
@@ -34,12 +50,20 @@ Menu {
         onTriggered: exportDialog.open()
     }
 
+    function importMenuItemClicked(menuItem) {
+        importDialog.swatchFormat = menuItem.swatchFormat
+        importDialog.nameFilters = menuItem.nameFilters
+        importDialog.open()
+    }
+
     Platform.FileDialog {
         id: importDialog
         objectName: "importSwatchDialog"
-        nameFilters: ["JSON files (*.json)"]
         defaultSuffix: "json"
-        onAccepted: project.importSwatch(file)
+
+        property int swatchFormat
+
+        onAccepted: project.importSwatch(swatchFormat, file)
     }
 
     Platform.FileDialog {
@@ -48,6 +72,7 @@ Menu {
         fileMode: Platform.FileDialog.SaveFile
         nameFilters: ["JSON files (*.json)"]
         defaultSuffix: "json"
+
         onAccepted: project.exportSwatch(file)
     }
 }

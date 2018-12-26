@@ -195,6 +195,8 @@ protected:
     Q_REQUIRED_RESULT bool loadProject(const QUrl &url, const QString &expectedFailureMessage = QString());
     Q_REQUIRED_RESULT bool updateVariables(bool isNewProject, Project::Type newProjectType);
     Q_REQUIRED_RESULT bool discardChanges();
+    Q_REQUIRED_RESULT bool verifyErrorAndDismiss(const QString &expectedErrorMessage);
+    Q_REQUIRED_RESULT bool verifyNoErrorOrDismiss();
 
     Q_REQUIRED_RESULT bool copyFileFromResourcesToTempProjectDir(const QString &baseName);
     Q_REQUIRED_RESULT bool setupTempTilesetProjectDir();
@@ -229,6 +231,7 @@ protected:
     Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
     Q_REQUIRED_RESULT bool fuzzyImageCompare(const QImage &image1, const QImage &image2);
     Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
+    Q_REQUIRED_RESULT bool compareSwatches(const Swatch &actualSwatch, const Swatch &expectedSwatch);
     Q_REQUIRED_RESULT bool enableAutoSwatch();
     Q_REQUIRED_RESULT bool swatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour);
     QQuickItem *findSwatchViewDelegateAtIndex(int index);

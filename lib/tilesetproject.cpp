@@ -184,7 +184,7 @@ void TilesetProject::doLoad(const QUrl &url)
 
     readGuides(projectObject);
     // Allow older project files without swatch support (saved with version <= 0.2.1) to still be loaded.
-    if (!readSwatch(projectObject, IgnoreSerialisationFailures))
+    if (!readJsonSwatch(projectObject, IgnoreSerialisationFailures))
         return;
     mCachedProjectJson = projectObject;
 
@@ -287,7 +287,7 @@ void TilesetProject::doSaveAs(const QUrl &url)
     projectObject.insert("tiles", tileArray);
 
     writeGuides(projectObject);
-    writeSwatch(projectObject);
+    writeJsonSwatch(projectObject);
     emit readyForWritingToJson(&projectObject);
 
     rootJson.insert("project", projectObject);

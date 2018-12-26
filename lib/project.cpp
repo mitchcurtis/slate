@@ -190,7 +190,7 @@ void Project::revert()
     qCDebug(lcProject) << "... reverted changes";
 }
 
-void Project::importSwatch(const QUrl &swatchUrl)
+void Project::importSwatch(SwatchImportFormat format, const QUrl &swatchUrl)
 {
     const QString filePath = swatchUrl.toLocalFile();
     if (!QFileInfo::exists(filePath)) {
@@ -198,15 +198,19 @@ void Project::importSwatch(const QUrl &swatchUrl)
         return;
     }
 
-    QFile jsonFile(filePath);
-    if (!jsonFile.open(QIODevice::ReadOnly)) {
+    QFile swatchFile(filePath);
+    if (!swatchFile.open(QIODevice::ReadOnly)) {
         error(QString::fromLatin1("Failed to open swatch file:\n\n%1").arg(filePath));
         return;
     }
 
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonFile.readAll());
-    QJsonObject rootJson = jsonDoc.object();
-    readSwatch(rootJson, ErrorOutOnSerialisationFailures);
+    if (format == SlateSwatch) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(swatchFile.readAll());
+        QJsonObject rootJson = jsonDoc.object();
+        readJsonSwatch(rootJson, ErrorOutOnSerialisationFailures);
+    } else if (format == PaintNetSwatch) {
+        readPaintNetSwatch(swatchFile);
+    }
 }
 
 void Project::exportSwatch(const QUrl &swatchUrl)
@@ -228,7 +232,7 @@ void Project::exportSwatch(const QUrl &swatchUrl)
     }
 
     QJsonObject rootJson;
-    writeSwatch(rootJson);
+    writeJsonSwatch(rootJson);
 
     QJsonDocument jsonDoc(rootJson);
     const qint64 bytesWritten = jsonFile.write(jsonDoc.toJson());
@@ -319,7 +323,7 @@ void Project::writeGuides(QJsonObject &projectJson) const
     projectJson[QLatin1String("guides")] = guidesArray;
 }
 
-bool Project::readSwatch(const QJsonObject &projectJson, SerialisationFailurePolicy serialisationFailurePolicy)
+bool Project::readJsonSwatch(const QJsonObject &projectJson, SerialisationFailurePolicy serialisationFailurePolicy)
 {
     Swatch swatch;
     QString errorMessage;
@@ -327,7 +331,7 @@ bool Project::readSwatch(const QJsonObject &projectJson, SerialisationFailurePol
     const QJsonObject swatchJson = projectJson[QLatin1String("swatch")].toObject();
     const bool readSuccessfully = swatch.read(swatchJson, errorMessage);
     if (!readSuccessfully && serialisationFailurePolicy == ErrorOutOnSerialisationFailures) {
-        error(QLatin1String("Failed to read swatch: ") + errorMessage);
+        error(QLatin1String("Failed to read Slate (JSON) swatch: ") + errorMessage);
         return false;
     }
 
@@ -335,11 +339,38 @@ bool Project::readSwatch(const QJsonObject &projectJson, SerialisationFailurePol
     return true;
 }
 
-void Project::writeSwatch(QJsonObject &projectJson) const
+void Project::writeJsonSwatch(QJsonObject &projectJson) const
 {
     QJsonObject swatchObject;
     mSwatch.write(swatchObject);
     projectJson[QLatin1String("swatch")] = swatchObject;
+}
+
+bool Project::readPaintNetSwatch(QFile &file)
+{
+    Swatch newSwatch;
+
+    for (int lineNumber = 1; !file.atEnd(); ++lineNumber) {
+        // Comments could conceivably contain non-latin1 characters.
+        const QString line = QString::fromUtf8(file.readLine()).trimmed();
+
+        // Ignore comments.
+        if (line.startsWith(QLatin1Char(';')))
+            continue;
+
+        const QString colourString = QLatin1Char('#') + line;
+        if (!QColor::isValidColor(colourString)) {
+            error(QString::fromLatin1("Invalid colour %1 at line %2 of paint.net swatch file %3")
+                .arg(line).arg(lineNumber).arg(file.fileName()));
+            return false;
+        }
+
+        const QColor colour(colourString);
+        newSwatch.addColour(QString(), colour);
+    }
+
+    mSwatch.copy(newSwatch);
+    return true;
 }
 
 ApplicationSettings *Project::settings() const
