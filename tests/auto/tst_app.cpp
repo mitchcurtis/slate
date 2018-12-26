@@ -108,6 +108,8 @@ private Q_SLOTS:
     void autoSwatchGridViewContentY();
     void autoSwatchPasteConfirmation();
     void swatches();
+    void importSwatches_data();
+    void importSwatches();
 
     void selectionToolImageCanvas();
     void selectionToolTileCanvas();
@@ -2649,12 +2651,85 @@ void tst_App::swatches()
     QVERIFY(project->swatch()->colours().isEmpty());
 
     // Import them.
-    project->importSwatch(swatchUrl);
+    project->importSwatch(Project::SlateSwatch, swatchUrl);
     QVERIFY(errorSpy.isEmpty());
     QVERIFY(!project->swatch()->colours().isEmpty());
     // Ensure that the user can see them too.
     QVERIFY(findSwatchViewDelegateAtIndex(0));
     QVERIFY(findSwatchViewDelegateAtIndex(project->swatch()->colours().size() - 1));
+}
+
+void tst_App::importSwatches_data()
+{
+    QTest::addColumn<Project::SwatchImportFormat>("swatchImportFormat");
+    QTest::addColumn<QString>("swatchFileName");
+    QTest::addColumn<QString>("expectedErrorMessage");
+    QTest::addColumn<Swatch*>("expectedSwatch");
+
+    Swatch *expectedSwatch = new Swatch(this);
+    expectedSwatch->addColour(QString(), QColor::fromRgba(0xAA4800FF));
+    QTest::newRow("paint.net-valid")
+        << Project::PaintNetSwatch
+        << QString::fromLatin1("palette-paint.net-valid-1.txt")
+        << QString()
+        << expectedSwatch;
+
+    expectedSwatch = nullptr;
+    QTest::newRow("paint.net-invalid")
+        << Project::PaintNetSwatch
+        << QString::fromLatin1("palette-paint.net-invalid-1.txt")
+        << QString::fromLatin1("Invalid colour ZZFFFFFF at line 3 of paint.net swatch file")
+        << expectedSwatch;
+}
+
+void tst_App::importSwatches()
+{
+    QFETCH(Project::SwatchImportFormat, swatchImportFormat);
+    QFETCH(QString, swatchFileName);
+    QFETCH(QString, expectedErrorMessage);
+    QFETCH(Swatch*, expectedSwatch);
+
+    // Don't want a bunch of swatches hanging around unnecessarily,
+    // so delete them at the end of this test.
+    QScopedPointer<Swatch> swatchGuard(expectedSwatch);
+
+    QVERIFY2(createNewLayeredImageProject(16, 16, false), failureMessage);
+
+    // Not necessary to have the colour panel visible, but helps when debugging.
+    QVERIFY2(togglePanel("colourPanel", true), failureMessage);
+    QVERIFY2(togglePanel("swatchesPanel", true), failureMessage);
+
+    // Paste an image in.
+    QImage colourfulImage(":/resources/test-colourful.png");
+    QVERIFY(!colourfulImage.isNull());
+    qGuiApp->clipboard()->setImage(colourfulImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+
+    // Select a colour from the image, adding a new swatch.
+    // We'll use this to verify that:
+    // - Failed imports don't modify the existing swatch
+    // - Successful imports replace the existing swatch
+    QVERIFY2(switchTool(ImageCanvas::EyeDropperTool), failureMessage);
+    setCursorPosInScenePixels(0, 0);
+    QVERIFY2(selectColourAtCursorPos(), failureMessage);
+    QVERIFY2(addSwatchWithForegroundColour(), failureMessage);
+
+    // Copy the files we need to our temporary directory.
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(swatchFileName), failureMessage);
+    const QString swatchFilePath = tempProjectDir->path() + "/" + swatchFileName;
+    project->importSwatch(swatchImportFormat, QUrl::fromLocalFile(swatchFilePath));
+    if (expectedErrorMessage.isEmpty()) {
+        // Valid swatch.
+        QVERIFY2(verifyNoErrorOrDismiss(), failureMessage);
+        QVERIFY2(compareSwatches(*project->swatch(), *expectedSwatch), failureMessage);
+    } else {
+        // Invalid swatch.
+        QVERIFY2(verifyErrorAndDismiss(expectedErrorMessage), failureMessage);
+        // Since it was invalid, it shouldn't affect the existing swatch.
+        QVector<SwatchColour> swatchColours = project->swatch()->colours();
+        QCOMPARE(swatchColours.size(), 1);
+        QCOMPARE(swatchColours.first().colour(), QColor::fromRgb(0xff0001));
+    }
 }
 
 struct SelectionData

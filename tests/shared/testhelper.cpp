@@ -756,6 +756,21 @@ bool TestHelper::everyPixelIs(const QImage &image, const QColor &colour)
     return true;
 }
 
+bool TestHelper::compareSwatches(const Swatch &actualSwatch, const Swatch &expectedSwatch)
+{
+    if (actualSwatch.colours() == expectedSwatch.colours())
+        return true;
+
+    QString message;
+    message = "Swatches are not equal:";
+    message += "\n  actual ";
+    QDebug(&message) << actualSwatch.colours();
+    message += "\nexpected ";
+    QDebug(&message) << expectedSwatch.colours();
+    failureMessage = qPrintable(message);
+    return false;
+}
+
 bool TestHelper::enableAutoSwatch()
 {
     // The swatches panel is hidden by default when testing; see updateVariables().
@@ -1877,6 +1892,45 @@ bool TestHelper::discardChanges()
     VERIFY(discardChangesButton);
     mouseEventOnCentre(discardChangesButton, MouseClick);
     TRY_VERIFY(!discardChangesDialog->property("visible").toBool());
+    return true;
+}
+
+bool TestHelper::verifyErrorAndDismiss(const QString &expectedErrorMessage)
+{
+    QObject *errorDialog = findPopupFromTypeName("ErrorPopup");
+    VERIFY(errorDialog);
+    TRY_VERIFY(errorDialog->property("opened").toBool());
+
+    // Save the error message so that we can dismiss the dialog beforehand.
+    // This way, if the message comparison fails, the dialog won't interfere
+    // with the next test.
+    const QString errorMessage = errorDialog->property("text").toString();
+
+    QTest::keyClick(window, Qt::Key_Escape);
+    TRY_VERIFY(!errorDialog->property("visible").toBool());
+
+    VERIFY2(errorMessage.contains(expectedErrorMessage), qPrintable(QString::fromLatin1(
+        "Error message does not contain expected error message: %1").arg(errorMessage)));
+
+    return true;
+}
+
+bool TestHelper::verifyNoErrorOrDismiss()
+{
+    QObject *errorDialog = findPopupFromTypeName("ErrorPopup");
+    if (!errorDialog)
+        return true;
+
+    const bool wasVisible = errorDialog->property("visible").toBool();
+    QString errorMessage;
+    if (wasVisible) {
+        errorMessage = errorDialog->property("text").toString();
+        // Dismissing ensures that the dialog doesn't interfere with the next test.
+        QTest::keyClick(window, Qt::Key_Escape);
+        TRY_VERIFY(!errorDialog->property("visible").toBool());
+    }
+
+    VERIFY2(!wasVisible, qPrintable(QLatin1String("Expected no error, but got: ") + errorMessage));
     return true;
 }
 

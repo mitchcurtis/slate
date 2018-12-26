@@ -116,6 +116,13 @@ public:
 
     QJsonObject *cachedProjectJson();
 
+    enum SwatchImportFormat {
+        SlateSwatch,
+        PaintNetSwatch
+    };
+
+    Q_ENUM(SwatchImportFormat)
+
 signals:
     void projectCreated();
     void projectLoaded();
@@ -140,7 +147,7 @@ public slots:
     void saveAs(const QUrl &url);
     virtual void revert();
 
-    void importSwatch(const QUrl &swatchUrl);
+    void importSwatch(SwatchImportFormat format, const QUrl &swatchUrl);
     void exportSwatch(const QUrl &swatchUrl);
 
 protected:
@@ -162,8 +169,10 @@ protected:
         ErrorOutOnSerialisationFailures
     };
 
-    bool readSwatch(const QJsonObject &projectJson, SerialisationFailurePolicy serialisationFailurePolicy);
-    void writeSwatch(QJsonObject &projectJson) const;
+    bool readJsonSwatch(const QJsonObject &projectJson, SerialisationFailurePolicy serialisationFailurePolicy);
+    void writeJsonSwatch(QJsonObject &projectJson) const;
+
+    bool readPaintNetSwatch(QFile &file);
 
     ApplicationSettings *mSettings;
 

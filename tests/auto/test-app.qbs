@@ -51,7 +51,7 @@ QtGuiApplication {
         "tst_app.cpp",
         "../shared/testhelper.h",
         "../shared/testhelper.cpp",
-        "../shared/testutils.h"
+        "../shared/testutils.h",
     ]
 
     AppQmlFiles {}
