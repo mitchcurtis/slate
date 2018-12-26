@@ -103,8 +103,13 @@ ImageCanvas::ImageCanvas() :
     mBrushType(Brush::SquareType),
     mToolBlendMode(ReplaceToolBlendMode),
     mLastFillToolUsed(FillTool),
-    mLowerToolSize(1), mUpperToolSize(1), mMaxToolSize(100), mToolSizeUsePressure(false),
-    mLowerToolOpacity(0.0), mUpperToolOpacity(1.0), mToolOpacityUsePressure(false),
+    mLowerToolSize(1),
+    mUpperToolSize(1),
+    mMaxToolSize(100),
+    mToolSizeUsePressure(false),
+    mLowerToolOpacity(0.0),
+    mUpperToolOpacity(1.0),
+    mToolOpacityUsePressure(false),
     mPenForegroundColour(Qt::black),
     mPenBackgroundColour(Qt::white),
     mBrush(),
@@ -571,7 +576,8 @@ int ImageCanvas::maxToolSize() const
     return mMaxToolSize;
 }
 
-bool ImageCanvas::toolSizeUsePressure() const {
+bool ImageCanvas::toolSizeUsePressure() const
+{
     return mToolSizeUsePressure;
 }
 
@@ -2160,8 +2166,8 @@ QImage ImageCanvas::greedyTexturedFillPixels() const
 QPainter::CompositionMode ImageCanvas::qPainterBlendMode() const
 {
     static const QMap<ToolBlendMode, QPainter::CompositionMode> mapping{
-        {BlendToolBlendMode, QPainter::CompositionMode_SourceOver},
-        {ReplaceToolBlendMode, QPainter::CompositionMode_Source},
+        { BlendToolBlendMode, QPainter::CompositionMode_SourceOver },
+        { ReplaceToolBlendMode, QPainter::CompositionMode_Source },
     };
     return mapping[mToolBlendMode];
 }
@@ -2188,7 +2194,8 @@ void ImageCanvas::applyCurrentTool(QUndoStack *const alternateStack)
     }
     case EyeDropperTool: {
         const QColor pickedColour = pickColour(mNewStroke.last().pos);
-        if (pickedColour.isValid()) setPenColour(pickedColour);
+        if (pickedColour.isValid())
+            setPenColour(pickedColour);
         break;
     }
     case EraserTool: {
@@ -2309,10 +2316,8 @@ void ImageCanvas::markBrushDirty()
 const Brush &ImageCanvas::brush()
 {
     if (mBrushDirty) {
-        if (mBrushType == Brush::ImageType) {
-
-        }
-        else {
+        // Create new brush if not image brush
+        if (mBrushType != Brush::ImageType) {
             mBrush = Brush(mBrushType, {mUpperToolSize, mUpperToolSize});
         }
         mBrushDirty = false;

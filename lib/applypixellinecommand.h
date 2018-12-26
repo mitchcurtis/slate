@@ -65,7 +65,7 @@ private:
 
     const QUndoCommand *mPreviousCommand;
 
-    bool needDraw;
+    bool mNeedDraw;
 };
 
 

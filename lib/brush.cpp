@@ -9,8 +9,7 @@ Brush::Brush(const Brush::Type type, const QSize &size, const QPointF handle, co
 {
     if (type == ImageType) {
         pixmap = QPixmap::fromImage(QImage(size, QImage::Format_ARGB32));
-    }
-    else {
+    } else {
         QImage image = QImage(size, QImage::Format_ARGB32);
         image.fill(qRgba(0, 0, 0, 0));
         const QRgb colour = qRgba(255, 255, 255, 255);
@@ -24,6 +23,43 @@ Brush::Brush(const Brush::Type type, const QSize &size, const QPointF handle, co
     }
 }
 
+Brush::Brush(const QImage &image, const QPointF handle, const bool relativeHandle) :
+    Brush(ImageType, image.size(), handle, relativeHandle)
+{
+    pixmap = QPixmap::fromImage(image);
+}
+
+bool Brush::operator==(const Brush &other) const
+{
+    return type == other.type && size == other.size && pixmap.toImage() == other.pixmap.toImage() && handle == other.handle;
+}
+
+bool Brush::operator!=(const Brush &other) const
+{
+    return !(*this == other);
+}
+
+Brush &Brush::operator=(const Brush &other)
+{
+    type = other.type;
+    size = other.size;
+    pixmap = other.pixmap;
+    handle = other.handle;
+    return *this;
+}
+
+QTransform Brush::transform() const
+{
+    QTransform transform;
+    transform.translate(-handle.x(), -handle.y());
+    return transform;
+}
+
+QRectF Brush::bounds(const qreal scale) const
+{
+    return QRectF(-handle * scale, size * scale);
+}
+
 inline void Brush::drawPixel(QImage &image, const QRect &clip, const QPoint point, const QRgb colour)
 {
     Q_ASSERT(image.format() == QImage::Format_ARGB32);
@@ -33,7 +69,8 @@ inline void Brush::drawPixel(QImage &image, const QRect &clip, const QPoint poin
         *(reinterpret_cast<QRgb *>(image.scanLine(point.y())) + point.x()) = colour;
 }
 
-inline void Brush::drawSpan(QImage &image, const QRect &clip, const int x0, const int x1, const int y, const QRgb colour) {
+inline void Brush::drawSpan(QImage &image, const QRect &clip, const int x0, const int x1, const int y, const QRgb colour)
+{
     Q_ASSERT(image.format() == QImage::Format_ARGB32);
 
     const QRect clipped = clip & image.rect();
@@ -83,8 +120,7 @@ void Brush::draw(QPainter *const painter, const QPointF &point, const QColor &co
         painter->setPen(colour);
         painter->setBackgroundMode(Qt::TransparentMode);
         painter->drawPixmap(point, pixmap);
-    }
-    else {
+    } else {
         painter->drawPixmap(point, pixmap);
     }
     painter->restore();

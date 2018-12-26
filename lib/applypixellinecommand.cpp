@@ -38,7 +38,7 @@ ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *const canvas, const in
     mCompositionMode(compositionMode),
     mStroke(stroke), mStrokeUpdateStartIndex(0),
     mBufferRegion(), mUndoBuffer(), mRedoBuffer(), mBufferBounds(),
-    mPreviousCommand(previousCommand), needDraw(true)
+    mPreviousCommand(previousCommand), mNeedDraw(true)
 {
     qCDebug(lcApplyPixelLineCommand) << "constructed" << this;
 }
@@ -73,7 +73,7 @@ void ApplyPixelLineCommand::redo()
     }
 
     // First "redo" so draw and store undo/redo buffers
-    if (needDraw) {
+    if (mNeedDraw) {
         // Find intersections of subimages with draw area
         QMap<int, QRegion> subImageRegions;
         QRect mDrawBounds = ImageCanvas::Stroke(mStroke.mid(mStrokeUpdateStartIndex)).bounds(mBrush, mScaleMin, mScaleMax);
@@ -159,7 +159,7 @@ void ApplyPixelLineCommand::redo()
             painter.end();
         }
 
-        needDraw = false;
+        mNeedDraw = false;
     }
 
     // Otherwise copy image from redo buffer
@@ -182,7 +182,8 @@ int ApplyPixelLineCommand::id() const
 bool ApplyPixelLineCommand::mergeWith(const QUndoCommand *const command)
 {
     const ApplyPixelLineCommand *const newCommand = dynamic_cast<const ApplyPixelLineCommand *const>(command);
-    if (!newCommand || !newCommand->canMerge(this)) return false;
+    if (!newCommand || !newCommand->canMerge(this))
+        return false;
 
     // Merge new stroke with old stroke
     mStrokeUpdateStartIndex = mStroke.length() - 1;
@@ -190,7 +191,7 @@ bool ApplyPixelLineCommand::mergeWith(const QUndoCommand *const command)
 
     // Draw merged stroke
     mPreviousCommand = nullptr;
-    needDraw = true;
+    mNeedDraw = true;
     redo();
 
     return true;
@@ -198,11 +199,13 @@ bool ApplyPixelLineCommand::mergeWith(const QUndoCommand *const command)
 
 bool ApplyPixelLineCommand::canMerge(const QUndoCommand *const command) const
 {
-    if (!mPreviousCommand || !command || command->id() != id()) return false;
+    if (!mPreviousCommand || !command || command->id() != id())
+        return false;
     const ApplyPixelLineCommand *mergeCommand = static_cast<const ApplyPixelLineCommand*>(command);
     if (mCanvas != mergeCommand->mCanvas || mLayerIndex != mergeCommand->mLayerIndex ||
         mBrush != mergeCommand->mBrush || mColour != mergeCommand->mColour ||
-        mStroke.first() != mergeCommand->mStroke.last()) return false;
+        mStroke.first() != mergeCommand->mStroke.last())
+        return false;
 
     return true;
 }

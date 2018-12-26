@@ -25,35 +25,15 @@ public:
     Brush() : type(), size(), pixmap(), handle() {}
     Brush(const Brush &other) : type(other.type), size(other.size), pixmap(other.pixmap), handle(other.handle) {}
     Brush(const Type type, const QSize &size, const QPointF handle = {0.5, 0.5}, const bool relativeHandle = true);
-    Brush(const QImage &image, const QPointF handle = {0.5, 0.5}, const bool relativeHandle = true) :
-        Brush(ImageType, image.size(), handle, relativeHandle)
-    {
-        pixmap = QPixmap::fromImage(image);
-    }
+    Brush(const QImage &image, const QPointF handle = {0.5, 0.5}, const bool relativeHandle = true);
 
-    bool operator==(const Brush &other) const {
-        return type == other.type && size == other.size && pixmap.toImage() == other.pixmap.toImage() && handle == other.handle;
-    }
-    bool operator!=(const Brush &other) const {
-        return !(*this == other);
-    }
-    Brush &operator=(const Brush &other) {
-        type = other.type;
-        size = other.size;
-        pixmap = other.pixmap;
-        handle = other.handle;
-        return *this;
-    }
+    bool operator==(const Brush &other) const;
+    bool operator!=(const Brush &other) const;
+    Brush &operator=(const Brush &other);
 
-    QTransform transform() const {
-        QTransform transform;
-        transform.translate(-handle.x(), -handle.y());
-        return transform;
-    }
+    QTransform transform() const;
 
-    QRectF bounds(const qreal scale) const {
-        return QRectF(-handle * scale, size * scale);
-    }
+    QRectF bounds(const qreal scale) const;
 
     static void drawPixel(QImage &image, const QRect &clip, const QPoint point, const QRgb colour);
     static void drawSpan(QImage &image, const QRect &clip, const int x0, const int x1, const int y, const QRgb colour);
