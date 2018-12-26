@@ -55,9 +55,9 @@ QTransform Brush::transform() const
     return transform;
 }
 
-QRectF Brush::bounds(const qreal scale) const
+QRectF Brush::bounds(const QPointF pos, const qreal scale, const qreal rotation) const
 {
-    return QRectF(-handle * scale, size * scale);
+    return QRectF(-handle * scale, size * scale).translated(pos);
 }
 
 inline void Brush::drawPixel(QImage &image, const QRect &clip, const QPoint point, const QRgb colour)

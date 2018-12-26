@@ -9,20 +9,12 @@
 #include "brush.h"
 
 struct StrokePoint {
-    bool operator==(const StrokePoint &other) const {
-        return pos == other.pos && qFuzzyCompare(pressure, other.pressure);
-    }
-    bool operator!=(const StrokePoint &other) const {
-        return !(*this == other);
-    }
+    bool operator==(const StrokePoint &other) const;
+    bool operator!=(const StrokePoint &other) const;
 
-    StrokePoint snapped(const QPointF snapOffset = {0.0, 0.0}) const {
-        return StrokePoint{{qRound(pos.x() + snapOffset.x()) - snapOffset.x(), qRound(pos.y() + snapOffset.y()) - snapOffset.y()}, pressure};
-    }
+    StrokePoint snapped(const QPointF snapOffset = {0.0, 0.0}) const;
 
-    QPoint pixel() const {
-        return QPoint{qFloor(pos.x()), qFloor(pos.y())};
-    }
+    QPoint pixel() const;
 
     QPointF pos;
     qreal pressure;
@@ -39,22 +31,13 @@ public:
     using QVector::QVector;
     Stroke(const QVector<StrokePoint> &vector) : QVector<StrokePoint>(vector) {}
 
-    static qreal strokeSegment(QPainter *const painter, const Brush &brush, const QColor &colour, const StrokePoint &point0, const StrokePoint &point1, const qreal scaleMin, const qreal scaleMax, const qreal stepOffset = 0.0);
+    static qreal strokeSegment(QPainter *const painter, const Brush &brush, const QColor &colour, const StrokePoint &point0, const StrokePoint &point1, const qreal scaleMin, const qreal scaleMax, const qreal stepOffset = 0.0, const bool stepOffsetOnly = false);
 
-    StrokePoint snapped(const int index, const QPointF snapOffset = {0.0, 0.0}, const bool snapToPixel = true) {
-        if (!snapToPixel) return at(index);
-        else return at(index).snapped(snapOffset);
-    }
+    StrokePoint snapped(const int index, const QPointF snapOffset = {0.0, 0.0}, const bool snapToPixel = true);
 
     void draw(QPainter *const painter, const Brush &brush, const qreal scaleMin, const qreal scaleMax, const QColor &colour, const QPainter::CompositionMode mode, const bool snapToPixel = false);
 
-    QRect bounds(const Brush &brush, const qreal scaleMin, const qreal scaleMax) {
-        QRectF bounds;
-        for (auto point : *this) {
-            bounds = bounds.united(brush.bounds(scaleMin + point.pressure * (scaleMax - scaleMin)).translated(point.pos));
-        }
-        return bounds.toAlignedRect();
-    }
+    QRect bounds(const Brush &brush, const qreal scaleMin, const qreal scaleMax);
 };
 
 #endif // STROKE_H

@@ -33,7 +33,7 @@ public:
 
     QTransform transform() const;
 
-    QRectF bounds(const qreal scale) const;
+    QRectF bounds(const QPointF pos = {0.0, 0.0}, const qreal scale = 1.0, const qreal rotation = 0.0) const;
 
     static void drawPixel(QImage &image, const QRect &clip, const QPoint point, const QRgb colour);
     static void drawSpan(QImage &image, const QRect &clip, const int x0, const int x1, const int y, const QRgb colour);

@@ -599,7 +599,7 @@ void ImageCanvas::setToolSizeUsePressure(bool toolSizeUsePressure)
 
 QRectF ImageCanvas::brushRect()
 {
-    return mBrush.bounds(1.0);
+    return mBrush.bounds();
 }
 
 qreal ImageCanvas::lowerToolOpacity() const
