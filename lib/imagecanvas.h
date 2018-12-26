@@ -536,7 +536,7 @@ protected:
     void doFlipSelection(int layerIndex, const QRect &area, Qt::Orientation orientation);
     QRect doRotateSelection(int layerIndex, const QRect &area, int angle);
 
-    void markBrushDirty();
+    void updateBrush();
     const Brush &brush();
     qreal pressure() const;
 
@@ -721,7 +721,6 @@ protected:
     QColor mPenForegroundColour;
     QColor mPenBackgroundColour;
     Brush mBrush;
-    bool mBrushDirty;
 
     TexturedFillParameters mTexturedFillParameters;
 

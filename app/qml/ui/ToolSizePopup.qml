@@ -15,51 +15,68 @@ Popup {
     contentItem: ColumnLayout {
 
         RowLayout {
+
             Slider {
-                id: toolSizeSlider
+                id: lowerToolSizeSlider
                 objectName: "toolSizeSlider"
-                from: 1
+                from: 0
                 to: canvas ? canvas.maxToolSize : 1
                 stepSize: 1
-                visible: canvas && canvas.toolSizeUsePressure == false
+                visible: canvas && canvas.toolSizeUsePressure
                 Layout.fillWidth: true
-
-                onValueChanged: if (canvas) canvas.upperToolSize = value
+                value: canvas ? canvas.lowerToolSize : 1
 
                 Binding {
-                    target: toolSizeSlider
-                    property: "value"
-                    value: canvas ? canvas.upperToolSize : 1
+                    target: canvas
+                    property: "lowerToolSize"
+                    value: lowerToolSizeSlider.value
                     when: canvas
                 }
             }
 
-            RangeSlider {
+            Slider {
+                id: upperToolSizeSlider
+                objectName: "upperToolSizeSlider"
+                from: 1
+                to: canvas ? canvas.maxToolSize : 1
+                stepSize: 1
+                Layout.fillWidth: true
+                value: canvas ? canvas.upperToolSize : 1
+
+                Binding {
+                    target: canvas
+                    property: "upperToolSize"
+                    value: upperToolSizeSlider.value
+                    when: canvas
+                }
+            }
+
+            // Why causing binding loop?
+            /*RangeSlider {
                 id: toolSizeRangeSlider
                 objectName: "toolSizeRangeSlider"
-                from: 1
+                from: 0
                 to: canvas ? canvas.maxToolSize : 1
                 stepSize: 1
-                visible: canvas && canvas.toolSizeUsePressure == true
+                visible: canvas && canvas.toolSizeUsePressure
                 Layout.fillWidth: true
-
-                first.onValueChanged: if (canvas) canvas.lowerToolSize = first.value
-                second.onValueChanged: if (canvas) canvas.upperToolSize = second.value
+                first.value: canvas ? canvas.lowerToolSize : 1
+                second.value: canvas ? canvas.upperToolSize : 1
 
                 Binding {
-                    target: toolSizeRangeSlider
-                    property: "first.value"
-                    value: canvas ? canvas.lowerToolSize : 1
+                    target: canvas
+                    property: "lowerToolSize"
+                    value: toolSizeRangeSlider.first.value
                     when: canvas
                 }
 
                 Binding {
-                    target: toolSizeRangeSlider
-                    property: "second.value"
-                    value: canvas ? canvas.upperToolSize : 1
+                    target: canvas
+                    property: "upperToolSize"
+                    value: toolSizeRangeSlider.second.value
                     when: canvas
                 }
-            }
+            }*/
 
             Ui.IconToolButton {
                 objectName: "usePressureButton"
@@ -79,29 +96,42 @@ Popup {
 
         RowLayout {
             SpinBox {
+                id: lowerToolSizeSpinBox
                 editable: true
-                from: 1
+                from: 0
                 to: canvas ? canvas.maxToolSize : 1
                 stepSize: 1
                 visible: canvas && canvas.toolSizeUsePressure == true
                 Layout.fillWidth: true
-
                 value: canvas ? canvas.lowerToolSize : 1
-                onValueChanged: if (canvas) canvas.lowerToolSize = value
+
+                Binding {
+                    target: canvas
+                    property: "lowerToolSize"
+                    value: lowerToolSizeSpinBox.value
+                    when: canvas
+                }
 
                 ToolTip.text: qsTr("Lower tool size")
                 ToolTip.visible: hovered
             }
 
+
             SpinBox {
+                id: upperToolSizeSpinBox
                 editable: true
                 from: 1
                 to: canvas ? canvas.maxToolSize : 1
                 stepSize: 1
                 Layout.fillWidth: true
-
                 value: canvas ? canvas.upperToolSize : 1
-                onValueChanged: if (canvas) canvas.upperToolSize = value
+
+                Binding {
+                    target: canvas
+                    property: "upperToolSize"
+                    value: upperToolSizeSpinBox.value
+                    when: canvas
+                }
 
                 ToolTip.text: canvas && canvas.toolSizeUsePressure ? qsTr("Upper tool size") : qsTr("Tool size")
                 ToolTip.visible: hovered
