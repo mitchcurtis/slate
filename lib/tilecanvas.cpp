@@ -249,6 +249,7 @@ bool TileCanvas::supportsSelectionTool() const
 }
 
 QImage TileCanvas::getComposedImage()
+{
     const QSize size(mTilesetProject->tilesWide() * mTilesetProject->tileWidth(), mTilesetProject->tilesHigh() * mTilesetProject->tileHeight());
     QImage image(size,  QImage::Format_ARGB32);
     image.fill(qRgba(0, 0, 0, 0));
@@ -267,12 +268,6 @@ QImage TileCanvas::getComposedImage()
     }
 
     return image;
-}
-
-void TileCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
-{
-    QQuickItem::geometryChanged(newGeometry, oldGeometry);
-    centrePanes();
 }
 
 TileCanvas::PixelCandidateData TileCanvas::fillPixelCandidates() const
