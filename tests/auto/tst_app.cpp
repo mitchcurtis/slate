@@ -2670,14 +2670,14 @@ void tst_App::importSwatches_data()
     expectedSwatch->addColour(QString(), QColor::fromRgba(0xAA4800FF));
     QTest::newRow("paint.net-valid")
         << Project::PaintNetSwatch
-        << QString::fromLatin1("palette-paint.net-valid-1.txt")
+        << QString::fromLatin1("swatch-paint.net-valid-1.txt")
         << QString()
         << expectedSwatch;
 
     expectedSwatch = nullptr;
     QTest::newRow("paint.net-invalid")
         << Project::PaintNetSwatch
-        << QString::fromLatin1("palette-paint.net-invalid-1.txt")
+        << QString::fromLatin1("swatch-paint.net-invalid-1.txt")
         << QString::fromLatin1("Invalid colour ZZFFFFFF at line 3 of paint.net swatch file")
         << expectedSwatch;
 }

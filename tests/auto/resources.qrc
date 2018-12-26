@@ -26,7 +26,7 @@
         <file>resources/test-colourful.png</file>
         <file>resources/version-check-v0.2.1.slp</file>
         <file>resources/version-check-v0.2.1.stp</file>
-        <file>resources/palette-paint.net-invalid-1.txt</file>
-        <file>resources/palette-paint.net-valid-1.txt</file>
+        <file>resources/swatch-paint.net-invalid-1.txt</file>
+        <file>resources/swatch-paint.net-valid-1.txt</file>
     </qresource>
 </RCC>
