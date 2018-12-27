@@ -276,13 +276,13 @@ Item {
     Shortcut {
         objectName: "decreaseToolSizeShortcut"
         sequence: settings.decreaseToolSizeShortcut
-        onActivated: --canvas.toolSize
+        onActivated: --canvas.upperToolSize
     }
 
     Shortcut {
         objectName: "increaseToolSizeShortcut"
         sequence: settings.increaseToolSizeShortcut
-        onActivated: ++canvas.toolSize
+        onActivated: ++canvas.upperToolSize
     }
 
     Shortcut {

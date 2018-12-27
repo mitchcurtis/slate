@@ -30,6 +30,7 @@
 #include <QUndoStack>
 #include <QWheelEvent>
 #include <QPainter>
+#include <QtMath>
 
 #include "canvaspane.h"
 #include "ruler.h"
@@ -37,6 +38,8 @@
 #include "slate-global.h"
 #include "splitter.h"
 #include "texturedfillparameters.h"
+#include "brush.h"
+#include "stroke.h"
 
 Q_DECLARE_LOGGING_CATEGORY(lcImageCanvas)
 Q_DECLARE_LOGGING_CATEGORY(lcImageCanvasLifecycle)
@@ -80,9 +83,16 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool containsMouse READ containsMouse NOTIFY containsMouseChanged)
     Q_PROPERTY(Tool tool READ tool WRITE setTool NOTIFY toolChanged)
     Q_PROPERTY(Tool lastFillToolUsed READ lastFillToolUsed NOTIFY lastFillToolUsedChanged)
-    Q_PROPERTY(int toolSize READ toolSize WRITE setToolSize NOTIFY toolSizeChanged)
+    Q_PROPERTY(int lowerToolSize READ lowerToolSize WRITE setLowerToolSize NOTIFY lowerToolSizeChanged)
+    Q_PROPERTY(int upperToolSize READ upperToolSize WRITE setUpperToolSize NOTIFY upperToolSizeChanged)
     Q_PROPERTY(int maxToolSize READ maxToolSize CONSTANT)
-    Q_PROPERTY(ToolShape toolShape READ toolShape WRITE setToolShape NOTIFY toolShapeChanged)
+    Q_PROPERTY(QRectF brushRect READ brushRect NOTIFY brushRectChanged)
+    Q_PROPERTY(bool toolSizeUsePressure READ toolSizeUsePressure WRITE setToolSizeUsePressure NOTIFY toolSizeUsePressureChanged)
+    Q_PROPERTY(qreal lowerToolOpacity READ lowerToolOpacity WRITE setLowerToolOpacity NOTIFY lowerToolOpacityChanged)
+    Q_PROPERTY(qreal upperToolOpacity READ upperToolOpacity WRITE setUpperToolOpacity NOTIFY upperToolOpacityChanged)
+    Q_PROPERTY(bool toolOpacityUsePressure READ toolOpacityUsePressure WRITE setToolOpacityUsePressure NOTIFY toolOpacityUsePressureChanged)
+    Q_PROPERTY(Brush::Type brushType READ brushType WRITE setBrushType NOTIFY brushTypeChanged)
+    Q_PROPERTY(ToolBlendMode toolBlendMode READ toolBlendMode WRITE setToolBlendMode NOTIFY toolBlendModeChanged)
     Q_PROPERTY(QColor penForegroundColour READ penForegroundColour WRITE setPenForegroundColour NOTIFY penForegroundColourChanged)
     Q_PROPERTY(QColor penBackgroundColour READ penBackgroundColour WRITE setPenBackgroundColour NOTIFY penBackgroundColourChanged)
     Q_PROPERTY(TexturedFillParameters *texturedFillParameters READ texturedFillParameters CONSTANT FINAL)
@@ -109,14 +119,16 @@ public:
     };
     Q_ENUM(Tool)
 
-    enum ToolShape {
-        SquareToolShape,
-        CircleToolShape,
+    enum ToolBlendMode {
+        BlendToolBlendMode,
+        ReplaceToolBlendMode,
     };
-    Q_ENUM(ToolShape)
+    Q_ENUM(ToolBlendMode)
 
     ImageCanvas();
     ~ImageCanvas() override;
+
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
     Project *project() const;
     void setProject(Project *project);
@@ -204,14 +216,30 @@ public:
     Tool tool() const;
     void setTool(const Tool &tool);
 
-    ToolShape toolShape() const;
-    void setToolShape(const ToolShape &toolShape);
+    Brush::Type brushType() const;
+    void setBrushType(const Brush::Type &brushType);
+
+    ToolBlendMode toolBlendMode() const;
+    void setToolBlendMode(const ToolBlendMode &toolBlendMode);
 
     Tool lastFillToolUsed() const;
 
-    int toolSize() const;
-    void setToolSize(int toolSize);
+    int lowerToolSize() const;
+    void setLowerToolSize(int lowerToolSize);
+    int upperToolSize() const;
+    void setUpperToolSize(int upperToolSize);
     int maxToolSize() const;
+    bool toolSizeUsePressure() const;
+    void setToolSizeUsePressure(bool toolSizeUsePressure);
+
+    QRectF brushRect();
+
+    qreal lowerToolOpacity() const;
+    void setLowerToolOpacity(qreal lowerToolOpacity);
+    qreal upperToolOpacity() const;
+    void setUpperToolOpacity(qreal upperToolOpacity);
+    bool toolOpacityUsePressure() const;
+    void setToolOpacityUsePressure(bool toolOpacityUsePressure);
 
     QColor penForegroundColour() const;
     void setPenForegroundColour(const QColor &penForegroundColour);
@@ -239,14 +267,33 @@ public:
 
     struct SubImage {
         bool operator==(const SubImage &other) const {
-            return bounds == other.bounds && offset == other.offset;
+            return imageIndex == other.imageIndex && bounds == other.bounds && origin == other.origin;
         }
 
+        // Index of master image
+        int imageIndex;
+        // Image-space bounds
         QRect bounds;
-        QPoint offset;
+        // Local-space origin
+        QPoint origin;
     };
 
-    virtual QList<SubImage> subImagesInBounds(const QRect &bounds) const;
+    virtual SubImage getSubImage(const int index) const;
+
+    struct SubImageInstance {
+        bool operator==(const SubImageInstance &other) const {
+            return index == other.index && position == other.position;
+        }
+
+        // Index of master subimage
+        int index;
+        // Scene-space position
+        QPoint position;
+        // Other transform?
+    };
+
+    virtual QList<SubImageInstance> subImageInstancesInBounds(const QRect &bounds) const;
+    QColor pickColour(const QPointF point) const;
 
     // Essentially currentProjectImage() for regular image canvas, but may return a
     // preview image if there is a selection active. For layered image canvases, this
@@ -268,6 +315,7 @@ public:
     virtual const QImage *currentProjectImage() const;
 
     virtual QImage *imageForLayerAt(int layerIndex);
+    virtual const QImage *imageForLayerAt(int layerIndex) const;
     virtual int currentLayerIndex() const;
 
     enum SelectionModification {
@@ -313,9 +361,16 @@ signals:
 //    void rulerForegroundColourChanged();
 //    void rulerBackgroundColourChanged();
     void toolChanged();
-    void toolShapeChanged();
+    void brushTypeChanged();
+    void toolBlendModeChanged();
     void lastFillToolUsedChanged();
-    void toolSizeChanged();
+    void lowerToolSizeChanged();
+    void upperToolSizeChanged();
+    void brushRectChanged();
+    void toolSizeUsePressureChanged();
+    void lowerToolOpacityChanged();
+    void upperToolOpacityChanged();
+    void toolOpacityUsePressureChanged();
     void penForegroundColourChanged();
     void penBackgroundColourChanged();
     void hasBlankCursorChanged();
@@ -350,6 +405,7 @@ public slots:
     void paste();
     void deleteSelectionOrContents();
     void selectAll();
+    void brushFromSelection();
 
     void cycleFillTools();
 
@@ -394,15 +450,14 @@ protected:
         QVector<QPoint> scenePositions;
         QVector<QColor> previousColours;
     };
-    virtual PixelCandidateData penEraserPixelCandidates(Tool tool) const;
     QImage fillPixels() const;
     QImage greedyFillPixels() const;
     QImage texturedFillPixels() const;
     QImage greedyTexturedFillPixels() const;
 
-    virtual void applyCurrentTool();
+    QPainter::CompositionMode qPainterBlendMode() const;
+    virtual void applyCurrentTool(QUndoStack *const alternateStack = nullptr);
     virtual void applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false);
-    virtual void applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition);
     void paintImageOntoPortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage);
     void replacePortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage);
     void erasePortionOfImage(int layerIndex, const QRect &portion);
@@ -410,9 +465,9 @@ protected:
     void doFlipSelection(int layerIndex, const QRect &area, Qt::Orientation orientation);
     QRect doRotateSelection(int layerIndex, const QRect &area, int angle);
 
-    QPointF linePoint1() const;
-    QPointF linePoint2() const;
-    QRect normalisedLineRect(const QPointF point1, const QPointF point2) const;
+    void updateBrush();
+    const Brush &brush();
+    qreal pressure() const;
 
     virtual void updateCursorPos(const QPoint &eventPos);
     void updateVisibleSceneArea();
@@ -432,8 +487,8 @@ protected:
     void setCurrentPane(CanvasPane *pane);
     CanvasPane *hoveredPane(const QPoint &pos);
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
+    virtual QImage getComposedImage();
     virtual QImage getContentImage();
-    void drawLine(QPainter *painter, QPointF point1, QPointF point2, const QPainter::CompositionMode mode) const;
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,
@@ -508,6 +563,9 @@ protected:
     void focusInEvent(QFocusEvent *event) override;
     void focusOutEvent(QFocusEvent *event) override;
     void timerEvent(QTimerEvent *event) override;
+    void tabletEvent(QTabletEvent *event);
+
+    void updateWindow(QQuickWindow *const window);
 
     Project *mProject;
 
@@ -569,7 +627,8 @@ protected:
     // The position at which the mouse is currently pressed.
     QPoint mPressPosition;
     QPoint mPressScenePosition;
-    QPointF mPressScenePositionF;
+    bool mToolContinue;
+    Stroke mOldStroke, mNewStroke;
     // The scene position at which the mouse was pressed before the most-recent press.
     QPoint mCurrentPaneOffsetBeforePress;
     QRect mFirstPaneVisibleSceneArea;
@@ -577,13 +636,20 @@ protected:
     bool mScrollZoom;
     bool mGesturesEnabled;
 
+    qreal mTabletPressure;
+    bool mIsTabletEvent;
     Tool mTool;
-    ToolShape mToolShape;
+    Brush::Type mBrushType;
+    ToolBlendMode mToolBlendMode;
     Tool mLastFillToolUsed;
-    int mToolSize;
+    int mLowerToolSize, mUpperToolSize;
     int mMaxToolSize;
+    bool mToolSizeUsePressure;
+    qreal mLowerToolOpacity, mUpperToolOpacity;
+    bool mToolOpacityUsePressure;
     QColor mPenForegroundColour;
     QColor mPenBackgroundColour;
+    Brush mBrush;
 
     TexturedFillParameters mTexturedFillParameters;
 
@@ -592,9 +658,6 @@ protected:
     // It is set by the pixel tool as the last pixel in the command,
     // and by the pixel line tool command.
     QPoint mLastPixelPenPressScenePosition;
-    QPointF mLastPixelPenPressScenePositionF;
-    // An image as large as the rectangle that contains the line that is being previewed.
-    QImage mLinePreviewImage;
 
     bool mPotentiallySelecting;
     bool mHasSelection;
@@ -630,17 +693,27 @@ protected:
     bool mShiftPressed;
     Tool mToolBeforeAltPressed;
     bool mSpacePressed;
-    bool mHasBlankCursor;
+    bool mHasBlankCursor;    
+
+    QQuickWindow *mWindow;
 };
 
-inline uint qHash(const ImageCanvas::SubImage &key, const uint seed = 0) {
-    return qHashBits(&key, sizeof(ImageCanvas::SubImage), seed);
+inline uint qHash(const ImageCanvas::SubImageInstance &key, const uint seed = 0) {
+    return qHashBits(&key, sizeof(ImageCanvas::SubImageInstance), seed);
 }
 
 inline QDebug operator<<(QDebug debug, const ImageCanvas::SubImage &subImage)
 {
     QDebugStateSaver saver(debug);
-    debug.nospace() << "SubImage(" << subImage.bounds << ", " << subImage.offset << ')';
+    debug.nospace() << "SubImage(" << subImage.imageIndex << ", " << subImage.bounds << ", " << subImage.origin << ')';
+
+    return debug;
+}
+
+inline QDebug operator<<(QDebug debug, const ImageCanvas::SubImageInstance &subImageInstance)
+{
+    QDebugStateSaver saver(debug);
+    debug.nospace() << "SubImageInstance(" << subImageInstance.index << ", " << subImageInstance.position << ')';
 
     return debug;
 }

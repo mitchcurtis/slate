@@ -58,11 +58,11 @@ Item {
 
     RectangularCursor {
         id: rectangleCursor
-        x: canvas ? Math.floor(canvas.cursorX - width / 2) : 0
-        y: canvas ? Math.floor(canvas.cursorY - height / 2) : 0
+        x: canvas ? Math.floor(canvas.cursorX + canvas.brushRect.x * canvas.currentPaneZoomLevel) : 0
+        y: canvas ? Math.floor(canvas.cursorY + canvas.brushRect.y * canvas.currentPaneZoomLevel) : 0
         z: 1
-        width: canvas ? canvas.toolSize * canvas.currentPaneZoomLevel : 0
-        height: canvas ? canvas.toolSize * canvas.currentPaneZoomLevel : 0
+        width: canvas ? canvas.brushRect.width * canvas.currentPaneZoomLevel : 0
+        height: canvas ? canvas.brushRect.height * canvas.currentPaneZoomLevel : 0
         visible: canvas && canvas.hasBlankCursor && !canvas.useIconCursor && !canvas.useCrosshairCursor
     }
 

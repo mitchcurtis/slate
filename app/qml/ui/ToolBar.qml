@@ -1,5 +1,5 @@
 import QtQuick 2.6
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.4
 import QtQuick.Window 2.2
 
 import App 1.0
@@ -198,7 +198,7 @@ ToolBar {
                     qsTr("Fill a contiguous area with %1pixels.\nHold Shift to fill all pixels matching the target colour.")
                         .arg(!regularFill ? "semi-randomised" : "")
 
-                icon.source: regularFill ? "qrc:/images/fill.png" : "qrc:/images/textured-fill.png"
+                icon.source: fillToolGroup.checkedAction.icon.source
 
                 ToolTip.text: isTilesetProject ? qsTr("Fill a contiguous area with pixels or tiles") : imageProjectToolTipText
                 ToolTip.visible: hovered
@@ -208,34 +208,38 @@ ToolBar {
                 // TODO: respond to right clicks when https://bugreports.qt.io/browse/QTBUG-67331 is implemented
 
                 ToolButtonMenuIndicator {
-                    color: fillToolButton.icon.color
-                    anchors.right: parent.contentItem.right
-                    anchors.bottom: parent.contentItem.bottom
-                    anchors.margins: 6
                     visible: !isTilesetProject
                 }
 
-                Menu {
-                    id: fillMenu
-                    y: fillToolButton.height
-                    width: 260
+                ActionGroup {
+                    id: fillToolGroup
+                    exclusive: true
 
-                    MenuItem {
+                    Action {
+                        id: fillTool
                         text: qsTr("Fill Tool")
                         icon.source: "qrc:/images/fill.png"
-                        autoExclusive: true
                         checkable: true
                         checked: canvas && canvas.lastFillToolUsed === ImageCanvas.FillTool
                         onTriggered: canvas.tool = ImageCanvas.FillTool
                     }
-                    MenuItem {
+
+                    Action {
+                        id: texturedFillTool
                         text: qsTr("Textured Fill Tool")
                         icon.source: "qrc:/images/textured-fill.png"
-                        autoExclusive: true
                         checkable: true
                         checked: canvas && canvas.lastFillToolUsed === ImageCanvas.TexturedFillTool
                         onTriggered: canvas.tool = ImageCanvas.TexturedFillTool
                     }
+                }
+
+                Menu {
+                    id: fillMenu
+                    y: parent.height
+
+                    MenuItem { action: fillTool }
+                    MenuItem { action: texturedFillTool }
                 }
             }
 
@@ -283,7 +287,9 @@ ToolBar {
             ToolTip.text: qsTr("Change the size of drawing tools")
             ToolTip.visible: hovered && !toolSizeSliderPopup.visible
 
-            onClicked: toolSizeSliderPopup.visible = !toolSizeSliderPopup.visible
+            onClicked: toolSizeSliderPopup.open()
+
+            ToolButtonMenuIndicator {}
 
             ToolSizePopup {
                 id: toolSizeSliderPopup
@@ -294,50 +300,105 @@ ToolBar {
         }
 
         ToolButton {
-            id: toolShapeButton
-            objectName: "toolShapeButton"
+            id: brushTypeButton
+            objectName: "brushTypeButton"
             hoverEnabled: true
             focusPolicy: Qt.NoFocus
 
-            readonly property bool squareShape: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
-            icon.source: squareShape ? "qrc:/images/square-tool-shape.png" : "qrc:/images/circle-tool-shape.png"
+            icon.source: brushTypeGroup.checkedAction.icon.source
 
             ToolTip.text: qsTr("Choose brush shape")
             ToolTip.visible: hovered
 
-            onClicked: toolShapeMenu.visible = !toolShapeMenu.visible
+            onClicked: brushTypeMenu.open()
 
-            ToolButtonMenuIndicator {
-                color: toolShapeButton.icon.color
-                anchors.right: parent.contentItem.right
-                anchors.bottom: parent.contentItem.bottom
-                anchors.margins: 6
+            ToolButtonMenuIndicator {}
+
+            ActionGroup {
+                id: brushTypeGroup
+                exclusive: true
+                onTriggered: if (canvas) canvas.brushType = action.brushType
+                checkedAction: canvas ? actions[canvas.brushType] : squareBrushType
+
+                Action {
+                    id: squareBrushType
+                    text: qsTr("Square")
+                    icon.source: "qrc:/images/square-tool-shape.png"
+                    checkable: true
+                    property int brushType: Brush.SquareType
+                }
+
+                Action {
+                    id: circleBrushType
+                    text: qsTr("Circle")
+                    icon.source: "qrc:/images/circle-tool-shape.png"
+                    checkable: true
+                    property int brushType: Brush.CircleType
+                }
+
+                Action {
+                    id: imageBrushType
+                    text: qsTr("Image")
+                    icon.source: "qrc:/images/image-tool-shape.png"
+                    checkable: true
+                    property int brushType: Brush.ImageType
+                }
             }
 
             Menu {
-                id: toolShapeMenu
-                objectName: "toolShapeMenu"
-                y: toolShapeButton.height
-                width: 260
+                id: brushTypeMenu
+                y: parent.height
 
-                MenuItem {
-                    objectName: "squareToolShapeMenuItem"
-                    text: qsTr("Square")
-                    icon.source: "qrc:/images/square-tool-shape.png"
-                    autoExclusive: true
+                MenuItem { action: squareBrushType}
+                MenuItem { action: circleBrushType }
+                MenuItem { action: imageBrushType }
+            }
+        }
+
+        ToolButton {
+            id: toolBlendModeButton
+            objectName: "toolBlendModeButton"
+            hoverEnabled: true
+            focusPolicy: Qt.NoFocus
+
+            icon.source: toolBlendModeGroup.checkedAction.icon.source
+
+            ToolTip.text: qsTr("Choose blending mode")
+            ToolTip.visible: hovered
+
+            onClicked: toolBlendModeMenu.open()
+
+            ToolButtonMenuIndicator {}
+
+            ActionGroup {
+                id: toolBlendModeGroup
+                exclusive: true
+                onTriggered: if (canvas) canvas.toolBlendMode = action.blendMode
+                checkedAction: canvas ? actions[canvas.toolBlendMode] : replaceToolBlendMode
+
+                Action {
+                    id: blendToolBlendMode
+                    text: qsTr("Blend")
+                    icon.source: "qrc:/images/blend-tool-blend-mode.png"
                     checkable: true
-                    checked: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
-                    onTriggered: canvas.toolShape = ImageCanvas.SquareToolShape
+                    property int blendMode: ImageCanvas.BlendToolBlendMode
                 }
-                MenuItem {
-                    objectName: "circleToolShapeMenuItem"
-                    text: qsTr("Circle")
-                    icon.source: "qrc:/images/circle-tool-shape.png"
-                    autoExclusive: true
+
+                Action {
+                    id: replaceToolBlendMode
+                    text: qsTr("Replace")
+                    icon.source: "qrc:/images/replace-tool-blend-mode.png"
                     checkable: true
-                    checked: canvas && canvas.toolShape === ImageCanvas.CircleToolShape
-                    onTriggered: canvas.toolShape = ImageCanvas.CircleToolShape
+                    property int blendMode: ImageCanvas.ReplaceToolBlendMode
                 }
+            }
+
+            Menu {
+                id: toolBlendModeMenu
+                y: parent.height
+
+                MenuItem { action: blendToolBlendMode }
+                MenuItem { action: replaceToolBlendMode }
             }
         }
 

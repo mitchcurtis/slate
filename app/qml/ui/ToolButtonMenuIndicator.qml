@@ -22,6 +22,10 @@ import QtQuick 2.10
 Canvas {
     width: 4
     height: 4
+    color: parent.icon.color
+    anchors.right: parent.contentItem.right
+    anchors.bottom: parent.contentItem.bottom
+    anchors.margins: 6
 
     property string color
 

@@ -144,6 +144,31 @@ bool ApplicationSettings::defaultGridVisible() const
     return true;
 }
 
+bool ApplicationSettings::isBrushPreviewVisible() const
+{
+    return contains("brushPreviewVisible") ? value("brushPreviewVisible").toBool() : defaultBrushPreviewVisible();
+}
+
+void ApplicationSettings::setBrushPreviewVisible(bool brushPreviewVisible)
+{
+    QVariant existingValue = value("brushPreviewVisible");
+    bool existingBoolValue = defaultBrushPreviewVisible();
+    if (contains("brushPreviewVisible")) {
+        existingBoolValue = existingValue.toBool();
+    }
+
+    if (brushPreviewVisible == existingBoolValue)
+        return;
+
+    setValue("brushPreviewVisible", brushPreviewVisible);
+    emit brushPreviewVisibleChanged();
+}
+
+bool ApplicationSettings::defaultBrushPreviewVisible() const
+{
+    return false;
+}
+
 bool ApplicationSettings::areRulersVisible() const
 {
     return contains("rulersVisible") ? value("rulersVisible").toBool() : defaultRulersVisible();

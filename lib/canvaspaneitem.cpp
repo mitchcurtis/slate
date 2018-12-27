@@ -132,10 +132,10 @@ void CanvasPaneItem::paint(QPainter *painter)
 
     // Draw the checkered pixmap that acts as an indicator for transparency.
     // We use the unbounded canvas size here, otherwise the drawn area is too small past a certain zoom level.
-    const QSize zoomedCanvasSize = mPane->zoomedSize(mCanvas->currentProjectImage()->size());
+    const QSize zoomedCanvasSize = mCanvas->currentProjectImage()->size() * mPane->integerZoomLevel();
     painter->drawTiledPixmap(0, 0, zoomedCanvasSize.width(), zoomedCanvasSize.height(), mCanvas->mCheckerPixmap);
 
     const QImage image = mCanvas->contentImage();
-    const QSize zoomedImageSize = mPane->zoomedSize(image.size());
+    const QSize zoomedImageSize = image.size() * mPane->integerZoomLevel();
     painter->drawImage(QRectF(QPointF(0, 0), zoomedImageSize), image, QRectF(0, 0, image.width(), image.height()));
 }

@@ -1,5 +1,9 @@
 <RCC>
     <qresource prefix="/images">
+        <file>blend-tool-blend-mode.png</file>
+        <file>blend-tool-blend-mode@2x.png</file>
+        <file>blend-tool-blend-mode@3x.png</file>
+        <file>blend-tool-blend-mode@4x.png</file>
         <file>change-canvas-size.png</file>
         <file>change-canvas-size@2x.png</file>
         <file>change-canvas-size@3x.png</file>
@@ -11,11 +15,10 @@
         <file>change-tool-size@3x.png</file>
         <file>change-tool-size@4x.png</file>
         <file>checker.png</file>
-        <file>circle-tool-shape.svg</file>
-        <file>circle-tool-shape@4x.png</file>
-        <file>circle-tool-shape@3x.png</file>
-        <file>circle-tool-shape@2x.png</file>
         <file>circle-tool-shape.png</file>
+        <file>circle-tool-shape@2x.png</file>
+        <file>circle-tool-shape@3x.png</file>
+        <file>circle-tool-shape@4x.png</file>
         <file>fill.png</file>
         <file>fill@2x.png</file>
         <file>fill@3X.png</file>
@@ -30,6 +33,10 @@
         <file>flip-vertically@4x.png</file>
         <file>image-project.png</file>
         <file>image-project@2x.png</file>
+        <file>image-tool-shape.png</file>
+        <file>image-tool-shape@2x.png</file>
+        <file>image-tool-shape@3x.png</file>
+        <file>image-tool-shape@4x.png</file>
         <file>layered-image-project.png</file>
         <file>layered-image-project@2x.png</file>
         <file>lock-guides.png</file>
@@ -44,6 +51,10 @@
         <file>opacity@2x.png</file>
         <file>opacity@3x.png</file>
         <file>opacity@4x.png</file>
+        <file>replace-tool-blend-mode.png</file>
+        <file>replace-tool-blend-mode@2x.png</file>
+        <file>replace-tool-blend-mode@3x.png</file>
+        <file>replace-tool-blend-mode@4x.png</file>
         <file>rotate-90-ccw.png</file>
         <file>rotate-90-ccw@2x.png</file>
         <file>rotate-90-ccw@3x.png</file>
@@ -68,11 +79,10 @@
         <file>splitscreen@2x.png</file>
         <file>splitscreen@3x.png</file>
         <file>splitscreen@4x.png</file>
-        <file>square-tool-shape.svg</file>
-        <file>square-tool-shape@4x.png</file>
-        <file>square-tool-shape@3x.png</file>
-        <file>square-tool-shape@2x.png</file>
         <file>square-tool-shape.png</file>
+        <file>square-tool-shape@2x.png</file>
+        <file>square-tool-shape@3x.png</file>
+        <file>square-tool-shape@4x.png</file>
         <file>textured-fill.png</file>
         <file>textured-fill@2x.png</file>
         <file>textured-fill@3x.png</file>

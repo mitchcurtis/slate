@@ -26,6 +26,7 @@
 #include <QUndoStack>
 
 #include "autoswatchmodel.h"
+#include "brush.h"
 #include "buildinfo.h"
 #include "canvaspane.h"
 #include "canvaspaneitem.h"
@@ -106,6 +107,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterType<TileGrid>("App", 1, 0, "TileGrid");
     qmlRegisterType<TilesetSwatchImage>("App", 1, 0, "TilesetSwatchImage");
     qmlRegisterUncreatableType<AnimationPlayback>("App", 1, 0, "AnimationPlayback", QLatin1String("Cannot create objects of type AnimationPlayback"));
+    qmlRegisterUncreatableType<Brush>("App", 1, 0, "Brush", "Can't create instances of Brush");
     qmlRegisterUncreatableType<CanvasPane>("App", 1, 0, "CanvasPane", "Can't create instances of CanvasPane");
     qmlRegisterUncreatableType<Project>("App", 1, 0, "Project", QLatin1String("Cannot create objects of type Project"));
     qmlRegisterUncreatableType<LayeredImageProject>("App", 1, 0, "LayeredImageProject",

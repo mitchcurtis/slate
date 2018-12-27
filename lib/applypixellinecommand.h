@@ -26,36 +26,47 @@
 
 #include "imagecanvas.h"
 #include "slate-global.h"
+#include "stroke.h"
 
 class SLATE_EXPORT ApplyPixelLineCommand : public QUndoCommand
 {
 public:
-    ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex, QImage &currentProjectImage, const QPointF point1, const QPointF point2,
-        const QPointF &newLastPixelPenReleaseScenePos, const QPointF &oldLastPixelPenReleaseScenePos,
-        const QPainter::CompositionMode mode, QUndoCommand *parent = nullptr);
-    ~ApplyPixelLineCommand();
+    ApplyPixelLineCommand(ImageCanvas *const canvas, const int layerIndex, const Stroke &stroke, const qreal scaleMin, const qreal scaleMax, const Brush &brush, const QColor &colour,
+        const QPainter::CompositionMode compositionMode, const QUndoCommand *const previousCommand = nullptr, QUndoCommand *const parent = nullptr);
+    virtual ~ApplyPixelLineCommand() override;
 
     void undo() override;
     void redo() override;
 
     int id() const override;
-    bool mergeWith(const QUndoCommand *other) override;
+    bool mergeWith(const QUndoCommand *const command) override;
 
 private:
     friend QDebug operator<<(QDebug debug, const ApplyPixelLineCommand *command);
 
+    bool canMerge(const QUndoCommand *const command) const;
+
+    void undoRect(QPainter &painter, const QRect &rect) const;
+    void redoRect(QPainter &painter, const QRect &rect) const;
+
     ImageCanvas *mCanvas;
     int mLayerIndex;
-    QPointF mNewLastPixelPenReleaseScenePos;
-    QPointF mOldLastPixelPenReleaseScenePos;
+    Brush mBrush;
+    QColor mColour;
+    qreal mScaleMin, mScaleMax;
+    Stroke mOldStroke;
+    QPainter::CompositionMode mCompositionMode;
 
-    struct SubImageData {
-        ImageCanvas::SubImage subImage;
-        QRect lineRect;
-        QImage imageWithoutLine;
-        QImage imageWithLine;
-    };
-    QList<SubImageData> subImageDatas;
+    Stroke mStroke;
+    int mStrokeUpdateStartIndex;
+    QRegion mBufferRegion;
+    QImage mUndoBuffer;
+    QImage mRedoBuffer;
+    QRect mBufferBounds;
+
+    const QUndoCommand *mPreviousCommand;
+
+    bool mNeedDraw;
 };
 
 

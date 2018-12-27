@@ -55,6 +55,12 @@ public:
     TileCanvas();
     ~TileCanvas() override;
 
+    virtual QImage *currentProjectImage() override;
+    virtual const QImage *currentProjectImage() const override;
+
+    virtual QImage *imageForLayerAt(int layerIndex) override;
+    virtual const QImage *imageForLayerAt(int layerIndex) const override;
+
     int cursorTilePixelX() const;
     void setCursorTilePixelX(int cursorTilePixelX);
 
@@ -70,7 +76,8 @@ public:
     QPoint scenePosToTilePixelPos(const QPoint &scenePos) const;
     QRect sceneRectToTileRect(const QRect &sceneRect) const;
 
-    virtual QList<SubImage> subImagesInBounds(const QRect &bounds) const override;
+    virtual SubImage getSubImage(const int index) const override;
+    virtual QList<SubImageInstance> subImageInstancesInBounds(const QRect &bounds) const override;
 
 signals:
     void cursorTilePixelXChanged();
@@ -96,6 +103,7 @@ protected:
     void disconnectSignals() override;
     void toolChange() override;
     bool supportsSelectionTool() const override;
+    virtual QImage getComposedImage() override;
 
     void onLoadedChanged() override;
 
@@ -106,7 +114,6 @@ private:
     friend class ApplyTileFillCommand;
     friend class ApplyTileCanvasPixelFillCommand;
 
-    PixelCandidateData penEraserPixelCandidates(Tool tool) const override;
     PixelCandidateData fillPixelCandidates() const;
     PixelCandidateData greedyFillPixelCandidates() const;
 
@@ -120,10 +127,9 @@ private:
     };
     TileCandidateData fillTileCandidates() const;
 
-    void applyCurrentTool() override;
+    void applyCurrentTool(QUndoStack *const alternateStack = nullptr) override;
     void applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false) override;
     void applyTilePenTool(const QPoint &tilePos, int id);
-    void applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition) override;
 
     void updateCursorPos(const QPoint &eventPos) override;
     void error(const QString &message);

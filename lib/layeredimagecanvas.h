@@ -56,7 +56,7 @@ protected:
     const QImage *currentProjectImage() const override;
     QImage *imageForLayerAt(int layerIndex) override;
     int currentLayerIndex() const override;
-    QImage getContentImage() override;
+    virtual QImage getComposedImage() override;
 
     void replaceImage(int layerIndex, const QImage &replacementImage) override;
 

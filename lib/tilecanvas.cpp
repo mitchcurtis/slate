@@ -25,10 +25,8 @@
 #include <QQuickWindow>
 #include <QtMath>
 
-#include "applypixelerasercommand.h"
 #include "applypixelfillcommand.h"
 #include "applypixellinecommand.h"
-#include "applypixelpencommand.h"
 #include "applytilecanvaspixelfillcommand.h"
 #include "applytileerasercommand.h"
 #include "applytilefillcommand.h"
@@ -53,6 +51,27 @@ TileCanvas::TileCanvas() :
 TileCanvas::~TileCanvas()
 {
     qCDebug(lcImageCanvasLifecycle) << "destructing TileCanvas" << this;
+}
+
+QImage *TileCanvas::currentProjectImage()
+{
+    return mTilesetProject->tileset()->image();
+}
+
+const QImage *TileCanvas::currentProjectImage() const
+{
+    return const_cast<TileCanvas *>(this)->currentProjectImage();
+}
+
+QImage *TileCanvas::imageForLayerAt(int layerIndex)
+{
+    Q_ASSERT(layerIndex == -1);
+    return mTilesetProject->tileset()->image();
+}
+
+const QImage *TileCanvas::imageForLayerAt(int layerIndex) const
+{
+    return const_cast<TileCanvas *>(this)->imageForLayerAt(layerIndex);
 }
 
 TileCanvas::Mode TileCanvas::mode() const
@@ -114,36 +133,37 @@ void TileCanvas::setCursorTilePixelY(int cursorTilePixelY)
 
 void TileCanvas::reset()
 {
-    mFirstPane.reset();
-    mSecondPane.reset();
-    setCurrentPane(nullptr);
-    mSplitter.setPosition(mFirstPane.size());
-    mSplitter.setPressed(false);
-    mSplitter.setHovered(false);
-    setCursorX(0);
-    setCursorY(0);
-    mCursorPaneX = 0;
-    mCursorPaneY = 0;
-    mCursorSceneX = 0;
-    mCursorSceneY = 0;
+//    mFirstPane.reset();
+//    mSecondPane.reset();
+//    setCurrentPane(nullptr);
+//    mSplitter.setPosition(mFirstPane.size());
+//    mSplitter.setPressed(false);
+//    mSplitter.setHovered(false);
+//    setCursorX(0);
+//    setCursorY(0);
+//    mCursorPaneX = 0;
+//    mCursorPaneY = 0;
+//    mCursorSceneX = 0;
+//    mCursorSceneY = 0;
     setCursorTilePixelX(0);
     setCursorTilePixelY(0);
-    mContainsMouse = false;
-    mMouseButtonPressed = Qt::NoButton;
-    mPressPosition = QPoint(0, 0);
-    mCurrentPaneOffsetBeforePress = QPoint(0, 0);
-    setAltPressed(false);
-    mToolBeforeAltPressed = PenTool;
-    mSpacePressed = false;
-    mHasBlankCursor = false;
+//    mContainsMouse = false;
+//    mMouseButtonPressed = Qt::NoButton;
+//    mPressPosition = QPoint(0, 0);
+//    mCurrentPaneOffsetBeforePress = QPoint(0, 0);
+//    setAltPressed(false);
+//    mToolBeforeAltPressed = PenTool;
+//    mSpacePressed = false;
+//    mHasBlankCursor = false;
 
-    // Things that we don't want to set, as they
-    // don't really need to be reset each time:
-    // - mode
-    // - tool
-    // - toolSize
+//    // Things that we don't want to set, as they
+//    // don't really need to be reset each time:
+//    // - mode
+//    // - tool
+//    // - toolSize
 
-    requestContentPaint();
+//    requestContentPaint();
+    ImageCanvas::reset();
 }
 
 void TileCanvas::swatchLeft()
@@ -228,31 +248,26 @@ bool TileCanvas::supportsSelectionTool() const
     return false;
 }
 
-TileCanvas::PixelCandidateData TileCanvas::penEraserPixelCandidates(Tool tool) const
+QImage TileCanvas::getComposedImage()
 {
-    PixelCandidateData candidateData;
+    const QSize size(mTilesetProject->tilesWide() * mTilesetProject->tileWidth(), mTilesetProject->tilesHigh() * mTilesetProject->tileHeight());
+    QImage image(size,  QImage::Format_ARGB32);
+    image.fill(qRgba(0, 0, 0, 0));
+    QPainter painter(&image);
 
-    const QPoint topLeft(qRound(mCursorSceneFX - mToolSize / 2.0), qRound(mCursorSceneFY - mToolSize / 2.0));
-    const QPoint bottomRight(qRound(mCursorSceneFX + mToolSize / 2.0), qRound(mCursorSceneFY + mToolSize / 2.0));
-    QPoint scenePos(topLeft);
-    for (; scenePos.y() < bottomRight.y(); ++scenePos.ry()) {
-        for (scenePos.rx() = topLeft.x(); scenePos.x() < bottomRight.x(); ++scenePos.rx()) {
-            const Tile *tile = mTilesetProject->tileAt(scenePos);
+    const QRect tilesRect{QPoint{0, 0}, QSize{mTilesetProject->tilesWide(), mTilesetProject->tilesHigh()}};
+
+    for (int y = tilesRect.top(); y <= tilesRect.bottom(); ++y) {
+        for (int x = tilesRect.left(); x <= tilesRect.right(); ++x) {
+            const QPoint pos(x * mTilesetProject->tileWidth(), y * mTilesetProject->tileHeight());
+            const Tile *tile = mTilesetProject->tileAtTilePos(QPoint(x, y));
             if (tile) {
-                const QPoint tilePixelPos = scenePosToTilePixelPos(scenePos);
-                const QColor previousColour = tile->pixelColor(tilePixelPos);
-                // Don't do anything if the colours are the same; this prevents issues
-                // with undos not undoing everything across tiles.
-                const bool hasEffect = tool == PenTool ? penColour() != previousColour : previousColour != QColor(Qt::transparent);
-                if (hasEffect) {
-                    candidateData.scenePositions.append(scenePos);
-                    candidateData.previousColours.append(previousColour);
-                }
+                painter.drawImage(pos, *tile->tileset()->image(), tile->sourceRect());
             }
         }
     }
 
-    return candidateData;
+    return image;
 }
 
 TileCanvas::PixelCandidateData TileCanvas::fillPixelCandidates() const
@@ -312,26 +327,24 @@ TileCanvas::TileCandidateData TileCanvas::fillTileCandidates() const
     return candidateData;
 }
 
-void TileCanvas::applyCurrentTool()
+void TileCanvas::applyCurrentTool(QUndoStack *const alternateStack)
 {
+    if (areToolsForbidden())
+        return;
+
+    // Use image canvas tool if compatible
+    if (mMode == PixelMode && QSet<Tool>{PenTool, EraserTool, EyeDropperTool}.contains(mTool)) {
+        ImageCanvas::applyCurrentTool(alternateStack);
+        return;
+    }
+
+    // For tool preview use alternate undo stack if given
+    QUndoStack *const stack = alternateStack ? alternateStack : mProject->undoStack();
+    QUndoCommand *command = nullptr;
+
     switch (mTool) {
     case PenTool: {
-        if (mMode == PixelMode) {
-//            const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
-//            if (candidateData.scenePositions.isEmpty()) {
-//                return;
-//            }
-
-//            mTilesetProject->beginMacro(QLatin1String("PixelPenTool"));
-//            mTilesetProject->addChange(new ApplyPixelPenCommand(this, -1, candidateData.scenePositions, candidateData.previousColours, penColour()));
-            mProject->beginMacro(QLatin1String("PixelLineTool"));
-            // Draw the line on top of what has already been painted using a special composition mode.
-            // This ensures that e.g. a translucent red overwrites whatever pixels it
-            // lies on, rather than blending with them.
-            mProject->addChange(new ApplyPixelLineCommand(this, -1, *mTilesetProject->tileset()->image(), linePoint1(), linePoint2(),
-                mPressScenePosition, mLastPixelPenPressScenePosition, QPainter::CompositionMode_Source));
-            break;
-        } else {
+        if (mMode == TileMode) {
             const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
             const Tile *tile = mTilesetProject->tileAt(scenePos);
             const int previousTileId = tile ? tile->id() : Tile::invalidId();
@@ -341,35 +354,25 @@ void TileCanvas::applyCurrentTool()
                 return;
             }
 
-            mTilesetProject->beginMacro(QLatin1String("TilePenTool"));
             const int xTile = scenePos.x() / mTilesetProject->tileWidth();
             const int yTile = scenePos.y() / mTilesetProject->tileHeight();
-            mTilesetProject->addChange(new ApplyTilePenCommand(this, QPoint(xTile, yTile), previousTileId, newTileId));
+            command = new ApplyTilePenCommand(this, QPoint(xTile, yTile), previousTileId, newTileId);
+            command->setText(QLatin1String("TilePenTool"));
         }
         break;
     }
     case EyeDropperTool: {
-        const QPoint tilePos = QPoint(mCursorSceneX, mCursorSceneY);
-        Tile *tile = mTilesetProject->tileAt(tilePos);
-        if (tile) {
-            if (mMode == PixelMode) {
-                setPenForegroundColour(tile->pixelColor(mCursorTilePixelX, mCursorTilePixelY));
-            } else {
+        if (mMode == TileMode) {
+            const QPoint tilePos = QPoint(mCursorSceneX, mCursorSceneY);
+            Tile *tile = mTilesetProject->tileAt(tilePos);
+            if (tile) {
                 setPenTile(tile);
             }
         }
         break;
     }
     case EraserTool: {
-        if (mMode == PixelMode) {
-            const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
-            if (candidateData.scenePositions.isEmpty()) {
-                return;
-            }
-
-            mTilesetProject->beginMacro(QLatin1String("PixelEraserTool"));
-            mTilesetProject->addChange(new ApplyPixelEraserCommand(this, -1, candidateData.scenePositions, candidateData.previousColours));
-        } else {
+        if (mMode == TileMode) {
             const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
             const Tile *tile = mTilesetProject->tileAt(scenePos);
             const int previousTileId = tile ? tile->id() : Tile::invalidId();
@@ -379,8 +382,9 @@ void TileCanvas::applyCurrentTool()
 
             const int xTile = scenePos.x() / mTilesetProject->tileWidth();
             const int yTile = scenePos.y() / mTilesetProject->tileHeight();
-            mTilesetProject->beginMacro(QLatin1String("PixelEraserTool"));
-            mTilesetProject->addChange(new ApplyTileEraserCommand(this, QPoint(xTile, yTile), previousTileId));
+
+            command = new ApplyTileEraserCommand(this, QPoint(xTile, yTile), previousTileId);
+            command->setText(QLatin1String("PixelEraserTool"));
         }
         break;
     }
@@ -391,23 +395,26 @@ void TileCanvas::applyCurrentTool()
                 return;
             }
 
-            mTilesetProject->beginMacro(QLatin1String("PixelFillTool"));
-            mTilesetProject->addChange(new ApplyTileCanvasPixelFillCommand(this, candidateData.scenePositions,
-                candidateData.previousColours.first(), penColour()));
+            command = new ApplyTileCanvasPixelFillCommand(this, candidateData.scenePositions, candidateData.previousColours.first(), penColour());
+            command->setText(QLatin1String("PixelFillTool"));
         } else {
             const TileCandidateData candidateData = fillTileCandidates();
             if (candidateData.tilePositions.isEmpty()) {
                 return;
             }
 
-            mTilesetProject->beginMacro(QLatin1String("TileFillTool"));
-            mTilesetProject->addChange(new ApplyTileFillCommand(this, candidateData.tilePositions,
-                candidateData.previousTile, candidateData.newTileId));
+            command = new ApplyTileFillCommand(this, candidateData.tilePositions, candidateData.previousTile, candidateData.newTileId);
+            command->setText(QLatin1String("TileFillTool"));
         }
         break;
     }
     default:
         break;
+    }
+
+    if (command) {
+//        mProject->addChange(command);
+        stack->push(command);
     }
 }
 
@@ -423,19 +430,27 @@ QRect TileCanvas::sceneRectToTileRect(const QRect &sceneRect) const
                  QPoint(Utils::divFloor(sceneRect.right(), mTilesetProject->tileWidth()), Utils::divFloor(sceneRect.bottom(), mTilesetProject->tileHeight())));
 }
 
-QList<ImageCanvas::SubImage> TileCanvas::subImagesInBounds(const QRect &bounds) const
+ImageCanvas::SubImage TileCanvas::getSubImage(const int index) const
+{
+    const Tile *const tile = mTilesetProject->tilesetTileAtId(index);
+    Q_ASSERT(tile);
+
+    return {0, tile->sourceRect(), {0, 0}};
+}
+
+QList<ImageCanvas::SubImageInstance> TileCanvas::subImageInstancesInBounds(const QRect &bounds) const
 {
     const QRect tileRect = sceneRectToTileRect(bounds);
-    QList<ImageCanvas::SubImage> subImages;
+    QList<ImageCanvas::SubImageInstance> instances;
     for (int y = tileRect.top(); y <= tileRect.bottom(); ++y) {
         for (int x = tileRect.left(); x <= tileRect.right(); ++x) {
             const Tile *const tile = mTilesetProject->tileAtTilePos({x, y});
             if (tile) {
-                subImages.append({tile->sourceRect(), {x * mTilesetProject->tileWidth(), y * mTilesetProject->tileHeight()}});
+                instances.append({tile->id(), {x * mTilesetProject->tileWidth(), y * mTilesetProject->tileHeight()}});
             }
         }
     }
-    return subImages;
+    return instances;
 }
 
 // This function actually operates on the image.
@@ -458,16 +473,6 @@ void TileCanvas::applyTilePenTool(const QPoint &tilePos, int id)
 {
     mTilesetProject->setTileAtPixelPos(tilePos, id);
     requestContentPaint();
-}
-
-void TileCanvas::applyPixelLineTool(int, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition)
-{
-    mLastPixelPenPressScenePositionF = lastPixelPenReleaseScenePosition;
-    QPainter painter(mTilesetProject->tileset()->image());
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
-    painter.drawImage(lineRect, lineImage);
-    requestContentPaint();
-    mTilesetProject->tileset()->notifyImageChanged();
 }
 
 void TileCanvas::updateCursorPos(const QPoint &eventPos)
