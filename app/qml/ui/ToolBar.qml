@@ -196,7 +196,7 @@ ToolBar {
                 readonly property bool regularFill: canvas && canvas.lastFillToolUsed === ImageCanvas.FillTool
                 readonly property string imageProjectToolTipText:
                     qsTr("Fill a contiguous area with %1pixels.\nHold Shift to fill all pixels matching the target colour.")
-                        .arg(!regularFill ? "semi-randomised" : "")
+                        .arg(!regularFill ? "semi-randomised " : "")
 
                 icon.source: regularFill ? "qrc:/images/fill.png" : "qrc:/images/textured-fill.png"
 
