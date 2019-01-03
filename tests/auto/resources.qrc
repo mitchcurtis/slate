@@ -28,5 +28,8 @@
         <file>resources/version-check-v0.2.1.stp</file>
         <file>resources/swatch-paint.net-invalid-1.txt</file>
         <file>resources/swatch-paint.net-valid-1.txt</file>
+        <file>resources/opacityDialog-original.png</file>
+        <file>resources/opacityDialog-alpha-decreased.png</file>
+        <file>resources/opacityDialog-alpha-increased.png</file>
     </qresource>
 </RCC>

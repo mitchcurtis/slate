@@ -24,6 +24,8 @@
 #include <QImage>
 #include <QRect>
 
+#include "imagecanvas.h"
+
 namespace Utils {
     QImage paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
 
@@ -34,7 +36,8 @@ namespace Utils {
     QImage rotate(const QImage &image, int angle);
     QImage rotateAreaWithinImage(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea);
 
-    void modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness);
+    void modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness, qreal alpha,
+        ImageCanvas::AlphaAdjustmentFlags alphaAdjustmentFlags);
 
     void strokeRectWithDashes(QPainter *painter, const QRect &rect);
 

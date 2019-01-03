@@ -34,6 +34,7 @@ Controls.MenuBar {
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
     property var hueSaturationDialog
+    property var opacityDialog
     property var canvasSizePopup
     property var imageSizePopup
     property var moveContentsDialog
@@ -270,6 +271,13 @@ Controls.MenuBar {
                 text: qsTr("Hue/Saturation...")
                 enabled: isImageProjectType && canvas && canvas.hasSelection
                 onTriggered: hueSaturationDialog.open()
+            }
+
+            MenuItem {
+                objectName: "opacityMenuItem"
+                text: qsTr("Opacity...")
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+                onTriggered: opacityDialog.open()
             }
         }
 

@@ -138,6 +138,8 @@ private Q_SLOTS:
     void rotateSelectionTransparentBackground();
     void hueSaturation_data();
     void hueSaturation();
+    void opacityDialog_data();
+    void opacityDialog();
 
     void fillImageCanvas_data();
     void fillImageCanvas();
@@ -3677,7 +3679,8 @@ void tst_App::hueSaturation()
     canvas->currentPane()->setZoomLevel(48);
 
     // Paste in the original image.
-    const QImage originalImage(":/resources/hueSaturation-original.png");
+    const QString originalImagePath = QLatin1String(":/resources/hueSaturation-original.png");
+    const QImage originalImage(originalImagePath);
     QVERIFY(!originalImage.isNull());
     qGuiApp->clipboard()->setImage(originalImage);
     QVERIFY2(triggerPaste(), failureMessage);
@@ -3709,7 +3712,8 @@ void tst_App::hueSaturation()
         qPrintable(QString::fromLatin1("Expected HSL value of %1 but got %2").arg(expectedHslValue).arg(hslValue)));
 
     const QImage expectedImage(expectedImagePath);
-    QVERIFY(!expectedImage.isNull());
+    QVERIFY2(!expectedImage.isNull(), qPrintable(QString::fromLatin1(
+        "Expected image at %1 could not be loaded").arg(expectedImagePath)));
     // The changes should be rendered...
     QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage);
     // ... but not committed yet.
@@ -3750,6 +3754,132 @@ void tst_App::hueSaturation()
     QVERIFY(hueSaturationDialogOkButton);
     mouseEventOnCentre(hueSaturationDialogOkButton, MouseClick);
     QTRY_COMPARE(hueSaturationDialog->property("visible").toBool(), false);
+    // Confirm the selection to make the changes to the project's image.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage);
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), expectedImage);
+}
+
+void tst_App::opacityDialog_data()
+{
+    QTest::addColumn<Project::Type>("projectType");
+    QTest::addColumn<QString>("expectedImagePath");
+    QTest::addColumn<QString>("textFieldObjectName");
+    QTest::addColumn<bool>("increase");
+
+    QMap<QString, Project::Type> projectTypes;
+    projectTypes.insert("ImageType", Project::ImageType);
+    // TODO: investigate why layered projects are off one by pixel
+    // in the rendered image vs expected image comparison
+//    projectTypes.insert("LayeredImageType", Project::LayeredImageType);
+    foreach (const auto projectTypeString, projectTypes.keys()) {
+        const Project::Type projectType = projectTypes.value(projectTypeString);
+
+        QTest::newRow(qPrintable(projectTypeString + QLatin1String(",increasedAlpha")))
+            << projectType << ":/resources/opacityDialog-alpha-increased.png" << "opacityDialogOpacityTextField" << true;
+        QTest::newRow(qPrintable(projectTypeString + QLatin1String(",decreasedAlpha")))
+            << projectType << ":/resources/opacityDialog-alpha-decreased.png" << "opacityDialogOpacityTextField" << false;
+    }
+}
+
+void tst_App::opacityDialog()
+{
+    QFETCH(Project::Type, projectType);
+    QFETCH(QString, expectedImagePath);
+    QFETCH(QString, textFieldObjectName);
+    QFETCH(bool, increase);
+
+    QVariantMap args;
+    args.insert("imageWidth", QVariant(10));
+    args.insert("imageHeight", QVariant(10));
+    args.insert("transparentImageBackground", QVariant(true));
+    QVERIFY2(createNewProject(projectType, args), failureMessage);
+
+    // Zoom in to make visual debugging easier.
+    canvas->setSplitScreen(false);
+    canvas->currentPane()->setZoomLevel(48);
+
+    // Paste in the original image.
+    const QString originalImagePath = QLatin1String(":/resources/opacityDialog-original.png");
+    const QImage originalImage(originalImagePath);
+    QVERIFY(!originalImage.isNull());
+    qGuiApp->clipboard()->setImage(originalImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+    QTest::keyClick(window, Qt::Key_Escape);
+    QVERIFY(project->hasUnsavedChanges());
+
+    // Select everything.
+    QTest::keySequence(window, QKeySequence::SelectAll);
+
+    // Open the dialog manually cause native menus.
+    QObject *opacityDialog = window->findChild<QObject*>("opacityDialog");
+    QVERIFY(opacityDialog);
+    QVERIFY(QMetaObject::invokeMethod(opacityDialog, "open"));
+    QTRY_COMPARE(opacityDialog->property("opened").toBool(), true);
+
+    // Increase/decrease the value.
+    QQuickItem *opacityDialogOpacityTextField
+        = window->findChild<QQuickItem*>(textFieldObjectName);
+    QVERIFY(opacityDialogOpacityTextField);
+    opacityDialogOpacityTextField->forceActiveFocus();
+    QVERIFY(opacityDialogOpacityTextField->hasActiveFocus());
+    // Tried to do this with QTest::keyClick() but I couldn't get it to work:
+    // hyphens and backspace (with text selected) did nothing with the default style.
+    // Also can't do it with up/down keys because of floating point precision issues.
+    const qreal expectedAlphaValue = increase ? 0.10 : -0.10;
+    QVERIFY(opacityDialogOpacityTextField->setProperty("text", QString::number(expectedAlphaValue)));
+    qreal alphaValue = opacityDialogOpacityTextField->property("text").toString().toDouble();
+    QVERIFY2(qAbs(alphaValue - expectedAlphaValue) < 0.01,
+        qPrintable(QString::fromLatin1("Expected alhpa value of %1 but got %2").arg(expectedAlphaValue).arg(alphaValue)));
+    // TODO: more hacks until we get input in the test working properly
+    QVERIFY(opacityDialog->setProperty("hslAlpha", expectedAlphaValue));
+    QVERIFY(QMetaObject::invokeMethod(opacityDialog, "modifySelectionHsl"));
+
+    const QImage expectedImage(expectedImagePath);
+    QVERIFY2(!expectedImage.isNull(), qPrintable(QString::fromLatin1(
+        "Expected image at %1 could not be loaded").arg(expectedImagePath)));
+    // The changes should be rendered...
+    QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage);
+    // ... but not committed yet.
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
+
+    // Cancel the dialog; the changes should not be applied.
+    QQuickItem *opacityDialogCancelButton
+        = window->findChild<QQuickItem*>("opacityDialogCancelButton");
+    QVERIFY(opacityDialogCancelButton);
+    mouseEventOnCentre(opacityDialogCancelButton, MouseClick);
+    QTRY_COMPARE(opacityDialog->property("visible").toBool(), false);
+    QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), originalImage);
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
+
+    // Re-open the dialog and increase/decrease the value again.
+    QVERIFY(QMetaObject::invokeMethod(opacityDialog, "open"));
+    QTRY_COMPARE(opacityDialog->property("opened").toBool(), true);
+    // There was an issue where reopening the dialog after changing some values the last
+    // time it was opened (even if it was cancelled) would cause the selection contents to disappear.
+    QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), originalImage);
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
+    opacityDialogOpacityTextField->forceActiveFocus();
+    QVERIFY(opacityDialogOpacityTextField->hasActiveFocus());
+    QVERIFY(opacityDialogOpacityTextField->setProperty("text", QString::number(expectedAlphaValue)));
+    alphaValue = opacityDialogOpacityTextField->property("text").toString().toDouble();
+    QVERIFY2(qAbs(alphaValue - expectedAlphaValue) < 0.01,
+        qPrintable(QString::fromLatin1("Expected HSL value of %1 but got %2").arg(expectedAlphaValue).arg(alphaValue)));
+    // TODO: more hacks until we get input in the test working properly
+    QVERIFY(opacityDialog->setProperty("hslAlpha", expectedAlphaValue));
+    QVERIFY(QMetaObject::invokeMethod(opacityDialog, "modifySelectionHsl"));
+
+    // The changes should be rendered...
+    QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage);
+    // ... but not committed yet.
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
+
+    // Accept the dialog; the changes should be applied.
+    QQuickItem *opacityDialogOkButton
+        = window->findChild<QQuickItem*>("opacityDialogOkButton");
+    QVERIFY(opacityDialogOkButton);
+    mouseEventOnCentre(opacityDialogOkButton, MouseClick);
+    QTRY_COMPARE(opacityDialog->property("visible").toBool(), false);
     // Confirm the selection to make the changes to the project's image.
     QTest::keyClick(window, Qt::Key_Escape);
     QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage);

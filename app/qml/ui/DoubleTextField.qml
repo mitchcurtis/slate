@@ -33,6 +33,10 @@ TextField {
     property string propertyName
     signal valueModified
 
+    function clamp(value) {
+        return Math.max(-1, Math.min(value, 1))
+    }
+
     Keys.onDownPressed: {
         let newValue = clamp(propertySource[propertyName] - 0.01)
         if (propertySource[propertyName] !== newValue) {

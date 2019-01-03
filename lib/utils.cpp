@@ -159,17 +159,41 @@ QRect Utils::ensureWithinArea(const QRect &rect, const QSize &boundsSize)
     return newArea;
 }
 
-void Utils::modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness)
+void Utils::modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness, qreal alpha,
+    ImageCanvas::AlphaAdjustmentFlags alphaAdjustmentFlags)
 {
     for (int y = 0; y < image.height(); ++y) {
         for (int x = 0; x < image.width(); ++x) {
             const QColor rgb = image.pixelColor(x, y);
             QColor hsl = rgb.toHsl();
+
+            const bool doNotModifyFullyTransparentPixels = alphaAdjustmentFlags.testFlag(ImageCanvas::DoNotModifyFullyTransparentPixels);
+            const bool doNotModifyFullyOpaquePixels = alphaAdjustmentFlags.testFlag(ImageCanvas::DoNotModifyFullyOpaquePixels);
+            // By default, modify the alpha.
+            bool modifyAlpha = !doNotModifyFullyTransparentPixels && !doNotModifyFullyOpaquePixels;
+            qreal finalAlpha = hsl.alphaF();
+            if (!modifyAlpha) {
+                // At least one of the flags was set, so check further if we should modify.
+                const bool isFullyTransparent = qFuzzyCompare(hsl.alphaF(), 0.0);
+                const bool isFullyOpaque = qFuzzyCompare(hsl.alphaF(), 1.0);
+
+                if (doNotModifyFullyTransparentPixels && doNotModifyFullyOpaquePixels)
+                    modifyAlpha = !isFullyTransparent && !isFullyOpaque;
+                else if (doNotModifyFullyTransparentPixels)
+                    modifyAlpha = !isFullyTransparent;
+                else if (doNotModifyFullyOpaquePixels)
+                    modifyAlpha = !isFullyOpaque;
+            }
+            if (modifyAlpha)
+                finalAlpha = hsl.alphaF() + alpha;
+
             hsl.setHslF(
-                qBound(0.0, hsl.hueF() + hue, 1.0),
-                qBound(0.0, hsl.saturationF() + saturation, 1.0),
+                qBound(0.0, hsl.hslHueF() + hue, 1.0),
+                qBound(0.0, hsl.hslSaturationF() + saturation, 1.0),
                 qBound(0.0, hsl.lightnessF() + lightness, 1.0),
-                rgb.alphaF());
+                // Only increase the alpha if it's non-zero to prevent fully transparent
+                // pixels (#00000000) becoming black (#FF000000).
+                qBound(0.0, finalAlpha, 1.0));
             image.setPixelColor(x, y, hsl.toRgb());
         }
     }

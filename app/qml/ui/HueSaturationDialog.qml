@@ -23,6 +23,8 @@ import QtQuick.Controls 2.5
 
 import App 1.0
 
+import "." as Ui
+
 Dialog {
     id: root
     objectName: "hueSaturationDialog"
@@ -39,6 +41,7 @@ Dialog {
     property real hslHue
     property real hslSaturation
     property real hslLightness
+    property real hslAlpha
 
     readonly property real sliderStepSize: 0.001
 
@@ -57,15 +60,12 @@ Dialog {
         canvas.modifySelectionHsl(hslHue, hslSaturation, hslLightness)
     }
 
-    function clamp(value) {
-        return Math.max(-1, Math.min(value, 1))
-    }
-
     onAboutToShow: {
         if (project) {
             hslHue = 0
             hslSaturation = 0
             hslLightness = 0
+            hslAlpha = 0
 
             hueTextField.forceActiveFocus()
 

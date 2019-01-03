@@ -158,6 +158,7 @@ ApplicationWindow {
         id: menuBar
         canvas: window.canvas
         hueSaturationDialog: hueSaturationDialog
+        opacityDialog: opacityDialog
         canvasSizePopup: canvasSizePopup
         imageSizePopup: imageSizePopup
         moveContentsDialog: moveContentsDialog
@@ -412,6 +413,14 @@ ApplicationWindow {
 
     Ui.HueSaturationDialog {
         id: hueSaturationDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        project: projectManager.project
+        canvas: window.canvas
+    }
+
+    Ui.OpacityDialog {
+        id: opacityDialog
         parent: Overlay.overlay
         anchors.centerIn: parent
         project: projectManager.project

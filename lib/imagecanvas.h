@@ -288,6 +288,20 @@ public:
 
     Q_ENUM(AdjustmentAction)
 
+    enum AlphaAdjustmentOption {
+        // Modify the alpha regardless of what its current value is.
+        DefaultAlphaAdjustment = 0x00,
+        // Only change the alpha if it's non-zero to prevent fully transparent
+        // pixels (#00000000) gaining opacity.
+        DoNotModifyFullyTransparentPixels = 0x01,
+        // Only change the alpha if it's less than one to prevent fully opaque
+        // pixels (#FF000000) losing opacity.
+        DoNotModifyFullyOpaquePixels = 0x02
+    };
+
+    Q_DECLARE_FLAGS(AlphaAdjustmentFlags, AlphaAdjustmentOption)
+    Q_ENUM(AlphaAdjustmentFlags)
+
 signals:
     void projectChanged();
     void zoomLevelChanged();
@@ -344,7 +358,8 @@ public slots:
     void flipSelection(Qt::Orientation orientation);
     void rotateSelection(int angle);
     void beginModifyingSelectionHsl();
-    void modifySelectionHsl(qreal hue, qreal saturation, qreal lightness);
+    void modifySelectionHsl(qreal hue, qreal saturation, qreal lightness, qreal alpha = 0.0,
+        AlphaAdjustmentFlags alphaAdjustmentFlags = DefaultAlphaAdjustment);
     void endModifyingSelectionHsl(AdjustmentAction adjustmentAction);
     void copySelection();
     void paste();

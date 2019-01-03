@@ -1840,7 +1840,8 @@ void ImageCanvas::beginModifyingSelectionHsl()
     emit adjustingImageChanged();
 }
 
-void ImageCanvas::modifySelectionHsl(qreal hue, qreal saturation, qreal lightness)
+void ImageCanvas::modifySelectionHsl(qreal hue, qreal saturation, qreal lightness, qreal alpha,
+    AlphaAdjustmentFlags alphaAdjustmentFlags)
 {
     if (!isAdjustingImage()) {
         qWarning() << "Not adjusting an image; can't modify selection's HSL";
@@ -1848,12 +1849,13 @@ void ImageCanvas::modifySelectionHsl(qreal hue, qreal saturation, qreal lightnes
     }
 
     qCDebug(lcImageCanvasSelection).nospace() << "modifying HSL of selection"
-        << mSelectionArea << " with h=" << hue << " s=" << saturation << " l=" << lightness;
+        << mSelectionArea << " with h=" << hue << " s=" << saturation << " l=" << lightness << " a=" << alpha
+        << "alpha flags=" << alphaAdjustmentFlags;
 
     // Copy the original so we don't just modify the result of the last adjustment (if any).
     mSelectionContents = mSelectionContentsBeforeImageAdjustment;
 
-    Utils::modifyHsl(mSelectionContents, hue, saturation, lightness);
+    Utils::modifyHsl(mSelectionContents, hue, saturation, lightness, alpha, alphaAdjustmentFlags);
 
     // Set this so that the check in shouldDrawSelectionPreviewImage() evaluates to true.
     setLastSelectionModification(SelectionHsl);
