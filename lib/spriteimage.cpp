@@ -50,17 +50,22 @@ void SpriteImage::paint(QPainter *painter)
     const int framesWide = exportedImage.width() / frameWidth;
     const int startColumn = mAnimationPlayback->frameX() / frameWidth;
     const int startRow = mAnimationPlayback->frameY() / frameHeight;
-    const int xOffset = startColumn;
-    const int yOffset = startRow * framesWide;
+    const int startIndex = startRow * framesWide + startColumn;
 
-    const int column = (xOffset + mAnimationPlayback->currentFrameIndex()) % framesWide;
-    const int row = (yOffset + mAnimationPlayback->currentFrameIndex()) / framesWide;
-    copy = exportedImage.copy(column * frameWidth, row * frameHeight, frameWidth, frameHeight);
+    const int absoluteCurrentIndex = startIndex + mAnimationPlayback->currentFrameIndex();
+    const int frameX = (absoluteCurrentIndex % framesWide) * frameWidth;
+    const int frameY = (absoluteCurrentIndex / framesWide) * frameHeight;
+    copy = exportedImage.copy(frameX, frameY, frameWidth, frameHeight);
     Q_ASSERT(!copy.isNull());
 
-    qCDebug(lcSpriteImage) << "painting sprite frame with"
-        << mAnimationPlayback->frameX() << mAnimationPlayback->frameY() << mAnimationPlayback->frameWidth() << mAnimationPlayback->frameHeight()
-        << "at" << column * frameWidth << row * frameHeight << frameWidth << frameHeight;
+    qCDebug(lcSpriteImage).nospace() << "painting sprite animation starting at"
+        << " frameX=" << mAnimationPlayback->frameX()
+        << " frameY=" << mAnimationPlayback->frameY()
+        << " currentFrameIndex=" << mAnimationPlayback->currentFrameIndex()
+        << " x=" << frameX
+        << " y=" << frameY
+        << " w=" << frameWidth
+        << " h=" << frameHeight;
 
     painter->drawImage(0, 0, copy);
 }
