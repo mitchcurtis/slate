@@ -24,7 +24,7 @@ import QtQuick.Controls 2.3
 import App 1.0
 
 Dialog {
-    id: popup
+    id: root
     objectName: "canvasSizePopup"
     title: qsTr("Choose a size for the canvas")
     modal: true
@@ -44,6 +44,8 @@ Dialog {
     }
 
     onClosed: canvas.forceActiveFocus()
+
+    onAccepted: project.size = Qt.size(widthSpinBox.value, heightSpinBox.value)
 
     contentItem: ColumnLayout {
         Item {
@@ -65,10 +67,12 @@ Dialog {
                 editable: true
                 stepSize: 1
 
-                ToolTip.text: isTilesetProject ? tilesetText : imageText
-
                 readonly property string tilesetText: qsTr("Number of horizontal tiles")
                 readonly property string imageText: qsTr("Canvas width in pixels")
+
+                ToolTip.text: isTilesetProject ? tilesetText : imageText
+
+                Keys.onReturnPressed: root.accept()
             }
             Label {
                 text: qsTr("Canvas height")
@@ -82,10 +86,12 @@ Dialog {
                 editable: true
                 stepSize: 1
 
-                ToolTip.text: isTilesetProject ? tilesetText : imageText
-
                 readonly property string tilesetText: qsTr("Number of vertical tiles")
                 readonly property string imageText: qsTr("Canvas height in pixels")
+
+                ToolTip.text: isTilesetProject ? tilesetText : imageText
+
+                Keys.onReturnPressed: root.accept()
             }
 
             Item {
@@ -97,23 +103,19 @@ Dialog {
 
     footer: DialogButtonBox {
         Button {
+            id: okButton
             objectName: "canvasSizePopupOkButton"
-            text: "OK"
+            text: qsTr("OK")
 
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
-
-            onClicked: {
-                project.size = Qt.size(widthSpinBox.value, heightSpinBox.value);
-                popup.visible = false;
-            }
         }
         Button {
             objectName: "canvasSizePopupCancelButton"
-            text: "Cancel"
+            text: qsTr("Cancel")
 
-            DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
-
-            onClicked: popup.visible = false
+            // https://bugreports.qt.io/browse/QTBUG-67168
+            // TODO: replace this with DestructiveRole when it works (closes dialog)
+            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
         }
     }
 }
