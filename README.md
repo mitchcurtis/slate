@@ -75,7 +75,9 @@ It's fine to ask questions here on GitHub as well - just [create an issue](https
 
 ### Donations ###
 
-If you like Slate and want to let me know, you can donate:
+If you like Slate, feel free to stop by the Discord server and let me know. I'm always excited to know that people are using it.
+
+You can also say thank you by donating:
 
 [![](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SX4TH5QGBAFYC&source=url)
 
