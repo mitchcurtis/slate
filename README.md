@@ -79,7 +79,7 @@ If you like Slate, feel free to stop by the Discord server and let me know. I'm 
 
 You can also say thank you by donating:
 
-[![](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SX4TH5QGBAFYC&source=url)
+[![](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LLLVPKU2JW9P8&source=url)
 
 ## Building From Source ##
 
