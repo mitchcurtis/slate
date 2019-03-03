@@ -167,7 +167,7 @@ ToolBar {
                 checkable: true
                 hoverEnabled: true
 
-                ToolTip.text: qsTr("Select colours%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
+                ToolTip.text: qsTr("Pick colours%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
 
                 onClicked: canvas.tool = ImageCanvas.EyeDropperTool

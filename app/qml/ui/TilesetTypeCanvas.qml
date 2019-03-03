@@ -24,6 +24,7 @@ TileCanvas {
     rulerBackgroundColour: CanvasColours.rulerBackgroundColour
     scrollZoom: settings.scrollZoom
     gesturesEnabled: settings.gesturesEnabled
+    penToolRightClickBehaviour: settings.penToolRightClickBehaviour
     anchors.fill: parent
 
     readonly property int currentPaneZoomLevel: tileCanvas.currentPane ? tileCanvas.currentPane.integerZoomLevel : 1

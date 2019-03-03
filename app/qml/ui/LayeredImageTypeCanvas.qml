@@ -24,6 +24,7 @@ LayeredImageCanvas {
     rulerBackgroundColour: CanvasColours.rulerBackgroundColour
     scrollZoom: settings.scrollZoom
     gesturesEnabled: settings.gesturesEnabled
+    penToolRightClickBehaviour: settings.penToolRightClickBehaviour
     anchors.fill: parent
 
     readonly property int currentPaneZoomLevel: layeredCanvas.currentPane ? layeredCanvas.currentPane.integerZoomLevel : 1

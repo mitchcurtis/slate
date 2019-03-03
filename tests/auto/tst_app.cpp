@@ -118,6 +118,8 @@ private Q_SLOTS:
     void pixelLineToolTransparent();
     void rulersAndGuides_data();
     void rulersAndGuides();
+    void penToolRightClickBehaviour_data();
+    void penToolRightClickBehaviour();
 
     // Swatches.
     void autoSwatch_data();
@@ -2963,6 +2965,106 @@ void tst_App::rulersAndGuides()
     QCOMPARE(project->guides().size(), 0);
 
     app.settings()->setGuidesLocked(false);
+}
+
+void tst_App::penToolRightClickBehaviour_data()
+{
+    QTest::addColumn<Project::Type>("projectType");
+    QTest::addColumn<ImageCanvas::PenToolRightClickBehaviour>("penToolRightClickBehaviour");
+
+    for (const auto projectType : qAsConst(allProjectTypes)) {
+        const QString typeString = Project::typeToString(projectType);
+
+        for (const auto behaviour : qAsConst(allRightClickBehaviours)) {
+            const QMetaEnum behaviourMetaEnum = QMetaEnum::fromType<ImageCanvas::PenToolRightClickBehaviour>();
+            const QString behaviourString = behaviourMetaEnum.valueToKey(behaviour);
+
+            const QString tag = typeString + QLatin1Char(',') + behaviourString;
+            QTest::newRow(qPrintable(tag)) << projectType << behaviour;
+        }
+    }
+}
+
+void tst_App::penToolRightClickBehaviour()
+{
+    QFETCH(Project::Type, projectType);
+    QFETCH(ImageCanvas::PenToolRightClickBehaviour, penToolRightClickBehaviour);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+    QCOMPARE(app.settings()->penToolRightClickBehaviour(), ImageCanvas::PenToolRightClickAppliesEraser);
+
+    // Zoom in to make visual debugging easier.
+    canvas->setSplitScreen(false);
+    canvas->currentPane()->setZoomLevel(48);
+
+    // Open options dialog.
+    QVERIFY2(triggerOptions(), failureMessage);
+    QObject *optionsDialog = findPopupFromTypeName("OptionsDialog");
+    QVERIFY(optionsDialog);
+    QTRY_VERIFY(optionsDialog->property("opened").toBool());
+
+    // Open the general tab.
+    QQuickItem *generalTabButton = optionsDialog->findChild<QQuickItem*>("generalTabButton");
+    QVERIFY(generalTabButton);
+    mouseEventOnCentre(generalTabButton, MouseClick);
+
+    // Open penToolRightClickBehaviourComboBox's popup.
+    QQuickItem *penToolRightClickBehaviourComboBox = optionsDialog->findChild<QQuickItem*>("penToolRightClickBehaviourComboBox");
+    QVERIFY(penToolRightClickBehaviourComboBox);
+    mouseEventOnCentre(penToolRightClickBehaviourComboBox, MouseClick);
+    QVERIFY(penToolRightClickBehaviourComboBox->hasActiveFocus());
+    QObject *penToolRightClickBehaviourComboBoxPopup = penToolRightClickBehaviourComboBox->property("popup").value<QObject*>();
+    QVERIFY(penToolRightClickBehaviourComboBoxPopup);
+    QTRY_COMPARE(penToolRightClickBehaviourComboBoxPopup->property("opened").toBool(), true);
+    QCOMPARE(penToolRightClickBehaviourComboBox->property("currentIndex").toInt(), app.settings()->penToolRightClickBehaviour());
+    QCOMPARE(penToolRightClickBehaviourComboBox->property("highlightedIndex").toInt(), app.settings()->penToolRightClickBehaviour());
+
+    // Move down the list until we find the value that we're interested in.
+    for (int i = 0; i < penToolRightClickBehaviour; ++i) {
+        QTest::keyClick(window, Qt::Key_Down);
+        QCOMPARE(penToolRightClickBehaviourComboBox->property("highlightedIndex").toInt(), i + 1);
+    }
+
+    // Press space to accept it.
+    QTest::keyClick(window, Qt::Key_Space);
+    QCOMPARE(penToolRightClickBehaviourComboBox->property("currentIndex").toInt(), penToolRightClickBehaviour);
+    // The setting shouldn't change until we hit "OK".
+    QCOMPARE(app.settings()->penToolRightClickBehaviour(), app.settings()->defaultPenToolRightClickBehaviour());
+
+    // Accept the dialog to save the changes.
+    QVERIFY(QMetaObject::invokeMethod(optionsDialog, "accept"));
+    QTRY_VERIFY(!optionsDialog->property("visible").toBool());
+    QCOMPARE(app.settings()->penToolRightClickBehaviour(), penToolRightClickBehaviour);
+
+    // For RightClickAppliesBackgroundColour.
+    canvas->setPenBackgroundColour(Qt::red);
+
+    setCursorPosInScenePixels(0, 0);
+
+    if (projectType == Project::TilesetType) {
+        setCursorPosInScenePixels(0, 0);
+        QVERIFY2(drawTileAtCursorPos(), failureMessage);
+        QVERIFY2(switchMode(TileCanvas::PixelMode), failureMessage);
+    }
+
+    // Right-click and check that the correct tool was used.
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, cursorWindowPos);
+
+    const QImage projectImage = projectType == Project::TilesetType
+        ? *tilesetProject->tileAt(cursorPos)->tileset()->image() : *canvas->currentProjectImage();
+
+    switch (penToolRightClickBehaviour) {
+    case ImageCanvas::PenToolRightClickAppliesEraser:
+        QCOMPARE(projectImage.pixelColor(0, 0), Qt::transparent);
+        break;
+    case ImageCanvas::PenToolRightClickAppliesEyeDropper:
+        QCOMPARE(canvas->penForegroundColour(), projectImage.pixelColor(0, 0));
+        break;
+    case ImageCanvas::PenToolRightClickAppliesBackgroundColour:
+        QCOMPARE(projectImage.pixelColor(0, 0), Qt::red);
+        break;
+    }
 }
 
 void tst_App::autoSwatch_data()

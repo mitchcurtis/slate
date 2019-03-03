@@ -16,11 +16,16 @@ Dialog {
     standardButtons: Dialog.Ok | Dialog.Cancel
 
     onAccepted: applyAllSettings()
-    onRejected: clearChanges()
+    // We used to use onRejected here, but if the settings changes outside of our control
+    // (e.g. through being reset during testing) then some controls will contain outdated
+    // values since clearChanges() won't be called in that case.
+    onAboutToShow: clearChanges()
 
     function applyAllSettings() {
         settings.loadLastOnStartup = loadLastCheckBox.checked
         settings.gesturesEnabled = enableGesturesCheckBox.checked
+        settings.penToolRightClickBehaviour =
+            penToolRightClickBehaviourComboBox.model[penToolRightClickBehaviourComboBox.currentIndex].value
         settings.autoSwatchEnabled = enableAutoSwatchCheckBox.checked
         settings.checkerColour1 = checkerColour1TextField.colour
         settings.checkerColour2 = checkerColour2TextField.colour
@@ -39,6 +44,8 @@ Dialog {
     function clearChanges() {
         loadLastCheckBox.checked = settings.loadLastOnStartup
         enableGesturesCheckBox.checked = settings.gesturesEnabled
+        penToolRightClickBehaviourComboBox.currentIndex =
+            penToolRightClickBehaviourComboBox.indexForValue(settings.penToolRightClickBehaviour)
         enableAutoSwatchCheckBox.checked = settings.autoSwatchEnabled
         checkerColour1TextField.text = settings.checkerColour1
         checkerColour2TextField.text = settings.checkerColour2
@@ -113,6 +120,44 @@ Dialog {
                         ToolTip.text: qsTr("Enables the use of two-finger panning and pinch-to-zoom on macOS")
                         ToolTip.visible: hovered
                         ToolTip.delay: toolTipDelay
+                    }
+
+                    Label {
+                        text: qsTr("Pen tool right click behaviour")
+                    }
+                    ComboBox {
+                        id: penToolRightClickBehaviourComboBox
+                        objectName: "penToolRightClickBehaviourComboBox"
+                        leftPadding: 0
+                        textRole: "display"
+                        // TODO: use findValue() when QTBUG-73491 is implemented
+                        currentIndex: indexForValue(settings.penToolRightClickBehaviour)
+
+                        // TODO: add icons when QTBUG-73489 is implemented
+                        model: [
+                            {
+                                value: ImageCanvas.PenToolRightClickAppliesEraser,
+                                display: qsTr("Apply eraser")
+                            },
+                            {
+                                value: ImageCanvas.PenToolRightClickAppliesEyeDropper,
+                                display: qsTr("Apply colour picker")
+                            },
+                            {
+                                value: ImageCanvas.PenToolRightClickAppliesBackgroundColour,
+                                display: qsTr("Apply background colour")
+                            }
+                        ]
+
+                        Layout.fillWidth: true
+
+                        function indexForValue(value) {
+                            for (var i = 0; i < model.length; ++i) {
+                                if (model[i].value === value)
+                                    return i;
+                            }
+                            return -1;
+                        }
                     }
 
                     Label {

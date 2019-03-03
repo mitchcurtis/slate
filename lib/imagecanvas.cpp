@@ -102,6 +102,7 @@ ImageCanvas::ImageCanvas() :
     mMaxToolSize(100),
     mPenForegroundColour(Qt::black),
     mPenBackgroundColour(Qt::white),
+    mRightClickBehaviour(PenToolRightClickAppliesEraser),
     mPotentiallySelecting(false),
     mHasSelection(false),
     mMovingSelection(false),
@@ -714,6 +715,20 @@ void ImageCanvas::setGesturesEnabled(bool gesturesEnabled)
 
     mGesturesEnabled = gesturesEnabled;
     emit gesturesEnabledChanged();
+}
+
+ImageCanvas::PenToolRightClickBehaviour ImageCanvas::penToolRightClickBehaviour() const
+{
+    return mRightClickBehaviour;
+}
+
+void ImageCanvas::setPenToolRightClickBehaviour(ImageCanvas::PenToolRightClickBehaviour rightClickBehaviour)
+{
+    if (rightClickBehaviour == mRightClickBehaviour)
+        return;
+
+    mRightClickBehaviour = rightClickBehaviour;
+    emit penToolRightClickBehaviourChanged();
 }
 
 Ruler *ImageCanvas::pressedRuler() const
@@ -2052,12 +2067,31 @@ QImage ImageCanvas::greedyTexturedFillPixels() const
     return greedyTexturedFill(currentProjectImage(), scenePos, previousColour, penColour(), mTexturedFillParameters);
 }
 
+ImageCanvas::Tool ImageCanvas::effectiveTool() const
+{
+    if (mMouseButtonPressed != Qt::RightButton)
+        return mTool;
+
+    return mTool == PenTool ? penRightClickTool() : mTool;
+}
+
+ImageCanvas::Tool ImageCanvas::penRightClickTool() const
+{
+    if (mRightClickBehaviour == PenToolRightClickAppliesEraser)
+        return EraserTool;
+
+    if (mRightClickBehaviour == PenToolRightClickAppliesEyeDropper)
+        return EyeDropperTool;
+
+    return PenTool;
+}
+
 void ImageCanvas::applyCurrentTool()
 {
     if (areToolsForbidden())
         return;
 
-    switch (mTool) {
+    switch (effectiveTool()) {
     case PenTool: {
         mProject->beginMacro(QLatin1String("PixelLineTool"));
         // Draw the line on top of what has already been painted using a special composition mode.
@@ -2070,7 +2104,7 @@ void ImageCanvas::applyCurrentTool()
     case EyeDropperTool: {
         const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
         if (isWithinImage(scenePos)) {
-            setPenColour(currentProjectImage()->pixelColor(scenePos));
+            setPenColourThroughEyedropper(currentProjectImage()->pixelColor(scenePos));
         }
         break;
     }
@@ -2446,9 +2480,12 @@ QColor ImageCanvas::penColour() const
     return pressedMouseButton() == Qt::LeftButton ? mPenForegroundColour : mPenBackgroundColour;
 }
 
-void ImageCanvas::setPenColour(const QColor &colour)
+void ImageCanvas::setPenColourThroughEyedropper(const QColor &colour)
 {
-    if (pressedMouseButton() == Qt::LeftButton)
+    const Qt::MouseButton pressedButton = pressedMouseButton();
+    const bool setForeground = pressedButton == Qt::LeftButton ||
+        (pressedButton == Qt::RightButton && mRightClickBehaviour == PenToolRightClickAppliesEyeDropper);
+    if (setForeground)
         setPenForegroundColour(colour);
     else
         setPenBackgroundColour(colour);

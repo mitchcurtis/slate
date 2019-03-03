@@ -65,6 +65,10 @@ TestHelper::TestHelper(int &argc, char **argv) :
     mTools.append(ImageCanvas::FillTool);
     mTools.append(ImageCanvas::SelectionTool);/*,
     mTools.append(ImageCanvas::CropTool); TODO: not implemented yet*/
+
+    allProjectTypes << Project::TilesetType << Project::ImageType << Project::LayeredImageType;
+    allRightClickBehaviours << ImageCanvas::PenToolRightClickAppliesEraser << ImageCanvas::PenToolRightClickAppliesEyeDropper
+        << ImageCanvas::PenToolRightClickAppliesBackgroundColour;
 }
 
 TestHelper::~TestHelper()
@@ -1795,6 +1799,7 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     canvas->setToolShape(ImageCanvas::SquareToolShape);
 
     app.settings()->setAutoSwatchEnabled(false);
+    app.settings()->setPenToolRightClickBehaviour(app.settings()->defaultPenToolRightClickBehaviour());
 
     if (projectType == Project::TilesetType) {
         tilesetProject = qobject_cast<TilesetProject*>(project);

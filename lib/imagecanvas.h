@@ -65,6 +65,8 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool splitScreen READ isSplitScreen WRITE setSplitScreen NOTIFY splitScreenChanged)
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
     Q_PROPERTY(bool gesturesEnabled READ areGesturesEnabled WRITE setGesturesEnabled NOTIFY gesturesEnabledChanged)
+    Q_PROPERTY(PenToolRightClickBehaviour penToolRightClickBehaviour READ penToolRightClickBehaviour
+        WRITE setPenToolRightClickBehaviour NOTIFY penToolRightClickBehaviourChanged)
     Q_PROPERTY(Splitter *splitter READ splitter CONSTANT)
     Q_PROPERTY(CanvasPane *firstPane READ firstPane CONSTANT)
     Q_PROPERTY(CanvasPane *secondPane READ secondPane CONSTANT)
@@ -114,6 +116,14 @@ public:
         CircleToolShape,
     };
     Q_ENUM(ToolShape)
+
+    // The order of these is important, as the chosen value is serialised as an int.
+    enum PenToolRightClickBehaviour {
+        PenToolRightClickAppliesEraser,
+        PenToolRightClickAppliesEyeDropper,
+        PenToolRightClickAppliesBackgroundColour
+    };
+    Q_ENUM(PenToolRightClickBehaviour)
 
     ImageCanvas();
     ~ImageCanvas() override;
@@ -179,6 +189,9 @@ public:
 
     bool areGesturesEnabled() const;
     void setGesturesEnabled(bool gesturesEnabled);
+
+    PenToolRightClickBehaviour penToolRightClickBehaviour() const;
+    void setPenToolRightClickBehaviour(PenToolRightClickBehaviour penToolRightClickBehaviour);
 
     Ruler *pressedRuler() const;
     int pressedGuideIndex() const;
@@ -323,6 +336,7 @@ signals:
     void splitScreenChanged();
     void scrollZoomChanged();
     void gesturesEnabledChanged();
+    void penToolRightClickBehaviourChanged();
     void currentPaneChanged();
 //    void rulerForegroundColourChanged();
 //    void rulerBackgroundColourChanged();
@@ -415,6 +429,8 @@ protected:
     QImage texturedFillPixels() const;
     QImage greedyTexturedFillPixels() const;
 
+    ImageCanvas::Tool effectiveTool() const;
+    ImageCanvas::Tool penRightClickTool() const;
     virtual void applyCurrentTool();
     virtual void applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false);
     virtual void applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition);
@@ -435,7 +451,7 @@ protected:
 
     Qt::MouseButton pressedMouseButton() const;
     QColor penColour() const;
-    void setPenColour(const QColor &colour);
+    void setPenColourThroughEyedropper(const QColor &colour);
     void setHasBlankCursor(bool hasBlankCursor);
     void restoreToolBeforeAltPressed();
     virtual bool areToolsForbidden() const;
@@ -601,6 +617,8 @@ protected:
     QColor mPenBackgroundColour;
 
     TexturedFillParameters mTexturedFillParameters;
+
+    PenToolRightClickBehaviour mRightClickBehaviour;
 
     // The scene position at which the mouse was last pressed.
     // This is used by the pixel line tool to draw the line preview.

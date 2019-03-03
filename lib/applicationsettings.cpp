@@ -40,6 +40,8 @@ bool ApplicationSettings::loadLastOnStartup() const
 
 void ApplicationSettings::setLoadLastOnStartup(bool loadLastOnStartup)
 {
+    // TODO: replace all this duplicated code with the getter
+    // e.g. if (this->loadLastOnStartup() == loadLastOnStartup) return;
     QVariant existingValue = value("loadLastOnStartup");
     bool existingBoolValue = defaultLoadLastOnStartup();
     if (contains("loadLastOnStartup")) {
@@ -403,6 +405,26 @@ void ApplicationSettings::setCheckerColour2(const QColor &colour)
 
     setValue("checkerColour2", QVariant::fromValue(colour));
     emit checkerColour2Changed();
+}
+
+int ApplicationSettings::defaultPenToolRightClickBehaviour() const
+{
+    return 0; // RightClickAppliesEraser
+}
+
+int ApplicationSettings::penToolRightClickBehaviour() const
+{
+    return contains("penToolRightClickBehaviour")
+        ? value("penToolRightClickBehaviour").value<int>() : defaultPenToolRightClickBehaviour();
+}
+
+void ApplicationSettings::setPenToolRightClickBehaviour(int penToolRightClickBehaviour)
+{
+    if (this->penToolRightClickBehaviour() == penToolRightClickBehaviour)
+        return;
+
+    setValue("penToolRightClickBehaviour", QVariant(penToolRightClickBehaviour));
+    emit penToolRightClickBehaviourChanged();
 }
 
 void ApplicationSettings::resetShortcutsToDefaults()

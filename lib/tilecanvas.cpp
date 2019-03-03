@@ -314,7 +314,7 @@ TileCanvas::TileCandidateData TileCanvas::fillTileCandidates() const
 
 void TileCanvas::applyCurrentTool()
 {
-    switch (mTool) {
+    switch (effectiveTool()) {
     case PenTool: {
         if (mMode == PixelMode) {
 //            const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
@@ -362,7 +362,7 @@ void TileCanvas::applyCurrentTool()
     }
     case EraserTool: {
         if (mMode == PixelMode) {
-            const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
+            const PixelCandidateData candidateData = penEraserPixelCandidates(EraserTool);
             if (candidateData.scenePositions.isEmpty()) {
                 return;
             }

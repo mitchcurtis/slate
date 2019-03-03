@@ -243,6 +243,9 @@ protected:
 
     QByteArray failureMessage;
 
+    QVector<Project::Type> allProjectTypes;
+    QVector<ImageCanvas::PenToolRightClickBehaviour> allRightClickBehaviours;
+
     Application app;
     QQuickWindow *window;
     QQuickItem *overlay;
