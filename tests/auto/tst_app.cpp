@@ -46,6 +46,7 @@ public:
     tst_App(int &argc, char **argv);
 
 private Q_SLOTS:
+    // Project management.
     void newProjectWithNewTileset();
     void repeatedNewProject_data();
     void repeatedNewProject();
@@ -59,7 +60,9 @@ private Q_SLOTS:
     void versionCheck();
     void loadTilesetProjectWithInvalidTileset();
     void loadLayeredImageProjectAfterTilesetProject();
+    void recentFiles();
 
+    // Tools, misc.
     void animationPlayback_data();
     void animationPlayback();
     void keyboardShortcuts();
@@ -102,7 +105,21 @@ private Q_SLOTS:
     void eraseImageCanvas();
     void splitterSettingsMouse_data();
     void splitterSettingsMouse();
+    void fillImageCanvas_data();
+    void fillImageCanvas();
+    void fillLayeredImageCanvas();
+    void greedyPixelFillImageCanvas_data();
+    void greedyPixelFillImageCanvas();
+    void texturedFill_data();
+    void texturedFill();
+    void pixelLineToolImageCanvas_data();
+    void pixelLineToolImageCanvas();
+    void pixelLineToolTransparent_data();
+    void pixelLineToolTransparent();
+    void rulersAndGuides_data();
+    void rulersAndGuides();
 
+    // Swatches.
     void autoSwatch_data();
     void autoSwatch();
     void autoSwatchGridViewContentY();
@@ -111,6 +128,7 @@ private Q_SLOTS:
     void importSwatches_data();
     void importSwatches();
 
+    // Selection-related stuff.
     void selectionToolImageCanvas();
     void selectionToolTileCanvas();
     void cancelSelectionToolImageCanvas();
@@ -141,21 +159,7 @@ private Q_SLOTS:
     void opacityDialog_data();
     void opacityDialog();
 
-    void fillImageCanvas_data();
-    void fillImageCanvas();
-    void fillLayeredImageCanvas();
-    void greedyPixelFillImageCanvas_data();
-    void greedyPixelFillImageCanvas();
-    void texturedFill_data();
-    void texturedFill();
-    void pixelLineToolImageCanvas_data();
-    void pixelLineToolImageCanvas();
-    void pixelLineToolTransparent_data();
-    void pixelLineToolTransparent();
-    void rulersAndGuides_data();
-    void rulersAndGuides();
-    void recentFiles();
-
+    // Layers.
     void addAndRemoveLayers();
     void layerVisibility();
     void moveLayerUpAndDown();
@@ -584,6 +588,41 @@ void tst_App::loadLayeredImageProjectAfterTilesetProject()
     QVERIFY(swatchesPanel);
     // 5 is the spacing between panels.
     QCOMPARE(layersLoader->y(), swatchesPanel->y() + swatchesPanel->height() + 5);
+}
+
+void tst_App::recentFiles()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    // Should be no recent files until the new project is saved.
+    QObject *recentFilesInstantiator = window->findChild<QObject*>("recentFilesInstantiator");
+    QVERIFY(recentFilesInstantiator);
+    QCOMPARE(recentFilesInstantiator->property("count").toInt(), 0);
+
+    // Save.
+    project->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/recentFiles.png"));
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QCOMPARE(recentFilesInstantiator->property("count").toInt(), 1);
+
+    // Get the recent file menu item from the instantiator and ensure its text is correct.
+    {
+        QObject *recentFileMenuItem = nullptr;
+        QVERIFY(QMetaObject::invokeMethod(recentFilesInstantiator, "objectAt", Qt::DirectConnection,
+            Q_RETURN_ARG(QObject*, recentFileMenuItem), Q_ARG(int, 0)));
+        QVERIFY(recentFileMenuItem);
+        QCOMPARE(recentFileMenuItem->property("text").toString(), project->url().path());
+    }
+
+    // Can't click platform types from tests, so clear the recent items manually.
+    app.settings()->clearRecentFiles();
+
+    QCOMPARE(recentFilesInstantiator->property("count").toInt(), 0);
+    {
+        QObject *recentFileMenuItem = nullptr;
+        QVERIFY(QMetaObject::invokeMethod(recentFilesInstantiator, "objectAt", Qt::DirectConnection,
+            Q_RETURN_ARG(QObject*, recentFileMenuItem), Q_ARG(int, 0)));
+        QVERIFY(!recentFileMenuItem);
+    }
 }
 
 void tst_App::animationPlayback_data()
@@ -2498,6 +2537,434 @@ void tst_App::splitterSettingsMouse()
     QCOMPARE(lockSplitterToolButton->property("checked").toBool(), false);
 }
 
+void tst_App::fillImageCanvas_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::fillImageCanvas()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+
+    // A fill on a canvas of this size would previously trigger a stack overflow
+    // using a recursive algorithm.
+    QVERIFY2(changeCanvasSize(90, 90), failureMessage);
+
+    // Fill the canvas with black.
+    QVERIFY2(switchTool(ImageCanvas::FillTool), failureMessage);
+    setCursorPosInScenePixels(0, 0);
+    mouseEvent(canvas, cursorWindowPos, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(project->widthInPixels() - 1,
+                                                       project->heightInPixels() - 1), QColor(Qt::black));
+}
+
+void tst_App::fillLayeredImageCanvas()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
+
+    // Add a new layer.
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+    QVERIFY(layeredImageProject->currentLayerIndex() == 1);
+    ImageLayer *layer1 = layeredImageProject->layerAt(1);
+    ImageLayer *layer2 = layeredImageProject->layerAt(0);
+
+    // Switch to the fill tool.
+    QVERIFY2(switchTool(ImageCanvas::FillTool), failureMessage);
+
+    // Fill layer 1.
+    layeredImageCanvas->setPenForegroundColour(Qt::red);
+    setCursorPosInScenePixels(0, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::red));
+    QCOMPARE(layer1->image()->pixelColor(255, 255), QColor(Qt::red));
+
+    // Select the new layer (make it current).
+    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
+
+    // Undo. It should affect layer 1.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(layer1->image()->pixelColor(255, 255), QColor(Qt::white));
+    QCOMPARE(layer2->image()->pixelColor(0, 0), QColor(Qt::transparent));
+}
+
+void tst_App::greedyPixelFillImageCanvas_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::greedyPixelFillImageCanvas()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+
+    QVERIFY2(changeCanvasSize(40, 40), failureMessage);
+
+    // Draw 4 separate pixels.
+    setCursorPosInScenePixels(4, 4);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    setCursorPosInScenePixels(35, 4);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    setCursorPosInScenePixels(35, 35);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    setCursorPosInScenePixels(4, 35);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    QVERIFY2(switchTool(ImageCanvas::FillTool), failureMessage);
+    canvas->setPenForegroundColour(Qt::blue);
+    setCursorPosInScenePixels(4, 4);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::keyPress(window, Qt::Key_Shift);
+    // For some reason there must be a delay in order for the shift modifier to work.
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
+    QTest::keyRelease(window, Qt::Key_Shift);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::blue));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 4), QColor(Qt::blue));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 35), QColor(Qt::blue));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 35), QColor(Qt::blue));
+
+    // Undo it.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 4), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 35), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 35), QColor(Qt::black));
+}
+
+void tst_App::texturedFill_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::texturedFill()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+
+    QVERIFY2(changeCanvasSize(90, 90), failureMessage);
+
+    // TODO: switch tools via the popup menu
+//    QVERIFY2(switchTool(ImageCanvas::TexturedFillTool), failureMessage);
+    canvas->setTool(ImageCanvas::TexturedFillTool);
+    QCOMPARE(canvas->lastFillToolUsed(), ImageCanvas::TexturedFillTool);
+
+    QVERIFY2(setPenForegroundColour("#123456"), failureMessage);
+
+    // Open the settings dialog.
+    QObject *settingsDialog = window->findChild<QObject*>("texturedFillSettingsDialog");
+    QVERIFY(settingsDialog);
+    QVERIFY(QMetaObject::invokeMethod(settingsDialog, "open"));
+    QVERIFY(settingsDialog->property("visible").toBool());
+
+    QQuickItem *hueVarianceCheckBox = settingsDialog->findChild<QQuickItem*>("hueVarianceCheckBox");
+    QVERIFY(hueVarianceCheckBox);
+    QCOMPARE(hueVarianceCheckBox->property("checked").toBool(), false);
+
+    QQuickItem *saturationVarianceCheckBox = settingsDialog->findChild<QQuickItem*>("saturationVarianceCheckBox");
+    QVERIFY(saturationVarianceCheckBox);
+    QCOMPARE(saturationVarianceCheckBox->property("checked").toBool(), false);
+
+    QQuickItem *lightnessVarianceCheckBox = settingsDialog->findChild<QQuickItem*>("lightnessVarianceCheckBox");
+    QVERIFY(lightnessVarianceCheckBox);
+    QCOMPARE(lightnessVarianceCheckBox->property("checked").toBool(), true);
+
+    // Change some settings.
+    QVERIFY(hueVarianceCheckBox->setProperty("checked", QVariant(true)));
+    QVERIFY(saturationVarianceCheckBox->setProperty("checked", QVariant(true)));
+    QVERIFY(lightnessVarianceCheckBox->setProperty("checked", QVariant(false)));
+
+    // Cancel the dialog..
+    QQuickItem *texturedFillSettingsCancelButton = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsCancelButton");
+    mouseEventOnCentre(texturedFillSettingsCancelButton, MouseClick);
+    QVERIFY(!settingsDialog->property("visible").toBool());
+
+    // .. and then open it again.
+    QVERIFY(QMetaObject::invokeMethod(settingsDialog, "open"));
+    QVERIFY(settingsDialog->property("visible").toBool());
+
+    // The original settings should be restored.
+    QVERIFY(hueVarianceCheckBox->setProperty("checked", QVariant(false)));
+    QVERIFY(saturationVarianceCheckBox->setProperty("checked", QVariant(false)));
+    QVERIFY(lightnessVarianceCheckBox->setProperty("checked", QVariant(true)));
+
+    // Open the settings dialog again.
+    QVERIFY(settingsDialog->property("visible").toBool());
+    QCOMPARE(hueVarianceCheckBox->property("checked").toBool(), false);
+    QCOMPARE(saturationVarianceCheckBox->property("checked").toBool(), false);
+    QCOMPARE(lightnessVarianceCheckBox->property("checked").toBool(), true);
+
+    // Confirm the changes.
+    QQuickItem *texturedFillSettingsDialogOkButton = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsDialogOkButton");
+    QVERIFY(texturedFillSettingsDialogOkButton);
+    mouseEventOnCentre(texturedFillSettingsDialogOkButton, MouseClick);
+    QVERIFY(!settingsDialog->property("visible").toBool());
+
+    // Fill the canvas with the default settings.
+    setCursorPosInScenePixels(0, 0);
+    mouseEvent(canvas, cursorWindowPos, MouseClick);
+    // Ensure that there is some variation to the colours.
+    bool hasVariation = false;
+    for (int y = 0; y < canvas->currentProjectImage()->height() && !hasVariation; ++y) {
+        for (int x = 0; x < canvas->currentProjectImage()->width() && !hasVariation; ++x) {
+            const QColor colour = canvas->currentProjectImage()->pixelColor(x, y);
+            // (the background is white by default)
+            hasVariation = colour != QColor(Qt::black) && colour != QColor(Qt::white);
+        }
+    }
+    QVERIFY(hasVariation);
+}
+
+void tst_App::pixelLineToolImageCanvas_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::pixelLineToolImageCanvas()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
+
+    // Draw the start of the line.
+    setCursorPosInScenePixels(0, 0);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    // Draw the line itself.
+    setCursorPosInScenePixels(2, 2);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::keyPress(window, Qt::Key_Shift);
+    // For some reason there must be a delay in order for the shift modifier to work.
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
+    QTest::keyRelease(window, Qt::Key_Shift);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
+
+    // Undo the line.
+    mouseEventOnCentre(undoButton, MouseClick);
+    // The initial press has to still be there.
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
+
+    // Redo the line.
+    mouseEventOnCentre(redoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
+
+    // Draw another line.
+    setCursorPosInScenePixels(0, 4);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::keyPress(window, Qt::Key_Shift);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
+    QTest::keyRelease(window, Qt::Key_Shift);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 3), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 4), QColor(Qt::black));
+
+    // Undo the second line.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 3), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 4), QColor(Qt::white));
+
+    // Undo the first line.
+    mouseEventOnCentre(undoButton, MouseClick);
+    // The initial press has to still be there.
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
+
+    // Undo the inital press.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
+    QCOMPARE(project->hasUnsavedChanges(), false);
+}
+
+void tst_App::pixelLineToolTransparent_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::pixelLineToolTransparent()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
+
+    const QColor translucentRed = QColor::fromRgba(0x88ff0000);
+    QVERIFY2(setPenForegroundColour("#88ff0000"), failureMessage);
+
+    // Draw the start of the line.
+    setCursorPosInScenePixels(0, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
+    QCOMPARE(project->hasUnsavedChanges(), true);
+
+    // Draw the line itself.
+    setCursorPosInScenePixels(2, 2);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::keyPress(window, Qt::Key_Shift);
+    // For some reason there must be a delay in order for the shift modifier to work.
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
+    QTest::keyRelease(window, Qt::Key_Shift);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), translucentRed);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);
+
+    // Undo the line.
+    mouseEventOnCentre(undoButton, MouseClick);
+    // The initial press has to still be there.
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
+
+    // Redo the line.
+    mouseEventOnCentre(redoButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), translucentRed);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);\
+}
+
+void tst_App::rulersAndGuides_data()
+{
+    addAllProjectTypes();
+}
+
+void tst_App::rulersAndGuides()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+
+    QVERIFY2(triggerRulersVisible(), failureMessage);
+    QCOMPARE(app.settings()->areRulersVisible(), true);
+
+    QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
+    QVERIFY(firstHorizontalRuler);
+    const qreal rulerThickness = firstHorizontalRuler->height();
+
+    // Pan so that the top left of the canvas is at the rulers' corners.
+    QVERIFY2(panTopLeftTo(rulerThickness, rulerThickness), failureMessage);
+
+    // A guide should only be added when dropped outside of the ruler.
+    setCursorPosInPixels(QPoint(50, rulerThickness / 2));
+    QTest::mouseMove(window, cursorWindowPos);
+    QVERIFY(!canvas->pressedRuler());
+
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(canvas->pressedRuler());
+
+    setCursorPosInPixels(QPoint(50, rulerThickness - 2));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(!canvas->pressedRuler());
+    QCOMPARE(project->guides().size(), 0);
+    QCOMPARE(project->undoStack()->canUndo(), false);
+
+    // Drop a horizontal guide onto the canvas.
+    QVERIFY2(addNewGuide(Qt::Horizontal, 10), failureMessage);
+
+    // Undo.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(project->guides().size(), 0);
+    QCOMPARE(project->undoStack()->canUndo(), false);
+
+    // Redo.
+    mouseEventOnCentre(redoButton, MouseClick);
+    QCOMPARE(project->guides().size(), 1);
+    QCOMPARE(project->guides().first().position(), 10);
+    QCOMPARE(project->undoStack()->canUndo(), true);
+
+    // The cursor should change when over an existing guide.
+    // For some reason it is necessary to move the mouse away like this...
+    // works fine in actual application usage.
+    QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
+    QTest::mouseMove(window, cursorWindowPos);
+    QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
+
+    // Move it.
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->pressedGuideIndex(), 0);
+    QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
+
+    setCursorPosInPixels(QPoint(50, rulerThickness + 20));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(project->guides().first().position(), 20);
+    QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
+
+    // Undo.
+    mouseEventOnCentre(undoButton, MouseClick);
+    QCOMPARE(project->guides().size(), 1);
+    QCOMPARE(project->guides().first().position(), 10);
+    QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
+    QTest::mouseMove(window, cursorWindowPos);
+    QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
+
+    // Redo.
+    mouseEventOnCentre(redoButton, MouseClick);
+    QCOMPARE(project->guides().size(), 1);
+    QCOMPARE(project->guides().first().position(), 20);
+    QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
+    QTest::mouseMove(window, cursorWindowPos);
+    QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
+
+    // Delete it by dragging it onto the ruler.
+    setCursorPosInPixels(QPoint(50, rulerThickness + 20));
+    QTest::mouseMove(window, cursorWindowPos);
+
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->pressedGuideIndex(), 0);
+    QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
+
+    setCursorPosInPixels(QPoint(50, rulerThickness / 2));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(project->guides().isEmpty(), true);
+    QCOMPARE(window->cursor().shape(), Qt::ArrowCursor);
+
+    // Shouldn't be possible to create a guide when Guides Locked is checked.
+    app.settings()->setGuidesLocked(true);
+
+    // Try to drag a guide out.
+    setCursorPosInPixels(QPoint(50, rulerThickness / 2));
+    QTest::mouseMove(window, cursorWindowPos);
+    QVERIFY(!canvas->pressedRuler());
+
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(!canvas->pressedRuler());
+
+    setCursorPosInPixels(QPoint(50, rulerThickness + 10));
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(!canvas->pressedRuler());
+    QCOMPARE(project->guides().size(), 0);
+
+    app.settings()->setGuidesLocked(false);
+}
+
 void tst_App::autoSwatch_data()
 {
     addAllProjectTypes();
@@ -3884,469 +4351,6 @@ void tst_App::opacityDialog()
     QTest::keyClick(window, Qt::Key_Escape);
     QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage);
     QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), expectedImage);
-}
-
-void tst_App::fillImageCanvas_data()
-{
-    addImageProjectTypes();
-}
-
-void tst_App::fillImageCanvas()
-{
-    QFETCH(Project::Type, projectType);
-
-    QVERIFY2(createNewProject(projectType), failureMessage);
-
-    // A fill on a canvas of this size would previously trigger a stack overflow
-    // using a recursive algorithm.
-    QVERIFY2(changeCanvasSize(90, 90), failureMessage);
-
-    // Fill the canvas with black.
-    QVERIFY2(switchTool(ImageCanvas::FillTool), failureMessage);
-    setCursorPosInScenePixels(0, 0);
-    mouseEvent(canvas, cursorWindowPos, MouseClick);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(project->widthInPixels() - 1,
-                                                       project->heightInPixels() - 1), QColor(Qt::black));
-}
-
-void tst_App::fillLayeredImageCanvas()
-{
-    QVERIFY2(createNewLayeredImageProject(), failureMessage);
-    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
-
-    // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 2);
-    QVERIFY(layeredImageProject->currentLayerIndex() == 1);
-    ImageLayer *layer1 = layeredImageProject->layerAt(1);
-    ImageLayer *layer2 = layeredImageProject->layerAt(0);
-
-    // Switch to the fill tool.
-    QVERIFY2(switchTool(ImageCanvas::FillTool), failureMessage);
-
-    // Fill layer 1.
-    layeredImageCanvas->setPenForegroundColour(Qt::red);
-    setCursorPosInScenePixels(0, 0);
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::red));
-    QCOMPARE(layer1->image()->pixelColor(255, 255), QColor(Qt::red));
-
-    // Select the new layer (make it current).
-    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
-
-    // Undo. It should affect layer 1.
-    mouseEventOnCentre(undoButton, MouseClick);
-    QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::white));
-    QCOMPARE(layer1->image()->pixelColor(255, 255), QColor(Qt::white));
-    QCOMPARE(layer2->image()->pixelColor(0, 0), QColor(Qt::transparent));
-}
-
-void tst_App::greedyPixelFillImageCanvas_data()
-{
-    addImageProjectTypes();
-}
-
-void tst_App::greedyPixelFillImageCanvas()
-{
-    QFETCH(Project::Type, projectType);
-
-    QVERIFY2(createNewProject(projectType), failureMessage);
-
-    QVERIFY2(changeCanvasSize(40, 40), failureMessage);
-
-    // Draw 4 separate pixels.
-    setCursorPosInScenePixels(4, 4);
-    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
-
-    setCursorPosInScenePixels(35, 4);
-    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
-
-    setCursorPosInScenePixels(35, 35);
-    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
-
-    setCursorPosInScenePixels(4, 35);
-    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
-
-    QVERIFY2(switchTool(ImageCanvas::FillTool), failureMessage);
-    canvas->setPenForegroundColour(Qt::blue);
-    setCursorPosInScenePixels(4, 4);
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::keyPress(window, Qt::Key_Shift);
-    // For some reason there must be a delay in order for the shift modifier to work.
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
-    QTest::keyRelease(window, Qt::Key_Shift);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::blue));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 4), QColor(Qt::blue));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 35), QColor(Qt::blue));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 35), QColor(Qt::blue));
-
-    // Undo it.
-    mouseEventOnCentre(undoButton, MouseClick);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 4), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 35), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 35), QColor(Qt::black));
-}
-
-void tst_App::texturedFill_data()
-{
-    addImageProjectTypes();
-}
-
-void tst_App::texturedFill()
-{
-    QFETCH(Project::Type, projectType);
-
-    QVERIFY2(createNewProject(projectType), failureMessage);
-
-    QVERIFY2(changeCanvasSize(90, 90), failureMessage);
-
-    // TODO: switch tools via the popup menu
-//    QVERIFY2(switchTool(ImageCanvas::TexturedFillTool), failureMessage);
-    canvas->setTool(ImageCanvas::TexturedFillTool);
-    QCOMPARE(canvas->lastFillToolUsed(), ImageCanvas::TexturedFillTool);
-
-    QVERIFY2(setPenForegroundColour("#123456"), failureMessage);
-
-    // Open the settings dialog.
-    QObject *settingsDialog = window->findChild<QObject*>("texturedFillSettingsDialog");
-    QVERIFY(settingsDialog);
-    QVERIFY(QMetaObject::invokeMethod(settingsDialog, "open"));
-    QVERIFY(settingsDialog->property("visible").toBool());
-
-    QQuickItem *hueVarianceCheckBox = settingsDialog->findChild<QQuickItem*>("hueVarianceCheckBox");
-    QVERIFY(hueVarianceCheckBox);
-    QCOMPARE(hueVarianceCheckBox->property("checked").toBool(), false);
-
-    QQuickItem *saturationVarianceCheckBox = settingsDialog->findChild<QQuickItem*>("saturationVarianceCheckBox");
-    QVERIFY(saturationVarianceCheckBox);
-    QCOMPARE(saturationVarianceCheckBox->property("checked").toBool(), false);
-
-    QQuickItem *lightnessVarianceCheckBox = settingsDialog->findChild<QQuickItem*>("lightnessVarianceCheckBox");
-    QVERIFY(lightnessVarianceCheckBox);
-    QCOMPARE(lightnessVarianceCheckBox->property("checked").toBool(), true);
-
-    // Change some settings.
-    QVERIFY(hueVarianceCheckBox->setProperty("checked", QVariant(true)));
-    QVERIFY(saturationVarianceCheckBox->setProperty("checked", QVariant(true)));
-    QVERIFY(lightnessVarianceCheckBox->setProperty("checked", QVariant(false)));
-
-    // Cancel the dialog..
-    QQuickItem *texturedFillSettingsCancelButton = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsCancelButton");
-    mouseEventOnCentre(texturedFillSettingsCancelButton, MouseClick);
-    QVERIFY(!settingsDialog->property("visible").toBool());
-
-    // .. and then open it again.
-    QVERIFY(QMetaObject::invokeMethod(settingsDialog, "open"));
-    QVERIFY(settingsDialog->property("visible").toBool());
-
-    // The original settings should be restored.
-    QVERIFY(hueVarianceCheckBox->setProperty("checked", QVariant(false)));
-    QVERIFY(saturationVarianceCheckBox->setProperty("checked", QVariant(false)));
-    QVERIFY(lightnessVarianceCheckBox->setProperty("checked", QVariant(true)));
-
-    // Open the settings dialog again.
-    QVERIFY(settingsDialog->property("visible").toBool());
-    QCOMPARE(hueVarianceCheckBox->property("checked").toBool(), false);
-    QCOMPARE(saturationVarianceCheckBox->property("checked").toBool(), false);
-    QCOMPARE(lightnessVarianceCheckBox->property("checked").toBool(), true);
-
-    // Confirm the changes.
-    QQuickItem *texturedFillSettingsDialogOkButton = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsDialogOkButton");
-    QVERIFY(texturedFillSettingsDialogOkButton);
-    mouseEventOnCentre(texturedFillSettingsDialogOkButton, MouseClick);
-    QVERIFY(!settingsDialog->property("visible").toBool());
-
-    // Fill the canvas with the default settings.
-    setCursorPosInScenePixels(0, 0);
-    mouseEvent(canvas, cursorWindowPos, MouseClick);
-    // Ensure that there is some variation to the colours.
-    bool hasVariation = false;
-    for (int y = 0; y < canvas->currentProjectImage()->height() && !hasVariation; ++y) {
-        for (int x = 0; x < canvas->currentProjectImage()->width() && !hasVariation; ++x) {
-            const QColor colour = canvas->currentProjectImage()->pixelColor(x, y);
-            // (the background is white by default)
-            hasVariation = colour != QColor(Qt::black) && colour != QColor(Qt::white);
-        }
-    }
-    QVERIFY(hasVariation);
-}
-
-void tst_App::pixelLineToolImageCanvas_data()
-{
-    addImageProjectTypes();
-}
-
-void tst_App::pixelLineToolImageCanvas()
-{
-    QFETCH(Project::Type, projectType);
-
-    QVERIFY2(createNewProject(projectType), failureMessage);
-
-    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
-
-    // Draw the start of the line.
-    setCursorPosInScenePixels(0, 0);
-    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
-
-    // Draw the line itself.
-    setCursorPosInScenePixels(2, 2);
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::keyPress(window, Qt::Key_Shift);
-    // For some reason there must be a delay in order for the shift modifier to work.
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
-    QTest::keyRelease(window, Qt::Key_Shift);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
-
-    // Undo the line.
-    mouseEventOnCentre(undoButton, MouseClick);
-    // The initial press has to still be there.
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
-
-    // Redo the line.
-    mouseEventOnCentre(redoButton, MouseClick);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
-
-    // Draw another line.
-    setCursorPosInScenePixels(0, 4);
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::keyPress(window, Qt::Key_Shift);
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
-    QTest::keyRelease(window, Qt::Key_Shift);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 3), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 4), QColor(Qt::black));
-
-    // Undo the second line.
-    mouseEventOnCentre(undoButton, MouseClick);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 3), QColor(Qt::white));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 4), QColor(Qt::white));
-
-    // Undo the first line.
-    mouseEventOnCentre(undoButton, MouseClick);
-    // The initial press has to still be there.
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
-
-    // Undo the inital press.
-    mouseEventOnCentre(undoButton, MouseClick);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
-    QCOMPARE(project->hasUnsavedChanges(), false);
-}
-
-void tst_App::pixelLineToolTransparent_data()
-{
-    addImageProjectTypes();
-}
-
-void tst_App::pixelLineToolTransparent()
-{
-    QFETCH(Project::Type, projectType);
-
-    QVERIFY2(createNewProject(projectType), failureMessage);
-
-    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
-
-    const QColor translucentRed = QColor::fromRgba(0x88ff0000);
-    QVERIFY2(setPenForegroundColour("#88ff0000"), failureMessage);
-
-    // Draw the start of the line.
-    setCursorPosInScenePixels(0, 0);
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
-    QCOMPARE(project->hasUnsavedChanges(), true);
-
-    // Draw the line itself.
-    setCursorPosInScenePixels(2, 2);
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::keyPress(window, Qt::Key_Shift);
-    // For some reason there must be a delay in order for the shift modifier to work.
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
-    QTest::keyRelease(window, Qt::Key_Shift);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), translucentRed);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);
-
-    // Undo the line.
-    mouseEventOnCentre(undoButton, MouseClick);
-    // The initial press has to still be there.
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
-
-    // Redo the line.
-    mouseEventOnCentre(redoButton, MouseClick);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), translucentRed);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);\
-}
-
-void tst_App::rulersAndGuides_data()
-{
-    addAllProjectTypes();
-}
-
-void tst_App::rulersAndGuides()
-{
-    QFETCH(Project::Type, projectType);
-
-    QVERIFY2(createNewProject(projectType), failureMessage);
-
-    QVERIFY2(triggerRulersVisible(), failureMessage);
-    QCOMPARE(app.settings()->areRulersVisible(), true);
-
-    QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
-    QVERIFY(firstHorizontalRuler);
-    const qreal rulerThickness = firstHorizontalRuler->height();
-
-    // Pan so that the top left of the canvas is at the rulers' corners.
-    QVERIFY2(panTopLeftTo(rulerThickness, rulerThickness), failureMessage);
-
-    // A guide should only be added when dropped outside of the ruler.
-    setCursorPosInPixels(QPoint(50, rulerThickness / 2));
-    QTest::mouseMove(window, cursorWindowPos);
-    QVERIFY(!canvas->pressedRuler());
-
-    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QVERIFY(canvas->pressedRuler());
-
-    setCursorPosInPixels(QPoint(50, rulerThickness - 2));
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QVERIFY(!canvas->pressedRuler());
-    QCOMPARE(project->guides().size(), 0);
-    QCOMPARE(project->undoStack()->canUndo(), false);
-
-    // Drop a horizontal guide onto the canvas.
-    QVERIFY2(addNewGuide(Qt::Horizontal, 10), failureMessage);
-
-    // Undo.
-    mouseEventOnCentre(undoButton, MouseClick);
-    QCOMPARE(project->guides().size(), 0);
-    QCOMPARE(project->undoStack()->canUndo(), false);
-
-    // Redo.
-    mouseEventOnCentre(redoButton, MouseClick);
-    QCOMPARE(project->guides().size(), 1);
-    QCOMPARE(project->guides().first().position(), 10);
-    QCOMPARE(project->undoStack()->canUndo(), true);
-
-    // The cursor should change when over an existing guide.
-    // For some reason it is necessary to move the mouse away like this...
-    // works fine in actual application usage.
-    QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
-    QTest::mouseMove(window, cursorWindowPos);
-    QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
-
-    // Move it.
-    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(canvas->pressedGuideIndex(), 0);
-    QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
-
-    setCursorPosInPixels(QPoint(50, rulerThickness + 20));
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(project->guides().first().position(), 20);
-    QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
-
-    // Undo.
-    mouseEventOnCentre(undoButton, MouseClick);
-    QCOMPARE(project->guides().size(), 1);
-    QCOMPARE(project->guides().first().position(), 10);
-    QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
-    QTest::mouseMove(window, cursorWindowPos);
-    QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
-
-    // Redo.
-    mouseEventOnCentre(redoButton, MouseClick);
-    QCOMPARE(project->guides().size(), 1);
-    QCOMPARE(project->guides().first().position(), 20);
-    QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
-    QTest::mouseMove(window, cursorWindowPos);
-    QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
-
-    // Delete it by dragging it onto the ruler.
-    setCursorPosInPixels(QPoint(50, rulerThickness + 20));
-    QTest::mouseMove(window, cursorWindowPos);
-
-    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(canvas->pressedGuideIndex(), 0);
-    QCOMPARE(window->cursor().shape(), Qt::ClosedHandCursor);
-
-    setCursorPosInPixels(QPoint(50, rulerThickness / 2));
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(project->guides().isEmpty(), true);
-    QCOMPARE(window->cursor().shape(), Qt::ArrowCursor);
-
-    // Shouldn't be possible to create a guide when Guides Locked is checked.
-    app.settings()->setGuidesLocked(true);
-
-    // Try to drag a guide out.
-    setCursorPosInPixels(QPoint(50, rulerThickness / 2));
-    QTest::mouseMove(window, cursorWindowPos);
-    QVERIFY(!canvas->pressedRuler());
-
-    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QVERIFY(!canvas->pressedRuler());
-
-    setCursorPosInPixels(QPoint(50, rulerThickness + 10));
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QVERIFY(!canvas->pressedRuler());
-    QCOMPARE(project->guides().size(), 0);
-
-    app.settings()->setGuidesLocked(false);
-}
-
-void tst_App::recentFiles()
-{
-    QVERIFY2(createNewLayeredImageProject(), failureMessage);
-
-    // Should be no recent files until the new project is saved.
-    QObject *recentFilesInstantiator = window->findChild<QObject*>("recentFilesInstantiator");
-    QVERIFY(recentFilesInstantiator);
-    QCOMPARE(recentFilesInstantiator->property("count").toInt(), 0);
-
-    // Save.
-    project->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/recentFiles.png"));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
-    QCOMPARE(recentFilesInstantiator->property("count").toInt(), 1);
-
-    // Get the recent file menu item from the instantiator and ensure its text is correct.
-    {
-        QObject *recentFileMenuItem = nullptr;
-        QVERIFY(QMetaObject::invokeMethod(recentFilesInstantiator, "objectAt", Qt::DirectConnection,
-            Q_RETURN_ARG(QObject*, recentFileMenuItem), Q_ARG(int, 0)));
-        QVERIFY(recentFileMenuItem);
-        QCOMPARE(recentFileMenuItem->property("text").toString(), project->url().path());
-    }
-
-    // Can't click platform types from tests, so clear the recent items manually.
-    app.settings()->clearRecentFiles();
-
-    QCOMPARE(recentFilesInstantiator->property("count").toInt(), 0);
-    {
-        QObject *recentFileMenuItem = nullptr;
-        QVERIFY(QMetaObject::invokeMethod(recentFilesInstantiator, "objectAt", Qt::DirectConnection,
-            Q_RETURN_ARG(QObject*, recentFileMenuItem), Q_ARG(int, 0)));
-        QVERIFY(!recentFileMenuItem);
-    }
 }
 
 void tst_App::addAndRemoveLayers()
