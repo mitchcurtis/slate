@@ -29,7 +29,7 @@ Slate was built for pixel art, and its goal is to simplify the creation of sprit
   - [Installing](#installing)
   - [Documentation](#documentation)
   - [Discussion](#discussion)
-  - [Notes](#notes)
+  - [Donations](#donations)
 - [Building From Source](#building-from-source)
   - [Dependencies](#dependencies)
   - [Cloning](#cloning)

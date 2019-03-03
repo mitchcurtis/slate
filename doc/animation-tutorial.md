@@ -1,3 +1,11 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+# Contents
+
+- [Slate - Animation Tutorial](#slate---animation-tutorial)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Slate - Animation Tutorial
 
 In Slate, it's possible to see a preview of how an animation will look. The animation is based on one or more "frames" or "cells" in your image. This tutorial will show one way to create these frames and then go through the process of customising the animation settings.
