@@ -50,13 +50,13 @@ Slate was built for pixel art, and its goal is to simplify the creation of sprit
 ### Downloads ###
 
 <!-- ![Linux](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.svg "Linux") -->
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.svg" width="16" height="16"> - [Slate 0.5.0 for Linux](https://github.com/mitchcurtis/slate/releases/download/v0.5.0/Slate-v0.5.0-linux.zip)
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.svg" width="16" height="16"> - [Slate 0.6.0 for Linux](https://github.com/mitchcurtis/slate/releases/download/v0.6.0/Slate-v0.6.0-linux.zip)
 
 <!-- ![Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.svg "Mac") -->
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.svg" width="16" height="16"> - [Slate 0.5.0 for Mac](https://github.com/mitchcurtis/slate/releases/download/v0.5.0/Slate-v0.5.0-mac.dmg.zip)
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.svg" width="16" height="16"> - [Slate 0.6.0 for Mac](https://github.com/mitchcurtis/slate/releases/download/v0.6.0/Slate-v0.6.0-mac.dmg.zip)
 
 <!-- ![Windows](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.svg "Windows") -->
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.svg" width="16" height="16"> - [Slate 0.5.0 for Windows](https://github.com/mitchcurtis/slate/releases/download/v0.5.0/Slate-v0.5.0-windows.zip)
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.svg" width="16" height="16"> - [Slate 0.6.0 for Windows](https://github.com/mitchcurtis/slate/releases/download/v0.6.0/Slate-v0.6.0-windows.zip)
 
 See the [releases](https://github.com/mitchcurtis/slate/releases) page for the full list of available downloads.
 
@@ -73,9 +73,11 @@ Join Slate's Discord channel for discussion: https://discord.gg/ZtAAg5D
 
 It's fine to ask questions here on GitHub as well - just [create an issue](https://github.com/mitchcurtis/slate/issues/new) and I will label it accordingly.
 
-### Notes ###
-- This is a work in progress, but should already be usable. Feel free to [report](https://github.com/mitchcurtis/slate/issues) any bugs you find. :)
-- The UI is currently designed for the [Material style](http://doc.qt.io/qt-5/qtquickcontrols2-material.html), and will probably look bad when run with others.
+### Donations ###
+
+If you like Slate and want to let me know, you can donate:
+
+[![](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SX4TH5QGBAFYC&source=url)
 
 ## Building From Source ##
 
