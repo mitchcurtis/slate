@@ -69,7 +69,7 @@ All Slate builds are portable, meaning that no installation is necessary. On Win
 
 ### Discussion ###
 
-Join Slate's Discord channel for discussion: https://discord.gg/ZtAAg5D
+Join Slate's Discord server for discussion: https://discord.gg/ZtAAg5D
 
 It's fine to ask questions here on GitHub as well - just [create an issue](https://github.com/mitchcurtis/slate/issues/new) and I will label it accordingly.
 
