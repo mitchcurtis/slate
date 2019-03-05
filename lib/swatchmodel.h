@@ -39,6 +39,7 @@ public:
     enum {
         NameRole = Qt::UserRole,
         ColourRole,
+        ColourHexNameRole
     };
 
     explicit SwatchModel(QObject *parent = nullptr);

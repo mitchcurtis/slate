@@ -435,14 +435,13 @@ void tst_App::saveAsAndLoad()
         QCOMPARE(canvas->guidesVisible(), true);
     }
 
-    // Add red to the swatch.
-    QVERIFY(swatchesPanel->setProperty("expanded", QVariant(true)));
-    QQuickItem *newSwatchColourButton = window->findChild<QQuickItem*>("newSwatchColourButton");
-    QVERIFY(newSwatchColourButton);
+    // Add an opaque red to the swatch.
     canvas->setPenForegroundColour(Qt::red);
-    mouseEventOnCentre(newSwatchColourButton, MouseClick);
-    QCOMPARE(project->swatch()->colours().size(), 1);
-    QVERIFY(project->swatch()->colours().contains(SwatchColour(QString(), Qt::red)));
+    QVERIFY2(addSwatchWithForegroundColour(), failureMessage);
+    // Add a translucent red to the swatch.
+    const QColor translucentRed = QColor::fromRgba(0xaaff0000);
+    canvas->setPenForegroundColour(translucentRed);
+    QVERIFY2(addSwatchWithForegroundColour(), failureMessage);
     // Having this visible interferes with the rest of the test, and since I'm too lazy
     // to check why and it's not necessary to have it open, just close it.
     QVERIFY(swatchesPanel->setProperty("expanded", QVariant(false)));
@@ -524,6 +523,7 @@ void tst_App::saveAsAndLoad()
 
     QVector<SwatchColour> expectedSwatchColours;
     expectedSwatchColours.append(SwatchColour(QString(), Qt::red));
+    expectedSwatchColours.append(SwatchColour(QString(), translucentRed));
     if (project->swatch()->colours() != expectedSwatchColours) {
         QString message;
         QDebug stream(&message);
@@ -3180,7 +3180,7 @@ void tst_App::autoSwatchPasteConfirmation()
     // The auto swatch view should eventually be filled.
     QQuickItem *autoSwatchGridView = window->findChild<QQuickItem*>("autoSwatchGridView");
     QVERIFY(autoSwatchGridView);
-    QTRY_COMPARE(autoSwatchGridView->property("count").toInt(), 255);
+    QTRY_COMPARE(autoSwatchGridView->property("count").toInt(), 256);
 }
 
 void tst_App::swatches()

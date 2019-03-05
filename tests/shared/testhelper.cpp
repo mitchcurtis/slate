@@ -23,6 +23,7 @@
 
 #include "imagelayer.h"
 #include "projectmanager.h"
+#include "utils.h"
 
 TestHelper::TestHelper(int &argc, char **argv) :
     app(argc, argv, QStringLiteral("Slate Test Suite")),
@@ -818,6 +819,14 @@ QQuickItem *TestHelper::findSwatchViewDelegateAtIndex(int index)
 
 bool TestHelper::addSwatchWithForegroundColour()
 {
+    // Roll back to the previous value in case of test failure.
+    Utils::ScopeGuard swatchPanelExpandedGuard([=](){
+        const bool oldExpandedValue = swatchesPanel->property("expanded").toBool();
+        swatchesPanel->setProperty("expanded", oldExpandedValue);
+    });
+
+    swatchesPanel->setProperty("expanded", true);
+
     QQuickItem *swatchGridView = window->findChild<QQuickItem*>("swatchGridView");
     VERIFY(swatchGridView);
     VERIFY(QMetaObject::invokeMethod(swatchGridView, "forceLayout"));
@@ -827,14 +836,16 @@ bool TestHelper::addSwatchWithForegroundColour()
 
     const int previousDelegateCount = swatchGridView->property("count").toInt();
     const QString expectedDelegateObjectName = QString::fromLatin1("swatchGridView_Delegate_%1_%2")
-        .arg(previousDelegateCount).arg(canvas->penForegroundColour().name());
+        .arg(previousDelegateCount).arg(canvas->penForegroundColour().name(QColor::HexArgb));
 
     // Add the swatch.
     QQuickItem *newSwatchColourButton = window->findChild<QQuickItem*>("newSwatchColourButton");
     VERIFY(newSwatchColourButton);
     mouseEventOnCentre(newSwatchColourButton, MouseClick);
     VERIFY(QMetaObject::invokeMethod(swatchGridView, "forceLayout"));
-    VERIFY(swatchGridView->property("count").toInt() == previousDelegateCount + 1);
+    VERIFY2(swatchGridView->property("count").toInt() == previousDelegateCount + 1,
+        qPrintable(QString::fromLatin1("Expected %1 swatch delegates after adding one, but there are %2")
+            .arg(previousDelegateCount + 1).arg(swatchGridView->property("count").toInt())));
     // findChild() doesn't work here for some reason.
     const auto childItems = viewContentItem->childItems();
     QQuickItem *swatchDelegate = nullptr;

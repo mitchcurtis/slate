@@ -73,6 +73,24 @@ namespace Utils {
     inline T modCeil(const T dividend, const T divisor) {
         return modFloor(dividend + (divisor - 1), divisor);
     }
+
+    // Based on https://stackoverflow.com/a/28413370/904422.
+    class ScopeGuard {
+    public:
+        template<class Callable>
+        ScopeGuard(Callable && restoreFunc) : restoreFunc(std::forward<Callable>(restoreFunc)) {}
+
+        ~ScopeGuard() {
+            if(restoreFunc)
+                restoreFunc();
+        }
+
+        ScopeGuard(const ScopeGuard&) = delete;
+        void operator=(const ScopeGuard&) = delete;
+
+    private:
+        std::function<void()> restoreFunc;
+    };
 }
 
 #endif // UTILS_H

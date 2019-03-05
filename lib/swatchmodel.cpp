@@ -74,6 +74,8 @@ QVariant SwatchModel::data(const QModelIndex &index, int role) const
         return QVariant::fromValue(swatchColour.name());
     } else if (role == ColourRole) {
         return QVariant::fromValue(swatchColour.colour());
+    } else if (role == ColourHexNameRole) {
+        return QVariant::fromValue(swatchColour.colour().name(QColor::HexArgb));
     }
 
     return QVariant();
@@ -97,6 +99,7 @@ QHash<int, QByteArray> SwatchModel::roleNames() const
     QHash<int, QByteArray> names;
     names.insert(NameRole, "name");
     names.insert(ColourRole, "colour");
+    names.insert(ColourHexNameRole, "colourHexName");
     return names;
 }
 
