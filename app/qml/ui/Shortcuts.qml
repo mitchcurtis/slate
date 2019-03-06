@@ -165,19 +165,20 @@ Item {
     Shortcut {
         objectName: "gridVisibleShortcut"
         sequence: settings.gridVisibleShortcut
-        onActivated: settings.gridVisible = !settings.gridVisible
+        enabled: projectType === Project.TilesetType
+        onActivated: canvas.gridVisible = !canvas.gridVisible
     }
 
     Shortcut {
         objectName: "rulersVisibleShortcut"
         sequence: settings.rulersVisibleShortcut
-        onActivated: settings.rulersVisible = !settings.rulersVisible
+        onActivated: canvas.rulersVisible = !canvas.rulersVisible
     }
 
     Shortcut {
         objectName: "guidesVisibleShortcut"
         sequence: settings.guidesVisibleShortcut
-        onActivated: settings.guidesVisible = !settings.guidesVisible
+        onActivated: canvas.guidesVisible = !canvas.guidesVisible
     }
 
     Shortcut {

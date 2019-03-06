@@ -13,11 +13,7 @@ LayeredImageCanvas {
     backgroundColour: Theme.canvasBackgroundColour
     checkerColour1: settings.checkerColour1
     checkerColour2: settings.checkerColour2
-    gridVisible: settings.gridVisible
     gridColour: "#55000000"
-    rulersVisible: settings.rulersVisible
-    guidesVisible: settings.guidesVisible
-    guidesLocked: settings.guidesLocked
     splitColour: Theme.splitColour
     splitter.width: 32
     rulerForegroundColour: Theme.rulerForegroundColour

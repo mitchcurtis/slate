@@ -44,7 +44,8 @@ TileCanvas::TileCanvas() :
     mCursorTilePixelY(0),
     mMode(TileMode),
     mPenTile(nullptr),
-    mTilePenPreview(false)
+    mTilePenPreview(false),
+    mGridVisible(false)
 {
     qCDebug(lcImageCanvasLifecycle) << "constructing TileCanvas" << this;
 }
@@ -81,6 +82,18 @@ void TileCanvas::setPenTile(Tile *penTile)
 
     mPenTile = penTile;
     emit penTileChanged();
+}
+
+bool TileCanvas::isGridVisible() const
+{
+    return mGridVisible;
+}
+
+void TileCanvas::setGridVisible(bool gridVisible)
+{
+    mGridVisible = gridVisible;
+    requestContentPaint();
+    emit gridVisibleChanged();
 }
 
 int TileCanvas::cursorTilePixelX() const
@@ -170,6 +183,21 @@ void TileCanvas::onTilesetChanged(Tileset *oldTileset, Tileset *newTileset)
     if (newTileset) {
         connect(newTileset, &Tileset::imageChanged, this, &TileCanvas::requestContentPaint);
     }
+}
+
+void TileCanvas::restoreState()
+{
+    ImageCanvas::restoreState();
+
+    setGridVisible(mProject->uiState()->value("gridVisible", true).toBool());
+}
+
+void TileCanvas::saveState()
+{
+    ImageCanvas::saveState();
+
+    if (!mGridVisible)
+        mProject->uiState()->setValue("gridVisible", false);
 }
 
 void TileCanvas::connectSignals()

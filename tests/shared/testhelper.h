@@ -294,6 +294,7 @@ protected:
     QQuickItem *flipVerticallyToolButton = nullptr;
     QQuickItem *undoToolButton = nullptr;
     QQuickItem *redoToolButton = nullptr;
+    QQuickItem *lockGuidesToolButton = nullptr;
     QQuickItem *showNotesToolButton = nullptr;
     QQuickItem *splitScreenToolButton = nullptr;
     QQuickItem *lockSplitterToolButton = nullptr;

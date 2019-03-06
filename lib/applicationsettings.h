@@ -38,10 +38,6 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_OBJECT
     Q_PROPERTY(bool loadLastOnStartup READ loadLastOnStartup WRITE setLoadLastOnStartup NOTIFY loadLastOnStartupChanged)
     Q_PROPERTY(QStringList recentFiles READ recentFiles NOTIFY recentFilesChanged)
-    Q_PROPERTY(bool gridVisible READ isGridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
-    Q_PROPERTY(bool rulersVisible READ areRulersVisible WRITE setRulersVisible NOTIFY rulersVisibleChanged)
-    Q_PROPERTY(bool guidesVisible READ areGuidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
-    Q_PROPERTY(bool guidesLocked READ areGuidesLocked WRITE setGuidesLocked NOTIFY guidesLockedChanged)
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
     Q_PROPERTY(bool fpsVisible READ isFpsVisible WRITE setFpsVisible NOTIFY fpsVisibleChanged)
     Q_PROPERTY(bool gesturesEnabled READ areGesturesEnabled WRITE setGesturesEnabled NOTIFY gesturesEnabledChanged)
@@ -110,22 +106,6 @@ public:
     void removeInvalidRecentFiles();
     // Converts the paths we store ("file:///some-file.png") into a user-facing path.
     Q_INVOKABLE QString displayableFilePath(const QString &filePath) const;
-
-    bool isGridVisible() const;
-    void setGridVisible(bool isGridVisible);
-    bool defaultGridVisible() const;
-
-    bool areRulersVisible() const;
-    void setRulersVisible(bool rulersVisible);
-    bool defaultRulersVisible() const;
-
-    bool areGuidesVisible() const;
-    void setGuidesVisible(bool guidesVisible);
-    bool defaultGuidesVisible() const;
-
-    bool areGuidesLocked() const;
-    void setGuidesLocked(bool guidesLocked);
-    bool defaultGuidesLocked() const;
 
     bool defaultScrollZoom() const;
     bool scrollZoom() const;
@@ -325,10 +305,6 @@ signals:
     void languageChanged();
     void loadLastOnStartupChanged();
     void recentFilesChanged();
-    void gridVisibleChanged();
-    void rulersVisibleChanged();
-    void guidesVisibleChanged();
-    void guidesLockedChanged();
     void scrollZoomChanged();
     void fpsVisibleChanged();
     void gesturesEnabledChanged();

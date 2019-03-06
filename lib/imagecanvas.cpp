@@ -72,7 +72,6 @@ ImageCanvas::ImageCanvas() :
     mProject(nullptr),
     mImageProject(nullptr),
     mBackgroundColour(Qt::gray),
-    mGridVisible(false),
     mGridColour(Qt::black),
     mSplitColour(Qt::black),
     mCheckerColour1(QColor::fromRgb(0x7e7e7e)),
@@ -228,6 +227,9 @@ void ImageCanvas::restoreState()
         mSecondPane.read(QJsonObject::fromVariantMap(uiState->value("secondPane").toMap()));
         readPanes = true;
     }
+    setRulersVisible(uiState->value("rulersVisible", true).toBool());
+    setGuidesVisible(uiState->value("guidesVisible", true).toBool());
+    setGuidesLocked(uiState->value("guidesLocked", false).toBool());
     setNotesVisible(uiState->value("notesVisible", true).toBool());
     doSetSplitScreen(uiState->value("splitScreen", false).toBool(), DontResetPaneSizes);
     mSplitter.setEnabled(uiState->value("splitterLocked", false).toBool());
@@ -262,6 +264,12 @@ void ImageCanvas::saveState()
     mSecondPane.write(secondPaneJson);
     mProject->uiState()->setValue("secondPane", secondPaneJson.toVariantMap());
 
+    if (!areRulersVisible())
+        mProject->uiState()->setValue("rulersVisible", false);
+    if (!areGuidesVisible())
+        mProject->uiState()->setValue("guidesVisible", false);
+    if (areGuidesLocked())
+        mProject->uiState()->setValue("guidesLocked", true);
     if (mNotesVisible)
         mProject->uiState()->setValue("notesVisible", true);
     if (mSplitScreen)
@@ -304,18 +312,6 @@ void ImageCanvas::setProject(Project *project)
     emit projectChanged();
 }
 
-bool ImageCanvas::gridVisible() const
-{
-    return mGridVisible;
-}
-
-void ImageCanvas::setGridVisible(bool gridVisible)
-{
-    mGridVisible = gridVisible;
-    requestContentPaint();
-    emit gridVisibleChanged();
-}
-
 QColor ImageCanvas::gridColour() const
 {
     return mGridColour;
@@ -331,7 +327,7 @@ void ImageCanvas::setGridColour(const QColor &gridColour)
     emit gridColourChanged();
 }
 
-bool ImageCanvas::rulersVisible() const
+bool ImageCanvas::areRulersVisible() const
 {
     return mFirstHorizontalRuler->isVisible();
 }
@@ -348,7 +344,7 @@ void ImageCanvas::setRulersVisible(bool rulersVisible)
     emit rulersVisibleChanged();
 }
 
-bool ImageCanvas::guidesVisible() const
+bool ImageCanvas::areGuidesVisible() const
 {
     return mGuidesVisible;
 }
@@ -368,7 +364,7 @@ void ImageCanvas::setGuidesVisible(bool guidesVisible)
     emit guidesVisibleChanged();
 }
 
-bool ImageCanvas::guidesLocked() const
+bool ImageCanvas::areGuidesLocked() const
 {
     return mGuidesLocked;
 }
@@ -382,7 +378,7 @@ void ImageCanvas::setGuidesLocked(bool guidesLocked)
     emit guidesLockedChanged();
 }
 
-bool ImageCanvas::notesVisible() const
+bool ImageCanvas::areNotesVisible() const
 {
     return mNotesVisible;
 }
@@ -765,7 +761,7 @@ void ImageCanvas::setSplitScreen(bool splitScreen)
     doSetSplitScreen(splitScreen, ResetPaneSizes);
 }
 
-bool ImageCanvas::scrollZoom() const
+bool ImageCanvas::isScrollZoom() const
 {
     return mScrollZoom;
 }
@@ -1226,8 +1222,8 @@ bool ImageCanvas::mouseOverSplitterHandle(const QPoint &mousePos)
 void ImageCanvas::updateRulerVisibility()
 {
     // The first pane's rulers are already taken care of, so don't need to account for them here.
-    mSecondHorizontalRuler->setVisible(rulersVisible() && mSplitScreen);
-    mSecondVerticalRuler->setVisible(rulersVisible() && mSplitScreen);
+    mSecondHorizontalRuler->setVisible(areRulersVisible() && mSplitScreen);
+    mSecondVerticalRuler->setVisible(areRulersVisible() && mSplitScreen);
 }
 
 void ImageCanvas::resizeRulers()
@@ -1249,7 +1245,7 @@ void ImageCanvas::resizeRulers()
 
 void ImageCanvas::updatePressedRuler()
 {
-    mPressedRuler = !guidesLocked() ? rulerAtCursorPos() : nullptr;
+    mPressedRuler = !areGuidesLocked() ? rulerAtCursorPos() : nullptr;
 }
 
 Ruler *ImageCanvas::rulerAtCursorPos()
@@ -2568,7 +2564,7 @@ void ImageCanvas::updateWindowCursorShape()
         return;
 
     bool overRuler = false;
-    if (rulersVisible()) {
+    if (areRulersVisible()) {
         // TODO: use rulerAtCursorPos()?
         const QPointF cursorPos(mCursorX, mCursorY);
         overRuler = mFirstHorizontalRuler->contains(cursorPos) || mFirstVerticalRuler->contains(cursorPos);
@@ -2586,11 +2582,11 @@ void ImageCanvas::updateWindowCursorShape()
 
     // Do this check first since notes should go above guides.
     bool overNote = false;
-    if (mTool == NoteTool && notesVisible() && !overRuler)
+    if (mTool == NoteTool && areNotesVisible() && !overRuler)
         overNote = noteIndexAtCursorPos() != -1;
 
     bool overGuide = false;
-    if (guidesVisible() && !guidesLocked() && !overRuler && !overNote)
+    if (areGuidesVisible() && !areGuidesLocked() && !overRuler && !overNote)
         overGuide = guideIndexAtCursorPos() != -1;
 
     // Hide the window's cursor when we're in the spotlight; otherwise, use the non-custom arrow cursor.
@@ -2898,12 +2894,12 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
             return;
         }
 
-        if (rulersVisible() && guidesVisible()) {
+        if (areRulersVisible() && areGuidesVisible()) {
             updatePressedRuler();
             if (mPressedRuler)
                 return;
 
-            if (!guidesLocked()) {
+            if (!areGuidesLocked()) {
                 updatePressedGuide();
                 if (mPressedGuideIndex != -1) {
                     // A guide was just pressed.

@@ -43,6 +43,7 @@ class SLATE_EXPORT TileCanvas : public ImageCanvas
     Q_PROPERTY(int cursorTilePixelY READ cursorTilePixelY NOTIFY cursorTilePixelYChanged)
     Q_PROPERTY(Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(Tile *penTile READ penTile WRITE setPenTile NOTIFY penTileChanged)
+    Q_PROPERTY(bool gridVisible READ isGridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
 
 public:
     enum Mode {
@@ -67,6 +68,9 @@ public:
     Tile *penTile() const;
     void setPenTile(Tile *penTile);
 
+    bool isGridVisible() const;
+    void setGridVisible(bool isGridVisible);
+
     QPoint scenePosToTilePixelPos(const QPoint &scenePos) const;
     QRect sceneRectToTileRect(const QRect &sceneRect) const;
 
@@ -77,6 +81,7 @@ signals:
     void cursorTilePixelYChanged();
     void modeChanged();
     void penTileChanged();
+    void gridVisibleChanged();
 
 public slots:
 //    void createNew(int width, int height, const QColor &penBackgroundColour);
@@ -88,6 +93,8 @@ public slots:
     void swatchDown();
     void onTilesetChanged(Tileset *oldTileset, Tileset *newTileset);
 
+    void saveState() override;
+
 protected slots:
     void reset() override;
 
@@ -98,6 +105,8 @@ protected:
     bool supportsSelectionTool() const override;
 
     void onLoadedChanged() override;
+
+    void restoreState() override;
 
 private:
     friend class TileCanvasPaneItem;
@@ -142,6 +151,7 @@ private:
     Mode mMode;
     Tile *mPenTile;
     bool mTilePenPreview;
+    bool mGridVisible;
 };
 
 #endif // TILECANVAS_H

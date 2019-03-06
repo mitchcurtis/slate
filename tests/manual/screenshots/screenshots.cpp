@@ -204,9 +204,9 @@ void tst_Screenshots::toolBarFull()
     panelSplitView->setOpacity(0);
     auto panelSplitViewOpacityRollback = qScopeGuard([=](){ panelSplitView->setOpacity(1); });
 
-    if (canvas->guidesVisible()) {
+    if (canvas->areGuidesVisible()) {
         QVERIFY2(triggerGuidesVisible(), failureMessage);
-        QCOMPARE(canvas->guidesVisible(), false);
+        QCOMPARE(canvas->areGuidesVisible(), false);
     }
 
     QQuickItem *splitterBar = window->findChild<QQuickItem*>("splitterBar");
@@ -226,7 +226,7 @@ void tst_Screenshots::toolBarFull()
     QVERIFY(toolBarGrab.save(mOutputDirectory.absoluteFilePath(QLatin1String("slate-tool-bar.png"))));
 
     QVERIFY2(triggerGuidesVisible(), failureMessage);
-    QCOMPARE(canvas->guidesVisible(), true);
+    QCOMPARE(canvas->areGuidesVisible(), true);
 }
 
 void tst_Screenshots::toolBarIcons()
@@ -342,7 +342,7 @@ void tst_Screenshots::animation()
 
     // Turn on rulers and drag some guides out.
     QVERIFY2(triggerRulersVisible(), failureMessage);
-    QCOMPARE(app.settings()->areRulersVisible(), true);
+    QCOMPARE(canvas->areRulersVisible(), true);
 
     for (int i = 1; i <= 5; ++i) {
         QVERIFY2(addNewGuide(Qt::Vertical, i * 36), qPrintable(

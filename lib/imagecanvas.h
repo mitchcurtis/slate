@@ -55,17 +55,16 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_OBJECT
     Q_PROPERTY(Project *project READ project WRITE setProject NOTIFY projectChanged)
     Q_PROPERTY(QColor backgroundColour READ backgroundColour WRITE setBackgroundColour NOTIFY backgroundColourChanged)
-    Q_PROPERTY(bool gridVisible READ gridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
     Q_PROPERTY(QColor gridColour READ gridColour WRITE setGridColour NOTIFY gridColourChanged)
-    Q_PROPERTY(bool rulersVisible READ rulersVisible WRITE setRulersVisible NOTIFY rulersVisibleChanged)
-    Q_PROPERTY(bool guidesVisible READ guidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
-    Q_PROPERTY(bool guidesLocked READ guidesLocked WRITE setGuidesLocked NOTIFY guidesLockedChanged)
-    Q_PROPERTY(bool notesVisible READ notesVisible WRITE setNotesVisible NOTIFY notesVisibleChanged)
+    Q_PROPERTY(bool rulersVisible READ areRulersVisible WRITE setRulersVisible NOTIFY rulersVisibleChanged)
+    Q_PROPERTY(bool guidesVisible READ areGuidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
+    Q_PROPERTY(bool guidesLocked READ areGuidesLocked WRITE setGuidesLocked NOTIFY guidesLockedChanged)
+    Q_PROPERTY(bool notesVisible READ areNotesVisible WRITE setNotesVisible NOTIFY notesVisibleChanged)
     Q_PROPERTY(QColor splitColour READ splitColour WRITE setSplitColour NOTIFY splitColourChanged)
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
     Q_PROPERTY(bool splitScreen READ isSplitScreen WRITE setSplitScreen NOTIFY splitScreenChanged)
-    Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
+    Q_PROPERTY(bool scrollZoom READ isScrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
     Q_PROPERTY(bool gesturesEnabled READ areGesturesEnabled WRITE setGesturesEnabled NOTIFY gesturesEnabledChanged)
     Q_PROPERTY(PenToolRightClickBehaviour penToolRightClickBehaviour READ penToolRightClickBehaviour
         WRITE setPenToolRightClickBehaviour NOTIFY penToolRightClickBehaviourChanged)
@@ -156,23 +155,20 @@ public:
     QRect secondPaneVisibleSceneArea() const;
     QRect paneVisibleSceneArea(int paneIndex) const;
 
-    bool gridVisible() const;
-    void setGridVisible(bool gridVisible);
-
     QColor gridColour() const;
     void setGridColour(const QColor &gridColour);
 
-    bool rulersVisible() const;
-    void setRulersVisible(bool rulersVisible);
+    bool areRulersVisible() const;
+    void setRulersVisible(bool areRulersVisible);
 
-    bool guidesVisible() const;
-    void setGuidesVisible(bool guidesVisible);
+    bool areGuidesVisible() const;
+    void setGuidesVisible(bool areGuidesVisible);
 
-    bool guidesLocked() const;
-    void setGuidesLocked(bool guidesLocked);
+    bool areGuidesLocked() const;
+    void setGuidesLocked(bool areGuidesLocked);
 
-    bool notesVisible() const;
-    void setNotesVisible(bool notesVisible);
+    bool areNotesVisible() const;
+    void setNotesVisible(bool areNotesVisible);
 
     QColor splitColour() const;
     void setSplitColour(const QColor &splitColour);
@@ -189,7 +185,7 @@ public:
     bool isSplitScreen() const;
     void setSplitScreen(bool splitScreen);
 
-    bool scrollZoom() const;
+    bool isScrollZoom() const;
     void setScrollZoom(bool scrollZoom);
 
     bool areGesturesEnabled() const;
@@ -334,7 +330,6 @@ signals:
     void cursorPixelColourChanged();
     void containsMouseChanged();
     void backgroundColourChanged();
-    void gridVisibleChanged();
     void gridColourChanged();
     void checkerColour1Changed();
     void checkerColour2Changed();
@@ -405,7 +400,7 @@ public slots:
     void cycleFillTools();
 
 protected slots:
-    void saveState();
+    virtual void saveState();
 
     virtual void reset();
     virtual void onLoadedChanged();
@@ -430,7 +425,7 @@ protected:
     void componentComplete() override;
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
-    void restoreState();
+    virtual void restoreState();
     void resizeChildren();
 
     friend class ApplyGreedyPixelFillCommand;
@@ -580,7 +575,6 @@ protected:
 
     // The background colour of the entire pane.
     QColor mBackgroundColour;
-    bool mGridVisible;
     QColor mGridColour;
     QColor mSplitColour;
     QPixmap mCheckerPixmap;

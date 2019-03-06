@@ -461,15 +461,10 @@ void tst_App::saveAsAndLoad()
 
     QVERIFY2(createNewProject(projectType), failureMessage);
 
-    if (!canvas->rulersVisible()) {
-        QVERIFY2(triggerRulersVisible(), failureMessage);
-        QCOMPARE(canvas->rulersVisible(), true);
-    }
-
-    if (!canvas->guidesVisible()) {
-        QVERIFY2(triggerGuidesVisible(), failureMessage);
-        QCOMPARE(canvas->guidesVisible(), true);
-    }
+    // TestHelper hides rulers for new projects.
+    QCOMPARE(canvas->areRulersVisible(), false);
+    QCOMPARE(canvas->areGuidesVisible(), true);
+    QCOMPARE(canvas->areGuidesLocked(), false);
 
     // Add an opaque red to the swatch.
     canvas->setPenForegroundColour(Qt::red);
@@ -481,6 +476,12 @@ void tst_App::saveAsAndLoad()
     // Having this visible interferes with the rest of the test, and since I'm too lazy
     // to check why and it's not necessary to have it open, just close it.
     QVERIFY(swatchesPanel->setProperty("expanded", QVariant(false)));
+
+    // Temporarily show rulers so we can drag some guides out.
+    if (!canvas->areRulersVisible()) {
+        QVERIFY2(triggerRulersVisible(), failureMessage);
+        QCOMPARE(canvas->areRulersVisible(), true);
+    }
 
     QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
     QVERIFY(firstHorizontalRuler);
@@ -532,6 +533,14 @@ void tst_App::saveAsAndLoad()
         mainSplitViewHandleCentreAfterMoving, &mainSplitViewHandleCentre), failureMessage);
     const qreal resizedPanelSplitViewWidth = panelSplitView->width();
     QVERIFY(resizedPanelSplitViewWidth > defaultPanelSplitViewWidth);
+
+    // Set these to the opposite of the defaults to tet that they're serialised properly.
+    QVERIFY2(triggerGuidesVisible(), failureMessage);
+    QCOMPARE(canvas->areGuidesVisible(), false);
+    QVERIFY2(triggerRulersVisible(), failureMessage);
+    QCOMPARE(canvas->areRulersVisible(), false);
+    mouseEventOnCentre(lockGuidesToolButton, MouseClick);
+    QCOMPARE(canvas->areGuidesLocked(), true);
 
     // Store the expected pane offsets, etc.
     // Do it after resizing the splitview to avoid it affecting it.
@@ -588,6 +597,9 @@ void tst_App::saveAsAndLoad()
     QCOMPARE(canvas->secondPane()->integerOffset(), secondPaneOffset);
     QCOMPARE(canvas->secondPane()->integerZoomLevel(), secondPaneZoomLevel);
     QCOMPARE(canvas->secondPane()->size(), secondPaneSize);
+    QCOMPARE(canvas->areGuidesVisible(), false);
+    QCOMPARE(canvas->areGuidesLocked(), true);
+    QCOMPARE(canvas->areRulersVisible(), false);
 
     QVector<SwatchColour> expectedSwatchColours;
     expectedSwatchColours.append(SwatchColour(QString(), Qt::red));
@@ -1242,10 +1254,10 @@ void tst_App::showGrid()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage withGrid = imageGrabber.takeImage();
 
-    QVERIFY(app.settings()->isGridVisible());
+    QVERIFY(tileCanvas->isGridVisible());
     // Toggle the option.
     QVERIFY2(triggerGridVisible(), failureMessage);
-    QVERIFY(!app.settings()->isGridVisible());
+    QVERIFY(!tileCanvas->isGridVisible());
 
     // Close the view menu.
     QTest::keyClick(window, Qt::Key_Escape);
@@ -1257,7 +1269,7 @@ void tst_App::showGrid()
 
     // Show the grid again.
     QVERIFY2(triggerGridVisible(), failureMessage);
-    QVERIFY(app.settings()->isGridVisible());
+    QVERIFY(tileCanvas->isGridVisible());
 }
 
 void tst_App::undoPixels()
@@ -3413,7 +3425,7 @@ void tst_App::rulersAndGuides()
     QVERIFY2(createNewProject(projectType), failureMessage);
 
     QVERIFY2(triggerRulersVisible(), failureMessage);
-    QCOMPARE(app.settings()->areRulersVisible(), true);
+    QCOMPARE(canvas->areRulersVisible(), true);
 
     QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
     QVERIFY(firstHorizontalRuler);
@@ -3500,7 +3512,7 @@ void tst_App::rulersAndGuides()
     QCOMPARE(window->cursor().shape(), Qt::ArrowCursor);
 
     // Shouldn't be possible to create a guide when Guides Locked is checked.
-    app.settings()->setGuidesLocked(true);
+    canvas->setGuidesLocked(true);
 
     // Try to drag a guide out.
     setCursorPosInPixels(QPoint(50, rulerThickness / 2));
@@ -3516,14 +3528,14 @@ void tst_App::rulersAndGuides()
     QVERIFY(!canvas->pressedRuler());
     QCOMPARE(project->guides().size(), 0);
 
-    app.settings()->setGuidesLocked(false);
+    canvas->setGuidesLocked(false);
 }
 
 void tst_App::rulersSplitScreen()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
     QVERIFY(canvas->isSplitScreen());
-    QVERIFY(!canvas->rulersVisible());
+    QVERIFY(!canvas->areRulersVisible());
 
     // Rulers are not visible by default, so they shouldn't be visible when enabling split-screen.
     const QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
@@ -3764,7 +3776,7 @@ void tst_App::dragNoteWithoutMoving()
 void tst_App::saveAndLoadNotes()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
-    QVERIFY(canvas->notesVisible());
+    QVERIFY(canvas->areNotesVisible());
 
     canvas->setSplitScreen(false);
 
@@ -3803,7 +3815,7 @@ void tst_App::saveAndLoadNotes()
     QCOMPARE(project->notes().at(0).position(), QPoint(0, 0));
     QCOMPARE(project->notes().at(1).position(), QPoint(100, 100));
     QCOMPARE(project->notes().at(2).position(), QPoint(200, 200));
-    QVERIFY(canvas->notesVisible());
+    QVERIFY(canvas->areNotesVisible());
 
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());

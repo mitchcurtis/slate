@@ -52,15 +52,7 @@ TestHelper::~TestHelper()
 
 void TestHelper::initTestCase()
 {
-    // Tests could have failed on the last run, so just enforce the default settings.
-    app.settings()->setGridVisible(app.settings()->defaultGridVisible());
-    QVERIFY(app.settings()->isGridVisible());
-    app.settings()->setRulersVisible(false);
-    QVERIFY(!app.settings()->areRulersVisible());
-    app.settings()->setGuidesLocked(false);
-    QVERIFY(!app.settings()->areGuidesLocked());
-
-    // However, this should never change.
+    // This should not be enabled for tests.
     QVERIFY(!app.settings()->loadLastOnStartup());
 
     QVERIFY(window->property("overlay").isValid());
@@ -141,6 +133,9 @@ void TestHelper::initTestCase()
 
     redoToolButton = window->findChild<QQuickItem*>("redoToolButton");
     QVERIFY(redoToolButton);
+
+    lockGuidesToolButton = window->findChild<QQuickItem*>("lockGuidesToolButton");
+    QVERIFY(lockGuidesToolButton);
 
     showNotesToolButton = window->findChild<QQuickItem*>("showNotesToolButton");
     QVERIFY(showNotesToolButton);
@@ -931,10 +926,10 @@ bool TestHelper::deleteSwatchColour(int index)
 
 bool TestHelper::addNewGuide(Qt::Orientation orientation, int position)
 {
-    if (!app.settings()->areRulersVisible()) {
+    if (!canvas->areRulersVisible()) {
         if (!triggerRulersVisible())
             return false;
-        VERIFY(app.settings()->areRulersVisible());
+        VERIFY(canvas->areRulersVisible());
     }
 
     const bool horizontal = orientation == Qt::Horizontal;
@@ -2055,11 +2050,7 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
         VERIFY(settings);
         settings->resetShortcutsToDefaults();
 
-        if (settings->areRulersVisible()) {
-            if (!triggerRulersVisible())
-                return false;
-            VERIFY(settings->areRulersVisible() == false);
-        }
+        canvas->setRulersVisible(false);
 
         cursorPos = QPoint();
         cursorWindowPos = QPoint();

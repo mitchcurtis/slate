@@ -402,8 +402,8 @@ Item {
                 text: qsTr("Show Grid")
                 enabled: canvas && projectType === Project.TilesetType
                 checkable: true
-                checked: settings.gridVisible
-                onTriggered: settings.gridVisible = checked
+                checked: canvas && !!canvas.gridVisible
+                onTriggered: canvas.gridVisible = checked
             }
 
             Platform.MenuItem {
@@ -412,8 +412,8 @@ Item {
                 text: qsTr("Show Rulers")
                 enabled: canvas
                 checkable: true
-                checked: settings.rulersVisible
-                onTriggered: settings.rulersVisible = checked
+                checked: canvas && canvas.rulersVisible
+                onTriggered: canvas.rulersVisible = checked
             }
 
             Platform.MenuItem {
@@ -422,8 +422,8 @@ Item {
                 text: qsTr("Show Guides")
                 enabled: canvas
                 checkable: true
-                checked: settings.guidesVisible
-                onTriggered: settings.guidesVisible = checked
+                checked: canvas && canvas.guidesVisible
+                onTriggered: canvas.guidesVisible = checked
             }
 
             Platform.MenuItem {
@@ -432,8 +432,8 @@ Item {
                 text: qsTr("Lock Guides")
                 enabled: canvas
                 checkable: true
-                checked: settings.guidesLocked
-                onTriggered: settings.guidesLocked = checked
+                checked: canvas && canvas.guidesLocked
+                onTriggered: canvas.guidesLocked = checked
             }
 
             Platform.MenuSeparator {}

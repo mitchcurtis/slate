@@ -406,34 +406,34 @@ ToolBar {
             Ui.ToolButton {
                 objectName: "showRulersToolButton"
                 checkable: true
-                checked: settings.rulersVisible
+                checked: canvas && canvas.rulersVisible
                 icon.source: "qrc:/images/show-rulers.png"
 
                 ToolTip.text: qsTr("Show rulers")
 
-                onClicked: settings.rulersVisible = checked
+                onClicked: canvas.rulersVisible = checked
             }
 
             Ui.ToolButton {
                 objectName: "showGuidesToolButton"
                 checkable: true
-                checked: settings.guidesVisible
+                checked: canvas && canvas.guidesVisible
                 icon.source: "qrc:/images/show-guides.png"
 
                 ToolTip.text: qsTr("Show guides")
 
-                onClicked: settings.guidesVisible = checked
+                onClicked: canvas.guidesVisible = checked
             }
 
             Ui.ToolButton {
                 objectName: "lockGuidesToolButton"
                 checkable: true
-                checked: settings.guidesLocked
+                checked: canvas && canvas.guidesLocked
                 icon.source: "qrc:/images/lock-guides.png"
 
                 ToolTip.text: qsTr("Lock guides")
 
-                onClicked: settings.guidesLocked = checked
+                onClicked: canvas.guidesLocked = checked
             }
         }
 
