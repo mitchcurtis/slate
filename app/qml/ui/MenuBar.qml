@@ -394,7 +394,7 @@ Controls.MenuBar {
             enabled: canvas && projectType === Project.TilesetType
             checkable: true
             checked: settings.gridVisible
-            onCheckedChanged: settings.gridVisible = checked
+            onTriggered: settings.gridVisible = checked
         }
 
         MenuItem {
@@ -403,7 +403,7 @@ Controls.MenuBar {
             enabled: canvas
             checkable: true
             checked: settings.rulersVisible
-            onCheckedChanged: settings.rulersVisible = checked
+            onTriggered: settings.rulersVisible = checked
         }
 
         MenuItem {
