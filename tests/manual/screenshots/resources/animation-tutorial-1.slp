@@ -1,0 +1,59 @@
+{
+    "project": {
+        "currentLayerIndex": 1,
+        "firstPane": {
+            "offsetX": 490,
+            "offsetY": 189,
+            "sceneCentered": false,
+            "size": 1,
+            "zoomLevel": 5
+        },
+        "guides": [
+        ],
+        "lastFillToolUsed": "FillTool",
+        "layerListViewContentY": 0,
+        "layers": [
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAACQAAAAmCAYAAACsyDmTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAQElEQVRYhe3OoQHAIBAAsdL9d3485iSIZIKsmZnvIf/twEmoCBWhIlSEilARKkJFqAgVoSJUhIpQESpCRagIlQ0EkwRINIq0MgAAAABJRU5ErkJggg==",
+                "name": "background",
+                "opacity": 1,
+                "visible": true
+            },
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAACQAAAAmCAYAAACsyDmTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAUUlEQVRYhe3SwQmAMAxA0bqUe3h2Aidygp7do1P1KkIgtB4U3rvlEj4hpQAAAADAhyyzC856rff52Lc2s28o6BkRGYlLB2UjItm4/14o8vYPdWBZFAaY5e08AAAAAElFTkSuQmCC",
+                "name": "shadow",
+                "opacity": 1,
+                "visible": true
+            },
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAACQAAAAmCAYAAACsyDmTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAtElEQVRYhe3VMQ6CQBCF4SfRcDAKz2FILDwEx7AgIVzBlsLO0gt4mrWaxALIvpnpfH9Fw/AR2F1AKaXUHzQ83mV+fUrGrCYDY9cZqBDoF2NFUW7QGsaKoFygPYzlRdGgGozlQVEgBmOxqGqQB2MxqAMzuB+XzcHt6bh53/3SVT+H+mTT9Uy9AIsBHD81g2IxgHPZ16A8GCCwMe6hvBggeHSsoSKYtPpxKbf5mXLaK6WUUiq5LwUqR9KTeNs9AAAAAElFTkSuQmCC",
+                "name": "object",
+                "opacity": 1,
+                "visible": true
+            }
+        ],
+        "secondPane": {
+            "offsetX": -90,
+            "offsetY": 189,
+            "sceneCentered": true,
+            "size": 0,
+            "zoomLevel": 1
+        },
+        "swatch": {
+            "colours": [
+                {
+                    "colour": "#ae80ca",
+                    "name": ""
+                },
+                {
+                    "colour": "#ca80bb",
+                    "name": ""
+                },
+                {
+                    "colour": "#ca8094",
+                    "name": ""
+                }
+            ]
+        }
+    }
+}

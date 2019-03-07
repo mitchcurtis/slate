@@ -23,7 +23,7 @@ Pane {
 
     Rectangle {
         parent: statusBarPane.background
-        x: parent.width
+        x: parent.width - 1
         width: 1
         height: parent.height
         color: "#444"

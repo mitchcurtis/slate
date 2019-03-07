@@ -33,6 +33,8 @@ Controls.MenuBar {
     property int projectType: project ? project.type : 0
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
+    property var hueSaturationDialog
+    property var opacityDialog
     property var canvasSizePopup
     property var imageSizePopup
     property var moveContentsDialog
@@ -260,6 +262,27 @@ Controls.MenuBar {
 
         onClosed: canvas.forceActiveFocus()
 
+        Menu {
+            objectName: "adjustmentsMenuItem"
+            title: qsTr("Adjustments")
+
+            MenuItem {
+                objectName: "hueSaturationMenuItem"
+                text: qsTr("Hue/Saturation...")
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+                onTriggered: hueSaturationDialog.open()
+            }
+
+            MenuItem {
+                objectName: "opacityMenuItem"
+                text: qsTr("Opacity...")
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+                onTriggered: opacityDialog.open()
+            }
+        }
+
+        MenuSeparator {}
+
         MenuItem {
             objectName: "changeCanvasSizeMenuItem"
             text: qsTr("Canvas Size...")
@@ -371,7 +394,7 @@ Controls.MenuBar {
             enabled: canvas && projectType === Project.TilesetType
             checkable: true
             checked: settings.gridVisible
-            onCheckedChanged: settings.gridVisible = checked
+            onTriggered: settings.gridVisible = checked
         }
 
         MenuItem {
@@ -380,7 +403,7 @@ Controls.MenuBar {
             enabled: canvas
             checkable: true
             checked: settings.rulersVisible
-            onCheckedChanged: settings.rulersVisible = checked
+            onTriggered: settings.rulersVisible = checked
         }
 
         MenuItem {

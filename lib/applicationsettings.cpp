@@ -40,6 +40,8 @@ bool ApplicationSettings::loadLastOnStartup() const
 
 void ApplicationSettings::setLoadLastOnStartup(bool loadLastOnStartup)
 {
+    // TODO: replace all this duplicated code with the getter
+    // e.g. if (this->loadLastOnStartup() == loadLastOnStartup) return;
     QVariant existingValue = value("loadLastOnStartup");
     bool existingBoolValue = defaultLoadLastOnStartup();
     if (contains("loadLastOnStartup")) {
@@ -323,6 +325,50 @@ void ApplicationSettings::setAutoSwatchEnabled(bool autoSwatchEnabled)
     emit autoSwatchEnabledChanged();
 }
 
+bool ApplicationSettings::defaultAlwaysShowCrosshair() const
+{
+    return false;
+}
+
+bool ApplicationSettings::isAlwaysShowCrosshair() const
+{
+    return contains("alwaysShowCrosshair") ? value("alwaysShowCrosshair").toBool() : defaultAlwaysShowCrosshair();
+}
+
+void ApplicationSettings::setAlwaysShowCrosshair(bool alwaysShowCrosshair)
+{
+    const QVariant existingValue = value("alwaysShowCrosshair");
+    bool existingBoolValue = defaultAlwaysShowCrosshair();
+    if (contains("alwaysShowCrosshair")) {
+        existingBoolValue = existingValue.toBool();
+    }
+
+    if (alwaysShowCrosshair == existingBoolValue)
+        return;
+
+    setValue("alwaysShowCrosshair", alwaysShowCrosshair);
+    emit alwaysShowCrosshairChanged();
+}
+
+qreal ApplicationSettings::defaultWindowOpacity() const
+{
+    return 1.0;
+}
+
+qreal ApplicationSettings::windowOpacity() const
+{
+    return contains("windowOpacity") ? value("windowOpacity").toReal() : defaultWindowOpacity();
+}
+
+void ApplicationSettings::setWindowOpacity(qreal opacity)
+{
+    if (windowOpacity() == opacity)
+        return;
+
+    setValue("windowOpacity", opacity);
+    emit windowOpacityChanged();
+}
+
 QColor ApplicationSettings::defaultCheckerColour1() const
 {
     return QColor("#444444");
@@ -359,6 +405,26 @@ void ApplicationSettings::setCheckerColour2(const QColor &colour)
 
     setValue("checkerColour2", QVariant::fromValue(colour));
     emit checkerColour2Changed();
+}
+
+int ApplicationSettings::defaultPenToolRightClickBehaviour() const
+{
+    return 0; // RightClickAppliesEraser
+}
+
+int ApplicationSettings::penToolRightClickBehaviour() const
+{
+    return contains("penToolRightClickBehaviour")
+        ? value("penToolRightClickBehaviour").value<int>() : defaultPenToolRightClickBehaviour();
+}
+
+void ApplicationSettings::setPenToolRightClickBehaviour(int penToolRightClickBehaviour)
+{
+    if (this->penToolRightClickBehaviour() == penToolRightClickBehaviour)
+        return;
+
+    setValue("penToolRightClickBehaviour", QVariant(penToolRightClickBehaviour));
+    emit penToolRightClickBehaviourChanged();
 }
 
 void ApplicationSettings::resetShortcutsToDefaults()
@@ -401,6 +467,7 @@ void ApplicationSettings::resetShortcutsToDefaults()
         allShortcuts.append(QLatin1String("swatchRightShortcut"));
         allShortcuts.append(QLatin1String("swatchUpShortcut"));
         allShortcuts.append(QLatin1String("swatchDownShortcut"));
+        allShortcuts.append(QLatin1String("fullScreenToggleShortcut"));
     }
 
     foreach (const QString &shortcut, allShortcuts) {
@@ -986,4 +1053,19 @@ QString ApplicationSettings::swatchDownShortcut() const
 void ApplicationSettings::setSwatchDownShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("swatchDownShortcut", defaultSwatchDownShortcut, swatchDownShortcutChanged)
+}
+
+QString ApplicationSettings::defaultFullScreenToggleShortcut() const
+{
+    return QLatin1String("F11");
+}
+
+QString ApplicationSettings::fullScreenToggleShortcut() const
+{
+    GET_SHORTCUT("fullScreenToggleShortcut", defaultFullScreenToggleShortcut)
+}
+
+void ApplicationSettings::setFullScreenToggleShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("fullScreenToggleShortcut", defaultFullScreenToggleShortcut, fullScreenToggleShortcutChanged)
 }

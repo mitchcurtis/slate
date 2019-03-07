@@ -63,6 +63,7 @@ Panel {
             id: autoSwatchRowLayout
             objectName: "autoSwatchRowLayout"
             spacing: 0
+            visible: settings.autoSwatchEnabled
 
             // Match the gap that the scrollbar leaves on the right.
             Layout.leftMargin: 16

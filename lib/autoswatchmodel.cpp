@@ -113,6 +113,9 @@ QVariant AutoSwatchModel::data(const QModelIndex &index, int role) const
     if (role == ColourRole) {
         const auto colour = mColours.at(index.row());
         return QVariant::fromValue(colour);
+    } else if (role == ColourHexNameRole) {
+        const auto colour = mColours.at(index.row());
+        return QVariant::fromValue(colour.name(QColor::HexArgb));
     }
 
     return QVariant();
@@ -135,6 +138,7 @@ QHash<int, QByteArray> AutoSwatchModel::roleNames() const
 {
     QHash<int, QByteArray> names;
     names.insert(ColourRole, "colour");
+    names.insert(ColourHexNameRole, "colourHexName");
     return names;
 }
 

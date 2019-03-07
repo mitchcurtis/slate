@@ -68,6 +68,9 @@ public:
     void setPenTile(Tile *penTile);
 
     QPoint scenePosToTilePixelPos(const QPoint &scenePos) const;
+    QRect sceneRectToTileRect(const QRect &sceneRect) const;
+
+    virtual QList<SubImage> subImagesInBounds(const QRect &bounds) const override;
 
 signals:
     void cursorTilePixelXChanged();
@@ -93,8 +96,6 @@ protected:
     void disconnectSignals() override;
     void toolChange() override;
     bool supportsSelectionTool() const override;
-
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
     void onLoadedChanged() override;
 
@@ -122,6 +123,7 @@ private:
     void applyCurrentTool() override;
     void applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false) override;
     void applyTilePenTool(const QPoint &tilePos, int id);
+    void applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition) override;
 
     void updateCursorPos(const QPoint &eventPos) override;
     void error(const QString &message);

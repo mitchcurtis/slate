@@ -73,7 +73,7 @@ bool SwatchColour::read(const QJsonObject &json, QString &errorMessage)
 void SwatchColour::write(QJsonObject &json) const
 {
     json[QLatin1String("name")] = mName;
-    json[QLatin1String("colour")] = mColour.name();
+    json[QLatin1String("colour")] = mColour.name(QColor::HexArgb);
 }
 
 bool operator==(const SwatchColour &lhs, const SwatchColour &rhs)

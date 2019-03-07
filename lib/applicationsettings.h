@@ -46,8 +46,11 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(bool fpsVisible READ isFpsVisible WRITE setFpsVisible NOTIFY fpsVisibleChanged)
     Q_PROPERTY(bool gesturesEnabled READ areGesturesEnabled WRITE setGesturesEnabled NOTIFY gesturesEnabledChanged)
     Q_PROPERTY(bool autoSwatchEnabled READ isAutoSwatchEnabled WRITE setAutoSwatchEnabled NOTIFY autoSwatchEnabledChanged)
+    Q_PROPERTY(bool alwaysShowCrosshair READ isAlwaysShowCrosshair WRITE setAlwaysShowCrosshair NOTIFY alwaysShowCrosshairChanged)
+    Q_PROPERTY(qreal windowOpacity READ windowOpacity WRITE setWindowOpacity NOTIFY windowOpacityChanged)
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
+    Q_PROPERTY(int penToolRightClickBehaviour READ penToolRightClickBehaviour WRITE setPenToolRightClickBehaviour NOTIFY penToolRightClickBehaviourChanged)
 
     Q_PROPERTY(QString quitShortcut READ quitShortcut WRITE setQuitShortcut NOTIFY quitShortcutChanged)
     Q_PROPERTY(QString newShortcut READ newShortcut WRITE setNewShortcut NOTIFY newShortcutChanged)
@@ -86,6 +89,7 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QString swatchRightShortcut READ swatchRightShortcut WRITE setSwatchRightShortcut NOTIFY swatchRightShortcutChanged)
     Q_PROPERTY(QString swatchUpShortcut READ swatchUpShortcut WRITE setSwatchUpShortcut NOTIFY swatchUpShortcutChanged)
     Q_PROPERTY(QString swatchDownShortcut READ swatchDownShortcut WRITE setSwatchDownShortcut NOTIFY swatchDownShortcutChanged)
+    Q_PROPERTY(QString fullScreenToggleShortcut READ fullScreenToggleShortcut WRITE setFullScreenToggleShortcut NOTIFY fullScreenToggleShortcutChanged)
 
 public:
     explicit ApplicationSettings(QObject *parent = 0);
@@ -133,6 +137,14 @@ public:
     bool isAutoSwatchEnabled() const;
     void setAutoSwatchEnabled(bool autoSwatchEnabled);
 
+    bool defaultAlwaysShowCrosshair() const;
+    bool isAlwaysShowCrosshair() const;
+    void setAlwaysShowCrosshair(bool alwaysShowCrosshair);
+
+    qreal defaultWindowOpacity() const;
+    qreal windowOpacity() const;
+    void setWindowOpacity(qreal opacity);
+
     QColor defaultCheckerColour1() const;
     QColor checkerColour1() const;
     void setCheckerColour1(const QColor &colour);
@@ -140,6 +152,10 @@ public:
     QColor defaultCheckerColour2() const;
     QColor checkerColour2() const;
     void setCheckerColour2(const QColor &colour);
+
+    int defaultPenToolRightClickBehaviour() const;
+    int penToolRightClickBehaviour() const;
+    void setPenToolRightClickBehaviour(int penToolRightClickBehaviour);
 
     Q_INVOKABLE void resetShortcutsToDefaults();
 
@@ -291,6 +307,10 @@ public:
     QString swatchDownShortcut() const;
     void setSwatchDownShortcut(const QString &shortcut);
 
+    QString defaultFullScreenToggleShortcut() const;
+    QString fullScreenToggleShortcut() const;
+    void setFullScreenToggleShortcut(const QString &shortcut);
+
 signals:
     void loadLastOnStartupChanged();
     void recentFilesChanged();
@@ -302,8 +322,11 @@ signals:
     void fpsVisibleChanged();
     void gesturesEnabledChanged();
     void autoSwatchEnabledChanged();
+    void alwaysShowCrosshairChanged();
+    void windowOpacityChanged();
     void checkerColour1Changed();
     void checkerColour2Changed();
+    void penToolRightClickBehaviourChanged();
 
     void quitShortcutChanged();
     void newShortcutChanged();
@@ -342,6 +365,7 @@ signals:
     void swatchRightShortcutChanged();
     void swatchUpShortcutChanged();
     void swatchDownShortcutChanged();
+    void fullScreenToggleShortcutChanged();
 };
 
 #endif // APPLICATIONSETTINGS_H

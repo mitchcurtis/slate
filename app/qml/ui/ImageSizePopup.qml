@@ -24,7 +24,7 @@ import QtQuick.Controls 2.3
 import App 1.0
 
 Dialog {
-    id: dialog
+    id: root
     objectName: "imageSizePopup"
     title: qsTr("Choose a size for the image")
     modal: true
@@ -41,6 +41,8 @@ Dialog {
             widthSpinBox.contentItem.forceActiveFocus();
         }
     }
+
+    onAccepted: project.resize(widthSpinBox.value, heightSpinBox.value, smoothCheckBox.checked)
 
     contentItem: ColumnLayout {
         Item {
@@ -123,6 +125,8 @@ Dialog {
 
                 ToolTip.text: qsTr("Image width in pixels")
 
+                Keys.onReturnPressed: root.accept()
+
                 onValueModified: valueUpdated(value)
 
                 // https://bugreports.qt.io/browse/QTBUG-64151
@@ -157,6 +161,8 @@ Dialog {
                 Layout.column: 2
 
                 ToolTip.text: qsTr("Image height in pixels")
+
+                Keys.onReturnPressed: root.accept()
 
                 onValueModified: valueUpdated(value)
 
@@ -199,46 +205,22 @@ Dialog {
                 Layout.fillHeight: true
             }
         }
-
-        RowLayout {
-            Button {
-                objectName: "imageSizePopupOkButton"
-                text: qsTr("OK")
-
-                onClicked: {
-                    project.resize(widthSpinBox.value, heightSpinBox.value, smoothCheckBox.checked);
-                    dialog.visible = false;
-                }
-            }
-            Button {
-                objectName: "imageSizePopupCancelButton"
-                text: qsTr("Cancel")
-
-                onClicked: dialog.visible = false
-            }
-        }
     }
 
-    // https://bugreports.qt.io/browse/QTBUG-64174
-//    footer: DialogButtonBox {
-//        Button {
-//            objectName: "imageSizePopupOkButton"
-//            text: qsTr("OK")
+    footer: DialogButtonBox {
+        Button {
+            objectName: "imageSizePopupOkButton"
+            text: qsTr("OK")
 
-//            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+        }
+        Button {
+            objectName: "imageSizePopupCancelButton"
+            text: qsTr("Cancel")
 
-//            onClicked: {
-//                project.resize(widthSpinBox.value, heightSpinBox.value, smoothCheckBox.checked);
-//                dialog.visible = false;
-//            }
-//        }
-//        Button {
-//            objectName: "imageSizePopupCancelButton"
-//            text: qsTr("Cancel")
-
-//            DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
-
-//            onClicked: dialog.visible = false
-//        }
-//    }
+            // https://bugreports.qt.io/browse/QTBUG-67168
+            // TODO: replace this with DestructiveRole when it works (closes dialog)
+            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+        }
+    }
 }

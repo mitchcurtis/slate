@@ -96,11 +96,13 @@ ImageCanvas::ImageCanvas() :
     mScrollZoom(false),
     mGesturesEnabled(false),
     mTool(PenTool),
+    mToolShape(SquareToolShape),
     mLastFillToolUsed(FillTool),
     mToolSize(1),
     mMaxToolSize(100),
     mPenForegroundColour(Qt::black),
     mPenBackgroundColour(Qt::white),
+    mRightClickBehaviour(PenToolRightClickAppliesEraser),
     mPotentiallySelecting(false),
     mHasSelection(false),
     mMovingSelection(false),
@@ -196,15 +198,16 @@ void ImageCanvas::restoreState()
 
     if (mProject->cachedProjectJson()->contains("lastFillToolUsed")) {
         // TODO:
-        // <= 0.4.0 compatibility code. Eventually, once every platform has had a release
+        // <= 0.SPLITVIEW_VER.0 compatibility code. Eventually, once every platform has had a release
         // where uiState is saved (so that we can refer users to a version that can be used to
         // make old project files compatible with newer versions by opening the project and saving it),
         // we should remove this code and just use uiState.
         QJsonObject *cachedProjectJson = mProject->cachedProjectJson();
 
         if (cachedProjectJson->contains("lastFillToolUsed")) {
-            mLastFillToolUsed = static_cast<Tool>(QMetaEnum::fromType<Tool>().keyToValue(
-                qPrintable(cachedProjectJson->value("lastFillToolUsed").toString())));
+            const QString lastFillToolUsedAsString = cachedProjectJson->value("lastFillToolUsed").toString();
+            setLastFillToolUsed(static_cast<Tool>(
+                QMetaEnum::fromType<Tool>().keyToValue(qPrintable(lastFillToolUsedAsString))));
         }
 
         bool readPanes = false;
@@ -219,7 +222,7 @@ void ImageCanvas::restoreState()
         doSetSplitScreen(cachedProjectJson->value("splitScreen").toBool(false), DontResetPaneSizes);
         mSplitter.setEnabled(cachedProjectJson->value("splitterLocked").toBool(false));
     } else {
-        // Versions > 0.4.0.
+        // Versions > 0.SPLITVIEW_VER.0.
         SerialisableState *uiState = mProject->uiState();
 
         if (uiState->contains("lastFillToolUsed")) {
@@ -527,12 +530,8 @@ void ImageCanvas::setTool(const Tool &tool)
             clearOrConfirmSelection();
     }
 
-    if (mTool == FillTool || mTool == TexturedFillTool) {
-        if (mTool != mLastFillToolUsed) {
-            mLastFillToolUsed = mTool;
-            emit lastFillToolUsedChanged();
-        }
-    }
+    if (mTool == FillTool || mTool == TexturedFillTool)
+        setLastFillToolUsed(mTool);
 
     updateSelectionCursorGuideVisibility();
 
@@ -541,9 +540,35 @@ void ImageCanvas::setTool(const Tool &tool)
     emit toolChanged();
 }
 
+ImageCanvas::ToolShape ImageCanvas::toolShape() const
+{
+    return mToolShape;
+}
+
+void ImageCanvas::setToolShape(const ImageCanvas::ToolShape &toolShape)
+{
+    if (toolShape == mToolShape)
+        return;
+
+    mToolShape = toolShape;
+
+    emit toolShapeChanged();
+}
+
 ImageCanvas::Tool ImageCanvas::lastFillToolUsed() const
 {
     return mLastFillToolUsed;
+}
+
+void ImageCanvas::setLastFillToolUsed(Tool lastFillToolUsed)
+{
+    Q_ASSERT(lastFillToolUsed == FillTool || lastFillToolUsed == TexturedFillTool);
+    qCDebug(lcImageCanvas) << "setting lastFillToolUsed to" << lastFillToolUsed;
+    if (mLastFillToolUsed == lastFillToolUsed)
+        return;
+
+    mLastFillToolUsed = lastFillToolUsed;
+    emit lastFillToolUsedChanged();
 }
 
 int ImageCanvas::toolSize() const
@@ -639,6 +664,11 @@ void ImageCanvas::setSelectionArea(const QRect &selectionArea)
     setHasSelection(!mSelectionArea.isEmpty());
     mSelectionItem->update();
     emit selectionAreaChanged();
+}
+
+bool ImageCanvas::isAdjustingImage() const
+{
+    return !mSelectionContentsBeforeImageAdjustment.isNull();
 }
 
 QColor ImageCanvas::cursorPixelColour() const
@@ -748,6 +778,20 @@ void ImageCanvas::setGesturesEnabled(bool gesturesEnabled)
 
     mGesturesEnabled = gesturesEnabled;
     emit gesturesEnabledChanged();
+}
+
+ImageCanvas::PenToolRightClickBehaviour ImageCanvas::penToolRightClickBehaviour() const
+{
+    return mRightClickBehaviour;
+}
+
+void ImageCanvas::setPenToolRightClickBehaviour(ImageCanvas::PenToolRightClickBehaviour rightClickBehaviour)
+{
+    if (rightClickBehaviour == mRightClickBehaviour)
+        return;
+
+    mRightClickBehaviour = rightClickBehaviour;
+    emit penToolRightClickBehaviourChanged();
 }
 
 Ruler *ImageCanvas::pressedRuler() const
@@ -867,6 +911,15 @@ qreal ImageCanvas::lineAngle() const
     const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
     const QLineF line(point1, point2);
     return line.angle();
+}
+
+QList<ImageCanvas::SubImage> ImageCanvas::subImagesInBounds(const QRect &bounds) const
+{
+    QList<SubImage> subImages;
+    if (bounds.intersects(mProject->bounds())) {
+        subImages.append(SubImage{mProject->bounds(), {}});
+    }
+    return subImages;
 }
 
 void ImageCanvas::setAltPressed(bool altPressed)
@@ -1019,28 +1072,56 @@ QImage ImageCanvas::getContentImage()
     // Draw the pixel-pen-line indicator over the content.
     if (isLineVisible()) {
         QPainter linePainter(&image);
-        drawLine(&linePainter);
+        // Draw the line on top of what has already been painted using a special composition mode.
+        // This ensures that e.g. a translucent red overwrites whatever pixels it
+        // lies on, rather than blending with them.
+        drawLine(&linePainter, linePoint1(), linePoint2(), QPainter::CompositionMode_Source);
     }
     return image;
 }
 
-void ImageCanvas::drawLine(QPainter *painter) const
+void ImageCanvas::drawLine(QPainter *painter, QPointF point1, QPointF point2, const QPainter::CompositionMode mode) const
 {
     painter->save();
 
-    const QPointF point1 = linePoint1();
-    const QPointF point2 = linePoint2();
     QPen pen;
     pen.setColor(penColour());
     pen.setWidth(mToolSize);
+    if (mToolShape == ToolShape::SquareToolShape) {
+        pen.setCapStyle(Qt::PenCapStyle::SquareCap);
+        pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
+    }
+    else {
+        pen.setCapStyle(Qt::PenCapStyle::RoundCap);
+        pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+    }
     painter->setPen(pen);
 
-    QLineF line(point1, point2);
-    // Draw the line on top of what has already been painted using a special composition mode.
-    // This ensures that e.g. a translucent red overwrites whatever pixels it
-    // lies on, rather than blending with them.
-    painter->setCompositionMode(QPainter::CompositionMode_Source);
-    painter->drawLine(line);
+    // Offset odd sized pens to pixel centre to centre pen
+    const QPointF penOffset = (mToolSize % 2 == 1) ? QPointF(0.5, 0.5) : QPointF(0.0, 0.0);
+
+    // Snap points to points to pixel grid
+    if (mToolSize > 1) {
+        point1 = (point1 + penOffset).toPoint() - penOffset;
+        point2 = (point2 + penOffset).toPoint() - penOffset;
+    }
+    else {
+        // Handle inconsitant width 1 pen behaviour, off pixel centres so results in non-ideal asymetrical lines but
+        // would require either redrawing previous segment as part of stroke or custom line function to prevent spurs
+        point1 = QPointF(qFloor(point1.x()), qFloor(point1.y()));
+        point2 = QPointF(qFloor(point2.x()), qFloor(point2.y()));
+    }
+
+    const QLineF line(point1, point2);
+
+    painter->setCompositionMode(mode);
+    // Zero-length line doesn't draw with round pen so handle case with drawPoint
+    if (line.p1() == line.p2()) {
+        painter->drawPoint(line.p1());
+    }
+    else {
+        painter->drawLine(line);
+    }
 
     painter->restore();
 }
@@ -1620,7 +1701,8 @@ void ImageCanvas::setLastSelectionModification(ImageCanvas::SelectionModificatio
     mLastSelectionModification = selectionModification;
     if (mLastSelectionModification == SelectionMove
             || mLastSelectionModification == SelectionFlip
-            || mLastSelectionModification == SelectionRotate) {
+            || mLastSelectionModification == SelectionRotate
+            || mLastSelectionModification == SelectionHsl) {
         setHasModifiedSelection(true);
     } else if (mLastSelectionModification == NoSelectionModification) {
         setHasModifiedSelection(false);
@@ -1662,6 +1744,7 @@ void ImageCanvas::reset()
     mLastMouseButtonPressed = Qt::NoButton;
     mPressPosition = QPoint(0, 0);
     mPressScenePosition = QPoint(0, 0);
+    mPressScenePositionF = QPointF(0.0, 0.0);
     mCurrentPaneOffsetBeforePress = QPoint(0, 0);
     mFirstPaneVisibleSceneArea = QRect();
     mSecondPaneVisibleSceneArea = QRect();
@@ -1769,6 +1852,92 @@ void ImageCanvas::rotateSelection(int angle)
 
     updateSelectionPreviewImage(SelectionRotate);
     requestContentPaint();
+}
+
+// How we do HSL modifications:
+//
+// We apply the HSL modification directly on the selection contents,
+// just as we do for e.g. rotation. This is easier than having a separate,
+// intermediate preview pane.
+//
+// Why these begin/end functions exist:
+//
+// If we only had modifySelectionHsl(), each cumulative HSL modification
+// would be applied to the result of the last. The visible result of this is
+// that it's not possible to move the saturation slider back and forth
+// without losing detail in the image, for example.
+// By keeping track of when the HSL modifications begin and end, we can
+// ensure that all modifications are done on the original image.
+//
+// Also, no other modifications to the canvas are possible while
+// the Hue/Saturation dialog is open, so we don't have to worry about conflict there.
+void ImageCanvas::beginModifyingSelectionHsl()
+{
+    if (!mHasSelection) {
+        qWarning() << "Can't modify HSL without a selection";
+        return;
+    }
+
+    if (!mSelectionContentsBeforeImageAdjustment.isNull()) {
+        qWarning() << "Already modifying selection's HSL";
+        return;
+    }
+
+    qCDebug(lcImageCanvasSelection) << "beginning modification of selection's HSL";
+
+    if (mSelectionAreaBeforeFirstModification.isNull()) {
+        mSelectionAreaBeforeFirstModification = mSelectionArea;
+        mSelectionContents = currentProjectImage()->copy(mSelectionAreaBeforeFirstModification);
+    }
+
+    // Store the original selection contents before we start modifying it
+    // so that each modification is done on a copy of the contents instead of the original contents.
+    mSelectionContentsBeforeImageAdjustment = mSelectionContents;
+    mLastSelectionModificationBeforeImageAdjustment = mLastSelectionModification;
+    emit adjustingImageChanged();
+}
+
+void ImageCanvas::modifySelectionHsl(qreal hue, qreal saturation, qreal lightness, qreal alpha,
+    AlphaAdjustmentFlags alphaAdjustmentFlags)
+{
+    if (!isAdjustingImage()) {
+        qWarning() << "Not adjusting an image; can't modify selection's HSL";
+        return;
+    }
+
+    qCDebug(lcImageCanvasSelection).nospace() << "modifying HSL of selection"
+        << mSelectionArea << " with h=" << hue << " s=" << saturation << " l=" << lightness << " a=" << alpha
+        << "alpha flags=" << alphaAdjustmentFlags;
+
+    // Copy the original so we don't just modify the result of the last adjustment (if any).
+    mSelectionContents = mSelectionContentsBeforeImageAdjustment;
+
+    Utils::modifyHsl(mSelectionContents, hue, saturation, lightness, alpha, alphaAdjustmentFlags);
+
+    // Set this so that the check in shouldDrawSelectionPreviewImage() evaluates to true.
+    setLastSelectionModification(SelectionHsl);
+
+    updateSelectionPreviewImage(SelectionHsl);
+    requestContentPaint();
+}
+
+void ImageCanvas::endModifyingSelectionHsl(AdjustmentAction adjustmentAction)
+{
+    qCDebug(lcImageCanvasSelection) << "ended modification of selection's HSL";
+
+    if (adjustmentAction == RollbackAdjustment) {
+        mSelectionContents = mSelectionContentsBeforeImageAdjustment;
+        setLastSelectionModification(mLastSelectionModificationBeforeImageAdjustment);
+        updateSelectionPreviewImage(SelectionHsl);
+        requestContentPaint();
+    } else {
+        // Commit the adjustments. We don't need to request a repaint
+        // since nothing has changed since the last one.
+        setLastSelectionModification(SelectionHsl);
+    }
+
+    mSelectionContentsBeforeImageAdjustment = QImage();
+    emit adjustingImageChanged();
 }
 
 void ImageCanvas::copySelection()
@@ -1940,57 +2109,52 @@ QImage ImageCanvas::greedyTexturedFillPixels() const
     return greedyTexturedFill(currentProjectImage(), scenePos, previousColour, penColour(), mTexturedFillParameters);
 }
 
+ImageCanvas::Tool ImageCanvas::effectiveTool() const
+{
+    if (mMouseButtonPressed != Qt::RightButton)
+        return mTool;
+
+    return mTool == PenTool ? penRightClickTool() : mTool;
+}
+
+ImageCanvas::Tool ImageCanvas::penRightClickTool() const
+{
+    if (mRightClickBehaviour == PenToolRightClickAppliesEraser)
+        return EraserTool;
+
+    if (mRightClickBehaviour == PenToolRightClickAppliesEyeDropper)
+        return EyeDropperTool;
+
+    return PenTool;
+}
+
 void ImageCanvas::applyCurrentTool()
 {
     if (areToolsForbidden())
         return;
 
-    switch (mTool) {
+    switch (effectiveTool()) {
     case PenTool: {
-        if (!mShiftPressed) {
-            const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
-            if (candidateData.scenePositions.isEmpty()) {
-                return;
-            }
-
-            mProject->beginMacro(QLatin1String("PixelPenTool"));
-            mProject->addChange(new ApplyPixelPenCommand(this, mProject->currentLayerIndex(),
-                candidateData.scenePositions, candidateData.previousColours, penColour()));
-        } else {
-            // The undo command for lines needs the project image before and after
-            // the line was drawn on it.
-            const QRect lineRect = normalisedLineRect();
-            const QImage imageWithoutLine = currentProjectImage()->copy(lineRect);
-
-            QImage imageWithLine = *currentProjectImage();
-            QPainter painter(&imageWithLine);
-            drawLine(&painter);
-            painter.end();
-            imageWithLine = imageWithLine.copy(lineRect);
-
-            mProject->beginMacro(QLatin1String("PixelLineTool"));
-            mProject->addChange(new ApplyPixelLineCommand(this, mProject->currentLayerIndex(),
-                imageWithLine, imageWithoutLine, lineRect, mPressScenePosition, mLastPixelPenPressScenePosition));
-            mProject->endMacro();
-        }
+        mProject->beginMacro(QLatin1String("PixelLineTool"));
+        // Draw the line on top of what has already been painted using a special composition mode.
+        // This ensures that e.g. a translucent red overwrites whatever pixels it
+        // lies on, rather than blending with them.
+        mProject->addChange(new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), *currentProjectImage(), linePoint1(), linePoint2(),
+            mPressScenePositionF, mLastPixelPenPressScenePositionF, QPainter::CompositionMode_Source));
         break;
     }
     case EyeDropperTool: {
         const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
         if (isWithinImage(scenePos)) {
-            setPenColour(currentProjectImage()->pixelColor(scenePos));
+            setPenColourThroughEyedropper(currentProjectImage()->pixelColor(scenePos));
         }
         break;
     }
     case EraserTool: {
-        const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
-        if (candidateData.scenePositions.isEmpty()) {
-            return;
-        }
-
         mProject->beginMacro(QLatin1String("PixelEraserTool"));
-        mProject->addChange(new ApplyPixelEraserCommand(this, mProject->currentLayerIndex(),
-                candidateData.scenePositions, candidateData.previousColours));
+        // Draw the line on top of what has already been painted using a special composition mode to erase pixels.
+        mProject->addChange(new ApplyPixelLineCommand(this, mProject->currentLayerIndex(), *currentProjectImage(), linePoint1(), linePoint2(),
+            mPressScenePositionF, mLastPixelPenPressScenePositionF, QPainter::CompositionMode_Clear));
         break;
     }
     case FillTool: {
@@ -2053,9 +2217,9 @@ void ImageCanvas::applyPixelPenTool(int layerIndex, const QPoint &scenePos, cons
 }
 
 void ImageCanvas::applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect,
-    const QPoint &lastPixelPenReleaseScenePosition)
+    const QPointF &lastPixelPenReleaseScenePosition)
 {
-    mLastPixelPenPressScenePosition = lastPixelPenReleaseScenePosition;
+    mLastPixelPenPressScenePositionF = lastPixelPenReleaseScenePosition;
     QPainter painter(imageForLayerAt(layerIndex));
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.drawImage(lineRect, lineImage);
@@ -2114,17 +2278,23 @@ QRect ImageCanvas::doRotateSelection(int layerIndex, const QRect &area, int angl
 
 QPointF ImageCanvas::linePoint1() const
 {
-    return mLastPixelPenPressScenePosition;
+    return mLastPixelPenPressScenePositionF;
 }
 
 QPointF ImageCanvas::linePoint2() const
 {
-    return QPointF(mCursorSceneX, mCursorSceneY);
+    return QPointF(mCursorSceneFX, mCursorSceneFY);
 }
 
-QRect ImageCanvas::normalisedLineRect() const
+QRect ImageCanvas::normalisedLineRect(const QPointF point1, const QPointF point2) const
 {
-    return QRect(linePoint1().toPoint(), linePoint2().toPoint()).normalized();
+    // sqrt(2) is the ratio between the hypotenuse of a square and its side;
+    // a simplification of Pythagoras’ theorem.
+    // The bounds could be tighter by taking into account the specific rotation of the brush,
+    // but the sqrt(2) ensures it is big enough for any rotation.
+    const int margin = qCeil(M_SQRT2 * mToolSize / 2.0) + 1;
+    return QRect(point1.toPoint(), point2.toPoint()).normalized()
+            .marginsAdded({margin, margin, margin, margin});
 }
 
 void ImageCanvas::updateCursorPos(const QPoint &eventPos)
@@ -2352,9 +2522,12 @@ QColor ImageCanvas::penColour() const
     return pressedMouseButton() == Qt::LeftButton ? mPenForegroundColour : mPenBackgroundColour;
 }
 
-void ImageCanvas::setPenColour(const QColor &colour)
+void ImageCanvas::setPenColourThroughEyedropper(const QColor &colour)
 {
-    if (pressedMouseButton() == Qt::LeftButton)
+    const Qt::MouseButton pressedButton = pressedMouseButton();
+    const bool setForeground = pressedButton == Qt::LeftButton ||
+        (pressedButton == Qt::RightButton && mRightClickBehaviour == PenToolRightClickAppliesEyeDropper);
+    if (setForeground)
         setPenForegroundColour(colour);
     else
         setPenBackgroundColour(colour);
@@ -2515,6 +2688,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
     mLastMouseButtonPressed = mMouseButtonPressed;
     mPressPosition = event->pos();
     mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
+    mPressScenePositionF = QPointF(mCursorSceneFX, mCursorSceneFY);
     mCurrentPaneOffsetBeforePress = mCurrentPane->integerOffset();
     setContainsMouse(true);
 
@@ -2536,6 +2710,10 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
                     return;
                 }
             }
+        }
+
+        if (!mShiftPressed) {
+            mLastPixelPenPressScenePositionF = mPressScenePositionF;
         }
 
         if (mTool != SelectionTool) {
@@ -2561,6 +2739,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
 {
     QQuickItem::mouseMoveEvent(event);
 
+    const QPointF oldCursorScenePosition = QPointF(mCursorSceneFX, mCursorSceneFY);
     updateCursorPos(event->pos());
 
     if (!mProject->hasLoaded())
@@ -2580,6 +2759,11 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
         } else {
             if (!isPanning()) {
                 if (mTool != SelectionTool) {
+                    mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
+                    mPressScenePositionF = QPointF(mCursorSceneFX, mCursorSceneFY);
+                    if (!mShiftPressed) {
+                        mLastPixelPenPressScenePositionF = oldCursorScenePosition;
+                    }
                     applyCurrentTool();
                 } else {
                     panWithSelectionIfAtEdge(SelectionPanMouseMovementReason);

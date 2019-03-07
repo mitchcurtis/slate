@@ -430,14 +430,6 @@ void LayeredImageProject::doLoad(const QUrl &url)
         addLayerAboveAll(imageLayer);
     }
 
-    if (projectObject.contains("currentLayerIndex"))
-        setCurrentLayerIndex(projectObject.value("currentLayerIndex").toInt());
-
-    readGuides(projectObject);
-    // Allow older project files without swatch support (saved with version <= 0.2.1) to still be loaded.
-    readSwatch(projectObject, IgnoreSerialisationFailures);
-    readUiState(projectObject);
-
     mAutoExportEnabled = projectObject.value("autoExportEnabled").toBool(false);
 
     mUsingAnimation = projectObject.value("usingAnimation").toBool(false);
@@ -448,7 +440,12 @@ void LayeredImageProject::doLoad(const QUrl &url)
 
     readUiState(projectObject);
 
-    // For compatibility with older versions (<= 0.4.0). See ImageCanvas::restoreState() for deprecation details.
+    readGuides(projectObject);
+    // Allow older project files without swatch support (saved with version <= 0.2.1) to still be loaded.
+    if (!readJsonSwatch(projectObject, IgnoreSerialisationFailures))
+        return;
+
+    // For compatibility with older versions (<= 0.SPLITVIEW_VER.0). See ImageCanvas::restoreState() for deprecation details.
     // A project should have it stored in either uiState or directly in the project's top-level json, but not both.
     if (projectObject.contains("layerListViewContentY"))
         mUiState.setValue("layerListViewContentY", projectObject.value("layerListViewContentY").toDouble());
@@ -531,7 +528,7 @@ void LayeredImageProject::doSaveAs(const QUrl &url)
     projectObject.insert("currentLayerIndex", mCurrentLayerIndex);
 
     writeGuides(projectObject);
-    writeSwatch(projectObject);
+    writeJsonSwatch(projectObject);
     writeUiState(projectObject);
 
     if (mAutoExportEnabled) {

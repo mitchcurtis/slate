@@ -12,6 +12,12 @@ QtGuiApplication {
     Depends { name: "lib" }
     // Provides support for Apple Interface Builder - aka asset catalogs.
     Depends { name: "ib"; condition: qbs.targetOS.contains("macos") }
+    // Workaround for static builds until https://bugreports.qt.io/browse/QBS-1409 is fixed
+    Depends {
+        name: "Qt"
+        condition: Qt.core.staticBuild && qbs.targetOS.contains("linux")
+        submodules: ["qxcb-egl-integration"]
+    }
 
     // Additional import path used to resolve QML modules in Qt Creator's code model
     property pathList qmlImportPaths: []
@@ -46,6 +52,7 @@ QtGuiApplication {
     AppQmlFiles {}
 
     Group {
+        name: "Install (non-macOS)"
         condition: !qbs.targetOS.contains("macos")
         qbs.install: true
         qbs.installSourceBase: product.buildDirectory
@@ -54,6 +61,7 @@ QtGuiApplication {
 
     // This is necessary to install the app bundle (OS X)
     Group {
+        name: "bundle.content install"
         fileTagsFilter: ["bundle.content"]
         qbs.install: true
         qbs.installDir: "."
@@ -61,24 +69,58 @@ QtGuiApplication {
     }
 
     // macOS icon stuff.
-    Properties {
-        condition: qbs.targetOS.contains("macos")
-        ib.appIconName: "slate-icon-mac"
-//        bundle.infoPlist: {
-//            CFBundleIconFile: "images/logo/slate.xcassets/slate-icon-mac.appiconset"
-//        }
-    }
+    // Uncomment when https://bugreports.qt.io/browse/QBS-1417 is fixed
+//    Properties {
+//        condition: qbs.targetOS.contains("macos")
+//        ib.appIconName: "slate-icon-mac"
+////        bundle.infoPlist: {
+////            CFBundleIconFile: "images/logo/slate.xcassets/slate-icon-mac.appiconset"
+////        }
+//    }
 
-    Group {
-        name: "macOS (icons)"
-        condition: qbs.targetOS.contains("macos")
-        files: ["images/logo/slate.xcassets"]
-    }
+//    Group {
+//        name: "Icons (macOS)"
+//        condition: qbs.targetOS.contains("macos")
+//        files: ["images/logo/slate.xcassets"]
+//    }
 
     // Windows icon stuff.
     Group {
         name: "RC file (Windows)"
         files: ["slate.rc"]
     }
-}
 
+    // Linux desktop + icon stuff.
+    Group {
+        name: "Desktop file (Linux)"
+        condition: qbs.targetOS.contains("linux")
+        qbs.install: true
+        qbs.installDir: "share/applications"
+        files: ["Slate.desktop"]
+    }
+
+    Group {
+        name: "Icon 16x16 (Linux)"
+        condition: qbs.targetOS.contains("linux")
+        qbs.install: true
+        qbs.installDir: "share/icons/hicolor/16x16/apps"
+        // Just reuse the macOS files for simplicity.
+        files: [ "images/logo/slate.xcassets/slate-icon-mac.appiconset/slate-icon-16.png" ]
+    }
+
+    Group {
+        name: "Icon 32x32 (Linux)"
+        condition: qbs.targetOS.contains("linux")
+        qbs.install: true
+        qbs.installDir: "share/icons/hicolor/32x32/apps"
+        files: [ "images/logo/slate.xcassets/slate-icon-mac.appiconset/slate-icon-32.png" ]
+    }
+
+    Group {
+         name: "Icon scalable (Linux)"
+         condition: qbs.targetOS.contains("linux")
+         qbs.install: true
+         qbs.installDir: "share/icons/hicolor/scalable/apps"
+         files: [ "images/logo/slate-icon-web.svg" ]
+     }
+}

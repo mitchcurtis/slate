@@ -134,9 +134,17 @@ protected:
     int digits(int number);
     int digitAt(int number, int index);
 
+    bool isUsingAnimation() const;
+    AnimationPlayback *animationPlayback();
+
     enum InputType {
         MouseInputType,
         KeyboardInputType
+    };
+
+    enum CloseDialogFlag {
+        CloseDialog,
+        DoNotCloseDialog
     };
 
     // Platform-dependent actions
@@ -187,6 +195,9 @@ protected:
         bool transparentImageBackground = false);
     Q_REQUIRED_RESULT bool loadProject(const QUrl &url, const QString &expectedFailureMessage = QString());
     Q_REQUIRED_RESULT bool updateVariables(bool isNewProject, Project::Type newProjectType);
+    Q_REQUIRED_RESULT bool discardChanges();
+    Q_REQUIRED_RESULT bool verifyErrorAndDismiss(const QString &expectedErrorMessage);
+    Q_REQUIRED_RESULT bool verifyNoErrorOrDismiss();
 
     Q_REQUIRED_RESULT bool copyFileFromResourcesToTempProjectDir(const QString &baseName);
     Q_REQUIRED_RESULT bool setupTempTilesetProjectDir();
@@ -195,7 +206,9 @@ protected:
         QStringList *filesCopied = nullptr);
 
     Q_REQUIRED_RESULT bool collapseAllPanels();
+    Q_REQUIRED_RESULT bool isPanelExpanded(const QString &panelObjectName);
     Q_REQUIRED_RESULT bool togglePanel(const QString &panelObjectName, bool expanded);
+    Q_REQUIRED_RESULT bool togglePanels(const QStringList &panelObjectNames, bool expanded);
     Q_REQUIRED_RESULT bool expandColourPanel();
 
     Q_REQUIRED_RESULT bool dragSplitViewHandle(const QString &splitViewObjectName, int index,
@@ -208,9 +221,10 @@ protected:
     Q_REQUIRED_RESULT bool panBy(int xDistance, int yDistance);
     Q_REQUIRED_RESULT bool zoomTo(int zoomLevel);
     Q_REQUIRED_RESULT bool zoomTo(int zoomLevel, const QPoint &pos);
-    Q_REQUIRED_RESULT bool changeCanvasSize(int width, int height);
+    Q_REQUIRED_RESULT bool changeCanvasSize(int width, int height, CloseDialogFlag closeDialog = CloseDialog);
     Q_REQUIRED_RESULT bool changeImageSize(int width, int height);
     Q_REQUIRED_RESULT bool changeToolSize(int size);
+    Q_REQUIRED_RESULT bool changeToolShape(ImageCanvas::ToolShape toolShape);
     Q_REQUIRED_RESULT bool moveContents(int x, int y, bool onlyVisibleLayers);
     int sliderValue(QQuickItem *slider) const;
     Q_REQUIRED_RESULT bool selectColourAtCursorPos();
@@ -221,6 +235,7 @@ protected:
     Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
     Q_REQUIRED_RESULT bool fuzzyImageCompare(const QImage &image1, const QImage &image2);
     Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
+    Q_REQUIRED_RESULT bool compareSwatches(const Swatch &actualSwatch, const Swatch &expectedSwatch);
     Q_REQUIRED_RESULT bool enableAutoSwatch();
     Q_REQUIRED_RESULT bool swatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour);
     QQuickItem *findSwatchViewDelegateAtIndex(int index);
@@ -228,7 +243,12 @@ protected:
     Q_REQUIRED_RESULT bool renameSwatchColour(int index, const QString &name);
     Q_REQUIRED_RESULT bool deleteSwatchColour(int index);
 
+    Q_REQUIRED_RESULT bool addNewGuide(Qt::Orientation orientation, int position);
+
     QByteArray failureMessage;
+
+    QVector<Project::Type> allProjectTypes;
+    QVector<ImageCanvas::PenToolRightClickBehaviour> allRightClickBehaviours;
 
     Application app;
     QQuickWindow *window;
@@ -254,6 +274,7 @@ protected:
     QQuickItem *eraserToolButton;
     QQuickItem *selectionToolButton;
     QQuickItem *toolSizeButton;
+    QQuickItem *toolShapeButton;
     QQuickItem *rotate90CcwToolButton;
     QQuickItem *rotate90CwToolButton;
     QQuickItem *flipHorizontallyToolButton;

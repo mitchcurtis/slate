@@ -47,9 +47,11 @@ public:
     }
 
 private Q_SLOTS:
+    void cleanup();
     void panels_data();
     void panels();
     void toolBar();
+    void animation();
 
 private:
     QObject *findItemChild(QObject *parent, const QString &objectName)
@@ -87,7 +89,7 @@ tst_Screenshots::tst_Screenshots(int &argc, char **argv) :
     // any settings and make sure that the auto tests reset them before each test.
     TestHelper(argc, argv)
 {
-    mOutputDirectory = QGuiApplication::applicationDirPath();
+    mOutputDirectory.setPath(QGuiApplication::applicationDirPath());
     mOutputDirectory.mkdir("output");
     mOutputDirectory.cd("output");
 
@@ -95,6 +97,12 @@ tst_Screenshots::tst_Screenshots(int &argc, char **argv) :
     app.qmlEngine()->rootContext()->setContextProperty("findChildHelper", this);
 
     qInfo() << "Saving screenshots to" << mOutputDirectory.path();
+}
+
+void tst_Screenshots::cleanup()
+{
+    auto deletables = window->findChildren<QQuickItem*>("deleteMe");
+    qDeleteAll(deletables);
 }
 
 void tst_Screenshots::panels_data()
@@ -154,11 +162,7 @@ void tst_Screenshots::panels()
 
     app.settings()->setAutoSwatchEnabled(true);
 
-    for (const QString &panelObjectName : qAsConst(panelsToExpand)) {
-        QQuickItem *panelToExpand = window->findChild<QQuickItem*>(panelObjectName);
-        QVERIFY2(panelToExpand, qPrintable(panelObjectName));
-        QVERIFY(panelToExpand->setProperty("expanded", QVariant(true)));
-    }
+    QVERIFY2(togglePanels(panelsToExpand, true), failureMessage);
 
     QQuickItem *panel = window->findChild<QQuickItem*>(panelToMark);
     QVERIFY(panel);
@@ -192,7 +196,7 @@ void tst_Screenshots::toolBar()
     QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
 
     // Copy the project file from resources into our temporary directory.
-    const QString projectFileName = QLatin1String("animation.slp");
+    const QString projectFileName = QLatin1String("animation-panel.slp");
     QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
 
     // Try to load the project; there shouldn't be any errors.
@@ -246,6 +250,122 @@ void tst_Screenshots::toolBar()
     QCOMPARE(canvas->guidesVisible(), true);
 
     splitterBar->setOpacity(1);
+}
+
+void tst_Screenshots::animation()
+{
+    // Ensure that we have a temporary directory.
+    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+
+    // This is the optimal size for the window for the tutorial.
+    window->resize(1401, 675);
+
+    // Copy the project files from resources into our temporary directory.
+    QStringList projectFileNames;
+    for (int i = 1; i <= 3; ++i) {
+        const QString projectFileName = QString::fromLatin1("animation-tutorial-%1.slp").arg(i);
+        projectFileNames.append(projectFileName);
+        QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+    }
+
+    // Chapter 1.
+    QString projectPath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileNames.at(0));
+    QVERIFY2(loadProject(QUrl::fromLocalFile(projectPath)), failureMessage);
+
+    QStringList panelsToExpand;
+    panelsToExpand << QLatin1String("layerPanel");
+    QVERIFY2(togglePanels(panelsToExpand, true), failureMessage);
+
+    QString screenshotPath = QLatin1String("slate-animation-tutorial-1.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Oepn the canvas size dialog.
+    QVERIFY2(changeCanvasSize(216, 38, DoNotCloseDialog), failureMessage);
+    // Take a screenshot of it.
+    auto grabResult = window->contentItem()->grabToImage();
+    QTRY_VERIFY(!grabResult->image().isNull());
+    screenshotPath = QLatin1String("slate-animation-tutorial-1.1.png");
+    QVERIFY(grabResult->image().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+    // Close it.
+    QTest::keyClick(window, Qt::Key_Escape, Qt::NoModifier, 100);
+    const QObject *canvasSizePopup = findPopupFromTypeName("CanvasSizePopup");
+    QVERIFY(canvasSizePopup);
+    QTRY_VERIFY2(!canvasSizePopup->property("visible").toBool(), "Failed to cancel CanvasSizePopup");
+
+    // Move the mouse away to avoid getting the tooltip in the next screenshot.
+    QQuickItem *toolBar = window->findChild<QQuickItem*>("toolBar");
+    QVERIFY(toolBar);
+    setCursorPosInPixels(QPoint(10, toolBar->height() + 100));
+    QTest::mouseMove(window, cursorWindowPos);
+    QQuickItem *canvasSizeButton = window->findChild<QQuickItem*>("canvasSizeButton");
+    QVERIFY(canvasSizeButton);
+    // Can't seem to ensure that the tooltip is hidden using QQmlProperty, so we do it all hacky-like for now.
+//    QTest::qWait(500);
+
+    QVERIFY2(triggerCloseProject(), failureMessage);
+
+    // Chapter 2.
+    projectPath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileNames.at(1));
+    QVERIFY2(loadProject(QUrl::fromLocalFile(projectPath)), failureMessage);
+
+    QVERIFY2(togglePanels(panelsToExpand, true), failureMessage);
+
+    screenshotPath = QLatin1String("slate-animation-tutorial-2.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Select the background layer and fill it.
+    QVERIFY2(selectLayer("background", 2), failureMessage);
+    QVERIFY2(switchTool(TileCanvas::FillTool), failureMessage);
+    setCursorPosInScenePixels(QPoint(project->widthInPixels() - 1, 0));
+    canvas->setPenForegroundColour(Qt::white);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+
+    screenshotPath = QLatin1String("slate-animation-tutorial-2.1.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Turn on rulers and drag some guides out.
+    QVERIFY2(triggerRulersVisible(), failureMessage);
+    QCOMPARE(app.settings()->areRulersVisible(), true);
+
+    for (int i = 1; i <= 5; ++i) {
+        QVERIFY2(addNewGuide(Qt::Vertical, i * 36), qPrintable(
+            QString::fromLatin1("When dragging guide %1: ").arg(i) + QString::fromLatin1(failureMessage)));
+    }
+
+    QVERIFY2(addNewGuide(Qt::Horizontal, 25), failureMessage);
+
+    screenshotPath = QLatin1String("slate-animation-tutorial-2.2.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    QVERIFY2(triggerCloseProject(), failureMessage);
+    QVERIFY2(discardChanges(), failureMessage);
+
+    // Chapter 3.
+    projectPath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileNames.at(2));
+    QVERIFY2(loadProject(QUrl::fromLocalFile(projectPath)), failureMessage);
+
+    panelsToExpand << QLatin1String("animationPanel");
+    QVERIFY2(togglePanels(panelsToExpand, true), failureMessage);
+
+    // Open the settings popup.
+    QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
+    QVERIFY(animationPanelSettingsToolButton);
+    mouseEventOnCentre(animationPanelSettingsToolButton, MouseClick);
+
+    QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
+    QVERIFY(animationSettingsPopup);
+    QTRY_COMPARE(animationSettingsPopup->property("opened").toBool(), true);
+
+    screenshotPath = QLatin1String("slate-animation-tutorial-3.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Close it.
+    QQuickItem *cancelButton = findDialogButtonFromText(animationSettingsPopup, "Cancel");
+    QVERIFY(cancelButton);
+    mouseEventOnCentre(cancelButton, MouseClick);
+    QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);
+
+    QVERIFY2(triggerCloseProject(), failureMessage);
 }
 
 int main(int argc, char *argv[])

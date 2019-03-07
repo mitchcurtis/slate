@@ -22,6 +22,7 @@ ImageCanvas {
     splitter.width: 32
     scrollZoom: settings.scrollZoom
     gesturesEnabled: settings.gesturesEnabled
+    penToolRightClickBehaviour: settings.penToolRightClickBehaviour
     anchors.fill: parent
 
     readonly property int currentPaneZoomLevel: imageCanvas.currentPane ? imageCanvas.currentPane.integerZoomLevel : 1

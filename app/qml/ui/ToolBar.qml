@@ -1,5 +1,6 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.1
+import QtQuick.Window 2.2
 
 import App 1.0
 
@@ -166,7 +167,7 @@ ToolBar {
                 checkable: true
                 hoverEnabled: true
 
-                ToolTip.text: qsTr("Select colours%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
+                ToolTip.text: qsTr("Pick colours%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
 
                 onClicked: canvas.tool = ImageCanvas.EyeDropperTool
@@ -195,7 +196,7 @@ ToolBar {
                 readonly property bool regularFill: canvas && canvas.lastFillToolUsed === ImageCanvas.FillTool
                 readonly property string imageProjectToolTipText:
                     qsTr("Fill a contiguous area with %1pixels.\nHold Shift to fill all pixels matching the target colour.")
-                        .arg(!regularFill ? "semi-randomised" : "")
+                        .arg(!regularFill ? "semi-randomised " : "")
 
                 icon.source: regularFill ? "qrc:/images/fill.png" : "qrc:/images/textured-fill.png"
 
@@ -289,6 +290,54 @@ ToolBar {
                 x: parent.width / 2 - width / 2
                 y: parent.height
                 canvas: root.canvas
+            }
+        }
+
+        ToolButton {
+            id: toolShapeButton
+            objectName: "toolShapeButton"
+            hoverEnabled: true
+            focusPolicy: Qt.NoFocus
+
+            readonly property bool squareShape: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
+            icon.source: squareShape ? "qrc:/images/square-tool-shape.png" : "qrc:/images/circle-tool-shape.png"
+
+            ToolTip.text: qsTr("Choose brush shape")
+            ToolTip.visible: hovered
+
+            onClicked: toolShapeMenu.visible = !toolShapeMenu.visible
+
+            ToolButtonMenuIndicator {
+                color: toolShapeButton.icon.color
+                anchors.right: parent.contentItem.right
+                anchors.bottom: parent.contentItem.bottom
+                anchors.margins: 6
+            }
+
+            Menu {
+                id: toolShapeMenu
+                objectName: "toolShapeMenu"
+                y: toolShapeButton.height
+                width: 260
+
+                MenuItem {
+                    objectName: "squareToolShapeMenuItem"
+                    text: qsTr("Square")
+                    icon.source: "qrc:/images/square-tool-shape.png"
+                    autoExclusive: true
+                    checkable: true
+                    checked: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
+                    onTriggered: canvas.toolShape = ImageCanvas.SquareToolShape
+                }
+                MenuItem {
+                    objectName: "circleToolShapeMenuItem"
+                    text: qsTr("Circle")
+                    icon.source: "qrc:/images/circle-tool-shape.png"
+                    autoExclusive: true
+                    checkable: true
+                    checked: canvas && canvas.toolShape === ImageCanvas.CircleToolShape
+                    onTriggered: canvas.toolShape = ImageCanvas.CircleToolShape
+                }
             }
         }
 
@@ -449,6 +498,25 @@ ToolBar {
                 ToolTip.visible: hovered
 
                 onClicked: canvas.splitter.enabled = !checked
+            }
+        }
+
+        ToolSeparator {}
+
+        Row {
+            Ui.IconToolButton {
+                id: fullScreenButton
+                text: "\uF108"
+                enabled: true
+                hoverEnabled: true
+                focusPolicy: Qt.NoFocus
+                checkable: true
+                checked: window.visibility === Window.FullScreen
+
+                ToolTip.text: qsTr("Toggle fullscreen window")
+                ToolTip.visible: hovered
+
+                onClicked: toggleFullScreen()
             }
         }
     }

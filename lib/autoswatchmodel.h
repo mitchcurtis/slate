@@ -53,6 +53,7 @@ class SLATE_EXPORT AutoSwatchModel : public QAbstractListModel
 public:
     enum {
         ColourRole = Qt::UserRole,
+        ColourHexNameRole
     };
 
     explicit AutoSwatchModel(QObject *parent = nullptr);

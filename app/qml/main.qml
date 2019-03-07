@@ -37,19 +37,23 @@ ApplicationWindow {
     title: project && project.loaded
         ? ((project.url.toString().length > 0 ? project.displayUrl : "Untitled") + (project.unsavedChanges ? "*" : ""))
         : ""
+    opacity: settings.windowOpacity
     visible: true
 
-//    onActiveFocusItemChanged: print(activeFocusItem)
+//    onActiveFocusItemChanged: print("active focus: " + activeFocusItem + ", parent: "
+//        + (activeFocusItem ? activeFocusItem.parent : null))
 
     property Project project: projectManager.project
-    property int projectType: project && projectManager.ready ? project.type : 0
+    readonly property int projectType: project && projectManager.ready ? project.type : 0
+    readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
     property ImageCanvas canvas: canvasContainer.canvas
     property alias newProjectPopup: newProjectPopup
     property alias openProjectDialog: openProjectDialog
     property alias saveChangesDialog: discardChangesDialog
     property alias moveContentsDialog: moveContentsDialog
-    property int toolTipDelay: 500
-    property int toolTipTimeout: 2000
+    readonly property int toolTipDelay: 500
+    readonly property int toolTipTimeout: 2000
+    property int oldWindowVisibility: Window.Windowed
 
     onClosing: {
         close.accepted = false
@@ -59,7 +63,8 @@ ApplicationWindow {
     // If we set the image URL immediately, it can happen before
     // the error popup is ready.
     Component.onCompleted: {
-        contentItem.objectName = "applicationWindowContentItem";
+        contentItem.parent.objectName = "applicationWindowRootItem"
+        contentItem.objectName = "applicationWindowContentItem"
 
         if (settings.loadLastOnStartup && settings.recentFiles.length > 0) {
             loadProject(settings.recentFiles[0])
@@ -115,6 +120,16 @@ ApplicationWindow {
         }
     }
 
+    function toggleFullScreen() {
+        if (window.visibility === Window.FullScreen) {
+            window.visibility = oldWindowVisibility
+        }
+        else {
+            oldWindowVisibility = window.visibility
+            window.visibility = Window.FullScreen
+        }
+    }
+
     Settings {
         property alias windowX: window.x
         property alias windowY: window.y
@@ -159,6 +174,8 @@ ApplicationWindow {
     menuBar: Ui.MenuBar {
         id: menuBar
         canvas: window.canvas
+        hueSaturationDialog: hueSaturationDialog
+        opacityDialog: opacityDialog
         canvasSizePopup: canvasSizePopup
         imageSizePopup: imageSizePopup
         moveContentsDialog: moveContentsDialog
@@ -254,8 +271,7 @@ ApplicationWindow {
 
             Ui.AnimationPanel {
                 id: animationPanel
-                visible: window.project && window.project.loaded && window.projectType === Project.LayeredImageType
-                    && window.project.usingAnimation
+                visible: window.project && window.project.loaded && isImageProjectType && window.project.usingAnimation
                 project: visible ? window.project : null
                 canvas: window.canvas
 
@@ -401,11 +417,28 @@ ApplicationWindow {
         }
     }
 
+    Ui.HueSaturationDialog {
+        id: hueSaturationDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        project: projectManager.project
+        canvas: window.canvas
+    }
+
+    Ui.OpacityDialog {
+        id: opacityDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        project: projectManager.project
+        canvas: window.canvas
+    }
+
     Ui.CanvasSizePopup {
         id: canvasSizePopup
         parent: Overlay.overlay
         anchors.centerIn: parent
         project: projectManager.project
+        canvas: window.canvas
     }
 
     Ui.ImageSizePopup {

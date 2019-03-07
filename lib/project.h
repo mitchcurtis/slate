@@ -120,6 +120,13 @@ public:
 
     SerialisableState *uiState();
 
+    enum SwatchImportFormat {
+        SlateSwatch,
+        PaintNetSwatch
+    };
+
+    Q_ENUM(SwatchImportFormat)
+
 signals:
     void projectCreated();
     void projectLoaded();
@@ -143,7 +150,7 @@ public slots:
     void saveAs(const QUrl &url);
     virtual void revert();
 
-    void importSwatch(const QUrl &swatchUrl);
+    void importSwatch(SwatchImportFormat format, const QUrl &swatchUrl);
     void exportSwatch(const QUrl &swatchUrl);
 
 protected:
@@ -167,8 +174,10 @@ protected:
         ErrorOutOnSerialisationFailures
     };
 
-    bool readSwatch(const QJsonObject &projectJson, SerialisationFailurePolicy serialisationFailurePolicy);
-    void writeSwatch(QJsonObject &projectJson) const;
+    bool readJsonSwatch(const QJsonObject &projectJson, SerialisationFailurePolicy serialisationFailurePolicy);
+    void writeJsonSwatch(QJsonObject &projectJson) const;
+
+    bool readPaintNetSwatch(QFile &file);
 
     ApplicationSettings *mSettings;
 
@@ -176,7 +185,7 @@ protected:
     QUrl mUrl;
     QTemporaryDir mTempDir;
     bool mUsingTempImage;
-    // <= 0.4.0 compatibility (see comments in ImageCanvas::restoreState()).
+    // <= 0.SPLITVIEW_VER.0 compatibility (see comments in ImageCanvas::restoreState()).
     // Caching the project's json object allows the project to save and share
     // e.g. pane info without having to know about the canvas. This member is
     // written to once after loading.

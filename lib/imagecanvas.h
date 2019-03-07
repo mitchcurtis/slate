@@ -29,6 +29,7 @@
 #include <QTimerEvent>
 #include <QUndoStack>
 #include <QWheelEvent>
+#include <QPainter>
 
 #include "canvaspane.h"
 #include "ruler.h"
@@ -64,6 +65,8 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool splitScreen READ isSplitScreen WRITE setSplitScreen NOTIFY splitScreenChanged)
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
     Q_PROPERTY(bool gesturesEnabled READ areGesturesEnabled WRITE setGesturesEnabled NOTIFY gesturesEnabledChanged)
+    Q_PROPERTY(PenToolRightClickBehaviour penToolRightClickBehaviour READ penToolRightClickBehaviour
+        WRITE setPenToolRightClickBehaviour NOTIFY penToolRightClickBehaviourChanged)
     Q_PROPERTY(Splitter *splitter READ splitter CONSTANT)
     Q_PROPERTY(CanvasPane *firstPane READ firstPane CONSTANT)
     Q_PROPERTY(CanvasPane *secondPane READ secondPane CONSTANT)
@@ -81,12 +84,14 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(Tool lastFillToolUsed READ lastFillToolUsed NOTIFY lastFillToolUsedChanged)
     Q_PROPERTY(int toolSize READ toolSize WRITE setToolSize NOTIFY toolSizeChanged)
     Q_PROPERTY(int maxToolSize READ maxToolSize CONSTANT)
+    Q_PROPERTY(ToolShape toolShape READ toolShape WRITE setToolShape NOTIFY toolShapeChanged)
     Q_PROPERTY(QColor penForegroundColour READ penForegroundColour WRITE setPenForegroundColour NOTIFY penForegroundColourChanged)
     Q_PROPERTY(QColor penBackgroundColour READ penBackgroundColour WRITE setPenBackgroundColour NOTIFY penBackgroundColourChanged)
     Q_PROPERTY(TexturedFillParameters *texturedFillParameters READ texturedFillParameters CONSTANT FINAL)
     Q_PROPERTY(bool hasSelection READ hasSelection NOTIFY hasSelectionChanged)
     Q_PROPERTY(bool hasModifiedSelection READ hasModifiedSelection NOTIFY hasModifiedSelectionChanged)
     Q_PROPERTY(QRect selectionArea READ selectionArea NOTIFY selectionAreaChanged)
+    Q_PROPERTY(bool adjustingImage READ isAdjustingImage NOTIFY adjustingImageChanged)
     Q_PROPERTY(bool hasBlankCursor READ hasBlankCursor NOTIFY hasBlankCursorChanged)
     Q_PROPERTY(bool altPressed READ isAltPressed NOTIFY altPressedChanged)
     Q_PROPERTY(bool lineVisible READ isLineVisible NOTIFY lineVisibleChanged)
@@ -104,8 +109,21 @@ public:
         TexturedFillTool,
         CropTool
     };
-
     Q_ENUM(Tool)
+
+    enum ToolShape {
+        SquareToolShape,
+        CircleToolShape,
+    };
+    Q_ENUM(ToolShape)
+
+    // The order of these is important, as the chosen value is serialised as an int.
+    enum PenToolRightClickBehaviour {
+        PenToolRightClickAppliesEraser,
+        PenToolRightClickAppliesEyeDropper,
+        PenToolRightClickAppliesBackgroundColour
+    };
+    Q_ENUM(PenToolRightClickBehaviour)
 
     ImageCanvas();
     ~ImageCanvas() override;
@@ -172,6 +190,9 @@ public:
     bool areGesturesEnabled() const;
     void setGesturesEnabled(bool gesturesEnabled);
 
+    PenToolRightClickBehaviour penToolRightClickBehaviour() const;
+    void setPenToolRightClickBehaviour(PenToolRightClickBehaviour penToolRightClickBehaviour);
+
     Ruler *pressedRuler() const;
     int pressedGuideIndex() const;
 
@@ -196,6 +217,9 @@ public:
     Tool tool() const;
     void setTool(const Tool &tool);
 
+    ToolShape toolShape() const;
+    void setToolShape(const ToolShape &toolShape);
+
     Tool lastFillToolUsed() const;
 
     int toolSize() const;
@@ -216,6 +240,8 @@ public:
     QRect selectionArea() const;
     void setSelectionArea(const QRect &selectionArea);
 
+    bool isAdjustingImage() const;
+
     bool hasBlankCursor() const;
 
     bool isAltPressed() const;
@@ -223,6 +249,17 @@ public:
     bool isLineVisible() const;
     int lineLength() const;
     qreal lineAngle() const;
+
+    struct SubImage {
+        bool operator==(const SubImage &other) const {
+            return bounds == other.bounds && offset == other.offset;
+        }
+
+        QRect bounds;
+        QPoint offset;
+    };
+
+    virtual QList<SubImage> subImagesInBounds(const QRect &bounds) const;
 
     // Essentially currentProjectImage() for regular image canvas, but may return a
     // preview image if there is a selection active. For layered image canvases, this
@@ -251,10 +288,32 @@ public:
         SelectionPaste,
         SelectionMove,
         SelectionFlip,
-        SelectionRotate
+        SelectionRotate,
+        SelectionHsl
     };
     // For nice printing.
     Q_ENUM(SelectionModification)
+
+    enum AdjustmentAction {
+        RollbackAdjustment,
+        CommitAdjustment
+    };
+
+    Q_ENUM(AdjustmentAction)
+
+    enum AlphaAdjustmentOption {
+        // Modify the alpha regardless of what its current value is.
+        DefaultAlphaAdjustment = 0x00,
+        // Only change the alpha if it's non-zero to prevent fully transparent
+        // pixels (#00000000) gaining opacity.
+        DoNotModifyFullyTransparentPixels = 0x01,
+        // Only change the alpha if it's less than one to prevent fully opaque
+        // pixels (#FF000000) losing opacity.
+        DoNotModifyFullyOpaquePixels = 0x02
+    };
+
+    Q_DECLARE_FLAGS(AlphaAdjustmentFlags, AlphaAdjustmentOption)
+    Q_ENUM(AlphaAdjustmentFlags)
 
 signals:
     void projectChanged();
@@ -277,10 +336,12 @@ signals:
     void splitScreenChanged();
     void scrollZoomChanged();
     void gesturesEnabledChanged();
+    void penToolRightClickBehaviourChanged();
     void currentPaneChanged();
 //    void rulerForegroundColourChanged();
 //    void rulerBackgroundColourChanged();
     void toolChanged();
+    void toolShapeChanged();
     void lastFillToolUsedChanged();
     void toolSizeChanged();
     void penForegroundColourChanged();
@@ -289,6 +350,7 @@ signals:
     void hasSelectionChanged();
     void hasModifiedSelectionChanged();
     void selectionAreaChanged();
+    void adjustingImageChanged();
     void altPressedChanged();
     void lineVisibleChanged();
     void lineLengthChanged();
@@ -306,8 +368,13 @@ public slots:
     void centreView();
     void zoomIn();
     void zoomOut();
+
     void flipSelection(Qt::Orientation orientation);
     void rotateSelection(int angle);
+    void beginModifyingSelectionHsl();
+    void modifySelectionHsl(qreal hue, qreal saturation, qreal lightness, qreal alpha = 0.0,
+        AlphaAdjustmentFlags alphaAdjustmentFlags = DefaultAlphaAdjustment);
+    void endModifyingSelectionHsl(AdjustmentAction adjustmentAction);
     void copySelection();
     void paste();
     void deleteSelectionOrContents();
@@ -364,9 +431,11 @@ protected:
     QImage texturedFillPixels() const;
     QImage greedyTexturedFillPixels() const;
 
+    ImageCanvas::Tool effectiveTool() const;
+    ImageCanvas::Tool penRightClickTool() const;
     virtual void applyCurrentTool();
     virtual void applyPixelPenTool(int layerIndex, const QPoint &scenePos, const QColor &colour, bool markAsLastRelease = false);
-    virtual void applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPoint &lastPixelPenReleaseScenePosition);
+    virtual void applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition);
     void paintImageOntoPortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage);
     void replacePortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage);
     void erasePortionOfImage(int layerIndex, const QRect &portion);
@@ -376,7 +445,7 @@ protected:
 
     QPointF linePoint1() const;
     QPointF linePoint2() const;
-    QRect normalisedLineRect() const;
+    QRect normalisedLineRect(const QPointF point1, const QPointF point2) const;
 
     virtual void updateCursorPos(const QPoint &eventPos);
     void updateVisibleSceneArea();
@@ -384,19 +453,20 @@ protected:
 
     Qt::MouseButton pressedMouseButton() const;
     QColor penColour() const;
-    void setPenColour(const QColor &colour);
+    void setPenColourThroughEyedropper(const QColor &colour);
     void setHasBlankCursor(bool hasBlankCursor);
     void restoreToolBeforeAltPressed();
     virtual bool areToolsForbidden() const;
     void setCursorPixelColour(const QColor &cursorPixelColour);
     bool isWithinImage(const QPoint &scenePos) const;
     QPoint clampToImageBounds(const QPoint &scenePos, bool inclusive = true) const;
+    void setLastFillToolUsed(Tool lastFillToolUsed);
 
     void setCurrentPane(CanvasPane *pane);
     CanvasPane *hoveredPane(const QPoint &pos);
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
     virtual QImage getContentImage();
-    void drawLine(QPainter *painter) const;
+    void drawLine(QPainter *painter, QPointF point1, QPointF point2, const QPainter::CompositionMode mode) const;
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,
@@ -479,6 +549,7 @@ private:
 
 protected:
     friend class CanvasPaneItem;
+    friend class TileCanvasPaneItem;
 
     // The background colour of the entire pane.
     QColor mBackgroundColour;
@@ -531,6 +602,7 @@ protected:
     // The position at which the mouse is currently pressed.
     QPoint mPressPosition;
     QPoint mPressScenePosition;
+    QPointF mPressScenePositionF;
     // The scene position at which the mouse was pressed before the most-recent press.
     QPoint mCurrentPaneOffsetBeforePress;
     QRect mFirstPaneVisibleSceneArea;
@@ -539,6 +611,7 @@ protected:
     bool mGesturesEnabled;
 
     Tool mTool;
+    ToolShape mToolShape;
     Tool mLastFillToolUsed;
     int mToolSize;
     int mMaxToolSize;
@@ -547,11 +620,14 @@ protected:
 
     TexturedFillParameters mTexturedFillParameters;
 
+    PenToolRightClickBehaviour mRightClickBehaviour;
+
     // The scene position at which the mouse was last pressed.
     // This is used by the pixel line tool to draw the line preview.
     // It is set by the pixel tool as the last pixel in the command,
     // and by the pixel line tool command.
     QPoint mLastPixelPenPressScenePosition;
+    QPointF mLastPixelPenPressScenePositionF;
     // An image as large as the rectangle that contains the line that is being previewed.
     QImage mLinePreviewImage;
 
@@ -573,6 +649,9 @@ protected:
     // The entire image as it would look if the selection (that is currently being dragged)
     // was dropped where it is now.
     QImage mSelectionPreviewImage;
+    // See the definition of beginModifyingSelectionHsl() for info.
+    QImage mSelectionContentsBeforeImageAdjustment;
+    SelectionModification mLastSelectionModificationBeforeImageAdjustment;
     QBasicTimer mSelectionEdgePanTimer;
     SelectionCursorGuide *mSelectionCursorGuide;
     // The type of the last modification that was done to the selection.
@@ -588,5 +667,17 @@ protected:
     bool mSpacePressed;
     bool mHasBlankCursor;
 };
+
+inline uint qHash(const ImageCanvas::SubImage &key, const uint seed = 0) {
+    return qHashBits(&key, sizeof(ImageCanvas::SubImage), seed);
+}
+
+inline QDebug operator<<(QDebug debug, const ImageCanvas::SubImage &subImage)
+{
+    QDebugStateSaver saver(debug);
+    debug.nospace() << "SubImage(" << subImage.bounds << ", " << subImage.offset << ')';
+
+    return debug;
+}
 
 #endif // IMAGECANVAS_H

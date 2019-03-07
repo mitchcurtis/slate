@@ -24,6 +24,8 @@
 #include <QImage>
 #include <QRect>
 
+#include "imagecanvas.h"
+
 namespace Utils {
     QImage paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
 
@@ -33,6 +35,9 @@ namespace Utils {
 
     QImage rotate(const QImage &image, int angle);
     QImage rotateAreaWithinImage(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea);
+
+    void modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness, qreal alpha,
+        ImageCanvas::AlphaAdjustmentFlags alphaAdjustmentFlags);
 
     void strokeRectWithDashes(QPainter *painter, const QRect &rect);
 
@@ -46,6 +51,46 @@ namespace Utils {
         debug << enumValue;
         return string;
     }
+
+    template<typename T>
+    inline T divFloor(const T dividend, const T divisor) {
+        T quotient = dividend / divisor;
+        const T remainder = dividend % divisor;
+        if ((remainder != 0) && ((remainder < 0) != (divisor < 0))) --quotient;
+        return quotient;
+    }
+    template<typename T>
+    inline T divCeil(const T dividend, const T divisor) {
+        return divFloor(dividend + (divisor - 1), divisor);
+    }
+    template<typename T>
+    inline T modFloor(const T dividend, const T divisor) {
+        T remainder = dividend % divisor;
+        if ((remainder != 0) && ((remainder < 0) != (divisor < 0))) remainder += divisor;
+        return remainder;
+    }
+    template<typename T>
+    inline T modCeil(const T dividend, const T divisor) {
+        return modFloor(dividend + (divisor - 1), divisor);
+    }
+
+    // Based on https://stackoverflow.com/a/28413370/904422.
+    class ScopeGuard {
+    public:
+        template<class Callable>
+        ScopeGuard(Callable && restoreFunc) : restoreFunc(std::forward<Callable>(restoreFunc)) {}
+
+        ~ScopeGuard() {
+            if(restoreFunc)
+                restoreFunc();
+        }
+
+        ScopeGuard(const ScopeGuard&) = delete;
+        void operator=(const ScopeGuard&) = delete;
+
+    private:
+        std::function<void()> restoreFunc;
+    };
 }
 
 #endif // UTILS_H

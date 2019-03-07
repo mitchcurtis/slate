@@ -24,7 +24,7 @@
 6. Switches the current tool to the pen tool.
 7. Switches the current tool to the eye dropper (colour picker) tool.
 8. Switches the current tool to the eraser tool.
-9. Switches the current tool to the fill tool.
+9. Switches the current tool to the fill tool. Long press to bring up the fill tool menu.
 10. Switches the current tool to the selection tool.
 11. Changes the size of drawing tools.
 12. Rotates the selection by 90 degrees counter-clockwise.

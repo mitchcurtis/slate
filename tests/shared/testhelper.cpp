@@ -23,6 +23,7 @@
 
 #include "imagelayer.h"
 #include "projectmanager.h"
+#include "utils.h"
 
 TestHelper::TestHelper(int &argc, char **argv) :
     app(argc, argv, QStringLiteral("Slate Test Suite")),
@@ -65,6 +66,10 @@ TestHelper::TestHelper(int &argc, char **argv) :
     mTools.append(ImageCanvas::FillTool);
     mTools.append(ImageCanvas::SelectionTool);/*,
     mTools.append(ImageCanvas::CropTool); TODO: not implemented yet*/
+
+    allProjectTypes << Project::TilesetType << Project::ImageType << Project::LayeredImageType;
+    allRightClickBehaviours << ImageCanvas::PenToolRightClickAppliesEraser << ImageCanvas::PenToolRightClickAppliesEyeDropper
+        << ImageCanvas::PenToolRightClickAppliesBackgroundColour;
 }
 
 TestHelper::~TestHelper()
@@ -132,6 +137,9 @@ void TestHelper::initTestCase()
 
     toolSizeButton = window->findChild<QQuickItem*>("toolSizeButton");
     QVERIFY(toolSizeButton);
+
+    toolShapeButton = window->findChild<QQuickItem*>("toolShapeButton");
+    QVERIFY(toolShapeButton);
 
     rotate90CcwToolButton = window->findChild<QQuickItem*>("rotate90CcwToolButton");
     QVERIFY(rotate90CcwToolButton);
@@ -275,13 +283,13 @@ bool TestHelper::clearAndEnterText(QQuickItem *textField, const QString &text)
     return true;
 }
 
-bool TestHelper::changeCanvasSize(int width, int height)
+bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDialog)
 {
     // Open the canvas size popup.
     mouseEventOnCentre(canvasSizeButton, MouseClick);
     const QObject *canvasSizePopup = findPopupFromTypeName("CanvasSizePopup");
     VERIFY(canvasSizePopup);
-    VERIFY(canvasSizePopup->property("visible").toBool());
+    TRY_VERIFY2(canvasSizePopup->property("opened").toBool(), "Failed to open CanvasSizePopup");
 
     // Change the values and then cancel.
     // TODO: use actual input events...
@@ -302,32 +310,38 @@ bool TestHelper::changeCanvasSize(int width, int height)
     QQuickItem *cancelButton = canvasSizePopup->findChild<QQuickItem*>("canvasSizePopupCancelButton");
     VERIFY(cancelButton);
     mouseEventOnCentre(cancelButton, MouseClick);
-    VERIFY(!canvasSizePopup->property("visible").toBool());
+    TRY_VERIFY2(!canvasSizePopup->property("visible").toBool(), "Failed to cancel CanvasSizePopup");
     VERIFY(project->size().width() == originalWidthSpinBoxValue);
     VERIFY(project->size().height() == originalHeightSpinBoxValue);
+    VERIFY(canvas->hasActiveFocus());
 
     // Open the popup again.
     mouseEventOnCentre(canvasSizeButton, MouseClick);
     VERIFY(canvasSizePopup);
-    VERIFY(canvasSizePopup->property("visible").toBool());
+    TRY_VERIFY2(canvasSizePopup->property("opened").toBool(), "Failed to reopen CanvasSizePopup");
     // The old values should be restored.
     VERIFY(widthSpinBox->property("value").toInt() == originalWidthSpinBoxValue);
     VERIFY(heightSpinBox->property("value").toInt() == originalHeightSpinBoxValue);
+    VERIFY(widthSpinBox->hasActiveFocus());
 
-    // Change the values and then press OK.
+    // Change the values.
     VERIFY(widthSpinBox->setProperty("value", width));
     VERIFY(widthSpinBox->property("value").toInt() == width);
     VERIFY(heightSpinBox->setProperty("value", height));
     VERIFY(heightSpinBox->property("value").toInt() == height);
 
-    QQuickItem *okButton = canvasSizePopup->findChild<QQuickItem*>("canvasSizePopupOkButton");
-    VERIFY(okButton);
-    mouseEventOnCentre(okButton, MouseClick);
-    VERIFY(!canvasSizePopup->property("visible").toBool());
-    VERIFY(project->size().width() == width);
-    VERIFY(project->size().height() == height);
-    VERIFY(widthSpinBox->property("value").toInt() == width);
-    VERIFY(heightSpinBox->property("value").toInt() == height);
+    if (closeDialog == CloseDialog) {
+        // Press OK to close the dialog.
+        QQuickItem *okButton = canvasSizePopup->findChild<QQuickItem*>("canvasSizePopupOkButton");
+        VERIFY(okButton);
+        mouseEventOnCentre(okButton, MouseClick);
+        TRY_VERIFY2(!canvasSizePopup->property("visible").toBool(), "Failed to accept CanvasSizePopup");
+        VERIFY(project->size().width() == width);
+        VERIFY(project->size().height() == height);
+        VERIFY(widthSpinBox->property("value").toInt() == width);
+        VERIFY(heightSpinBox->property("value").toInt() == height);
+        VERIFY(canvas->hasActiveFocus());
+    }
 
     return true;
 }
@@ -435,6 +449,33 @@ bool TestHelper::changeToolSize(int size)
     // Close the popup.
     QTest::keyClick(window, Qt::Key_Escape);
     VERIFY(toolSizePopup->property("visible").toBool() == false);
+
+    return true;
+}
+
+bool TestHelper::changeToolShape(ImageCanvas::ToolShape toolShape)
+{
+    if (canvas->toolShape() == toolShape)
+        return true;
+
+    mouseEventOnCentre(toolShapeButton, MouseClick);
+    const QObject *toolShapeMenu = window->findChild<QObject*>("toolShapeMenu");
+    VERIFY(toolShapeMenu);
+    TRY_VERIFY(toolShapeMenu->property("opened").toBool() == true);
+
+    if (toolShape == ImageCanvas::SquareToolShape) {
+        QQuickItem *squareToolShapeMenuItem = toolShapeMenu->findChild<QQuickItem*>("squareToolShapeMenuItem");
+        VERIFY(squareToolShapeMenuItem);
+
+        mouseEventOnCentre(squareToolShapeMenuItem, MouseClick);
+        VERIFY(canvas->toolShape() == ImageCanvas::SquareToolShape);
+    } else {
+        QQuickItem *circleToolShapeMenuItem = toolShapeMenu->findChild<QQuickItem*>("circleToolShapeMenuItem");
+        VERIFY(circleToolShapeMenuItem);
+
+        mouseEventOnCentre(circleToolShapeMenuItem, MouseClick);
+        VERIFY(canvas->toolShape() == ImageCanvas::CircleToolShape);
+    }
 
     return true;
 }
@@ -720,6 +761,21 @@ bool TestHelper::everyPixelIs(const QImage &image, const QColor &colour)
     return true;
 }
 
+bool TestHelper::compareSwatches(const Swatch &actualSwatch, const Swatch &expectedSwatch)
+{
+    if (actualSwatch.colours() == expectedSwatch.colours())
+        return true;
+
+    QString message;
+    message = "Swatches are not equal:";
+    message += "\n  actual ";
+    QDebug(&message) << actualSwatch.colours();
+    message += "\nexpected ";
+    QDebug(&message) << expectedSwatch.colours();
+    failureMessage = qPrintable(message);
+    return false;
+}
+
 bool TestHelper::enableAutoSwatch()
 {
     // The swatches panel is hidden by default when testing; see updateVariables().
@@ -763,6 +819,14 @@ QQuickItem *TestHelper::findSwatchViewDelegateAtIndex(int index)
 
 bool TestHelper::addSwatchWithForegroundColour()
 {
+    // Roll back to the previous value in case of test failure.
+    Utils::ScopeGuard swatchPanelExpandedGuard([=](){
+        const bool oldExpandedValue = swatchesPanel->property("expanded").toBool();
+        swatchesPanel->setProperty("expanded", oldExpandedValue);
+    });
+
+    swatchesPanel->setProperty("expanded", true);
+
     QQuickItem *swatchGridView = window->findChild<QQuickItem*>("swatchGridView");
     VERIFY(swatchGridView);
     VERIFY(QMetaObject::invokeMethod(swatchGridView, "forceLayout"));
@@ -772,14 +836,16 @@ bool TestHelper::addSwatchWithForegroundColour()
 
     const int previousDelegateCount = swatchGridView->property("count").toInt();
     const QString expectedDelegateObjectName = QString::fromLatin1("swatchGridView_Delegate_%1_%2")
-        .arg(previousDelegateCount).arg(canvas->penForegroundColour().name());
+        .arg(previousDelegateCount).arg(canvas->penForegroundColour().name(QColor::HexArgb));
 
     // Add the swatch.
     QQuickItem *newSwatchColourButton = window->findChild<QQuickItem*>("newSwatchColourButton");
     VERIFY(newSwatchColourButton);
     mouseEventOnCentre(newSwatchColourButton, MouseClick);
     VERIFY(QMetaObject::invokeMethod(swatchGridView, "forceLayout"));
-    VERIFY(swatchGridView->property("count").toInt() == previousDelegateCount + 1);
+    VERIFY2(swatchGridView->property("count").toInt() == previousDelegateCount + 1,
+        qPrintable(QString::fromLatin1("Expected %1 swatch delegates after adding one, but there are %2")
+            .arg(previousDelegateCount + 1).arg(swatchGridView->property("count").toInt())));
     // findChild() doesn't work here for some reason.
     const auto childItems = viewContentItem->childItems();
     QQuickItem *swatchDelegate = nullptr;
@@ -848,6 +914,68 @@ bool TestHelper::deleteSwatchColour(int index)
     VERIFY(deleteSwatchColourMenuItem);
     mouseEventOnCentre(deleteSwatchColourMenuItem, MouseClick);
     TRY_VERIFY(!swatchContextMenu->property("opened").toBool());
+    return true;
+}
+
+bool TestHelper::addNewGuide(Qt::Orientation orientation, int position)
+{
+    if (!app.settings()->areRulersVisible()) {
+        if (!triggerRulersVisible())
+            return false;
+        VERIFY(app.settings()->areRulersVisible());
+    }
+
+    const bool horizontal = orientation == Qt::Horizontal;
+    const int originalGuideCount = project->guides().size();
+    const int newGuideIndex = originalGuideCount;
+    const QPoint originalOffset = canvas->currentPane()->integerOffset();
+    const qreal originalZoomLevel = canvas->currentPane()->zoomLevel();
+
+    QQuickItem *ruler = canvas->findChild<QQuickItem*>(horizontal
+        ? "firstHorizontalRuler" : "firstVerticalRuler");
+    VERIFY(ruler);
+    const qreal rulerThickness = horizontal ? ruler->height() : ruler->width();
+
+    // Pan so that the top left of the canvas is at the rulers' corners.
+    if (!panTopLeftTo(rulerThickness, rulerThickness))
+        return false;
+
+    canvas->currentPane()->setZoomLevel(1.0);
+
+    // Drop a horizontal guide onto the canvas.
+    const QPoint pressPos(
+        horizontal ? 50 : rulerThickness / 2,
+        horizontal ? rulerThickness / 2 : 50);
+    setCursorPosInPixels(pressPos);
+    QTest::mouseMove(window, cursorWindowPos);
+    VERIFY(!canvas->pressedRuler());
+
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    VERIFY(canvas->pressedRuler());
+
+    // Do the actual moving onto the canvas.
+    const QPoint releasePos(
+        horizontal ? 50 : rulerThickness + position,
+        horizontal ? rulerThickness + position : 50);
+    setCursorPosInPixels(releasePos);
+    QTest::mouseMove(window, cursorWindowPos);
+
+    // Now it should be visible on the canvas.
+    VERIFY(imageGrabber.requestImage(canvas));
+    TRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithGuide = imageGrabber.takeImage();
+    VERIFY(grabWithGuide.pixelColor(releasePos.x(), releasePos.y()) == QColor(Qt::cyan));
+
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+
+    VERIFY(!canvas->pressedRuler());
+    VERIFY2(project->guides().size() == originalGuideCount + 1, qPrintable(QString::fromLatin1(
+        "Expected %1 guide(s), but got %2").arg(originalGuideCount + 1).arg(project->guides().size())));
+    VERIFY(project->guides().at(newGuideIndex).position() == position);
+    VERIFY(project->undoStack()->canUndo());
+
+    canvas->currentPane()->setOffset(originalOffset);
+    canvas->currentPane()->setZoomLevel(originalZoomLevel);
     return true;
 }
 
@@ -1034,8 +1162,11 @@ void TestHelper::setCursorPosInScenePixels(int xPosInScenePixels, int yPosInScen
 void TestHelper::setCursorPosInScenePixels(const QPoint &posInScenePixels)
 {
     cursorPos = posInScenePixels;
-    cursorWindowPos = canvas->mapToScene(QPointF(posInScenePixels.x(), posInScenePixels.y())).toPoint()
-            + canvas->firstPane()->integerOffset();
+    const int integerZoomLevel = canvas->currentPane()->integerZoomLevel();
+    const QPointF localZoomedPixelPos = QPointF(
+        posInScenePixels.x() * integerZoomLevel,
+        posInScenePixels.y() * integerZoomLevel);
+    cursorWindowPos = canvas->mapToScene(localZoomedPixelPos).toPoint() + canvas->firstPane()->integerOffset();
 }
 
 QPoint TestHelper::tilesetTileCentre(int xPosInTiles, int yPosInTiles) const
@@ -1074,6 +1205,16 @@ int TestHelper::digitAt(int number, int index)
     } while (number > 0);
 
     return index < digits.size() ? digits.at(index) : 0;
+}
+
+bool TestHelper::isUsingAnimation() const
+{
+    return imageProject ? imageProject->isUsingAnimation() : layeredImageProject->isUsingAnimation();
+}
+
+AnimationPlayback *TestHelper::animationPlayback()
+{
+    return imageProject ? imageProject->animationPlayback() : layeredImageProject->animationPlayback();
 }
 
 bool TestHelper::triggerShortcut(const QString &objectName, const QString &sequenceAsString)
@@ -1195,10 +1336,10 @@ bool TestHelper::triggerAnimationPlayback()
 
 bool TestHelper::setAnimationPlayback(bool usingAnimation)
 {
-    if (layeredImageProject->isUsingAnimation() != usingAnimation) {
+    if (isUsingAnimation() != usingAnimation) {
         if (!triggerAnimationPlayback())
             return false;
-        VERIFY(layeredImageProject->isUsingAnimation() == usingAnimation);
+        VERIFY(isUsingAnimation() == usingAnimation);
     }
     return true;
 }
@@ -1358,14 +1499,8 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
 
     // Check that we get prompted to discard any changes.
     if (project && project->hasUnsavedChanges()) {
-        const QObject *discardChangesDialog = window->contentItem()->findChild<QObject*>("discardChangesDialog");
-        VERIFY(discardChangesDialog);
-        VERIFY(discardChangesDialog->property("visible").toBool());
-
-        QQuickItem *discardChangesButton = findDialogButtonFromObjectName(discardChangesDialog, "discardChangesDialogButton");
-        VERIFY(discardChangesButton);
-        mouseEventOnCentre(discardChangesButton, MouseClick);
-        VERIFY(!discardChangesDialog->property("visible").toBool());
+        if (!discardChanges())
+            return false;
     }
 
     // Ensure that the new project popup is visible.
@@ -1559,7 +1694,11 @@ bool TestHelper::createNewImageProject(int imageWidth, int imageHeight, bool tra
     args.insert("imageWidth", imageWidth);
     args.insert("imageHeight", imageHeight);
     args.insert("transparentImageBackground", transparentImageBackground);
-    return createNewProject(Project::ImageType, args);
+
+    if (!createNewProject(Project::ImageType, args))
+        return false;
+
+    return true;
 }
 
 bool TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)
@@ -1597,9 +1736,6 @@ bool TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
 
     moveLayerDownButton = window->findChild<QQuickItem*>("moveLayerDownButton");
     VERIFY(moveLayerDownButton);
-
-    animationPlayPauseButton = window->findChild<QQuickItem*>("animationPlayPauseButton");
-    VERIFY(animationPlayPauseButton);
 
     return true;
 }
@@ -1676,6 +1812,11 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     canvas = window->findChild<ImageCanvas*>();
     VERIFY(canvas);
     TRY_VERIFY(canvas->window());
+
+    animationPlayPauseButton = window->findChild<QQuickItem*>("animationPlayPauseButton");
+    if (projectType == Project::ImageType || projectType == Project::LayeredImageType)
+        VERIFY(animationPlayPauseButton);
+
     if (isNewProject) {
         // The old default was to split the screen,
         // and so the tests might be depending on it to be split.
@@ -1697,8 +1838,10 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     // This determines which colour the ColourSelector considers "current",
     // and hence which value is shown in the hex field.
     VERIFY(penForegroundColourButton->setProperty("checked", QVariant(true)));
+    canvas->setToolShape(ImageCanvas::SquareToolShape);
 
     app.settings()->setAutoSwatchEnabled(false);
+    app.settings()->setPenToolRightClickBehaviour(app.settings()->defaultPenToolRightClickBehaviour());
 
     if (projectType == Project::TilesetType) {
         tilesetProject = qobject_cast<TilesetProject*>(project);
@@ -1786,6 +1929,58 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     return true;
 }
 
+bool TestHelper::discardChanges()
+{
+    const QObject *discardChangesDialog = window->contentItem()->findChild<QObject*>("discardChangesDialog");
+    VERIFY(discardChangesDialog);
+    TRY_VERIFY(discardChangesDialog->property("opened").toBool());
+
+    QQuickItem *discardChangesButton = findDialogButtonFromObjectName(discardChangesDialog, "discardChangesDialogButton");
+    VERIFY(discardChangesButton);
+    mouseEventOnCentre(discardChangesButton, MouseClick);
+    TRY_VERIFY(!discardChangesDialog->property("visible").toBool());
+    return true;
+}
+
+bool TestHelper::verifyErrorAndDismiss(const QString &expectedErrorMessage)
+{
+    QObject *errorDialog = findPopupFromTypeName("ErrorPopup");
+    VERIFY(errorDialog);
+    TRY_VERIFY(errorDialog->property("opened").toBool());
+
+    // Save the error message so that we can dismiss the dialog beforehand.
+    // This way, if the message comparison fails, the dialog won't interfere
+    // with the next test.
+    const QString errorMessage = errorDialog->property("text").toString();
+
+    QTest::keyClick(window, Qt::Key_Escape);
+    TRY_VERIFY(!errorDialog->property("visible").toBool());
+
+    VERIFY2(errorMessage.contains(expectedErrorMessage), qPrintable(QString::fromLatin1(
+        "Error message does not contain expected error message: %1").arg(errorMessage)));
+
+    return true;
+}
+
+bool TestHelper::verifyNoErrorOrDismiss()
+{
+    QObject *errorDialog = findPopupFromTypeName("ErrorPopup");
+    if (!errorDialog)
+        return true;
+
+    const bool wasVisible = errorDialog->property("visible").toBool();
+    QString errorMessage;
+    if (wasVisible) {
+        errorMessage = errorDialog->property("text").toString();
+        // Dismissing ensures that the dialog doesn't interfere with the next test.
+        QTest::keyClick(window, Qt::Key_Escape);
+        TRY_VERIFY(!errorDialog->property("visible").toBool());
+    }
+
+    VERIFY2(!wasVisible, qPrintable(QLatin1String("Expected no error, but got: ") + errorMessage));
+    return true;
+}
+
 bool TestHelper::copyFileFromResourcesToTempProjectDir(const QString &baseName)
 {
     QFile sourceFile(":/resources/" + baseName);
@@ -1847,6 +2042,13 @@ bool TestHelper::setupTempProjectDir(const QStringList &resourceFilesToCopy, QSt
     return true;
 }
 
+bool TestHelper::isPanelExpanded(const QString &panelObjectName)
+{
+    QQuickItem *panel = window->findChild<QQuickItem*>(panelObjectName);
+    VERIFY(panel);
+    return panel->property("expanded").toBool();
+}
+
 bool TestHelper::collapseAllPanels()
 {
     if (project->type() == Project::TilesetType) {
@@ -1864,7 +2066,12 @@ bool TestHelper::collapseAllPanels()
         return false;
 
     if (project->type() == Project::ImageType || project->type() == Project::LayeredImageType) {
-        if (!togglePanel("animationPanel", false))
+        // Don't change the expanded state if the panel is not even visible,
+        // as we want it to be the default (true) for tests involving animation playback
+        // to ensure that it shows when enabled.
+        QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
+        VERIFY(animationPanel);
+        if (animationPanel->isVisible() && !togglePanel("animationPanel", false))
             return false;
     }
 
@@ -1941,6 +2148,15 @@ bool TestHelper::dragSplitViewHandle(const QString &splitViewObjectName, int ind
     return true;
 }
 
+bool TestHelper::togglePanels(const QStringList &panelObjectNames, bool expanded)
+{
+    for (const QString &panelObjectName : qAsConst(panelObjectNames)) {
+        if (!togglePanel(panelObjectName, expanded))
+            return false;
+    }
+    return true;
+}
+
 bool TestHelper::switchMode(TileCanvas::Mode mode)
 {
     if (tileCanvas->mode() == mode)
@@ -2009,7 +2225,8 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
         return false;
     }
 
-    VERIFY(canvas->tool() == tool);
+    VERIFY2(canvas->tool() == tool, qPrintable(QString::fromLatin1(
+        "Expected tool %1 but current tool is %2").arg(tool).arg(canvas->tool())));
     return true;
 }
 
@@ -2052,7 +2269,8 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     const QPoint expectedOffset = originalOffset + QPoint(xDistance, yDistance);
 
     QTest::keyPress(window, Qt::Key_Space);
-    VERIFY(window->cursor().shape() == Qt::OpenHandCursor);
+    VERIFY2(window->cursor().shape() == Qt::OpenHandCursor, qPrintable(QString::fromLatin1(
+        "Expected Qt::OpenHandCursor after Qt::Key_Space press, but got %1").arg(window->cursor().shape())));
     VERIFY(canvas->currentPane()->integerOffset() == originalOffset);
     //        VERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
@@ -2062,7 +2280,8 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     //        QImage lastImage = currentImage;
 
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, pressPos);
-    VERIFY(window->cursor().shape() == Qt::ClosedHandCursor);
+    VERIFY2(window->cursor().shape() == Qt::ClosedHandCursor, qPrintable(QString::fromLatin1(
+        "Expected Qt::ClosedHandCursor after mouse press, but got %1").arg(window->cursor().shape())));
     VERIFY(canvas->currentPane()->integerOffset() == originalOffset);
     //        VERIFY(imageGrabber.requestImage(canvas));
     //        QTRY_VERIFY(imageGrabber.isReady());
@@ -2072,7 +2291,8 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     //        lastImage = currentImage;
 
     QTest::mouseMove(window, pressPos + QPoint(xDistance, yDistance));
-    VERIFY(window->cursor().shape() == Qt::ClosedHandCursor);
+    VERIFY2(window->cursor().shape() == Qt::ClosedHandCursor, qPrintable(QString::fromLatin1(
+        "Expected Qt::ClosedHandCursor after mouse move, but got %1").arg(window->cursor().shape())));
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
     //        VERIFY(imageGrabber.requestImage(canvas));
     //        // Pane offset changed.
@@ -2081,13 +2301,19 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     //        lastImage = currentImage;
 
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, pressPos + QPoint(xDistance, yDistance));
-    VERIFY(window->cursor().shape() == Qt::OpenHandCursor);
+    VERIFY2(window->cursor().shape() == Qt::OpenHandCursor, qPrintable(QString::fromLatin1(
+        "Expected Qt::ClosedHandCursor after mouse release, but got %1").arg(window->cursor().shape())));
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
 
     QTest::keyRelease(window, Qt::Key_Space);
     // If we have a selection, the cursor might not be Qt::BlankCursor, and that's OK.
-    if (!canvas->hasSelection())
-        VERIFY(window->cursor().shape() == Qt::BlankCursor);
+    if (!canvas->hasSelection()) {
+        // Move the mouse away from any guides, etc.
+        QTest::mouseMove(window, QPoint(0, 0));
+        VERIFY2(window->cursor().shape() == Qt::BlankCursor, qPrintable(QString::fromLatin1(
+            "Expected Qt::BlankCursor after Qt::Key_Space release, but got %1").arg(window->cursor().shape())));
+        QTest::mouseMove(window, pressPos + QPoint(xDistance, yDistance));
+    }
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);
 
     return true;

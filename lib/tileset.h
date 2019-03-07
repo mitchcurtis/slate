@@ -39,12 +39,15 @@ public:
     QString fileName() const;
     void setFileName(const QString &fileName);
     const QImage *image() const;
+    QImage *image();
     void setPixelColor(int x, int y, const QColor &colour);
     void copy(const QPoint &sourceTopLeft, const QPoint &targetTopLeft);
     void rotateCounterClockwise(const QPoint &tileTopLeft);
     void rotateClockwise(const QPoint &tileTopLeft);
     int tilesWide() const;
     int tilesHigh() const;
+
+    void notifyImageChanged();
 
 public slots:
 

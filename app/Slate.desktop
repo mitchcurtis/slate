@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Slate
+GenericName=Pixel Art Editor
+Comment=Edit pixel art
+TryExec=Slate
+Terminal=false
+Type=Application
+Icon=slate
+Categories=Qt;Graphics;2DGraphics;RasterGraphics;
+X-Desktop-File-Install-Version=0.1

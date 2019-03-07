@@ -3,7 +3,7 @@ import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.3
 
 Dialog {
-    id: control
+    id: root
     objectName: "errorPopup"
     modal: true
     focus: true
@@ -33,7 +33,8 @@ Dialog {
             text: icon
         }
         Label {
-            text: control.text
+            objectName: root.objectName + "ErrorLabel"
+            text: root.text
             wrapMode: Label.WrapAtWordBoundaryOrAnywhere
 
             Layout.fillWidth: true

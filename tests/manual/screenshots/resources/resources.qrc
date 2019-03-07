@@ -1,12 +1,15 @@
 <RCC>
     <qresource prefix="/resources">
         <file>Marker.qml</file>
-        <file>SwatchMarkers.qml</file>
         <file>qmldir</file>
-        <file>LayerMarkers.qml</file>
-        <file>AnimationMarkers.qml</file>
-        <file>animation.slp</file>
-        <file>ColourMarkers.qml</file>
         <file>ToolBarMarkers.qml</file>
+        <file>animation-panel.slp</file>
+        <file>animation-tutorial-1.slp</file>
+        <file>animation-tutorial-2.slp</file>
+        <file>animation-tutorial-3.slp</file>
+        <file>AnimationPanelMarkers.qml</file>
+        <file>ColourPanelMarkers.qml</file>
+        <file>LayerPanelMarkers.qml</file>
+        <file>SwatchPanelMarkers.qml</file>
     </qresource>
 </RCC>

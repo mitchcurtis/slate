@@ -29,7 +29,7 @@ Slate was built for pixel art, and its goal is to simplify the creation of sprit
   - [Installing](#installing)
   - [Documentation](#documentation)
   - [Discussion](#discussion)
-  - [Notes](#notes)
+  - [Donations](#donations)
 - [Building From Source](#building-from-source)
   - [Dependencies](#dependencies)
   - [Cloning](#cloning)
@@ -49,7 +49,16 @@ Slate was built for pixel art, and its goal is to simplify the creation of sprit
 
 ### Downloads ###
 
-See the [releases](https://github.com/mitchcurtis/slate/releases) page for the available downloads.
+<!-- ![Linux](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.svg "Linux") -->
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.svg" width="16" height="16"> - [Slate 0.6.0 for Linux](https://github.com/mitchcurtis/slate/releases/download/v0.6.0/Slate-v0.6.0-linux.tar.xz)
+
+<!-- ![Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.svg "Mac") -->
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.svg" width="16" height="16"> - [Slate 0.6.0 for Mac](https://github.com/mitchcurtis/slate/releases/download/v0.6.0/Slate-v0.6.0-mac.dmg.zip)
+
+<!-- ![Windows](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.svg "Windows") -->
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.svg" width="16" height="16"> - [Slate 0.6.0 for Windows](https://github.com/mitchcurtis/slate/releases/download/v0.6.0/Slate-v0.6.0-windows.zip)
+
+See the [releases](https://github.com/mitchcurtis/slate/releases) page for the full list of available downloads.
 
 ### Installing ###
 
@@ -60,13 +69,17 @@ All Slate builds are portable, meaning that no installation is necessary. On Win
 
 ### Discussion ###
 
-Join Slate's Discord channel for discussion: https://discord.gg/ZtAAg5D
+Join Slate's Discord server for discussion: https://discord.gg/ZtAAg5D
 
 It's fine to ask questions here on GitHub as well - just [create an issue](https://github.com/mitchcurtis/slate/issues/new) and I will label it accordingly.
 
-### Notes ###
-- This is a work in progress, but should already be usable. Feel free to [report](https://github.com/mitchcurtis/slate/issues) any bugs you find. :)
-- The UI is currently designed for the [Material style](http://doc.qt.io/qt-5/qtquickcontrols2-material.html), and will probably look bad when run with others.
+### Donations ###
+
+If you like Slate, feel free to stop by the Discord server and let me know. I'm always excited to know that people are using it.
+
+You can also say thank you by donating:
+
+[![](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LLLVPKU2JW9P8&source=url)
 
 ## Building From Source ##
 
@@ -76,7 +89,7 @@ It's fine to ask questions here on GitHub as well - just [create an issue](https
 
 ### Cloning ###
 
-`master` is the default branch where all work is done, and is not guaranteed to be stable. I [tag](https://github.com/mitchcurtis/slate/tags) releases, so if you're looking for a stable build to try out, it's best to pick the latest one from `git tag -l`. 
+`master` is the default branch where all work is done, and is not guaranteed to be stable. I [tag](https://github.com/mitchcurtis/slate/tags) releases, so if you're looking for a stable build to try out, it's best to pick the latest one from `git tag -l`.
 
 ### Building ###
 
@@ -102,7 +115,7 @@ Shadow builds:
     mkdir slate-build
     cd slate-build
     qbs /path/to/slate-source-dir/slate.qbs
-    
+
 For more information about building Qbs applications, see [this page](http://doc.qt.io/qbs/building-applications.html).
 
 ---
@@ -111,3 +124,5 @@ List of assets used in the screenshots:
 
 - https://opengameart.org/content/lpc-tile-atlas
 - https://opengameart.org/content/pixel-explosion-12-frames
+
+OS icons taken from [font-os](https://github.com/JeyKeu/font-os).

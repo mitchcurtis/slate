@@ -184,9 +184,10 @@ void TilesetProject::doLoad(const QUrl &url)
 
     readGuides(projectObject);
     // Allow older project files without swatch support (saved with version <= 0.2.1) to still be loaded.
-    readSwatch(projectObject, IgnoreSerialisationFailures);
+    if (!readJsonSwatch(projectObject, IgnoreSerialisationFailures))
+        return;
     readUiState(projectObject);
-    // For compatibility with older versions (<= 0.4.0). See ImageCanvas::restoreState() for deprecation details.
+    // For compatibility with older versions (<= 0.SPLITVIEW_VER.0). See ImageCanvas::restoreState() for deprecation details.
     mCachedProjectJson = projectObject;
 
     setUrl(url);
@@ -285,7 +286,7 @@ void TilesetProject::doSaveAs(const QUrl &url)
     projectObject.insert("tiles", tileArray);
 
     writeGuides(projectObject);
-    writeSwatch(projectObject);
+    writeJsonSwatch(projectObject);
     writeUiState(projectObject);
 
     rootJson.insert("project", projectObject);
