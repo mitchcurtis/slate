@@ -84,6 +84,11 @@ void SerialisableState::setValue(const QString &key, const QVariant &value)
 {
     qCDebug(lcSerialisableState) << "setting serialisable value at key" << key
         << "to" << value;
+    // Even though QVariant can store QByteArray, QJsonValue can't.
+    // In the future, when QTBUG-71511 is fixed, we will use Qt.btoa() in QML instead,
+    // but for now, reading/writing SplitView state will fail.
+    // We could intercept the variant in setValue() and convert it to a Base64 string,
+    // but it's more difficult when reading (how do we know it's Base64 and not just a string?
     mState[key] = value;
 }
 

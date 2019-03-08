@@ -145,6 +145,7 @@ ApplicationWindow {
 
         onPreProjectSaved: {
             // Save project state.
+            // TODO: see comment in SerialisableState::setValue() for why this will fail.
             project.uiState.setValue("mainSplitViewState", mainSplitView.saveState())
             project.uiState.setValue("panelSplitViewState", panelSplitView.saveState())
         }
