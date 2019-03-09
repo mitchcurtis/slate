@@ -60,6 +60,8 @@ private Q_SLOTS:
     void versionCheck();
     void loadTilesetProjectWithInvalidTileset();
     void loadLayeredImageProjectAfterTilesetProject();
+    void loadInvalidProjects_data();
+    void loadInvalidProjects();
     void recentFiles();
 
     // Tools, misc.
@@ -262,7 +264,7 @@ void tst_App::openClose()
         QTest::ignoreMessage(QtWarningMsg, "QFSFileEngine::open: No file name specified");
 
         const QUrl badUrl("doesnotexist.stp");
-        const QString errorMessage = QLatin1String("Failed to open tileset project's STP file at ");
+        const QRegularExpression errorMessage(QLatin1String("Failed to open tileset project's STP file at "));
         QVERIFY2(loadProject(badUrl, errorMessage), failureMessage);
 
         // There was a project open before we attempted to load the invalid one.
@@ -572,7 +574,7 @@ void tst_App::loadTilesetProjectWithInvalidTileset()
 
     // Load it. It shouldn't crash.
     const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
-    const QString expectedFailureMessage = QLatin1String("Failed to open project's tileset at /nope/nope/nope");
+    const QRegularExpression expectedFailureMessage(QLatin1String("Failed to open project's tileset at /nope/nope/nope"));
     QVERIFY2(loadProject(QUrl::fromLocalFile(absolutePath), expectedFailureMessage), failureMessage);
 }
 
@@ -590,6 +592,38 @@ void tst_App::loadLayeredImageProjectAfterTilesetProject()
     QVERIFY(swatchesPanel);
     // 5 is the spacing between panels.
     QCOMPARE(layersLoader->y(), swatchesPanel->y() + swatchesPanel->height() + 5);
+}
+
+void tst_App::loadInvalidProjects_data()
+{
+    QTest::addColumn<QString>("projectFileName");
+    QTest::addColumn<QRegularExpression>("expectedErrorMessage");
+
+    QTest::newRow("loadInvalidProjects-empty.slp")
+        << QString::fromLatin1("loadInvalidProjects-empty.slp")
+        << QRegularExpression("Layered image project file is missing a \"project\" key.*");
+    QTest::newRow("loadInvalidProjects-empty.stp")
+        << QString::fromLatin1("loadInvalidProjects-empty.stp")
+        << QRegularExpression("Tileset project file is missing a \"project\" key.*");
+}
+
+void tst_App::loadInvalidProjects()
+{
+    QFETCH(QString, projectFileName);
+    QFETCH(QRegularExpression, expectedErrorMessage);
+
+    // Ensure that we have a temporary directory.
+    if (projectManager->projectTypeForFileName(projectFileName) == Project::LayeredImageType)
+        QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+    else
+        QVERIFY2(setupTempTilesetProjectDir(), failureMessage);
+
+    // Copy the project file from resources into our temporary directory.
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+
+    // Try to load the project; there should be an error.
+    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
+    QVERIFY2(loadProject(QUrl::fromLocalFile(absolutePath), expectedErrorMessage), failureMessage);
 }
 
 void tst_App::recentFiles()

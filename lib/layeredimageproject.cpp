@@ -410,6 +410,12 @@ void LayeredImageProject::createNew(int imageWidth, int imageHeight, bool transp
     qCDebug(lcProject) << "finished creating new project";
 }
 
+#define CONTAINS_KEY_OR_ERROR(jsonObject, key, filePath) \
+    if (!jsonObject.contains(key)) { \
+        error(QString::fromLatin1("Layered image project file is missing a \"%1\" key:\n\n%2").arg(key).arg(filePath)); \
+        return; \
+    }
+
 void LayeredImageProject::doLoad(const QUrl &url)
 {
     const QString filePath = url.toLocalFile();
@@ -431,8 +437,11 @@ void LayeredImageProject::doLoad(const QUrl &url)
 
     QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonFile.readAll());
     QJsonObject rootJson = jsonDoc.object();
-    QJsonObject projectObject = JsonUtils::strictValue(rootJson, "project").toObject();
-    QJsonArray layerArray = JsonUtils::strictValue(projectObject, "layers").toArray();
+    CONTAINS_KEY_OR_ERROR(rootJson, "project", filePath);
+    QJsonObject projectObject = rootJson.value("project").toObject();
+
+    CONTAINS_KEY_OR_ERROR(projectObject, "layers", filePath);
+    QJsonArray layerArray = projectObject.value("layers").toArray();
     for (int i = 0; i < layerArray.size(); ++i) {
         QJsonObject layerObject = layerArray.at(i).toObject();
         ImageLayer *imageLayer = new ImageLayer(this);

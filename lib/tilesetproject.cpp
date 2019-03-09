@@ -131,6 +131,12 @@ void TilesetProject::createNew(QUrl tilesetUrl, int tileWidth, int tileHeight,
     qCDebug(lcProject) << "finished creating new project";
 }
 
+#define CONTAINS_KEY_OR_ERROR(jsonObject, key, filePath) \
+    if (!jsonObject.contains(key)) { \
+        error(QString::fromLatin1("Tileset project file is missing a \"%1\" key:\n\n%2").arg(key).arg(filePath)); \
+        return; \
+    }
+
 void TilesetProject::doLoad(const QUrl &url)
 {
     QFile jsonFile(url.toLocalFile());
@@ -146,20 +152,36 @@ void TilesetProject::doLoad(const QUrl &url)
 
     QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonFile.readAll());
     QJsonObject rootJson = jsonDoc.object();
-    QJsonObject projectObject = JsonUtils::strictValue(rootJson, "project").toObject();
+    CONTAINS_KEY_OR_ERROR(rootJson, "project", url.toLocalFile());
+    QJsonObject projectObject = rootJson.value("project").toObject();
 
-    setTilesWide(JsonUtils::strictValue(projectObject, "tilesWide").toInt());
-    setTilesHigh(JsonUtils::strictValue(projectObject, "tilesHigh").toInt());
-    setTileWidth(JsonUtils::strictValue(projectObject, "tileWidth").toInt());
-    setTileHeight(JsonUtils::strictValue(projectObject, "tileHeight").toInt());
-    setTilesetUrl(QUrl::fromLocalFile(JsonUtils::strictValue(projectObject, "tilesetPath").toString()));
+    CONTAINS_KEY_OR_ERROR(projectObject, "tilesWide", url.toLocalFile());
+    setTilesWide(projectObject.value("tilesWide").toInt());
+
+    CONTAINS_KEY_OR_ERROR(projectObject, "tilesHigh", url.toLocalFile());
+    setTilesHigh(projectObject.value("tilesHigh").toInt());
+
+    CONTAINS_KEY_OR_ERROR(projectObject, "tileWidth", url.toLocalFile());
+    setTileWidth(projectObject.value("tileWidth").toInt());
+
+    CONTAINS_KEY_OR_ERROR(projectObject, "tileHeight", url.toLocalFile());
+    setTileHeight(projectObject.value("tileHeight").toInt());
+
+    CONTAINS_KEY_OR_ERROR(projectObject, "tilesetPath", url.toLocalFile());
+    setTilesetUrl(QUrl::fromLocalFile(projectObject.value("tilesetPath").toString()));
     mUsingTempImage = false;
 
     Q_ASSERT(!mTileset);
     const QString tilesetPath = mTilesetUrl.toLocalFile();
-    QJsonObject tilesetObject = JsonUtils::strictValue(projectObject, "tileset").toObject();
-    const int tilesetTilesWide = JsonUtils::strictValue(tilesetObject, "tilesWide").toInt();
-    const int tilesetTilesHigh = JsonUtils::strictValue(tilesetObject, "tilesHigh").toInt();
+    CONTAINS_KEY_OR_ERROR(projectObject, "tileset", url.toLocalFile());
+    const QJsonObject tilesetObject = projectObject.value("tileset").toObject();
+
+    CONTAINS_KEY_OR_ERROR(tilesetObject, "tilesWide", url.toLocalFile());
+    const int tilesetTilesWide = tilesetObject.value("tilesWide").toInt();
+
+    CONTAINS_KEY_OR_ERROR(tilesetObject, "tilesHigh", url.toLocalFile());
+    const int tilesetTilesHigh = tilesetObject.value("tilesHigh").toInt();
+
     Tileset *tempTileset = new Tileset(tilesetPath, tilesetTilesWide, tilesetTilesHigh, this);
     if (tempTileset->isValid()) {
         setTileset(tempTileset);

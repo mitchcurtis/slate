@@ -1709,39 +1709,47 @@ bool TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
     return true;
 }
 
-bool TestHelper::loadProject(const QUrl &url, const QString &expectedFailureMessage)
+bool TestHelper::loadProject(const QUrl &url, const QRegularExpression &expectedFailureMessage)
 {
     if (projectCreationFailedSpy)
         projectCreationFailedSpy->clear();
 
-    QWindow *window = qobject_cast<QWindow*>(app.qmlEngine()->rootObjects().first());
+    QQuickWindow *window = qobject_cast<QQuickWindow*>(app.qmlEngine()->rootObjects().first());
     VERIFY(window);
 
     // Load it.
     VERIFY(QMetaObject::invokeMethod(window, "loadProject", Qt::DirectConnection, Q_ARG(QVariant, url)));
 
-    if (expectedFailureMessage.isEmpty()) {
+    if (!expectedFailureMessage.isValid() || expectedFailureMessage.pattern().isEmpty()) {
         // Expect success.
         VERIFY_NO_CREATION_ERRORS_OCCURRED();
         return updateVariables(false, projectManager->projectTypeForUrl(url));
     }
 
     // Expect failure.
-    VERIFY2(!projectCreationFailedSpy->isEmpty() && projectCreationFailedSpy->first().first() == expectedFailureMessage,
+    VERIFY2(!projectCreationFailedSpy->isEmpty() && expectedFailureMessage.match(projectCreationFailedSpy->first().first().toString()).hasMatch(),
         qPrintable(QString::fromLatin1("Expected failure to load project %1 with the following error message:\n%2\nBut got:\n%3")
-            .arg(url.path()).arg(expectedFailureMessage).arg(projectCreationFailedSpy->first().first().toString())));
+            .arg(url.path()).arg(expectedFailureMessage.pattern()).arg(projectCreationFailedSpy->first().first().toString())));
 
     const QObject *errorPopup = findPopupFromTypeName("ErrorPopup");
     VERIFY(errorPopup);
     VERIFY(errorPopup->property("visible").toBool());
-    VERIFY(errorPopup->property("text").toString() == expectedFailureMessage);
+    VERIFY(expectedFailureMessage.match(errorPopup->property("text").toString()).hasMatch());
     VERIFY(errorPopup->property("focus").isValid());
     VERIFY(errorPopup->property("focus").toBool());
 
+    QPoint mousePos;
+    if (canvas) {
+        canvas->mapToScene(QPointF(10, 10)).toPoint();
+    } else {
+        mousePos = QPoint(100, 100);
+    }
+
     // Check that the cursor goes back to an arrow when there's a modal popup visible,
     // even if the mouse is over the canvas and not the popup.
-    QTest::mouseMove(window, canvas->mapToScene(QPointF(10, 10)).toPoint());
-    VERIFY(!canvas->hasActiveFocus());
+    QTest::mouseMove(window, mousePos);
+    if (canvas)
+        VERIFY(!canvas->hasActiveFocus());
     VERIFY(window->cursor().shape() == Qt::ArrowCursor);
 
     // Close the error message popup.
@@ -1955,6 +1963,7 @@ bool TestHelper::copyFileFromResourcesToTempProjectDir(const QString &baseName)
     QFile sourceFile(":/resources/" + baseName);
     VERIFY2(sourceFile.open(QIODevice::ReadOnly), qPrintable(QString::fromLatin1(
         "Failed to open %1: %2").arg(sourceFile.fileName()).arg(sourceFile.errorString())));
+    const bool isEmpty = sourceFile.readAll().isEmpty();
     sourceFile.close();
 
     const QString saveFilePath = tempProjectDir->path() + "/" + baseName;
@@ -1963,10 +1972,9 @@ bool TestHelper::copyFileFromResourcesToTempProjectDir(const QString &baseName)
 
     // A file copied from a file that is part of resources will always be read-only...
     QFile copiedFile(saveFilePath);
-    VERIFY(copiedFile.size() > 0);
-
+    if (!isEmpty)
+        VERIFY(copiedFile.size() > 0);
     VERIFY(copiedFile.setPermissions(QFile::ReadUser | QFile::WriteUser));
-    VERIFY(copiedFile.size() > 0);
     VERIFY2(copiedFile.open(QIODevice::ReadWrite), qPrintable(QString::fromLatin1(
         "Error opening file at %1: %2").arg(saveFilePath).arg(copiedFile.errorString())));
     return true;
