@@ -92,6 +92,16 @@ void SerialisableState::setValue(const QString &key, const QVariant &value)
     mState[key] = value;
 }
 
+QByteArray SerialisableState::base64ToBinary(const QString &base64String)
+{
+    return QByteArray::fromBase64(base64String.toLatin1());
+}
+
+QString SerialisableState::binaryToBase64(const QByteArray &binaryByteArray)
+{
+    return QString::fromLatin1(binaryByteArray.toBase64());
+}
+
 QVariantMap SerialisableState::map() const
 {
     return mState;

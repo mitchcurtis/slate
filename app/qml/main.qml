@@ -145,9 +145,10 @@ ApplicationWindow {
 
         onPreProjectSaved: {
             // Save project state.
-            // TODO: see comment in SerialisableState::setValue() for why this will fail.
-            project.uiState.setValue("mainSplitViewState", mainSplitView.saveState())
-            project.uiState.setValue("panelSplitViewState", panelSplitView.saveState())
+            project.uiState.setValue("mainSplitViewState",
+                project.uiState.binaryToBase64(mainSplitView.saveState()))
+            project.uiState.setValue("panelSplitViewState",
+                project.uiState.binaryToBase64(panelSplitView.saveState()))
         }
     }
 
@@ -160,8 +161,10 @@ ApplicationWindow {
             // Old project files and image projects don't have UI state.
             if (project && project.uiState.contains("mainSplitViewState")) {
                 // Restore project state.
-                mainSplitView.restoreState(project.uiState.value("mainSplitViewState"))
-                panelSplitView.restoreState(project.uiState.value("panelSplitViewState"))
+                mainSplitView.restoreState(project.uiState.base64ToBinary(
+                    project.uiState.value("mainSplitViewState")))
+                panelSplitView.restoreState(project.uiState.base64ToBinary(
+                    project.uiState.value("panelSplitViewState")))
             }
         }
     }

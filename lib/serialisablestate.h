@@ -36,6 +36,13 @@ public:
     Q_INVOKABLE QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
     Q_INVOKABLE void setValue(const QString &key, const QVariant &value);
 
+    // QTBUG-71511: we want to serialise SplitView's state to JSON, which means
+    // we need it as a string, not a binary byte array. QML has functions
+    // for this, but they're completely broken, so we have our own.
+    // While we're at it, we also give them proper, non-four-letter names.
+    Q_INVOKABLE QByteArray base64ToBinary(const QString &base64String);
+    Q_INVOKABLE QString binaryToBase64(const QByteArray &binaryByteArray);
+
     QVariantMap map() const;
     void reset(const QVariantMap &map);
 
