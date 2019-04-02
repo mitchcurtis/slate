@@ -210,7 +210,6 @@ void ImageCanvas::restoreState()
                 QMetaEnum::fromType<Tool>().keyToValue(qPrintable(lastFillToolUsedAsString))));
         }
 
-        bool readPanes = false;
         if (cachedProjectJson->contains("firstPane")) {
             mFirstPane.read(cachedProjectJson->value("firstPane").toObject());
             readPanes = true;
