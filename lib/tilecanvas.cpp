@@ -114,28 +114,12 @@ void TileCanvas::setCursorTilePixelY(int cursorTilePixelY)
 
 void TileCanvas::reset()
 {
-    mFirstPane.reset();
-    mSecondPane.reset();
-    setCurrentPane(nullptr);
-    mSplitter.setPosition(mFirstPane.size());
-    mSplitter.setPressed(false);
-    mSplitter.setHovered(false);
-    setCursorX(0);
-    setCursorY(0);
-    mCursorPaneX = 0;
-    mCursorPaneY = 0;
-    mCursorSceneX = 0;
-    mCursorSceneY = 0;
+    ImageCanvas::reset();
+
     setCursorTilePixelX(0);
     setCursorTilePixelY(0);
-    mContainsMouse = false;
-    mMouseButtonPressed = Qt::NoButton;
-    mPressPosition = QPoint(0, 0);
-    mCurrentPaneOffsetBeforePress = QPoint(0, 0);
-    setAltPressed(false);
-    mToolBeforeAltPressed = PenTool;
-    mSpacePressed = false;
-    mHasBlankCursor = false;
+    setPenTile(nullptr);
+    setTilePenPreview(false);
 
     // Things that we don't want to set, as they
     // don't really need to be reset each time:
@@ -552,15 +536,6 @@ void TileCanvas::onLoadedChanged()
 QColor TileCanvas::penColour() const
 {
     return mMouseButtonPressed == Qt::LeftButton ? mPenForegroundColour : mPenBackgroundColour;
-}
-
-void TileCanvas::setHasBlankCursor(bool hasCustomCursor)
-{
-    if (hasCustomCursor == mHasBlankCursor)
-        return;
-
-    mHasBlankCursor = hasCustomCursor;
-    emit hasBlankCursorChanged();
 }
 
 void TileCanvas::updateTilePenPreview()

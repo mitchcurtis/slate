@@ -128,7 +128,6 @@ private:
     void updateCursorPos(const QPoint &eventPos) override;
     void error(const QString &message);
     QColor penColour() const;
-    void setHasBlankCursor(bool hasBlankCursor);
     void updateTilePenPreview();
     void setTilePenPreview(bool tilePenPreview);
 

@@ -271,6 +271,9 @@ void tst_App::openClose()
 
     // Check that the cursor goes blank when the canvas has focus.
     QVERIFY(canvas->hasActiveFocus());
+    // Move the mouse a bit to trigger a cursor update since mContainsMouse was reset.
+    QTest::mouseMove(window, canvas->mapToScene(
+        QPointF(canvas->width() / 2, canvas->height() / 2)).toPoint());
     QTRY_COMPARE(window->cursor().shape(), Qt::BlankCursor);
 
     // Test closing a valid project.
