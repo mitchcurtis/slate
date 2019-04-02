@@ -1896,9 +1896,7 @@ void tst_App::colours()
     QFETCH(Project::Type, projectType);
 
     QCHECK_EXCEPTION(createNewProject(projectType));
-    QTest::qWait(2000);
     QCHECK_EXCEPTION(togglePanel("colourPanel", true));
-    QTest::qWait(2000);
     QCOMPARE(canvas->penForegroundColour(), QColor(Qt::black));
     QCOMPARE(canvas->penBackgroundColour(), QColor(Qt::white));
 
@@ -1915,7 +1913,7 @@ void tst_App::colours()
     // Choose a colour.
     mouseEventOnCentre(saturationLightnessPicker, MouseClick);
     const QColor expectedColour = QColor("#c04141");
-    QTest::qWait(2000);
+    // TODO: need to restore splitview to its default size when a project is closed
     QCHECK_EXCEPTION(fuzzyColourCompare(canvas->penForegroundColour(), expectedColour));
     // Background colour shouldn't be affected.
     QCOMPARE(canvas->penBackgroundColour(), QColor(Qt::white));
