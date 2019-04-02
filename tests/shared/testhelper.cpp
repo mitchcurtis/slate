@@ -1926,6 +1926,17 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     if (!collapseAllPanels())
         return false;
 
+    if (isNewProject) {
+        // If we're not loading a saved project (where we'd want to use the saved split sizes),
+        // return the SplitView back to roughly its original size.
+        // It doesn't matter if it's not perfect, it's just important that it's not already
+        // at its max width so that the tests can resize it.
+        QPointer<QQuickItem> panelSplitView = window->findChild<QQuickItem*>("panelSplitView");
+        VERIFY(panelSplitView);
+        if (!dragSplitViewHandle("mainSplitView", 0, QPoint(window->width() - 240, window->height() / 2)))
+            return false;
+    }
+
     return true;
 }
 
