@@ -42,13 +42,13 @@
 
 class ProjectManager;
 
-#define QVERIFY_NO_CREATION_ERRORS_OCCURRED() \
-QVERIFY2(projectCreationFailedSpy->isEmpty(), \
+#define VERIFY_NO_CREATION_ERRORS_OCCURRED() \
+QVERIFY2_THROW(projectCreationFailedSpy->isEmpty(), \
     qPrintable(QString::fromLatin1("Unexpected error occurred: ") + \
     (!projectCreationFailedSpy->isEmpty() ? projectCreationFailedSpy->first().first().toString() : "")));
 
 #define VERIFY_NO_CREATION_ERRORS_OCCURRED() \
-VERIFY2(projectCreationFailedSpy->isEmpty(), \
+QVERIFY2_THROW(projectCreationFailedSpy->isEmpty(), \
     qPrintable(QString::fromLatin1("Unexpected error occurred: ") + \
     (!projectCreationFailedSpy->isEmpty() ? projectCreationFailedSpy->first().first().toString() : "")));
 
@@ -107,7 +107,7 @@ protected:
         Qt::MouseButton button = Qt::LeftButton, Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(), int delay = -1);
     void wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees);
     void keyClicks(const QString &text);
-    Q_REQUIRED_RESULT bool clearAndEnterText(QQuickItem *textField, const QString &text);
+    void clearAndEnterText(QQuickItem *textField, const QString &text);
 
     QObject *findPopupFromTypeName(const QString &typeName) const;
     QQuickItem *findDialogButtonFromText(const QObject *dialog, const QString &text);
@@ -148,104 +148,102 @@ protected:
     };
 
     // Platform-dependent actions
-    Q_REQUIRED_RESULT bool triggerShortcut(const QString &objectName, const QString &sequenceAsString);
-    Q_REQUIRED_RESULT bool triggerNewProject();
-    Q_REQUIRED_RESULT bool triggerCloseProject();
-    Q_REQUIRED_RESULT bool triggerSaveProject();
-    Q_REQUIRED_RESULT bool triggerSaveProjectAs();
-    Q_REQUIRED_RESULT bool triggerOpenProject();
-    Q_REQUIRED_RESULT bool triggerRevert();
+    void triggerShortcut(const QString &objectName, const QString &sequenceAsString);
+    void triggerNewProject();
+    void triggerCloseProject();
+    void triggerSaveProject();
+    void triggerSaveProjectAs();
+    void triggerOpenProject();
+    void triggerRevert();
 
-    Q_REQUIRED_RESULT bool triggerPaste();
-    Q_REQUIRED_RESULT bool triggerFlipHorizontally();
-    Q_REQUIRED_RESULT bool triggerFlipVertically();
+    void triggerPaste();
+    void triggerFlipHorizontally();
+    void triggerFlipVertically();
 
-    Q_REQUIRED_RESULT bool triggerSelectAll();
+    void triggerSelectAll();
 
-    Q_REQUIRED_RESULT bool triggerCentre();
-    Q_REQUIRED_RESULT bool triggerGridVisible();
-    Q_REQUIRED_RESULT bool triggerRulersVisible();
-    Q_REQUIRED_RESULT bool triggerGuidesVisible();
-    Q_REQUIRED_RESULT bool triggerSplitScreen();
-    Q_REQUIRED_RESULT bool triggerSplitterLocked();
-    Q_REQUIRED_RESULT bool setSplitterLocked(bool splitterLocked);
-    Q_REQUIRED_RESULT bool triggerAnimationPlayback();
-    Q_REQUIRED_RESULT bool setAnimationPlayback(bool usingAnimation);
+    void triggerCentre();
+    void triggerGridVisible();
+    void triggerRulersVisible();
+    void triggerGuidesVisible();
+    void triggerSplitScreen();
+    void triggerSplitterLocked();
+    void setSplitterLocked(bool splitterLocked);
+    void triggerAnimationPlayback();
+    void setAnimationPlayback(bool usingAnimation);
 
-    Q_REQUIRED_RESULT bool triggerOptions();
+    void triggerOptions();
 
     // Layer helpers.
-    Q_REQUIRED_RESULT bool selectLayer(const QString &layerName, int layerIndex);
+    void selectLayer(const QString &layerName, int layerIndex);
     // Finds \a layerName in the layer list view, verifies that it exists and that its name is \a layerName,
     // and sets layerDelegate to it.
-    Q_REQUIRED_RESULT bool verifyLayerName(const QString &layerName, QQuickItem **layerDelegate = nullptr);
-    Q_REQUIRED_RESULT bool makeCurrentAndRenameLayer(const QString &from, const QString &to);
-    Q_REQUIRED_RESULT bool changeLayerVisiblity(const QString &layerName, bool visible);
+    void verifyLayerName(const QString &layerName, QQuickItem **layerDelegate = nullptr);
+    void makeCurrentAndRenameLayer(const QString &from, const QString &to);
+    void changeLayerVisiblity(const QString &layerName, bool visible);
 
     void addAllProjectTypes();
     void addImageProjectTypes();
     void addActualProjectTypes();
 
-    Q_REQUIRED_RESULT bool createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
-    Q_REQUIRED_RESULT bool createNewTilesetProject(int tileWidth = 25, int tileHeight = 25,
+    void createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
+    void createNewTilesetProject(int tileWidth = 25, int tileHeight = 25,
         int tilesetTilesWide = -1, int tilesetTilesHigh = -1, bool transparentTilesetBackground = false);
-    Q_REQUIRED_RESULT bool createNewImageProject(int imageWidth = 256, int imageHeight = 256,
+    void createNewImageProject(int imageWidth = 256, int imageHeight = 256,
         bool transparentImageBackground = false);
-    Q_REQUIRED_RESULT bool createNewLayeredImageProject(int imageWidth = 256, int imageHeight = 256,
+    bool createNewLayeredImageProject(int imageWidth = 256, int imageHeight = 256,
         bool transparentImageBackground = false);
-    Q_REQUIRED_RESULT bool loadProject(const QUrl &url, const QString &expectedFailureMessage = QString());
-    Q_REQUIRED_RESULT bool updateVariables(bool isNewProject, Project::Type newProjectType);
-    Q_REQUIRED_RESULT bool discardChanges();
-    Q_REQUIRED_RESULT bool verifyErrorAndDismiss(const QString &expectedErrorMessage);
-    Q_REQUIRED_RESULT bool verifyNoErrorOrDismiss();
+    void loadProject(const QUrl &url, const QString &expectedFailureMessage = QString());
+    void updateVariables(bool isNewProject, Project::Type newProjectType);
+    void discardChanges();
+    void verifyErrorAndDismiss(const QString &expectedErrorMessage);
+    void verifyNoErrorOrDismiss();
 
-    Q_REQUIRED_RESULT bool copyFileFromResourcesToTempProjectDir(const QString &baseName);
-    Q_REQUIRED_RESULT bool setupTempTilesetProjectDir();
-    Q_REQUIRED_RESULT bool setupTempLayeredImageProjectDir();
-    Q_REQUIRED_RESULT bool setupTempProjectDir(const QStringList &resourceFilesToCopy = QStringList(),
+    void copyFileFromResourcesToTempProjectDir(const QString &baseName);
+    void setupTempTilesetProjectDir();
+    void setupTempLayeredImageProjectDir();
+    void setupTempProjectDir(const QStringList &resourceFilesToCopy = QStringList(),
         QStringList *filesCopied = nullptr);
 
-    Q_REQUIRED_RESULT bool collapseAllPanels();
+    void collapseAllPanels();
     Q_REQUIRED_RESULT bool isPanelExpanded(const QString &panelObjectName);
-    Q_REQUIRED_RESULT bool togglePanel(const QString &panelObjectName, bool expanded);
-    Q_REQUIRED_RESULT bool togglePanels(const QStringList &panelObjectNames, bool expanded);
-    Q_REQUIRED_RESULT bool expandColourPanel();
+    void togglePanel(const QString &panelObjectName, bool expanded);
+    void togglePanels(const QStringList &panelObjectNames, bool expanded);
+    void expandColourPanel();
 
-    Q_REQUIRED_RESULT bool dragSplitViewHandle(const QString &splitViewObjectName, int index,
+    void dragSplitViewHandle(const QString &splitViewObjectName, int index,
         const QPoint &newHandleCentreRelativeToSplitView, QPoint *oldHandleCentreRelativeToSplitView = nullptr);
 
-    Q_REQUIRED_RESULT bool switchMode(TileCanvas::Mode mode);
-    Q_REQUIRED_RESULT bool switchTool(ImageCanvas::Tool tool, InputType inputType = MouseInputType);
-    Q_REQUIRED_RESULT bool setPenForegroundColour(QString argbString);
-    Q_REQUIRED_RESULT bool panTopLeftTo(int x, int y);
-    Q_REQUIRED_RESULT bool panBy(int xDistance, int yDistance);
-    Q_REQUIRED_RESULT bool zoomTo(int zoomLevel);
-    Q_REQUIRED_RESULT bool zoomTo(int zoomLevel, const QPoint &pos);
-    Q_REQUIRED_RESULT bool changeCanvasSize(int width, int height, CloseDialogFlag closeDialog = CloseDialog);
-    Q_REQUIRED_RESULT bool changeImageSize(int width, int height);
-    Q_REQUIRED_RESULT bool changeToolSize(int size);
-    Q_REQUIRED_RESULT bool changeToolShape(ImageCanvas::ToolShape toolShape);
-    Q_REQUIRED_RESULT bool moveContents(int x, int y, bool onlyVisibleLayers);
+    void switchMode(TileCanvas::Mode mode);
+    void switchTool(ImageCanvas::Tool tool, InputType inputType = MouseInputType);
+    void setPenForegroundColour(QString argbString);
+    void panTopLeftTo(int x, int y);
+    void panBy(int xDistance, int yDistance);
+    void zoomTo(int zoomLevel);
+    void zoomTo(int zoomLevel, const QPoint &pos);
+    void changeCanvasSize(int width, int height, CloseDialogFlag closeDialog = CloseDialog);
+    void changeImageSize(int width, int height);
+    void changeToolSize(int size);
+    void changeToolShape(ImageCanvas::ToolShape toolShape);
+    void moveContents(int x, int y, bool onlyVisibleLayers);
     int sliderValue(QQuickItem *slider) const;
-    Q_REQUIRED_RESULT bool selectColourAtCursorPos();
-    Q_REQUIRED_RESULT bool drawPixelAtCursorPos();
-    Q_REQUIRED_RESULT bool drawTileAtCursorPos();
-    Q_REQUIRED_RESULT bool selectArea(const QRect &area);
-    Q_REQUIRED_RESULT bool dragSelection(const QPoint &newTopLeft);
+    void selectColourAtCursorPos();
+    void drawPixelAtCursorPos();
+    void drawTileAtCursorPos();
+    void selectArea(const QRect &area);
+    void dragSelection(const QPoint &newTopLeft);
     Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
-    Q_REQUIRED_RESULT bool fuzzyImageCompare(const QImage &image1, const QImage &image2);
-    Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
-    Q_REQUIRED_RESULT bool compareSwatches(const Swatch &actualSwatch, const Swatch &expectedSwatch);
-    Q_REQUIRED_RESULT bool enableAutoSwatch();
-    Q_REQUIRED_RESULT bool swatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour);
+    void fuzzyImageCompare(const QImage &image1, const QImage &image2);
+    void everyPixelIs(const QImage &image, const QColor &colour);
+    void compareSwatches(const Swatch &actualSwatch, const Swatch &expectedSwatch);
+    void enableAutoSwatch();
+    void verifySwatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour);
     QQuickItem *findSwatchViewDelegateAtIndex(int index);
-    Q_REQUIRED_RESULT bool addSwatchWithForegroundColour();
-    Q_REQUIRED_RESULT bool renameSwatchColour(int index, const QString &name);
-    Q_REQUIRED_RESULT bool deleteSwatchColour(int index);
+    void addSwatchWithForegroundColour();
+    void renameSwatchColour(int index, const QString &name);
+    void deleteSwatchColour(int index);
 
-    Q_REQUIRED_RESULT bool addNewGuide(Qt::Orientation orientation, int position);
-
-    QByteArray failureMessage;
+    void addNewGuide(Qt::Orientation orientation, int position);
 
     QVector<Project::Type> allProjectTypes;
     QVector<ImageCanvas::PenToolRightClickBehaviour> allRightClickBehaviours;

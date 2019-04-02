@@ -44,15 +44,15 @@ tst_MemoryUsage::tst_MemoryUsage(int &argc, char **argv) :
 
 void tst_MemoryUsage::pen()
 {
-    QVERIFY2(createNewLayeredImageProject(1000, 1000), failureMessage);
+    QCHECK_EXCEPTION(createNewLayeredImageProject(1000, 1000));
 
-    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
+    QCHECK_EXCEPTION(togglePanel("layerPanel", true));
 
     mouseEventOnCentre(newLayerButton, MouseClick);
     QCOMPARE(layeredImageProject->layerCount(), 2);
-    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
+    QCHECK_EXCEPTION(selectLayer("Layer 2", 0));
 
-    QVERIFY2(panTopLeftTo(100, 100), failureMessage);
+    QCHECK_EXCEPTION(panTopLeftTo(100, 100));
 
     // Draw horizontal lines.
     for (int y = 1; y < project->heightInPixels() - 1; ++y) {
@@ -67,7 +67,7 @@ void tst_MemoryUsage::pen()
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     }
 
-    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+    QCHECK_EXCEPTION(drawPixelAtCursorPos());
 
     QTest::qWait(200000);
 }
