@@ -191,7 +191,7 @@ protected:
         int tilesetTilesWide = -1, int tilesetTilesHigh = -1, bool transparentTilesetBackground = false);
     void createNewImageProject(int imageWidth = 256, int imageHeight = 256,
         bool transparentImageBackground = false);
-    bool createNewLayeredImageProject(int imageWidth = 256, int imageHeight = 256,
+    void createNewLayeredImageProject(int imageWidth = 256, int imageHeight = 256,
         bool transparentImageBackground = false);
     void loadProject(const QUrl &url, const QString &expectedFailureMessage = QString());
     void updateVariables(bool isNewProject, Project::Type newProjectType);
@@ -232,7 +232,7 @@ protected:
     void drawTileAtCursorPos();
     void selectArea(const QRect &area);
     void dragSelection(const QPoint &newTopLeft);
-    Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
+    bool fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
     void fuzzyImageCompare(const QImage &image1, const QImage &image2);
     void everyPixelIs(const QImage &image, const QColor &colour);
     void compareSwatches(const Swatch &actualSwatch, const Swatch &expectedSwatch);

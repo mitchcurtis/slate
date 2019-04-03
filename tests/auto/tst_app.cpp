@@ -1914,7 +1914,7 @@ void tst_App::colours()
     mouseEventOnCentre(saturationLightnessPicker, MouseClick);
     const QColor expectedColour = QColor("#c04141");
     // TODO: need to restore splitview to its default size when a project is closed
-    QCHECK_EXCEPTION(fuzzyColourCompare(canvas->penForegroundColour(), expectedColour));
+    fuzzyColourCompare(canvas->penForegroundColour(), expectedColour);
     // Background colour shouldn't be affected.
     QCOMPARE(canvas->penBackgroundColour(), QColor(Qt::white));
 
@@ -1927,7 +1927,7 @@ void tst_App::colours()
         saturationLightnessPicker->height() * 0.25), MouseClick);
     QVERIFY(canvas->penBackgroundColour() != QColor(Qt::white));
     // Foreground colour shouldn't be affected.
-    QCHECK_EXCEPTION(fuzzyColourCompare(canvas->penForegroundColour(), expectedColour));
+    fuzzyColourCompare(canvas->penForegroundColour(), expectedColour);
 
     // Hex field should represent background colour when selected.
     QQuickItem *hexTextField = window->findChild<QQuickItem*>("hexTextField");

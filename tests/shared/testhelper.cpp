@@ -1632,7 +1632,7 @@ void TestHelper::createNewImageProject(int imageWidth, int imageHeight, bool tra
     createNewProject(Project::ImageType, args);
 }
 
-bool TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)
+void TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)
 {
     QVariantMap args;
     args.insert("imageWidth", imageWidth);
