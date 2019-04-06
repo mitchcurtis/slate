@@ -66,6 +66,7 @@ ToolBar {
 
             ToolTip.text: qsTr("Change the size of the canvas")
             ToolTip.visible: hovered && !canvasSizePopup.visible
+            ToolTip.delay: toolTipDelay
 
             onClicked: canvasSizePopup.open()
         }
@@ -81,6 +82,7 @@ ToolBar {
 
             ToolTip.text: qsTr("Change the size of the image")
             ToolTip.visible: hovered && !imageSizePopup.visible
+            ToolTip.delay: toolTipDelay
 
             onClicked: imageSizePopup.open()
         }
@@ -98,6 +100,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Undo the last canvas operation")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: canvas.undo()
             }
@@ -110,6 +113,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Redo the last undone canvas operation")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: project.undoStack.redo()
             }
@@ -129,6 +133,7 @@ ToolBar {
 
             ToolTip.text: qsTr("Operate on either pixels or whole tiles")
             ToolTip.visible: hovered
+            ToolTip.delay: toolTipDelay
 
             onClicked: canvas.mode = checked ? TileCanvas.TileMode : TileCanvas.PixelMode
         }
@@ -156,6 +161,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Draw pixels%1 on the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: canvas.tool = ImageCanvas.PenTool
             }
@@ -169,6 +175,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Pick colours%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: canvas.tool = ImageCanvas.EyeDropperTool
             }
@@ -182,6 +189,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Erase pixels%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: canvas.tool = ImageCanvas.EraserTool
             }
@@ -202,6 +210,7 @@ ToolBar {
 
                 ToolTip.text: isTilesetProject ? qsTr("Fill a contiguous area with pixels or tiles") : imageProjectToolTipText
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: canvas.tool = canvas.lastFillToolUsed
                 onPressAndHold: if (!isTilesetProject) fillMenu.open()
@@ -251,6 +260,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Select pixels within an area and move them")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: canvas.tool = ImageCanvas.SelectionTool
             }
@@ -265,6 +275,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Crop the canvas")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: canvas.tool = ImageCanvas.CropTool
             }
@@ -282,6 +293,7 @@ ToolBar {
 
             ToolTip.text: qsTr("Change the size of drawing tools")
             ToolTip.visible: hovered && !toolSizeSliderPopup.visible
+            ToolTip.delay: toolTipDelay
 
             onClicked: toolSizeSliderPopup.visible = !toolSizeSliderPopup.visible
 
@@ -304,6 +316,7 @@ ToolBar {
 
             ToolTip.text: qsTr("Choose brush shape")
             ToolTip.visible: hovered
+            ToolTip.delay: toolTipDelay
 
             onClicked: toolShapeMenu.visible = !toolShapeMenu.visible
 
@@ -361,6 +374,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Rotate the selection by 90 degrees counter-clockwise")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: canvas.rotateSelection(-90)
             }
@@ -376,6 +390,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Rotate the selection by 90 degrees clockwise")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: canvas.rotateSelection(90)
             }
@@ -391,6 +406,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Flip the selection horizontally")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: canvas.flipSelection(Qt.Horizontal)
             }
@@ -406,6 +422,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Flip the selection vertically")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: canvas.flipSelection(Qt.Vertical)
             }
@@ -428,6 +445,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Show rulers")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: settings.rulersVisible = checked
             }
@@ -443,6 +461,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Show guides")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: settings.guidesVisible = checked
             }
@@ -458,6 +477,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Lock guides")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: settings.guidesLocked = checked
             }
@@ -480,6 +500,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Split Screen")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: canvas.splitScreen = checked
             }
@@ -496,6 +517,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Lock Splitter")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: canvas.splitter.enabled = !checked
             }
@@ -515,6 +537,7 @@ ToolBar {
 
                 ToolTip.text: qsTr("Toggle fullscreen window")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 onClicked: toggleFullScreen()
             }

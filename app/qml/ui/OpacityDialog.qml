@@ -94,6 +94,8 @@ Dialog {
             rightPadding: 0
 
             ToolTip.text: qsTr("Changes the opacity of the image")
+            ToolTip.visible: hovered
+            ToolTip.delay: toolTipDelay
 
             onMoved: {
                 hslAlpha = value

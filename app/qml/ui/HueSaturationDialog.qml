@@ -123,6 +123,8 @@ Dialog {
             Layout.topMargin: -bottomPadding
 
             ToolTip.text: qsTr("Changes the hue of the image")
+            ToolTip.visible: hovered
+            ToolTip.delay: toolTipDelay
 
             onMoved: {
                 hslHue = value
@@ -172,6 +174,8 @@ Dialog {
             Layout.topMargin: -bottomPadding
 
             ToolTip.text: qsTr("Changes the saturation of the image")
+            ToolTip.visible: hovered
+            ToolTip.delay: toolTipDelay
 
             onMoved: {
                 hslSaturation = value
@@ -230,6 +234,8 @@ Dialog {
             Layout.topMargin: -bottomPadding
 
             ToolTip.text: qsTr("Changes the lightness of the image")
+            ToolTip.visible: hovered
+            ToolTip.delay: toolTipDelay
 
             onMoved: {
                 hslLightness = value
