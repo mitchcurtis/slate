@@ -11,6 +11,8 @@ Product {
     Depends { name: "bundle" }
 
     cpp.cxxLanguageVersion: "c++11"
+    // https://bugreports.qt.io/browse/QBS-1434
+    cpp.minimumMacosVersion: "10.7"
     cpp.visibility: "minimal"
     cpp.defines: [
         "SLATE_LIBRARY",
