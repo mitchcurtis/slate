@@ -75,20 +75,19 @@ QtGuiApplication {
     }
 
     // macOS icon stuff.
-    // Uncomment when https://bugreports.qt.io/browse/QBS-1417 is fixed
-//    Properties {
-//        condition: qbs.targetOS.contains("macos")
-//        ib.appIconName: "slate-icon-mac"
-////        bundle.infoPlist: {
-////            CFBundleIconFile: "images/logo/slate.xcassets/slate-icon-mac.appiconset"
-////        }
-//    }
+    Properties {
+        condition: qbs.targetOS.contains("macos")
+        ib.appIconName: "slate-icon-mac"
+//        bundle.infoPlist: {
+//            CFBundleIconFile: "images/logo/slate.xcassets/slate-icon-mac.appiconset"
+//        }
+    }
 
-//    Group {
-//        name: "Icons (macOS)"
-//        condition: qbs.targetOS.contains("macos")
-//        files: ["images/logo/slate.xcassets"]
-//    }
+    Group {
+        name: "Icons (macOS)"
+        condition: qbs.targetOS.contains("macos")
+        files: ["images/logo/slate.xcassets"]
+    }
 
     // Windows icon stuff.
     Group {
