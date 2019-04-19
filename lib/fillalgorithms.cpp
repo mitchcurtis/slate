@@ -126,6 +126,29 @@ QVector<QPoint> imagePixelFloodFill(const QImage *image, const QPoint &startPos,
     return filledPositionsVector;
 }
 
+struct ImagePixelHash {
+    explicit ImagePixelHash(int hashSize, int imageWidth) : mImageWidth{imageWidth}, mData(hashSize, 0) {}
+
+    int getImageIndex(const QPoint& point) {
+        return (point.y() * mImageWidth) + point.x();
+    }
+
+    void insert(const QPoint& point) {
+        mData[getImageIndex(point)] = 1;
+    }
+
+    bool contains(const QPoint& point) {
+        return mData[getImageIndex(point)] == 1;
+    }
+
+    int size() {
+        return static_cast<int>(std::count_if(mData.begin(), mData.end(), [](int index){ return index == 1;}));
+    }
+
+    const int mImageWidth;
+    QVector<int> mData;
+};
+
 QImage imagePixelFloodFill2(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour, const FillColourProvider &fillColourProvider)
 {
@@ -148,7 +171,7 @@ QImage imagePixelFloodFill2(const QImage *image, const QPoint &startPos, const Q
     QQueue<QPoint> queue;
     queue.append(startPos);
     // TODO: use image to track filled positions instead
-    QSet<QPoint> filledPositions;
+    ImagePixelHash filledPositions{filledImage.width() * filledImage.height(), filledImage.width()};
     filledPositions.insert(startPos);
     filledImage.setPixelColor(startPos, fillColourProvider.colour(replacementColour));
 
