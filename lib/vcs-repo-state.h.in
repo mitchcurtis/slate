@@ -1,0 +1,6 @@
+#ifndef VERSION_H
+#define VERSION_H
+
+#define VCS_REPO_STATE "@BUILD_VERSION@"
+
+#endif
