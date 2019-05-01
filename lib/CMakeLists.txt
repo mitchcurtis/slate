@@ -210,9 +210,9 @@ if(EXISTS ${CMAKE_SOURCE_DIR}/.git)
       ${CMAKE_CURRENT_BINARY_DIR}/vcs-repo-state.h
     )
   else()
-    message(FATAL_ERROR "Can not found GIT")
+    message(FATAL_ERROR "Can not find Git")
   endif()
 else()
-    message(FATAL_ERROR "Can not found .git repo")
+    message(FATAL_ERROR "Can not find .git repo")
 endif()
 
