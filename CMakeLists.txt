@@ -16,9 +16,10 @@ target_compile_options(
   projectWarning INTERFACE
   $<$<CXX_COMPILER_ID:GNU>:$<BUILD_INTERFACE:-Wall;-Wextra;-Wpedantic>>
   $<$<CXX_COMPILER_ID:Clang>:$<BUILD_INTERFACE:-Weverything;-Wpedantic>>
-	$<$<CXX_COMPILER_ID:MSVC>:/W0>
+  $<$<CXX_COMPILER_ID:MSVC>:/W0>
 )
 
 add_subdirectory(lib)
 add_subdirectory(app)
 #add_subdirectory(tests)
+

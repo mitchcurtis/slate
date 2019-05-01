@@ -16,16 +16,13 @@ target_sources(
   application.h
   application.cpp
   main.cpp
+
   config.qrc
   fonts/fonts.qrc
   images/images.qrc
 
   qml/qml.qrc
 )
-
-list(APPEND QML2_IMPORT_PATH ${CMAKE_CURRENT_LIST_DIR}/qml)
-
-message(${CMAKE_CURRENT_LIST_DIR}/qml)
 
 target_link_libraries(
   app
