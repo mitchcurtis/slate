@@ -22,10 +22,16 @@ QtGuiApplication {
     // Additional import path used to resolve QML modules in Qt Creator's code model
     property pathList qmlImportPaths: []
 
-    cpp.useRPaths: qbs.targetOS.contains("darwin")
-    cpp.rpaths: ["@loader_path/../Frameworks"]
+    readonly property bool darwin: qbs.targetOS.contains("darwin")
+    readonly property bool unix: qbs.targetOS.contains("unix")
+
+    cpp.useRPaths: darwin || (unix && !Qt.core.staticBuild)
+    // Ensure that e.g. libslate is found.
+    cpp.rpaths: darwin ? ["@loader_path/../Frameworks"] : ["$ORIGIN/lib"]
 
     cpp.cxxLanguageVersion: "c++11"
+    // https://bugreports.qt.io/browse/QBS-1434
+    cpp.minimumMacosVersion: "10.7"
 
     cpp.defines: [
         // The following define makes your compiler emit warnings if you use
@@ -69,20 +75,19 @@ QtGuiApplication {
     }
 
     // macOS icon stuff.
-    // Uncomment when https://bugreports.qt.io/browse/QBS-1417 is fixed
-//    Properties {
-//        condition: qbs.targetOS.contains("macos")
-//        ib.appIconName: "slate-icon-mac"
-////        bundle.infoPlist: {
-////            CFBundleIconFile: "images/logo/slate.xcassets/slate-icon-mac.appiconset"
-////        }
-//    }
+    Properties {
+        condition: qbs.targetOS.contains("macos")
+        ib.appIconName: "slate-icon-mac"
+//        bundle.infoPlist: {
+//            CFBundleIconFile: "images/logo/slate.xcassets/slate-icon-mac.appiconset"
+//        }
+    }
 
-//    Group {
-//        name: "Icons (macOS)"
-//        condition: qbs.targetOS.contains("macos")
-//        files: ["images/logo/slate.xcassets"]
-//    }
+    Group {
+        name: "Icons (macOS)"
+        condition: qbs.targetOS.contains("macos")
+        files: ["images/logo/slate.xcassets"]
+    }
 
     // Windows icon stuff.
     Group {

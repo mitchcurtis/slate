@@ -71,6 +71,8 @@ Dialog {
                 readonly property string imageText: qsTr("Canvas width in pixels")
 
                 ToolTip.text: isTilesetProject ? tilesetText : imageText
+                ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 Keys.onReturnPressed: root.accept()
             }
@@ -90,6 +92,8 @@ Dialog {
                 readonly property string imageText: qsTr("Canvas height in pixels")
 
                 ToolTip.text: isTilesetProject ? tilesetText : imageText
+                ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
 
                 Keys.onReturnPressed: root.accept()
             }

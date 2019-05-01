@@ -50,13 +50,13 @@ Slate was built for pixel art, and its goal is to simplify the creation of sprit
 ### Downloads ###
 
 <!-- ![Linux](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.svg "Linux") -->
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.svg" width="16" height="16"> - [Slate 0.6.0 for Linux](https://github.com/mitchcurtis/slate/releases/download/v0.6.0/Slate-v0.6.0-linux.tar.xz)
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.svg" width="16" height="16"> - [Slate 0.7.0 for Linux](https://github.com/mitchcurtis/slate/releases/download/v0.7.0/Slate-v0.7.0-linux.tar.xz)
 
 <!-- ![Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.svg "Mac") -->
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.svg" width="16" height="16"> - [Slate 0.6.0 for Mac](https://github.com/mitchcurtis/slate/releases/download/v0.6.0/Slate-v0.6.0-mac.dmg.zip)
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.svg" width="16" height="16"> - [Slate 0.7.0 for Mac](https://github.com/mitchcurtis/slate/releases/download/v0.7.0/Slate-v0.7.0-mac.dmg)
 
 <!-- ![Windows](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.svg "Windows") -->
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.svg" width="16" height="16"> - [Slate 0.6.0 for Windows](https://github.com/mitchcurtis/slate/releases/download/v0.6.0/Slate-v0.6.0-windows.zip)
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.svg" width="16" height="16"> - [Slate 0.7.0 for Windows](https://github.com/mitchcurtis/slate/releases/download/v0.7.0/Slate-v0.7.0-windows.zip)
 
 See the [releases](https://github.com/mitchcurtis/slate/releases) page for the full list of available downloads.
 

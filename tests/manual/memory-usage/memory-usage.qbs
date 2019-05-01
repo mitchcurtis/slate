@@ -22,6 +22,8 @@ Project {
         property pathList qmlImportPaths: []
 
         cpp.cxxLanguageVersion: "c++11"
+        // https://bugreports.qt.io/browse/QBS-1434
+        cpp.minimumMacosVersion: "10.7"
 
         cpp.defines: [
             // The following define makes your compiler emit warnings if you use

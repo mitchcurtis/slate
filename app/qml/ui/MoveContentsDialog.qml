@@ -70,6 +70,7 @@ Dialog {
 
                 ToolTip.text: qsTr("Horizontal distance to move the contents by (in pixels)")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
             }
 
             Label {
@@ -89,6 +90,7 @@ Dialog {
 
                 ToolTip.text: qsTr("Vertical distance to move the contents by (in pixels)")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
             }
 
             Label {
@@ -103,6 +105,7 @@ Dialog {
 
                 ToolTip.text: qsTr("Only move contents of visible layers")
                 ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
             }
 
             Rectangle {
