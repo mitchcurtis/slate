@@ -194,3 +194,25 @@ target_compile_definitions(
   SLATE_LIBRARY
 )
 
+# Generate vcs-repo-state.h
+if(EXISTS ${CMAKE_SOURCE_DIR}/.git)
+  find_package(Git)
+  if(GIT_FOUND)
+    EXECUTE_PROCESS(
+      COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      OUTPUT_VARIABLE BUILD_VERSION
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    configure_file(
+      ${CMAKE_CURRENT_SOURCE_DIR}/vcs-repo-state.h.in
+      ${CMAKE_CURRENT_BINARY_DIR}/vcs-repo-state.h
+    )
+  else()
+    message(FATAL_ERROR "Can not found GIT")
+  endif()
+else()
+    message(FATAL_ERROR "Can not found .git repo")
+endif()
+
