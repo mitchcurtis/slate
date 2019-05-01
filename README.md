@@ -93,7 +93,7 @@ You can also say thank you by donating:
 
 ### Building ###
 
-There are two options for building:
+Slate uses Qbs as the primary build system, with experimental CMake support added by the community. The sections below document the process of building Slate with Qbs.
 
 #### Qt Creator ####
 
