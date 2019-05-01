@@ -4,15 +4,19 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 # Contents
 
-- [Tool Bar](#tool-bar)
-- [Colour](#colour)
-- [Swatches](#swatches)
-- [Layers](#layers)
-- [Animation](#animation)
+- [Reference](#reference)
+  - [Tool Bar](#tool-bar)
+  - [Colour](#colour)
+  - [Swatches](#swatches)
+  - [Layers](#layers)
+  - [Animation](#animation)
+- [Settings](#settings)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Tool Bar
+## Reference
+
+### Tool Bar
 
 ![Tool bar](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-tool-bar.png)
 
@@ -37,7 +41,7 @@
 19. Toggles split screen.
 20. Locks split screen splitter.
 
-## Colour
+### Colour
 
 ![Colour panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-colour-panel.png)
 
@@ -52,7 +56,7 @@
 9. Decreases the saturation of the current colour.
 10. Increases the saturation of the current colour.
 
-## Swatches
+### Swatches
 
 ![Swatches panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-swatches-panel.png)
 
@@ -61,7 +65,7 @@
 3. Displays custom swatch colours.
 4. Creates a new custom swatch from the current colour.
 
-## Layers
+### Layers
 
 ![Layers panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-layers-panel.png)
 
@@ -73,7 +77,7 @@
 6. Duplicates the current layer up.
 7. Deletes the current layer.
 
-## Animation
+### Animation
 
 ![Animation panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-panel.png)
 
@@ -83,3 +87,12 @@
 4. Plays/pauses the animation preview playback.
 5. Displays the progress of the animation preview playback.
 6. Toggles between playing once and looping.
+
+## Settings
+
+The following user interface settings are saved to the project file when it is saved:
+
+* The last fill tool that was used.
+* Pane settings: the width, zoom level, and position of each pane.
+* Split screen settings: enabled and locked.
+* The position of the view in the Layers panel.

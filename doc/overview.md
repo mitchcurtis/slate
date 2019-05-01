@@ -59,7 +59,7 @@ Swatches | :white_check_mark: <sup>1</sup> | :white_check_mark: | :white_check_m
 Textured Fill Tool | :white_check_mark: | :white_check_mark: | :x:
 Tilesets | :x: |  :x: | :white_check_mark:
 
-<sup>1</sup> - Cannot be saved as there is no project file to save to.
+<sup>1</sup> - Data for this feature cannot be saved as there is no project file to save to.
 
 ## Features
 
