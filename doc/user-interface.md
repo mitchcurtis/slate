@@ -96,3 +96,4 @@ The following user interface settings are saved to the project file when it is s
 * Pane settings: the width, zoom level, and position of each pane.
 * Split screen settings: enabled and locked.
 * The position of the view in the Layers panel.
+* Split view settings: the width of the canvas and the panel, along with the panels it contains (Colour panel, Swatches panel, etc).
