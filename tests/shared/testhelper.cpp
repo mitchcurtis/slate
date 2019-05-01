@@ -1939,10 +1939,13 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
         // return the SplitView back to roughly its original size.
         // It doesn't matter if it's not perfect, it's just important that it's not already
         // at its max width so that the tests can resize it.
-        QPointer<QQuickItem> panelSplitView = window->findChild<QQuickItem*>("panelSplitView");
-        VERIFY(panelSplitView);
         if (!dragSplitViewHandle("mainSplitView", 0, QPoint(window->width() - 240, window->height() / 2)))
             return false;
+
+        // Restore the colour panel's contentY to the default.
+        QQuickItem *colourPanelFlickable = window->findChild<QQuickItem*>("colourPanelFlickable");
+        VERIFY(colourPanelFlickable);
+        VERIFY(colourPanelFlickable->setProperty("contentY", 0));
     }
 
     return true;
@@ -2174,6 +2177,35 @@ bool TestHelper::togglePanels(const QStringList &panelObjectNames, bool expanded
             return false;
     }
     return true;
+}
+
+bool TestHelper::expandAndResizePanel(const QString &panelObjectName)
+{
+    static QVector<QPair<QString, int>> reasonablePanelSizes;
+    if (reasonablePanelSizes.isEmpty()) {
+        QQuickItem *mainSplitView = window->findChild<QQuickItem*>("mainSplitView");
+        VERIFY(mainSplitView);
+
+        // Make them kinda big since there's usually only one visible at a time.
+        reasonablePanelSizes.append(qMakePair(QLatin1String("colourPanel"), mainSplitView->height() * 0.5));
+        reasonablePanelSizes.append(qMakePair(QLatin1String("swatchesPanel"), mainSplitView->height() * 0.2));
+        reasonablePanelSizes.append(qMakePair(QLatin1String("tilesetSwatchPanel"), mainSplitView->height() * 0.5));
+        reasonablePanelSizes.append(qMakePair(QLatin1String("layerPanel"), mainSplitView->height() * 0.5));
+        reasonablePanelSizes.append(qMakePair(QLatin1String("animationPanel"), mainSplitView->height() * 0.5));
+    }
+
+    const auto panelIt = std::find_if(reasonablePanelSizes.begin(), reasonablePanelSizes.end(), [=](const QPair<QString, int> &pair) {
+        return pair.first == panelObjectName;
+    });
+    VERIFY(panelIt != reasonablePanelSizes.end());
+
+    if (!togglePanel(panelObjectName, true))
+        return false;
+
+    QQuickItem *panelSplitView = window->findChild<QQuickItem*>(panelObjectName);
+    VERIFY(panelSplitView);
+    return dragSplitViewHandle("panelSplitView", std::distance(reasonablePanelSizes.begin(), panelIt),
+        QPoint(window->width() - (panelSplitView->width() / 2), panelIt->second));
 }
 
 bool TestHelper::switchMode(TileCanvas::Mode mode)

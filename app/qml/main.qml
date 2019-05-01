@@ -228,7 +228,6 @@ ApplicationWindow {
                 project: window.project
 
                 SplitView.minimumHeight: expanded ? minimumUsefulHeight : undefined
-                SplitView.preferredHeight: expanded ? header.implicitHeight + 200 : undefined
                 SplitView.maximumHeight: expanded ? Infinity : header.implicitHeight
             }
 

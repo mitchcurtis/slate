@@ -1929,7 +1929,7 @@ void tst_App::colours()
     QFETCH(Project::Type, projectType);
 
     QVERIFY2(createNewProject(projectType), failureMessage);
-    QVERIFY2(togglePanel("colourPanel", true), failureMessage);
+    QVERIFY2(expandAndResizePanel("colourPanel"), failureMessage);
     QCOMPARE(canvas->penForegroundColour(), QColor(Qt::black));
     QCOMPARE(canvas->penBackgroundColour(), QColor(Qt::white));
 
