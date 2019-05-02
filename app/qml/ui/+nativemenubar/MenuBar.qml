@@ -19,7 +19,7 @@
 
 import Qt.labs.platform 1.0 as Platform
 import QtQml 2.2
-import QtQuick 2.9
+import QtQuick 2.12
 
 import App 1.0
 

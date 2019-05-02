@@ -17,7 +17,7 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.0
+import QtQuick 2.12
 import QtQuick.Controls.Universal 2.1
 
 Rectangle {
