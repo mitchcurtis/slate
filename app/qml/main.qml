@@ -228,7 +228,7 @@ ApplicationWindow {
                 project: window.project
 
                 SplitView.minimumHeight: expanded ? minimumUsefulHeight : undefined
-                SplitView.maximumHeight: expanded ? Infinity : header.implicitHeight
+                SplitView.maximumHeight: expanded ? implicitHeight : header.implicitHeight
             }
 
             Ui.SwatchPanel {
