@@ -1,7 +1,7 @@
 import QtGraphicalEffects 1.0
-import QtQuick 2.6
+import QtQuick 2.12
 import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.12
 import QtQuick.Templates 2.1 as T
 import Qt.labs.platform 1.0 as Platform
 

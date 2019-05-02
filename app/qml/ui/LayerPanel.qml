@@ -17,10 +17,10 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.7
+import QtQuick 2.12
 import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.2
-import QtQuick.Window 2.0
+import QtQuick.Controls 2.12
+import QtQuick.Window 2.12
 
 import App 1.0
 

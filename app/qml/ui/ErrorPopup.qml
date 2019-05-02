@@ -1,6 +1,6 @@
-import QtQuick 2.6
+import QtQuick 2.12
 import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.3
+import QtQuick.Controls 2.12
 
 Dialog {
     id: root

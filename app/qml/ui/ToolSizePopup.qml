@@ -1,5 +1,5 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.0
+import QtQuick 2.12
+import QtQuick.Controls 2.12
 
 import App 1.0
 
@@ -18,7 +18,7 @@ Popup {
         to: canvas ? canvas.maxToolSize : 100
         stepSize: 1
 
-        onValueChanged: if (canvas) canvas.toolSize = value
+        onMoved: if (canvas) canvas.toolSize = value
 
         Binding {
             target: toolSizeSlider
