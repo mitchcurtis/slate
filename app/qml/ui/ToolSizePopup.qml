@@ -18,7 +18,7 @@ Popup {
         to: canvas ? canvas.maxToolSize : 100
         stepSize: 1
 
-        onValueChanged: if (canvas) canvas.toolSize = value
+        onMoved: if (canvas) canvas.toolSize = value
 
         Binding {
             target: toolSizeSlider

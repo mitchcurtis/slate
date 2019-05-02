@@ -109,7 +109,7 @@ GridLayout {
 
         property bool ignoreChanges: false
 
-        onValueChanged: {
+        onMoved: {
             if (!canvas)
                 return;
 
