@@ -6,7 +6,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt5 5.12 COMPONENTS Core Gui Quick Widgets REQUIRED)
+option(ENABLE_TESTING "" ON)
+
+find_package(Qt5 5.12 COMPONENTS Core Gui Quick Widgets Test REQUIRED)
 
 add_library(
   projectWarning INTERFACE
@@ -21,5 +23,9 @@ target_compile_options(
 
 add_subdirectory(lib)
 add_subdirectory(app)
-#add_subdirectory(tests)
+if(ENABLE_TESTING)
+  enable_testing()
+
+  add_subdirectory(tests)
+endif()
 
