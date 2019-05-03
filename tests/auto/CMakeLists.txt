@@ -1,7 +1,6 @@
 # tests/auto/CMakeLists.txt
 add_executable(
   test-app
-  ""
 )
 
 target_sources(
@@ -15,6 +14,8 @@ target_sources(
   ${CMAKE_CURRENT_LIST_DIR}/../shared/testutils.h
 
   resources.qrc
+  ${CMAKE_SOURCE_DIR}/app/qml/qml.qrc
+
   ${CMAKE_SOURCE_DIR}/app/fonts/fonts.qrc
   ${CMAKE_SOURCE_DIR}/app/images/images.qrc
 )
@@ -26,8 +27,8 @@ target_link_libraries(
   projectWarning
   Qt5::Core
   Qt5::Quick
-  Qt5::Widgets
   Qt5::Test
+  Qt5::Widgets
 )
 
 target_include_directories(
@@ -43,6 +44,12 @@ set_target_properties(
   CXX_EXTENSIONS FALSE
   CXX_STANDARD 11
   CXX_STANDARD_REQUIRED TRUE
+)
+
+target_compile_definitions(
+  test-app
+  PRIVATE
+  QT_DEPRECATED_WARNINGS
 )
 
 add_test(
