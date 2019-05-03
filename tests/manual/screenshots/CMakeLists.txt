@@ -1,25 +1,24 @@
-# tests/auto/CMakeLists.txt
+# tests/manual/CMakeLists.txt
 add_executable(
-  test-app
+  screenshots
 )
 
 target_sources(
-  test-app
+  screenshots
   PRIVATE
   ${CMAKE_SOURCE_DIR}/app/application.h
   ${CMAKE_SOURCE_DIR}/app/application.cpp
+  ${CMAKE_SOURCE_DIR}/app/config.qrc
   ${CMAKE_SOURCE_DIR}/app/fonts/fonts.qrc
   ${CMAKE_SOURCE_DIR}/app/images/images.qrc
-  resources.qrc
-  tst_app.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/../shared/testhelper.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/../shared/testhelper.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/../shared/testutils.h
+  ${CMAKE_CURRENT_LIST_DIR}/resources/resources.qrc
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../shared/testhelper.cpp
+  screenshots.cpp
   ${CMAKE_SOURCE_DIR}/app/qml/qml.qrc
 )
 
 target_link_libraries(
-  test-app
+  screenshots
   PRIVATE
   slate
   projectWarning
@@ -30,14 +29,14 @@ target_link_libraries(
 )
 
 target_include_directories(
-  test-app
+  screenshots
   PRIVATE
   ${CMAKE_SOURCE_DIR}/app
-  ${CMAKE_CURRENT_SOURCE_DIR}/../shared
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../shared
 )
 
 set_target_properties(
-  test-app
+  screenshots
   PROPERTIES
   CXX_EXTENSIONS FALSE
   CXX_STANDARD 11
@@ -45,12 +44,12 @@ set_target_properties(
 )
 
 target_compile_definitions(
-  test-app
+  screenshots
   PRIVATE
   QT_DEPRECATED_WARNINGS
 )
 
 add_test(
-  test-app
-  test-app
+  screenshots
+  screenshots
 )
