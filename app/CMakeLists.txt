@@ -7,7 +7,6 @@ if(WIN32)
 else()
   add_executable(
     app
-    ""
   )
 endif()
 
