@@ -11,4 +11,8 @@ QtObject {
     property color rulerBackgroundColour: canvasBackgroundColour
 
     property color panelColour: "#424242"
+
+    // Use "var" so that we can assign undefined.
+    property var toolButtonWidth: undefined
+    property var toolButtonHeight: undefined
 }

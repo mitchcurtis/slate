@@ -32,4 +32,7 @@ QtObject {
     property color rulerBackgroundColour: panelColour
 
     property color panelColour: "#424242"
+
+    property var toolButtonWidth: undefined
+    property var toolButtonHeight: undefined
 }

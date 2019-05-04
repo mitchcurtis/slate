@@ -82,14 +82,14 @@ Group {
             Qt.core.resourceSourceBase: path
             fileTags: ["qt.qml.qml", "qt.core.resource_data"]
             files: [
-                "ui/+material/Theme.qml",
                 "ui/+material/DialogButton.qml",
                 "ui/+material/IconRectangle.qml",
                 "ui/+material/SwatchFocusRectangle.qml",
+                "ui/+material/Theme.qml",
                 "ui/+nativemenubar/MenuBar.qml",
-                "ui/+universal/Theme.qml",
                 "ui/+universal/IconRectangle.qml",
-                "ui/+universal/SwatchFocusRectangle.qml"
+                "ui/+universal/SwatchFocusRectangle.qml",
+                "ui/+universal/Theme.qml"
             ]
         }
     }

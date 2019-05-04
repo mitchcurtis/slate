@@ -103,6 +103,7 @@ ToolBar {
         ToolSeparator {}
 
         Row {
+            height: parent.height
             spacing: 5
 
             Ui.IconToolButton {
@@ -154,6 +155,7 @@ ToolBar {
 
         Row {
             id: toolLayout
+            height: parent.height
             spacing: 5
 
             Ui.IconToolButton {
@@ -331,10 +333,12 @@ ToolBar {
 
         ToolSeparator {
             id: toolSeparator
+            height: parent.height
         }
 
         Row {
             id: transformLayout
+            height: parent.height
             spacing: 5
             visible: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
@@ -382,11 +386,14 @@ ToolBar {
                 onClicked: canvas.flipSelection(Qt.Vertical)
             }
 
-            ToolSeparator {}
+            ToolSeparator {
+                height: parent.height
+            }
         }
 
         Row {
             id: viewLayout
+            height: parent.height
             spacing: 5
 
             Ui.ToolButton {
@@ -423,10 +430,13 @@ ToolBar {
             }
         }
 
-        ToolSeparator {}
+        ToolSeparator {
+            height: parent.height
+        }
 
         Row {
             id: viewSplitscreenLayout
+            height: parent.height
             spacing: 5
 
             Ui.ToolButton {
@@ -453,20 +463,20 @@ ToolBar {
             }
         }
 
-        ToolSeparator {}
+        ToolSeparator {
+            height: parent.height
+        }
 
-        Row {
-            Ui.IconToolButton {
-                id: fullScreenButton
-                text: "\uF108"
-                enabled: true
-                checkable: true
-                checked: window.visibility === Window.FullScreen
+        Ui.IconToolButton {
+            id: fullScreenButton
+            text: "\uF108"
+            enabled: true
+            checkable: true
+            checked: window.visibility === Window.FullScreen
 
-                ToolTip.text: qsTr("Toggle fullscreen window")
+            ToolTip.text: qsTr("Toggle fullscreen window")
 
-                onClicked: toggleFullScreen()
-            }
+            onClicked: toggleFullScreen()
         }
     }
 }

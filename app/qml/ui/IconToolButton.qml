@@ -23,6 +23,9 @@ ToolButton {
     id: control
     font.family: "FontAwesome"
     focusPolicy: Qt.NoFocus
+    width: Theme.toolButtonWidth
+    height: Theme.toolButtonHeight
+    anchors.verticalCenter: parent.verticalCenter
 
     ToolTip.visible: hovered
     ToolTip.delay: toolTipDelay
