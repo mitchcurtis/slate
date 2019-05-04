@@ -2774,17 +2774,41 @@ void tst_App::pixelLineToolImageCanvas()
 
     QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
 
+    QQuickItem *lineLengthLabel = window->findChild<QQuickItem*>("lineLengthLabel");
+    QVERIFY(lineLengthLabel);
+    QQuickItem *lineAngleLabel = window->findChild<QQuickItem*>("lineAngleLabel");
+    QVERIFY(lineAngleLabel);
+
     // Draw the start of the line.
     setCursorPosInScenePixels(0, 0);
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+    QCOMPARE(canvas->isLineVisible(), false);
+    QCOMPARE(lineLengthLabel->isVisible(), false);
+    QCOMPARE(lineAngleLabel->isVisible(), false);
+
+    // Hold shift to start the line-drawing process and
+    // get the line length/angle labels visible.
+    QTest::keyPress(window, Qt::Key_Shift);
+    QCOMPARE(canvas->isLineVisible(), true);
+    QCOMPARE(lineLengthLabel->isVisible(), true);
+    QCOMPARE(lineAngleLabel->isVisible(), true);
+    QCOMPARE(lineLengthLabel->property("text").toString(), "0");
+    QCOMPARE(lineAngleLabel->property("text").toString(), "0.00");
 
     // Draw the line itself.
     setCursorPosInScenePixels(2, 2);
     QTest::mouseMove(window, cursorWindowPos);
-    QTest::keyPress(window, Qt::Key_Shift);
+    QCOMPARE(lineLengthLabel->property("text").toString(), "2");
+    QCOMPARE(lineAngleLabel->property("text").toString(), "315.00");
     // For some reason there must be a delay in order for the shift modifier to work.
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
+    QCOMPARE(canvas->isLineVisible(), true);
+    QCOMPARE(lineLengthLabel->isVisible(), true);
+    QCOMPARE(lineAngleLabel->isVisible(), true);
     QTest::keyRelease(window, Qt::Key_Shift);
+    QCOMPARE(canvas->isLineVisible(), false);
+    QCOMPARE(lineLengthLabel->isVisible(), false);
+    QCOMPARE(lineAngleLabel->isVisible(), false);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));

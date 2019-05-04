@@ -95,8 +95,8 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool hasBlankCursor READ hasBlankCursor NOTIFY hasBlankCursorChanged)
     Q_PROPERTY(bool altPressed READ isAltPressed NOTIFY altPressedChanged)
     Q_PROPERTY(bool lineVisible READ isLineVisible NOTIFY lineVisibleChanged)
-    Q_PROPERTY(int lineLength READ lineLength NOTIFY lineLengthChanged)
-    Q_PROPERTY(qreal lineAngle READ lineAngle NOTIFY lineLengthChanged)
+    Q_PROPERTY(int lineLength READ lineLength NOTIFY lineChanged)
+    Q_PROPERTY(qreal lineAngle READ lineAngle NOTIFY lineChanged)
 
 public:
     // The order of these is important, as the number keys can activate the tools.
@@ -353,7 +353,7 @@ signals:
     void adjustingImageChanged();
     void altPressedChanged();
     void lineVisibleChanged();
-    void lineLengthChanged();
+    void lineChanged();
     void pasteSelectionConfirmed();
 
     // Used to signal CanvasPaneItem classes that they should redraw,
@@ -622,12 +622,7 @@ protected:
 
     // The scene position at which the mouse was last pressed.
     // This is used by the pixel line tool to draw the line preview.
-    // It is set by the pixel tool as the last pixel in the command,
-    // and by the pixel line tool command.
-    QPoint mLastPixelPenPressScenePosition;
     QPointF mLastPixelPenPressScenePositionF;
-    // An image as large as the rectangle that contains the line that is being previewed.
-    QImage mLinePreviewImage;
 
     bool mPotentiallySelecting;
     bool mHasSelection;

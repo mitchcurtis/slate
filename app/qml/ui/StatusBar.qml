@@ -134,6 +134,7 @@ Pane {
 
         Label {
             id: lineLengthLabel
+            objectName: "lineLengthLabel"
             text: canvas ? canvas.lineLength : ""
             visible: canvas && canvas.lineVisible
 
@@ -175,6 +176,7 @@ Pane {
 
         Label {
             id: lineAngleLabel
+            objectName: "lineAngleLabel"
             text: canvas ? canvas.lineAngle.toFixed(2) : ""
             visible: canvas && canvas.lineVisible
 

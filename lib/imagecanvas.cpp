@@ -426,7 +426,7 @@ void ImageCanvas::setCursorSceneX(int x)
 
     mCursorSceneX = x;
     if (isLineVisible())
-        emit lineLengthChanged();
+        emit lineChanged();
     emit cursorSceneXChanged();
 }
 
@@ -442,7 +442,7 @@ void ImageCanvas::setCursorSceneY(int y)
 
     mCursorSceneY = y;
     if (isLineVisible())
-        emit lineLengthChanged();
+        emit lineChanged();
     emit cursorSceneYChanged();
 }
 
@@ -822,9 +822,10 @@ bool ImageCanvas::isAltPressed() const
 
 bool ImageCanvas::isLineVisible() const
 {
-    // Don't show line info in the status bar if there hasn't been a mouse press yet.
-    // This is the same as what penColour() does.
-    const Qt::MouseButton lastButtonPressed = mMouseButtonPressed == Qt::NoButton ? mLastMouseButtonPressed : mMouseButtonPressed;
+    // This check determines if a line should be rendered,
+    // and also if the line info should be shown in the status bar.
+    const Qt::MouseButton lastButtonPressed = mMouseButtonPressed == Qt::NoButton
+        ? mLastMouseButtonPressed : mMouseButtonPressed;
     return mShiftPressed && mTool == PenTool && lastButtonPressed != Qt::NoButton;
 }
 
@@ -833,7 +834,7 @@ int ImageCanvas::lineLength() const
     if (!isLineVisible())
         return 0;
 
-    const QPointF point1 = mLastPixelPenPressScenePosition;
+    const QPointF point1 = mLastPixelPenPressScenePositionF.toPoint();
     const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
     const QLineF line(point1, point2);
     return line.length();
@@ -844,7 +845,7 @@ qreal ImageCanvas::lineAngle() const
     if (!isLineVisible())
         return 0;
 
-    const QPointF point1 = mLastPixelPenPressScenePosition;
+    const QPointF point1 = mLastPixelPenPressScenePositionF.toPoint();
     const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
     const QLineF line(point1, point2);
     return line.angle();
@@ -879,6 +880,11 @@ void ImageCanvas::setShiftPressed(bool shiftPressed)
 
     if (isLineVisible() != wasLineVisible)
         emit lineVisibleChanged();
+
+    if (mShiftPressed) {
+        // Force the length and angle to be re-calculated.
+        emit lineChanged();
+    }
 
     requestContentPaint();
 }
@@ -1712,8 +1718,7 @@ void ImageCanvas::reset()
 
     mTexturedFillParameters.reset();
 
-    mLastPixelPenPressScenePosition = QPoint(0, 0);
-    mLinePreviewImage = QImage();
+    mLastPixelPenPressScenePositionF = QPoint(0, 0);
 
     mCropArea = QRect();
 
@@ -2170,7 +2175,7 @@ void ImageCanvas::applyPixelPenTool(int layerIndex, const QPoint &scenePos, cons
 {
     imageForLayerAt(layerIndex)->setPixelColor(scenePos, colour);
     if (markAsLastRelease)
-        mLastPixelPenPressScenePosition = scenePos;
+        mLastPixelPenPressScenePositionF = scenePos;
     requestContentPaint();
 }
 

@@ -329,7 +329,7 @@ void TileCanvas::applyCurrentTool()
             // This ensures that e.g. a translucent red overwrites whatever pixels it
             // lies on, rather than blending with them.
             mProject->addChange(new ApplyPixelLineCommand(this, -1, *mTilesetProject->tileset()->image(), linePoint1(), linePoint2(),
-                mPressScenePosition, mLastPixelPenPressScenePosition, QPainter::CompositionMode_Source));
+                mPressScenePosition, mLastPixelPenPressScenePositionF, QPainter::CompositionMode_Source));
             break;
         } else {
             const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
@@ -450,7 +450,7 @@ void TileCanvas::applyPixelPenTool(int layerIndex, const QPoint &scenePos, const
     const QPoint tilsetPixelPos = tile->sourceRect().topLeft() + pixelPos;
     mTilesetProject->tileset()->setPixelColor(tilsetPixelPos.x(), tilsetPixelPos.y(), colour);
     if (markAsLastRelease)
-        mLastPixelPenPressScenePosition = scenePos;
+        mLastPixelPenPressScenePositionF = scenePos;
     requestContentPaint();
 }
 
