@@ -71,6 +71,7 @@ Group {
             "ui/TilesetSwatch.qml",
             "ui/TilesetTypeCanvas.qml",
             "ui/ToolBar.qml",
+            "ui/ToolButton.qml",
             "ui/ToolButtonMenuIndicator.qml",
             "ui/ToolSizePopup.qml",
             "ui/ZoomIndicator.qml"

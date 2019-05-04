@@ -20,8 +20,7 @@
 import QtQuick.Controls 2.12
 
 ToolButton {
-    id: control
-    font.family: "FontAwesome"
+    id: root
     focusPolicy: Qt.NoFocus
 
     ToolTip.visible: hovered

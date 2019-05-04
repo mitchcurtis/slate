@@ -60,5 +60,6 @@
         <file>ui/Shortcuts.qml</file>
         <file>ui/SplitterBar.qml</file>
         <file>ui/qmldir</file>
+        <file>ui/ToolButton.qml</file>
     </qresource>
 </RCC>
