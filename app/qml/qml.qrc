@@ -62,6 +62,7 @@
         <file>ui/VerticalSeparator.qml</file>
         <file>ui/ZoomIndicator.qml</file>
         <file>ui/qmldir</file>
+        <file>ui/+imagine/Theme.qml</file>
         <file>ui/+material/DialogButton.qml</file>
         <file>ui/+material/IconRectangle.qml</file>
         <file>ui/+material/SwatchFocusRectangle.qml</file>

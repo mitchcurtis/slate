@@ -87,6 +87,7 @@ Group {
                 "ui/+material/IconRectangle.qml",
                 "ui/+material/SwatchFocusRectangle.qml",
                 "ui/+material/Theme.qml",
+                "ui/+imagine/Theme.qml",
                 "ui/+nativemenubar/MenuBar.qml",
                 "ui/+universal/IconRectangle.qml",
                 "ui/+universal/SwatchFocusRectangle.qml",
