@@ -8,7 +8,7 @@
         <file>ui/FpsCounter.qml</file>
         <file>ui/AnimationPanel.qml</file>
         <file>ui/AnimationSettingsPopup.qml</file>
-        <file>ui/CanvasColours.qml</file>
+        <file>ui/Theme.qml</file>
         <file>ui/CanvasContainer.qml</file>
         <file>ui/CanvasPaneRepeater.qml</file>
         <file>ui/CanvasSizePopup.qml</file>
@@ -61,5 +61,14 @@
         <file>ui/SplitterBar.qml</file>
         <file>ui/qmldir</file>
         <file>ui/ToolButton.qml</file>
+        <!--material-->
+        <file>ui/+material/DialogButton.qml</file>
+        <file>ui/+material/IconRectangle.qml</file>
+        <file>ui/+material/SwatchFocusRectangle.qml</file>
+        <file>ui/+material/Theme.qml</file>
+        <file>ui/+nativemenubar/MenuBar.qml</file>
+        <file>ui/+universal/IconRectangle.qml</file>
+        <file>ui/+universal/SwatchFocusRectangle.qml</file>
+        <file>ui/+universal/Theme.qml</file>
     </qresource>
 </RCC>
