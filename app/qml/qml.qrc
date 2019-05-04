@@ -8,7 +8,7 @@
         <file>ui/FpsCounter.qml</file>
         <file>ui/AnimationPanel.qml</file>
         <file>ui/AnimationSettingsPopup.qml</file>
-        <file>ui/CanvasColours.qml</file>
+        <file>ui/Theme.qml</file>
         <file>ui/CanvasContainer.qml</file>
         <file>ui/CanvasPaneRepeater.qml</file>
         <file>ui/CanvasSizePopup.qml</file>
