@@ -2,7 +2,7 @@ import QtQuick 2.12
 
 import App 1.0
 
-// For access to CanvasColours Singleton
+// For access to Theme Singleton
 import "."
 
 TileCanvas {
@@ -10,7 +10,7 @@ TileCanvas {
     objectName: "tileCanvas"
     focus: true
     project: args.project
-    backgroundColour: CanvasColours.backgroundColour
+    backgroundColour: Theme.canvasBackgroundColour
     checkerColour1: settings.checkerColour1
     checkerColour2: settings.checkerColour2
     gridVisible: settings.gridVisible
@@ -18,10 +18,10 @@ TileCanvas {
     rulersVisible: settings.rulersVisible
     guidesVisible: settings.guidesVisible
     guidesLocked: settings.guidesLocked
-    splitColour: CanvasColours.splitColour
+    splitColour: Theme.splitColour
     splitter.width: 32
-    rulerForegroundColour: CanvasColours.rulerForegroundColour
-    rulerBackgroundColour: CanvasColours.rulerBackgroundColour
+    rulerForegroundColour: Theme.rulerForegroundColour
+    rulerBackgroundColour: Theme.rulerBackgroundColour
     scrollZoom: settings.scrollZoom
     gesturesEnabled: settings.gesturesEnabled
     penToolRightClickBehaviour: settings.penToolRightClickBehaviour
@@ -54,7 +54,7 @@ TileCanvas {
                 x: index === 0 ? 0 : Math.floor(parent.width - width)
                 width: Math.floor(paneItem.pane.size * parent.width)
                 height: parent.height
-                color: CanvasColours.backgroundColour
+                color: Theme.canvasBackgroundColour
                 z: -1
             }
         }

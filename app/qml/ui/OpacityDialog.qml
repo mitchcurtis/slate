@@ -116,7 +116,7 @@ Dialog {
                         }
                         GradientStop {
                             position: 1
-                            color: Ui.CanvasColours.focusColour
+                            color: Ui.Theme.focusColour
                         }
                     }
                     anchors.verticalCenter: parent.verticalCenter

@@ -19,7 +19,7 @@ Group {
             "ui/AboutDialog.qml",
             "ui/AnimationPanel.qml",
             "ui/AnimationSettingsPopup.qml",
-            "ui/CanvasColours.qml",
+            "ui/Theme.qml",
             "ui/CanvasContainer.qml",
             "ui/CanvasPaneRepeater.qml",
             "ui/CanvasSizePopup.qml",
@@ -81,12 +81,12 @@ Group {
             Qt.core.resourceSourceBase: path
             fileTags: ["qt.qml.qml", "qt.core.resource_data"]
             files: [
-                "ui/+material/CanvasColours.qml",
+                "ui/+material/Theme.qml",
                 "ui/+material/DialogButton.qml",
                 "ui/+material/IconRectangle.qml",
                 "ui/+material/SwatchFocusRectangle.qml",
                 "ui/+nativemenubar/MenuBar.qml",
-                "ui/+universal/CanvasColours.qml",
+                "ui/+universal/Theme.qml",
                 "ui/+universal/IconRectangle.qml",
                 "ui/+universal/SwatchFocusRectangle.qml"
             ]

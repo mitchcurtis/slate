@@ -232,7 +232,7 @@ GridLayout {
 
         background: Rectangle {
             gradient: Gradient {
-                GradientStop { position: 0; color: Ui.CanvasColours.focusColour }
+                GradientStop { position: 0; color: Ui.Theme.focusColour }
                 GradientStop { position: 1; color: "#ccc" }
             }
         }

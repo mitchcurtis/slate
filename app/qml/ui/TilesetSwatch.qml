@@ -82,7 +82,7 @@ Panel {
                 tilesWide: project && project.tileset ? project.tileset.tilesWide : 1
                 tilesHigh: project && project.tileset ? project.tileset.tilesHigh : 1
                 colour: tileCanvas ? tileCanvas.gridColour : "black"
-                highlightColour: Ui.CanvasColours.focusColour
+                highlightColour: Ui.Theme.focusColour
                 anchors.fill: parent
             }
         }

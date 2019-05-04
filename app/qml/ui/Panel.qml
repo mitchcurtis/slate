@@ -10,7 +10,7 @@ Page {
     id: root
     objectName: "panel"
     background: Rectangle {
-        color: Ui.CanvasColours.panelColour
+        color: Ui.Theme.panelColour
     }
 
     property bool expanded: true
