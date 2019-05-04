@@ -61,5 +61,14 @@
         <file>ui/SplitterBar.qml</file>
         <file>ui/qmldir</file>
         <file>ui/ToolButton.qml</file>
+        <!--material-->
+        <file>ui/+material/DialogButton.qml</file>
+        <file>ui/+material/IconRectangle.qml</file>
+        <file>ui/+material/SwatchFocusRectangle.qml</file>
+        <file>ui/+material/Theme.qml</file>
+        <file>ui/+nativemenubar/MenuBar.qml</file>
+        <file>ui/+universal/IconRectangle.qml</file>
+        <file>ui/+universal/SwatchFocusRectangle.qml</file>
+        <file>ui/+universal/Theme.qml</file>
     </qresource>
 </RCC>
