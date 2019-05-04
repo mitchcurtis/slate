@@ -591,7 +591,7 @@ void tst_App::loadLayeredImageProjectAfterTilesetProject()
     QVERIFY(layersLoader);
     QVERIFY(swatchesPanel);
     // 5 is the spacing between panels.
-    QCOMPARE(layersLoader->y(), swatchesPanel->y() + swatchesPanel->height() + 5);
+    QTRY_COMPARE(layersLoader->y(), swatchesPanel->y() + swatchesPanel->height() + 5);
 }
 
 void tst_App::loadInvalidProjects_data()
