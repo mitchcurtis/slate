@@ -147,7 +147,7 @@ GridLayout {
         }
     }
 
-    MenuSeparator {
+    Ui.VerticalSeparator {
         topPadding: 0
         bottomPadding: 0
 
@@ -211,7 +211,7 @@ GridLayout {
         }
     }
 
-    MenuSeparator {
+    Ui.VerticalSeparator {
         topPadding: 0
         bottomPadding: 0
 

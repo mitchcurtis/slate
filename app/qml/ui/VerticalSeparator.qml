@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2019, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,22 +17,6 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-pragma Singleton
+import QtQuick.Controls 2.12
 
-import QtQml 2.12
-import QtQuick.Controls.Material 2.12
-
-QtObject {
-    property color focusColour: Material.accent
-
-    property var toolButtonWidth: undefined
-    property var toolButtonHeight: undefined
-
-    // The light theme's background colour is too white for the crosshair cursor.
-    property color canvasBackgroundColour: Material.theme === Material.Dark ? Material.background : "#ccc"
-    property color splitColour: "#444"
-    property color rulerForegroundColour: Qt.darker(Material.foreground, 1.4)
-    property color rulerBackgroundColour: panelColour
-
-    property color panelColour: "#424242"
-}
+MenuSeparator {}

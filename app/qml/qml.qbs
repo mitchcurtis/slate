@@ -74,6 +74,7 @@ Group {
             "ui/ToolButton.qml",
             "ui/ToolButtonMenuIndicator.qml",
             "ui/ToolSizePopup.qml",
+            "ui/VerticalSeparator.qml",
             "ui/ZoomIndicator.qml"
         ]
 
@@ -89,7 +90,8 @@ Group {
                 "ui/+nativemenubar/MenuBar.qml",
                 "ui/+universal/IconRectangle.qml",
                 "ui/+universal/SwatchFocusRectangle.qml",
-                "ui/+universal/Theme.qml"
+                "ui/+universal/Theme.qml",
+                "ui/+universal/VerticalSeparator.qml"
             ]
         }
     }

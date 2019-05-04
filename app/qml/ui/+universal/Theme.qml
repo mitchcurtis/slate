@@ -25,13 +25,13 @@ import QtQuick.Controls.Universal 2.12
 QtObject {
     property color focusColour: Universal.accent
 
+    property var toolButtonWidth: 48
+    property var toolButtonHeight: 38
+
     property color canvasBackgroundColour: "#222"
     property color splitColour: "#444"
     property color rulerForegroundColour: Universal.foreground
     property color rulerBackgroundColour: "#333"
 
-    property color panelColour: "#333"
-
-    property var toolButtonWidth: 48
-    property var toolButtonHeight: 38
+    property color panelColour: "#282828"
 }
