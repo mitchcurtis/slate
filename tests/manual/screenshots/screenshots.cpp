@@ -114,31 +114,31 @@ void tst_Screenshots::panels_data()
     QTest::addColumn<QString>("outputFileName");
 
     QTest::addRow("colour")
-        << QString::fromLatin1("animation.slp")
+        << QString::fromLatin1("animation-panel.slp")
         << QString::fromLatin1("colourPanel")
         << (QStringList() << QLatin1String("layerPanel"))
-        << QString::fromLatin1(":/resources/ColourMarkers.qml")
+        << QString::fromLatin1(":/resources/ColourPanelMarkers.qml")
         << QString::fromLatin1("slate-colour-panel.png");
 
     QTest::addRow("swatch")
-        << QString::fromLatin1("animation.slp")
+        << QString::fromLatin1("animation-panel.slp")
         << QString::fromLatin1("swatchesPanel")
         << (QStringList() << QLatin1String("colourPanel"))
-        << QString::fromLatin1(":/resources/SwatchMarkers.qml")
+        << QString::fromLatin1(":/resources/SwatchPanelMarkers.qml")
         << QString::fromLatin1("slate-swatches-panel.png");
 
     QTest::addRow("layers")
-        << QString::fromLatin1("animation.slp")
+        << QString::fromLatin1("animation-panel.slp")
         << QString::fromLatin1("layerPanel")
         << (QStringList() << QLatin1String("colourPanel"))
-        << QString::fromLatin1(":/resources/LayerMarkers.qml")
+        << QString::fromLatin1(":/resources/LayerPanelMarkers.qml")
         << QString::fromLatin1("slate-layers-panel.png");
 
     QTest::addRow("animation")
-        << QString::fromLatin1("animation.slp")
+        << QString::fromLatin1("animation-panel.slp")
         << QString::fromLatin1("animationPanel")
         << (QStringList() << QLatin1String("colourPanel") << QLatin1String("layerPanel"))
-        << QString::fromLatin1(":/resources/AnimationMarkers.qml")
+        << QString::fromLatin1(":/resources/AnimationPanelMarkers.qml")
         << QString::fromLatin1("slate-animation-panel.png");
 }
 
