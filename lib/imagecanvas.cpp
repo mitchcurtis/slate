@@ -53,6 +53,7 @@
 
 Q_LOGGING_CATEGORY(lcImageCanvas, "app.canvas")
 Q_LOGGING_CATEGORY(lcImageCanvasCursorShape, "app.canvas.cursorshape")
+Q_LOGGING_CATEGORY(lcImageCanvasEvents, "app.canvas.events")
 Q_LOGGING_CATEGORY(lcImageCanvasLifecycle, "app.canvas.lifecycle")
 Q_LOGGING_CATEGORY(lcImageCanvasSelection, "app.canvas.selection")
 Q_LOGGING_CATEGORY(lcImageCanvasSelectionCursorGuideVisibility, "app.canvas.selection.cursorguidevisibility")
@@ -2597,6 +2598,8 @@ void ImageCanvas::applyZoom(qreal zoom, const QPoint &origin)
 
 void ImageCanvas::wheelEvent(QWheelEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "wheelEvent:" << event;
+
     if (!mProject->hasLoaded() || !mScrollZoom) {
         event->ignore();
         return;
@@ -2636,6 +2639,7 @@ void ImageCanvas::wheelEvent(QWheelEvent *event)
 
 void ImageCanvas::mousePressEvent(QMouseEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "mousePressEvent:" << event;
     QQuickItem::mousePressEvent(event);
 
     // Is it possible to get a press without a hover enter? If so, we need this line.
@@ -2700,6 +2704,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
 
 void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "mouseMoveEvent:" << event;
     QQuickItem::mouseMoveEvent(event);
 
     const QPointF oldCursorScenePosition = QPointF(mCursorSceneFX, mCursorSceneFY);
@@ -2745,6 +2750,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
 
 void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "mouseReleaseEvent:" << event;
     QQuickItem::mouseReleaseEvent(event);
 
     updateCursorPos(event->pos());
@@ -2847,6 +2853,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
 
 void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "hoverEnterEvent:" << event;
     QQuickItem::hoverEnterEvent(event);
 
     updateCursorPos(event->pos());
@@ -2859,6 +2866,7 @@ void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
 
 void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "hoverMoveEvent:" << event->posF();
     QQuickItem::hoverMoveEvent(event);
 
     updateCursorPos(event->pos());
@@ -2878,6 +2886,7 @@ void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
 
 void ImageCanvas::hoverLeaveEvent(QHoverEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "hoverLeaveEvent:" << event;
     QQuickItem::hoverLeaveEvent(event);
 
     setContainsMouse(false);
@@ -2888,6 +2897,7 @@ void ImageCanvas::hoverLeaveEvent(QHoverEvent *event)
 
 void ImageCanvas::keyPressEvent(QKeyEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "keyPressEvent:" << event;
     QQuickItem::keyPressEvent(event);
 
     if (!mProject->hasLoaded())
@@ -2948,6 +2958,7 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
 
 void ImageCanvas::keyReleaseEvent(QKeyEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "keyReleaseEvent:" << event;
     QQuickItem::keyReleaseEvent(event);
 
     if (!mProject->hasLoaded())
@@ -2968,6 +2979,7 @@ void ImageCanvas::keyReleaseEvent(QKeyEvent *event)
 
 void ImageCanvas::focusInEvent(QFocusEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "focusInEvent:" << event;
     QQuickItem::focusInEvent(event);
 
     updateWindowCursorShape();
@@ -2975,6 +2987,7 @@ void ImageCanvas::focusInEvent(QFocusEvent *event)
 
 void ImageCanvas::focusOutEvent(QFocusEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "focusOutEvent:" << event;
     QQuickItem::focusOutEvent(event);
 
     // The alt-to-eyedrop feature is meant to be temporary,
