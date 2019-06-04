@@ -35,6 +35,8 @@ class tst_Screenshots : public TestHelper
 public:
     tst_Screenshots(int &argc, char **argv);
 
+    Q_INVOKABLE QObject *findAnyChild(QObject *parent, const QString &objectName);
+
 private Q_SLOTS:
     void cleanup();
 
@@ -47,7 +49,6 @@ private Q_SLOTS:
 private:
     QString makeImagePath(const QString &contentName);
     QObject *findItemChild(QObject *parent, const QString &objectName);
-    Q_INVOKABLE QObject *findAnyChild(QObject *parent, const QString &objectName);
 
     QDir mOutputDirectory;
 };
