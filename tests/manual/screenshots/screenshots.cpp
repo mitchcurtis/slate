@@ -238,10 +238,13 @@ void tst_Screenshots::toolBarIcons()
             if (toolButtonsGrabbed.contains(toolButton) || !toolButton->isVisible())
                 continue;
 
-            // We want the tool bar's background because otherwise we just get icons.
+            // We want the tool bar's background because otherwise we just get icons on a transparent background.
             auto grabResult = window->contentItem()->grabToImage();
             QTRY_VERIFY(!grabResult->image().isNull());
-            const QRectF toolButtonSceneRect = toolButton->mapRectToScene(QRectF(0, 0, toolButton->width(), toolButton->height()));
+            const int imageSize = 24;
+            const QRectF imageRect((toolButton->width() - imageSize) / 2,
+                (toolButton->height() - imageSize) / 2, imageSize, imageSize);
+            const QRectF toolButtonSceneRect = toolButton->mapRectToScene(imageRect);
             const QImage toolBarGrab = grabResult->image().copy(toolButtonSceneRect.toRect());
             const QString imagePath = makeImagePath(QLatin1String("toolbar-") + toolButton->objectName());
             QVERIFY(toolBarGrab.save(imagePath));
