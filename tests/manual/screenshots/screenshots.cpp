@@ -35,50 +35,19 @@ class tst_Screenshots : public TestHelper
 public:
     tst_Screenshots(int &argc, char **argv);
 
-    Q_INVOKABLE QObject *findAnyChild(QObject *parent, const QString &objectName)
-    {
-        // First, search the visual item hierarchy.
-        QObject *child = findItemChild(parent, objectName);
-        if (child)
-            return child;
-
-        // If it's not a visual child, it might be a QObject child.
-        return parent ? parent->findChild<QObject*>(objectName) : nullptr;
-    }
-
 private Q_SLOTS:
     void cleanup();
+
     void panels_data();
     void panels();
-    void toolBar();
+    void toolBarFull();
+    void toolBarIcons();
     void animation();
 
 private:
-    QObject *findItemChild(QObject *parent, const QString &objectName)
-    {
-        if (!parent)
-            return nullptr;
-
-        QQuickItem *parentItem = qobject_cast<QQuickItem*>(parent);
-        if (!parentItem)
-            return nullptr;
-
-        auto childItems = parentItem->childItems();
-        for (int i = 0; i < childItems.size(); ++i) {
-            // Is this direct child of ours the child we're after?
-            QQuickItem *child = childItems.at(i);
-            if (child->objectName() == objectName)
-                return child;
-        }
-
-        for (int i = 0; i < childItems.size(); ++i) {
-            // Try the direct child's children.
-            auto child = findItemChild(childItems.at(i), objectName);
-            if (child)
-                return child;
-        }
-        return nullptr;
-    }
+    QString makeImagePath(const QString &contentName);
+    QObject *findItemChild(QObject *parent, const QString &objectName);
+    Q_INVOKABLE QObject *findAnyChild(QObject *parent, const QString &objectName);
 
     QDir mOutputDirectory;
 };
@@ -190,7 +159,7 @@ void tst_Screenshots::panels()
     QVERIFY(grabResult->image().save(mOutputDirectory.absoluteFilePath(outputFileName)));
 }
 
-void tst_Screenshots::toolBar()
+void tst_Screenshots::toolBarFull()
 {
     // Ensure that we have a temporary directory.
     QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
@@ -252,6 +221,42 @@ void tst_Screenshots::toolBar()
     splitterBar->setOpacity(1);
 }
 
+void tst_Screenshots::toolBarIcons()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    // Enable selection-related tool buttons to make their icons easier to see.
+    QVERIFY2(selectArea(QRect(0, 0, 30, 30)), failureMessage);
+
+    const QRegularExpression toolButtonRegex(QString::fromLatin1(".*ToolButton"));
+    QSet<QQuickItem*> toolButtonsGrabbed;
+
+    auto grabToolButtonImages = [=, &toolButtonsGrabbed](){
+        const auto toolButtons = toolBar->findChildren<QQuickItem*>(toolButtonRegex);
+        for (QQuickItem *toolButton : qAsConst(toolButtons)) {
+            if (toolButtonsGrabbed.contains(toolButton) || !toolButton->isVisible())
+                continue;
+
+            // We want the tool bar's background because otherwise we just get icons.
+            auto grabResult = window->contentItem()->grabToImage();
+            QTRY_VERIFY(!grabResult->image().isNull());
+            const QRectF toolButtonSceneRect = toolButton->mapRectToScene(QRectF(0, 0, toolButton->width(), toolButton->height()));
+            const QImage toolBarGrab = grabResult->image().copy(toolButtonSceneRect.toRect());
+            const QString imagePath = makeImagePath(QLatin1String("toolbar-") + toolButton->objectName());
+            QVERIFY(toolBarGrab.save(imagePath));
+
+            toolButtonsGrabbed.insert(toolButton);
+        }
+    };
+
+    // Grab the tool buttons that are visible for image/layer projects.
+    grabToolButtonImages();
+
+    // Now grab the buttons that are only visible for tileset projects.
+    QVERIFY2(createNewTilesetProject(), failureMessage);
+    grabToolButtonImages();
+}
+
 void tst_Screenshots::animation()
 {
     // Ensure that we have a temporary directory.
@@ -297,8 +302,8 @@ void tst_Screenshots::animation()
     QVERIFY(toolBar);
     setCursorPosInPixels(QPoint(10, toolBar->height() + 100));
     QTest::mouseMove(window, cursorWindowPos);
-    QQuickItem *canvasSizeButton = window->findChild<QQuickItem*>("canvasSizeButton");
-    QVERIFY(canvasSizeButton);
+    QQuickItem *canvasSizeToolButton = window->findChild<QQuickItem*>("canvasSizeToolButton");
+    QVERIFY(canvasSizeToolButton);
     // Can't seem to ensure that the tooltip is hidden using QQmlProperty, so we do it all hacky-like for now.
 //    QTest::qWait(500);
 
@@ -366,6 +371,48 @@ void tst_Screenshots::animation()
     QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);
 
     QVERIFY2(triggerCloseProject(), failureMessage);
+}
+
+QString tst_Screenshots::tst_Screenshots::makeImagePath(const QString &contentName)
+{
+    return mOutputDirectory.absoluteFilePath(QLatin1String("slate-") + contentName + QLatin1String(".png"));
+}
+
+QObject *tst_Screenshots::findItemChild(QObject *parent, const QString &objectName)
+{
+    if (!parent)
+        return nullptr;
+
+    QQuickItem *parentItem = qobject_cast<QQuickItem*>(parent);
+    if (!parentItem)
+        return nullptr;
+
+    auto childItems = parentItem->childItems();
+    for (int i = 0; i < childItems.size(); ++i) {
+        // Is this direct child of ours the child we're after?
+        QQuickItem *child = childItems.at(i);
+        if (child->objectName() == objectName)
+            return child;
+    }
+
+    for (int i = 0; i < childItems.size(); ++i) {
+        // Try the direct child's children.
+        auto child = findItemChild(childItems.at(i), objectName);
+        if (child)
+            return child;
+    }
+    return nullptr;
+}
+
+QObject *tst_Screenshots::findAnyChild(QObject *parent, const QString &objectName)
+{
+    // First, search the visual item hierarchy.
+    QObject *child = findItemChild(parent, objectName);
+    if (child)
+        return child;
+
+    // If it's not a visual child, it might be a QObject child.
+    return parent ? parent->findChild<QObject*>(objectName) : nullptr;
 }
 
 int main(int argc, char *argv[])

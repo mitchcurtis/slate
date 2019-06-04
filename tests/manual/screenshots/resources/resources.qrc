@@ -11,5 +11,6 @@
         <file>ColourPanelMarkers.qml</file>
         <file>LayerPanelMarkers.qml</file>
         <file>SwatchPanelMarkers.qml</file>
+        <file>test-tileset.png</file>
     </qresource>
 </RCC>

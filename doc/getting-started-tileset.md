@@ -30,9 +30,9 @@ Now we've got an empty canvas.
 
 ![Default options](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-getting-started-3.png)
 
-In Slate, the editing process is: draw tiles, draw pixels on those tiles. By default, the tool mode is set to tiles ( ![](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-tool-mode-tile.png) ), so that all tools operate on tiles, rather than pixels.
+In Slate, the editing process is: draw tiles, draw pixels on those tiles. By default, the tool mode is set to tiles ( ![](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-toolbar-modeToolButton.png) ), so that all tools operate on tiles, rather than pixels.
 
-Let's use the pen tool ( ![](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-tool-pen.png) ) to draw a tile onto the canvas.
+Let's use the pen tool ( ![](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-toolbar-penToolButton.png) ) to draw a tile onto the canvas.
 
 ![Pen tool](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-getting-started-4.png)
 
@@ -56,7 +56,7 @@ To draw pixels, ensure that the tile mode tool button is unchecked. You can also
 
 ![Pen mode](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-getting-started-7.png)
 
-Using the same pen tool ( ![](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-tool-pen.png) ) that we used earlier, draw on the tile.
+Using the same pen tool ( ![](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-tool-penToolButton.png) ) that we used earlier, draw on the tile.
 
 ![Drawing pixels](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-getting-started-8.png)
 

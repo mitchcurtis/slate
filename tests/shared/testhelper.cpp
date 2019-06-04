@@ -35,8 +35,8 @@ TestHelper::TestHelper(int &argc, char **argv) :
     layeredImageProject(nullptr),
     imageCanvas(nullptr),
     tileCanvas(nullptr),
-    canvasSizeButton(nullptr),
-    imageSizeButton(nullptr),
+    canvasSizeToolButton(nullptr),
+    imageSizeToolButton(nullptr),
     modeToolButton(nullptr),
     penToolButton(nullptr),
     eyeDropperToolButton(nullptr),
@@ -48,8 +48,8 @@ TestHelper::TestHelper(int &argc, char **argv) :
     rotate90CwToolButton(nullptr),
     flipHorizontallyToolButton(nullptr),
     flipVerticallyToolButton(nullptr),
-    undoButton(nullptr),
-    redoButton(nullptr),
+    undoToolButton(nullptr),
+    redoToolButton(nullptr),
     penForegroundColourButton(nullptr),
     penBackgroundColourButton(nullptr),
     tilesetSwatchPanel(nullptr),
@@ -111,11 +111,14 @@ void TestHelper::initTestCase()
     layeredImageProject = qobject_cast<LayeredImageProject*>(project.data());
     QVERIFY(layeredImageProject);
 
-    canvasSizeButton = window->findChild<QQuickItem*>("canvasSizeButton");
-    QVERIFY(canvasSizeButton);
+    toolBar = window->findChild<QQuickItem*>("toolBar");
+    QVERIFY(toolBar);
 
-    imageSizeButton = window->findChild<QQuickItem*>("imageSizeButton");
-    QVERIFY(imageSizeButton);
+    canvasSizeToolButton = window->findChild<QQuickItem*>("canvasSizeToolButton");
+    QVERIFY(canvasSizeToolButton);
+
+    imageSizeToolButton = window->findChild<QQuickItem*>("imageSizeToolButton");
+    QVERIFY(imageSizeToolButton);
 
     modeToolButton = window->findChild<QQuickItem*>("modeToolButton");
     QVERIFY(modeToolButton);
@@ -153,11 +156,11 @@ void TestHelper::initTestCase()
     flipVerticallyToolButton = window->findChild<QQuickItem*>("flipVerticallyToolButton");
     QVERIFY(flipVerticallyToolButton);
 
-    undoButton = window->findChild<QQuickItem*>("undoButton");
-    QVERIFY(undoButton);
+    undoToolButton = window->findChild<QQuickItem*>("undoToolButton");
+    QVERIFY(undoToolButton);
 
-    redoButton = window->findChild<QQuickItem*>("redoButton");
-    QVERIFY(redoButton);
+    redoToolButton = window->findChild<QQuickItem*>("redoToolButton");
+    QVERIFY(redoToolButton);
 
     splitScreenToolButton = window->findChild<QQuickItem*>("splitScreenToolButton");
     QVERIFY(splitScreenToolButton);
@@ -286,7 +289,7 @@ bool TestHelper::clearAndEnterText(QQuickItem *textField, const QString &text)
 bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDialog)
 {
     // Open the canvas size popup.
-    mouseEventOnCentre(canvasSizeButton, MouseClick);
+    mouseEventOnCentre(canvasSizeToolButton, MouseClick);
     const QObject *canvasSizePopup = findPopupFromTypeName("CanvasSizePopup");
     VERIFY(canvasSizePopup);
     TRY_VERIFY2(canvasSizePopup->property("opened").toBool(), "Failed to open CanvasSizePopup");
@@ -316,7 +319,7 @@ bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDi
     VERIFY(canvas->hasActiveFocus());
 
     // Open the popup again.
-    mouseEventOnCentre(canvasSizeButton, MouseClick);
+    mouseEventOnCentre(canvasSizeToolButton, MouseClick);
     VERIFY(canvasSizePopup);
     TRY_VERIFY2(canvasSizePopup->property("opened").toBool(), "Failed to reopen CanvasSizePopup");
     // The old values should be restored.
@@ -349,7 +352,7 @@ bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDi
 bool TestHelper::changeImageSize(int width, int height)
 {
     // Open the image size popup.
-    mouseEventOnCentre(imageSizeButton, MouseClick);
+    mouseEventOnCentre(imageSizeToolButton, MouseClick);
     const QObject *imageSizePopup = findPopupFromTypeName("ImageSizePopup");
     VERIFY(imageSizePopup);
     VERIFY(imageSizePopup->property("visible").toBool());
@@ -378,7 +381,7 @@ bool TestHelper::changeImageSize(int width, int height)
     VERIFY(project->size().height() == originalHeightSpinBoxValue);
 
     // Open the popup again.
-    mouseEventOnCentre(imageSizeButton, MouseClick);
+    mouseEventOnCentre(imageSizeToolButton, MouseClick);
     VERIFY(imageSizePopup);
     VERIFY(imageSizePopup->property("visible").toBool());
     // The old values should be restored.
@@ -1506,7 +1509,8 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         // Now the New Tileset Project popup should be visible.
         TRY_VERIFY(findPopupFromTypeName("NewTilesetProjectPopup"));
         const QObject *newTilesetProjectPopup = findPopupFromTypeName("NewTilesetProjectPopup");
-        VERIFY(newTilesetProjectPopup->property("visible").toBool());
+        VERIFY2(newTilesetProjectPopup->property("visible").toBool(),
+            "NewTilesetProjectPopup should be visible after clicking the new project button");
 
         // Ensure that the popup gets reset each time it's opened.
         QQuickItem *useExistingTilesetCheckBox = newTilesetProjectPopup->findChild<QQuickItem*>("useExistingTilesetCheckBox");
@@ -1589,7 +1593,8 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         QQuickItem *okButton = newTilesetProjectPopup->findChild<QQuickItem*>("newTilesetProjectOkButton");
         VERIFY(okButton);
         mouseEventOnCentre(okButton, MouseClick);
-        VERIFY(!newTilesetProjectPopup->property("visible").toBool());
+        TRY_VERIFY2(!newTilesetProjectPopup->property("visible").toBool(),
+               "NewTilesetProjectPopup should not be visible after confirming project creation");
     } else {
         // Create a temporary directory that we can save into, etc.
         if (projectType == Project::LayeredImageType) {
@@ -1865,7 +1870,7 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     }
 
     // Sanity check.
-    TRY_VERIFY(canvas->window() == canvasSizeButton->window());
+    TRY_VERIFY(canvas->window() == canvasSizeToolButton->window());
     VERIFY(!canvas->splitter()->isPressed());
     VERIFY(!canvas->splitter()->isHovered());
 
@@ -1962,7 +1967,7 @@ bool TestHelper::copyFileFromResourcesToTempProjectDir(const QString &baseName)
 {
     QFile sourceFile(":/resources/" + baseName);
     VERIFY2(sourceFile.open(QIODevice::ReadOnly), qPrintable(QString::fromLatin1(
-        "Failed to open %1: %2").arg(sourceFile.fileName()).arg(sourceFile.errorString())));
+        "Failed to open %1 for copying to temp project dir: %2").arg(sourceFile.fileName()).arg(sourceFile.errorString())));
     const bool isEmpty = sourceFile.readAll().isEmpty();
     sourceFile.close();
 
@@ -1976,7 +1981,7 @@ bool TestHelper::copyFileFromResourcesToTempProjectDir(const QString &baseName)
         VERIFY(copiedFile.size() > 0);
     VERIFY(copiedFile.setPermissions(QFile::ReadUser | QFile::WriteUser));
     VERIFY2(copiedFile.open(QIODevice::ReadWrite), qPrintable(QString::fromLatin1(
-        "Error opening file at %1: %2").arg(saveFilePath).arg(copiedFile.errorString())));
+        "Error opening copied file at %1: %2").arg(saveFilePath).arg(copiedFile.errorString())));
     return true;
 }
 

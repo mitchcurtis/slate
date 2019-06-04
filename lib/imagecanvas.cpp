@@ -2419,8 +2419,10 @@ void ImageCanvas::updateWindowCursorShape()
             << "\n............ cursor shape" << Utils::enumToString(cursorShape);
     }
 
-    if (window())
+    if (window()) {
+//        qDebug() << cursorShape;
         window()->setCursor(QCursor(cursorShape));
+    }
 }
 
 void ImageCanvas::onZoomLevelChanged()
@@ -2982,7 +2984,13 @@ void ImageCanvas::focusInEvent(QFocusEvent *event)
     qCDebug(lcImageCanvasEvents) << "focusInEvent:" << event;
     QQuickItem::focusInEvent(event);
 
-    updateWindowCursorShape();
+    // When alt-tabbing away from and back to our window, we'd previously
+    // just call updateWindowCursorShape(). However, that alone isn't enough,
+    // as hoverLeaveEvent() calls setContainsMouse(false), which gets called
+    // when when the window loses focus.
+    // So, we check the position of the mouse manually and set it ourselves
+    // when the window regains focus.
+    setContainsMouse(contains(mapFromGlobal(QCursor::pos())));
 }
 
 void ImageCanvas::focusOutEvent(QFocusEvent *event)

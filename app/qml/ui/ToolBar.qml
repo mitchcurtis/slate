@@ -75,8 +75,8 @@ ToolBar {
         anchors.leftMargin: Math.round(toolSeparator.implicitWidth / 2)
 
         Ui.ToolButton {
-            id: canvasSizeButton
-            objectName: "canvasSizeButton"
+            id: canvasSizeToolButton
+            objectName: "canvasSizeToolButton"
             enabled: project && project.loaded
 
             icon.source: "qrc:/images/change-canvas-size.png"
@@ -88,8 +88,8 @@ ToolBar {
         }
 
         Ui.ToolButton {
-            id: imageSizeButton
-            objectName: "imageSizeButton"
+            id: imageSizeToolButton
+            objectName: "imageSizeToolButton"
             enabled: project && project.loaded && !isTilesetProject
 
             icon.source: "qrc:/images/change-image-size.png"
@@ -107,7 +107,7 @@ ToolBar {
             spacing: 5
 
             Ui.IconToolButton {
-                objectName: "undoButton"
+                objectName: "undoToolButton"
                 text: "\uf0e2"
                 enabled: project && canvas && (project.undoStack.canUndo || canvas.hasModifiedSelection)
 
@@ -117,7 +117,7 @@ ToolBar {
             }
 
             Ui.IconToolButton {
-                objectName: "redoButton"
+                objectName: "redoToolButton"
                 text: "\uf01e"
                 enabled: project && project.undoStack.canRedo
 

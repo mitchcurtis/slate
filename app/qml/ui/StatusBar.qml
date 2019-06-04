@@ -217,18 +217,19 @@ Pane {
             Layout.maximumHeight: 24
         }
 
-        FpsCounter {
+        Item {
+//        FpsCounter {
             id: fpsCounter
-            visible: settings.fpsVisible
+//            visible: settings.fpsVisible
 
-            Layout.minimumWidth: fpsMaxTextMetrics.width
-            Layout.maximumWidth: fpsMaxTextMetrics.width
+//            Layout.minimumWidth: fpsMaxTextMetrics.width
+//            Layout.maximumWidth: fpsMaxTextMetrics.width
 
-            TextMetrics {
-                id: fpsMaxTextMetrics
-                font: fpsCounter.font
-                text: "100 FPS"
-            }
+//            TextMetrics {
+//                id: fpsMaxTextMetrics
+//                font: fpsCounter.font
+//                text: "100 FPS"
+//            }
         }
 
         Item {

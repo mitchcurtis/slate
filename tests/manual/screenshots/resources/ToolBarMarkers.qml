@@ -27,10 +27,10 @@ Item {
 
     Repeater {
         model: [
-            "canvasSizeButton",
-            "imageSizeButton",
-            "undoButton",
-            "redoButton",
+            "canvasSizeToolButton",
+            "imageSizeToolButton",
+            "undoToolButton",
+            "redoToolButton",
             "modeToolButton",
             "penToolButton",
             "eyeDropperToolButton",
