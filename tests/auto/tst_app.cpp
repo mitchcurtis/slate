@@ -97,6 +97,7 @@ private Q_SLOTS:
     void zoomAndCentre();
     void penWhilePannedAndZoomed_data();
     void penWhilePannedAndZoomed();
+    void centrePanes();
     void useTilesetSwatch();
     void tilesetSwatchContextMenu();
     void tilesetSwatchNavigation();
@@ -2218,6 +2219,27 @@ void tst_App::penWhilePannedAndZoomed()
 //        QVERIFY2(imageProject->tileAt(cursorPos), qPrintable(QString::fromLatin1("No tile at x %1 y %2")
 //                                                               .arg(cursorPos.x()).arg(cursorPos.y())));
     }
+}
+
+void tst_App::centrePanes()
+{
+    QVERIFY2(createNewImageProject(), failureMessage);
+
+    QCOMPARE(canvas->isSplitScreen(), true);
+    QCOMPARE(canvas->firstPane()->size(), 0.5);
+    QCOMPARE(canvas->secondPane()->size(), 0.5);
+
+    CanvasPane *firstPane = canvas->firstPane();
+    CanvasPane *secondPane = canvas->secondPane();
+
+    QVERIFY2(panTopLeftTo(100, 100), failureMessage);
+    // zoomTo() wasn't working, so set the zoom levels manually.
+    firstPane->setZoomLevel(2);
+    secondPane->setZoomLevel(4);
+
+    QVERIFY2(triggerCentre(), failureMessage);
+    QCOMPARE(firstPane->integerOffset(), canvas->centredPaneOffset(0));
+    QCOMPARE(secondPane->integerOffset(), canvas->centredPaneOffset(1));
 }
 
 void tst_App::useTilesetSwatch()

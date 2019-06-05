@@ -205,6 +205,7 @@ public:
     CanvasPane *currentPane();
     Q_INVOKABLE CanvasPane *paneAt(int index);
     int paneWidth(int index) const;
+    QPoint centredPaneOffset(int paneIndex) const;
 
     QColor rulerForegroundColour() const;
     void setRulerForegroundColour(const QColor &foregroundColour) const;

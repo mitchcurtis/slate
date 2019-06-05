@@ -781,6 +781,13 @@ int ImageCanvas::paneWidth(int index) const
     return index == 0 ? mFirstPane.size() * width() : width() - mFirstPane.size() * width();
 }
 
+QPoint ImageCanvas::centredPaneOffset(int paneIndex) const
+{
+    const CanvasPane *pane = const_cast<ImageCanvas*>(this)->paneAt(paneIndex);
+    return QPoint(paneWidth(paneIndex) / 2 - (mProject->widthInPixels() * pane->integerZoomLevel()) / 2,
+        height() / 2 - (mProject->heightInPixels() * pane->integerZoomLevel()) / 2);
+}
+
 QColor ImageCanvas::rulerForegroundColour() const
 {
     return mFirstHorizontalRuler->foregroundColour();
@@ -1078,17 +1085,11 @@ void ImageCanvas::centrePanes(bool respectSceneCentred)
     if (!mProject)
         return;
 
-    if (!respectSceneCentred || (respectSceneCentred && mFirstPane.isSceneCentered())) {
-        const QPoint newOffset(paneWidth(0) / 2 - (mProject->widthInPixels() * mFirstPane.integerZoomLevel()) / 2,
-            height() / 2 - (mProject->heightInPixels() * mFirstPane.integerZoomLevel()) / 2);
-        mFirstPane.setIntegerOffset(newOffset);
-    }
+    if (!respectSceneCentred || (respectSceneCentred && mFirstPane.isSceneCentered()))
+        mFirstPane.setIntegerOffset(centredPaneOffset(0));
 
-    if (!respectSceneCentred || (respectSceneCentred && mSecondPane.isSceneCentered())) {
-        const QPoint newOffset(paneWidth(1) / 2 - (mProject->widthInPixels() * mFirstPane.integerZoomLevel()) / 2,
-            height() / 2 - (mProject->heightInPixels() * mFirstPane.integerZoomLevel()) / 2);
-        mSecondPane.setIntegerOffset(newOffset);
-    }
+    if (!respectSceneCentred || (respectSceneCentred && mSecondPane.isSceneCentered()))
+        mSecondPane.setIntegerOffset(centredPaneOffset(1));
 
     requestContentPaint();
 }
