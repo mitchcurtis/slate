@@ -109,6 +109,7 @@ ImageCanvas::ImageCanvas() :
     mMovingSelection(false),
     mIsSelectionFromPaste(false),
     mConfirmingSelectionModification(false),
+    mLastSelectionModificationBeforeImageAdjustment(NoSelectionModification),
     mSelectionCursorGuide(nullptr),
     mLastSelectionModification(NoSelectionModification),
     mHasModifiedSelection(false),
@@ -2250,7 +2251,7 @@ QPointF ImageCanvas::linePoint2() const
     return QPointF(mCursorSceneFX, mCursorSceneFY);
 }
 
-QRect ImageCanvas::normalisedLineRect(const QPointF point1, const QPointF point2) const
+QRect ImageCanvas::normalisedLineRect(const QPointF &point1, const QPointF &point2) const
 {
     // sqrt(2) is the ratio between the hypotenuse of a square and its side;
     // a simplification of Pythagoras’ theorem.

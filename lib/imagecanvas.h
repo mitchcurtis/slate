@@ -443,7 +443,7 @@ protected:
 
     QPointF linePoint1() const;
     QPointF linePoint2() const;
-    QRect normalisedLineRect(const QPointF point1, const QPointF point2) const;
+    QRect normalisedLineRect(const QPointF &point1, const QPointF &point2) const;
 
     virtual void updateCursorPos(const QPoint &eventPos);
     void updateVisibleSceneArea();
@@ -464,7 +464,7 @@ protected:
     CanvasPane *hoveredPane(const QPoint &pos);
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
     virtual QImage getContentImage();
-    void drawLine(QPainter *painter, QPointF point1, QPointF point2, const QPainter::CompositionMode mode) const;
+    void drawLine(QPainter *painter, QPointF point1, QPointF point2, QPainter::CompositionMode mode) const;
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,
