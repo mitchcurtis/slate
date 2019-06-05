@@ -62,14 +62,16 @@ Q_LOGGING_CATEGORY(lcApplication, "app.application")
 static QGuiApplication *createApplication(int &argc, char **argv, const QString &applicationName)
 {
     QLoggingCategory::setFilterRules("app.* = false");
+
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
+    QApplication::setOrganizationName("Mitch Curtis");
+    QApplication::setApplicationName(applicationName);
+    QApplication::setOrganizationDomain("mitchcurtis");
+    QApplication::setApplicationDisplayName("Slate - Pixel Art Editor");
+    QApplication::setApplicationVersion("0.0");
+
     QApplication *app = new QApplication(argc, argv);
-    app->setOrganizationName("Mitch Curtis");
-    app->setApplicationName(applicationName);
-    app->setOrganizationDomain("mitchcurtis");
-    app->setApplicationDisplayName("Slate - Pixel Art Editor");
-    app->setApplicationVersion("0.0");
     return app;
 }
 

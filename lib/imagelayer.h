@@ -37,7 +37,7 @@ class SLATE_EXPORT ImageLayer : public QObject
 public:
     ImageLayer();
     explicit ImageLayer(QObject *parent, const QImage &image = QImage());
-    ~ImageLayer();
+    ~ImageLayer() override;
 
     QString name() const;
     void setName(const QString &name);

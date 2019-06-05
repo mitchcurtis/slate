@@ -44,7 +44,7 @@ class SLATE_EXPORT TilesetProject : public Project
 
 public:
     TilesetProject();
-    ~TilesetProject();
+    ~TilesetProject() override;
 
     Type type() const override;
     int tilesWide() const;

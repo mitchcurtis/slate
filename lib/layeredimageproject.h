@@ -42,7 +42,7 @@ class SLATE_EXPORT LayeredImageProject : public Project
 
 public:
     LayeredImageProject();
-    ~LayeredImageProject();
+    ~LayeredImageProject() override;
 
     ImageLayer *currentLayer();
     int currentLayerIndex() const override;

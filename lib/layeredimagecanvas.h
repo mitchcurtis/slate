@@ -31,7 +31,7 @@ class SLATE_EXPORT LayeredImageCanvas : public ImageCanvas
 
 public:
     LayeredImageCanvas();
-    ~LayeredImageCanvas();
+    ~LayeredImageCanvas() override;
 
 signals:
 

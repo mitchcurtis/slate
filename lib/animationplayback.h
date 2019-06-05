@@ -46,7 +46,7 @@ class SLATE_EXPORT AnimationPlayback : public QObject
     Q_PROPERTY(bool playing READ isPlaying WRITE setPlaying NOTIFY playingChanged)
 
 public:
-    explicit AnimationPlayback(QObject *parent = 0);
+    explicit AnimationPlayback(QObject *parent = nullptr);
 
     int fps() const;
     void setFps(int fps);

@@ -37,7 +37,7 @@ class SLATE_EXPORT Splitter : public QObject
 
 public:
     explicit Splitter(ImageCanvas *canvas);
-    ~Splitter();
+    ~Splitter() override;
 
     bool isEnabled() const;
     void setEnabled(bool enabled);

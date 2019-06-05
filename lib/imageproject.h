@@ -34,7 +34,7 @@ class SLATE_EXPORT ImageProject : public Project
 
 public:
     ImageProject();
-    ~ImageProject();
+    ~ImageProject() override;
 
     QImage *image();
     const QImage *image() const;
@@ -44,7 +44,7 @@ public:
     void setSize(const QSize &newSize) override;
     int widthInPixels() const override;
     int heightInPixels() const override;
-    virtual QRect bounds() const override;
+    QRect bounds() const override;
 
     bool isUsingAnimation() const;
     void setUsingAnimation(bool isUsingAnimation);

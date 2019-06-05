@@ -36,8 +36,8 @@ class AutoSwatchWorker : public QObject
     Q_OBJECT
 
 public:
-    AutoSwatchWorker(QObject *parent = 0);
-    ~AutoSwatchWorker();
+    AutoSwatchWorker(QObject *parent = nullptr);
+    ~AutoSwatchWorker() override;
 
     Q_INVOKABLE void findUniqueColours(const QImage &image);
 
