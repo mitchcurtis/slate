@@ -823,8 +823,8 @@ QQuickItem *TestHelper::findSwatchViewDelegateAtIndex(int index)
 bool TestHelper::addSwatchWithForegroundColour()
 {
     // Roll back to the previous value in case of test failure.
+    const bool oldExpandedValue = swatchesPanel->property("expanded").toBool();
     Utils::ScopeGuard swatchPanelExpandedGuard([=](){
-        const bool oldExpandedValue = swatchesPanel->property("expanded").toBool();
         swatchesPanel->setProperty("expanded", oldExpandedValue);
     });
 
