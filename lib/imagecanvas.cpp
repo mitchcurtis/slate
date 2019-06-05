@@ -2031,7 +2031,7 @@ QImage ImageCanvas::fillPixels() const
     if (previousColour == penColour())
         return QImage();
 
-    return imagePixelFloodFill2(currentProjectImage(), scenePos, previousColour, penColour());
+    return imagePixelFloodFill(currentProjectImage(), scenePos, previousColour, penColour());
 }
 
 QImage ImageCanvas::greedyFillPixels() const
@@ -2044,7 +2044,7 @@ QImage ImageCanvas::greedyFillPixels() const
     if (previousColour == penColour())
         return QImage();
 
-    return imageGreedyPixelFill2(currentProjectImage(), scenePos, previousColour, penColour());
+    return imageGreedyPixelFill(currentProjectImage(), scenePos, previousColour, penColour());
 }
 
 QImage ImageCanvas::texturedFillPixels() const
