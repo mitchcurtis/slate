@@ -73,7 +73,7 @@ ApplyPixelLineCommand::~ApplyPixelLineCommand()
 void ApplyPixelLineCommand::undo()
 {
     qCDebug(lcApplyPixelLineCommand) << "undoing" << this;
-    for (auto const &subImageData : subImageDatas) {
+    for (auto const &subImageData : qAsConst(subImageDatas)) {
         mCanvas->applyPixelLineTool(mLayerIndex, subImageData.imageWithoutLine, subImageData.lineRect, mOldLastPixelPenReleaseScenePos);
     }
 }
@@ -81,7 +81,7 @@ void ApplyPixelLineCommand::undo()
 void ApplyPixelLineCommand::redo()
 {
     qCDebug(lcApplyPixelLineCommand) << "redoing" << this;
-    for (auto const &subImageData : subImageDatas) {
+    for (auto const &subImageData : qAsConst(subImageDatas)) {
         mCanvas->applyPixelLineTool(mLayerIndex, subImageData.imageWithLine, subImageData.lineRect, mNewLastPixelPenReleaseScenePos);
     }
 }

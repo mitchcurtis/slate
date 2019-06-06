@@ -142,7 +142,7 @@ void KeySequenceEditor::keyPressEvent(QKeyEvent *event)
                     << QKeySequence(event->key()) << " with modifiers" << modifiers
                     << "(" << QKeySequence(mKeysPressed[mCurrentKeyIndex - 1]) << ") to pressed keys";
 
-            const QKeySequence sequence(mKeysPressed[0], mKeysPressed[1], mKeysPressed[2], mKeysPressed[3]);
+            const QKeySequence sequence(mKeysPressed.at(0), mKeysPressed.at(1), mKeysPressed.at(2), mKeysPressed.at(3));
             setCurrentSequence(sequence.toString());
 
             if (mCurrentKeyIndex == mKeysPressed.size() - 1) {

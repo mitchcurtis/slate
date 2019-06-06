@@ -55,11 +55,11 @@ struct ImagePixelHash {
     }
 
     bool contains(const QPoint& point) {
-        return mData[getImageIndex(point)] == 1;
+        return mData.at(getImageIndex(point)) == 1;
     }
 
     int size() {
-        return static_cast<int>(std::count_if(mData.begin(), mData.end(), [](int index){ return index == 1;}));
+        return static_cast<int>(std::count_if(mData.constBegin(), mData.constEnd(), [](int index){ return index == 1;}));
     }
 
     const int mImageWidth;

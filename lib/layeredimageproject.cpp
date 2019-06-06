@@ -921,11 +921,11 @@ void LayeredImageProject::mergeLayers(int sourceIndex, int targetIndex)
 
 ImageLayer *LayeredImageProject::takeLayer(int index)
 {
-    preLayerRemoved(index);
+    emit preLayerRemoved(index);
 
     ImageLayer *layer = mLayers.takeAt(index);
 
-    postLayerRemoved(index);
+    emit postLayerRemoved(index);
 
     emit layerCountChanged();
 
