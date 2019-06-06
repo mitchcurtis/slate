@@ -29,7 +29,7 @@ QJsonValue strictValue(const QJsonObject &object, const QString &key)
     QString objectString;
     QDebug(&objectString) << object.toVariantMap();
     Q_ASSERT_X(object.contains(key), Q_FUNC_INFO, qPrintable(QString::fromLatin1(
-        "json object %1 doesn't contain key %2").arg(objectString).arg(key)));
+        "json object %1 doesn't contain key %2").arg(objectString, key)));
     return object[key];
 }
 

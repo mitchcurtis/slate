@@ -39,7 +39,6 @@
 #include "utils.h"
 
 TileCanvas::TileCanvas() :
-    ImageCanvas (),
     mTilesetProject(nullptr),
     mCursorTilePixelX(0),
     mCursorTilePixelY(0),
@@ -554,12 +553,12 @@ QColor TileCanvas::penColour() const
     return mMouseButtonPressed == Qt::LeftButton ? mPenForegroundColour : mPenBackgroundColour;
 }
 
-void TileCanvas::setHasBlankCursor(bool hasCustomCursor)
+void TileCanvas::setHasBlankCursor(bool hasBlankCursor)
 {
-    if (hasCustomCursor == mHasBlankCursor)
+    if (hasBlankCursor == mHasBlankCursor)
         return;
 
-    mHasBlankCursor = hasCustomCursor;
+    mHasBlankCursor = hasBlankCursor;
     emit hasBlankCursorChanged();
 }
 

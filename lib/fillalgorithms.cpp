@@ -97,7 +97,7 @@ QImage imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QC
         QPoint west = node;
         QPoint east = node;
 
-        while (1) {
+        while (true) {
             QPoint newWest = west - QPoint(1, 0);
             if (imageBounds.contains(newWest) && !filledPositions.contains(newWest) && image->pixelColor(newWest) == targetColour) {
                 west = newWest;
@@ -106,7 +106,7 @@ QImage imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QC
             }
         }
 
-        while (1) {
+        while (true) {
             QPoint newEast = east + QPoint(1, 0);
             if (imageBounds.contains(newEast) && !filledPositions.contains(newEast) && image->pixelColor(newEast) == targetColour) {
                 east = newEast;

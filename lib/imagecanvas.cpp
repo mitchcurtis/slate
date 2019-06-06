@@ -2501,12 +2501,12 @@ void ImageCanvas::setPenColourThroughEyedropper(const QColor &colour)
         setPenBackgroundColour(colour);
 }
 
-void ImageCanvas::setHasBlankCursor(bool hasCustomCursor)
+void ImageCanvas::setHasBlankCursor(bool hasBlankCursor)
 {
-    if (hasCustomCursor == mHasBlankCursor)
+    if (hasBlankCursor == mHasBlankCursor)
         return;
 
-    mHasBlankCursor = hasCustomCursor;
+    mHasBlankCursor = hasBlankCursor;
     emit hasBlankCursorChanged();
 }
 

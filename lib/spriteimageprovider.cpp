@@ -61,8 +61,8 @@ QImage SpriteImageProvider::requestImage(const QString &id, QSize *size, const Q
             return QImage();
     }
 
-    QHash<QString, QImage>::const_iterator it = mImages.find(imageFilename);
-    if (it == mImages.end()) {
+    QHash<QString, QImage>::const_iterator it = mImages.constFind(imageFilename);
+    if (it == mImages.constEnd()) {
         QImage image(imageFilename);
         if (image.isNull()) {
             qWarning() << "Failed to load image at" << imageFilename;
@@ -70,7 +70,7 @@ QImage SpriteImageProvider::requestImage(const QString &id, QSize *size, const Q
         }
 
         mImages.insert(imageFilename, image);
-        it = mImages.find(imageFilename);
+        it = mImages.constFind(imageFilename);
     }
 
     if (frameWidth == -2 || frameHeight == -2) {

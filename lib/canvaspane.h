@@ -58,7 +58,7 @@ public:
     QPoint zoomedOffset() const;
 
     bool isSceneCentered() const;
-    void setSceneCentered(bool isSceneCentered);
+    void setSceneCentered(bool sceneCentered);
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;

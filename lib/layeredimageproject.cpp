@@ -411,8 +411,8 @@ void LayeredImageProject::createNew(int imageWidth, int imageHeight, bool transp
 }
 
 #define CONTAINS_KEY_OR_ERROR(jsonObject, key, filePath) \
-    if (!jsonObject.contains(key)) { \
-        error(QString::fromLatin1("Layered image project file is missing a \"%1\" key:\n\n%2").arg(key).arg(filePath)); \
+    if (!(jsonObject).contains(key)) { \
+        error(QString::fromLatin1("Layered image project file is missing a \"%1\" key:\n\n%2").arg(key, filePath)); \
         return; \
     }
 
@@ -621,8 +621,9 @@ bool LayeredImageProject::exportImage(const QUrl &url)
         }
     }
 
-    const auto imagesToExport = flattenedImages();
-    foreach (const QString &key, imagesToExport.keys()) {
+    const QHash<QString, QImage> imagesToExport = flattenedImages();
+    const auto keys = imagesToExport.keys();
+    for (const QString &key : keys) {
         const QImage image = imagesToExport.value(key);
         const QString imageFilePath = key.isEmpty()
             ? mainExportFilePath : projectSaveFileInfo.dir().path() + "/" + key + ".png";
