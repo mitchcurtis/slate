@@ -784,8 +784,11 @@ int ImageCanvas::paneWidth(int index) const
 QPoint ImageCanvas::centredPaneOffset(int paneIndex) const
 {
     const CanvasPane *pane = const_cast<ImageCanvas*>(this)->paneAt(paneIndex);
-    return QPoint(paneWidth(paneIndex) / 2 - (mProject->widthInPixels() * pane->integerZoomLevel()) / 2,
-        height() / 2 - (mProject->heightInPixels() * pane->integerZoomLevel()) / 2);
+    const int paneXCentre = paneWidth(paneIndex) / 2;
+    const int imageXCentre = (mProject->widthInPixels() * pane->integerZoomLevel()) / 2;
+    const int paneYCentre = height() / 2;
+    const int imageYCentre = (mProject->heightInPixels() * pane->integerZoomLevel()) / 2;
+    return QPoint(paneXCentre - imageXCentre, paneYCentre - imageYCentre);
 }
 
 QColor ImageCanvas::rulerForegroundColour() const
