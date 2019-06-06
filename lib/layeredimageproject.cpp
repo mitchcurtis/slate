@@ -1,3 +1,5 @@
+#include <utility>
+
 /*
     Copyright 2017, Mitch Curtis
 
@@ -142,12 +144,12 @@ QRect LayeredImageProject::bounds() const
     return QRect(0, 0, ourSize.width(), ourSize.height());
 }
 
-QImage LayeredImageProject::flattenedImage(std::function<QImage(int)> layerSubstituteFunction) const
+QImage LayeredImageProject::flattenedImage(const std::function<QImage(int)> &layerSubstituteFunction) const
 {
     return flattenedImage(0, layerCount() - 1, layerSubstituteFunction);
 }
 
-QImage LayeredImageProject::flattenedImage(int fromIndex, int toIndex, std::function<QImage(int)> layerSubstituteFunction) const
+QImage LayeredImageProject::flattenedImage(int fromIndex, int toIndex, const std::function<QImage(int)> &layerSubstituteFunction) const
 {
     Q_ASSERT(isValidIndex(fromIndex));
     Q_ASSERT(isValidIndex(toIndex));

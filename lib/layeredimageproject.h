@@ -59,8 +59,8 @@ public:
     int heightInPixels() const override;
     QRect bounds() const override;
 
-    QImage flattenedImage(std::function<QImage(int)> layerSubstituteFunction = nullptr) const;
-    QImage flattenedImage(int fromIndex, int toIndex, std::function<QImage(int)> layerSubstituteFunction = nullptr) const;
+    QImage flattenedImage(const std::function<QImage(int)> &layerSubstituteFunction = nullptr) const;
+    QImage flattenedImage(int fromIndex, int toIndex, const std::function<QImage(int)> &layerSubstituteFunction = nullptr) const;
     QHash<QString, QImage> flattenedImages() const;
     QImage exportedImage() const override;
 
