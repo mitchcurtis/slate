@@ -293,7 +293,7 @@ Controls.MenuBar {
         MenuItem {
             objectName: "changeImageSizeMenuItem"
             text: qsTr("Image Size...")
-            enabled: canvas && projectType === Project.ImageType
+            enabled: isImageProjectType && canvas
             onTriggered: imageSizePopup.open()
         }
 
