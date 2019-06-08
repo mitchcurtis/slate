@@ -134,6 +134,15 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
         qWarning() << "Failed to load FontAwesome font";
     }
 
+    QTranslator translator;
+    const QLocale locale;
+    QDir translationsDir = QDir::current();
+    translationsDir.cdUp();
+    translationsDir.cd(QStringLiteral("Translations"));
+    if (translator.load(locale, QStringLiteral("slate_"), QString(), translationsDir.absolutePath())) {
+        mApplication->installTranslator(&translator);
+    }
+
 #if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
     QQmlFileSelector fileSelector(mEngine.data());
     fileSelector.setExtraSelectors(QStringList() << QLatin1String("nativemenubar"));
