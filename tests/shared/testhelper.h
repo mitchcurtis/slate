@@ -265,6 +265,7 @@ protected:
     QQuickItem *toolBar;
     QQuickItem *canvasSizeToolButton;
     QQuickItem *imageSizeToolButton;
+    QQuickItem *cropToSelectionToolButton;
     QQuickItem *modeToolButton;
     QQuickItem *penToolButton;
     QQuickItem *eyeDropperToolButton;

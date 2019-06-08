@@ -175,6 +175,19 @@ void ImageProject::resize(int width, int height, bool smooth)
     endMacro();
 }
 
+void ImageProject::crop(const QRect &rect)
+{
+    if (rect.x() == 0 && rect.y() == 0 && rect.size() == size()) {
+        // No change.
+        return;
+    }
+
+    beginMacro(QLatin1String("CropImageCanvas"));
+    const QImage resized = mImage.copy(rect);
+    addChange(new ChangeImageCanvasSizeCommand(this, mImage, resized));
+    endMacro();
+}
+
 QImage *ImageProject::image()
 {
     return &mImage;

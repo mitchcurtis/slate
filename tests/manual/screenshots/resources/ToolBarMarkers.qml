@@ -29,6 +29,7 @@ Item {
         model: [
             "canvasSizeToolButton",
             "imageSizeToolButton",
+            "cropToSelectionToolButton",
             "undoToolButton",
             "redoToolButton",
             "modeToolButton",

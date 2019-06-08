@@ -102,6 +102,7 @@ public slots:
 
     bool exportImage(const QUrl &url);
     void resize(int width, int height);
+    void crop(const QRect &rect);
     void moveContents(int x, int y, bool onlyVisibleContents);
 
     void addNewLayer();

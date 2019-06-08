@@ -645,8 +645,11 @@ void LayeredImageProject::resize(int width, int height)
         return;
 
     QVector<QImage> previousImages;
+    previousImages.reserve(mLayers.size());
     QVector<QImage> newImages;
-    foreach (ImageLayer *layer, mLayers) {
+    newImages.reserve(mLayers.size());
+
+    for (const ImageLayer *layer : qAsConst(mLayers)) {
         previousImages.append(*layer->image());
 
         const QImage resized = layer->image()->scaled(newSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
@@ -655,6 +658,30 @@ void LayeredImageProject::resize(int width, int height)
 
     beginMacro(QLatin1String("ChangeLayeredImageSize"));
     addChange(new ChangeLayeredImageSizeCommand(this, previousImages, newImages));
+    endMacro();
+}
+
+void LayeredImageProject::crop(const QRect &rect)
+{
+    if (rect.x() == 0 && rect.y() == 0 && rect.size() == size()) {
+        // No change.
+        return;
+    }
+
+    QVector<QImage> previousImages;
+    previousImages.reserve(mLayers.size());
+    QVector<QImage> newImages;
+    newImages.reserve(mLayers.size());
+
+    for (const ImageLayer *layer : qAsConst(mLayers)) {
+        previousImages.append(*layer->image());
+
+        const QImage cropped = layer->image()->copy(rect);
+        newImages.append(cropped);
+    }
+
+    beginMacro(QLatin1String("CropLayeredImageCanvas"));
+    addChange(new ChangeLayeredImageCanvasSizeCommand(this, previousImages, newImages));
     endMacro();
 }
 

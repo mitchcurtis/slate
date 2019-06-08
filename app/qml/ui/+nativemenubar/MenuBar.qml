@@ -281,6 +281,13 @@ Item {
                 onTriggered: imageSizePopup.open()
             }
 
+            Platform.MenuItem {
+                objectName: "cropToSelectionMenuItem"
+                text: qsTr("Crop to Selection")
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+                onTriggered: project.crop(canvas.selectionArea)
+            }
+
             Platform.MenuSeparator {}
 
             Platform.MenuItem {

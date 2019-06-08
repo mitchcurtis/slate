@@ -37,6 +37,7 @@ TestHelper::TestHelper(int &argc, char **argv) :
     tileCanvas(nullptr),
     canvasSizeToolButton(nullptr),
     imageSizeToolButton(nullptr),
+    cropToSelectionToolButton(nullptr),
     modeToolButton(nullptr),
     penToolButton(nullptr),
     eyeDropperToolButton(nullptr),
@@ -119,6 +120,9 @@ void TestHelper::initTestCase()
 
     imageSizeToolButton = window->findChild<QQuickItem*>("imageSizeToolButton");
     QVERIFY(imageSizeToolButton);
+
+    cropToSelectionToolButton = window->findChild<QQuickItem*>("cropToSelectionToolButton");
+    QVERIFY(cropToSelectionToolButton);
 
     modeToolButton = window->findChild<QQuickItem*>("modeToolButton");
     QVERIFY(modeToolButton);

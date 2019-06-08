@@ -69,7 +69,7 @@ ToolBar {
 
     Row {
         id: toolbarRow
-        enabled: canvas
+        enabled: canvas && project && project.loaded
         anchors.fill: parent
         // Make sure that we don't end up on a sub-pixel position.
         anchors.leftMargin: Math.round(toolSeparator.implicitWidth / 2)
@@ -77,7 +77,6 @@ ToolBar {
         Ui.ToolButton {
             id: canvasSizeToolButton
             objectName: "canvasSizeToolButton"
-            enabled: project && project.loaded
 
             icon.source: "qrc:/images/change-canvas-size.png"
 
@@ -90,7 +89,7 @@ ToolBar {
         Ui.ToolButton {
             id: imageSizeToolButton
             objectName: "imageSizeToolButton"
-            enabled: project && project.loaded && !isTilesetProject
+            enabled: !isTilesetProject
 
             icon.source: "qrc:/images/change-image-size.png"
 
@@ -98,6 +97,19 @@ ToolBar {
             ToolTip.visible: hovered && !imageSizePopup.visible
 
             onClicked: imageSizePopup.open()
+        }
+
+        Ui.ToolButton {
+            id: cropToSelectionToolButton
+            objectName: "cropToSelectionToolButton"
+            enabled: !isTilesetProject && canvas && canvas.hasSelection
+
+            icon.source: "qrc:/images/crop-to-selection.png"
+
+            ToolTip.text: qsTr("Crop the image to the current selection")
+            ToolTip.visible: hovered
+
+            onClicked: project.crop(canvas.selectionArea)
         }
 
         ToolSeparator {}

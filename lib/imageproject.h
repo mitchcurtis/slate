@@ -60,6 +60,7 @@ public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
 
     void resize(int width, int height, bool smooth);
+    void crop(const QRect &rect);
 
 protected:
     void doLoad(const QUrl &url) override;

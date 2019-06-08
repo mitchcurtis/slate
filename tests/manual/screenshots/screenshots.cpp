@@ -79,7 +79,7 @@ void tst_Screenshots::panels_data()
 {
     QTest::addColumn<QString>("projectFileName");
     QTest::addColumn<QString>("panelToMark");
-    QTest::addColumn<QStringList>("panelsToExpand");
+    QTest::addColumn<QStringList>("extraPanelsToExpand");
     QTest::addColumn<QString>("markersQmlFilePath");
     QTest::addColumn<QString>("outputFileName");
 
@@ -116,12 +116,20 @@ void tst_Screenshots::panels()
 {
     QFETCH(QString, projectFileName);
     QFETCH(QString, panelToMark);
-    QFETCH(QStringList, panelsToExpand);
+    QFETCH(QStringList, extraPanelsToExpand);
     QFETCH(QString, markersQmlFilePath);
     QFETCH(QString, outputFileName);
 
     // Ensure that we have a temporary directory.
     QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+
+    // Roll back to the previous value at the end of this test.
+    const QSize originalWindowSize = window->size();
+    Utils::ScopeGuard windowSizeGuard([=](){
+        window->resize(originalWindowSize);
+    });
+    // Set the optimal vertical size for the window for these screenshots.
+    window->resize(1000, 900);
 
     // Copy the project file from resources into our temporary directory.
     QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
@@ -132,7 +140,7 @@ void tst_Screenshots::panels()
 
     app.settings()->setAutoSwatchEnabled(true);
 
-    QVERIFY2(togglePanels(panelsToExpand, true), failureMessage);
+    QVERIFY2(togglePanels(extraPanelsToExpand, true), failureMessage);
 
     QQuickItem *panel = window->findChild<QQuickItem*>(panelToMark);
     QVERIFY(panel);
@@ -266,6 +274,11 @@ void tst_Screenshots::animation()
     // Ensure that we have a temporary directory.
     QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
 
+    // Roll back to the previous value at the end of this test.
+    const QSize originalWindowSize = window->size();
+    Utils::ScopeGuard windowSizeGuard([=](){
+        window->resize(originalWindowSize);
+    });
     // This is the optimal size for the window for the tutorial.
     window->resize(1401, 675);
 
@@ -290,11 +303,9 @@ void tst_Screenshots::animation()
 
     // Oepn the canvas size dialog.
     QVERIFY2(changeCanvasSize(216, 38, DoNotCloseDialog), failureMessage);
-    // Take a screenshot of it.
-    auto grabResult = window->contentItem()->grabToImage();
-    QTRY_VERIFY(!grabResult->image().isNull());
+    // Take a screenshot.
     screenshotPath = QLatin1String("slate-animation-tutorial-1.1.png");
-    QVERIFY(grabResult->image().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
     // Close it.
     QTest::keyClick(window, Qt::Key_Escape, Qt::NoModifier, 100);
     const QObject *canvasSizePopup = findPopupFromTypeName("CanvasSizePopup");
@@ -308,8 +319,6 @@ void tst_Screenshots::animation()
     QTest::mouseMove(window, cursorWindowPos);
     QQuickItem *canvasSizeToolButton = window->findChild<QQuickItem*>("canvasSizeToolButton");
     QVERIFY(canvasSizeToolButton);
-    // Can't seem to ensure that the tooltip is hidden using QQmlProperty, so we do it all hacky-like for now.
-//    QTest::qWait(500);
 
     QVERIFY2(triggerCloseProject(), failureMessage);
 

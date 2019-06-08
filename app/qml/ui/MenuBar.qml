@@ -297,6 +297,13 @@ Controls.MenuBar {
             onTriggered: imageSizePopup.open()
         }
 
+        MenuItem {
+            objectName: "cropToSelectionMenuItem"
+            text: qsTr("Crop to Selection")
+            enabled: isImageProjectType && canvas && canvas.hasSelection
+            onTriggered: project.crop(canvas.selectionArea)
+        }
+
         MenuSeparator {}
 
         MenuItem {

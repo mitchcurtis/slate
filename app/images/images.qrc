@@ -11,11 +11,16 @@
         <file>change-tool-size@3x.png</file>
         <file>change-tool-size@4x.png</file>
         <file>checker.png</file>
-        <file>circle-tool-shape.svg</file>
-        <file>circle-tool-shape@4x.png</file>
-        <file>circle-tool-shape@3x.png</file>
-        <file>circle-tool-shape@2x.png</file>
         <file>circle-tool-shape.png</file>
+        <file>circle-tool-shape.svg</file>
+        <file>circle-tool-shape@2x.png</file>
+        <file>circle-tool-shape@3x.png</file>
+        <file>circle-tool-shape@4x.png</file>
+        <file>crop-to-selection.png</file>
+        <file>crop-to-selection.svg</file>
+        <file>crop-to-selection@2x.png</file>
+        <file>crop-to-selection@3x.png</file>
+        <file>crop-to-selection@4x.png</file>
         <file>fill.png</file>
         <file>fill@2x.png</file>
         <file>fill@3X.png</file>
@@ -68,11 +73,11 @@
         <file>splitscreen@2x.png</file>
         <file>splitscreen@3x.png</file>
         <file>splitscreen@4x.png</file>
-        <file>square-tool-shape.svg</file>
-        <file>square-tool-shape@4x.png</file>
-        <file>square-tool-shape@3x.png</file>
-        <file>square-tool-shape@2x.png</file>
         <file>square-tool-shape.png</file>
+        <file>square-tool-shape.svg</file>
+        <file>square-tool-shape@2x.png</file>
+        <file>square-tool-shape@3x.png</file>
+        <file>square-tool-shape@4x.png</file>
         <file>textured-fill.png</file>
         <file>textured-fill@2x.png</file>
         <file>textured-fill@3x.png</file>

@@ -163,6 +163,8 @@ private Q_SLOTS:
     void hueSaturation();
     void opacityDialog_data();
     void opacityDialog();
+    void cropToSelection_data();
+    void cropToSelection();
 
     // Layers.
     void addAndRemoveLayers();
@@ -4533,6 +4535,47 @@ void tst_App::opacityDialog()
     QTest::keyClick(window, Qt::Key_Escape);
     QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage);
     QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), expectedImage);
+}
+
+void tst_App::cropToSelection_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::cropToSelection()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+
+    // Make comparing grabbed image pixels easier.
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
+
+    // Nothing selected, so the tool button shouldn't be enabled.
+    QVERIFY(!cropToSelectionToolButton->isEnabled());
+
+    const QRect cropRect(40, 40, 10, 10);
+
+    // Draw some pixels as markers to ensure that the crop worked.
+    setCursorPosInScenePixels(cropRect.x(), cropRect.y());
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+    setCursorPosInScenePixels(cropRect.x() + cropRect.width() - 1, cropRect.y() + cropRect.height() - 1);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    // Select an area.
+    QVERIFY2(selectArea(cropRect), failureMessage);
+    QVERIFY(cropToSelectionToolButton->isEnabled());
+
+    // Do the cropping.
+    mouseEventOnCentre(cropToSelectionToolButton, MouseClick);
+    QVERIFY(!cropToSelectionToolButton->isEnabled());
+
+    // Ensure the crop worked correctly.
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grab = imageGrabber.takeImage();
+    QCOMPARE(grab.pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(grab.pixelColor(cropRect.width() - 1, cropRect.width() - 1), QColor(Qt::black));
 }
 
 void tst_App::addAndRemoveLayers()
