@@ -118,6 +118,10 @@ Dialog {
                                 display: "English"
                             },
                             {
+                                value: "Norwegian",
+                                display: "Norsh"
+                            },
+                            {
                                 value: "Arabic",
                                 display: "العربيه"
                             }
