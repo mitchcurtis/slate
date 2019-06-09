@@ -110,7 +110,7 @@ Dialog {
                         objectName: "languageComboBox"
                         leftPadding: 0
                         textRole: "display"
-                        currentIndex: 0 // TODO(Ahmed): replace it with projectSetting
+                        currentIndex: indexForValue(settings.language)
 
                         model: [
                             {
@@ -124,6 +124,13 @@ Dialog {
                         ]
 
                         Layout.fillWidth: true
+                        function indexForValue(value) {
+                            for (var i = 0; i < model.length; ++i) {
+                                if (model[i].value === value)
+                                    return i;
+                            }
+                            return -1;
+                        }
                     }
 
                     Label {
