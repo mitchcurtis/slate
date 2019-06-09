@@ -102,7 +102,7 @@ void CanvasPaneItem::itemChange(QQuickItem::ItemChange change, const QQuickItem:
             disconnectFromCanvas();
     }
 
-    QQuickItem::itemChange(change, value);
+    QQuickPaintedItem::itemChange(change, value);
 }
 
 void CanvasPaneItem::connectToCanvas()

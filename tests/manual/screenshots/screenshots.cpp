@@ -35,50 +35,20 @@ class tst_Screenshots : public TestHelper
 public:
     tst_Screenshots(int &argc, char **argv);
 
-    Q_INVOKABLE QObject *findAnyChild(QObject *parent, const QString &objectName)
-    {
-        // First, search the visual item hierarchy.
-        QObject *child = findItemChild(parent, objectName);
-        if (child)
-            return child;
-
-        // If it's not a visual child, it might be a QObject child.
-        return parent ? parent->findChild<QObject*>(objectName) : nullptr;
-    }
+    Q_INVOKABLE QObject *findAnyChild(QObject *parent, const QString &objectName);
 
 private Q_SLOTS:
     void cleanup();
+
     void panels_data();
     void panels();
-    void toolBar();
+    void toolBarFull();
+    void toolBarIcons();
     void animation();
 
 private:
-    QObject *findItemChild(QObject *parent, const QString &objectName)
-    {
-        if (!parent)
-            return nullptr;
-
-        QQuickItem *parentItem = qobject_cast<QQuickItem*>(parent);
-        if (!parentItem)
-            return nullptr;
-
-        auto childItems = parentItem->childItems();
-        for (int i = 0; i < childItems.size(); ++i) {
-            // Is this direct child of ours the child we're after?
-            QQuickItem *child = childItems.at(i);
-            if (child->objectName() == objectName)
-                return child;
-        }
-
-        for (int i = 0; i < childItems.size(); ++i) {
-            // Try the direct child's children.
-            auto child = findItemChild(childItems.at(i), objectName);
-            if (child)
-                return child;
-        }
-        return nullptr;
-    }
+    QString makeImagePath(const QString &contentName);
+    QObject *findItemChild(QObject *parent, const QString &objectName);
 
     QDir mOutputDirectory;
 };
@@ -109,36 +79,36 @@ void tst_Screenshots::panels_data()
 {
     QTest::addColumn<QString>("projectFileName");
     QTest::addColumn<QString>("panelToMark");
-    QTest::addColumn<QStringList>("panelsToExpand");
+    QTest::addColumn<QStringList>("extraPanelsToExpand");
     QTest::addColumn<QString>("markersQmlFilePath");
     QTest::addColumn<QString>("outputFileName");
 
     QTest::addRow("colour")
-        << QString::fromLatin1("animation.slp")
+        << QString::fromLatin1("animation-panel.slp")
         << QString::fromLatin1("colourPanel")
         << (QStringList() << QLatin1String("layerPanel"))
-        << QString::fromLatin1(":/resources/ColourMarkers.qml")
+        << QString::fromLatin1(":/resources/ColourPanelMarkers.qml")
         << QString::fromLatin1("slate-colour-panel.png");
 
     QTest::addRow("swatch")
-        << QString::fromLatin1("animation.slp")
+        << QString::fromLatin1("animation-panel.slp")
         << QString::fromLatin1("swatchesPanel")
         << (QStringList() << QLatin1String("colourPanel"))
-        << QString::fromLatin1(":/resources/SwatchMarkers.qml")
+        << QString::fromLatin1(":/resources/SwatchPanelMarkers.qml")
         << QString::fromLatin1("slate-swatches-panel.png");
 
     QTest::addRow("layers")
-        << QString::fromLatin1("animation.slp")
+        << QString::fromLatin1("animation-panel.slp")
         << QString::fromLatin1("layerPanel")
         << (QStringList() << QLatin1String("colourPanel"))
-        << QString::fromLatin1(":/resources/LayerMarkers.qml")
+        << QString::fromLatin1(":/resources/LayerPanelMarkers.qml")
         << QString::fromLatin1("slate-layers-panel.png");
 
     QTest::addRow("animation")
-        << QString::fromLatin1("animation.slp")
+        << QString::fromLatin1("animation-panel.slp")
         << QString::fromLatin1("animationPanel")
         << (QStringList() << QLatin1String("colourPanel") << QLatin1String("layerPanel"))
-        << QString::fromLatin1(":/resources/AnimationMarkers.qml")
+        << QString::fromLatin1(":/resources/AnimationPanelMarkers.qml")
         << QString::fromLatin1("slate-animation-panel.png");
 }
 
@@ -146,12 +116,20 @@ void tst_Screenshots::panels()
 {
     QFETCH(QString, projectFileName);
     QFETCH(QString, panelToMark);
-    QFETCH(QStringList, panelsToExpand);
+    QFETCH(QStringList, extraPanelsToExpand);
     QFETCH(QString, markersQmlFilePath);
     QFETCH(QString, outputFileName);
 
     // Ensure that we have a temporary directory.
     QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+
+    // Roll back to the previous value at the end of this test.
+    const QSize originalWindowSize = window->size();
+    Utils::ScopeGuard windowSizeGuard([=](){
+        window->resize(originalWindowSize);
+    });
+    // Set the optimal vertical size for the window for these screenshots.
+    window->resize(1000, 900);
 
     // Copy the project file from resources into our temporary directory.
     QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
@@ -162,7 +140,7 @@ void tst_Screenshots::panels()
 
     app.settings()->setAutoSwatchEnabled(true);
 
-    QVERIFY2(togglePanels(panelsToExpand, true), failureMessage);
+    QVERIFY2(togglePanels(extraPanelsToExpand, true), failureMessage);
 
     QQuickItem *panel = window->findChild<QQuickItem*>(panelToMark);
     QVERIFY(panel);
@@ -190,7 +168,7 @@ void tst_Screenshots::panels()
     QVERIFY(grabResult->image().save(mOutputDirectory.absoluteFilePath(outputFileName)));
 }
 
-void tst_Screenshots::toolBar()
+void tst_Screenshots::toolBarFull()
 {
     // Ensure that we have a temporary directory.
     QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
@@ -252,11 +230,55 @@ void tst_Screenshots::toolBar()
     splitterBar->setOpacity(1);
 }
 
+void tst_Screenshots::toolBarIcons()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    // Enable selection-related tool buttons to make their icons easier to see.
+    QVERIFY2(selectArea(QRect(0, 0, 30, 30)), failureMessage);
+
+    const QRegularExpression toolButtonRegex(QString::fromLatin1(".*ToolButton"));
+    QSet<QQuickItem*> toolButtonsGrabbed;
+
+    auto grabToolButtonImages = [=, &toolButtonsGrabbed](){
+        const auto toolButtons = toolBar->findChildren<QQuickItem*>(toolButtonRegex);
+        for (QQuickItem *toolButton : qAsConst(toolButtons)) {
+            if (toolButtonsGrabbed.contains(toolButton) || !toolButton->isVisible())
+                continue;
+
+            // We want the tool bar's background because otherwise we just get icons on a transparent background.
+            auto grabResult = window->contentItem()->grabToImage();
+            QTRY_VERIFY(!grabResult->image().isNull());
+            const int imageSize = 24;
+            const QRectF imageRect((toolButton->width() - imageSize) / 2,
+                (toolButton->height() - imageSize) / 2, imageSize, imageSize);
+            const QRectF toolButtonSceneRect = toolButton->mapRectToScene(imageRect);
+            const QImage toolBarGrab = grabResult->image().copy(toolButtonSceneRect.toRect());
+            const QString imagePath = makeImagePath(QLatin1String("toolbar-") + toolButton->objectName());
+            QVERIFY(toolBarGrab.save(imagePath));
+
+            toolButtonsGrabbed.insert(toolButton);
+        }
+    };
+
+    // Grab the tool buttons that are visible for image/layer projects.
+    grabToolButtonImages();
+
+    // Now grab the buttons that are only visible for tileset projects.
+    QVERIFY2(createNewTilesetProject(), failureMessage);
+    grabToolButtonImages();
+}
+
 void tst_Screenshots::animation()
 {
     // Ensure that we have a temporary directory.
     QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
 
+    // Roll back to the previous value at the end of this test.
+    const QSize originalWindowSize = window->size();
+    Utils::ScopeGuard windowSizeGuard([=](){
+        window->resize(originalWindowSize);
+    });
     // This is the optimal size for the window for the tutorial.
     window->resize(1401, 675);
 
@@ -281,11 +303,9 @@ void tst_Screenshots::animation()
 
     // Oepn the canvas size dialog.
     QVERIFY2(changeCanvasSize(216, 38, DoNotCloseDialog), failureMessage);
-    // Take a screenshot of it.
-    auto grabResult = window->contentItem()->grabToImage();
-    QTRY_VERIFY(!grabResult->image().isNull());
+    // Take a screenshot.
     screenshotPath = QLatin1String("slate-animation-tutorial-1.1.png");
-    QVERIFY(grabResult->image().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
     // Close it.
     QTest::keyClick(window, Qt::Key_Escape, Qt::NoModifier, 100);
     const QObject *canvasSizePopup = findPopupFromTypeName("CanvasSizePopup");
@@ -297,10 +317,8 @@ void tst_Screenshots::animation()
     QVERIFY(toolBar);
     setCursorPosInPixels(QPoint(10, toolBar->height() + 100));
     QTest::mouseMove(window, cursorWindowPos);
-    QQuickItem *canvasSizeButton = window->findChild<QQuickItem*>("canvasSizeButton");
-    QVERIFY(canvasSizeButton);
-    // Can't seem to ensure that the tooltip is hidden using QQmlProperty, so we do it all hacky-like for now.
-//    QTest::qWait(500);
+    QQuickItem *canvasSizeToolButton = window->findChild<QQuickItem*>("canvasSizeToolButton");
+    QVERIFY(canvasSizeToolButton);
 
     QVERIFY2(triggerCloseProject(), failureMessage);
 
@@ -366,6 +384,48 @@ void tst_Screenshots::animation()
     QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);
 
     QVERIFY2(triggerCloseProject(), failureMessage);
+}
+
+QString tst_Screenshots::tst_Screenshots::makeImagePath(const QString &contentName)
+{
+    return mOutputDirectory.absoluteFilePath(QLatin1String("slate-") + contentName + QLatin1String(".png"));
+}
+
+QObject *tst_Screenshots::findItemChild(QObject *parent, const QString &objectName)
+{
+    if (!parent)
+        return nullptr;
+
+    QQuickItem *parentItem = qobject_cast<QQuickItem*>(parent);
+    if (!parentItem)
+        return nullptr;
+
+    auto childItems = parentItem->childItems();
+    for (int i = 0; i < childItems.size(); ++i) {
+        // Is this direct child of ours the child we're after?
+        QQuickItem *child = childItems.at(i);
+        if (child->objectName() == objectName)
+            return child;
+    }
+
+    for (int i = 0; i < childItems.size(); ++i) {
+        // Try the direct child's children.
+        auto child = findItemChild(childItems.at(i), objectName);
+        if (child)
+            return child;
+    }
+    return nullptr;
+}
+
+QObject *tst_Screenshots::findAnyChild(QObject *parent, const QString &objectName)
+{
+    // First, search the visual item hierarchy.
+    QObject *child = findItemChild(parent, objectName);
+    if (child)
+        return child;
+
+    // If it's not a visual child, it might be a QObject child.
+    return parent ? parent->findChild<QObject*>(objectName) : nullptr;
 }
 
 int main(int argc, char *argv[])

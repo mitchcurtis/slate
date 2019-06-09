@@ -63,6 +63,8 @@ Dialog {
 
     header: TabBar {
         id: tabBar
+        // For the Universal style.
+        clip: true
 
         TabButton {
             objectName: "generalTabButton"

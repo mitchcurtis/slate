@@ -41,7 +41,7 @@ class SLATE_EXPORT LayeredImageProject : public Project
 
 public:
     LayeredImageProject();
-    ~LayeredImageProject();
+    ~LayeredImageProject() override;
 
     ImageLayer *currentLayer();
     int currentLayerIndex() const override;
@@ -58,8 +58,8 @@ public:
     int heightInPixels() const override;
     QRect bounds() const override;
 
-    QImage flattenedImage(std::function<QImage(int)> layerSubstituteFunction = nullptr) const;
-    QImage flattenedImage(int fromIndex, int toIndex, std::function<QImage(int)> layerSubstituteFunction = nullptr) const;
+    QImage flattenedImage(const std::function<QImage(int)> &layerSubstituteFunction = nullptr) const;
+    QImage flattenedImage(int fromIndex, int toIndex, const std::function<QImage(int)> &layerSubstituteFunction = nullptr) const;
     QHash<QString, QImage> flattenedImages() const;
     QImage exportedImage() const override;
 
@@ -97,6 +97,7 @@ public slots:
 
     bool exportImage(const QUrl &url);
     void resize(int width, int height);
+    void crop(const QRect &rect);
     void moveContents(int x, int y, bool onlyVisibleContents);
 
     void addNewLayer();

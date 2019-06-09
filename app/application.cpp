@@ -63,14 +63,16 @@ Q_LOGGING_CATEGORY(lcApplication, "app.application")
 static QGuiApplication *createApplication(int &argc, char **argv, const QString &applicationName)
 {
     QLoggingCategory::setFilterRules("app.* = false");
+
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
+    QApplication::setOrganizationName("Mitch Curtis");
+    QApplication::setApplicationName(applicationName);
+    QApplication::setOrganizationDomain("mitchcurtis");
+    QApplication::setApplicationDisplayName("Slate - Pixel Art Editor");
+    QApplication::setApplicationVersion("0.0");
+
     QApplication *app = new QApplication(argc, argv);
-    app->setOrganizationName("Mitch Curtis");
-    app->setApplicationName(applicationName);
-    app->setOrganizationDomain("mitchcurtis");
-    app->setApplicationDisplayName("Slate - Pixel Art Editor");
-    app->setApplicationVersion("0.0");
     return app;
 }
 
@@ -132,6 +134,15 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
 
     if (QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf") == -1) {
         qWarning() << "Failed to load FontAwesome font";
+    }
+
+    QTranslator translator;
+    const QLocale locale;
+    QDir translationsDir = QDir::current();
+    translationsDir.cdUp();
+    translationsDir.cd(QStringLiteral("Translations"));
+    if (translator.load(locale, QStringLiteral("slate_"), QString(), translationsDir.absolutePath())) {
+        mApplication->installTranslator(&translator);
     }
 
 #if defined(Q_OS_WIN) || defined(Q_OS_MACOS)

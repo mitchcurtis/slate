@@ -97,6 +97,7 @@ private Q_SLOTS:
     void zoomAndCentre();
     void penWhilePannedAndZoomed_data();
     void penWhilePannedAndZoomed();
+    void centrePanes();
     void useTilesetSwatch();
     void tilesetSwatchContextMenu();
     void tilesetSwatchNavigation();
@@ -162,6 +163,8 @@ private Q_SLOTS:
     void hueSaturation();
     void opacityDialog_data();
     void opacityDialog();
+    void cropToSelection_data();
+    void cropToSelection();
 
     // Layers.
     void addAndRemoveLayers();
@@ -623,7 +626,7 @@ void tst_App::loadLayeredImageProjectAfterTilesetProject()
     QVERIFY(layersLoader);
     QVERIFY(swatchesPanel);
     const int splitViewHandleSize = 6;
-    QCOMPARE(layersLoader->y(), swatchesPanel->y() + swatchesPanel->height() + splitViewHandleSize);
+    QTRY_COMPARE(layersLoader->y(), swatchesPanel->y() + swatchesPanel->height() + splitViewHandleSize);
 }
 
 void tst_App::loadInvalidProjects_data()
@@ -1110,7 +1113,7 @@ void tst_App::undoPixels()
     QVERIFY(tilesetProject->hasUnsavedChanges());
     QVERIFY(window->title().contains("*"));
 
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(*tilesetProject->tileAt(cursorPos)->tileset()->image(), originalImage);
     // Still have the tile pen changes.
     QVERIFY(tilesetProject->hasUnsavedChanges());
@@ -1183,7 +1186,7 @@ void tst_App::undoLargePixelPen()
     QCOMPARE(tilesetProject->tileAt(sceneBottomRight)->pixelColor(halfToolSize - 1, halfToolSize - 1), QColor(Qt::black));
 
     // Undo the change and check that it worked.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
 
     QCOMPARE(*tilesetProject->tileset()->image(), originalTilesetImage);
 }
@@ -1218,7 +1221,7 @@ void tst_App::undoTiles()
     QVERIFY(tilesetProject->tileAt(cursorPos));
     // The macro isn't finished until a release event occurs, and hence
     // we can't undo yet.
-    QVERIFY(!undoButton->isEnabled());
+    QVERIFY(!undoToolButton->isEnabled());
     QVERIFY(tilesetProject->hasUnsavedChanges());
     QVERIFY(!window->title().contains("*"));
 
@@ -1238,12 +1241,12 @@ void tst_App::undoTiles()
     lastTile = tilesetProject->tileAt(cursorPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(tilesetProject->tileAt(cursorPos), lastTile);
-    QVERIFY(undoButton->isEnabled());
+    QVERIFY(undoToolButton->isEnabled());
     QVERIFY(tilesetProject->hasUnsavedChanges());
     QVERIFY(window->title().contains("*"));
 
     // Test the undo button.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QVERIFY(!tilesetProject->tileAt(cursorPos));
     QVERIFY(!tilesetProject->tileAt(cursorPos - QPoint(0, tilesetProject->tileHeight())));
     QVERIFY(!tilesetProject->hasUnsavedChanges());
@@ -1266,7 +1269,7 @@ void tst_App::undoTiles()
     // Test reverting.
     QVERIFY2(triggerRevert(), failureMessage);
     QVERIFY(!tilesetProject->tileAt(cursorPos));
-    QVERIFY(!undoButton->isEnabled());
+    QVERIFY(!undoToolButton->isEnabled());
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(!window->title().contains("*"));
 }
@@ -1322,7 +1325,7 @@ void tst_App::undoWithDuplicates()
     QVERIFY(tilesetProject->hasUnsavedChanges());
     QVERIFY(window->title().contains("*"));
 
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(*tilesetProject->tileAt(cursorPos)->tileset()->image(), originalImage);
     // Still have the tile change.
     QVERIFY(tilesetProject->hasUnsavedChanges());
@@ -1356,7 +1359,7 @@ void tst_App::undoWithDuplicates()
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(tilesetProject->tileAt(cursorPos)->pixelColor(cursorPos - QPoint(tilesetProject->tileWidth(), 0)), tileCanvas->penForegroundColour());
 
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(*tilesetProject->tileAt(cursorPos)->tileset()->image(), originalImage);
     // Still have the tile change.
     QVERIFY(tilesetProject->hasUnsavedChanges());
@@ -1394,18 +1397,18 @@ void tst_App::undoTilesetCanvasSizeChange()
     QTRY_VERIFY(imageGrabber.isReady());
     QVERIFY(imageGrabber.takeImage() != preSizeChangeCanvasSnapshot);
 
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(tilesetProject->tiles(), originalTiles);
     QCOMPARE(tilesetProject->tiles().size(), 10 * 10);
 
     // Check that neither of the following assert.
     QVERIFY2(changeCanvasSize(10, 9), failureMessage);
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(tilesetProject->tiles(), originalTiles);
     QCOMPARE(tilesetProject->tiles().size(), 10 * 10);
 
     QVERIFY2(changeCanvasSize(9, 10), failureMessage);
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(tilesetProject->tiles(), originalTiles);
     QCOMPARE(tilesetProject->tiles().size(), 10 * 10);
 
@@ -1438,7 +1441,7 @@ void tst_App::undoImageCanvasSizeChange()
     QVERIFY(imageGrabber.takeImage() != preSizeChangeCanvasSnapshot);
 
     // Undo it.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(imageProject->image()->size(), QSize(256, 256));
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -1479,7 +1482,7 @@ void tst_App::undoImageSizeChange()
     QVERIFY(preUndoSnapshot != preSizeChangeCanvasSnapshot);
 
     // Undo the size change.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
 
     QCOMPARE(imageProject->image()->size(), QSize(12, 12));
     QCOMPARE(imageProject->image()->pixelColor(QPoint(0, 0)), imageCanvas->penForegroundColour());
@@ -1546,7 +1549,7 @@ void tst_App::undoLayeredImageSizeChange()
     QVERIFY(preUndoSnapshot != preSizeChangeCanvasSnapshot);
 
     // Undo the size change.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
 
     QCOMPARE(layer1->image()->size(), QSize(12, 12));
     QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::black));
@@ -1619,7 +1622,7 @@ void tst_App::undoPixelFill()
     QCOMPARE(targetTile->pixelColor(0, 1), red);
 
     // Undo it.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(targetTile->pixelColor(0, 0), black);
     QCOMPARE(targetTile->pixelColor(1, 0), black);
     QCOMPARE(targetTile->pixelColor(1, 1), black);
@@ -1658,7 +1661,7 @@ void tst_App::undoTileFill()
     QCOMPARE(tilesetProject->tileAtTilePos(QPoint(1, 0)), replacementTile);
 
     // Undo it.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(tilesetProject->tileAtTilePos(QPoint(0, 0)), targetTile);
     QCOMPARE(tilesetProject->tileAtTilePos(QPoint(1, 0)), targetTile);
 }
@@ -1678,7 +1681,7 @@ void tst_App::undoThickSquarePen()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 1), QColor(Qt::black));
 
     // Undo it.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 0), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
@@ -1698,7 +1701,7 @@ void tst_App::undoThickSquarePen()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 2), QColor(Qt::black));
 
     // Undo it.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 0), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 2), QColor(Qt::white));
@@ -1724,7 +1727,7 @@ void tst_App::undoThickRoundPen()
     QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 4, 4)), expectedClickImage);
 
     // Undo it.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 4, 4)), undoneImage);
 
     QImage expectedDragImage(":/resources/undoThickRoundPen-2.png");
@@ -1742,7 +1745,7 @@ void tst_App::undoThickRoundPen()
     QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 5, 5)), expectedDragImage);
 
     // Undo it.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 5, 5)), undoneImage);
 }
 
@@ -2260,6 +2263,27 @@ void tst_App::penWhilePannedAndZoomed()
     }
 }
 
+void tst_App::centrePanes()
+{
+    QVERIFY2(createNewImageProject(), failureMessage);
+
+    QCOMPARE(canvas->isSplitScreen(), true);
+    QCOMPARE(canvas->firstPane()->size(), 0.5);
+    QCOMPARE(canvas->secondPane()->size(), 0.5);
+
+    CanvasPane *firstPane = canvas->firstPane();
+    CanvasPane *secondPane = canvas->secondPane();
+
+    QVERIFY2(panTopLeftTo(100, 100), failureMessage);
+    // zoomTo() wasn't working, so set the zoom levels manually.
+    firstPane->setZoomLevel(2);
+    secondPane->setZoomLevel(4);
+
+    QVERIFY2(triggerCentre(), failureMessage);
+    QCOMPARE(firstPane->integerOffset(), canvas->centredPaneOffset(0));
+    QCOMPARE(secondPane->integerOffset(), canvas->centredPaneOffset(1));
+}
+
 void tst_App::useTilesetSwatch()
 {
     QVERIFY2(createNewTilesetProject(), failureMessage);
@@ -2664,7 +2688,7 @@ void tst_App::fillLayeredImageCanvas()
     QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
 
     // Undo. It should affect layer 1.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(layer1->image()->pixelColor(255, 255), QColor(Qt::white));
     QCOMPARE(layer2->image()->pixelColor(0, 0), QColor(Qt::transparent));
@@ -2710,7 +2734,7 @@ void tst_App::greedyPixelFillImageCanvas()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 35), QColor(Qt::blue));
 
     // Undo it.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 4), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 35), QColor(Qt::black));
@@ -2814,30 +2838,54 @@ void tst_App::pixelLineToolImageCanvas()
 
     QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
 
+    QQuickItem *lineLengthLabel = window->findChild<QQuickItem*>("lineLengthLabel");
+    QVERIFY(lineLengthLabel);
+    QQuickItem *lineAngleLabel = window->findChild<QQuickItem*>("lineAngleLabel");
+    QVERIFY(lineAngleLabel);
+
     // Draw the start of the line.
     setCursorPosInScenePixels(0, 0);
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+    QCOMPARE(canvas->isLineVisible(), false);
+    QCOMPARE(lineLengthLabel->isVisible(), false);
+    QCOMPARE(lineAngleLabel->isVisible(), false);
+
+    // Hold shift to start the line-drawing process and
+    // get the line length/angle labels visible.
+    QTest::keyPress(window, Qt::Key_Shift);
+    QCOMPARE(canvas->isLineVisible(), true);
+    QCOMPARE(lineLengthLabel->isVisible(), true);
+    QCOMPARE(lineAngleLabel->isVisible(), true);
+    QCOMPARE(lineLengthLabel->property("text").toString(), "0");
+    QCOMPARE(lineAngleLabel->property("text").toString(), "0.00");
 
     // Draw the line itself.
     setCursorPosInScenePixels(2, 2);
     QTest::mouseMove(window, cursorWindowPos);
-    QTest::keyPress(window, Qt::Key_Shift);
+    QCOMPARE(lineLengthLabel->property("text").toString(), "2");
+    QCOMPARE(lineAngleLabel->property("text").toString(), "315.00");
     // For some reason there must be a delay in order for the shift modifier to work.
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
+    QCOMPARE(canvas->isLineVisible(), true);
+    QCOMPARE(lineLengthLabel->isVisible(), true);
+    QCOMPARE(lineAngleLabel->isVisible(), true);
     QTest::keyRelease(window, Qt::Key_Shift);
+    QCOMPARE(canvas->isLineVisible(), false);
+    QCOMPARE(lineLengthLabel->isVisible(), false);
+    QCOMPARE(lineAngleLabel->isVisible(), false);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
 
     // Undo the line.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     // The initial press has to still be there.
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
 
     // Redo the line.
-    mouseEventOnCentre(redoButton, MouseClick);
+    mouseEventOnCentre(redoToolButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
@@ -2855,7 +2903,7 @@ void tst_App::pixelLineToolImageCanvas()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 4), QColor(Qt::black));
 
     // Undo the second line.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
@@ -2863,14 +2911,14 @@ void tst_App::pixelLineToolImageCanvas()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 4), QColor(Qt::white));
 
     // Undo the first line.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     // The initial press has to still be there.
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
 
     // Undo the inital press.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(project->hasUnsavedChanges(), false);
 }
@@ -2910,14 +2958,14 @@ void tst_App::pixelLineToolTransparent()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);
 
     // Undo the line.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     // The initial press has to still be there.
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
 
     // Redo the line.
-    mouseEventOnCentre(redoButton, MouseClick);
+    mouseEventOnCentre(redoToolButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), translucentRed);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);\
@@ -2963,12 +3011,12 @@ void tst_App::rulersAndGuides()
     QVERIFY2(addNewGuide(Qt::Horizontal, 10), failureMessage);
 
     // Undo.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(project->guides().size(), 0);
     QCOMPARE(project->undoStack()->canUndo(), false);
 
     // Redo.
-    mouseEventOnCentre(redoButton, MouseClick);
+    mouseEventOnCentre(redoToolButton, MouseClick);
     QCOMPARE(project->guides().size(), 1);
     QCOMPARE(project->guides().first().position(), 10);
     QCOMPARE(project->undoStack()->canUndo(), true);
@@ -2992,7 +3040,7 @@ void tst_App::rulersAndGuides()
     QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
 
     // Undo.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(project->guides().size(), 1);
     QCOMPARE(project->guides().first().position(), 10);
     QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
@@ -3000,7 +3048,7 @@ void tst_App::rulersAndGuides()
     QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
 
     // Redo.
-    mouseEventOnCentre(redoButton, MouseClick);
+    mouseEventOnCentre(redoToolButton, MouseClick);
     QCOMPARE(project->guides().size(), 1);
     QCOMPARE(project->guides().first().position(), 20);
     QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
@@ -3715,7 +3763,7 @@ void tst_App::deleteSelectionImageCanvas()
     QVERIFY2(everyPixelIs(deletedPortion, Qt::transparent), failureMessage);
 
     // Undo the deletion.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     const QImage undeletedPortion = canvas->currentProjectImage()->copy(0, 0, 10, 10);
     QVERIFY2(everyPixelIs(undeletedPortion, Qt::white), failureMessage);
 
@@ -3831,7 +3879,7 @@ void tst_App::undoCopyPasteWithTransparency()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
 
     // Undo the paste. It should disappear.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 10), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::transparent));
 }
@@ -4133,7 +4181,7 @@ void tst_App::rotateSelection()
     QCOMPARE(canvas->hasModifiedSelection(), true);
     // See the undo shortcut in Shortcuts.qml for why this is the way it is.
     QCOMPARE(project->undoStack()->canUndo(), false);
-    QCOMPARE(undoButton->isEnabled(), true);
+    QCOMPARE(undoToolButton->isEnabled(), true);
     // For some reason, layered image project images are Format_ARGB32_Premultiplied.
     // We don't care about the format, so just convert them.
     // Also, we need to use contentImage() since modifications to selections
@@ -4156,12 +4204,12 @@ void tst_App::rotateSelection()
     QCOMPARE(actualImage, expected90ImageModified);
 
     // Undo the drawing.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
     QCOMPARE(actualImage, expected90Image);
 
     // Undo the first rotation.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
     QCOMPARE(actualImage, originalImage);
 
@@ -4188,7 +4236,7 @@ void tst_App::rotateSelection()
 
     // Undoing selection modifications causes the original selection image contents
     // to be restored, regardless of how many modifications have been made since.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     // mspaint gets rid of the selection upon undoing.
     QCOMPARE(canvas->hasSelection(), false);
     actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
@@ -4227,7 +4275,7 @@ void tst_App::rotateSelectionAtEdge()
     QCOMPARE(actualImage, expected90Image);
 
     // Undo the rotation.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
     QCOMPARE(actualImage, originalImage);
 }
@@ -4529,6 +4577,47 @@ void tst_App::opacityDialog()
     QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), expectedImage);
 }
 
+void tst_App::cropToSelection_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::cropToSelection()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+
+    // Make comparing grabbed image pixels easier.
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
+
+    // Nothing selected, so the tool button shouldn't be enabled.
+    QVERIFY(!cropToSelectionToolButton->isEnabled());
+
+    const QRect cropRect(40, 40, 10, 10);
+
+    // Draw some pixels as markers to ensure that the crop worked.
+    setCursorPosInScenePixels(cropRect.x(), cropRect.y());
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+    setCursorPosInScenePixels(cropRect.x() + cropRect.width() - 1, cropRect.y() + cropRect.height() - 1);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    // Select an area.
+    QVERIFY2(selectArea(cropRect), failureMessage);
+    QVERIFY(cropToSelectionToolButton->isEnabled());
+
+    // Do the cropping.
+    mouseEventOnCentre(cropToSelectionToolButton, MouseClick);
+    QVERIFY(!cropToSelectionToolButton->isEnabled());
+
+    // Ensure the crop worked correctly.
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grab = imageGrabber.takeImage();
+    QCOMPARE(grab.pixelColor(0, 0), QColor(Qt::black));
+    QCOMPARE(grab.pixelColor(cropRect.width() - 1, cropRect.width() - 1), QColor(Qt::black));
+}
+
 void tst_App::addAndRemoveLayers()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
@@ -4612,7 +4701,7 @@ void tst_App::addAndRemoveLayers()
     QCOMPARE(grabWithRedDot.pixelColor(20, 20), QColor(Qt::red));
 
     // Undo the deletion.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
     QVERIFY2(verifyLayerName(QLatin1String("Layer 1")), failureMessage);
@@ -4674,7 +4763,7 @@ void tst_App::layerVisibility()
     QCOMPARE(grabWithRedDotHidden.pixelColor(10, 10), QColor(Qt::blue));
 
     // Undo the visibility change.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(layeredImageProject->currentLayer()->isVisible(), true);
     // The canvas should look as it did before it was hidden.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
@@ -4813,7 +4902,7 @@ void tst_App::mergeLayerUpAndDown()
     QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(2, 0), QColor(Qt::blue));
 
     // Undo the last merge so that we're back at having two layers.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(layeredImageProject->layerCount(), 2);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
@@ -4825,7 +4914,7 @@ void tst_App::mergeLayerUpAndDown()
     QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(2, 0), QColor(Qt::blue));
 
     // Undo the first merge so that we have all three layers again.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(layeredImageProject->layerCount(), 3);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
@@ -4880,7 +4969,7 @@ void tst_App::renameLayers()
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 12"));
 
     // Undo the name change.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
 }
 
@@ -4902,7 +4991,7 @@ void tst_App::duplicateLayers()
     QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(0, 0), QColor(Qt::white));
 
     // Undo it.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(layeredImageProject->layerCount(), 1);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
 }
@@ -5075,7 +5164,7 @@ void tst_App::layerVisibilityAfterMoving()
 //    mouseEventOnCentre(newLayerButton, MouseClick);
 //    QCOMPARE(layeredImageProject->layerCount(), 2);
 //    QCOMPARE(layeredImageProject->hasUnsavedChanges(), true);
-//    QCOMPARE(undoButton->isEnabled(), true);
+//    QCOMPARE(undoToolButton->isEnabled(), true);
 
 //    // TODO
 //}
@@ -5098,7 +5187,7 @@ void tst_App::selectionConfirmedWhenSwitchingLayers()
     mouseEventOnCentre(newLayerButton, MouseClick);
     QCOMPARE(layeredImageProject->layerCount(), 2);
     QCOMPARE(layeredImageProject->hasUnsavedChanges(), true);
-    QCOMPARE(undoButton->isEnabled(), true);
+    QCOMPARE(undoToolButton->isEnabled(), true);
     // Sanity check that the names are correct. Newly added layers go to the top,
     // and hence have a lower index.
     QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 2"));
@@ -5157,7 +5246,7 @@ void tst_App::undoAfterMovingTwoSelections()
     mouseEventOnCentre(newLayerButton, MouseClick);
     mouseEventOnCentre(newLayerButton, MouseClick);
     QCOMPARE(layeredImageProject->layerCount(), 3);
-    QCOMPARE(undoButton->isEnabled(), true);
+    QCOMPARE(undoToolButton->isEnabled(), true);
 
     // Select Layer 3, draw a semi-transparent grey dot on it.
     QVERIFY2(selectLayer("Layer 3", 0), failureMessage);
@@ -5196,8 +5285,8 @@ void tst_App::undoAfterMovingTwoSelections()
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 24), red);
 
     // Undo both moves; the grey shouldn't be duplicated.
-    mouseEventOnCentre(undoButton, MouseClick);
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(10, 10), semiTransparentGrey);
     QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(10, 14), QColor(Qt::transparent));
     QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(10, 20), red);
@@ -5477,7 +5566,7 @@ void tst_App::undoMoveContents()
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(1, 3), QColor(Qt::red));
 
     // Undo.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), QColor(Qt::red));
 }
 
@@ -5520,7 +5609,7 @@ void tst_App::undoMoveContentsOfVisibleLayers()
     QCOMPARE(layer2->image()->pixelColor(1, 0), QColor(Qt::blue));
 
     // Undo.
-    mouseEventOnCentre(undoButton, MouseClick);
+    mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::red));
     QCOMPARE(layer1->image()->pixelColor(0, 1), QColor(Qt::white));
     QCOMPARE(layer2->image()->pixelColor(1, 0), QColor(Qt::blue));

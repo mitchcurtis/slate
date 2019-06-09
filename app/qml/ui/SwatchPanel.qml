@@ -118,8 +118,8 @@ Panel {
                 }
             }
         }
-        MenuSeparator {
-            id: swatchSeparator
+
+        Ui.VerticalSeparator {
             visible: settings.autoSwatchEnabled
             leftPadding: 12
             topPadding: 0
@@ -128,6 +128,7 @@ Panel {
 
             Layout.fillWidth: true
         }
+
         RowLayout {
             id: swatchRowLayout
             objectName: "swatchRowLayout"
@@ -162,7 +163,7 @@ Panel {
         visible: root.expanded
         spacing: 0
 
-        MenuSeparator {
+        Ui.VerticalSeparator {
             padding: 6
             topPadding: 0
             bottomPadding: 0

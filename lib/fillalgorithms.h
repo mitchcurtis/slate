@@ -36,18 +36,10 @@ public:
     virtual QColor colour(const QColor &baseColour) const;
 };
 
-QVector<QPoint> imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
-    const QColor &replacementColour);
-
-// TODO: replace imagePixelFloodFill() with this eventually
-QImage imagePixelFloodFill2(const QImage *image, const QPoint &startPos, const QColor &targetColour,
+QImage imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour, const FillColourProvider &fillColourProvider = FillColourProvider());
 
-QVector<QPoint> imageGreedyPixelFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
-    const QColor &replacementColour);
-
-// TODO: replace imagePixelFloodFill() with this eventually
-QImage imageGreedyPixelFill2(const QImage *image, const QPoint &startPos, const QColor &targetColour,
+QImage imageGreedyPixelFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour, const FillColourProvider &fillColourProvider = FillColourProvider());
 
 QImage texturedFill(const QImage *image, const QPoint &startPos,

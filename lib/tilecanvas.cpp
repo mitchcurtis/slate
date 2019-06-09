@@ -39,7 +39,6 @@
 #include "utils.h"
 
 TileCanvas::TileCanvas() :
-    ImageCanvas (),
     mTilesetProject(nullptr),
     mCursorTilePixelX(0),
     mCursorTilePixelY(0),
@@ -313,7 +312,7 @@ void TileCanvas::applyCurrentTool()
             // This ensures that e.g. a translucent red overwrites whatever pixels it
             // lies on, rather than blending with them.
             mProject->addChange(new ApplyPixelLineCommand(this, -1, *mTilesetProject->tileset()->image(), linePoint1(), linePoint2(),
-                mPressScenePosition, mLastPixelPenPressScenePosition, QPainter::CompositionMode_Source));
+                mPressScenePosition, mLastPixelPenPressScenePositionF, QPainter::CompositionMode_Source));
             break;
         } else {
             const QPoint scenePos = QPoint(mCursorSceneX, mCursorSceneY);
@@ -434,7 +433,7 @@ void TileCanvas::applyPixelPenTool(int layerIndex, const QPoint &scenePos, const
     const QPoint tilsetPixelPos = tile->sourceRect().topLeft() + pixelPos;
     mTilesetProject->tileset()->setPixelColor(tilsetPixelPos.x(), tilsetPixelPos.y(), colour);
     if (markAsLastRelease)
-        mLastPixelPenPressScenePosition = scenePos;
+        mLastPixelPenPressScenePositionF = scenePos;
     requestContentPaint();
 }
 
@@ -536,6 +535,15 @@ void TileCanvas::onLoadedChanged()
 QColor TileCanvas::penColour() const
 {
     return mMouseButtonPressed == Qt::LeftButton ? mPenForegroundColour : mPenBackgroundColour;
+}
+
+void TileCanvas::setHasBlankCursor(bool hasBlankCursor)
+{
+    if (hasBlankCursor == mHasBlankCursor)
+        return;
+
+    mHasBlankCursor = hasBlankCursor;
+    emit hasBlankCursorChanged();
 }
 
 void TileCanvas::updateTilePenPreview()

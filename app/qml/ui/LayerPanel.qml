@@ -90,7 +90,7 @@ Panel {
             Layout.fillHeight: layerListView.count == 0
         }
 
-        MenuSeparator {
+        Ui.VerticalSeparator {
             padding: 6
             topPadding: 0
             bottomPadding: 0

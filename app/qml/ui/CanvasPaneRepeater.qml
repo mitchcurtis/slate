@@ -2,7 +2,7 @@ import QtQuick 2.12
 
 import App 1.0
 
-// For access to CanvasColours Singleton
+// For access to Theme Singleton
 import "."
 
 Repeater {
@@ -64,7 +64,7 @@ Repeater {
             x: index === 0 ? 0 : Math.floor(parent.width - width)
             width: Math.floor(paneItem.pane.size * parent.width)
             height: parent.height
-            color: CanvasColours.backgroundColour
+            color: Theme.canvasBackgroundColour
             z: -1
         }
     }

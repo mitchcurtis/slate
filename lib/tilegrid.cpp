@@ -28,7 +28,7 @@ TileGrid::TileGrid() :
     mTilesWide(1),
     mTilesHigh(1),
     mHighlightedIndex(-1),
-    mColour("#55000000"),
+    mColour(QColor::fromRgba(0x55000000)),
     mHighlightColour(Qt::red)
 {
 }

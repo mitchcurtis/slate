@@ -70,7 +70,7 @@ public:
     QPoint scenePosToTilePixelPos(const QPoint &scenePos) const;
     QRect sceneRectToTileRect(const QRect &sceneRect) const;
 
-    virtual QList<SubImage> subImagesInBounds(const QRect &bounds) const override;
+    QList<SubImage> subImagesInBounds(const QRect &bounds) const override;
 
 signals:
     void cursorTilePixelXChanged();

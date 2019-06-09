@@ -266,8 +266,10 @@ protected:
 
     QObject *fileMenuBarItem;
 
-    QQuickItem *canvasSizeButton;
-    QQuickItem *imageSizeButton;
+    QQuickItem *toolBar;
+    QQuickItem *canvasSizeToolButton;
+    QQuickItem *imageSizeToolButton;
+    QQuickItem *cropToSelectionToolButton;
     QQuickItem *modeToolButton;
     QQuickItem *penToolButton;
     QQuickItem *eyeDropperToolButton;
@@ -280,8 +282,8 @@ protected:
     QQuickItem *rotate90CwToolButton;
     QQuickItem *flipHorizontallyToolButton;
     QQuickItem *flipVerticallyToolButton;
-    QQuickItem *undoButton;
-    QQuickItem *redoButton;
+    QQuickItem *undoToolButton;
+    QQuickItem *redoToolButton;
     QQuickItem *splitScreenToolButton;
     QQuickItem *lockSplitterToolButton;
     QQuickItem *penForegroundColourButton;

@@ -119,9 +119,9 @@ bool CanvasPane::isSceneCentered() const
     return mSceneCentered;
 }
 
-void CanvasPane::setSceneCentered(bool centreScene)
+void CanvasPane::setSceneCentered(bool sceneCentered)
 {
-    mSceneCentered = centreScene;
+    mSceneCentered = sceneCentered;
 }
 
 void CanvasPane::read(const QJsonObject &json)

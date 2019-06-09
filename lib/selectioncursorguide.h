@@ -33,7 +33,7 @@ class SLATE_EXPORT SelectionCursorGuide : public QQuickPaintedItem
 
 public:
     explicit SelectionCursorGuide(ImageCanvas *canvas);
-    ~SelectionCursorGuide();
+    ~SelectionCursorGuide() override;
 
     void paint(QPainter *painter) override;
 

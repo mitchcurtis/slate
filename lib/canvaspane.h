@@ -38,7 +38,7 @@ class SLATE_EXPORT CanvasPane : public QObject
     Q_PROPERTY(QPoint integerOffset READ integerOffset WRITE setIntegerOffset NOTIFY integerOffsetChanged)
 
 public:
-    explicit CanvasPane(QObject *parent = 0);
+    explicit CanvasPane(QObject *parent = nullptr);
 
     qreal size() const;
     void setSize(const qreal &size);
@@ -58,7 +58,7 @@ public:
     QPoint zoomedOffset() const;
 
     bool isSceneCentered() const;
-    void setSceneCentered(bool isSceneCentered);
+    void setSceneCentered(bool sceneCentered);
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;

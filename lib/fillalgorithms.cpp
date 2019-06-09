@@ -43,89 +43,6 @@ QColor FillColourProvider::colour(const QColor &baseColour) const
     return baseColour;
 }
 
-// https://en.wikipedia.org/wiki/Flood_fill#Alternative_implementations
-// "[...] use a loop for the west and east directions as an optimization to avoid the overhead of stack or queue management."
-QVector<QPoint> imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
-    const QColor &replacementColour)
-{
-    qCDebug(lcPixelFloodFill) << "attempting to fill starting with pixel at" << startPos << "...";
-
-    QSet<QPoint> filledPositions;
-    const QRect imageBounds(0, 0, image->width(), image->height());
-    if (!imageBounds.contains(startPos)) {
-        return QVector<QPoint>();
-    }
-
-    if (image->pixelColor(startPos) == replacementColour) {
-        // The pixel at startPos is already the colour that we want to replace it with.
-        return QVector<QPoint>();
-    }
-
-    if (image->pixelColor(startPos) != targetColour) {
-        return QVector<QPoint>();
-    }
-
-    QQueue<QPoint> queue;
-    queue.append(startPos);
-    filledPositions.insert(startPos);
-
-    for (int i = 0; i < queue.size(); ++i) {
-        QPoint node = queue.at(i);
-        QPoint west = node;
-        QPoint east = node;
-
-        while (1) {
-            QPoint newWest = west - QPoint(1, 0);
-            if (imageBounds.contains(newWest) && !filledPositions.contains(newWest) && image->pixelColor(newWest) == targetColour) {
-                west = newWest;
-            } else {
-                break;
-            }
-        }
-
-        while (1) {
-            QPoint newEast = east + QPoint(1, 0);
-            if (imageBounds.contains(newEast) && !filledPositions.contains(newEast) && image->pixelColor(newEast) == targetColour) {
-                east = newEast;
-            } else {
-                break;
-            }
-        }
-
-        for (int x = west.x(); x <= east.x(); ++x) {
-            const QPoint n = QPoint(x, node.y());
-            // This avoids startPos being added twice.
-            if (!filledPositions.contains(n)) {
-                queue.append(n);
-                filledPositions.insert(n);
-            }
-
-            const QPoint north(n - QPoint(0, 1));
-            if (imageBounds.contains(north) && !filledPositions.contains(north) && image->pixelColor(north) == targetColour) {
-                queue.append(north);
-                filledPositions.insert(north);
-            }
-
-            const QPoint south(n + QPoint(0, 1));
-            if (imageBounds.contains(south) && !filledPositions.contains(south) && image->pixelColor(south) == targetColour) {
-                queue.append(south);
-                filledPositions.insert(south);
-            }
-        }
-    }
-
-    // Converting from QSet => QVector manually is better than the alternative
-    // QSet => QList => QVector, since QSet offers no API for conversion to QVector:
-    // https://bugreports.qt.io/browse/QTBUG-71067
-    QVector<QPoint> filledPositionsVector;
-    filledPositionsVector.reserve(filledPositions.size());
-    for (const QPoint point : qAsConst(filledPositions))
-        filledPositionsVector.append(point);
-
-    qCDebug(lcPixelFloodFill) << "... filled" << filledPositionsVector.size() << "pixels.";
-    return filledPositionsVector;
-}
-
 struct ImagePixelHash {
     explicit ImagePixelHash(int hashSize, int imageWidth) : mImageWidth{imageWidth}, mData(hashSize, 0) {}
 
@@ -138,18 +55,18 @@ struct ImagePixelHash {
     }
 
     bool contains(const QPoint& point) {
-        return mData[getImageIndex(point)] == 1;
+        return mData.at(getImageIndex(point)) == 1;
     }
 
     int size() {
-        return static_cast<int>(std::count_if(mData.begin(), mData.end(), [](int index){ return index == 1;}));
+        return static_cast<int>(std::count_if(mData.constBegin(), mData.constEnd(), [](int index){ return index == 1;}));
     }
 
     const int mImageWidth;
     QVector<int> mData;
 };
 
-QImage imagePixelFloodFill2(const QImage *image, const QPoint &startPos, const QColor &targetColour,
+QImage imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour, const FillColourProvider &fillColourProvider)
 {
     qCDebug(lcPixelFloodFill) << "attempting to fill starting with pixel at" << startPos << "...";
@@ -180,7 +97,7 @@ QImage imagePixelFloodFill2(const QImage *image, const QPoint &startPos, const Q
         QPoint west = node;
         QPoint east = node;
 
-        while (1) {
+        while (true) {
             QPoint newWest = west - QPoint(1, 0);
             if (imageBounds.contains(newWest) && !filledPositions.contains(newWest) && image->pixelColor(newWest) == targetColour) {
                 west = newWest;
@@ -189,7 +106,7 @@ QImage imagePixelFloodFill2(const QImage *image, const QPoint &startPos, const Q
             }
         }
 
-        while (1) {
+        while (true) {
             QPoint newEast = east + QPoint(1, 0);
             if (imageBounds.contains(newEast) && !filledPositions.contains(newEast) && image->pixelColor(newEast) == targetColour) {
                 east = newEast;
@@ -227,31 +144,7 @@ QImage imagePixelFloodFill2(const QImage *image, const QPoint &startPos, const Q
     return filledImage;
 }
 
-QVector<QPoint> imageGreedyPixelFill(const QImage *image, const QPoint &startPos, const QColor &targetColour, const QColor &replacementColour)
-{
-    QVector<QPoint> filledPositions;
-    const QRect imageBounds(0, 0, image->width(), image->height());
-    if (!imageBounds.contains(startPos)) {
-        return filledPositions;
-    }
-
-    if (image->pixelColor(startPos) == replacementColour) {
-        // The pixel at startPos is already the colour that we want to replace it with.
-        return filledPositions;
-    }
-
-    for (int y = 0; y < image->height(); ++y) {
-        for (int x = 0; x < image->width(); ++x) {
-            if (image->pixelColor(x, y) == targetColour) {
-                filledPositions.append(QPoint(x, y));
-            }
-        }
-    }
-
-    return filledPositions;
-}
-
-QImage imageGreedyPixelFill2(const QImage *image, const QPoint &startPos, const QColor &targetColour,
+QImage imageGreedyPixelFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour, const FillColourProvider &fillColourProvider)
 {
     const QRect imageBounds(0, 0, image->width(), image->height());
@@ -324,13 +217,13 @@ public:
 QImage texturedFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour, const TexturedFillParameters &parameters)
 {
-    return imagePixelFloodFill2(image, startPos, targetColour, replacementColour, TextureFillColourProvider(parameters));
+    return imagePixelFloodFill(image, startPos, targetColour, replacementColour, TextureFillColourProvider(parameters));
 }
 
 QImage greedyTexturedFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour, const TexturedFillParameters &parameters)
 {
-    return imageGreedyPixelFill2(image, startPos, targetColour, replacementColour, TextureFillColourProvider(parameters));
+    return imageGreedyPixelFill(image, startPos, targetColour, replacementColour, TextureFillColourProvider(parameters));
 }
 
 // TODO: convert these to non-recursive algorithms as above

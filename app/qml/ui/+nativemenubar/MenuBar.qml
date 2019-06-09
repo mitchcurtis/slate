@@ -54,8 +54,7 @@ Item {
             Platform.Menu {
                 id: recentFilesSubMenu
                 objectName: "recentFilesSubMenu"
-                // Can't use qsTr() in submenu titles: https://bugreports.qt.io/browse/QTBUG-66876
-                title: "Recent Files"
+                title: qsTr("Recent Files")
                 enabled: recentFilesInstantiator.count > 0
 
                 Instantiator {
@@ -91,6 +90,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "showLocationMenuItem"
+                //: Opens the project directory in the file explorer.
                 text: qsTr("Show Location")
                 enabled: project && project.loaded
                 onTriggered: Qt.openUrlExternally(project.dirUrl)
@@ -115,6 +115,7 @@ Item {
             Platform.MenuItem {
                 id: exportMenuItem
                 objectName: "exportMenuItem"
+                //: Exports the project as a single image.
                 text: qsTr("Export")
                 enabled: project && project.loaded && projectType === Project.LayeredImageType
                 onTriggered: exportDialog.open()
@@ -122,6 +123,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "autoExportMenuItem"
+                //: Enables automatic exporting of the project as a single image each time the project is saved.
                 text: qsTr("Auto Export")
                 checkable: true
                 checked: enabled && project.autoExportEnabled
@@ -142,6 +144,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "revertMenuItem"
+                //: Loads the last saved version of the project, losing any unsaved changes.
                 text: qsTr("Revert")
                 enabled: project && project.loaded && project.unsavedChanges
                 onTriggered: project.revert()
@@ -206,6 +209,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "texturedFillSettingsMenuItem"
+                //: Opens a dialog that allows the user to change the settings for the Textured Fill tool.
                 text: qsTr("Textured Fill Settings...")
                 onTriggered: texturedFillSettingsDialog.open()
                 enabled: isImageProjectType && canvas
@@ -215,6 +219,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "rotateClockwiseMenuItem"
+                //: Rotates the image 90 degrees to the right.
                 text: qsTr("Rotate 90° Clockwise")
                 onTriggered: canvas.rotateSelection(90)
                 enabled: isImageProjectType && canvas && canvas.hasSelection
@@ -222,6 +227,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "rotateCounterClockwiseMenuItem"
+                //: Rotates the image 90 degrees to the left.
                 text: qsTr("Rotate 90° Counter Clockwise")
                 onTriggered: canvas.rotateSelection(-90)
                 enabled: isImageProjectType && canvas && canvas.hasSelection
@@ -277,8 +283,15 @@ Item {
             Platform.MenuItem {
                 objectName: "changeImageSizeMenuItem"
                 text: qsTr("Image Size...")
-                enabled: canvas && projectType === Project.ImageType
+                enabled: isImageProjectType && canvas
                 onTriggered: imageSizePopup.open()
+            }
+
+            Platform.MenuItem {
+                objectName: "cropToSelectionMenuItem"
+                text: qsTr("Crop to Selection")
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+                onTriggered: project.crop(canvas.selectionArea)
             }
 
             Platform.MenuSeparator {}
@@ -297,6 +310,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "moveLayerUpMenuItem"
+                //: Moves the current layer up in the list of layers in the Layer panel.
                 text: qsTr("Move Layer Up")
                 enabled: canvas && project && projectType === Project.LayeredImageType
                     && project.currentLayerIndex > 0
@@ -305,6 +319,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "moveLayerDownMenuItem"
+                //: Moves the current layer down in the list of layers in the Layer panel.
                 text: qsTr("Move Layer Down")
                 enabled: canvas && project && projectType === Project.LayeredImageType
                     && project.currentLayerIndex < project.layerCount - 1
@@ -315,6 +330,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "mergeLayerUpMenuItem"
+                //: Combines the current layer with the layer above it, then removes the current layer.
                 text: qsTr("Merge Layer Up")
                 enabled: canvas && project && project.currentLayerIndex > 0
                 onTriggered: project.mergeCurrentLayerUp()
@@ -322,6 +338,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "mergeLayerDownMenuItem"
+                //: Combines the current layer with the layer below it, then removes the current layer.
                 text: qsTr("Merge Layer Down")
                 enabled: canvas && project && projectType === Project.LayeredImageType
                     && project.currentLayerIndex < project.layerCount - 1
@@ -359,6 +376,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "centreMenuItem"
+                //: Positions the canvas in the centre of the canvas pane.
                 text: qsTr("Centre")
                 enabled: canvas
                 onTriggered: canvas.centreView()
@@ -368,6 +386,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "showGridMenuItem"
+                //: Shows a grid that acts as a guide to distinguish tiles from one another.
                 text: qsTr("Show Grid")
                 enabled: canvas && projectType === Project.TilesetType
                 checkable: true
@@ -377,6 +396,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "showRulersMenuItem"
+                //: Shows rulers on the sides of each canvas pane that can be used to measure in pixels.
                 text: qsTr("Show Rulers")
                 enabled: canvas
                 checkable: true
@@ -386,6 +406,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "showGuidesMenuItem"
+                //: Shows coloured guides (vertical and horizontal lines) that can be dragged out from the rulers.
                 text: qsTr("Show Guides")
                 enabled: canvas
                 checkable: true
@@ -395,6 +416,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "lockGuidesMenuItem"
+                //: Prevents the guides from being moved by the user.
                 text: qsTr("Lock Guides")
                 enabled: canvas
                 checkable: true
@@ -406,6 +428,7 @@ Item {
 
             Platform.MenuItem {
                 objectName: "splitScreenMenuItem"
+                //: Toggles split screen: two canvas panes are shown instead of one.
                 text: qsTr("Split Screen")
                 enabled: canvas
                 checkable: true

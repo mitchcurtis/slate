@@ -19,14 +19,19 @@
 
 pragma Singleton
 
-import QtQml 2.2
-import QtQuick.Controls.Universal 2.1
+import QtQml 2.12
+import QtQuick.Controls.Universal 2.12
 
 QtObject {
-    property color backgroundColour: Universal.background
-    property color panelColour: "#424242"
     property color focusColour: Universal.accent
+
+    property var toolButtonWidth: 48
+    property var toolButtonHeight: 38
+
+    property color canvasBackgroundColour: "#222"
     property color splitColour: "#444"
     property color rulerForegroundColour: Universal.foreground
-    property color rulerBackgroundColour: backgroundColour
+    property color rulerBackgroundColour: "#333"
+
+    property color panelColour: "#282828"
 }

@@ -36,10 +36,10 @@ class CropHelper : public QObject
 
 public:
     CropHelper();
-    ~CropHelper();
+    ~CropHelper() override;
 
     QRect cropArea() const;
-    void setCropArea(const QRect &selectionArea);
+    void setCropArea(const QRect &cropArea);
 
 signals:
     void cropAreaChanged();

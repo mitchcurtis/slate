@@ -1,3 +1,5 @@
+#include <utility>
+
 /*
     Copyright 2017, Mitch Curtis
 
@@ -141,12 +143,12 @@ QRect LayeredImageProject::bounds() const
     return QRect(0, 0, ourSize.width(), ourSize.height());
 }
 
-QImage LayeredImageProject::flattenedImage(std::function<QImage(int)> layerSubstituteFunction) const
+QImage LayeredImageProject::flattenedImage(const std::function<QImage(int)> &layerSubstituteFunction) const
 {
     return flattenedImage(0, layerCount() - 1, layerSubstituteFunction);
 }
 
-QImage LayeredImageProject::flattenedImage(int fromIndex, int toIndex, std::function<QImage(int)> layerSubstituteFunction) const
+QImage LayeredImageProject::flattenedImage(int fromIndex, int toIndex, const std::function<QImage(int)> &layerSubstituteFunction) const
 {
     Q_ASSERT(isValidIndex(fromIndex));
     Q_ASSERT(isValidIndex(toIndex));
@@ -396,8 +398,8 @@ void LayeredImageProject::createNew(int imageWidth, int imageHeight, bool transp
 }
 
 #define CONTAINS_KEY_OR_ERROR(jsonObject, key, filePath) \
-    if (!jsonObject.contains(key)) { \
-        error(QString::fromLatin1("Layered image project file is missing a \"%1\" key:\n\n%2").arg(key).arg(filePath)); \
+    if (!(jsonObject).contains(key)) { \
+        error(QString::fromLatin1("Layered image project file is missing a \"%1\" key:\n\n%2").arg(key, filePath)); \
         return; \
     }
 
@@ -601,8 +603,9 @@ bool LayeredImageProject::exportImage(const QUrl &url)
         }
     }
 
-    const auto imagesToExport = flattenedImages();
-    foreach (const QString &key, imagesToExport.keys()) {
+    const QHash<QString, QImage> imagesToExport = flattenedImages();
+    const auto keys = imagesToExport.keys();
+    for (const QString &key : keys) {
         const QImage image = imagesToExport.value(key);
         const QString imageFilePath = key.isEmpty()
             ? mainExportFilePath : projectSaveFileInfo.dir().path() + "/" + key + ".png";
@@ -622,8 +625,11 @@ void LayeredImageProject::resize(int width, int height)
         return;
 
     QVector<QImage> previousImages;
+    previousImages.reserve(mLayers.size());
     QVector<QImage> newImages;
-    foreach (ImageLayer *layer, mLayers) {
+    newImages.reserve(mLayers.size());
+
+    for (const ImageLayer *layer : qAsConst(mLayers)) {
         previousImages.append(*layer->image());
 
         const QImage resized = layer->image()->scaled(newSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
@@ -632,6 +638,30 @@ void LayeredImageProject::resize(int width, int height)
 
     beginMacro(QLatin1String("ChangeLayeredImageSize"));
     addChange(new ChangeLayeredImageSizeCommand(this, previousImages, newImages));
+    endMacro();
+}
+
+void LayeredImageProject::crop(const QRect &rect)
+{
+    if (rect.x() == 0 && rect.y() == 0 && rect.size() == size()) {
+        // No change.
+        return;
+    }
+
+    QVector<QImage> previousImages;
+    previousImages.reserve(mLayers.size());
+    QVector<QImage> newImages;
+    newImages.reserve(mLayers.size());
+
+    for (const ImageLayer *layer : qAsConst(mLayers)) {
+        previousImages.append(*layer->image());
+
+        const QImage cropped = layer->image()->copy(rect);
+        newImages.append(cropped);
+    }
+
+    beginMacro(QLatin1String("CropLayeredImageCanvas"));
+    addChange(new ChangeLayeredImageCanvasSizeCommand(this, previousImages, newImages));
     endMacro();
 }
 
@@ -900,11 +930,11 @@ void LayeredImageProject::mergeLayers(int sourceIndex, int targetIndex)
 
 ImageLayer *LayeredImageProject::takeLayer(int index)
 {
-    preLayerRemoved(index);
+    emit preLayerRemoved(index);
 
     ImageLayer *layer = mLayers.takeAt(index);
 
-    postLayerRemoved(index);
+    emit postLayerRemoved(index);
 
     emit layerCountChanged();
 

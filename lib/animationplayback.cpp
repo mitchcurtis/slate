@@ -27,6 +27,16 @@ Q_LOGGING_CATEGORY(lcAnimationPlayback, "app.animationPlayback")
 
 AnimationPlayback::AnimationPlayback(QObject *parent) :
     QObject(parent),
+    mFps(0),
+    mFrameCount(0),
+    mFrameX(0),
+    mFrameY(0),
+    mFrameWidth(0),
+    mFrameHeight(0),
+    mCurrentFrameIndex(0),
+    mScale(0.0),
+    mPlaying(false),
+    mLoop(false),
     mTimerId(-1)
 {
     reset();

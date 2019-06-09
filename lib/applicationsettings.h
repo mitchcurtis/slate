@@ -92,7 +92,7 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QString fullScreenToggleShortcut READ fullScreenToggleShortcut WRITE setFullScreenToggleShortcut NOTIFY fullScreenToggleShortcutChanged)
 
 public:
-    explicit ApplicationSettings(QObject *parent = 0);
+    explicit ApplicationSettings(QObject *parent = nullptr);
 
     bool loadLastOnStartup() const;
     void setLoadLastOnStartup(bool loadLastOnStartup);

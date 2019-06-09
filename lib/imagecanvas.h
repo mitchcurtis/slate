@@ -95,8 +95,8 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool hasBlankCursor READ hasBlankCursor NOTIFY hasBlankCursorChanged)
     Q_PROPERTY(bool altPressed READ isAltPressed NOTIFY altPressedChanged)
     Q_PROPERTY(bool lineVisible READ isLineVisible NOTIFY lineVisibleChanged)
-    Q_PROPERTY(int lineLength READ lineLength NOTIFY lineLengthChanged)
-    Q_PROPERTY(qreal lineAngle READ lineAngle NOTIFY lineLengthChanged)
+    Q_PROPERTY(int lineLength READ lineLength NOTIFY lineChanged)
+    Q_PROPERTY(qreal lineAngle READ lineAngle NOTIFY lineChanged)
 
 public:
     // The order of these is important, as the number keys can activate the tools.
@@ -205,6 +205,7 @@ public:
     CanvasPane *currentPane();
     Q_INVOKABLE CanvasPane *paneAt(int index);
     int paneWidth(int index) const;
+    QPoint centredPaneOffset(int paneIndex) const;
 
     QColor rulerForegroundColour() const;
     void setRulerForegroundColour(const QColor &foregroundColour) const;
@@ -353,7 +354,7 @@ signals:
     void adjustingImageChanged();
     void altPressedChanged();
     void lineVisibleChanged();
-    void lineLengthChanged();
+    void lineChanged();
     void pasteSelectionConfirmed();
 
     // Used to signal CanvasPaneItem classes that they should redraw,
@@ -445,7 +446,7 @@ protected:
 
     QPointF linePoint1() const;
     QPointF linePoint2() const;
-    QRect normalisedLineRect(const QPointF point1, const QPointF point2) const;
+    QRect normalisedLineRect(const QPointF &point1, const QPointF &point2) const;
 
     virtual void updateCursorPos(const QPoint &eventPos);
     void updateVisibleSceneArea();
@@ -466,7 +467,7 @@ protected:
     CanvasPane *hoveredPane(const QPoint &pos);
     QPoint eventPosRelativeToCurrentPane(const QPoint &pos);
     virtual QImage getContentImage();
-    void drawLine(QPainter *painter, QPointF point1, QPointF point2, const QPainter::CompositionMode mode) const;
+    void drawLine(QPainter *painter, QPointF point1, QPointF point2, QPainter::CompositionMode mode) const;
     void centrePanes(bool respectSceneCentred = true);
     enum ResetPaneSizePolicy {
         DontResetPaneSizes,
@@ -624,12 +625,7 @@ protected:
 
     // The scene position at which the mouse was last pressed.
     // This is used by the pixel line tool to draw the line preview.
-    // It is set by the pixel tool as the last pixel in the command,
-    // and by the pixel line tool command.
-    QPoint mLastPixelPenPressScenePosition;
     QPointF mLastPixelPenPressScenePositionF;
-    // An image as large as the rectangle that contains the line that is being previewed.
-    QImage mLinePreviewImage;
 
     bool mPotentiallySelecting;
     bool mHasSelection;

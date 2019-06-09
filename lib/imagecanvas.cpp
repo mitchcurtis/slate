@@ -53,6 +53,7 @@
 
 Q_LOGGING_CATEGORY(lcImageCanvas, "app.canvas")
 Q_LOGGING_CATEGORY(lcImageCanvasCursorShape, "app.canvas.cursorshape")
+Q_LOGGING_CATEGORY(lcImageCanvasEvents, "app.canvas.events")
 Q_LOGGING_CATEGORY(lcImageCanvasLifecycle, "app.canvas.lifecycle")
 Q_LOGGING_CATEGORY(lcImageCanvasSelection, "app.canvas.selection")
 Q_LOGGING_CATEGORY(lcImageCanvasSelectionCursorGuideVisibility, "app.canvas.selection.cursorguidevisibility")
@@ -108,6 +109,7 @@ ImageCanvas::ImageCanvas() :
     mMovingSelection(false),
     mIsSelectionFromPaste(false),
     mConfirmingSelectionModification(false),
+    mLastSelectionModificationBeforeImageAdjustment(NoSelectionModification),
     mSelectionCursorGuide(nullptr),
     mLastSelectionModification(NoSelectionModification),
     mHasModifiedSelection(false),
@@ -488,7 +490,7 @@ void ImageCanvas::setCursorSceneX(int x)
 
     mCursorSceneX = x;
     if (isLineVisible())
-        emit lineLengthChanged();
+        emit lineChanged();
     emit cursorSceneXChanged();
 }
 
@@ -504,7 +506,7 @@ void ImageCanvas::setCursorSceneY(int y)
 
     mCursorSceneY = y;
     if (isLineVisible())
-        emit lineLengthChanged();
+        emit lineChanged();
     emit cursorSceneYChanged();
 }
 
@@ -841,6 +843,16 @@ int ImageCanvas::paneWidth(int index) const
     return index == 0 ? mFirstPane.size() * width() : width() - mFirstPane.size() * width();
 }
 
+QPoint ImageCanvas::centredPaneOffset(int paneIndex) const
+{
+    const CanvasPane *pane = const_cast<ImageCanvas*>(this)->paneAt(paneIndex);
+    const int paneXCentre = paneWidth(paneIndex) / 2;
+    const int imageXCentre = (mProject->widthInPixels() * pane->integerZoomLevel()) / 2;
+    const int paneYCentre = height() / 2;
+    const int imageYCentre = (mProject->heightInPixels() * pane->integerZoomLevel()) / 2;
+    return QPoint(paneXCentre - imageXCentre, paneYCentre - imageYCentre);
+}
+
 QColor ImageCanvas::rulerForegroundColour() const
 {
     return mFirstHorizontalRuler->foregroundColour();
@@ -884,9 +896,10 @@ bool ImageCanvas::isAltPressed() const
 
 bool ImageCanvas::isLineVisible() const
 {
-    // Don't show line info in the status bar if there hasn't been a mouse press yet.
-    // This is the same as what penColour() does.
-    const Qt::MouseButton lastButtonPressed = mMouseButtonPressed == Qt::NoButton ? mLastMouseButtonPressed : mMouseButtonPressed;
+    // This check determines if a line should be rendered,
+    // and also if the line info should be shown in the status bar.
+    const Qt::MouseButton lastButtonPressed = mMouseButtonPressed == Qt::NoButton
+        ? mLastMouseButtonPressed : mMouseButtonPressed;
     return mShiftPressed && mTool == PenTool && lastButtonPressed != Qt::NoButton;
 }
 
@@ -895,7 +908,7 @@ int ImageCanvas::lineLength() const
     if (!isLineVisible())
         return 0;
 
-    const QPointF point1 = mLastPixelPenPressScenePosition;
+    const QPointF point1 = mLastPixelPenPressScenePositionF.toPoint();
     const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
     const QLineF line(point1, point2);
     return line.length();
@@ -906,7 +919,7 @@ qreal ImageCanvas::lineAngle() const
     if (!isLineVisible())
         return 0;
 
-    const QPointF point1 = mLastPixelPenPressScenePosition;
+    const QPointF point1 = mLastPixelPenPressScenePositionF.toPoint();
     const QPointF point2 = QPointF(mCursorSceneX, mCursorSceneY);
     const QLineF line(point1, point2);
     return line.angle();
@@ -941,6 +954,11 @@ void ImageCanvas::setShiftPressed(bool shiftPressed)
 
     if (isLineVisible() != wasLineVisible)
         emit lineVisibleChanged();
+
+    if (mShiftPressed) {
+        // Force the length and angle to be re-calculated.
+        emit lineChanged();
+    }
 
     requestContentPaint();
 }
@@ -1130,17 +1148,11 @@ void ImageCanvas::centrePanes(bool respectSceneCentred)
     if (!mProject)
         return;
 
-    if (!respectSceneCentred || (respectSceneCentred && mFirstPane.isSceneCentered())) {
-        const QPoint newOffset(paneWidth(0) / 2 - (mProject->widthInPixels() * mFirstPane.integerZoomLevel()) / 2,
-            height() / 2 - (mProject->heightInPixels() * mFirstPane.integerZoomLevel()) / 2);
-        mFirstPane.setIntegerOffset(newOffset);
-    }
+    if (!respectSceneCentred || (respectSceneCentred && mFirstPane.isSceneCentered()))
+        mFirstPane.setIntegerOffset(centredPaneOffset(0));
 
-    if (!respectSceneCentred || (respectSceneCentred && mSecondPane.isSceneCentered())) {
-        const QPoint newOffset(paneWidth(1) / 2 - (mProject->widthInPixels() * mFirstPane.integerZoomLevel()) / 2,
-            height() / 2 - (mProject->heightInPixels() * mFirstPane.integerZoomLevel()) / 2);
-        mSecondPane.setIntegerOffset(newOffset);
-    }
+    if (!respectSceneCentred || (respectSceneCentred && mSecondPane.isSceneCentered()))
+        mSecondPane.setIntegerOffset(centredPaneOffset(1));
 
     requestContentPaint();
 }
@@ -1753,8 +1765,7 @@ void ImageCanvas::reset()
 
     mTexturedFillParameters.reset();
 
-    mLastPixelPenPressScenePosition = QPoint(0, 0);
-    mLinePreviewImage = QImage();
+    mLastPixelPenPressScenePositionF = QPoint(0, 0);
 
     mCropArea = QRect();
 
@@ -2066,7 +2077,7 @@ QImage ImageCanvas::fillPixels() const
     if (previousColour == penColour())
         return QImage();
 
-    return imagePixelFloodFill2(currentProjectImage(), scenePos, previousColour, penColour());
+    return imagePixelFloodFill(currentProjectImage(), scenePos, previousColour, penColour());
 }
 
 QImage ImageCanvas::greedyFillPixels() const
@@ -2079,7 +2090,7 @@ QImage ImageCanvas::greedyFillPixels() const
     if (previousColour == penColour())
         return QImage();
 
-    return imageGreedyPixelFill2(currentProjectImage(), scenePos, previousColour, penColour());
+    return imageGreedyPixelFill(currentProjectImage(), scenePos, previousColour, penColour());
 }
 
 QImage ImageCanvas::texturedFillPixels() const
@@ -2211,7 +2222,7 @@ void ImageCanvas::applyPixelPenTool(int layerIndex, const QPoint &scenePos, cons
 {
     imageForLayerAt(layerIndex)->setPixelColor(scenePos, colour);
     if (markAsLastRelease)
-        mLastPixelPenPressScenePosition = scenePos;
+        mLastPixelPenPressScenePositionF = scenePos;
     requestContentPaint();
 }
 
@@ -2285,7 +2296,7 @@ QPointF ImageCanvas::linePoint2() const
     return QPointF(mCursorSceneFX, mCursorSceneFY);
 }
 
-QRect ImageCanvas::normalisedLineRect(const QPointF point1, const QPointF point2) const
+QRect ImageCanvas::normalisedLineRect(const QPointF &point1, const QPointF &point2) const
 {
     // sqrt(2) is the ratio between the hypotenuse of a square and its side;
     // a simplification of Pythagoras’ theorem.
@@ -2454,8 +2465,10 @@ void ImageCanvas::updateWindowCursorShape()
             << "\n............ cursor shape" << Utils::enumToString(cursorShape);
     }
 
-    if (window())
+    if (window()) {
+//        qDebug() << cursorShape;
         window()->setCursor(QCursor(cursorShape));
+    }
 }
 
 void ImageCanvas::onZoomLevelChanged()
@@ -2532,12 +2545,12 @@ void ImageCanvas::setPenColourThroughEyedropper(const QColor &colour)
         setPenBackgroundColour(colour);
 }
 
-void ImageCanvas::setHasBlankCursor(bool hasCustomCursor)
+void ImageCanvas::setHasBlankCursor(bool hasBlankCursor)
 {
-    if (hasCustomCursor == mHasBlankCursor)
+    if (hasBlankCursor == mHasBlankCursor)
         return;
 
-    mHasBlankCursor = hasCustomCursor;
+    mHasBlankCursor = hasBlankCursor;
     emit hasBlankCursorChanged();
 }
 
@@ -2633,6 +2646,8 @@ void ImageCanvas::applyZoom(qreal zoom, const QPoint &origin)
 
 void ImageCanvas::wheelEvent(QWheelEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "wheelEvent:" << event;
+
     if (!mProject->hasLoaded() || !mScrollZoom) {
         event->ignore();
         return;
@@ -2672,6 +2687,7 @@ void ImageCanvas::wheelEvent(QWheelEvent *event)
 
 void ImageCanvas::mousePressEvent(QMouseEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "mousePressEvent:" << event;
     QQuickItem::mousePressEvent(event);
 
     // Is it possible to get a press without a hover enter? If so, we need this line.
@@ -2736,6 +2752,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
 
 void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "mouseMoveEvent:" << event;
     QQuickItem::mouseMoveEvent(event);
 
     const QPointF oldCursorScenePosition = QPointF(mCursorSceneFX, mCursorSceneFY);
@@ -2781,6 +2798,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
 
 void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "mouseReleaseEvent:" << event;
     QQuickItem::mouseReleaseEvent(event);
 
     updateCursorPos(event->pos());
@@ -2883,6 +2901,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
 
 void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "hoverEnterEvent:" << event;
     QQuickItem::hoverEnterEvent(event);
 
     updateCursorPos(event->pos());
@@ -2895,6 +2914,7 @@ void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
 
 void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "hoverMoveEvent:" << event->posF();
     QQuickItem::hoverMoveEvent(event);
 
     updateCursorPos(event->pos());
@@ -2914,6 +2934,7 @@ void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
 
 void ImageCanvas::hoverLeaveEvent(QHoverEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "hoverLeaveEvent:" << event;
     QQuickItem::hoverLeaveEvent(event);
 
     setContainsMouse(false);
@@ -2924,6 +2945,7 @@ void ImageCanvas::hoverLeaveEvent(QHoverEvent *event)
 
 void ImageCanvas::keyPressEvent(QKeyEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "keyPressEvent:" << event;
     QQuickItem::keyPressEvent(event);
 
     if (!mProject->hasLoaded())
@@ -2984,6 +3006,7 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
 
 void ImageCanvas::keyReleaseEvent(QKeyEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "keyReleaseEvent:" << event;
     QQuickItem::keyReleaseEvent(event);
 
     if (!mProject->hasLoaded())
@@ -3004,13 +3027,21 @@ void ImageCanvas::keyReleaseEvent(QKeyEvent *event)
 
 void ImageCanvas::focusInEvent(QFocusEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "focusInEvent:" << event;
     QQuickItem::focusInEvent(event);
 
-    updateWindowCursorShape();
+    // When alt-tabbing away from and back to our window, we'd previously
+    // just call updateWindowCursorShape(). However, that alone isn't enough,
+    // as hoverLeaveEvent() calls setContainsMouse(false), which gets called
+    // when when the window loses focus.
+    // So, we check the position of the mouse manually and set it ourselves
+    // when the window regains focus.
+    setContainsMouse(contains(mapFromGlobal(QCursor::pos())));
 }
 
 void ImageCanvas::focusOutEvent(QFocusEvent *event)
 {
+    qCDebug(lcImageCanvasEvents) << "focusOutEvent:" << event;
     QQuickItem::focusOutEvent(event);
 
     // The alt-to-eyedrop feature is meant to be temporary,

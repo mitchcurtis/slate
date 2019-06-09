@@ -36,6 +36,8 @@ Slate was built for pixel art, and its goal is to simplify the creation of sprit
   - [Building](#building)
     - [Qt Creator](#qt-creator)
     - [Command Line](#command-line)
+      - [Qbs](#qbs)
+      - [CMake](#cmake)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -103,6 +105,8 @@ Open [slate.qbs](https://github.com/mitchcurtis/slate/blob/master/slate.qbs) in 
 
 #### Command Line ####
 
+##### Qbs
+
 First, follow Qbs' [setup guide](http://doc.qt.io/qbs/setup.html). Once you've set it up, choose one of the following approaches.
 
 In-source builds:
@@ -117,6 +121,26 @@ Shadow builds:
     qbs /path/to/slate-source-dir/slate.qbs
 
 For more information about building Qbs applications, see [this page](http://doc.qt.io/qbs/building-applications.html).
+
+##### CMake
+
+In-source builds:
+
+    cd /path/to/slate-source-dir
+    cmake .
+    cmake --build .
+
+Shadow builds:
+
+    mkdir slate-build
+    cd slate-build
+    cmake /path/to/slate-source-dir/slate.qbs
+    cmake --build .
+
+To run all test cases:
+
+    cd slate-build
+    ctest
 
 ---
 

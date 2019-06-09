@@ -371,7 +371,7 @@ void ApplicationSettings::setWindowOpacity(qreal opacity)
 
 QColor ApplicationSettings::defaultCheckerColour1() const
 {
-    return QColor("#444444");
+    return QColor::fromRgb(0x444444);
 }
 
 QColor ApplicationSettings::checkerColour1() const
@@ -390,7 +390,7 @@ void ApplicationSettings::setCheckerColour1(const QColor &colour)
 
 QColor ApplicationSettings::defaultCheckerColour2() const
 {
-    return QColor("#7e7e7e");
+    return QColor::fromRgb(0x7e7e7e);
 }
 
 QColor ApplicationSettings::checkerColour2() const

@@ -83,7 +83,7 @@ ItemDelegate {
         id: focusRect
         width: 2
         height: parent.height
-        color: Ui.CanvasColours.focusColour
+        color: Ui.Theme.focusColour
         visible: parent.checked
     }
 }

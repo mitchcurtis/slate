@@ -79,7 +79,6 @@ Item {
 
     StatusBar {
         id: statusBar
-//        z: 1
         parent: ApplicationWindow.window.contentItem
         width: canvasContainer.width
         anchors.bottom: parent.bottom

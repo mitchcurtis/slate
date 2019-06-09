@@ -34,7 +34,7 @@ class SLATE_EXPORT FileValidator : public QObject
     Q_PROPERTY(bool treatAsImage READ treatAsImage WRITE setTreatAsImage NOTIFY treatAsImageChanged)
 
 public:
-    explicit FileValidator(QObject *parent = 0);
+    explicit FileValidator(QObject *parent = nullptr);
 
     QUrl url() const;
     void setUrl(const QUrl &url);

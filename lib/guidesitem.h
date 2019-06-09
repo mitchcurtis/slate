@@ -35,7 +35,7 @@ class SLATE_EXPORT GuidesItem : public QQuickPaintedItem
 
 public:
     explicit GuidesItem(ImageCanvas *canvas);
-    ~GuidesItem();
+    ~GuidesItem() override;
 
     void paint(QPainter *painter) override;
 

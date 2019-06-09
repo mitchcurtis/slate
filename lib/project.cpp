@@ -290,7 +290,7 @@ QUrl Project::createTemporaryImage(int width, int height, const QColor &colour)
     tempImage.fill(colour);
 
     const QString dateString = QDateTime::currentDateTime().toString(QLatin1String("hh-mm-ss-zzz"));
-    const QString fileName = QString::fromLatin1("%1/tmp-image-%2.png").arg(mTempDir.path()).arg(dateString);
+    const QString fileName = QString::fromLatin1("%1/tmp-image-%2.png").arg(mTempDir.path(), dateString);
     if (!tempImage.save(fileName)) {
         error(QString::fromLatin1("Failed to save temporary image to %1").arg(fileName));
         return QUrl();

@@ -293,8 +293,15 @@ Controls.MenuBar {
         MenuItem {
             objectName: "changeImageSizeMenuItem"
             text: qsTr("Image Size...")
-            enabled: canvas && projectType === Project.ImageType
+            enabled: isImageProjectType && canvas
             onTriggered: imageSizePopup.open()
+        }
+
+        MenuItem {
+            objectName: "cropToSelectionMenuItem"
+            text: qsTr("Crop to Selection")
+            enabled: isImageProjectType && canvas && canvas.hasSelection
+            onTriggered: project.crop(canvas.selectionArea)
         }
 
         MenuSeparator {}

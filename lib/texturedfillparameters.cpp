@@ -19,7 +19,10 @@
 
 #include "texturedfillparameters.h"
 
-TexturedFillParameter::TexturedFillParameter()
+TexturedFillParameter::TexturedFillParameter() :
+    mEnabled(false),
+    mVarianceLowerBound(0),
+    mVarianceUpperBound(0)
 {
     reset();
 }

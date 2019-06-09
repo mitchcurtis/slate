@@ -38,8 +38,8 @@ class SLATE_EXPORT ProjectManager : public QObject
     Q_PROPERTY(bool ready READ isReady NOTIFY readyChanged)
 
 public:
-    explicit ProjectManager(QObject *parent = 0);
-    ~ProjectManager();
+    explicit ProjectManager(QObject *parent = nullptr);
+    ~ProjectManager() override;
 
     Project *project() const;
 

@@ -32,7 +32,6 @@
 #include "jsonutils.h"
 
 TilesetProject::TilesetProject() :
-    Project(),
     mTilesWide(0),
     mTilesHigh(0),
     mTileWidth(0),
@@ -132,8 +131,8 @@ void TilesetProject::createNew(QUrl tilesetUrl, int tileWidth, int tileHeight,
 }
 
 #define CONTAINS_KEY_OR_ERROR(jsonObject, key, filePath) \
-    if (!jsonObject.contains(key)) { \
-        error(QString::fromLatin1("Tileset project file is missing a \"%1\" key:\n\n%2").arg(key).arg(filePath)); \
+    if (!(jsonObject).contains(key)) { \
+        error(QString::fromLatin1("Tileset project file is missing a \"%1\" key:\n\n%2").arg(key, filePath)); \
         return; \
     }
 
