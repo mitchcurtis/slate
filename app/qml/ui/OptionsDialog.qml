@@ -103,6 +103,30 @@ Dialog {
                     width: parent.width
 
                     Label {
+                        text: qsTr("Language")
+                    }
+                    ComboBox {
+                        id: languageComboBox
+                        objectName: "languageComboBox"
+                        leftPadding: 0
+                        textRole: "display"
+                        currentIndex: 0 // TODO(Ahmed): replace it with projectSetting
+
+                        model: [
+                            {
+                                value: "English",
+                                display: "English"
+                            },
+                            {
+                                value: "Arabic",
+                                display: "العربيه"
+                            }
+                        ]
+
+                        Layout.fillWidth: true
+                    }
+
+                    Label {
                         text: qsTr("Load last project on startup")
                     }
                     CheckBox {
