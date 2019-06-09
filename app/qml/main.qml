@@ -292,6 +292,7 @@ ApplicationWindow {
         nameFilters: ["All files (*)", "PNG files (*.png)", "BMP files (*.bmp)", "SLP files (*.slp)", "STP files (*.stp)"]
         defaultSuffix: projectManager.projectExtensionForType(Project.ImageType)
         onAccepted: loadProject(file)
+        folder: (project && project.loaded) ? project.dirUrl : ""
     }
 
     Platform.FileDialog {
