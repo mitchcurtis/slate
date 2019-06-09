@@ -2159,10 +2159,14 @@ bool TestHelper::dragSplitViewHandle(const QString &splitViewObjectName, int ind
     const QPoint newCentre = splitView->mapToScene(QPointF(
         newHandleCentreRelativeToSplitView.x(), newHandleCentreRelativeToSplitView.y())).toPoint();
 
+    // TODO: fix this in qtquickcontrols2 auto tests, which require the same workaround:
+    // https://bugreports.qt.io/browse/QTBUG-76294
+    QTest::mouseMove(window, handleCentre);
     QTest::mouseMove(window, handleCentre);
     QQmlProperty handleHoveredProperty(handleItem.data(), "SplitHandle.hovered", qmlContext(handleItem.data()));
     VERIFY(handleHoveredProperty.isValid());
-    VERIFY(handleHoveredProperty.read().toBool() == true);
+    VERIFY2(handleHoveredProperty.read().toBool() == true,
+        "Expected SplitView handle to be hovered after moving the mouse onto it");
     QQmlProperty handlePressedProperty(handleItem.data(), "SplitHandle.pressed", qmlContext(handleItem.data()));
     VERIFY(handlePressedProperty.isValid());
     VERIFY(handlePressedProperty.read().toBool() == false);
@@ -2174,7 +2178,8 @@ bool TestHelper::dragSplitViewHandle(const QString &splitViewObjectName, int ind
     VERIFY(handlePressedProperty.read().toBool() == true);
 
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, newCentre);
-    VERIFY(handleHoveredProperty.read().toBool() == true);
+    VERIFY2(handleHoveredProperty.read().toBool() == true,
+        "Expected SplitView handle to be hovered after releasing the mouse over it after a drag");
     VERIFY(handlePressedProperty.read().toBool() == false);
     return true;
 }
