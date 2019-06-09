@@ -120,6 +120,7 @@ Panel {
         }
 
         Ui.VerticalSeparator {
+            id: swatchSeparator
             visible: settings.autoSwatchEnabled
             leftPadding: 12
             topPadding: 0

@@ -537,15 +537,6 @@ QColor TileCanvas::penColour() const
     return mMouseButtonPressed == Qt::LeftButton ? mPenForegroundColour : mPenBackgroundColour;
 }
 
-void TileCanvas::setHasBlankCursor(bool hasBlankCursor)
-{
-    if (hasBlankCursor == mHasBlankCursor)
-        return;
-
-    mHasBlankCursor = hasBlankCursor;
-    emit hasBlankCursorChanged();
-}
-
 void TileCanvas::updateTilePenPreview()
 {
     setTilePenPreview(mMode == TileMode && mTool == PenTool);
