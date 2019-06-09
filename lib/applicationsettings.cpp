@@ -1069,3 +1069,20 @@ void ApplicationSettings::setFullScreenToggleShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("fullScreenToggleShortcut", defaultFullScreenToggleShortcut, fullScreenToggleShortcutChanged)
 }
+
+constexpr char LanguageName[] = "language";
+QString ApplicationSettings::defaultLanguage() const {
+    return "English";
+}
+
+QString ApplicationSettings::language() const {
+     return contains(LanguageName) ? value(LanguageName).toString() : defaultLanguage();
+}
+
+void ApplicationSettings::setLanguage(const QString &value) {
+    if (language() == value)
+        return;
+
+    setValue(LanguageName, QVariant(value));
+    emit languageChanged();
+}
