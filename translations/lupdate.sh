@@ -22,5 +22,6 @@ set -e
 $qtBinDir/lupdate \
     $slateDir/app/qml/qml.qrc $slateDir/lib/filevalidator.cpp \
     -ts $translationDir/slate_en_GB.ts \
-    $translationDir/slate_no_NB.ts
+    $translationDir/slate_no_NB.ts \
+	$translationDir/slate_ar_EG.ts
 
