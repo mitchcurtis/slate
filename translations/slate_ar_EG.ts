@@ -6,17 +6,17 @@
     <message>
         <location filename="../app/qml/ui/AboutDialog.qml" line="32"/>
         <source>About Slate</source>
-        <translation type="unfinished"></translation>
+        <translation>عن سلات (Slate)</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AboutDialog.qml" line="44"/>
         <source>Built from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>بناء %1</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AboutDialog.qml" line="51"/>
         <source>Copyright 2018, Mitch Curtis</source>
-        <translation type="unfinished"></translation>
+        <translation>حقوق النشر 2018 Mitch Curtis</translation>
     </message>
 </context>
 <context>
@@ -24,7 +24,7 @@
     <message>
         <location filename="../app/qml/ui/AnimationPanel.qml" line="32"/>
         <source>Animation</source>
-        <translation type="unfinished"></translation>
+        <translation>انيميشن</translation>
     </message>
 </context>
 <context>
@@ -32,72 +32,72 @@
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="29"/>
         <source>Animation Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>اعدادات الانيميشن</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="76"/>
         <source>Frame X</source>
-        <translation type="unfinished"></translation>
+        <translation>اطار السيني</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="91"/>
         <source>X coordinate of the first frame to animate</source>
-        <translation type="unfinished"></translation>
+        <translation>المحور السيني لاطار الانيميشن الاول</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="100"/>
         <source>Frame Y</source>
-        <translation type="unfinished"></translation>
+        <translation>اطار الصادي</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="115"/>
         <source>Y coordinate of the first frame to animate</source>
-        <translation type="unfinished"></translation>
+        <translation>المحور الصادي لاطار الانيميشن الاول</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="124"/>
         <source>Frame Width</source>
-        <translation type="unfinished"></translation>
+        <translation>عرض الاطار</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="139"/>
         <source>Width of each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>عرض كل الاطارات</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="147"/>
         <source>Frame Height</source>
-        <translation type="unfinished"></translation>
+        <translation>ارتفاع الاطار</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="162"/>
         <source>Height of each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>ارتفاع كل الاطارات</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="170"/>
         <source>Frame Count</source>
-        <translation type="unfinished"></translation>
+        <translation>عدد الاطارات</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="185"/>
         <source>The number of frames to animate</source>
-        <translation type="unfinished"></translation>
+        <translation>عدد الاطارات الانيميشن</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="193"/>
         <source>FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>ا م ث</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="208"/>
         <source>Frames per second</source>
-        <translation type="unfinished"></translation>
+        <translation>الاطارات في الثانيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="219"/>
         <source>Preview Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>عرض</translation>
     </message>
 </context>
 <context>
@@ -105,47 +105,47 @@
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="29"/>
         <source>Choose a size for the canvas</source>
-        <translation type="unfinished"></translation>
+        <translation>اختار مقاس اللوحه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="59"/>
         <source>Canvas width</source>
-        <translation type="unfinished"></translation>
+        <translation>عرض اللوحه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="70"/>
         <source>Number of horizontal tiles</source>
-        <translation type="unfinished"></translation>
+        <translation>عدد المربعات الافقيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="71"/>
         <source>Canvas width in pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>عرض اللوحه بالبكسل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="80"/>
         <source>Canvas height</source>
-        <translation type="unfinished"></translation>
+        <translation>طول اللوحه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="91"/>
         <source>Number of vertical tiles</source>
-        <translation type="unfinished"></translation>
+        <translation>عدد المربعات الراسيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="92"/>
         <source>Canvas height in pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>طول اللوحه بالبكسل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="112"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>تم</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="118"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>الغاء</translation>
     </message>
 </context>
 <context>
@@ -153,7 +153,7 @@
     <message>
         <location filename="../app/qml/ui/ColourPanel.qml" line="11"/>
         <source>Colour</source>
-        <translation type="unfinished"></translation>
+        <translation>اللون</translation>
     </message>
 </context>
 <context>
@@ -161,22 +161,22 @@
     <message>
         <location filename="../app/qml/ui/ColourSelector.qml" line="14"/>
         <source>background</source>
-        <translation type="unfinished"></translation>
+        <translation>الخلفيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ColourSelector.qml" line="14"/>
         <source>foreground</source>
-        <translation type="unfinished"></translation>
+        <translation>الاماميه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ColourSelector.qml" line="31"/>
         <source>Set the background colour</source>
-        <translation type="unfinished"></translation>
+        <translation>اختار لون الخلفيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ColourSelector.qml" line="45"/>
         <source>Set the foreground colour</source>
-        <translation type="unfinished"></translation>
+        <translation>اختار لون الاماميه</translation>
     </message>
 </context>
 <context>
@@ -184,17 +184,17 @@
     <message>
         <location filename="../lib/filevalidator.cpp" line="45"/>
         <source>Must specify a file</source>
-        <translation type="unfinished"></translation>
+        <translation>لابد من اختيار ملف</translation>
     </message>
     <message>
         <location filename="../lib/filevalidator.cpp" line="47"/>
         <source>File doesn&apos;t exist</source>
-        <translation type="unfinished"></translation>
+        <translation>الملف غير موجود</translation>
     </message>
     <message>
         <location filename="../lib/filevalidator.cpp" line="52"/>
         <source>Image can not be opened</source>
-        <translation type="unfinished"></translation>
+        <translation>لا يمكن فتح الصوره</translation>
     </message>
 </context>
 <context>
@@ -202,7 +202,7 @@
     <message>
         <location filename="../app/qml/ui/FpsCounter.qml" line="26"/>
         <source>%1 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -210,7 +210,7 @@
     <message>
         <location filename="../app/qml/ui/HexColourRowLayout.qml" line="23"/>
         <source>#</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -369,7 +369,7 @@
     <message>
         <location filename="../app/qml/ui/LayerPanel.qml" line="32"/>
         <source>Layers</source>
-        <translation type="unfinished"></translation>
+        <translation>طبقات</translation>
     </message>
 </context>
 <context>
@@ -378,83 +378,83 @@
         <location filename="../app/qml/ui/MenuBar.qml" line="46"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="44"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>ملف</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="57"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="48"/>
         <source>New</source>
-        <translation type="unfinished"></translation>
+        <translation>جديد</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="66"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="57"/>
         <source>Recent Files</source>
-        <translation type="unfinished"></translation>
+        <translation>الملفات السابقه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="93"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="78"/>
         <source>Clear Recent Files</source>
-        <translation type="unfinished"></translation>
+        <translation>امسح الملفات السابقه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="100"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="85"/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>افتح</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="108"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="94"/>
         <source>Show Location</source>
         <extracomment>Opens the project directory in the file explorer.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>بين المكان</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="117"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="103"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>حفظ</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="124"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="110"/>
         <source>Save As</source>
-        <translation type="unfinished"></translation>
+        <translation>حفظ في</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="132"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="119"/>
         <source>Export</source>
         <extracomment>Exports the project as a single image.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>صدر</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="139"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="127"/>
         <source>Auto Export</source>
         <extracomment>Enables automatic exporting of the project as a single image each time the project is saved.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>صدر اتوماتيك</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="150"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="138"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>اغلق</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="159"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="148"/>
         <source>Revert</source>
         <extracomment>Loads the last saved version of the project, losing any unsaved changes.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>أعاد</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="168"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="157"/>
         <source>Quit Slate</source>
-        <translation type="unfinished"></translation>
+        <translation>اغلاق</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="175"/>
@@ -719,7 +719,7 @@
         <location filename="../app/qml/ui/MenuBar.qml" line="491"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="481"/>
         <source>About Slate</source>
-        <translation type="unfinished"></translation>
+        <translation>عن سلاك (slate)</translation>
     </message>
 </context>
 <context>
@@ -1369,17 +1369,17 @@
     <message>
         <location filename="../app/qml/ui/TilesetSwatch.qml" line="185"/>
         <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>استنساخ</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/TilesetSwatch.qml" line="194"/>
         <source>Rotate 90° Left</source>
-        <translation type="unfinished"></translation>
+        <translation>لف 90 درجه لليسار</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/TilesetSwatch.qml" line="203"/>
         <source>Rotate 90° Right</source>
-        <translation type="unfinished"></translation>
+        <translation>لف 90 درجه لليمين</translation>
     </message>
 </context>
 <context>
@@ -1543,24 +1543,24 @@ Hold Shift to fill all pixels matching the target colour.</source>
     <message>
         <location filename="../app/qml/main.qml" line="391"/>
         <source>Unsaved changes</source>
-        <translation type="unfinished"></translation>
+        <translation>التغيرات غير محفوظة</translation>
     </message>
     <message>
         <location filename="../app/qml/main.qml" line="395"/>
         <source>The action you&apos;re about to perform could discard changes.
 
 Continue anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>هل انت متاكد من التغير القادم حيث ستفقد التغيرات\n\nهل تريد الاستمرار؟</translation>
     </message>
     <message>
         <location filename="../app/qml/main.qml" line="403"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>حفظ</translation>
     </message>
     <message>
         <location filename="../app/qml/main.qml" line="408"/>
         <source>Discard</source>
-        <translation type="unfinished"></translation>
+        <translation>تجاهل</translation>
     </message>
 </context>
 </TS>
