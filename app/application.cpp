@@ -23,6 +23,7 @@
 #include <QFontDatabase>
 #include <QLoggingCategory>
 #include <QQmlFileSelector>
+//#include <QQuickStyle>
 #include <QUndoStack>
 
 #include "autoswatchmodel.h"
@@ -142,6 +143,16 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     if (translator.load(locale, QStringLiteral("slate_"), QString(), translationsDir.absolutePath())) {
         mApplication->installTranslator(&translator);
     }
+
+    // Need to be able to link to QQC2 with Qbs...
+//    const QString applicationArgumentStyle = QQuickStyle::name();
+//    if (applicationArgumentStyle.isEmpty()) {
+//        // The style was not passed as an application argument, so use the style in settings.
+//        // ApplicationSettings will give us the correct default (Material) if the style hasn't been chosen yet,
+//        // so we don't need to worry about checking if the string is empty here.
+//        const QString settingsStyle = settings.value("style").toString();
+//        QQuickStyle::setStyle(settingsStyle);
+//    }
 
 #if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
     QQmlFileSelector fileSelector(mEngine.data());

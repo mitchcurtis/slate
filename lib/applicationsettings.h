@@ -51,6 +51,7 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
     Q_PROPERTY(int penToolRightClickBehaviour READ penToolRightClickBehaviour WRITE setPenToolRightClickBehaviour NOTIFY penToolRightClickBehaviourChanged)
+    Q_PROPERTY(QString styleName READ styleName WRITE setStyleName NOTIFY styleNameChanged)
 
     Q_PROPERTY(QString quitShortcut READ quitShortcut WRITE setQuitShortcut NOTIFY quitShortcutChanged)
     Q_PROPERTY(QString newShortcut READ newShortcut WRITE setNewShortcut NOTIFY newShortcutChanged)
@@ -156,6 +157,10 @@ public:
     int defaultPenToolRightClickBehaviour() const;
     int penToolRightClickBehaviour() const;
     void setPenToolRightClickBehaviour(int penToolRightClickBehaviour);
+
+    QString defaultStyleName() const;
+    QString styleName() const;
+    void setStyleName(const QString &styleName);
 
     Q_INVOKABLE void resetShortcutsToDefaults();
 
@@ -327,6 +332,7 @@ signals:
     void checkerColour1Changed();
     void checkerColour2Changed();
     void penToolRightClickBehaviourChanged();
+    void styleNameChanged();
 
     void quitShortcutChanged();
     void newShortcutChanged();

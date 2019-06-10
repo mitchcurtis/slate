@@ -427,6 +427,25 @@ void ApplicationSettings::setPenToolRightClickBehaviour(int penToolRightClickBeh
     emit penToolRightClickBehaviourChanged();
 }
 
+QString ApplicationSettings::defaultStyleName() const
+{
+    return QLatin1String("Material");
+}
+
+QString ApplicationSettings::styleName() const
+{
+    return contains("styleName") ? value("styleName").value<QString>() : defaultStyleName();
+}
+
+void ApplicationSettings::setStyleName(const QString &styleName)
+{
+    if (this->styleName() == styleName)
+        return;
+
+    setValue("styleName", QVariant(styleName));
+    emit styleNameChanged();
+}
+
 void ApplicationSettings::resetShortcutsToDefaults()
 {
     static QVector<QString> allShortcuts;

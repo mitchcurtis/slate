@@ -8,6 +8,7 @@ QtGuiApplication {
 
     Depends { name: "Qt.core" }
     Depends { name: "Qt.quick" }
+    Depends { name: "Qt.quick.controls" }
     Depends { name: "Qt.widgets" }
     Depends { name: "lib" }
     // Provides support for Apple Interface Builder - aka asset catalogs.
