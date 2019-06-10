@@ -25,7 +25,7 @@ import App 1.0
 
 import "." as Ui
 
-ToolBar {
+Ui.ToolBarBase {
     id: root
     objectName: "toolBar"
 

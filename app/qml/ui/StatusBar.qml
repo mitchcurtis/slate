@@ -37,7 +37,7 @@ Pane {
         parent: statusBarPane.background
         width: parent.width
         height: 1
-        color: "#444"
+        color: Theme.statusBarPaneEdgeColour
     }
 
     Rectangle {
@@ -45,7 +45,7 @@ Pane {
         x: parent.width - 1
         width: 1
         height: parent.height
-        color: "#444"
+        color: Theme.statusBarPaneEdgeColour
     }
 
     RowLayout {

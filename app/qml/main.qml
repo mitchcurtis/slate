@@ -29,7 +29,7 @@ import App 1.0
 
 import "ui" as Ui
 
-ApplicationWindow {
+Ui.ApplicationWindow {
     id: window
     objectName: "window"
     width: 1200

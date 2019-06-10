@@ -17,6 +17,7 @@ Group {
         files: [
             "ui/qmldir",
             "ui/AboutDialog.qml",
+            "ui/ApplicationWindow.qml",
             "ui/AnimationPanel.qml",
             "ui/AnimationSettingsPopup.qml",
             "ui/Theme.qml",
@@ -62,7 +63,6 @@ Group {
             "ui/SplitterBar.qml",
             "ui/StatusBar.qml",
             "ui/SwatchContextMenu.qml",
-            "ui/SwatchFocusRectangle.qml",
             "ui/SwatchGridView.qml",
             "ui/SwatchPanel.qml",
             "ui/SwatchSettingsContextMenu.qml",
@@ -71,6 +71,7 @@ Group {
             "ui/TilesetSwatch.qml",
             "ui/TilesetTypeCanvas.qml",
             "ui/ToolBar.qml",
+            "ui/ToolBarBase.qml",
             "ui/ToolButton.qml",
             "ui/ToolButtonMenuIndicator.qml",
             "ui/ToolSizePopup.qml",
@@ -83,15 +84,17 @@ Group {
             Qt.core.resourceSourceBase: path
             fileTags: ["qt.qml.qml", "qt.core.resource_data"]
             files: [
+                "ui/+material/ApplicationWindow.qml",
                 "ui/+material/DialogButton.qml",
                 "ui/+material/IconRectangle.qml",
-                "ui/+material/SwatchFocusRectangle.qml",
                 "ui/+material/Theme.qml",
+                "ui/+material/ToolBarBase.qml",
                 "ui/+imagine/Theme.qml",
+                "ui/+imagine/ToolBarBase.qml",
                 "ui/+nativemenubar/MenuBar.qml",
                 "ui/+universal/IconRectangle.qml",
-                "ui/+universal/SwatchFocusRectangle.qml",
                 "ui/+universal/Theme.qml",
+                "ui/+universal/ToolBarBase.qml",
                 "ui/+universal/VerticalSeparator.qml"
             ]
         }

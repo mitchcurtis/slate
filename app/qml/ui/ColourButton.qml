@@ -30,11 +30,11 @@ Button {
             border.color: "#dddddd"
         }
 
-        SwatchFocusRectangle {
+        Rectangle {
             x: -1
             width: 1
             height: parent.height
-            color: focusColour
+            color: Theme.focusColour
             visible: control.checked
         }
     }

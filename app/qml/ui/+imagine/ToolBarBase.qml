@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2019, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,23 +17,6 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-pragma Singleton
+import QtQuick.Controls 2.12
 
-import QtQml 2.12
-import QtQuick.Controls.Universal 2.12
-
-QtObject {
-    readonly property color focusColour: Universal.accent
-
-    readonly property var toolButtonWidth: 48
-    readonly property var toolButtonHeight: 38
-
-    readonly property color canvasBackgroundColour: "#222"
-    readonly property color splitColour: "#444"
-    readonly property color rulerForegroundColour: Universal.foreground
-    readonly property color rulerBackgroundColour: "#333"
-
-    readonly property color panelColour: "#282828"
-
-    readonly property color statusBarPaneEdgeColour: "#444"
-}
+ToolBar {}

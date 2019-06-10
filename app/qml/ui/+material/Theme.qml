@@ -23,16 +23,31 @@ import QtQml 2.12
 import QtQuick.Controls.Material 2.12
 
 QtObject {
-    property color focusColour: Material.accent
+    readonly property bool darkTheme: Material.theme === Material.Dark
+    readonly property color reallyLightBlue: "#f8fdff"
 
-    property var toolButtonWidth: undefined
-    property var toolButtonHeight: undefined
+    readonly property color focusColour: darkTheme ? Material.accent : "salmon"
+
+    readonly property var toolButtonWidth: undefined
+    readonly property var toolButtonHeight: undefined
+    readonly property color toolBarColour: darkTheme ? "#424242" : Material.color(Material.LightBlue, Material.Shade200)
 
     // The light theme's background colour is too white for the crosshair cursor.
-    property color canvasBackgroundColour: Material.theme === Material.Dark ? Material.background : "#ccc"
-    property color splitColour: "#444"
-    property color rulerForegroundColour: Qt.darker(Material.foreground, 1.4)
-    property color rulerBackgroundColour: panelColour
+    readonly property color canvasBackgroundColour: darkTheme ? Material.background : "#444"
+    readonly property color splitColour: "#444"
+    readonly property color rulerForegroundColour: Qt.darker(Material.foreground, 1.4)
+    readonly property color rulerBackgroundColour: panelColour
 
-    property color panelColour: "#424242"
+    readonly property color panelColour: darkTheme ? "#424242" : reallyLightBlue
+
+    readonly property color statusBarColour: reallyLightBlue
+    readonly property color statusBarPaneEdgeColour: darkTheme ? "#444" : "transparent"
+
+    // Material-only stuff below.
+
+    // We create our own Material ApplicationWindow (plus the Default one which we have to
+    // have for the selector to work) so that we can override the background colour.
+    // If we didn't, each Theme would have to provide their own windowColour, meaning
+    // we'd need to hard-code the window colours from each style.
+    readonly property color windowColour: darkTheme ? Material.background : "#eee"
 }

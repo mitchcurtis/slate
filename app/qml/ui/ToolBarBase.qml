@@ -1,5 +1,5 @@
 /*
-    Copyright 2016, Mitch Curtis
+    Copyright 2019, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,9 +17,8 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.12
-import QtQuick.Controls.Universal 2.0
+import QtQuick.Controls 2.12
 
-Rectangle {
-    readonly property color focusColour: Universal.accent
+ToolBar {
+    palette.button: toolBarColour
 }
