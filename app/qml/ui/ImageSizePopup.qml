@@ -101,6 +101,7 @@ Dialog {
                     bottomPadding: 0
                     anchors.verticalCenter: parent.verticalCenter
 
+                    //: Keep the aspect ratio (width to height) when resizing the image.
                     ToolTip.text: qsTr("Preserve aspect ratio")
                     ToolTip.visible: hovered
                     ToolTip.delay: toolTipDelay

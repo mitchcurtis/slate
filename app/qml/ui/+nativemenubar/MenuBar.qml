@@ -75,6 +75,7 @@ Item {
 
                 Platform.MenuItem {
                     objectName: "clearRecentFilesMenuItem"
+                    //: Empty the list of recent files in the File menu.
                     text: qsTr("Clear Recent Files")
                     onTriggered: settings.clearRecentFiles()
                 }
