@@ -135,7 +135,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     }
 
     QTranslator translator;
-    const QLocale locale("nb_NO");
+    const QLocale locale;
     QDir translationsDir = QDir::current();
     translationsDir.cdUp();
     translationsDir.cd(QStringLiteral("Translations"));
