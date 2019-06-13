@@ -200,6 +200,9 @@ ApplicationWindow {
         id: mainSplitView
         objectName: "mainSplitView"
         anchors.fill: parent
+        handle: Item {
+            implicitWidth: 4
+        }
 
         Layout.fillWidth: true
 
@@ -217,6 +220,9 @@ ApplicationWindow {
             id: panelSplitView
             objectName: "panelSplitView"
             orientation: Qt.Vertical
+            handle: Item {
+                implicitHeight: 4
+            }
 
             SplitView.minimumWidth: 200
             SplitView.preferredWidth: 240
