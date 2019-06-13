@@ -90,6 +90,7 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QString swatchUpShortcut READ swatchUpShortcut WRITE setSwatchUpShortcut NOTIFY swatchUpShortcutChanged)
     Q_PROPERTY(QString swatchDownShortcut READ swatchDownShortcut WRITE setSwatchDownShortcut NOTIFY swatchDownShortcutChanged)
     Q_PROPERTY(QString fullScreenToggleShortcut READ fullScreenToggleShortcut WRITE setFullScreenToggleShortcut NOTIFY fullScreenToggleShortcutChanged)
+    Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
 
 public:
     explicit ApplicationSettings(QObject *parent = nullptr);
@@ -311,6 +312,10 @@ public:
     QString fullScreenToggleShortcut() const;
     void setFullScreenToggleShortcut(const QString &shortcut);
 
+    QString defaultLanguage() const;
+    QString language() const;
+    void setLanguage(const QString &value);
+
 signals:
     void loadLastOnStartupChanged();
     void recentFilesChanged();
@@ -366,6 +371,7 @@ signals:
     void swatchUpShortcutChanged();
     void swatchDownShortcutChanged();
     void fullScreenToggleShortcutChanged();
+    void languageChanged();
 };
 
 #endif // APPLICATIONSETTINGS_H

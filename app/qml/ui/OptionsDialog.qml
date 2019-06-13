@@ -103,6 +103,41 @@ Dialog {
                     width: parent.width
 
                     Label {
+                        text: qsTr("Language")
+                    }
+                    ComboBox {
+                        id: languageComboBox
+                        objectName: "languageComboBox"
+                        leftPadding: 0
+                        textRole: "display"
+                        currentIndex: indexForValue(settings.language)
+
+                        model: [
+                            {
+                                value: "English",
+                                display: "English"
+                            },
+                            {
+                                value: "Norwegian",
+                                display: "Norsh"
+                            },
+                            {
+                                value: "Arabic",
+                                display: "العربيه"
+                            }
+                        ]
+
+                        Layout.fillWidth: true
+                        function indexForValue(value) {
+                            for (var i = 0; i < model.length; ++i) {
+                                if (model[i].value === value)
+                                    return i;
+                            }
+                            return -1;
+                        }
+                    }
+
+                    Label {
                         text: qsTr("Load last project on startup")
                     }
                     CheckBox {
