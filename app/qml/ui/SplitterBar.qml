@@ -11,7 +11,7 @@ Rectangle {
     height: parent.height
     color: Theme.splitColour
     z: 4
-    visible: canvas && canvas.project && canvas.project.loaded
+    visible: canvas && canvas.project && canvas.project.loaded && canvas.splitScreen
 
     property ImageCanvas canvas
 }
