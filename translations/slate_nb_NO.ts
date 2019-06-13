@@ -24,7 +24,7 @@
     <message>
         <location filename="../app/qml/ui/AnimationPanel.qml" line="32"/>
         <source>Animation</source>
-        <translation type="unfinished"></translation>
+        <translation>Animasjon</translation>
     </message>
 </context>
 <context>
@@ -32,72 +32,72 @@
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="29"/>
         <source>Animation Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Animasjons instillinger</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="76"/>
         <source>Frame X</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramme X</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="91"/>
         <source>X coordinate of the first frame to animate</source>
-        <translation type="unfinished"></translation>
+        <translation>X kordinasjon av første ramme til animasjon</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="100"/>
         <source>Frame Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramme Y</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="115"/>
         <source>Y coordinate of the first frame to animate</source>
-        <translation type="unfinished"></translation>
+        <translation>Y kordinasjon av første ramme til animasjon</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="124"/>
         <source>Frame Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramme bredde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="139"/>
         <source>Width of each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Bredde av hver ramme</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="147"/>
         <source>Frame Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramme høyde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="162"/>
         <source>Height of each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Høyde av hver ramme</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="170"/>
         <source>Frame Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Antall rammer</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="185"/>
         <source>The number of frames to animate</source>
-        <translation type="unfinished"></translation>
+        <translation>Antall nummer av rammer til animasjon</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="193"/>
         <source>FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramme per sekund</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="208"/>
         <source>Frames per second</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramme per sekund</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="219"/>
         <source>Preview Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Rammeskala</translation>
     </message>
 </context>
 <context>
@@ -105,47 +105,47 @@
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="29"/>
         <source>Choose a size for the canvas</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg en størrelse for lerrete</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="59"/>
         <source>Canvas width</source>
-        <translation type="unfinished"></translation>
+        <translation>Lerret bredde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="70"/>
         <source>Number of horizontal tiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Nummer av horisontale kanter</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="71"/>
         <source>Canvas width in pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Lerret bredde i piksler</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="80"/>
         <source>Canvas height</source>
-        <translation type="unfinished"></translation>
+        <translation>Lerret høyde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="91"/>
         <source>Number of vertical tiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Nummer av vertikale kanter</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="92"/>
         <source>Canvas height in pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Lerret høyde i piksler</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="112"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="118"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -153,7 +153,7 @@
     <message>
         <location filename="../app/qml/ui/ColourPanel.qml" line="11"/>
         <source>Colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Farge</translation>
     </message>
 </context>
 <context>
@@ -161,22 +161,22 @@
     <message>
         <location filename="../app/qml/ui/ColourSelector.qml" line="14"/>
         <source>background</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrunn</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ColourSelector.qml" line="14"/>
         <source>foreground</source>
-        <translation type="unfinished"></translation>
+        <translation>Forgrunn</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ColourSelector.qml" line="31"/>
         <source>Set the background colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Sett bakgrunns farge</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ColourSelector.qml" line="45"/>
         <source>Set the foreground colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Sett forgrunns farge</translation>
     </message>
 </context>
 <context>
@@ -184,17 +184,17 @@
     <message>
         <location filename="../lib/filevalidator.cpp" line="45"/>
         <source>Must specify a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Må spesifisere en fil</translation>
     </message>
     <message>
         <location filename="../lib/filevalidator.cpp" line="47"/>
         <source>File doesn&apos;t exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen finnes ikke</translation>
     </message>
     <message>
         <location filename="../lib/filevalidator.cpp" line="52"/>
         <source>Image can not be opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildet kan ikke åpnes</translation>
     </message>
 </context>
 <context>
@@ -202,7 +202,7 @@
     <message>
         <location filename="../app/qml/ui/FpsCounter.qml" line="26"/>
         <source>%1 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 FPS</translation>
     </message>
 </context>
 <context>
@@ -210,7 +210,7 @@
     <message>
         <location filename="../app/qml/ui/HexColourRowLayout.qml" line="23"/>
         <source>#</source>
-        <translation type="unfinished"></translation>
+        <translation>#</translation>
     </message>
 </context>
 <context>
@@ -218,49 +218,49 @@
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="93"/>
         <source>Opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Opasitet</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="170"/>
         <source>Lightness</source>
-        <translation type="unfinished"></translation>
+        <translation>Letthet</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="179"/>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="244"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="187"/>
         <source>Darken the %1 colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Mørkne %1 Farge</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="197"/>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="262"/>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="205"/>
         <source>Lighten the %1 colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Lysne %1 Farge</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="230"/>
         <source>Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation>Metning</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="252"/>
         <source>Desaturate the %1 colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Avmette %1 farge</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="270"/>
         <source>Saturate the %1 colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Mette  %1 farge</translation>
     </message>
 </context>
 <context>
@@ -268,47 +268,47 @@
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="31"/>
         <source>Hue/Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation>Fargetone/Metning</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="89"/>
         <source>Hue</source>
-        <translation type="unfinished"></translation>
+        <translation>Fargetone</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="125"/>
         <source>Changes the hue of the image</source>
-        <translation type="unfinished"></translation>
+        <translation>Forandrer fargetonen av bildet</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="148"/>
         <source>Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation>Metning</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="176"/>
         <source>Changes the saturation of the image</source>
-        <translation type="unfinished"></translation>
+        <translation>Forandrer metningen av bildet</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="208"/>
         <source>Lightness</source>
-        <translation type="unfinished"></translation>
+        <translation>Lyshet</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="236"/>
         <source>Changes the lightness of the image</source>
-        <translation type="unfinished"></translation>
+        <translation>Forandrer lysheten av bildet</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="271"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="282"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -316,52 +316,52 @@
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="29"/>
         <source>Choose a size for the image</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg størrelse for bildet</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="104"/>
         <source>Preserve aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Bevar aspektforholdet</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="111"/>
         <source>Image width</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilde bredde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="127"/>
         <source>Image width in pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilde bredde i piksler</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="150"/>
         <source>Image height</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilde høyde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="166"/>
         <source>Image height in pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilde høyde i piksler</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="189"/>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Jevne ut</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="201"/>
         <source>Resize smoothly using bilinear filtering</source>
-        <translation type="unfinished"></translation>
+        <translation>Endre størrelsen jevnt ved hjelp av bilinær filtrering</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="219"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="225"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -369,7 +369,7 @@
     <message>
         <location filename="../app/qml/ui/LayerPanel.qml" line="32"/>
         <source>Layers</source>
-        <translation type="unfinished"></translation>
+        <translation>LAg</translation>
     </message>
 </context>
 <context>
@@ -378,330 +378,330 @@
         <location filename="../app/qml/ui/MenuBar.qml" line="46"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="44"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>Fil</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="57"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="48"/>
         <source>New</source>
-        <translation type="unfinished"></translation>
+        <translation>Ny</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="66"/>
         <source>Recent Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Nylige filer</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="93"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="79"/>
         <source>Clear Recent Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Tøm listen med nylige filer</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="100"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="86"/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Åpne</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="108"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="94"/>
         <source>Show Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis lokasjon</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="117"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="103"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="124"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="110"/>
         <source>Save As</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre som</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="132"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="118"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksporter</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="139"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="125"/>
         <source>Auto Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Auto eksporter</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="150"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="136"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Lukk</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="159"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="145"/>
         <source>Revert</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilbake til første lagring</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="168"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="154"/>
         <source>Quit Slate</source>
-        <translation type="unfinished"></translation>
+        <translation>Avslutt Slate</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="175"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="162"/>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Rediger</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="181"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="166"/>
         <source>Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>Angre</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="189"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="174"/>
         <source>Redo</source>
-        <translation type="unfinished"></translation>
+        <translation>Klar</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="198"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="184"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopier</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="205"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="191"/>
         <source>Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>Lim inn</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="214"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="200"/>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg alle</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="223"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="209"/>
         <source>Textured Fill Settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>Strukturert fyll instillinger...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="232"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="218"/>
         <source>Rotate 90° Clockwise</source>
-        <translation type="unfinished"></translation>
+        <translation>Rotere 90° til høyre</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="239"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="225"/>
         <source>Rotate 90° Counter Clockwise</source>
-        <translation type="unfinished"></translation>
+        <translation>Rotere 90° mot venstre</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="246"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="232"/>
         <source>Flip Horizontally</source>
-        <translation type="unfinished"></translation>
+        <translation>Flip horisontalt</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="253"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="239"/>
         <source>Flip Vertically</source>
-        <translation type="unfinished"></translation>
+        <translation>Flip vertikalt</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="261"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="247"/>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="267"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="251"/>
         <source>Adjustments</source>
-        <translation type="unfinished"></translation>
+        <translation>Justeringer</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="271"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="255"/>
         <source>Hue/Saturation...</source>
-        <translation type="unfinished"></translation>
+        <translation>Fargetone/Metning...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="278"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="262"/>
         <source>Opacity...</source>
-        <translation type="unfinished"></translation>
+        <translation>Opasitet...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="288"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="272"/>
         <source>Canvas Size...</source>
-        <translation type="unfinished"></translation>
+        <translation>Arbeidsområde størrelse...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="295"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="279"/>
         <source>Image Size...</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilde størrelse...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="302"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="286"/>
         <source>Crop to Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Beskjær til markering</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="311"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="295"/>
         <source>Move Contents...</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytt innhold...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="319"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="303"/>
         <source>Layers</source>
-        <translation type="unfinished"></translation>
+        <translation>Lag</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="325"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="307"/>
         <source>Move Layer Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytt lag opp</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="333"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="315"/>
         <source>Move Layer Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytt lag ned</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="343"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="325"/>
         <source>Merge Layer Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå sammen øvere lag</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="350"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="332"/>
         <source>Merge Layer Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå sammen nedre lag</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="359"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="342"/>
         <source>Animation</source>
-        <translation type="unfinished"></translation>
+        <translation>Animasjon</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="368"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="347"/>
         <source>Animation Playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Animasjon avspilling</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="377"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="356"/>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Spill</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="377"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="356"/>
         <source>Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>Pause</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="385"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="365"/>
         <source>View</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="391"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="369"/>
         <source>Centre</source>
-        <translation type="unfinished"></translation>
+        <translation>Senter</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="400"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="378"/>
         <source>Show Grid</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis nett</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="409"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="387"/>
         <source>Show Rulers</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis linjal</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="418"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="396"/>
         <source>Show Guides</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis guider</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="427"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="405"/>
         <source>Lock Guides</source>
-        <translation type="unfinished"></translation>
+        <translation>Lås guider</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="438"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="416"/>
         <source>Split Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Del skjermen</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="447"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="425"/>
         <source>Lock Splitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Lås delingen av skjerm</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="456"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="434"/>
         <source>Scroll Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Bla Zoom</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="466"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="444"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Verktøy</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="472"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="448"/>
         <source>Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Valg</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="479"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="455"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Hjelp</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="485"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="459"/>
         <source>Online Documentation...</source>
-        <translation type="unfinished"></translation>
+        <translation>Online Dokumentasjon...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="491"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="465"/>
         <source>About Slate</source>
-        <translation type="unfinished"></translation>
+        <translation>Om Slate</translation>
     </message>
 </context>
 <context>

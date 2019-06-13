@@ -20,6 +20,8 @@ ImageCanvas {
     guidesLocked: settings.guidesLocked
     splitColour: Theme.splitColour
     splitter.width: 32
+    rulerForegroundColour: Theme.rulerForegroundColour
+    rulerBackgroundColour: Theme.rulerBackgroundColour
     scrollZoom: settings.scrollZoom
     gesturesEnabled: settings.gesturesEnabled
     penToolRightClickBehaviour: settings.penToolRightClickBehaviour

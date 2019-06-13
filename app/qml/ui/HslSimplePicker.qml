@@ -251,6 +251,7 @@ GridLayout {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
 
+            //: Desaturate the foreground/background colour.
             ToolTip.text: qsTr("Desaturate the %1 colour").arg(hexColourRowLayout.colourSelector.currentPenName)
             ToolTip.visible: hovered
             ToolTip.delay: toolTipDelay
@@ -269,6 +270,7 @@ GridLayout {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
 
+            //: Saturate the foreground/background colour.
             ToolTip.text: qsTr("Saturate the %1 colour").arg(hexColourRowLayout.colourSelector.currentPenName)
             ToolTip.visible: hovered
             ToolTip.delay: toolTipDelay
