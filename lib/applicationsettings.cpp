@@ -33,6 +33,30 @@ ApplicationSettings::ApplicationSettings(QObject *parent) :
     qCDebug(lcApplicationSettings) << "Loading settings from" << fileName();
 }
 
+QString ApplicationSettings::defaultLanguage() const
+{
+    return "en_GB";
+}
+
+QString ApplicationSettings::language() const
+{
+     return contains("language") ? value("language").toString() : defaultLanguage();
+}
+
+void ApplicationSettings::setLanguage(const QString &language)
+{
+    const QVariant existingValue = value("language");
+    QString existingStringValue = defaultLanguage();
+    if (contains("language"))
+        existingStringValue = existingValue.toBool();
+
+    if (language == existingStringValue)
+        return;
+
+    setValue("language", language);
+    emit languageChanged();
+}
+
 bool ApplicationSettings::loadLastOnStartup() const
 {
     return contains("loadLastOnStartup") ? value("loadLastOnStartup").toBool() : defaultLoadLastOnStartup();
@@ -1068,21 +1092,4 @@ QString ApplicationSettings::fullScreenToggleShortcut() const
 void ApplicationSettings::setFullScreenToggleShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("fullScreenToggleShortcut", defaultFullScreenToggleShortcut, fullScreenToggleShortcutChanged)
-}
-
-constexpr char LanguageName[] = "language";
-QString ApplicationSettings::defaultLanguage() const {
-    return "English";
-}
-
-QString ApplicationSettings::language() const {
-     return contains(LanguageName) ? value(LanguageName).toString() : defaultLanguage();
-}
-
-void ApplicationSettings::setLanguage(const QString &value) {
-    if (language() == value)
-        return;
-
-    setValue(LanguageName, QVariant(value));
-    emit languageChanged();
 }

@@ -22,6 +22,7 @@ Dialog {
     onAboutToShow: clearChanges()
 
     function applyAllSettings() {
+        settings.language = languageComboBox.model[languageComboBox.currentIndex].value
         settings.loadLastOnStartup = loadLastCheckBox.checked
         settings.gesturesEnabled = enableGesturesCheckBox.checked
         settings.penToolRightClickBehaviour =
@@ -42,6 +43,7 @@ Dialog {
     }
 
     function clearChanges() {
+        languageComboBox.currentIndex = languageComboBox.indexForValue(settings.language)
         loadLastCheckBox.checked = settings.loadLastOnStartup
         enableGesturesCheckBox.checked = settings.gesturesEnabled
         penToolRightClickBehaviourComboBox.currentIndex =
@@ -112,22 +114,8 @@ Dialog {
                         textRole: "display"
                         currentIndex: indexForValue(settings.language)
 
-                        model: [
-                            {
-                                value: "English",
-                                display: "English"
-                            },
-                            {
-                                value: "Norwegian",
-                                display: "Norsh"
-                            },
-                            {
-                                value: "Arabic",
-                                display: "العربيه"
-                            }
-                        ]
-
                         Layout.fillWidth: true
+
                         function indexForValue(value) {
                             for (var i = 0; i < model.length; ++i) {
                                 if (model[i].value === value)
@@ -135,6 +123,21 @@ Dialog {
                             }
                             return -1;
                         }
+
+                        model: [
+                            {
+                                value: "en_GB",
+                                display: "English"
+                            },
+                            {
+                                value: "nb_NO",
+                                display: "Norsk"
+                            },
+                            {
+                                value: "ar_EG",
+                                display: "العربيه"
+                            }
+                        ]
                     }
 
                     Label {
