@@ -316,52 +316,52 @@
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="29"/>
         <source>Choose a size for the image</source>
-        <translation type="unfinished"></translation>
+        <translation>أختار حجم الصوره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="104"/>
         <source>Preserve aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>احتفظ بنسبه الابعاد</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="111"/>
         <source>Image width</source>
-        <translation type="unfinished"></translation>
+        <translation>عرض الصوره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="127"/>
         <source>Image width in pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>عرض الصوره بالبكسل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="150"/>
         <source>Image height</source>
-        <translation type="unfinished"></translation>
+        <translation>ارتفاع الصوره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="166"/>
         <source>Image height in pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>ارتفاع الصوره بالبكسل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="189"/>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation>صقل الصوره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="201"/>
         <source>Resize smoothly using bilinear filtering</source>
-        <translation type="unfinished"></translation>
+        <translation>تغير حجم الصوره باستخدام &quot;bilinear filtering&quot;</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="219"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>تم</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="225"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>الغاء</translation>
     </message>
 </context>
 <context>
@@ -490,82 +490,82 @@
         <location filename="../app/qml/ui/MenuBar.qml" line="214"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="203"/>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>تحديد الكل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="223"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="213"/>
         <source>Textured Fill Settings...</source>
         <extracomment>Opens a dialog that allows the user to change the settings for the Textured Fill tool.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>اعدادات ملا النسيج...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="232"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="223"/>
         <source>Rotate 90° Clockwise</source>
         <extracomment>Rotates the image 90 degrees to the right.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>لف 90 مع عقارب الساعه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="239"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="231"/>
         <source>Rotate 90° Counter Clockwise</source>
         <extracomment>Rotates the image 90 degrees to the left.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>لف 90 عكس عقارب الساعه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="246"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="238"/>
         <source>Flip Horizontally</source>
-        <translation type="unfinished"></translation>
+        <translation>الوجه أفقيا</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="253"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="245"/>
         <source>Flip Vertically</source>
-        <translation type="unfinished"></translation>
+        <translation>الوجه عموديا</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="261"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="253"/>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>الصوره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="267"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="257"/>
         <source>Adjustments</source>
-        <translation type="unfinished"></translation>
+        <translation>النعديلات</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="271"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="261"/>
         <source>Hue/Saturation...</source>
-        <translation type="unfinished"></translation>
+        <translation>درجه اللون | التشبع...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="278"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="268"/>
         <source>Opacity...</source>
-        <translation type="unfinished"></translation>
+        <translation>النفاذيه...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="288"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="278"/>
         <source>Canvas Size...</source>
-        <translation type="unfinished"></translation>
+        <translation>ابعاد اللوحه...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="295"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="285"/>
         <source>Image Size...</source>
-        <translation type="unfinished"></translation>
+        <translation>ابعاد الصوره...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="302"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="292"/>
         <source>Crop to Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>قص للتحديد</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="311"/>
@@ -727,47 +727,47 @@
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="29"/>
         <source>Move layer contents</source>
-        <translation type="unfinished"></translation>
+        <translation>تحريك محتوي اللوحه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="57"/>
         <source>Horizontal distance</source>
-        <translation type="unfinished"></translation>
+        <translation>المسافة الأفقيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="71"/>
         <source>Horizontal distance to move the contents by (in pixels)</source>
-        <translation type="unfinished"></translation>
+        <translation>المسافة أفقيا لتحريك المحتوي بالبكسل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="77"/>
         <source>Vertical distance</source>
-        <translation type="unfinished"></translation>
+        <translation>المسافه العموديه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="91"/>
         <source>Vertical distance to move the contents by (in pixels)</source>
-        <translation type="unfinished"></translation>
+        <translation>المسافة العموديه لتحريك المحتوي بالبكسل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="97"/>
         <source>Only move visible layers</source>
-        <translation type="unfinished"></translation>
+        <translation>حرك فقط اللوحه المرئيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="106"/>
         <source>Only move contents of visible layers</source>
-        <translation type="unfinished"></translation>
+        <translation>حرك فقط محتوي اللوحه المرئيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="164"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>تم</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="173"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>الغاء</translation>
     </message>
 </context>
 <context>
@@ -822,32 +822,32 @@
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="50"/>
         <source>New Layered Image</source>
-        <translation type="unfinished"></translation>
+        <translation>انشاء طبقه لصوره جديده</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="51"/>
         <source>Creates a new layered image project. Several images are drawn on top of each other, and can be exported as a single image.</source>
-        <translation type="unfinished"></translation>
+        <translation>انشاء طبقه لصوره جديده. العديد من الصوره مرسومه فوق بعضهم. ستقةم باستخراجهم كصوره واحده.</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="66"/>
         <source>New Image</source>
-        <translation type="unfinished"></translation>
+        <translation>انشاء صوره جديده</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="67"/>
         <source>Creates a new bitmap image for direct editing, with no layer support.</source>
-        <translation type="unfinished"></translation>
+        <translation>انشاء صوره Bitmap للتغير المباشر. من غير طبقه.</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="81"/>
         <source>New Tileset</source>
-        <translation type="unfinished"></translation>
+        <translation>انشاء Tileset</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="82"/>
         <source>Creates a new tileset bitmap image for editing. Paint tiles from an image onto a grid. An accompanying project file is created to save the contents of the grid.</source>
-        <translation type="unfinished"></translation>
+        <translation>انشاء Tileset جديده للتغير المباشر.</translation>
     </message>
 </context>
 <context>
@@ -944,42 +944,42 @@
         <location filename="../app/qml/ui/OpacityDialog.qml" line="31"/>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="82"/>
         <source>Opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>درجه التشبع</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="96"/>
         <source>Changes the opacity of the image</source>
-        <translation type="unfinished"></translation>
+        <translation>تغير درجه التشبع</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="148"/>
         <source>Do not modify fully transparent pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>لا تغير البكسل الشفافه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="153"/>
         <source>Only change the alpha if it&apos;s non-zero to prevent fully transparent pixels from gaining opacity.</source>
-        <translation type="unfinished"></translation>
+        <translation>غير الالفا فقط الغير مساويه لصفر لمنع البكسل الغير مشبعه من فقدان الشفافيه.</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="163"/>
         <source>Do not modify fully opaque pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>لا تغير البكسل الشفافه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="168"/>
         <source>Only change the alpha if it&apos;s less than one to prevent fully opaque pixels from losing opacity.</source>
-        <translation type="unfinished"></translation>
+        <translation>غير الالفا فقط اقل من واحد لمنع البكسل الغير مشبعه من فقدان الشفافيه.</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="179"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>تم</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="190"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>الغاء</translation>
     </message>
 </context>
 <context>
@@ -1338,17 +1338,17 @@
     <message>
         <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="130"/>
         <source>Preview scale</source>
-        <translation type="unfinished"></translation>
+        <translation>عرض</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="172"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>تم</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="181"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>الغاء</translation>
     </message>
 </context>
 <context>
@@ -1364,7 +1364,7 @@
     <message>
         <location filename="../app/qml/ui/TilesetSwatch.qml" line="13"/>
         <source>Tileset Swatch</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/TilesetSwatch.qml" line="185"/>
