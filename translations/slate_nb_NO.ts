@@ -369,7 +369,7 @@
     <message>
         <location filename="../app/qml/ui/LayerPanel.qml" line="32"/>
         <source>Layers</source>
-        <translation>LAg</translation>
+        <translation>Lag</translation>
     </message>
 </context>
 <context>
@@ -545,7 +545,7 @@
         <location filename="../app/qml/ui/MenuBar.qml" line="288"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="272"/>
         <source>Canvas Size...</source>
-        <translation>Arbeidsområde størrelse...</translation>
+        <translation>Lerett størrelse...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="295"/>
@@ -709,47 +709,47 @@
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="29"/>
         <source>Move layer contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytt lag innhold</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="57"/>
         <source>Horizontal distance</source>
-        <translation type="unfinished"></translation>
+        <translation>Horisontal avstand</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="71"/>
         <source>Horizontal distance to move the contents by (in pixels)</source>
-        <translation type="unfinished"></translation>
+        <translation>Horisontal avstand med å flytte innhold</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="77"/>
         <source>Vertical distance</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertikal avstand</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="91"/>
         <source>Vertical distance to move the contents by (in pixels)</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertikal avstand med å flytte innhold</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="97"/>
         <source>Only move visible layers</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytt kun synlige lag</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="106"/>
         <source>Only move contents of visible layers</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytt kun innhold av synlige lag</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="164"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="173"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -757,38 +757,38 @@
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="10"/>
         <source>New Image Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt bilde prosjekt</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="36"/>
         <source>Image Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Ny bredde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="48"/>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="70"/>
         <source>The height of the image</source>
-        <translation type="unfinished"></translation>
+        <translation>Høyde av bildet</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="58"/>
         <source>Image Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilde høyde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="82"/>
         <source>Transparent Background</source>
-        <translation type="unfinished"></translation>
+        <translation>Gjennomsiktig bakgrunn</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="93"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="99"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -796,7 +796,7 @@
     <message>
         <location filename="../app/qml/ui/NewLayeredImageProjectPopup.qml" line="4"/>
         <source>New Layered Image Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt lag bilde prosjekt</translation>
     </message>
 </context>
 <context>
@@ -804,32 +804,32 @@
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="50"/>
         <source>New Layered Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt lag bilde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="51"/>
         <source>Creates a new layered image project. Several images are drawn on top of each other, and can be exported as a single image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lager et nytt bilde prosjekt med flere lag. Flere bilder er flyttet sammen på topp av hverandre, og kan bli eksportert som et enkelt bilde.</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="66"/>
         <source>New Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt bilde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="67"/>
         <source>Creates a new bitmap image for direct editing, with no layer support.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lager et nytt bitmap bilde for direkte redigering, med ingen mulighet for å lage lag.</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="81"/>
         <source>New Tileset</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt Tilset</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="82"/>
         <source>Creates a new tileset bitmap image for editing. Paint tiles from an image onto a grid. An accompanying project file is created to save the contents of the grid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lager et nytt tilset bitmap bilde for redigering. Mal ruter fra et bilde på et rutenett. Et tilhørende prosjekt fil er laget til å lagre innholdet av rutenettet.</translation>
     </message>
 </context>
 <context>
@@ -837,87 +837,87 @@
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="10"/>
         <source>New Tileset Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt Tileset prosjekt</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="73"/>
         <source>Use existing tileset</source>
-        <translation type="unfinished"></translation>
+        <translation>Bruk eksiterende tileset</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="85"/>
         <source>Tileset</source>
-        <translation type="unfinished"></translation>
+        <translation>Tileset</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="111"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="115"/>
         <source>Click to choose the path to a tileset image</source>
-        <translation type="unfinished"></translation>
+        <translation>Klikk for å velge et lagret bilde til bruk for tileset bilde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="124"/>
         <source>Tile Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Rute bredde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="143"/>
         <source>How wide each tile is in pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Hvor bredt hver rute er i en piksel</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="154"/>
         <source>Tile Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Rute høyde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="173"/>
         <source>How high each tile is in pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Hvor høy hver rute er i piksel</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="183"/>
         <source>Tiles Wide</source>
-        <translation type="unfinished"></translation>
+        <translation>Rute bredde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="196"/>
         <source>How many tiles should be displayed horizontally</source>
-        <translation type="unfinished"></translation>
+        <translation>Hvor mange ruter som burde vises horisontalt</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="206"/>
         <source>Tiles High</source>
-        <translation type="unfinished"></translation>
+        <translation>Rute høyde</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="219"/>
         <source>How many tiles should be displayed vertically</source>
-        <translation type="unfinished"></translation>
+        <translation>Hvor mange ruter som burde vises vertikalt</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="231"/>
         <source>Transparent Background</source>
-        <translation type="unfinished"></translation>
+        <translation>Gjennomsiktig bakgrunn</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="239"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Forhåndsvis</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="306"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="313"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -926,42 +926,42 @@
         <location filename="../app/qml/ui/OpacityDialog.qml" line="31"/>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="82"/>
         <source>Opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Gjennomsiktighet</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="96"/>
         <source>Changes the opacity of the image</source>
-        <translation type="unfinished"></translation>
+        <translation>Forandrer gjennomsiktigheten til bildet</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="148"/>
         <source>Do not modify fully transparent pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Ikke modifiser helt gjennomsiktige piksler</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="153"/>
         <source>Only change the alpha if it&apos;s non-zero to prevent fully transparent pixels from gaining opacity.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kun endre alpha om den ikke er null for å forhindre et fullstendig gjennomsiktig piksel fra å endre gjennomsiktigheten.</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="163"/>
         <source>Do not modify fully opaque pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Ikke endre ugjennomsiktige piksler</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="168"/>
         <source>Only change the alpha if it&apos;s less than one to prevent fully opaque pixels from losing opacity.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kun endre alpha om den er mindre enn en for å forhindre fullstendig ugjennomsiktighet fra å miste ugjennomsiktighet.</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="179"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="190"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -969,133 +969,133 @@
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="71"/>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>Generell</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="76"/>
         <source>Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Snarveier</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="106"/>
         <source>Load last project on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Last inn siste prosjekt ved programstart</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="115"/>
         <source>Enable gestures (macOS only)</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå på gester (kun macOS)</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="122"/>
         <source>Enables the use of two-finger panning and pinch-to-zoom on macOS</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå på bruk av to fingre panorering og klype for å zoom på macOS</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="128"/>
         <source>Pen tool right click behaviour</source>
-        <translation type="unfinished"></translation>
+        <translation>Blyant verktøy høyre klikk oppførsel</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="142"/>
         <source>Apply eraser</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilfør viskelær</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="146"/>
         <source>Apply colour picker</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilfør fargevelger</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="150"/>
         <source>Apply background colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilfør bakgrunns farge</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="166"/>
         <source>Window opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Vindu opasitet</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="176"/>
         <source>Changes the opacity of the window. Useful for tracing over an image in another window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Velger opasiteten av vinduet. Nyttig for sporing over et bilde i et annet vindu.</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="196"/>
         <source>Transparency grid colours</source>
-        <translation type="unfinished"></translation>
+        <translation>Gjennomsiktighet rutenett farger</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="254"/>
         <source>Show FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis FPS</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="263"/>
         <source>Always show crosshair cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis alltid trådkors markør</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="270"/>
         <source>Don&apos;t hide crosshair cursor when rectangle cursor is visible</source>
-        <translation type="unfinished"></translation>
+        <translation>Ikke skjul trådkors markør når rektangel markør er synlig</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="276"/>
         <source>Enable auto swatch (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="283"/>
         <source>Enables the use of a read-only swatch whose colours come from the image</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå på en skrivebeskyttet palett med farger som kommer i fra bildet</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="327"/>
         <source>New Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt prosjekt</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="331"/>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="343"/>
         <source>Close Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Lukk Prosjekt</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="335"/>
         <source>Save Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre Prosjekt</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="339"/>
         <source>Save Project As</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre Prosjekt som</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="347"/>
         <source>Revert To Last Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilbake til sist lagret</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="351"/>
         <source>Undo Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Angre handling</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="355"/>
         <source>Redo Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Omgjør handling</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="359"/>
         <source>Flip Horizontally</source>
-        <translation type="unfinished"></translation>
+        <translation>Vend horisontalt</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="363"/>
         <source>Flip Vertically</source>
-        <translation type="unfinished"></translation>
+        <translation>Vend vertikalt</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="367"/>
