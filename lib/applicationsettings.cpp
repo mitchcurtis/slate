@@ -886,7 +886,13 @@ void ApplicationSettings::setAnimationPlaybackShortcut(const QString &shortcut)
 
 QString ApplicationSettings::defaultOptionsShortcut() const
 {
+#if defined(Q_OS_MACOS)
+    return QKeySequence(QKeySequence::Preferences).toString();
+#else
+    // According to the documentation, QKeySequence::Preferences is only defined for macOS,
+    // so we define it for the rest of the platforms here.
     return QLatin1String("Ctrl+Alt+T");
+#endif
 }
 
 QString ApplicationSettings::optionsShortcut() const
