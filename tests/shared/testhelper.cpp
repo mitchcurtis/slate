@@ -19,6 +19,7 @@
 
 #include "testhelper.h"
 
+#include <QClipboard>
 #include <QPainter>
 
 #include "imagelayer.h"
@@ -207,6 +208,8 @@ void TestHelper::cleanup()
 
     if (layeredImageProject)
         layeredImageProject->setAutoExportEnabled(false);
+
+    qGuiApp->clipboard()->setImage(QImage());
 }
 
 void TestHelper::resetCreationErrorSpy()
@@ -1643,13 +1646,20 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         VERIFY(newImageProjectPopup->property("visible").toBool());
 
         // Ensure that the popup gets reset each time it's opened.
+        const QImage clipboardImage = qGuiApp->clipboard()->image();
+        const int expectedImageWidth = !clipboardImage.isNull() ? clipboardImage.width() : 256;
         QQuickItem *imageWidthSpinBox = newImageProjectPopup->findChild<QQuickItem*>("imageWidthSpinBox");
         VERIFY(imageWidthSpinBox);
-        VERIFY(imageWidthSpinBox->property("value").toInt() == 256);
+        VERIFY2(imageWidthSpinBox->property("value").toInt() == expectedImageWidth, qPrintable(QString::fromLatin1(
+            "Expected value of image width spinbox to be %1, but it's %2")
+                .arg(expectedImageWidth).arg(imageWidthSpinBox->property("value").toInt())));
 
+        const int expectedImageHeight = !clipboardImage.isNull() ? clipboardImage.height() : 256;
         QQuickItem *imageHeightSpinBox = newImageProjectPopup->findChild<QQuickItem*>("imageHeightSpinBox");
         VERIFY(imageHeightSpinBox);
-        VERIFY(imageHeightSpinBox->property("value").toInt() == 256);
+        VERIFY2(imageHeightSpinBox->property("value").toInt() == expectedImageHeight, qPrintable(QString::fromLatin1(
+            "Expected value of image height spinbox to be %1, but it's %2")
+                .arg(expectedImageHeight).arg(imageHeightSpinBox->property("value").toInt())));
 
         VERIFY(imageWidthSpinBox->setProperty("value", imageWidth));
         VERIFY(imageWidthSpinBox->property("value").toInt() == imageWidth);

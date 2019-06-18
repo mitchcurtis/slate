@@ -105,6 +105,8 @@ Product {
         "changelayervisiblecommand.h",
         "changetilecanvassizecommand.cpp",
         "changetilecanvassizecommand.h",
+        "clipboard.h",
+        "clipboard.cpp",
         "commands.h",
         "crophelper.cpp",
         "crophelper.h",

@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="nb_NO">
+<TS version="2.1" language="ar_EG">
 <context>
     <name>AboutDialog</name>
     <message>
         <location filename="../app/qml/ui/AboutDialog.qml" line="32"/>
         <source>About Slate</source>
-        <translation>Om Slate</translation>
+        <translation>عن سلات (Slate)</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AboutDialog.qml" line="44"/>
         <source>Built from %1</source>
-        <translation>Laget fra %1</translation>
+        <translation>بناء %1</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AboutDialog.qml" line="51"/>
         <source>Copyright 2018, Mitch Curtis</source>
-        <translation>Opphavsrett 2018</translation>
+        <translation>حقوق النشر 2018 Mitch Curtis</translation>
     </message>
 </context>
 <context>
@@ -24,7 +24,7 @@
     <message>
         <location filename="../app/qml/ui/AnimationPanel.qml" line="32"/>
         <source>Animation</source>
-        <translation>Animasjon</translation>
+        <translation>انيميشن</translation>
     </message>
 </context>
 <context>
@@ -32,72 +32,72 @@
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="29"/>
         <source>Animation Settings</source>
-        <translation>Animasjons instillinger</translation>
+        <translation>اعدادات الانيميشن</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="76"/>
         <source>Frame X</source>
-        <translation>Ramme X</translation>
+        <translation>اطار السيني</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="91"/>
         <source>X coordinate of the first frame to animate</source>
-        <translation>X kordinasjon av første ramme til animasjon</translation>
+        <translation>المحور السيني لاطار الانيميشن الاول</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="100"/>
         <source>Frame Y</source>
-        <translation>Ramme Y</translation>
+        <translation>اطار الصادي</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="115"/>
         <source>Y coordinate of the first frame to animate</source>
-        <translation>Y kordinasjon av første ramme til animasjon</translation>
+        <translation>المحور الصادي لاطار الانيميشن الاول</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="124"/>
         <source>Frame Width</source>
-        <translation>Ramme bredde</translation>
+        <translation>عرض الاطار</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="139"/>
         <source>Width of each frame</source>
-        <translation>Bredde av hver ramme</translation>
+        <translation>عرض كل الاطارات</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="147"/>
         <source>Frame Height</source>
-        <translation>Ramme høyde</translation>
+        <translation>ارتفاع الاطار</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="162"/>
         <source>Height of each frame</source>
-        <translation>Høyde av hver ramme</translation>
+        <translation>ارتفاع كل الاطارات</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="170"/>
         <source>Frame Count</source>
-        <translation>Antall rammer</translation>
+        <translation>عدد الاطارات</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="185"/>
         <source>The number of frames to animate</source>
-        <translation>Antall nummer av rammer til animasjon</translation>
+        <translation>عدد الاطارات الانيميشن</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="193"/>
         <source>FPS</source>
-        <translation>Ramme per sekund</translation>
+        <translation>ا م ث</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="208"/>
         <source>Frames per second</source>
-        <translation>Ramme per sekund</translation>
+        <translation>الاطارات في الثانيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="219"/>
         <source>Preview Scale</source>
-        <translation>Rammeskala</translation>
+        <translation>عرض</translation>
     </message>
 </context>
 <context>
@@ -105,47 +105,47 @@
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="29"/>
         <source>Choose a size for the canvas</source>
-        <translation>Velg en størrelse for lerrete</translation>
+        <translation>اختار مقاس اللوحه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="59"/>
         <source>Canvas width</source>
-        <translation>Lerret bredde</translation>
+        <translation>عرض اللوحه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="70"/>
         <source>Number of horizontal tiles</source>
-        <translation>Nummer av horisontale kanter</translation>
+        <translation>عدد المربعات الافقيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="71"/>
         <source>Canvas width in pixels</source>
-        <translation>Lerret bredde i piksler</translation>
+        <translation>عرض اللوحه بالبكسل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="80"/>
         <source>Canvas height</source>
-        <translation>Lerret høyde</translation>
+        <translation>طول اللوحه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="91"/>
         <source>Number of vertical tiles</source>
-        <translation>Nummer av vertikale kanter</translation>
+        <translation>عدد المربعات الراسيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="92"/>
         <source>Canvas height in pixels</source>
-        <translation>Lerret høyde i piksler</translation>
+        <translation>طول اللوحه بالبكسل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="112"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation>تم</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/CanvasSizePopup.qml" line="118"/>
         <source>Cancel</source>
-        <translation>Avbryt</translation>
+        <translation>الغاء</translation>
     </message>
 </context>
 <context>
@@ -153,7 +153,7 @@
     <message>
         <location filename="../app/qml/ui/ColourPanel.qml" line="11"/>
         <source>Colour</source>
-        <translation>Farge</translation>
+        <translation>اللون</translation>
     </message>
 </context>
 <context>
@@ -161,22 +161,22 @@
     <message>
         <location filename="../app/qml/ui/ColourSelector.qml" line="14"/>
         <source>background</source>
-        <translation>Bakgrunn</translation>
+        <translation>الخلفيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ColourSelector.qml" line="14"/>
         <source>foreground</source>
-        <translation>Forgrunn</translation>
+        <translation>الاماميه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ColourSelector.qml" line="31"/>
         <source>Set the background colour</source>
-        <translation>Sett bakgrunns farge</translation>
+        <translation>اختار لون الخلفيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ColourSelector.qml" line="45"/>
         <source>Set the foreground colour</source>
-        <translation>Sett forgrunns farge</translation>
+        <translation>اختار لون الاماميه</translation>
     </message>
 </context>
 <context>
@@ -184,17 +184,17 @@
     <message>
         <location filename="../lib/filevalidator.cpp" line="45"/>
         <source>Must specify a file</source>
-        <translation>Må spesifisere en fil</translation>
+        <translation>لابد من اختيار ملف</translation>
     </message>
     <message>
         <location filename="../lib/filevalidator.cpp" line="47"/>
         <source>File doesn&apos;t exist</source>
-        <translation>Filen finnes ikke</translation>
+        <translation>الملف غير موجود</translation>
     </message>
     <message>
         <location filename="../lib/filevalidator.cpp" line="52"/>
         <source>Image can not be opened</source>
-        <translation>Bildet kan ikke åpnes</translation>
+        <translation>لا يمكن فتح الصوره</translation>
     </message>
 </context>
 <context>
@@ -202,7 +202,7 @@
     <message>
         <location filename="../app/qml/ui/FpsCounter.qml" line="26"/>
         <source>%1 FPS</source>
-        <translation>%1 FPS</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -210,7 +210,7 @@
     <message>
         <location filename="../app/qml/ui/HexColourRowLayout.qml" line="23"/>
         <source>#</source>
-        <translation>#</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -218,49 +218,49 @@
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="93"/>
         <source>Opacity</source>
-        <translation>Opasitet</translation>
+        <translation>الشفافيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="170"/>
         <source>Lightness</source>
-        <translation>Letthet</translation>
+        <translation>الاضاءه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="179"/>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="244"/>
         <source>-</source>
-        <translation>-</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="187"/>
         <source>Darken the %1 colour</source>
-        <translation>Mørkne %1 Farge</translation>
+        <translation>الظلمه %1 اللون</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="197"/>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="262"/>
         <source>+</source>
-        <translation>+</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="205"/>
         <source>Lighten the %1 colour</source>
-        <translation>Lysne %1 Farge</translation>
+        <translation>اضاءه%1 اللون</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="230"/>
         <source>Saturation</source>
-        <translation>Metning</translation>
+        <translation>التشبع</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="252"/>
         <source>Desaturate the %1 colour</source>
-        <translation>Avmette %1 farge</translation>
+        <translation>عدم تشبع %1 اللون</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HslSimplePicker.qml" line="270"/>
         <source>Saturate the %1 colour</source>
-        <translation>Mette  %1 farge</translation>
+        <translation>تشبع %1 اللون</translation>
     </message>
 </context>
 <context>
@@ -268,47 +268,47 @@
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="31"/>
         <source>Hue/Saturation</source>
-        <translation>Fargetone/Metning</translation>
+        <translation>درجه اللون | التشبع</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="89"/>
         <source>Hue</source>
-        <translation>Fargetone</translation>
+        <translation>درجه اللون</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="125"/>
         <source>Changes the hue of the image</source>
-        <translation>Forandrer fargetonen av bildet</translation>
+        <translation>تغير درجه اللون</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="148"/>
         <source>Saturation</source>
-        <translation>Metning</translation>
+        <translation>التشبع</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="176"/>
         <source>Changes the saturation of the image</source>
-        <translation>Forandrer metningen av bildet</translation>
+        <translation>تغير التشبع في الصوره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="208"/>
         <source>Lightness</source>
-        <translation>Lyshet</translation>
+        <translation>الاضاءه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="236"/>
         <source>Changes the lightness of the image</source>
-        <translation>Forandrer lysheten av bildet</translation>
+        <translation>تغيير اضاءه الصور</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="271"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation>تم</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/HueSaturationDialog.qml" line="282"/>
         <source>Cancel</source>
-        <translation>Avbryt</translation>
+        <translation>الغاء</translation>
     </message>
 </context>
 <context>
@@ -316,52 +316,52 @@
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="29"/>
         <source>Choose a size for the image</source>
-        <translation>Velg størrelse for bildet</translation>
+        <translation>أختار حجم الصوره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="104"/>
         <source>Preserve aspect ratio</source>
-        <translation>Bevar aspektforholdet</translation>
+        <translation>احتفظ بنسبه الابعاد</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="111"/>
         <source>Image width</source>
-        <translation>Bilde bredde</translation>
+        <translation>عرض الصوره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="127"/>
         <source>Image width in pixels</source>
-        <translation>Bilde bredde i piksler</translation>
+        <translation>عرض الصوره بالبكسل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="150"/>
         <source>Image height</source>
-        <translation>Bilde høyde</translation>
+        <translation>ارتفاع الصوره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="166"/>
         <source>Image height in pixels</source>
-        <translation>Bilde høyde i piksler</translation>
+        <translation>ارتفاع الصوره بالبكسل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="189"/>
         <source>Smooth</source>
-        <translation>Jevne ut</translation>
+        <translation>صقل الصوره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="201"/>
         <source>Resize smoothly using bilinear filtering</source>
-        <translation>Endre størrelsen jevnt ved hjelp av bilinær filtrering</translation>
+        <translation>تغير حجم الصوره باستخدام &quot;bilinear filtering&quot;</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="219"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation>تم</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ImageSizePopup.qml" line="225"/>
         <source>Cancel</source>
-        <translation>Avbryt</translation>
+        <translation>الغاء</translation>
     </message>
 </context>
 <context>
@@ -369,7 +369,7 @@
     <message>
         <location filename="../app/qml/ui/LayerPanel.qml" line="32"/>
         <source>Layers</source>
-        <translation>Lag</translation>
+        <translation>طبقات</translation>
     </message>
 </context>
 <context>
@@ -378,330 +378,348 @@
         <location filename="../app/qml/ui/MenuBar.qml" line="46"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="44"/>
         <source>File</source>
-        <translation>Fil</translation>
+        <translation>ملف</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="57"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="48"/>
         <source>New</source>
-        <translation>Ny</translation>
+        <translation>جديد</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="66"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="57"/>
         <source>Recent Files</source>
-        <translation>Nylige filer</translation>
+        <translation>الملفات السابقه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="93"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="79"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="78"/>
         <source>Clear Recent Files</source>
-        <translation>Tøm listen med nylige filer</translation>
+        <translation>امسح الملفات السابقه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="100"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="86"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="85"/>
         <source>Open</source>
-        <translation>Åpne</translation>
+        <translation>افتح</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="108"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="94"/>
         <source>Show Location</source>
-        <translation>Vis lokasjon</translation>
+        <extracomment>Opens the project directory in the file explorer.</extracomment>
+        <translation>بين المكان</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="117"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="103"/>
         <source>Save</source>
-        <translation>Lagre</translation>
+        <translation>حفظ</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="124"/>
         <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="110"/>
         <source>Save As</source>
-        <translation>Lagre som</translation>
+        <translation>حفظ في</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="132"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="118"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="119"/>
         <source>Export</source>
-        <translation>Eksporter</translation>
+        <extracomment>Exports the project as a single image.</extracomment>
+        <translation>صدر</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="139"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="125"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="127"/>
         <source>Auto Export</source>
-        <translation>Auto eksporter</translation>
+        <extracomment>Enables automatic exporting of the project as a single image each time the project is saved.</extracomment>
+        <translation>صدر اتوماتيك</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="150"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="136"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="138"/>
         <source>Close</source>
-        <translation>Lukk</translation>
+        <translation>اغلق</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="159"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="145"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="148"/>
         <source>Revert</source>
-        <translation>Tilbake til første lagring</translation>
+        <extracomment>Loads the last saved version of the project, losing any unsaved changes.</extracomment>
+        <translation>أعاد</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="168"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="154"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="157"/>
         <source>Quit Slate</source>
-        <translation>Avslutt Slate</translation>
+        <translation>اغلاق</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="175"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="162"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="165"/>
         <source>Edit</source>
-        <translation>Rediger</translation>
+        <translation>تعديل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="181"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="166"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="169"/>
         <source>Undo</source>
-        <translation>Angre</translation>
+        <translation>اعد التطبيق</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="189"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="174"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="177"/>
         <source>Redo</source>
-        <translation>Klar</translation>
+        <translation>طبق</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="198"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="184"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="187"/>
         <source>Copy</source>
-        <translation>Kopier</translation>
+        <translation>نسخ</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="205"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="191"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="194"/>
         <source>Paste</source>
-        <translation>Lim inn</translation>
+        <translation>لصق</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="214"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="200"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="203"/>
         <source>Select All</source>
-        <translation>Velg alle</translation>
+        <translation>تحديد الكل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="223"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="209"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="213"/>
         <source>Textured Fill Settings...</source>
-        <translation>Strukturert fyll instillinger...</translation>
+        <extracomment>Opens a dialog that allows the user to change the settings for the Textured Fill tool.</extracomment>
+        <translation>اعدادات ملا النسيج...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="232"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="218"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="223"/>
         <source>Rotate 90° Clockwise</source>
-        <translation>Rotere 90° til høyre</translation>
+        <extracomment>Rotates the image 90 degrees to the right.</extracomment>
+        <translation>لف 90 مع عقارب الساعه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="239"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="225"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="231"/>
         <source>Rotate 90° Counter Clockwise</source>
-        <translation>Rotere 90° mot venstre</translation>
+        <extracomment>Rotates the image 90 degrees to the left.</extracomment>
+        <translation>لف 90 عكس عقارب الساعه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="246"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="232"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="238"/>
         <source>Flip Horizontally</source>
-        <translation>Flip horisontalt</translation>
+        <translation>الوجه أفقيا</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="253"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="239"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="245"/>
         <source>Flip Vertically</source>
-        <translation>Flip vertikalt</translation>
+        <translation>الوجه عموديا</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="261"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="247"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="253"/>
         <source>Image</source>
-        <translation>Bilde</translation>
+        <translation>الصوره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="267"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="251"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="257"/>
         <source>Adjustments</source>
-        <translation>Justeringer</translation>
+        <translation>النعديلات</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="271"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="255"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="261"/>
         <source>Hue/Saturation...</source>
-        <translation>Fargetone/Metning...</translation>
+        <translation>درجه اللون | التشبع...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="278"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="262"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="268"/>
         <source>Opacity...</source>
-        <translation>Opasitet...</translation>
+        <translation>النفاذيه...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="288"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="272"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="278"/>
         <source>Canvas Size...</source>
-        <translation>Lerett størrelse...</translation>
+        <translation>ابعاد اللوحه...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="295"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="279"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="285"/>
         <source>Image Size...</source>
-        <translation>Bilde størrelse...</translation>
+        <translation>ابعاد الصوره...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="302"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="286"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="292"/>
         <source>Crop to Selection</source>
-        <translation>Beskjær til markering</translation>
+        <translation>قص للتحديد</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="311"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="295"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="301"/>
         <source>Move Contents...</source>
-        <translation>Flytt innhold...</translation>
+        <translation>تحريك المحتوي...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="319"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="303"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="309"/>
         <source>Layers</source>
-        <translation>Lag</translation>
+        <translation>الطبقات</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="325"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="307"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="314"/>
         <source>Move Layer Up</source>
-        <translation>Flytt lag opp</translation>
+        <extracomment>Moves the current layer up in the list of layers in the Layer panel.</extracomment>
+        <translation>تحريك الطبقه العليا</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="333"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="315"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="323"/>
         <source>Move Layer Down</source>
-        <translation>Flytt lag ned</translation>
+        <extracomment>Moves the current layer down in the list of layers in the Layer panel.</extracomment>
+        <translation>تحريك الطبقه السفليه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="343"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="325"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="334"/>
         <source>Merge Layer Up</source>
-        <translation>Slå sammen øvere lag</translation>
+        <extracomment>Combines the current layer with the layer above it, then removes the current layer.</extracomment>
+        <translation>دمج الطبقه العليا</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="350"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="332"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="342"/>
         <source>Merge Layer Down</source>
-        <translation>Slå sammen nedre lag</translation>
+        <extracomment>Combines the current layer with the layer below it, then removes the current layer.</extracomment>
+        <translation>دملج الطبقه السفليه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="359"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="342"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="352"/>
         <source>Animation</source>
-        <translation>Animasjon</translation>
+        <translation>انيميشن</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="368"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="347"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="357"/>
         <source>Animation Playback</source>
-        <translation>Animasjon avspilling</translation>
+        <translation>تشغيل انيميشن</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="377"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="356"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="366"/>
         <source>Play</source>
-        <translation>Spill</translation>
+        <translation>تشغيل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="377"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="356"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="366"/>
         <source>Pause</source>
-        <translation>Pause</translation>
+        <translation>توقف</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="385"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="365"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="375"/>
         <source>View</source>
-        <translation>Vis</translation>
+        <translation>المنظر</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="391"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="369"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="380"/>
         <source>Centre</source>
-        <translation>Senter</translation>
+        <extracomment>Positions the canvas in the centre of the canvas pane.</extracomment>
+        <translation>المنتصف</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="400"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="378"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="390"/>
         <source>Show Grid</source>
-        <translation>Vis nett</translation>
+        <extracomment>Shows a grid that acts as a guide to distinguish tiles from one another.</extracomment>
+        <translation>اظهار الشبكه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="409"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="387"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="400"/>
         <source>Show Rulers</source>
-        <translation>Vis linjal</translation>
+        <extracomment>Shows rulers on the sides of each canvas pane that can be used to measure in pixels.</extracomment>
+        <translation>اظهار المسطره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="418"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="396"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="410"/>
         <source>Show Guides</source>
-        <translation>Vis guider</translation>
+        <extracomment>Shows coloured guides (vertical and horizontal lines) that can be dragged out from the rulers.</extracomment>
+        <translation>اظهار خطوط الارشاد</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="427"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="405"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="420"/>
         <source>Lock Guides</source>
-        <translation>Lås guider</translation>
+        <extracomment>Prevents the guides from being moved by the user.</extracomment>
+        <translation>ايقام خطوط الارشاد</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="438"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="416"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="432"/>
         <source>Split Screen</source>
-        <translation>Del skjermen</translation>
+        <extracomment>Toggles split screen: two canvas panes are shown instead of one.</extracomment>
+        <translation>اقتسام الشاشة</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="447"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="425"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="441"/>
         <source>Lock Splitter</source>
-        <translation>Lås delingen av skjerm</translation>
+        <translation>ايقاف الانشقاق</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="456"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="434"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="450"/>
         <source>Scroll Zoom</source>
-        <translation>Bla Zoom</translation>
+        <translation>تكبير باستخدام البكره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="466"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="444"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="460"/>
         <source>Tools</source>
-        <translation>Verktøy</translation>
+        <translation>الادوات</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="472"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="448"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="464"/>
         <source>Options</source>
-        <translation>Valg</translation>
+        <translation>الخيارات</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="479"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="455"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="471"/>
         <source>Help</source>
-        <translation>Hjelp</translation>
+        <translation>مساعده</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="485"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="459"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="475"/>
         <source>Online Documentation...</source>
-        <translation>Online Dokumentasjon...</translation>
+        <translation>وثائق الانترنت...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MenuBar.qml" line="491"/>
-        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="465"/>
+        <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="481"/>
         <source>About Slate</source>
-        <translation>Om Slate</translation>
+        <translation>عن سلاك (slate)</translation>
     </message>
 </context>
 <context>
@@ -709,47 +727,47 @@
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="29"/>
         <source>Move layer contents</source>
-        <translation>Flytt lag innhold</translation>
+        <translation>تحريك محتوي اللوحه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="57"/>
         <source>Horizontal distance</source>
-        <translation>Horisontal avstand</translation>
+        <translation>المسافة الأفقيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="71"/>
         <source>Horizontal distance to move the contents by (in pixels)</source>
-        <translation>Horisontal avstand med å flytte innhold</translation>
+        <translation>المسافة أفقيا لتحريك المحتوي بالبكسل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="77"/>
         <source>Vertical distance</source>
-        <translation>Vertikal avstand</translation>
+        <translation>المسافه العموديه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="91"/>
         <source>Vertical distance to move the contents by (in pixels)</source>
-        <translation>Vertikal avstand med å flytte innhold</translation>
+        <translation>المسافة العموديه لتحريك المحتوي بالبكسل</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="97"/>
         <source>Only move visible layers</source>
-        <translation>Flytt kun synlige lag</translation>
+        <translation>حرك فقط اللوحه المرئيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="106"/>
         <source>Only move contents of visible layers</source>
-        <translation>Flytt kun innhold av synlige lag</translation>
+        <translation>حرك فقط محتوي اللوحه المرئيه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="164"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation>تم</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/MoveContentsDialog.qml" line="173"/>
         <source>Cancel</source>
-        <translation>Avbryt</translation>
+        <translation>الغاء</translation>
     </message>
 </context>
 <context>
@@ -757,38 +775,38 @@
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="10"/>
         <source>New Image Project</source>
-        <translation>Nytt bilde prosjekt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="36"/>
         <source>Image Width</source>
-        <translation>Ny bredde</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="48"/>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="70"/>
         <source>The height of the image</source>
-        <translation>Høyde av bildet</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="58"/>
         <source>Image Height</source>
-        <translation>Bilde høyde</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="82"/>
         <source>Transparent Background</source>
-        <translation>Gjennomsiktig bakgrunn</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="93"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="99"/>
         <source>Cancel</source>
-        <translation>Avbryt</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -796,7 +814,7 @@
     <message>
         <location filename="../app/qml/ui/NewLayeredImageProjectPopup.qml" line="4"/>
         <source>New Layered Image Project</source>
-        <translation>Nytt lag bilde prosjekt</translation>
+        <translation>انشاء طبقه جديده</translation>
     </message>
 </context>
 <context>
@@ -804,32 +822,32 @@
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="50"/>
         <source>New Layered Image</source>
-        <translation>Nytt lag bilde</translation>
+        <translation>انشاء طبقه لصوره جديده</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="51"/>
         <source>Creates a new layered image project. Several images are drawn on top of each other, and can be exported as a single image.</source>
-        <translation>Lager et nytt bilde prosjekt med flere lag. Flere bilder er flyttet sammen på topp av hverandre, og kan bli eksportert som et enkelt bilde.</translation>
+        <translation>انشاء طبقه لصوره جديده. العديد من الصوره مرسومه فوق بعضهم. ستقةم باستخراجهم كصوره واحده.</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="66"/>
         <source>New Image</source>
-        <translation>Nytt bilde</translation>
+        <translation>انشاء صوره جديده</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="67"/>
         <source>Creates a new bitmap image for direct editing, with no layer support.</source>
-        <translation>Lager et nytt bitmap bilde for direkte redigering, med ingen mulighet for å lage lag.</translation>
+        <translation>انشاء صوره Bitmap للتغير المباشر. من غير طبقه.</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="81"/>
         <source>New Tileset</source>
-        <translation>Nytt Tilset</translation>
+        <translation>انشاء Tileset</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewProjectPopup.qml" line="82"/>
         <source>Creates a new tileset bitmap image for editing. Paint tiles from an image onto a grid. An accompanying project file is created to save the contents of the grid.</source>
-        <translation>Lager et nytt tilset bitmap bilde for redigering. Mal ruter fra et bilde på et rutenett. Et tilhørende prosjekt fil er laget til å lagre innholdet av rutenettet.</translation>
+        <translation>انشاء Tileset جديده للتغير المباشر.</translation>
     </message>
 </context>
 <context>
@@ -837,87 +855,87 @@
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="10"/>
         <source>New Tileset Project</source>
-        <translation>Nytt Tileset prosjekt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="73"/>
         <source>Use existing tileset</source>
-        <translation>Bruk eksiterende tileset</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="85"/>
         <source>Tileset</source>
-        <translation>Tileset</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="111"/>
         <source>...</source>
-        <translation>...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="115"/>
         <source>Click to choose the path to a tileset image</source>
-        <translation>Klikk for å velge et lagret bilde til bruk for tileset bilde</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="124"/>
         <source>Tile Width</source>
-        <translation>Rute bredde</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="143"/>
         <source>How wide each tile is in pixels</source>
-        <translation>Hvor bredt hver rute er i en piksel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="154"/>
         <source>Tile Height</source>
-        <translation>Rute høyde</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="173"/>
         <source>How high each tile is in pixels</source>
-        <translation>Hvor høy hver rute er i piksel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="183"/>
         <source>Tiles Wide</source>
-        <translation>Rute bredde</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="196"/>
         <source>How many tiles should be displayed horizontally</source>
-        <translation>Hvor mange ruter som burde vises horisontalt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="206"/>
         <source>Tiles High</source>
-        <translation>Rute høyde</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="219"/>
         <source>How many tiles should be displayed vertically</source>
-        <translation>Hvor mange ruter som burde vises vertikalt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="231"/>
         <source>Transparent Background</source>
-        <translation>Gjennomsiktig bakgrunn</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="239"/>
         <source>Preview</source>
-        <translation>Forhåndsvis</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="306"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="313"/>
         <source>Cancel</source>
-        <translation>Avbryt</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -926,42 +944,42 @@
         <location filename="../app/qml/ui/OpacityDialog.qml" line="31"/>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="82"/>
         <source>Opacity</source>
-        <translation>Gjennomsiktighet</translation>
+        <translation>درجه التشبع</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="96"/>
         <source>Changes the opacity of the image</source>
-        <translation>Forandrer gjennomsiktigheten til bildet</translation>
+        <translation>تغير درجه التشبع</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="148"/>
         <source>Do not modify fully transparent pixels</source>
-        <translation>Ikke modifiser helt gjennomsiktige piksler</translation>
+        <translation>لا تغير البكسل الشفافه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="153"/>
         <source>Only change the alpha if it&apos;s non-zero to prevent fully transparent pixels from gaining opacity.</source>
-        <translation>Kun endre alpha om den ikke er null for å forhindre et fullstendig gjennomsiktig piksel fra å endre gjennomsiktigheten.</translation>
+        <translation>غير الالفا فقط الغير مساويه لصفر لمنع البكسل الغير مشبعه من فقدان الشفافيه.</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="163"/>
         <source>Do not modify fully opaque pixels</source>
-        <translation>Ikke endre ugjennomsiktige piksler</translation>
+        <translation>لا تغير البكسل الشفافه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="168"/>
         <source>Only change the alpha if it&apos;s less than one to prevent fully opaque pixels from losing opacity.</source>
-        <translation>Kun endre alpha om den er mindre enn en for å forhindre fullstendig ugjennomsiktighet fra å miste ugjennomsiktighet.</translation>
+        <translation>غير الالفا فقط اقل من واحد لمنع البكسل الغير مشبعه من فقدان الشفافيه.</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="179"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation>تم</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OpacityDialog.qml" line="190"/>
         <source>Cancel</source>
-        <translation>Avbryt</translation>
+        <translation>الغاء</translation>
     </message>
 </context>
 <context>
@@ -969,256 +987,261 @@
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="71"/>
         <source>General</source>
-        <translation>Generell</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="76"/>
         <source>Shortcuts</source>
-        <translation>Snarveier</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="106"/>
+        <source>Language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="141"/>
         <source>Load last project on startup</source>
-        <translation>Last inn siste prosjekt ved programstart</translation>
-    </message>
-    <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="115"/>
-        <source>Enable gestures (macOS only)</source>
-        <translation>Slå på gester (kun macOS)</translation>
-    </message>
-    <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="122"/>
-        <source>Enables the use of two-finger panning and pinch-to-zoom on macOS</source>
-        <translation>Slå på bruk av to fingre panorering og klype for å zoom på macOS</translation>
-    </message>
-    <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="128"/>
-        <source>Pen tool right click behaviour</source>
-        <translation>Blyant verktøy høyre klikk oppførsel</translation>
-    </message>
-    <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="142"/>
-        <source>Apply eraser</source>
-        <translation>Tilfør viskelær</translation>
-    </message>
-    <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="146"/>
-        <source>Apply colour picker</source>
-        <translation>Tilfør fargevelger</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/OptionsDialog.qml" line="150"/>
+        <source>Enable gestures (macOS only)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="157"/>
+        <source>Enables the use of two-finger panning and pinch-to-zoom on macOS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="163"/>
+        <source>Pen tool right click behaviour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="177"/>
+        <source>Apply eraser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="181"/>
+        <source>Apply colour picker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="185"/>
         <source>Apply background colour</source>
-        <translation>Tilfør bakgrunns farge</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="166"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="201"/>
         <source>Window opacity</source>
-        <translation>Vindu opasitet</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="176"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="211"/>
         <source>Changes the opacity of the window. Useful for tracing over an image in another window.</source>
-        <translation>Velger opasiteten av vinduet. Nyttig for sporing over et bilde i et annet vindu.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="196"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="231"/>
         <source>Transparency grid colours</source>
-        <translation>Gjennomsiktighet rutenett farger</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="254"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="289"/>
         <source>Show FPS</source>
-        <translation>Vis FPS</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="263"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="298"/>
         <source>Always show crosshair cursor</source>
-        <translation>Vis alltid trådkors markør</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="270"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="305"/>
         <source>Don&apos;t hide crosshair cursor when rectangle cursor is visible</source>
-        <translation>Ikke skjul trådkors markør når rektangel markør er synlig</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="276"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="311"/>
         <source>Enable auto swatch (experimental)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="283"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="318"/>
         <source>Enables the use of a read-only swatch whose colours come from the image</source>
-        <translation>Slå på en skrivebeskyttet palett med farger som kommer i fra bildet</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="327"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="362"/>
         <source>New Project</source>
-        <translation>Nytt prosjekt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="331"/>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="343"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="366"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="378"/>
         <source>Close Project</source>
-        <translation>Lukk Prosjekt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="335"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="370"/>
         <source>Save Project</source>
-        <translation>Lagre Prosjekt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="339"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="374"/>
         <source>Save Project As</source>
-        <translation>Lagre Prosjekt som</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="347"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="382"/>
         <source>Revert To Last Save</source>
-        <translation>Tilbake til sist lagret</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="351"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="386"/>
         <source>Undo Action</source>
-        <translation>Angre handling</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="355"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="390"/>
         <source>Redo Action</source>
-        <translation>Omgjør handling</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="359"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="394"/>
         <source>Flip Horizontally</source>
-        <translation>Vend horisontalt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="363"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="398"/>
         <source>Flip Vertically</source>
-        <translation>Vend vertikalt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="367"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="402"/>
         <source>Resize Canvas</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="371"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="406"/>
         <source>Resize Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="375"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="410"/>
         <source>Move Contents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="379"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="414"/>
         <source>Centre View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="383"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="418"/>
         <source>Zoom In</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="387"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="422"/>
         <source>Zoom Out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="391"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="426"/>
         <source>Toggle Grid Visibility</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="395"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="430"/>
         <source>Toggle Ruler Visibility</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="399"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="434"/>
         <source>Toggle Guide Visibility</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="403"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="438"/>
         <source>Toggle Split Screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="407"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="442"/>
         <source>Animation Playback</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="411"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="446"/>
         <source>Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="415"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="450"/>
         <source>Pen Tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="419"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="454"/>
         <source>Eye Dropper Tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="423"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="458"/>
         <source>Fill Tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="427"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="462"/>
         <source>Eraser Tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="431"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="466"/>
         <source>Selection Tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="435"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="470"/>
         <source>Toggle Tool Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="439"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="474"/>
         <source>Decrease Tool Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="443"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="478"/>
         <source>Increase Tool Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="447"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="482"/>
         <source>Move Swatch Selection Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="451"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="486"/>
         <source>Move Swatch Selection Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="455"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="490"/>
         <source>Move Swatch Selection Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="459"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="494"/>
         <source>Move Swatch Selection Down</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/qml/ui/OptionsDialog.qml" line="463"/>
+        <location filename="../app/qml/ui/OptionsDialog.qml" line="498"/>
         <source>Toggle fullscreen</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1228,7 +1251,7 @@
     <message>
         <location filename="../app/qml/ui/RenameSwatchColourDialog.qml" line="32"/>
         <source>Rename swatch colour</source>
-        <translation type="unfinished"></translation>
+        <translation>تغير اسم لوحه الالوان</translation>
     </message>
 </context>
 <context>
@@ -1236,12 +1259,12 @@
     <message>
         <location filename="../app/qml/ui/SwatchContextMenu.qml" line="39"/>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>تغير الاسم</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/SwatchContextMenu.qml" line="49"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>مسح</translation>
     </message>
 </context>
 <context>
@@ -1249,12 +1272,12 @@
     <message>
         <location filename="../app/qml/ui/SwatchPanel.qml" line="32"/>
         <source>Swatches</source>
-        <translation type="unfinished"></translation>
+        <translation>اللوحات</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/SwatchPanel.qml" line="180"/>
         <source>New swatch colour</source>
-        <translation type="unfinished"></translation>
+        <translation>انشاء لوح جديد للألوان</translation>
     </message>
 </context>
 <context>
@@ -1262,17 +1285,17 @@
     <message>
         <location filename="../app/qml/ui/SwatchSettingsContextMenu.qml" line="30"/>
         <source>Import Slate Swatch...</source>
-        <translation type="unfinished"></translation>
+        <translation>استراد اللوحات...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/SwatchSettingsContextMenu.qml" line="40"/>
         <source>Import Paint.NET Swatch...</source>
-        <translation type="unfinished"></translation>
+        <translation>ستيراد .Net لللوحات...</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/SwatchSettingsContextMenu.qml" line="49"/>
         <source>Export Swatch...</source>
-        <translation type="unfinished"></translation>
+        <translation>تصدير اللوحات...</translation>
     </message>
 </context>
 <context>
@@ -1315,17 +1338,17 @@
     <message>
         <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="130"/>
         <source>Preview scale</source>
-        <translation type="unfinished"></translation>
+        <translation>عرض</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="172"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>تم</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="181"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>الغاء</translation>
     </message>
 </context>
 <context>
@@ -1333,7 +1356,7 @@
     <message>
         <location filename="../app/qml/ui/TexturedFillVarianceRangedSlider.qml" line="35"/>
         <source>Adjusts the lower and upper bounds for random %1 variance</source>
-        <translation type="unfinished"></translation>
+        <translation>تزبيط الحدود السفلي والعليا %1 للاختلاف العشوائي</translation>
     </message>
 </context>
 <context>
@@ -1341,22 +1364,22 @@
     <message>
         <location filename="../app/qml/ui/TilesetSwatch.qml" line="13"/>
         <source>Tileset Swatch</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../app/qml/ui/TilesetSwatch.qml" line="185"/>
         <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>استنساخ</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/TilesetSwatch.qml" line="194"/>
         <source>Rotate 90° Left</source>
-        <translation type="unfinished"></translation>
+        <translation>لف 90 درجه لليسار</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/TilesetSwatch.qml" line="203"/>
         <source>Rotate 90° Right</source>
-        <translation type="unfinished"></translation>
+        <translation>لف 90 درجه لليمين</translation>
     </message>
 </context>
 <context>
@@ -1364,17 +1387,17 @@
     <message>
         <location filename="../app/qml/ui/ToolBar.qml" line="83"/>
         <source>Change the size of the canvas</source>
-        <translation type="unfinished"></translation>
+        <translation>تغير حجم الخط في اللوحه</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ToolBar.qml" line="96"/>
         <source>Change the size of the image</source>
-        <translation type="unfinished"></translation>
+        <translation>تغير حجم الصوره</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ToolBar.qml" line="109"/>
         <source>Crop the image to the current selection</source>
-        <translation type="unfinished"></translation>
+        <translation>قص الصوره من التحديد</translation>
     </message>
     <message>
         <location filename="../app/qml/ui/ToolBar.qml" line="126"/>
@@ -1520,24 +1543,24 @@ Hold Shift to fill all pixels matching the target colour.</source>
     <message>
         <location filename="../app/qml/main.qml" line="391"/>
         <source>Unsaved changes</source>
-        <translation type="unfinished"></translation>
+        <translation>التغيرات غير محفوظة</translation>
     </message>
     <message>
         <location filename="../app/qml/main.qml" line="395"/>
         <source>The action you&apos;re about to perform could discard changes.
 
 Continue anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>هل انت متاكد من التغير القادم حيث ستفقد التغيرات\n\nهل تريد الاستمرار؟</translation>
     </message>
     <message>
         <location filename="../app/qml/main.qml" line="403"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>حفظ</translation>
     </message>
     <message>
         <location filename="../app/qml/main.qml" line="408"/>
         <source>Discard</source>
-        <translation type="unfinished"></translation>
+        <translation>تجاهل</translation>
     </message>
 </context>
 </TS>

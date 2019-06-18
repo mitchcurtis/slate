@@ -33,6 +33,30 @@ ApplicationSettings::ApplicationSettings(QObject *parent) :
     qCDebug(lcApplicationSettings) << "Loading settings from" << fileName();
 }
 
+QString ApplicationSettings::defaultLanguage() const
+{
+    return "en_GB";
+}
+
+QString ApplicationSettings::language() const
+{
+     return contains("language") ? value("language").toString() : defaultLanguage();
+}
+
+void ApplicationSettings::setLanguage(const QString &language)
+{
+    const QVariant existingValue = value("language");
+    QString existingStringValue = defaultLanguage();
+    if (contains("language"))
+        existingStringValue = existingValue.toBool();
+
+    if (language == existingStringValue)
+        return;
+
+    setValue("language", language);
+    emit languageChanged();
+}
+
 bool ApplicationSettings::loadLastOnStartup() const
 {
     return contains("loadLastOnStartup") ? value("loadLastOnStartup").toBool() : defaultLoadLastOnStartup();
@@ -862,7 +886,13 @@ void ApplicationSettings::setAnimationPlaybackShortcut(const QString &shortcut)
 
 QString ApplicationSettings::defaultOptionsShortcut() const
 {
+#if defined(Q_OS_MACOS)
+    return QKeySequence(QKeySequence::Preferences).toString();
+#else
+    // According to the documentation, QKeySequence::Preferences is only defined for macOS,
+    // so we define it for the rest of the platforms here.
     return QLatin1String("Ctrl+Alt+T");
+#endif
 }
 
 QString ApplicationSettings::optionsShortcut() const

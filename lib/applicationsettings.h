@@ -51,6 +51,7 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
     Q_PROPERTY(int penToolRightClickBehaviour READ penToolRightClickBehaviour WRITE setPenToolRightClickBehaviour NOTIFY penToolRightClickBehaviourChanged)
+    Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
 
     Q_PROPERTY(QString quitShortcut READ quitShortcut WRITE setQuitShortcut NOTIFY quitShortcutChanged)
     Q_PROPERTY(QString newShortcut READ newShortcut WRITE setNewShortcut NOTIFY newShortcutChanged)
@@ -93,6 +94,10 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
 
 public:
     explicit ApplicationSettings(QObject *parent = nullptr);
+
+    QString defaultLanguage() const;
+    QString language() const;
+    void setLanguage(const QString &language);
 
     bool loadLastOnStartup() const;
     void setLoadLastOnStartup(bool loadLastOnStartup);
@@ -312,6 +317,7 @@ public:
     void setFullScreenToggleShortcut(const QString &shortcut);
 
 signals:
+    void languageChanged();
     void loadLastOnStartupChanged();
     void recentFilesChanged();
     void gridVisibleChanged();
