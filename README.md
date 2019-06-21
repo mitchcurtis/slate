@@ -87,7 +87,7 @@ You can also say thank you by donating:
 
 ### Dependencies ###
 
-* Qt 5.12
+* Qt 5.13
 
 ### Cloning ###
 
