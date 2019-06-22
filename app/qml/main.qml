@@ -165,6 +165,10 @@ ApplicationWindow {
                     project.uiState.value("mainSplitViewState")))
                 panelSplitView.restoreState(project.uiState.base64ToBinary(
                     project.uiState.value("panelSplitViewState")))
+            } else {
+                // We should still restore the default sizes for all other cases, though.
+                // We only need to restore panelSplitView's preferredWidth, as mainSplitView fills.
+                panelSplitView.SplitView.preferredWidth = panelSplitView.defaultPreferredWidth
             }
         }
     }
@@ -224,8 +228,10 @@ ApplicationWindow {
                 implicitHeight: 4
             }
 
+            readonly property int defaultPreferredWidth: 240
+
             SplitView.minimumWidth: 200
-            SplitView.preferredWidth: 240
+            SplitView.preferredWidth: defaultPreferredWidth
             SplitView.maximumWidth: window.width / 3
 
             Ui.ColourPanel {

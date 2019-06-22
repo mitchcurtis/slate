@@ -65,6 +65,7 @@ private Q_SLOTS:
     void recentFiles();
     void newProjectSizeFromClipboard_data();
     void newProjectSizeFromClipboard();
+    void splitViewStateAcrossProjects();
 
     // Tools, misc.
     void animationPlayback_data();
@@ -246,7 +247,6 @@ void tst_App::repeatedNewProject()
 {
     QFETCH(ProjectTypeVector, projectTypes);
 
-    int i = -1;
     foreach (auto projectType, projectTypes) {
         // Shouldn't crash on repeated opening of new projects.
         QVERIFY2(createNewProject(projectType), failureMessage);
@@ -770,6 +770,35 @@ void tst_App::newProjectSizeFromClipboard()
     QTRY_VERIFY(!newImageProjectPopup->property("visible").toBool());
 }
 
+void tst_App::splitViewStateAcrossProjects()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    // Make the panel split item larger.
+    QPointer<QQuickItem> mainSplitView = window->findChild<QQuickItem*>("mainSplitView");
+    QVERIFY(mainSplitView);
+    QPointer<QQuickItem> panelSplitView = window->findChild<QQuickItem*>("panelSplitView");
+    QVERIFY(panelSplitView);
+    const qreal defaultPanelSplitItemWidth = panelSplitView->width();
+    QPointer<QQuickItem> mainSplitViewHandle = findSplitViewHandle("mainSplitView", 0);
+    QVERIFY(mainSplitViewHandle);
+    const QPoint mainSplitViewHandleCentreAfterMoving = QPoint(
+        mainSplitView->width() / 2, mainSplitView->height() / 2);
+    QVERIFY2(dragSplitViewHandle("mainSplitView", 0, mainSplitViewHandleCentreAfterMoving), failureMessage);
+    const qreal resizedPanelSplitItemWidth = panelSplitView->width();
+    QVERIFY(resizedPanelSplitItemWidth > defaultPanelSplitItemWidth);
+
+    // Save the project with the new split size.
+    QVERIFY(layeredImageProject->canSave());
+    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/splitViewStateAcrossProjects.slp"));
+    layeredImageProject->saveAs(saveUrl);
+    QVERIFY(!layeredImageProject->hasUnsavedChanges());
+
+    // Create a new project. It should have the default panel split item size.
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QCOMPARE(panelSplitView->width(), defaultPanelSplitItemWidth);
+}
+
 void tst_App::animationPlayback_data()
 {
     addImageProjectTypes();
@@ -888,7 +917,6 @@ void tst_App::animationPlayback()
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animationStuffSaved.slp"));
     layeredImageProject->saveAs(saveUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QVERIFY(!layeredImageProject->hasUnsavedChanges());
 
     // Close.
