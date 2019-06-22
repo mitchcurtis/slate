@@ -246,6 +246,7 @@ void tst_App::repeatedNewProject()
 {
     QFETCH(ProjectTypeVector, projectTypes);
 
+    int i = -1;
     foreach (auto projectType, projectTypes) {
         // Shouldn't crash on repeated opening of new projects.
         QVERIFY2(createNewProject(projectType), failureMessage);

@@ -79,7 +79,19 @@ Controls.MenuBar {
                     // https://bugreports.qt.io/browse/QTBUG-70961
                     objectName: text + "MenuItem"
                     text: settings.displayableFilePath(modelData)
-                    onTriggered: doIfChangesDiscarded(function() { loadProject(modelData) }, true)
+                    onTriggered: doIfChangesDiscarded(function() {
+                        // If we load the project immediately, it causes the menu items to be removed immediately,
+                        // which means the Menu that owns them will disconnect from the triggered() signal of the
+                        // menu item, resulting in the menu not closing:
+                        //
+                        // https://github.com/mitchcurtis/slate/issues/128
+                        //
+                        // For some reason, this doesn't happen with native menus, possibly because
+                        // the removal and insertion is delayed there.
+                        Qt.callLater(function() {
+                            loadProject(modelData)
+                        })
+                    }, true)
                 }
 
                 onObjectAdded: recentFilesSubMenu.insertItem(index, object)

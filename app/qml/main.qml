@@ -380,6 +380,7 @@ ApplicationWindow {
 
     Ui.NewImageProjectPopup {
         id: newImageProjectPopup
+        objectName: "newImageProjectPopup"
         x: Math.round(parent.width - width) / 2
         y: Math.round(parent.height - height) / 2
 
@@ -388,6 +389,7 @@ ApplicationWindow {
 
     Ui.NewLayeredImageProjectPopup {
         id: newLayeredImageProjectPopup
+        objectName: "newLayeredImageProjectPopup"
         x: Math.round(parent.width - width) / 2
         y: Math.round(parent.height - height) / 2
 

@@ -90,13 +90,13 @@ Dialog {
     footer: DialogButtonBox {
         Button {
             id: okButton
-            objectName: "newImageProjectOkButton"
+            objectName: root.objectName + "OkButton"
             text: qsTr("OK")
 
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
         Button {
-            objectName: "newImageProjectCancelButton"
+            objectName: root.objectName + "CancelButton"
             text: qsTr("Cancel")
 
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole

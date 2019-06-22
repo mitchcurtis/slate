@@ -63,7 +63,8 @@ Q_LOGGING_CATEGORY(lcApplication, "app.application")
 
 static QGuiApplication *createApplication(int &argc, char **argv, const QString &applicationName)
 {
-    QLoggingCategory::setFilterRules("app.* = false");
+    // TODO: move the test rules to test code if possible - e.g. testhelper.cpp
+    QLoggingCategory::setFilterRules("app.* = false\ntests.* = false");
 
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 

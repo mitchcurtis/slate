@@ -21,10 +21,13 @@
 
 #include <QClipboard>
 #include <QPainter>
+#include <QLoggingCategory>
 
 #include "imagelayer.h"
 #include "projectmanager.h"
 #include "utils.h"
+
+Q_LOGGING_CATEGORY(lcTestHelper, "tests.testhelper")
 
 TestHelper::TestHelper(int &argc, char **argv) :
     app(argc, argv, QStringLiteral("Slate Test Suite")),
@@ -1480,6 +1483,8 @@ void TestHelper::addActualProjectTypes()
 
 bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &args)
 {
+    qCDebug(lcTestHelper).nospace() << "createNewProject projectType=" << projectType << "args=" << args;
+
     const bool isTilesetProject = projectType == Project::TilesetType;
 
     // tileset args
@@ -1503,12 +1508,13 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     if (projectCreationFailedSpy)
         projectCreationFailedSpy->clear();
 
-    // Click the new project button.
+    qCDebug(lcTestHelper) << "Triggering new project shortcut";
     if (!triggerNewProject())
         return false;
 
     // Check that we get prompted to discard any changes.
     if (project && project->hasUnsavedChanges()) {
+        qCDebug(lcTestHelper) << "Discarding unsaved changes";
         if (!discardChanges())
             return false;
     }
@@ -1531,23 +1537,23 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     }
 
     // Click on the appropriate project type button.
-    QQuickItem *tilesetProjectButton = newProjectPopup->findChild<QQuickItem*>(newProjectButtonObjectName);
-    VERIFY(tilesetProjectButton);
-
-    mouseEventOnCentre(tilesetProjectButton, MouseClick);
-    VERIFY(tilesetProjectButton->property("checked").toBool());
-
+    QQuickItem *newProjectButton = newProjectPopup->findChild<QQuickItem*>(newProjectButtonObjectName);
+    VERIFY(newProjectButton);
+    mouseEventOnCentre(newProjectButton, MouseClick);
+    VERIFY(newProjectButton->property("checked").toBool());
+    // The new project popup should be hidden, and now a project-specific project creation popup should be visible.
     TRY_VERIFY(!newProjectPopup->property("visible").toBool());
 
     if (projectType == Project::TilesetType) {
         // Create a temporary directory containing a tileset image for us to use.
+        qCDebug(lcTestHelper) << "Setting up temporary tileset project directory";
         if (!setupTempTilesetProjectDir())
             return false;
 
         // Now the New Tileset Project popup should be visible.
         TRY_VERIFY(findPopupFromTypeName("NewTilesetProjectPopup"));
         const QObject *newTilesetProjectPopup = findPopupFromTypeName("NewTilesetProjectPopup");
-        VERIFY2(newTilesetProjectPopup->property("visible").toBool(),
+        TRY_VERIFY2(newTilesetProjectPopup->property("opened").toBool(),
             "NewTilesetProjectPopup should be visible after clicking the new project button");
 
         // Ensure that the popup gets reset each time it's opened.
@@ -1628,6 +1634,7 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         }
 
         // Confirm creation of the project.
+        qCDebug(lcTestHelper) << "Confirming tileset project creation by clicking OK button";
         QQuickItem *okButton = newTilesetProjectPopup->findChild<QQuickItem*>("newTilesetProjectOkButton");
         VERIFY(okButton);
         mouseEventOnCentre(okButton, MouseClick);
@@ -1636,6 +1643,7 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     } else {
         // Create a temporary directory that we can save into, etc.
         if (projectType == Project::LayeredImageType) {
+            qCDebug(lcTestHelper) << "Setting up temporary layered image project directory";
             if (!setupTempLayeredImageProjectDir())
                 return false;
         }
@@ -1643,7 +1651,7 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         // Now the New Image Project popup should be visible.
         TRY_VERIFY(findPopupFromTypeName("NewImageProjectPopup"));
         const QObject *newImageProjectPopup = findPopupFromTypeName("NewImageProjectPopup");
-        VERIFY(newImageProjectPopup->property("visible").toBool());
+        TRY_VERIFY(newImageProjectPopup->property("opened").toBool());
 
         // Ensure that the popup gets reset each time it's opened.
         const QImage clipboardImage = qGuiApp->clipboard()->image();
@@ -1678,9 +1686,36 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         }
 
         // Confirm creation of the project.
-        QQuickItem *okButton = newImageProjectPopup->findChild<QQuickItem*>("newImageProjectOkButton");
+        qCDebug(lcTestHelper) << "Confirming image/layered image project creation by clicking OK button";
+
+        const QString newProjectOkButtonObjectName = projectType == Project::ImageType
+            ? "newImageProjectPopupOkButton" : "newLayeredImageProjectPopupOkButton";
+        QQuickItem *okButton = newImageProjectPopup->findChild<QQuickItem*>(newProjectOkButtonObjectName);
         VERIFY(okButton);
+        QSignalSpy okButtonClickedSpy(okButton, SIGNAL(clicked()));
+        VERIFY(okButtonClickedSpy.isValid());
+
+        // This is a bit extreme, but I spent too long an a test failure (Windows, release, Qt 5.13)
+        // where the cancel button was somehow clicked instead of OK,
+        // even though the OK button's objectName was used to find it...
+        const QString newProjectCancelButtonObjectName = projectType == Project::ImageType
+            ? "newImageProjectPopupCancelButton" : "newLayeredImageProjectPopupCancelButton";
+        QQuickItem *cancelButton = newImageProjectPopup->findChild<QQuickItem*>(newProjectCancelButtonObjectName);
+        VERIFY(cancelButton);
+        QSignalSpy cancelButtonClickedSpy(cancelButton, SIGNAL(clicked()));
+        VERIFY(cancelButtonClickedSpy.isValid());
+
+        // See the comment above. The button's parent item changes in size after this wait on that configuration:
+        // QSizeF(201, 40) ... QSizeF(416, 40)
+        // This somehow causes the click to hit the cancel button.
+        QTest::qWait(20);
+
+        okButton = newImageProjectPopup->findChild<QQuickItem*>(newProjectOkButtonObjectName);
         mouseEventOnCentre(okButton, MouseClick);
+        VERIFY2(cancelButtonClickedSpy.count() == 0,
+            "Did not expect newImageProjectCancelButton's clicked() signal to be emitted, but it was");
+        VERIFY2(okButtonClickedSpy.count() == 1,
+            "Expected newImageProjectOkButton's clicked() signal to be emitted, but it wasn't");
         TRY_VERIFY(!newImageProjectPopup->property("visible").toBool());
     }
 
@@ -1816,9 +1851,14 @@ bool TestHelper::loadProject(const QUrl &url, const QRegularExpression &expected
 
 bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
 {
+    qCDebug(lcTestHelper).nospace() << "Updating testhelper variables after creation of project - "
+        << "isNewProject=" << isNewProject << " projectType=" << projectType;
+
     // The projects and canvases that we had references to should have
     // been destroyed by now.
-    TRY_VERIFY(!project);
+    qCDebug(lcTestHelper).nospace() << "Waiting for the previous project (" << project << ") to be destroyed";
+    TRY_VERIFY2(!project, qPrintable(QString::fromLatin1("The last project (%1) should have been destroyed by now")
+        .arg(project->url().toString())));
     VERIFY(!imageProject);
     VERIFY(!tilesetProject);
 
@@ -1828,6 +1868,7 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
 
     project = projectManager->project();
     VERIFY(project);
+    qCDebug(lcTestHelper) << "New project set:" << project;
 
     // The old canvas might still exist, but if it doesn't have a project,
     // then it's about to be destroyed, so wait for that to happen first

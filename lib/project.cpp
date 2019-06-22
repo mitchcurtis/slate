@@ -72,6 +72,9 @@ void Project::setUrl(const QUrl &url)
 
     mUrl = url;
 
+    if (objectName().isEmpty())
+        setObjectName(typeString() + QLatin1Char('-') + mUrl.toString());
+
     if (wasLoaded != hasLoaded()) {
         emit loadedChanged();
     }
@@ -298,6 +301,8 @@ QUrl Project::createTemporaryImage(int width, int height, const QColor &colour)
 
     qCDebug(lcProject) << "Successfully created temporary image:" << fileName;
     mUsingTempImage = true;
+    if (objectName().isEmpty())
+        setObjectName(typeString() + QLatin1Char('-') + fileName);
     return QUrl::fromLocalFile(fileName);
 }
 
