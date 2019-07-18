@@ -25,6 +25,7 @@
 
 #include "animationplayback.h"
 #include "project.h"
+#include "utils.h"
 
 Q_LOGGING_CATEGORY(lcSpriteImage, "app.spriteImage")
 
@@ -43,29 +44,14 @@ void SpriteImage::paint(QPainter *painter)
     if (exportedImage.isNull())
         return;
 
-    QImage copy;
-    // The defaults...
-    const int frameWidth = mAnimationPlayback->frameWidth();
-    const int frameHeight = mAnimationPlayback->frameHeight();
-    const int framesWide = exportedImage.width() / frameWidth;
-    const int startColumn = mAnimationPlayback->frameX() / frameWidth;
-    const int startRow = mAnimationPlayback->frameY() / frameHeight;
-    const int startIndex = startRow * framesWide + startColumn;
-
-    const int absoluteCurrentIndex = startIndex + mAnimationPlayback->currentFrameIndex();
-    const int frameX = (absoluteCurrentIndex % framesWide) * frameWidth;
-    const int frameY = (absoluteCurrentIndex / framesWide) * frameHeight;
-    copy = exportedImage.copy(frameX, frameY, frameWidth, frameHeight);
+    const QImage copy = Utils::imageForAnimationFrame(exportedImage,
+        *mAnimationPlayback, mAnimationPlayback->currentFrameIndex());
     Q_ASSERT(!copy.isNull());
 
     qCDebug(lcSpriteImage).nospace() << "painting sprite animation starting at"
         << " frameX=" << mAnimationPlayback->frameX()
         << " frameY=" << mAnimationPlayback->frameY()
-        << " currentFrameIndex=" << mAnimationPlayback->currentFrameIndex()
-        << " x=" << frameX
-        << " y=" << frameY
-        << " w=" << frameWidth
-        << " h=" << frameHeight;
+        << " currentFrameIndex=" << mAnimationPlayback->currentFrameIndex();
 
     painter->drawImage(0, 0, copy);
 }

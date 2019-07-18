@@ -109,6 +109,11 @@ int AnimationPlayback::frameWidth() const
     return mFrameWidth;
 }
 
+int AnimationPlayback::framesWide(int sourceImageWidth) const
+{
+    return sourceImageWidth / mFrameWidth;
+}
+
 void AnimationPlayback::setFrameWidth(int frameWidth)
 {
     if (frameWidth == mFrameWidth)
@@ -200,6 +205,21 @@ void AnimationPlayback::setLoop(bool loop)
 
     mLoop = loop;
     emit loopChanged();
+}
+
+int AnimationPlayback::startColumn() const
+{
+    return mFrameX / mFrameWidth;
+}
+
+int AnimationPlayback::startRow() const
+{
+    return mFrameY / mFrameHeight;
+}
+
+int AnimationPlayback::startIndex(int sourceImageWidth) const
+{
+    return startRow() * framesWide(sourceImageWidth) + startColumn();
 }
 
 void AnimationPlayback::timerEvent(QTimerEvent *)

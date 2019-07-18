@@ -39,6 +39,7 @@
 #include "jsonutils.h"
 #include "mergelayerscommand.h"
 #include "movelayeredimagecontentscommand.h"
+#include "utils.h"
 
 LayeredImageProject::LayeredImageProject() :
     mCurrentLayerIndex(0),
@@ -373,6 +374,18 @@ void LayeredImageProject::setUsingAnimation(bool isUsingAnimation)
 AnimationPlayback *LayeredImageProject::animationPlayback()
 {
     return &mAnimationPlayback;
+}
+
+void LayeredImageProject::exportGif(const QUrl &url)
+{
+    if (!mUsingAnimation) {
+        error(tr("Cannot export as GIF because the project isn't using animation"));
+        return;
+    }
+
+    QString errorMessage;
+    if (!Utils::exportGif(exportedImage(), url, mAnimationPlayback, errorMessage))
+        error(errorMessage);
 }
 
 void LayeredImageProject::createNew(int imageWidth, int imageHeight, bool transparentBackground)

@@ -72,6 +72,8 @@ public:
 
     AnimationPlayback *animationPlayback();
 
+    Q_INVOKABLE void exportGif(const QUrl &url);
+
 signals:
     void currentLayerIndexChanged();
     void preCurrentLayerChanged();

@@ -33,5 +33,6 @@
         <file>resources/opacityDialog-alpha-increased.png</file>
         <file>resources/loadInvalidProjects-empty.slp</file>
         <file>resources/loadInvalidProjects-empty.stp</file>
+        <file>resources/animation.slp</file>
     </qresource>
 </RCC>

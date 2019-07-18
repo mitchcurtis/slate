@@ -53,6 +53,8 @@ public:
 
     QImage exportedImage() const override;
 
+    Q_INVOKABLE void exportGif(const QUrl &url);
+
 signals:
     void usingAnimationChanged();
 

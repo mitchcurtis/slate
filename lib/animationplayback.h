@@ -62,6 +62,7 @@ public:
 
     int frameWidth() const;
     void setFrameWidth(int frameWidth);
+    int framesWide(int sourceImageWidth) const;
 
     int frameHeight() const;
     void setFrameHeight(int frameHeight);
@@ -76,6 +77,10 @@ public:
 
     bool shouldLoop() const;
     void setLoop(bool shouldLoop);
+
+    int startColumn() const;
+    int startRow() const;
+    int startIndex(int sourceImageWidth) const;
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;

@@ -22,6 +22,8 @@ import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.12
 
+import Qt.labs.platform 1.0 as Platform
+
 import App 1.0
 
 import "." as Ui
@@ -44,6 +46,15 @@ Panel {
         project: root.project
         onReadyToLoad: root.expanded = root.project.uiState.value("animationPanelExpanded", true)
         onReadyToSave: root.project.uiState.setValue("animationPanelExpanded", root.expanded)
+    }
+
+    Platform.FileDialog {
+        id: saveGifDialog
+        objectName: "saveGifDialog"
+        fileMode: Platform.FileDialog.SaveFile
+        nameFilters: ["GIF files (*.gif)"]
+        defaultSuffix: "gif"
+        onAccepted: project.exportGif(file)
     }
 
     settingsPopup: AnimationSettingsPopup {
@@ -88,6 +99,14 @@ Panel {
             }
         }
 
+        Ui.VerticalSeparator {
+            padding: 6
+            topPadding: 0
+            bottomPadding: 0
+
+            Layout.fillWidth: true
+        }
+
         RowLayout {
             // We only use one icon from typicons.
             FontLoader {
@@ -118,6 +137,20 @@ Panel {
                 focusPolicy: Qt.NoFocus
                 font.family: fontLoader.name
                 onClicked: animationPlayback.loop = checked
+            }
+
+            ToolButton {
+                objectName: "exportGifButton"
+                text: "\uf019"
+                font.family: "FontAwesome"
+                focusPolicy: Qt.NoFocus
+
+                ToolTip.text: qsTr("Export the animation preview as a GIF")
+                ToolTip.visible: hovered
+                ToolTip.delay: toolTipDelay
+                ToolTip.timeout: toolTipTimeout
+
+                onClicked: saveGifDialog.open()
             }
         }
     }

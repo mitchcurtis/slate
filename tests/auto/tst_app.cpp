@@ -70,6 +70,7 @@ private Q_SLOTS:
     // Tools, misc.
     void animationPlayback_data();
     void animationPlayback();
+    void animationGifExport();
     void keyboardShortcuts();
     void optionsShortcutCancelled();
     void optionsTransparencyCancelled();
@@ -935,6 +936,26 @@ void tst_App::animationPlayback()
     QCOMPARE(layeredImageProject->animationPlayback()->frameHeight(), 256 + 1);
     QCOMPARE(layeredImageProject->animationPlayback()->frameCount(), 4 + 1);
     QCOMPARE(layeredImageProject->animationPlayback()->scale(), modifiedScaleValue);
+}
+
+void tst_App::animationGifExport()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    QVERIFY2(copyFileFromResourcesToTempProjectDir("animation.slp"), failureMessage);
+
+    const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animation.slp"));
+    layeredImageProject->load(projectUrl);
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QCOMPARE(isUsingAnimation(), true);
+
+    // Export the GIF. Can't interact with native dialogs here, so we just do it directly.
+    QSignalSpy errorSpy(layeredImageProject.data(), SIGNAL(errorOccurred(QString)));
+    QVERIFY(errorSpy.isValid());
+    const QUrl exportedGifUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animation.gif"));
+    layeredImageProject->exportGif(exportedGifUrl);
+    QVERIFY(errorSpy.isEmpty());
+    QVERIFY(QFile::exists(exportedGifUrl.toLocalFile()));
 }
 
 void tst_App::keyboardShortcuts()

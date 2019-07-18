@@ -26,6 +26,8 @@
 
 #include "imagecanvas.h"
 
+class AnimationPlayback;
+
 namespace Utils {
     QImage paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
 
@@ -42,6 +44,10 @@ namespace Utils {
     void strokeRectWithDashes(QPainter *painter, const QRect &rect);
 
     QRect ensureWithinArea(const QRect &rect, const QSize &boundsSize);
+
+    // relativeFrameIndex is the index of the animation relative to animation.startIndex()
+    QImage imageForAnimationFrame(const QImage &sourceImage, const AnimationPlayback &animation, int relativeFrameIndex);
+    bool exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &animation, QString &errorMessage);
 
     template<typename T>
     QString enumToString(T enumValue)

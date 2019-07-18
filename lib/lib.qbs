@@ -11,21 +11,15 @@ Product {
     Depends { name: "bundle" }
 
     cpp.cxxLanguageVersion: "c++11"
+    cpp.includePaths: [
+        product.sourceDirectory + "/3rdparty"
+    ]
     // https://bugreports.qt.io/browse/QBS-1434
     cpp.minimumMacosVersion: "10.7"
     cpp.visibility: "minimal"
     cpp.defines: [
-        "SLATE_LIBRARY",
-//        "QT_NO_CAST_FROM_ASCII",
-//        "QT_NO_CAST_TO_ASCII",
-//        "QT_NO_URL_CAST_FROM_STRING",
-//        "_USE_MATH_DEFINES"
+        "SLATE_LIBRARY"
     ]
-
-//    Properties {
-//        condition: qbs.targetOS.contains("macos")
-//        cpp.cxxFlags: ["-Wno-unknown-pragmas"]
-//    }
 
     bundle.isBundle: false
     cpp.sonamePrefix: qbs.targetOS.contains("darwin") ? "@rpath" : undefined
@@ -37,8 +31,9 @@ Product {
             submodules: ["core", "gui", "quick", "widgets"]
         }
 
-//        cpp.includePaths: "."
-        cpp.includePaths: [product.sourceDirectory]
+        cpp.includePaths: [
+            product.sourceDirectory
+        ]
     }
 
     Group {
@@ -53,6 +48,10 @@ Product {
     }
 
     files: [
+        "3rdparty/bitmap/bmp.h",
+        "3rdparty/bitmap/bmp.c",
+        "3rdparty/bitmap/misc/gif.h",
+        "3rdparty/bitmap/misc/gif.c",
         "addguidecommand.cpp",
         "addguidecommand.h",
         "addlayercommand.cpp",

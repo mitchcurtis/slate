@@ -21,6 +21,7 @@
 
 #include "changeimagecanvassizecommand.h"
 #include "changeimagesizecommand.h"
+#include "utils.h"
 
 ImageProject::ImageProject() :
     mUsingAnimation(false)
@@ -221,6 +222,19 @@ AnimationPlayback *ImageProject::animationPlayback()
 QImage ImageProject::exportedImage() const
 {
     return mImage;
+}
+
+void ImageProject::exportGif(const QUrl &url)
+{
+    if (!mUsingAnimation) {
+        // Shouldn't happen, but just in case...
+        error(tr("Cannot export as GIF because the project isn't using animation"));
+        return;
+    }
+
+    QString errorMessage;
+    if (!Utils::exportGif(exportedImage(), url, mAnimationPlayback, errorMessage))
+        error(errorMessage);
 }
 
 bool ImageProject::isUsingAnimation() const

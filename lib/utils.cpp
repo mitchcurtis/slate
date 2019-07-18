@@ -20,7 +20,19 @@
 #include "utils.h"
 
 #include <QDebug>
+#include <QLoggingCategory>
 #include <QPainter>
+#include <QScopeGuard>
+
+// Need this otherwise we get linker errors.
+extern "C" {
+#include "bitmap/bmp.h"
+#include "bitmap/misc/gif.h"
+}
+
+#include "animationplayback.h"
+
+Q_LOGGING_CATEGORY(lcUtils, "app.utils")
 
 QImage Utils::paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
 {
@@ -197,4 +209,100 @@ void Utils::modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightnes
             image.setPixelColor(x, y, hsl.toRgb());
         }
     }
+}
+
+bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &animation, QString &errorMessage)
+{
+    const QString path = url.toLocalFile();
+    if (!path.endsWith(QLatin1String(".gif"))) {
+        errorMessage = QObject::tr("Failed to export GIF: path must end with .gif");
+        return false;
+    }
+
+    if (gifSourceImage.size().isEmpty()) {
+        errorMessage = QObject::tr("Failed to export GIF: the width and/or height of the exported image is zero");
+        return false;
+    }
+
+    qCDebug(lcUtils).nospace() << "exporting gif to: " << path << "...";
+
+    // We need to create the Bitmap using the library, because otherwise the memcpy() call
+    // in count_colors_build_palette() crashes.
+    const int width = animation.frameWidth() * animation.scale();
+    const int height = animation.frameHeight() * animation.scale();
+    GIF *gif = gif_create(width, height);
+    // The repititions are stored internally as uint16_t, so I guess we can't loop infinitely,
+    // but we can at least make it a huge number.
+    gif->repetitions = animation.shouldLoop() ? std::numeric_limits<uint16_t>::max() : 1;
+    auto cleanup = qScopeGuard([=]{ gif_free(gif); });
+
+    // Convert it to an 8 bit image. Not sure if this is necessary...
+    const QImage eightBitImage = gifSourceImage.convertToFormat(QImage::Format_RGBA8888);
+
+    const int frameStartIndex = animation.startIndex(gifSourceImage.width());
+    for (int frameIndex = frameStartIndex; frameIndex < frameStartIndex + animation.frameCount(); ++frameIndex) {
+        GIF_FRAME *frame = gif_new_frame(gif);
+        // Divide 1000.0 by the FPS to get the delay in MS, and then convert
+        // that to 100ths of a second, because that's what the bitmap library expects.
+        frame->delay = (1000.0 / animation.fps()) / 10;
+        frame->trans = true;
+        Bitmap *bitmap = frame->image;
+
+        const QImage frameSourceImage = imageForAnimationFrame(eightBitImage, animation, frameIndex - frameStartIndex);
+        const QImage scaledFrameSourceImage = frameSourceImage.scaled(frameSourceImage.size() * animation.scale());
+        const uchar *imageBits = scaledFrameSourceImage.bits();
+        for (int byteIndex = 0; byteIndex < width * height; ++byteIndex) {
+            /*
+                Since the bitmap library allocates the bitmap for us,
+                we have to copy our data into its array.
+
+                Note the documentation for Bitmap's data member:
+
+                 * The internal format is `0xAARRGGBB` little endian.
+                 * Meaning that `p[0]` contains B, `p[1]` contains G,
+                 * `p[2]` contains R and `p[3]` contains A
+                 * and the data buffer is an array of bytes BGRABGRABGRABGRABGRA...
+
+                Qt uses a different order (QImage::Format_RGBA8888):
+
+                "The order of the colors is the same on any architecture if read as bytes 0xRR,0xGG,0xBB,0xAA."
+            */
+            bitmap->data[byteIndex * 4] = imageBits[byteIndex * 4 + 2];     // blue
+            bitmap->data[byteIndex * 4 + 1] = imageBits[byteIndex * 4 + 1]; // green
+            bitmap->data[byteIndex * 4 + 2] = imageBits[byteIndex * 4];     // red
+            bitmap->data[byteIndex * 4 + 3] = imageBits[byteIndex * 4 + 3]; // alpha
+        }
+    }
+
+    if (gif_save(gif, path.toUtf8().constData()) == 0) {
+        errorMessage = QObject::tr("Failed to export GIF: %1").arg(bm_last_error);
+        return false;
+    }
+
+    qCDebug(lcUtils) << "... successfully exported gif";
+
+    return true;
+}
+
+QImage Utils::imageForAnimationFrame(const QImage &sourceImage, const AnimationPlayback &animation, int relativeFrameIndex)
+{
+    const int frameWidth = animation.frameWidth();
+    const int frameHeight = animation.frameHeight();
+    const int framesWide = animation.framesWide(sourceImage.width());
+    const int startIndex = animation.startIndex(sourceImage.width());
+
+    const int absoluteCurrentIndex = startIndex + relativeFrameIndex;
+    const int frameX = (absoluteCurrentIndex % framesWide) * frameWidth;
+    const int frameY = (absoluteCurrentIndex / framesWide) * frameHeight;
+
+    const QImage image = sourceImage.copy(frameX, frameY, frameWidth, frameHeight);
+    qCDebug(lcUtils).nospace() << "returning image for animation:"
+        << " frameX=" << animation.frameX()
+        << " frameY=" << animation.frameY()
+        << " currentFrameIndex=" << animation.currentFrameIndex()
+        << " x=" << frameX
+        << " y=" << frameY
+        << " w=" << frameWidth
+        << " h=" << frameHeight;
+    return image;
 }
