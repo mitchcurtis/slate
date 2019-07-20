@@ -91,6 +91,7 @@ Dialog {
             ToolTip.text: qsTr("X coordinate of the first frame to animate")
             ToolTip.visible: hovered
             ToolTip.delay: toolTipDelay
+            ToolTip.timeout: toolTipTimeout
 
             onValueModified: animationPlayback.frameX = value
         }
@@ -115,6 +116,7 @@ Dialog {
             ToolTip.text: qsTr("Y coordinate of the first frame to animate")
             ToolTip.visible: hovered
             ToolTip.delay: toolTipDelay
+            ToolTip.timeout: toolTipTimeout
 
             onValueModified: animationPlayback.frameY = value
         }
@@ -139,6 +141,7 @@ Dialog {
             ToolTip.text: qsTr("Width of each frame")
             ToolTip.visible: hovered
             ToolTip.delay: toolTipDelay
+            ToolTip.timeout: toolTipTimeout
 
             onValueModified: animationPlayback.frameWidth = value
         }
@@ -162,6 +165,7 @@ Dialog {
             ToolTip.text: qsTr("Height of each frame")
             ToolTip.visible: hovered
             ToolTip.delay: toolTipDelay
+            ToolTip.timeout: toolTipTimeout
 
             onValueModified: animationPlayback.frameHeight = value
         }
@@ -185,6 +189,7 @@ Dialog {
             ToolTip.text: qsTr("The number of frames to animate")
             ToolTip.visible: hovered
             ToolTip.delay: toolTipDelay
+            ToolTip.timeout: toolTipTimeout
 
             onValueModified: animationPlayback.frameCount = value
         }
@@ -208,6 +213,7 @@ Dialog {
             ToolTip.text: qsTr("Frames per second")
             ToolTip.visible: hovered
             ToolTip.delay: toolTipDelay
+            ToolTip.timeout: toolTipTimeout
 
             // Update the actual values as the controls are modified so that
             // the user gets a preview of the changes they're making.

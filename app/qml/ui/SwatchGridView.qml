@@ -89,5 +89,6 @@ GridView {
             ? model.colour : model.name + " (" + model.colour + ")"
         ToolTip.visible: mouseArea.containsMouse
         ToolTip.delay: toolTipDelay
+        ToolTip.timeout: toolTipTimeout
     }
 }

@@ -73,6 +73,7 @@ Dialog {
                 ToolTip.text: isTilesetProject ? tilesetText : imageText
                 ToolTip.visible: hovered
                 ToolTip.delay: toolTipDelay
+                ToolTip.timeout: toolTipTimeout
 
                 Keys.onReturnPressed: root.accept()
             }
@@ -94,6 +95,7 @@ Dialog {
                 ToolTip.text: isTilesetProject ? tilesetText : imageText
                 ToolTip.visible: hovered
                 ToolTip.delay: toolTipDelay
+                ToolTip.timeout: toolTipTimeout
 
                 Keys.onReturnPressed: root.accept()
             }

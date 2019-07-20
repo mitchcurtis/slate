@@ -105,6 +105,7 @@ Dialog {
                     ToolTip.text: qsTr("Preserve aspect ratio")
                     ToolTip.visible: hovered
                     ToolTip.delay: toolTipDelay
+                    ToolTip.timeout: toolTipTimeout
                 }
             }
 
@@ -128,6 +129,7 @@ Dialog {
                 ToolTip.text: qsTr("Image width in pixels")
                 ToolTip.visible: hovered
                 ToolTip.delay: toolTipDelay
+                ToolTip.timeout: toolTipTimeout
 
                 Keys.onReturnPressed: root.accept()
 
@@ -167,6 +169,7 @@ Dialog {
                 ToolTip.text: qsTr("Image height in pixels")
                 ToolTip.visible: hovered
                 ToolTip.delay: toolTipDelay
+                ToolTip.timeout: toolTipTimeout
 
                 Keys.onReturnPressed: root.accept()
 
@@ -202,6 +205,7 @@ Dialog {
                 ToolTip.text: qsTr("Resize smoothly using bilinear filtering")
                 ToolTip.visible: hovered
                 ToolTip.delay: toolTipDelay
+                ToolTip.timeout: toolTipTimeout
             }
 
             Item {

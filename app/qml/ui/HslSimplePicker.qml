@@ -94,6 +94,7 @@ GridLayout {
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Opacity")
         ToolTip.delay: toolTipDelay
+        ToolTip.timeout: toolTipTimeout
 
         background: Image {
             source: "qrc:/images/opacity.png"
@@ -171,6 +172,7 @@ GridLayout {
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Lightness")
         ToolTip.delay: toolTipDelay
+        ToolTip.timeout: toolTipTimeout
     }
 
     RowLayout {
@@ -231,6 +233,7 @@ GridLayout {
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Saturation")
         ToolTip.delay: toolTipDelay
+        ToolTip.timeout: toolTipTimeout
 
         background: Rectangle {
             gradient: Gradient {

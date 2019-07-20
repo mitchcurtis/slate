@@ -28,4 +28,5 @@ ToolButton {
 
     ToolTip.visible: hovered
     ToolTip.delay: toolTipDelay
+    ToolTip.timeout: toolTipTimeout
 }

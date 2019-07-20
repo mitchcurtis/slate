@@ -96,6 +96,7 @@ Dialog {
             ToolTip.text: qsTr("Changes the opacity of the image")
             ToolTip.visible: hovered
             ToolTip.delay: toolTipDelay
+            ToolTip.timeout: toolTipTimeout
 
             onMoved: {
                 hslAlpha = value
@@ -153,6 +154,7 @@ Dialog {
             ToolTip.text: qsTr("Only change the alpha if it's non-zero to prevent fully transparent pixels from gaining opacity.")
             ToolTip.visible: hovered
             ToolTip.delay: toolTipDelay
+            ToolTip.timeout: toolTipTimeout
 
             onClicked: modifySelectionHsl()
         }
@@ -168,6 +170,7 @@ Dialog {
             ToolTip.text: qsTr("Only change the alpha if it's less than one to prevent fully opaque pixels from losing opacity.")
             ToolTip.visible: hovered
             ToolTip.delay: toolTipDelay
+            ToolTip.timeout: toolTipTimeout
 
             onClicked: modifySelectionHsl()
         }
