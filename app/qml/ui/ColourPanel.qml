@@ -21,6 +21,12 @@ Panel {
         + picker.minimumUsefulHeight
         + root.bottomPadding
 
+    UiStateSerialisation {
+        project: root.project
+        onReadyToLoad: root.expanded = root.project.uiState.value("colourPanelExpanded", true)
+        onReadyToSave: root.project.uiState.setValue("colourPanelExpanded", root.expanded)
+    }
+
     contentItem: Flickable {
         objectName: root.objectName + "Flickable"
         implicitWidth: picker.implicitWidth

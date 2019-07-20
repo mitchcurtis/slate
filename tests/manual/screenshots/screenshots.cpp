@@ -198,9 +198,10 @@ void tst_Screenshots::toolBarFull()
 
     // Hide stuff that we don't want to be visible in the screenshot.
     // Use opacity instead of visible so that the layouts don't change.
-    QQuickItem *panelColumnLayout = window->findChild<QQuickItem*>("panelColumnLayout");
-    QVERIFY(panelColumnLayout);
-    panelColumnLayout->setOpacity(0);
+    QQuickItem *panelSplitView = window->findChild<QQuickItem*>("panelSplitView");
+    QVERIFY(panelSplitView);
+    panelSplitView->setOpacity(0);
+    auto panelSplitViewOpacityRollback = qScopeGuard([=](){ panelSplitView->setOpacity(1); });
 
     if (canvas->guidesVisible()) {
         QVERIFY2(triggerGuidesVisible(), failureMessage);
@@ -210,6 +211,7 @@ void tst_Screenshots::toolBarFull()
     QQuickItem *splitterBar = window->findChild<QQuickItem*>("splitterBar");
     QVERIFY(splitterBar);
     splitterBar->setOpacity(0);
+    auto splitterBarOpacityRollback = qScopeGuard([=](){ splitterBar->setOpacity(1); });
 
     // If we don't do this, the scene isn't ready.
     QSignalSpy swappedSpy(window, SIGNAL(frameSwapped()));
@@ -222,12 +224,8 @@ void tst_Screenshots::toolBarFull()
     const QImage toolBarGrab = grabResult->image().copy(QRect(0, 0, toolBar->width(), toolBar->height() + 32));
     QVERIFY(toolBarGrab.save(mOutputDirectory.absoluteFilePath(QLatin1String("slate-tool-bar.png"))));
 
-    panelColumnLayout->setOpacity(1);
-
     QVERIFY2(triggerGuidesVisible(), failureMessage);
     QCOMPARE(canvas->guidesVisible(), true);
-
-    splitterBar->setOpacity(1);
 }
 
 void tst_Screenshots::toolBarIcons()

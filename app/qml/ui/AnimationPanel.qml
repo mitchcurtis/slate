@@ -40,6 +40,12 @@ Panel {
 
     readonly property int minimumUsefulHeight: header.implicitHeight + 100
 
+    UiStateSerialisation {
+        project: root.project
+        onReadyToLoad: root.expanded = root.project.uiState.value("animationPanelExpanded", true)
+        onReadyToSave: root.project.uiState.setValue("animationPanelExpanded", root.expanded)
+    }
+
     settingsPopup: AnimationSettingsPopup {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2

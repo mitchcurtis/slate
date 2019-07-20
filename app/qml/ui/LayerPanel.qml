@@ -40,17 +40,16 @@ Panel {
         + 48
         + footer.implicitHeight
 
-    // When the project has been loaded, restore the listview's position.
-    onProjectChanged: Qt.callLater(function() {
-        // During tests, project can be null briefly. It seems to happen when going from .slp to .slp.
-        if (project)
-            layerListView.contentY = project.uiState.value("layerListViewContentY", 0)
-    })
-
-    Connections {
-        target: project
-        // Before the project is saved, store the position of the listview.
-        onPreProjectSaved: project.uiState.setValue("layerListViewContentY", layerListView.contentY)
+    UiStateSerialisation {
+        project: root.project
+        onReadyToLoad: {
+            root.expanded = root.project.uiState.value("layerPanelExpanded", true)
+            layerListView.contentY = root.project.uiState.value("layerListViewContentY", 0)
+        }
+        onReadyToSave: {
+            root.project.uiState.setValue("layerPanelExpanded", root.expanded)
+            root.project.uiState.setValue("layerListViewContentY", layerListView.contentY)
+        }
     }
 
     ButtonGroup {

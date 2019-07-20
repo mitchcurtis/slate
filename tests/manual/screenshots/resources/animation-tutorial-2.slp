@@ -1,17 +1,8 @@
 {
     "project": {
-        "currentLayerIndex": 1,
-        "firstPane": {
-            "offsetX": 40,
-            "offsetY": 189,
-            "sceneCentered": false,
-            "size": 1,
-            "zoomLevel": 5
-        },
+        "currentLayerIndex": 2,
         "guides": [
         ],
-        "lastFillToolUsed": "FillTool",
-        "layerListViewContentY": 0,
         "layers": [
             {
                 "imageData": "iVBORw0KGgoAAAANSUhEUgAAANgAAAAmCAYAAACmuFWEAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAjklEQVR4nO3TwQ2AQAzAMMr+O5cliA4he4J8Mru714fMzJxugLfcpwPgzwwGIYNByGAQMhiEDAYhg0HIYBAyGIQMBiGDQchgEDIYhAwGIYNByGAQMhiEDAYhg0HIYBAyGIQMBiGDQchgEDIYhAwGIYNByGAQMhiEDAYhg0HIYBAyGIQMBiGDQchgEDIYhB46hQRM4ZvzjwAAAABJRU5ErkJggg==",
@@ -32,28 +23,44 @@
                 "visible": true
             }
         ],
-        "secondPane": {
-            "offsetX": -540,
-            "offsetY": 189,
-            "sceneCentered": true,
-            "size": 0,
-            "zoomLevel": 1
-        },
         "swatch": {
             "colours": [
                 {
-                    "colour": "#ae80ca",
+                    "colour": "#ffae80ca",
                     "name": ""
                 },
                 {
-                    "colour": "#ca80bb",
+                    "colour": "#ffca80bb",
                     "name": ""
                 },
                 {
-                    "colour": "#ca8094",
+                    "colour": "#ffca8094",
                     "name": ""
                 }
             ]
+        },
+        "uiState": {
+            "colourPanelExpanded": false,
+            "firstPane": {
+                "offsetX": 40,
+                "offsetY": 189,
+                "sceneCentered": false,
+                "size": 1,
+                "zoomLevel": 5
+            },
+            "lastFillToolUsed": "FillTool",
+            "layerListViewContentY": 0,
+            "layerPanelExpanded": true,
+            "mainSplitViewState": "gqJlaW5kZXgAbnByZWZlcnJlZFdpZHRo+0CBgAAAAAAAomVpbmRleAFucHJlZmVycmVkV2lkdGj7QG4AAAAAAAA=",
+            "panelSplitViewState": "gaJlaW5kZXgBb3ByZWZlcnJlZEhlaWdodPtAbIAAAAAAAA==",
+            "secondPane": {
+                "offsetX": -540,
+                "offsetY": 189,
+                "sceneCentered": true,
+                "size": 0,
+                "zoomLevel": 1
+            },
+            "swatchPanelExpanded": false
         }
     }
 }

@@ -51,6 +51,12 @@ Panel {
         + footer.implicitHeight
         + bottomPadding
 
+    UiStateSerialisation {
+        project: root.project
+        onReadyToLoad: root.expanded = root.project.uiState.value("swatchPanelExpanded", true)
+        onReadyToSave: root.project.uiState.setValue("swatchPanelExpanded", root.expanded)
+    }
+
 //    property int draggedSwatchIndex: -1
 
     contentItem: ColumnLayout {

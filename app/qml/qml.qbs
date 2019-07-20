@@ -74,6 +74,7 @@ Group {
             "ui/ToolButton.qml",
             "ui/ToolButtonMenuIndicator.qml",
             "ui/ToolSizePopup.qml",
+            "ui/UiStateSerialisation.qml",
             "ui/VerticalSeparator.qml",
             "ui/ZoomIndicator.qml"
         ]

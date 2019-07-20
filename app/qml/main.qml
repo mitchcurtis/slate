@@ -140,24 +140,17 @@ ApplicationWindow {
 
     Connections {
         target: projectManager.project ? projectManager.project : null
-
         onErrorOccurred: errorPopup.showError(errorMessage)
-
-        onPreProjectSaved: {
-            // Save project state.
-            project.uiState.setValue("mainSplitViewState",
-                project.uiState.binaryToBase64(mainSplitView.saveState()))
-            project.uiState.setValue("panelSplitViewState",
-                project.uiState.binaryToBase64(panelSplitView.saveState()))
-        }
     }
 
     Connections {
         target: projectManager
-
         onCreationFailed: errorPopup.showError(errorMessage)
+    }
 
-        onProjectChanged: {
+    Ui.UiStateSerialisation {
+        project: window.project
+        onReadyToLoad: {
             // Old project files and image projects don't have UI state.
             if (project && project.uiState.contains("mainSplitViewState")) {
                 // Restore project state.
@@ -170,6 +163,13 @@ ApplicationWindow {
                 // We only need to restore panelSplitView's preferredWidth, as mainSplitView fills.
                 panelSplitView.SplitView.preferredWidth = panelSplitView.defaultPreferredWidth
             }
+        }
+        onReadyToSave: {
+            // Save project state.
+            project.uiState.setValue("mainSplitViewState",
+                project.uiState.binaryToBase64(mainSplitView.saveState()))
+            project.uiState.setValue("panelSplitViewState",
+                project.uiState.binaryToBase64(panelSplitView.saveState()))
         }
     }
 

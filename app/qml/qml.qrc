@@ -59,6 +59,7 @@
         <file>ui/ToolButton.qml</file>
         <file>ui/ToolButtonMenuIndicator.qml</file>
         <file>ui/ToolSizePopup.qml</file>
+        <file>ui/UiStateSerialisation.qml</file>
         <file>ui/VerticalSeparator.qml</file>
         <file>ui/ZoomIndicator.qml</file>
         <file>ui/qmldir</file>

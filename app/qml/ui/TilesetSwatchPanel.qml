@@ -21,6 +21,12 @@ Panel {
 
     Keys.onEscapePressed: contextMenu.cancelCurrentAction()
 
+    UiStateSerialisation {
+        project: root.project
+        onReadyToLoad: root.expanded = root.project.uiState.value("tilesetSwatchPanelExpanded", true)
+        onReadyToSave: root.project.uiState.setValue("tilesetSwatchPanelExpanded", root.expanded)
+    }
+
     Flickable {
         id: tilesetFlickable
         objectName: "tilesetSwatchFlickable"
