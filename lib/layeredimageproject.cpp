@@ -472,11 +472,6 @@ void LayeredImageProject::doClose()
     emit postLayersCleared();
     setCurrentLayerIndex(0);
 
-    // Old code:
-//    while (!mLayers.isEmpty()) {
-//        delete takeLayer(0);
-//    }
-
     mLayersCreated = 0;
     mAutoExportEnabled = false;
     mUsingAnimation = false;
