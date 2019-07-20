@@ -336,7 +336,7 @@ void Project::writeGuides(QJsonObject &projectJson) const
 void Project::readUiState(const QJsonObject &projectJson)
 {
     QVariantMap uiState;
-    // Older versions (<= 0.SPLITVIEW_VER.0) didn't have uiState.
+    // Older versions (< 0.8.0) didn't have uiState.
     if (projectJson.contains("uiState"))
         uiState = projectJson.value("uiState").toObject().toVariantMap();
 
@@ -410,11 +410,6 @@ void Project::setSettings(ApplicationSettings *settings)
 
     mSettings = settings;
     emit settingsChanged();
-}
-
-QJsonObject *Project::cachedProjectJson()
-{
-    return &mCachedProjectJson;
 }
 
 SerialisableState *Project::uiState()

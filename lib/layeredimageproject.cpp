@@ -456,13 +456,6 @@ void LayeredImageProject::doLoad(const QUrl &url)
     if (!readJsonSwatch(projectObject, IgnoreSerialisationFailures))
         return;
 
-    // For compatibility with older versions (<= 0.SPLITVIEW_VER.0). See ImageCanvas::restoreState() for deprecation details.
-    // A project should have it stored in either uiState or directly in the project's top-level json, but not both.
-    if (projectObject.contains("layerListViewContentY"))
-        mUiState.setValue("layerListViewContentY", projectObject.value("layerListViewContentY").toDouble());
-    // Also compatibility code.
-    mCachedProjectJson = projectObject;
-
     setUrl(url);
     emit projectLoaded();
 }

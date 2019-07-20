@@ -116,8 +116,6 @@ public:
     ApplicationSettings *settings() const;
     void setSettings(ApplicationSettings *settings);
 
-    QJsonObject *cachedProjectJson();
-
     SerialisableState *uiState();
 
     enum SwatchImportFormat {
@@ -185,11 +183,6 @@ protected:
     QUrl mUrl;
     QTemporaryDir mTempDir;
     bool mUsingTempImage;
-    // <= 0.SPLITVIEW_VER.0 compatibility (see comments in ImageCanvas::restoreState()).
-    // Caching the project's json object allows the project to save and share
-    // e.g. pane info without having to know about the canvas. This member is
-    // written to once after loading.
-    QJsonObject mCachedProjectJson;
 
     QUndoStack mUndoStack;
     bool mComposingMacro;

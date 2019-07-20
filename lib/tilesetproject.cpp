@@ -208,8 +208,6 @@ void TilesetProject::doLoad(const QUrl &url)
     if (!readJsonSwatch(projectObject, IgnoreSerialisationFailures))
         return;
     readUiState(projectObject);
-    // For compatibility with older versions (<= 0.SPLITVIEW_VER.0). See ImageCanvas::restoreState() for deprecation details.
-    mCachedProjectJson = projectObject;
 
     setUrl(url);
     emit projectLoaded();

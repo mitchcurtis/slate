@@ -194,54 +194,26 @@ void ImageCanvas::restoreState()
 {
     // Read the canvas data that was stored in the project, if there is any.
     // New projects or projects that don't have their own Slate extension
-    // won't have any JSON data.
+    // won't have any data.
 
     bool readPanes = false;
 
-    if (mProject->cachedProjectJson()->contains("lastFillToolUsed")) {
-        // TODO:
-        // <= 0.SPLITVIEW_VER.0 compatibility code. Eventually, once every platform has had a release
-        // where uiState is saved (so that we can refer users to a version that can be used to
-        // make old project files compatible with newer versions by opening the project and saving it),
-        // we should remove this code and just use uiState.
-        QJsonObject *cachedProjectJson = mProject->cachedProjectJson();
+    SerialisableState *uiState = mProject->uiState();
 
-        if (cachedProjectJson->contains("lastFillToolUsed")) {
-            const QString lastFillToolUsedAsString = cachedProjectJson->value("lastFillToolUsed").toString();
-            setLastFillToolUsed(static_cast<Tool>(
-                QMetaEnum::fromType<Tool>().keyToValue(qPrintable(lastFillToolUsedAsString))));
-        }
-
-        if (cachedProjectJson->contains("firstPane")) {
-            mFirstPane.read(cachedProjectJson->value("firstPane").toObject());
-            readPanes = true;
-        }
-        if (cachedProjectJson->contains("firstPane")) {
-            mSecondPane.read(cachedProjectJson->value("secondPane").toObject());
-            readPanes = true;
-        }
-        doSetSplitScreen(cachedProjectJson->value("splitScreen").toBool(false), DontResetPaneSizes);
-        mSplitter.setEnabled(cachedProjectJson->value("splitterLocked").toBool(false));
-    } else {
-        // Versions > 0.SPLITVIEW_VER.0.
-        SerialisableState *uiState = mProject->uiState();
-
-        if (uiState->contains("lastFillToolUsed")) {
-            mLastFillToolUsed = static_cast<Tool>(QMetaEnum::fromType<Tool>().keyToValue(
-                qPrintable(uiState->value("lastFillToolUsed", QString()).toString())));
-        }
-
-        if (uiState->contains("firstPane")) {
-            mFirstPane.read(QJsonObject::fromVariantMap(uiState->value("firstPane").toMap()));
-            readPanes = true;
-        }
-        if (uiState->contains("secondPane")) {
-            mSecondPane.read(QJsonObject::fromVariantMap(uiState->value("secondPane").toMap()));
-            readPanes = true;
-        }
-        doSetSplitScreen(uiState->value("splitScreen", false).toBool(), DontResetPaneSizes);
-        mSplitter.setEnabled(uiState->value("splitterLocked", false).toBool());
+    if (uiState->contains("lastFillToolUsed")) {
+        mLastFillToolUsed = static_cast<Tool>(QMetaEnum::fromType<Tool>().keyToValue(
+            qPrintable(uiState->value("lastFillToolUsed", QString()).toString())));
     }
+    if (uiState->contains("firstPane")) {
+        mFirstPane.read(QJsonObject::fromVariantMap(uiState->value("firstPane").toMap()));
+        readPanes = true;
+    }
+    if (uiState->contains("secondPane")) {
+        mSecondPane.read(QJsonObject::fromVariantMap(uiState->value("secondPane").toMap()));
+        readPanes = true;
+    }
+    doSetSplitScreen(uiState->value("splitScreen", false).toBool(), DontResetPaneSizes);
+    mSplitter.setEnabled(uiState->value("splitterLocked", false).toBool());
 
     if (!readPanes) {
         // If there were no panes stored, then the project hasn't been saved yet,
