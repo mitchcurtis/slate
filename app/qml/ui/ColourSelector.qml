@@ -30,8 +30,8 @@ Item {
 
         ToolTip.text: qsTr("Set the background colour")
         ToolTip.visible: hovered
-        ToolTip.delay: toolTipDelay
-        ToolTip.timeout: toolTipTimeout
+        ToolTip.delay: UiConstants.toolTipDelay
+        ToolTip.timeout: UiConstants.toolTipTimeout
     }
 
     ColourButton {
@@ -44,7 +44,7 @@ Item {
 
         ToolTip.text: qsTr("Set the foreground colour")
         ToolTip.visible: hovered
-        ToolTip.delay: toolTipDelay
-        ToolTip.timeout: toolTipTimeout
+        ToolTip.delay: UiConstants.toolTipDelay
+        ToolTip.timeout: UiConstants.toolTipTimeout
     }
 }

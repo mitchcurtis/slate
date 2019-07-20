@@ -93,8 +93,8 @@ GridLayout {
 
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Opacity")
-        ToolTip.delay: toolTipDelay
-        ToolTip.timeout: toolTipTimeout
+        ToolTip.delay: UiConstants.toolTipDelay
+        ToolTip.timeout: UiConstants.toolTipTimeout
 
         background: Image {
             source: "qrc:/images/opacity.png"
@@ -171,8 +171,8 @@ GridLayout {
 
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Lightness")
-        ToolTip.delay: toolTipDelay
-        ToolTip.timeout: toolTipTimeout
+        ToolTip.delay: UiConstants.toolTipDelay
+        ToolTip.timeout: UiConstants.toolTipTimeout
     }
 
     RowLayout {
@@ -190,8 +190,8 @@ GridLayout {
 
             ToolTip.text: qsTr("Darken the %1 colour").arg(hexColourRowLayout.colourSelector.currentPenName)
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onClicked: saturationLightnessPicker.decreaseLightness()
         }
@@ -208,8 +208,8 @@ GridLayout {
 
             ToolTip.text: qsTr("Lighten the %1 colour").arg(hexColourRowLayout.colourSelector.currentPenName)
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onClicked: saturationLightnessPicker.increaseLightness()
         }
@@ -232,8 +232,8 @@ GridLayout {
 
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Saturation")
-        ToolTip.delay: toolTipDelay
-        ToolTip.timeout: toolTipTimeout
+        ToolTip.delay: UiConstants.toolTipDelay
+        ToolTip.timeout: UiConstants.toolTipTimeout
 
         background: Rectangle {
             gradient: Gradient {
@@ -257,8 +257,8 @@ GridLayout {
             //: Desaturate the foreground/background colour.
             ToolTip.text: qsTr("Desaturate the %1 colour").arg(hexColourRowLayout.colourSelector.currentPenName)
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onClicked: saturationLightnessPicker.decreaseSaturation()
         }
@@ -276,8 +276,8 @@ GridLayout {
             //: Saturate the foreground/background colour.
             ToolTip.text: qsTr("Saturate the %1 colour").arg(hexColourRowLayout.colourSelector.currentPenName)
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onClicked: saturationLightnessPicker.increaseSaturation()
         }

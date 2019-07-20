@@ -147,8 +147,8 @@ Panel {
 
                 ToolTip.text: qsTr("Export this animation as a GIF")
                 ToolTip.visible: hovered
-                ToolTip.delay: toolTipDelay
-                ToolTip.timeout: toolTipTimeout
+                ToolTip.delay: UiConstants.toolTipDelay
+                ToolTip.timeout: UiConstants.toolTipTimeout
 
                 onClicked: saveGifDialog.open()
             }

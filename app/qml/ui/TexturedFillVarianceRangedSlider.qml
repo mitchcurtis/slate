@@ -34,8 +34,8 @@ RangeSlider {
 
     ToolTip.text: qsTr("Adjusts the lower and upper bounds for random %1 variance").arg(displayName)
     ToolTip.visible: hovered
-    ToolTip.delay: toolTipDelay
-    ToolTip.timeout: toolTipTimeout
+    ToolTip.delay: UiConstants.toolTipDelay
+    ToolTip.timeout: UiConstants.toolTipTimeout
 
     function commit() {
         parameter.varianceLowerBound = first.value

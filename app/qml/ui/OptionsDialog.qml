@@ -159,8 +159,8 @@ Dialog {
 
                         ToolTip.text: qsTr("Enables the use of two-finger panning and pinch-to-zoom on macOS")
                         ToolTip.visible: hovered
-                        ToolTip.delay: toolTipDelay
-                        ToolTip.timeout: toolTipTimeout
+                        ToolTip.delay: UiConstants.toolTipDelay
+                        ToolTip.timeout: UiConstants.toolTipTimeout
                     }
 
                     Label {
@@ -214,8 +214,8 @@ Dialog {
 
                         ToolTip.text: qsTr("Changes the opacity of the window. Useful for tracing over an image in another window.")
                         ToolTip.visible: hovered
-                        ToolTip.delay: toolTipDelay
-                        ToolTip.timeout: toolTipTimeout
+                        ToolTip.delay: UiConstants.toolTipDelay
+                        ToolTip.timeout: UiConstants.toolTipTimeout
 
                         Binding {
                             target: dialog.ApplicationWindow.window
@@ -309,8 +309,8 @@ Dialog {
 
                         ToolTip.text: qsTr("Don't hide crosshair cursor when rectangle cursor is visible")
                         ToolTip.visible: hovered
-                        ToolTip.delay: toolTipDelay
-                        ToolTip.timeout: toolTipTimeout
+                        ToolTip.delay: UiConstants.toolTipDelay
+                        ToolTip.timeout: UiConstants.toolTipTimeout
                     }
 
                     Label {
@@ -323,8 +323,8 @@ Dialog {
 
                         ToolTip.text: qsTr("Enables the use of a read-only swatch whose colours come from the image")
                         ToolTip.visible: hovered
-                        ToolTip.delay: toolTipDelay
-                        ToolTip.timeout: toolTipTimeout
+                        ToolTip.delay: UiConstants.toolTipDelay
+                        ToolTip.timeout: UiConstants.toolTipTimeout
                     }
                 }
             }

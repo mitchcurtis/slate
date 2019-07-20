@@ -51,8 +51,6 @@ ApplicationWindow {
     property alias openProjectDialog: openProjectDialog
     property alias saveChangesDialog: discardChangesDialog
     property alias moveContentsDialog: moveContentsDialog
-    readonly property int toolTipDelay: 800
-    readonly property int toolTipTimeout: 5000
     property int oldWindowVisibility: Window.Windowed
 
     onClosing: {

@@ -48,8 +48,8 @@ Dialog {
 
             ToolTip.text: qsTr("The height of the image")
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             readonly property int defaultValue: 256
 
@@ -71,8 +71,8 @@ Dialog {
 
             ToolTip.text: qsTr("The height of the image")
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             readonly property int defaultValue: 256
 

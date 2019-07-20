@@ -114,8 +114,8 @@ Dialog {
 
                 ToolTip.text: qsTr("Click to choose the path to a tileset image")
                 ToolTip.visible: hovered
-                ToolTip.delay: toolTipDelay
-                ToolTip.timeout: toolTipTimeout
+                ToolTip.delay: UiConstants.toolTipDelay
+                ToolTip.timeout: UiConstants.toolTipTimeout
             }
         }
 
@@ -142,8 +142,8 @@ Dialog {
 
             ToolTip.text: qsTr("How wide each tile is in pixels")
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             readonly property int defaultValue: 32
 
@@ -173,7 +173,7 @@ Dialog {
 
             ToolTip.text: qsTr("How high each tile is in pixels")
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
+            ToolTip.delay: UiConstants.toolTipDelay
 
             readonly property int defaultValue: 32
 
@@ -196,8 +196,8 @@ Dialog {
 
             ToolTip.text: qsTr("How many tiles should be displayed horizontally")
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             readonly property int defaultValue: 10
 
@@ -220,8 +220,8 @@ Dialog {
 
             ToolTip.text: qsTr("How many tiles should be displayed vertically")
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             readonly property int defaultValue: 10
 

@@ -28,6 +28,6 @@ ToolButton {
     anchors.verticalCenter: parent.verticalCenter
 
     ToolTip.visible: hovered
-    ToolTip.delay: toolTipDelay
-    ToolTip.timeout: toolTipTimeout
+    ToolTip.delay: UiConstants.toolTipDelay
+    ToolTip.timeout: UiConstants.toolTipTimeout
 }

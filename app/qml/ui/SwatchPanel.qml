@@ -195,8 +195,8 @@ Panel {
 
                 ToolTip.text: qsTr("New swatch colour")
                 ToolTip.visible: hovered
-                ToolTip.delay: toolTipDelay
-                ToolTip.timeout: toolTipTimeout
+                ToolTip.delay: UiConstants.toolTipDelay
+                ToolTip.timeout: UiConstants.toolTipTimeout
 
                 onClicked: project.swatch.addColour("", canvas.penForegroundColour)
             }

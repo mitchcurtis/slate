@@ -72,8 +72,8 @@ Dialog {
 
                 ToolTip.text: isTilesetProject ? tilesetText : imageText
                 ToolTip.visible: hovered
-                ToolTip.delay: toolTipDelay
-                ToolTip.timeout: toolTipTimeout
+                ToolTip.delay: UiConstants.toolTipDelay
+                ToolTip.timeout: UiConstants.toolTipTimeout
 
                 Keys.onReturnPressed: root.accept()
             }
@@ -94,8 +94,8 @@ Dialog {
 
                 ToolTip.text: isTilesetProject ? tilesetText : imageText
                 ToolTip.visible: hovered
-                ToolTip.delay: toolTipDelay
-                ToolTip.timeout: toolTipTimeout
+                ToolTip.delay: UiConstants.toolTipDelay
+                ToolTip.timeout: UiConstants.toolTipTimeout
 
                 Keys.onReturnPressed: root.accept()
             }

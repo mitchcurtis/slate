@@ -60,8 +60,8 @@ Dialog {
 
             ToolTip.text: qsTr("Enable random variance in hue")
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onToggled: previewItem.parameters.hue.enabled = checked
         }
@@ -87,8 +87,8 @@ Dialog {
 
             ToolTip.text: qsTr("Enable random variance in saturation")
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onToggled: previewItem.parameters.saturation.enabled = checked
         }
@@ -113,8 +113,8 @@ Dialog {
 
             ToolTip.text: qsTr("Enable random variance in lightness")
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onToggled: previewItem.parameters.lightness.enabled = checked
         }

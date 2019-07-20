@@ -124,8 +124,8 @@ Dialog {
 
             ToolTip.text: qsTr("Changes the hue of the image")
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onMoved: {
                 hslHue = value
@@ -176,8 +176,8 @@ Dialog {
 
             ToolTip.text: qsTr("Changes the saturation of the image")
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onMoved: {
                 hslSaturation = value
@@ -237,8 +237,8 @@ Dialog {
 
             ToolTip.text: qsTr("Changes the lightness of the image")
             ToolTip.visible: hovered
-            ToolTip.delay: toolTipDelay
-            ToolTip.timeout: toolTipTimeout
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onMoved: {
                 hslLightness = value
