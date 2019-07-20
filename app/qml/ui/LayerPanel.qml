@@ -114,6 +114,11 @@ Panel {
             Layout.fillHeight: true
             Layout.leftMargin: 6
 
+            ToolTip.text: qsTr("Add a new layer")
+            ToolTip.visible: hovered
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
+
             onClicked: project.addNewLayer()
         }
 
@@ -129,6 +134,11 @@ Panel {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
             Layout.fillHeight: true
+
+            ToolTip.text: qsTr("Move the current layer down")
+            ToolTip.visible: hovered
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onClicked: project.moveCurrentLayerDown()
         }
@@ -146,6 +156,11 @@ Panel {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
+            ToolTip.text: qsTr("Move the current layer up")
+            ToolTip.visible: hovered
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
+
             onClicked: project.moveCurrentLayerUp()
         }
 
@@ -161,6 +176,11 @@ Panel {
             Layout.maximumWidth: implicitHeight
             Layout.fillWidth: true
             Layout.fillHeight: true
+
+            ToolTip.text: qsTr("Duplicate the current layer")
+            ToolTip.visible: hovered
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onClicked: project.duplicateCurrentLayer()
         }
@@ -183,6 +203,11 @@ Panel {
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.rightMargin: 6
+
+            ToolTip.text: qsTr("Delete the current layer")
+            ToolTip.visible: hovered
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onClicked: project.deleteCurrentLayer()
         }
