@@ -145,7 +145,7 @@ Panel {
                 font.family: "FontAwesome"
                 focusPolicy: Qt.NoFocus
 
-                ToolTip.text: qsTr("Export the animation preview as a GIF")
+                ToolTip.text: qsTr("Export this animation as a GIF")
                 ToolTip.visible: hovered
                 ToolTip.delay: toolTipDelay
                 ToolTip.timeout: toolTipTimeout
