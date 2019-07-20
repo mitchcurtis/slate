@@ -68,7 +68,7 @@ Group {
             "ui/SwatchSettingsContextMenu.qml",
             "ui/TexturedFillSettingsDialog.qml",
             "ui/TexturedFillVarianceRangedSlider.qml",
-            "ui/TilesetSwatch.qml",
+            "ui/TilesetSwatchPanel.qml",
             "ui/TilesetTypeCanvas.qml",
             "ui/ToolBar.qml",
             "ui/ToolButton.qml",

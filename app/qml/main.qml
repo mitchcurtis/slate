@@ -257,7 +257,7 @@ ApplicationWindow {
                 objectName: "tilesetSwatchLoader"
                 active: window.projectType === Project.TilesetType && window.canvas
                 visible: active
-                sourceComponent: Ui.TilesetSwatch {
+                sourceComponent: Ui.TilesetSwatchPanel {
                     id: tilesetSwatch
                     tileCanvas: window.canvas
                     project: window.project

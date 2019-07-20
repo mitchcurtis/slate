@@ -53,7 +53,7 @@
         <file>ui/TexturedFillSettingsDialog.qml</file>
         <file>ui/TexturedFillVarianceRangedSlider.qml</file>
         <file>ui/Theme.qml</file>
-        <file>ui/TilesetSwatch.qml</file>
+        <file>ui/TilesetSwatchPanel.qml</file>
         <file>ui/TilesetTypeCanvas.qml</file>
         <file>ui/ToolBar.qml</file>
         <file>ui/ToolButton.qml</file>
