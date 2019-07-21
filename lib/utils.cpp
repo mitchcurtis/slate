@@ -247,7 +247,7 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
         qCDebug(lcUtils) << "palette has" << argbPalette.size() << "colours:" << colours;
     }
 
-    // Convert it to an 8 bit image. Not sure if this is necessary...
+    // Convert it to an 8 bit image so that the byte order is as we expect.
     const QImage eightBitImage = gifSourceImage.convertToFormat(QImage::Format_RGBA8888);
 
     const int frameStartIndex = animation.startIndex(gifSourceImage.width());
@@ -256,7 +256,6 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
         // Divide 1000.0 by the FPS to get the delay in MS, and then convert
         // that to 100ths of a second, because that's what the bitmap library expects.
         frame->delay = (1000.0 / animation.fps()) / 10;
-        frame->trans = true;
         Bitmap *bitmap = frame->image;
 
         const QImage frameSourceImage = imageForAnimationFrame(eightBitImage, animation, frameIndex - frameStartIndex);

@@ -970,8 +970,8 @@ void tst_App::animationGifExport()
     const int frameCount = 6;
     const int frameWidth = 36;
     const int frameHeight = 38;
-//    const int scaledFrameWidth = frameWidth * previewScale;
-//    const int scaledFrameHeight = frameHeight * previewScale;
+    const int scaledFrameWidth = frameWidth * previewScale;
+    const int scaledFrameHeight = frameHeight * previewScale;
     QCOMPARE(gif->w, frameWidth * previewScale);
     QCOMPARE(gif->h, frameHeight * previewScale);
     QCOMPARE(gif->n, frameCount);
@@ -986,16 +986,30 @@ void tst_App::animationGifExport()
         QCOMPARE(gifBitmap->w, frameWidth * previewScale);
         QCOMPARE(gifBitmap->h, frameHeight * previewScale);
 
-//        const QImage frameSourceImage = layeredImageProject->exportedImage();
-//        const QImage scaledFrameSourceImage = frameSourceImage.scaled(
-//            frameSourceImage.size() * layeredImageProject->animationPlayback()->scale());
-//        const uchar *imageBits =  scaledFrameSourceImage.bits();
-//        for (int byteIndex = 0; byteIndex < scaledFrameWidth * scaledFrameHeight; ++byteIndex) {
-//            QCOMPARE(gifBitmap->data[byteIndex * 4], imageBits[byteIndex * 4 + 2]);     // blue
-//            QCOMPARE(gifBitmap->data[byteIndex * 4 + 1], imageBits[byteIndex * 4 + 1]); // green
-//            QCOMPARE(gifBitmap->data[byteIndex * 4 + 2], imageBits[byteIndex * 4]);     // red
-//            QCOMPARE(gifBitmap->data[byteIndex * 4 + 3], imageBits[byteIndex * 4 + 3]); // alpha
-//        }
+        QImage frameSourceImage = layeredImageProject->exportedImage().copy(
+            frameIndex * frameWidth, 0, frameWidth, frameHeight);
+        frameSourceImage = frameSourceImage.convertToFormat(QImage::Format_RGBA8888);
+        const QImage scaledFrameSourceImage = frameSourceImage.scaled(
+            frameSourceImage.size() * layeredImageProject->animationPlayback()->scale());
+        const uchar *scaledFrameSourceImageBits =  scaledFrameSourceImage.bits();
+        for (int y = 0; y < scaledFrameHeight; ++y) {
+            for (int x = 0; x < scaledFrameWidth; ++x) {
+                const int byteIndex = x * y;
+                const int actualBlue = gifBitmap->data[byteIndex * 4];
+                const int actualGreen = gifBitmap->data[byteIndex * 4 + 1];
+                const int actualRed = gifBitmap->data[byteIndex * 4 + 2];
+                const int actualAlpha = gifBitmap->data[byteIndex * 4 + 3];
+                const int expectedBlue = scaledFrameSourceImageBits[byteIndex * 4 + 2];
+                const int expectedGreen = scaledFrameSourceImageBits[byteIndex * 4 + 1];
+                const int expectedRed = scaledFrameSourceImageBits[byteIndex * 4];
+                const int expectedAlpha = scaledFrameSourceImageBits[byteIndex * 4 + 3];
+                const QColor actualColour = QColor(actualRed, actualGreen, actualBlue, actualAlpha);
+                const QColor expectedColour = QColor(expectedRed, expectedGreen, expectedBlue, expectedAlpha);
+                QVERIFY2(actualColour == expectedColour,
+                    qPrintable(QString::fromLatin1("Expected pixel at x=%1 y=%2 of frame %3 to be %4 but it's %5")
+                        .arg(x).arg(y).arg(frameIndex).arg(actualColour.name(QColor::HexArgb)).arg(expectedColour.name(QColor::HexArgb))));
+            }
+        }
     }
 }
 
