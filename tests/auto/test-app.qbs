@@ -42,7 +42,8 @@ QtGuiApplication {
 
     cpp.includePaths: [
         "../../app",
-        "../shared"
+        "../shared",
+        "../../lib/3rdparty"
     ]
 
     files: [
@@ -50,6 +51,10 @@ QtGuiApplication {
         "../../app/application.cpp",
         "../../app/fonts/fonts.qrc",
         "../../app/images/images.qrc",
+        "../../lib/3rdparty/bitmap/bmp.h",
+        "../../lib/3rdparty/bitmap/bmp.c",
+        "../../lib/3rdparty/bitmap/misc/gif.h",
+        "../../lib/3rdparty/bitmap/misc/gif.c",
         "resources.qrc",
         "tst_app.cpp",
         "../shared/testhelper.h",

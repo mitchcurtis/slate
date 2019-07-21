@@ -10,6 +10,10 @@ target_sources(
   ${CMAKE_SOURCE_DIR}/app/application.cpp
   ${CMAKE_SOURCE_DIR}/app/fonts/fonts.qrc
   ${CMAKE_SOURCE_DIR}/app/images/images.qrc
+  ${CMAKE_SOURCE_DIR}/lib/3rdparty/bitmap/bmp.h
+  ${CMAKE_SOURCE_DIR}/lib/3rdparty/bitmap/bmp.c
+  ${CMAKE_SOURCE_DIR}/lib/3rdparty/bitmap/misc/gif.h
+  ${CMAKE_SOURCE_DIR}/lib/3rdparty/bitmap/misc/gif.c
   resources.qrc
   tst_app.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/../shared/testhelper.h
@@ -34,6 +38,7 @@ target_include_directories(
   PRIVATE
   ${CMAKE_SOURCE_DIR}/app
   ${CMAKE_CURRENT_SOURCE_DIR}/../shared
+  ${CMAKE_SOURCE_DIR}/lib/3rdparty
 )
 
 set_target_properties(

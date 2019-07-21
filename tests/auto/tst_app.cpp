@@ -27,6 +27,12 @@
 #include <QQuickItemGrabResult>
 #include <QQuickWindow>
 
+// Need this otherwise we get linker errors.
+extern "C" {
+#include "bitmap/bmp.h"
+#include "bitmap/misc/gif.h"
+}
+
 #include "application.h"
 #include "applypixelpencommand.h"
 #include "imagelayer.h"
@@ -956,6 +962,41 @@ void tst_App::animationGifExport()
     layeredImageProject->exportGif(exportedGifUrl);
     QVERIFY(errorSpy.isEmpty());
     QVERIFY(QFile::exists(exportedGifUrl.toLocalFile()));
+
+    // Now read the GIF and verify that each frame is correct.
+    GIF *gif = gif_load(exportedGifUrl.toLocalFile().toLatin1().constData());
+    QVERIFY(gif);
+    const int previewScale = 4;
+    const int frameCount = 6;
+    const int frameWidth = 36;
+    const int frameHeight = 38;
+//    const int scaledFrameWidth = frameWidth * previewScale;
+//    const int scaledFrameHeight = frameHeight * previewScale;
+    QCOMPARE(gif->w, frameWidth * previewScale);
+    QCOMPARE(gif->h, frameHeight * previewScale);
+    QCOMPARE(gif->n, frameCount);
+    // Should be looping.
+    QCOMPARE(gif->repetitions, 0);
+
+    for (int frameIndex = 0; frameIndex < gif->n; ++frameIndex) {
+        GIF_FRAME loadedGifFrame = gif->frames[frameIndex];
+        QCOMPARE(loadedGifFrame.delay, qFloor(1000.0 / layeredImageProject->animationPlayback()->fps()) / 10);
+
+        Bitmap *gifBitmap = loadedGifFrame.image;
+        QCOMPARE(gifBitmap->w, frameWidth * previewScale);
+        QCOMPARE(gifBitmap->h, frameHeight * previewScale);
+
+//        const QImage frameSourceImage = layeredImageProject->exportedImage();
+//        const QImage scaledFrameSourceImage = frameSourceImage.scaled(
+//            frameSourceImage.size() * layeredImageProject->animationPlayback()->scale());
+//        const uchar *imageBits =  scaledFrameSourceImage.bits();
+//        for (int byteIndex = 0; byteIndex < scaledFrameWidth * scaledFrameHeight; ++byteIndex) {
+//            QCOMPARE(gifBitmap->data[byteIndex * 4], imageBits[byteIndex * 4 + 2]);     // blue
+//            QCOMPARE(gifBitmap->data[byteIndex * 4 + 1], imageBits[byteIndex * 4 + 1]); // green
+//            QCOMPARE(gifBitmap->data[byteIndex * 4 + 2], imageBits[byteIndex * 4]);     // red
+//            QCOMPARE(gifBitmap->data[byteIndex * 4 + 3], imageBits[byteIndex * 4 + 3]); // alpha
+//        }
+    }
 }
 
 void tst_App::keyboardShortcuts()

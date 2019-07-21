@@ -235,6 +235,17 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
 
     QVarLengthArray<unsigned int> argbPalette = findMax256UniqueArgbColours(gifSourceImage);
     gif_set_palette(gif, argbPalette.data(), argbPalette.size());
+    if (lcUtils().isDebugEnabled()) {
+        QVector<QString> colours;
+        colours.reserve(argbPalette.size());
+        for (const auto colour : qAsConst(argbPalette)) {
+            const int r = (colour >> 16) & 0xFF;
+            const int g = (colour >> 8) & 0xFF;
+            const int b = (colour >> 0) & 0xFF;
+            colours.append(QColor(r, g, b).name(QColor::HexArgb));
+        }
+        qCDebug(lcUtils) << "palette has" << argbPalette.size() << "colours:" << colours;
+    }
 
     // Convert it to an 8 bit image. Not sure if this is necessary...
     const QImage eightBitImage = gifSourceImage.convertToFormat(QImage::Format_RGBA8888);

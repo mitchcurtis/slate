@@ -75,6 +75,8 @@
             ]
         },
         "uiState": {
+            "animationPanelExpanded": true,
+            "colourPanelExpanded": false,
             "firstPane": {
                 "offsetX": 40,
                 "offsetY": 189,
@@ -84,15 +86,17 @@
             },
             "lastFillToolUsed": "FillTool",
             "layerListViewContentY": 0,
+            "layerPanelExpanded": true,
             "mainSplitViewState": "gqJlaW5kZXgAbnByZWZlcnJlZFdpZHRo+0B9MAAAAAAAomVpbmRleAFucHJlZmVycmVkV2lkdGj7QG4AAAAAAAA=",
-            "panelSplitViewState": "gaJlaW5kZXgBb3ByZWZlcnJlZEhlaWdodPtAbIAAAAAAAA==",
+            "panelSplitViewState": "gqJlaW5kZXgBb3ByZWZlcnJlZEhlaWdodPtAbIAAAAAAAKJlaW5kZXgEb3ByZWZlcnJlZEhlaWdodPtAcZ8wAAAAAA==",
             "secondPane": {
-                "offsetX": -540,
-                "offsetY": 189,
+                "offsetX": -108,
+                "offsetY": 280,
                 "sceneCentered": true,
                 "size": 0,
                 "zoomLevel": 1
-            }
+            },
+            "swatchPanelExpanded": false
         },
         "usingAnimation": true
     }
