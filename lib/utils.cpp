@@ -226,15 +226,17 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
 
     qCDebug(lcUtils).nospace() << "exporting gif to: " << path << "...";
 
-    // We need to create the Bitmap using the library, because otherwise the memcpy() call
-    // in count_colors_build_palette() crashes.
     const int width = animation.frameWidth() * animation.scale();
     const int height = animation.frameHeight() * animation.scale();
     GIF *gif = gif_create(width, height);
-    // The repititions are stored internally as uint16_t, so I guess we can't loop infinitely,
-    // but we can at least make it a huge number.
-    gif->repetitions = animation.shouldLoop() ? std::numeric_limits<uint16_t>::max() : 1;
     auto cleanup = qScopeGuard([=]{ gif_free(gif); });
+
+    // The repetitions are stored internally as uint16_t, so I guess we can't loop infinitely,
+    // but we can at least make it a huge number.
+    gif->repetitions = animation.shouldLoop() ? 0 : 1;
+
+    QVarLengthArray<unsigned int> argbPalette = findMax256UniqueArgbColours(gifSourceImage);
+    gif_set_palette(gif, argbPalette.data(), argbPalette.size());
 
     // Convert it to an 8 bit image. Not sure if this is necessary...
     const QImage eightBitImage = gifSourceImage.convertToFormat(QImage::Format_RGBA8888);
@@ -305,4 +307,38 @@ QImage Utils::imageForAnimationFrame(const QImage &sourceImage, const AnimationP
         << " w=" << frameWidth
         << " h=" << frameHeight;
     return image;
+}
+
+QVector<QColor> Utils::findUniqueColours(const QImage &image)
+{
+    QVector<QColor> colours;
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            const QColor colour = image.pixelColor(x, y);
+            if (!colours.contains(colour))
+                colours.append(colour);
+        }
+    }
+    return colours;
+}
+
+QVarLengthArray<unsigned int> Utils::findMax256UniqueArgbColours(const QImage &image)
+{
+    QVarLengthArray<unsigned int> colours;
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            const QColor colour = image.pixelColor(x, y);
+            // Used the same approach as in https://stackoverflow.com/a/4801397/904422.
+            unsigned int argb = colour.alpha();
+            argb = (argb << 8) + colour.red();
+            argb = (argb << 8) + colour.green();
+            argb = (argb << 8) + colour.blue();
+            if (!colours.contains(argb))
+                colours.append(argb);
+
+            if (colours.size() == 256)
+                return colours;
+        }
+    }
+    return colours;
 }

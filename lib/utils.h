@@ -45,6 +45,9 @@ namespace Utils {
 
     QRect ensureWithinArea(const QRect &rect, const QSize &boundsSize);
 
+    QVector<QColor> findUniqueColours(const QImage &image);
+    QVarLengthArray<unsigned int> findMax256UniqueArgbColours(const QImage &image);
+
     // relativeFrameIndex is the index of the animation relative to animation.startIndex()
     QImage imageForAnimationFrame(const QImage &sourceImage, const AnimationPlayback &animation, int relativeFrameIndex);
     bool exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &animation, QString &errorMessage);

@@ -74,6 +74,8 @@ const char *bm_last_error = "";
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
+#define SWAPINT(a, b) do {int t = a; a = b; b = t;} while(0)
+
 #if !defined(WIN32) && 0
 /* TODO: Use `alloca()` if it is available */
 #define ALLOCA(x) alloca(x)
@@ -232,13 +234,13 @@ static BmReader make_file_reader(FILE *fp) {
     return rd;
 }
 
-struct BmMemReader {
-    const unsigned char *buffer;
+typedef struct {
+    const char *buffer;
     unsigned int len;
     unsigned int pos;
-};
+} BmMemReader;
 
-static size_t memread(void *ptr, size_t size, size_t nobj, struct BmMemReader *mem) {
+static size_t memread(void *ptr, size_t size, size_t nobj, BmMemReader *mem) {
     size = size * nobj;
     if(mem->pos + size > mem->len) {
         return 0;
@@ -247,10 +249,10 @@ static size_t memread(void *ptr, size_t size, size_t nobj, struct BmMemReader *m
     mem->pos += size;
     return nobj;
 }
-static long memtell(struct BmMemReader *mem) {
+static long memtell(BmMemReader *mem) {
     return mem->pos;
 }
-static int memseek(struct BmMemReader *mem, long offset, int origin) {
+static int memseek(BmMemReader *mem, long offset, int origin) {
     switch(origin) {
     case SEEK_SET: mem->pos = offset; break;
     case SEEK_CUR: mem->pos += offset; break;
@@ -263,7 +265,7 @@ static int memseek(struct BmMemReader *mem, long offset, int origin) {
     return 0;
 }
 
-static BmReader make_mem_reader(struct BmMemReader *mem) {
+static BmReader make_mem_reader(BmMemReader *mem) {
     BmReader rd;
     rd.data = mem;
     mem->pos = 0;
@@ -319,6 +321,8 @@ Bitmap *bm_load(const char *filename) {
 }
 
 static int is_tga_file(BmReader rd);
+
+static uint32_t count_trailing_zeroes(uint32_t v);
 
 static Bitmap *bm_load_bmp_rd(BmReader rd);
 static Bitmap *bm_load_gif_rd(BmReader rd);
@@ -414,12 +418,12 @@ Bitmap *bm_load_fp(FILE *f) {
     return NULL;
 }
 
-Bitmap *bm_load_mem(const unsigned char *buffer, long len) {
-    unsigned char magic[4];
+Bitmap *bm_load_mem(const char *buffer, long len) {
+    char magic[4];
 
     long isbmp = 0, ispng = 0, isjpg = 0, ispcx = 0, isgif = 0, istga = 0;
 
-    struct BmMemReader memr;
+    BmMemReader memr;
     memr.buffer = buffer;
     memr.len = len;
 
@@ -503,6 +507,64 @@ Bitmap *bm_load_mem(const unsigned char *buffer, long len) {
     return NULL;
 }
 
+Bitmap *bm_load_base64(const char *base64) {
+    /* It would've been cool to read the Base64 data
+    in place with a custom BmReader object, but I
+    found that decoding first makes it easier to deal with
+    whitespace in the input data */
+    if(!base64)
+        return NULL;
+    long len = strlen(base64);
+    char *p, *buffer;
+    const char *q;
+
+    unsigned octet = 0, sextet, bits = 0;
+
+    buffer = malloc(len + 1);
+    if(!buffer) {
+        SET_ERROR("out of memory");
+        return NULL;
+    }
+
+    for(p = buffer, q = base64; *q; q++) {
+        if(isspace(*q))
+            continue;
+        else if(isupper(*q))
+            sextet = *q - 'A';
+        else if(islower(*q))
+            sextet = *q - 'a' + 26;
+        else if(isdigit(*q))
+            sextet = *q - '0' + 52;
+        else if(*q == '+')
+            sextet = 62;
+        else if(*q == '/')
+            sextet = 63;
+        else if(*q == '=')
+            break;
+        else {
+            SET_ERROR("invalid character in Base64 data");
+            free(buffer);
+            return NULL;
+        }
+
+        octet = (octet << 6) | sextet;
+        bits += 6;
+        if(bits > 8) {
+            *p++ = (octet >> (bits - 8)) & 0xFF;
+            bits -= 8;
+        }
+    }
+    if(bits == 8)
+        *p++ = octet & 0xFF;
+    assert((p - buffer) < len);
+
+    Bitmap *b = bm_load_mem(buffer, p - buffer);
+
+    free(buffer);
+
+    return b;
+}
+
 static Bitmap *bm_load_bmp_rd(BmReader rd) {
     struct bmpfile_magic magic;
     struct bmpfile_header hdr;
@@ -532,11 +594,23 @@ static Bitmap *bm_load_bmp_rd(BmReader rd) {
         return NULL;
     }
 
-    if((dib.bitspp != 4 && dib.bitspp != 8 && dib.bitspp != 24) || dib.compress_type != 0) {
-        /* Unsupported BMP type. TODO (maybe): support more types? */
+
+    if (dib.bitspp != 1 && 
+        dib.bitspp != 4 && 
+        dib.bitspp != 8 && 
+        dib.bitspp != 24 && 
+        dib.bitspp != 32) {
+        /* Unsupported BMP type. Only 16bpp is missing now */
         SET_ERROR("unsupported BMP type");
         return NULL;
     }
+
+    if(dib.compress_type != 0 && dib.compress_type != 3) {
+        /* Unsupported compression type. Only uncompressed BI_RGB & BI_BITFIELDS are ok */
+        SET_ERROR("unsupported compression type");
+        return NULL;
+    }
+
 
     b = bm_create(dib.width, dib.height);
     if(!b) {
@@ -557,6 +631,39 @@ static Bitmap *bm_load_bmp_rd(BmReader rd) {
             goto error;
         }
     }
+
+    uint32_t rgbmask[3] = { 0, 0, 0 };
+    uint32_t rgbshift[3] = { 0, 0, 0 };
+    float rgbcorr[3] = { 0.0f, 0.0f, 0.0f };
+
+    /* standard bitmasks for 16 & 32 bpp, required when biCompression = BI_RGB */
+    if (dib.bitspp == 32) {
+        rgbmask[0] = 0x00FF0000;
+        rgbmask[1] = 0x0000FF00;
+        rgbmask[2] = 0x000000FF;
+    } else if (dib.bitspp == 16) {
+        rgbmask[0] = 0x00007C00;
+        rgbmask[1] = 0x000003E0;
+        rgbmask[2] = 0x0000001F;
+    }
+
+    /* biCompression = BI_BITFIELDS, so read the bitmask */
+    if (dib.compress_type == 3) {
+        if (rd.fread(rgbmask, 1, 12, rd.data) != 12) {
+            SET_ERROR("fread on bitfields");
+            goto error;
+        }
+    }
+
+    /* 1. calculate how many bits we have to shift after masking */
+    /* 2. calculate the bit depth of the input channels */
+    /* 3. calculate the factor that maps the channel to 0-255 */
+    for (int i = 0; i < 3; ++i) {
+        rgbshift[i] = count_trailing_zeroes(rgbmask[i]);
+        uint32_t chdepth = rgbmask[i] >> rgbshift[i];
+        rgbcorr[i] = chdepth ? 255.0f / chdepth : 0.0f;
+    }
+
 
     if(rd.fseek(rd.data, hdr.bmp_offset + start_offset, SEEK_SET) != 0) {
         SET_ERROR("out of memory");
@@ -603,6 +710,35 @@ static Bitmap *bm_load_bmp_rd(BmReader rd) {
                 uint8_t p = ( (i & 0x01) ? data[byt] : (data[byt] >> 4) ) & 0x0F;
                 assert(p < dib.ncolors);
                 BM_SET_RGBA(b, i, j, palette[p].r, palette[p].g, palette[p].b, palette[p].a);
+            }
+        }
+    } else if (dib.bitspp == 1) {
+        for(j = 0; j < b->h; j++) {
+            int y = b->h - j - 1;
+            for(i = 0; i < b->w; i++) {
+                int byt = y * rs + (i >> 3);
+                int bit = 7 - (i % 8);
+                uint8_t p = (data[byt] & (1 << bit)) >> bit;
+
+                assert(p < dib.ncolors);
+                BM_SET_RGBA(b, i, j, palette[p].r, palette[p].g, palette[p].b, palette[p].a);
+            }
+        }
+    } else if (dib.bitspp == 32) {
+        for(j = 0; j < b->h; j++) {
+            int y = b->h - j - 1;
+            for(i = 0; i < b->w; i++) {
+                int p = y * rs + i * 4;
+
+                uint32_t* pixel = (uint32_t*)(data + p);
+                uint32_t r_unc = (*pixel & rgbmask[0]) >> rgbshift[0];
+                uint32_t g_unc = (*pixel & rgbmask[1]) >> rgbshift[1];
+                uint32_t b_unc = (*pixel & rgbmask[2]) >> rgbshift[2];
+
+                BM_SET_RGBA(b, i, j,
+                    (r_unc * rgbcorr[0]),
+                    (g_unc * rgbcorr[1]),
+                    (b_unc * rgbcorr[2]), 0xFF);
             }
         }
     } else {
@@ -3110,16 +3246,10 @@ Bitmap *bm_from_Xpm(char *xpm[]) {
 
 void bm_clip(Bitmap *b, int x0, int y0, int x1, int y1) {
     assert(b);
-    if(x0 > x1) {
-        int t = x1;
-        x1 = x0;
-        x0 = t;
-    }
-    if(y0 > y1) {
-        int t = y1;
-        y1 = y0;
-        y0 = t;
-    }
+    if(x0 > x1)
+        SWAPINT(x0, x1);
+    if(y0 > y1)
+        SWAPINT(y0, y1);
     if(x0 < 0) x0 = 0;
     if(x1 > b->w) x1 = b->w;
     if(y0 < 0) y0 = 0;
@@ -4445,9 +4575,9 @@ unsigned int bm_lerp(unsigned int color1, unsigned int color2, double t) {
     r1 = (color1 >> 16) & 0xFF; g1 = (color1 >> 8) & 0xFF; b1 = (color1 >> 0) & 0xFF;
     r2 = (color2 >> 16) & 0xFF; g2 = (color2 >> 8) & 0xFF; b2 = (color2 >> 0) & 0xFF;
 
-    r3 = (int)((r2 - r1) * t + r1);
-    g3 = (int)((g2 - g1) * t + g1);
-    b3 = (int)((b2 - b1) * t + b1);
+    r3 = r1 + t * (r2 - r1);
+    g3 = g1 + t * (g2 - g1);
+    b3 = b1 + t * (b2 - b1);
 
     return (r3 << 16) | (g3 << 8) | (b3 << 0);
 }
@@ -4515,6 +4645,152 @@ void bm_line(Bitmap *b, int x0, int y0, int x1, int y1) {
         if(e2 < dx) {
             err += dx;
             y0 += sy;
+        }
+    }
+}
+
+/*
+Xiaolin Wu's line algorithm.
+This code is pretty much based on the [Wikipedia](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm)
+version, though I did read Michael Abrash's article in the June 1992 issue of Dr Dobbs'.
+See also <https://www.geeksforgeeks.org/anti-aliased-line-xiaolin-wus-algorithm/>, though their
+implementation looks like a straight C port of the Wikipedia code
+*/
+void bm_line_aa(Bitmap *b, int x0, int y0, int x1, int y1) {
+#define FPART(x) ((x) - (int)(x))
+    int x, y, dx, dy;
+    unsigned int c0, c1 = bm_get_color(b);
+    double gradient, intery;
+
+    int steep = abs(y1 - y0) > abs(x1 - x0);
+    if(steep) {
+        SWAPINT(x0, y0);
+        SWAPINT(x1, y1);
+    }
+    if(x0 > x1) {
+        SWAPINT(x0, x1);
+        SWAPINT(y0, y1);
+    }
+
+    dx = x1 - x0;
+    dy = y1 - y0;
+
+    /* Clipping */
+    if(steep) {
+        if(x0 >= b->clip.y1 || x1 < b->clip.y0)
+            return;
+        if(y0 < y1) {
+            if(y0 >= b->clip.x1 || y1 < b->clip.x0)
+                return;
+        } else {
+            if(y1 >= b->clip.x1 || y0 < b->clip.x0)
+                return;
+        }
+    } else {
+        if(x0 >= b->clip.x1 || x1 < b->clip.x0)
+            return;
+        if(y0 < y1) {
+            if(y0 >= b->clip.y1 || y1 < b->clip.y0)
+                return;
+        } else {
+            if(y1 >= b->clip.y1 || y0 < b->clip.y0)
+                return;
+        }
+    }
+
+    /* Special cases */
+    if(dy == 0) {
+
+        if(steep) {
+            if(y0 < b->clip.x0 || y0 >= b->clip.x1)
+                return;
+            for(x = x0; x <= x1; x++) {
+                if(x < b->clip.y0)
+                    continue;
+                else if(x >= b->clip.y1)
+                    break;
+                bm_set(b, y0, x, c1);
+            }
+        } else {
+            if(y0 < b->clip.y0 || y0 >= b->clip.y1)
+                return;
+            for(x = x0; x <= x1; x++) {
+                if(x < b->clip.x0)
+                    continue;
+                else if(x >= b->clip.x1)
+                    break;
+                bm_set(b, x, y0, c1);
+            }
+        }
+
+        return;
+    /* } else if(dx == 0) { -- doesn't matter because of the earlier X/Y swap */
+    } else if(dx == dy) {
+        dy = y0 < y1 ? 1 : -1;
+        for(x = x0, y = y0; x <= x1; x++, y += dy) {
+            if(x < b->clip.x0)
+                continue;
+            else if(x >= b->clip.x1)
+                break;
+            if(y < b->clip.y0 || y >= b->clip.y1)
+                continue;
+
+            bm_set(b, x, y, c1);
+        }
+        return;
+    }
+
+    /* I omit the Wikipedia's part about the endpoints
+    because x0,y0 and x1,y1 are integers.
+    TODO: Perhaps they should not be integers.
+    */
+
+    gradient = (double)dy / dx;
+    intery = y0;
+
+    if(steep) {
+        for(x = x0; x <= x1; x++, intery += gradient) {
+
+            if(x < b->clip.y0)
+                continue;
+            else if(x >= b->clip.y1)
+                break;
+
+            y = (int)intery;
+
+            if(y < b->clip.x0 || y >= b->clip.x1)
+                continue;
+
+            c0 = bm_get(b, y, x);
+            bm_set(b, y, x, bm_lerp(c0, c1, 1.0 - FPART(intery)));
+
+            y++;
+
+            if(y < b->clip.x0 || y >= b->clip.x1)
+                continue;
+
+            c0 = bm_get(b, y, x);
+            bm_set(b, y, x, bm_lerp(c0, c1, FPART(intery)));
+        }
+    } else {
+        for(x = x0; x <= x1; x++, intery += gradient) {
+
+            if(x < b->clip.x0)
+                continue;
+            else if(x >= b->clip.x1)
+                break;
+
+            y = (int)intery;
+            if(y < b->clip.y0 || y >= b->clip.y1)
+                continue;
+            c0 = bm_get(b, x, y);
+            bm_set(b, x, y, bm_lerp(c0, c1, 1.0 - FPART(intery)));
+
+            y++;
+            if(y < b->clip.y0 || y >= b->clip.y1)
+                continue;
+            c0 = bm_get(b, x, y);
+            bm_set(b, x, y, bm_lerp(c0, c1, FPART(intery)));
         }
     }
 }
@@ -4888,9 +5164,7 @@ void bm_fillpoly(Bitmap *b, BmPoint points[], unsigned int n) {
         i = 0;
         while(i < nodes - 1) {
             if(nodeX[i] > nodeX[i+1]) {
-                int swap = nodeX[i];
-                nodeX[i] = nodeX[i + 1];
-                nodeX[i + 1] = swap;
+                SWAPINT(nodeX[i], nodeX[i + 1]);
                 if(i) i--;
             } else {
                 i++;
@@ -5030,6 +5304,20 @@ static unsigned int closest_color(unsigned int c, unsigned int palette[], size_t
     return palette[m];
 }
 
+static uint32_t count_trailing_zeroes(uint32_t v) {
+    /* Count the consecutive zero bits (trailing) on the right in parallel 
+       https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightParallel */
+    uint32_t c = 32;
+    v &= -(int32_t)(v);
+    if (v) c--;
+    if (v & 0x0000FFFF) c -= 16;
+    if (v & 0x00FF00FF) c -= 8;
+    if (v & 0x0F0F0F0F) c -= 4;
+    if (v & 0x33333333) c -= 2;
+    if (v & 0x55555555) c -= 1;
+    return c;
+}
+
 static void fs_add_factor(Bitmap *b, int x, int y, int er, int eg, int eb, int f) {
     int c, R, G, B;
     if(x < 0 || x >= b->w || y < 0 || y >= b->h)
@@ -5147,8 +5435,8 @@ void bm_reduce_palette_OD8(Bitmap *b, unsigned int palette[], unsigned int n) {
 }
 
 unsigned int *bm_load_palette(const char * filename, unsigned int *npal) {
-    unsigned int *pal, n = 0, an = 8;
-    FILE *f;
+    unsigned int *pal = NULL, n = 0, an = 8;
+    FILE *f = NULL;
     char buf[64];
 
     if(!filename || !npal) return NULL;
@@ -5163,11 +5451,36 @@ unsigned int *bm_load_palette(const char * filename, unsigned int *npal) {
     if(!f) return NULL;
 #endif
 
-    pal = calloc(an, sizeof *pal);
-    if (!pal) {
+    fgets(buf, sizeof buf, f);
+    if(!strncmp(buf, "JASC-PAL", 8)) {
+        /* Paintshop Pro palette http://www.cryer.co.uk/file-types/p/pal.htm */
+        int version;
+        if(fscanf(f, "%d", &version) != 1)
+            goto error;
+        (void)version;
+        if(fscanf(f, "%u", &an) != 1)
+            goto error;
+        pal = calloc(an, sizeof *pal);
+        if(!pal)
+            goto error;
+        for(n = 0; n < an; n++) {
+            unsigned int r,g,b;
+            if(fscanf(f, "%u %u %u", &r, &g, &b) != 3)
+                goto error;
+            pal[n] = (r << 16) | (g << 8) | b;
+        }
+        *npal = an;
         fclose(f);
-        return NULL;
-    }
+        return pal;
+    } else
+        rewind(f);
+
+    /* TODO: Here's a spec for the Microsoft PAL format
+    https://worms2d.info/Palette_file */
+
+    pal = calloc(an, sizeof *pal);
+    if (!pal)
+        goto error;
     while(fgets(buf, sizeof buf, f) && n < 256) {
         char *s, *e, *c = buf;
         while(*c && isspace(*c)) c++;
@@ -5191,22 +5504,43 @@ unsigned int *bm_load_palette(const char * filename, unsigned int *npal) {
         if(n == an) {
             an <<= 1;
             void *tmp = realloc(pal, an * sizeof *pal);
-            if (!tmp) {
-                free(pal);
-                fclose(f);
-                return NULL;
-            }
+            if (!tmp)
+                goto error;
             pal = tmp;
         }
     }
-    fclose(f);
+    if(n == 0)
+        goto error;
 
-    if(n == 0) {
-        free(pal);
-        return NULL;
-    }
+    fclose(f);
     *npal = n;
     return pal;
+
+error:
+    fclose(f);
+    if(pal)
+        free(pal);
+    return NULL;
+}
+
+int bm_save_palette(const char * filename, unsigned int *pal, unsigned int npal) {
+    int i;
+    FILE *f;
+    if(!filename)
+        return 0;
+    f = fopen(filename, "w");
+    if(!f)
+        return 0;
+    fputs("JASC-PAL\n", f);
+    fputs("0100\n", f);
+    fprintf(f, "%u\n", npal);
+    for(i = 0; i < npal; i++) {
+        unsigned char R, G, B;
+        bm_get_rgb(pal[i], &R, &G, &B);
+        fprintf(f, "%u %u %u\n", R, G, B);
+    }
+    fclose(f);
+    return 1;
 }
 
 int bm_stricmp(const char *p, const char *q) {

@@ -23,6 +23,7 @@
 
 #include "imagecanvas.h"
 #include "project.h"
+#include "utils.h"
 
 Q_LOGGING_CATEGORY(lcAutoSwatchModel, "app.autoSwatchModel")
 
@@ -42,17 +43,7 @@ void AutoSwatchWorker::findUniqueColours(const QImage &image)
         return;
     }
 
-    QVector<QColor> colours;
-
-    // TODO: cache exported image somehow and only process the changed area?
-    for (int y = 0; y < image.height(); ++y) {
-        for (int x = 0; x < image.width(); ++x) {
-            const QColor colour = image.pixelColor(x, y);
-            if (!colours.contains(colour))
-                colours.append(colour);
-        }
-    }
-
+    const QVector<QColor> colours = Utils::findUniqueColours(image);
     emit foundAllUniqueColours(colours);
 }
 

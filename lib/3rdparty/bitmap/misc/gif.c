@@ -78,9 +78,9 @@ typedef struct {
 } GIF_APP_EXT;
 
 typedef struct  {
-	uint8_t		len;
-	uint8_t		index;
-	uint16_t	reps;
+    uint8_t     len;
+    uint8_t     index;
+    uint16_t    reps;
 } NAB_BLOCK;
 
 typedef struct {
@@ -96,7 +96,7 @@ typedef struct {
 #pragma pack(pop)
 
 /* Already defined in bmp.c for the GIF and PCX code, but duplicated here because I
-	need to reconsider the API */
+    need to reconsider the API */
 static int cnt_comp_mask(const void*ap, const void*bp);
 static int count_colors_build_palette(Bitmap *b, struct gif_triplet rgb[256]);
 static int bsrch_palette_lookup(struct gif_triplet rgb[], int c, int imin, int imax);
@@ -108,12 +108,12 @@ static unsigned char *gif_data_sub_blocks(FILE *fp, int *r_tsize);
 static unsigned char *lzw_decode_bytes(unsigned char *bytes, int data_len, int code_size, int *out_len);
 
 static void output(FILE *outfile, const char *fmt, ...) {
-	if(gif_verbose) {
-		va_list arg;
-		va_start(arg, fmt);
-		vfprintf(outfile, fmt, arg);
-		va_end(arg);
-	}
+    if(gif_verbose) {
+        va_list arg;
+        va_start(arg, fmt);
+        vfprintf(outfile, fmt, arg);
+        va_end(arg);
+    }
 }
 
 static GIF *gif_load_fp(FILE *fp) {
@@ -176,18 +176,18 @@ static GIF *gif_load_fp(FILE *fp) {
         aspect_ratio = ((float)file.lsd.par + 15.0f)/64.0f;
     }
 
-	if(gif_verbose) {
-		output(stdout, "Width .......................: %u\n", file.lsd.width);
-		output(stdout, "Height ......................: %u\n", file.lsd.height);
-		output(stdout, "Fields ......................: 0x%X\n", file.lsd.fields);
-		output(stdout, "  Global color table ..: %d\n", gct);
-		output(stdout, "  Color Resolution ....: %d\n", col_res);
-		output(stdout, "  Sort Flag ...........: %d\n", sort_flag);
-		output(stdout, "  Size of GCT .........: %d\n", sgct);
-		output(stdout, "Background ..................: %u\n", file.lsd.background);
-		output(stdout, "Px Aspect Ratio .............: %u\n", file.lsd.par);
-		output(stdout, "  Calculated ..........: %.4f\n", aspect_ratio);
-	}
+    if(gif_verbose) {
+        output(stdout, "Width .......................: %u\n", file.lsd.width);
+        output(stdout, "Height ......................: %u\n", file.lsd.height);
+        output(stdout, "Fields ......................: 0x%X\n", file.lsd.fields);
+        output(stdout, "  Global color table ..: %d\n", gct);
+        output(stdout, "  Color Resolution ....: %d\n", col_res);
+        output(stdout, "  Sort Flag ...........: %d\n", sort_flag);
+        output(stdout, "  Size of GCT .........: %d\n", sgct);
+        output(stdout, "Background ..................: %u\n", file.lsd.background);
+        output(stdout, "Px Aspect Ratio .............: %u\n", file.lsd.par);
+        output(stdout, "  Calculated ..........: %.4f\n", aspect_ratio);
+    }
     file.gif = gif_create(file.lsd.width, file.lsd.height);
 
     if(gct) {
@@ -202,18 +202,18 @@ static GIF *gif_load_fp(FILE *fp) {
         }
 
         output(stdout, "Global Color Table: %d entries\n", sgct);
-		if(gif_verbose > 1) {
-			int i;
-			for(i = 0; i < sgct; i++) {
-				output(stdout, " %3d: %02X %02X %02X\n", i, palette[i].r, palette[i].g, palette[i].b);
-			}
-		}
+        if(gif_verbose > 1) {
+            int i;
+            for(i = 0; i < sgct; i++) {
+                output(stdout, " %3d: %02X %02X %02X\n", i, palette[i].r, palette[i].g, palette[i].b);
+            }
+        }
         /* Set the Bitmap's color to the background color.*/
         bg = &palette[file.lsd.background];
         file.gif->background = bm_rgb(bg->r, bg->g, bg->b);
     } else {
         /* what? */
-		file.gif->background = 0;
+        file.gif->background = 0;
         palette = NULL;
     }
 
@@ -260,17 +260,17 @@ static int gif_read_extension(FILE *fp, GIF_FILE *file, GIF_GCE *gce) {
             output(stderr, "warning: unable to read Graphic Control Extension\n");
             return 0;
         }
-		if(gif_verbose) {
-			output(stdout, "Graphic Control Extension:\n");
-			output(stdout, "  Terminator ..........: 0x%02X\n", gce->terminator);
-			output(stdout, "  Block Size ..........: %d\n", gce->block_size);
-			output(stdout, "  Fields ..............: 0x%02X\n", gce->fields);
-			output(stdout, "    Dispose ......: %d\n", (gce->fields >> 2) & 0x07);
-			output(stdout, "    User Input ...: %d\n", !!(gce->fields & 0x02));
-			output(stdout, "    Transparent ..: %d\n", gce->fields & 0x01);
-			output(stdout, "  Delay ...............: %u\n", gce->delay);
-			output(stdout, "  Transparent Index ...: %d\n", gce->trans_index);
-		}
+        if(gif_verbose) {
+            output(stdout, "Graphic Control Extension:\n");
+            output(stdout, "  Terminator ..........: 0x%02X\n", gce->terminator);
+            output(stdout, "  Block Size ..........: %d\n", gce->block_size);
+            output(stdout, "  Fields ..............: 0x%02X\n", gce->fields);
+            output(stdout, "    Dispose ......: %d\n", (gce->fields >> 2) & 0x07);
+            output(stdout, "    User Input ...: %d\n", !!(gce->fields & 0x02));
+            output(stdout, "    Transparent ..: %d\n", gce->fields & 0x01);
+            output(stdout, "  Delay ...............: %u\n", gce->delay);
+            output(stdout, "  Transparent Index ...: %d\n", gce->trans_index);
+        }
     } else if(label == 0xFE) {
         /* Section 24. Comment Extension. */
         int len;
@@ -286,7 +286,7 @@ static int gif_read_extension(FILE *fp, GIF_FILE *file, GIF_GCE *gce) {
             return 0;
         }
         bytes = gif_data_sub_blocks(fp, &len);
-		(void)bytes;
+        (void)bytes;
         output(stdout, "Text Extension: (%d bytes)\n", len);
     } else if(label == 0xFF) {
         /* Section 26. Application Extension. */
@@ -297,22 +297,22 @@ static int gif_read_extension(FILE *fp, GIF_FILE *file, GIF_GCE *gce) {
             output(stderr, "warning: unable to read Application Extension\n");
             return 0;
         }
-		char app_id[9];
-		char auth_code[4];
+        char app_id[9];
+        char auth_code[4];
         memcpy(app_id, ae.app_id, 8); app_id[8] = '\0';
         memcpy(auth_code, ae.auth_code, 3); auth_code[3] = '\0';
-		bytes = gif_data_sub_blocks(fp, &len);
+        bytes = gif_data_sub_blocks(fp, &len);
         output(stdout, "Application Extension: (%d bytes) app_id:'%s' auth_code:'%s'\n", len, app_id, auth_code);
-		if(!strcmp(app_id, "NETSCAPE")) { // && !strcmp(auth_code, "2.0")) {
-			/*
-			https://en.wikipedia.org/wiki/GIF#Animated_GIF
-			http://www.vurdalakov.net/misc/gif/netscape-looping-application-extension
-			*/
-			int index = bytes[0];
-			assert(index == 1);
-			file->gif->repetitions = (bytes[2] << 8) | bytes[1];
-			output(stdout, "Got a NETSCAPE application extension: index:%d; repetitions:%d\n", index, file->gif->repetitions);
-		}
+        if(!strcmp(app_id, "NETSCAPE")) { // && !strcmp(auth_code, "2.0")) {
+            /*
+            https://en.wikipedia.org/wiki/GIF#Animated_GIF
+            http://www.vurdalakov.net/misc/gif/netscape-looping-application-extension
+            */
+            int index = bytes[0];
+            assert(index == 1);
+            file->gif->repetitions = (bytes[2] << 8) | bytes[1];
+            output(stdout, "Got a NETSCAPE application extension: index:%d; repetitions:%d\n", index, file->gif->repetitions);
+        }
     } else {
         output(stdout, "error: unknown label 0x%02X\n", label);
     }
@@ -367,28 +367,28 @@ static int gif_read_image(FILE *fp, GIF_FILE *file, struct gif_triplet *ct, int 
         }
 
         output(stdout, "Local Color Table: %d entries\n", slct);
-		if(gif_verbose > 1) {
-			int i;
-			for(i = 0; i < slct; i++) {
-				output(stdout, " %3d: %02X %02X %02X\n", i, ct[i].r, ct[i].g, ct[i].b);
-			}
-		}
+        if(gif_verbose > 1) {
+            int i;
+            for(i = 0; i < slct; i++) {
+                output(stdout, " %3d: %02X %02X %02X\n", i, ct[i].r, ct[i].g, ct[i].b);
+            }
+        }
 
         sct = slct;
     }
 
-	if(gif_verbose) {
-		output(stdout, "Image Descriptor:\n");
-		output(stdout, "  Left ................: %d\n", gif_id.left);
-		output(stdout, "  Top .................: %d\n", gif_id.top);
-		output(stdout, "  Width ...............: %d\n", gif_id.width);
-		output(stdout, "  Height ..............: %d\n", gif_id.height);
-		output(stdout, "  Fields ..............: 0x%02X\n", gif_id.fields);
-		output(stdout, "    LCT ..........: %d\n", lct);
-		output(stdout, "    Interlace ....: %d\n", intl);
-		output(stdout, "    Sort .........: %d\n", sort);
-		output(stdout, "    Size of LCT ..: %d\n", slct);
-	}
+    if(gif_verbose) {
+        output(stdout, "Image Descriptor:\n");
+        output(stdout, "  Left ................: %d\n", gif_id.left);
+        output(stdout, "  Top .................: %d\n", gif_id.top);
+        output(stdout, "  Width ...............: %d\n", gif_id.width);
+        output(stdout, "  Height ..............: %d\n", gif_id.height);
+        output(stdout, "  Fields ..............: 0x%02X\n", gif_id.fields);
+        output(stdout, "    LCT ..........: %d\n", lct);
+        output(stdout, "    Interlace ....: %d\n", intl);
+        output(stdout, "    Sort .........: %d\n", sort);
+        output(stdout, "    Size of LCT ..: %d\n", slct);
+    }
     if(!gif_read_tbid(fp, file, &gif_id, &gce, ct, sct)) {
         return 0; /* what? */
     }
@@ -415,8 +415,8 @@ static unsigned char *gif_data_sub_blocks(FILE *fp, int *r_tsize) {
 
     while(size > 0) {
         if(gif_verbose > 2) {
-			output(stdout, "  Size ................: %d (%d)\n", size, tsize);
-		}
+            output(stdout, "  Size ................: %d (%d)\n", size, tsize);
+        }
         buffer = realloc(buffer, tsize + size + 1);
         pos = buffer + tsize;
 
@@ -464,13 +464,13 @@ static int gif_read_tbid(FILE *fp, GIF_FILE *file, GIF_ID *gif_id, GIF_GCE *gce,
         sort = !!(gif_id->fields & 0x20);
         slct = gif_id->fields & 0x07;
 
-		(void)lct; (void)sort; (void)slct;
+        (void)lct; (void)sort; (void)slct;
 
         if(gce->block_size) {
             /* gce->block_size will be 4 if the GCE is present, 0 otherwise */
             dispose = (gce->fields >> 2) & 0x07;
             user_in = !!(gce->fields & 0x02);
-			(void)user_in;
+            (void)user_in;
             trans_flag = gce->fields & 0x01;
         }
 
@@ -481,50 +481,50 @@ static int gif_read_tbid(FILE *fp, GIF_FILE *file, GIF_ID *gif_id, GIF_GCE *gce,
         }
 
         output(stdout, "Data block: %d bytes\n", len);
-		if(gif_verbose > 1) {
-			for(i = 0; i < len; i++) {
-				output(stdout, "%02X ", bytes[i]);
-			}
-			output(stdout, "\n");
-		}
+        if(gif_verbose > 1) {
+            for(i = 0; i < len; i++) {
+                output(stdout, "%02X ", bytes[i]);
+            }
+            output(stdout, "\n");
+        }
 
-		unsigned int background = 0;
-		if(trans_flag) {
-			/* Mmmm, my bitmap module won't be able to handle
-				situations where different image blocks in the
-				GIF has different transparent colors */
-			struct gif_triplet *bg = &ct[gce->trans_index];
-			background = bm_rgb(bg->r, bg->g, bg->b);
-		}
+        unsigned int background = 0;
+        if(trans_flag) {
+            /* Mmmm, my bitmap module won't be able to handle
+                situations where different image blocks in the
+                GIF has different transparent colors */
+            struct gif_triplet *bg = &ct[gce->trans_index];
+            background = bm_rgb(bg->r, bg->g, bg->b);
+        }
 
-		if(dispose == 2) {
-			GIF_FRAME *frame = gif_new_frame(file->gif);
-			Bitmap *b = frame->image;
-			bm_set_color(b, background);
-			bm_clear(b);
-			frame->delay = gce->delay;
-			frame->trans = gce->fields & 0x01;
+        if(dispose == 2) {
+            GIF_FRAME *frame = gif_new_frame(file->gif);
+            Bitmap *b = frame->image;
+            bm_set_color(b, background);
+            bm_clear(b);
+            frame->delay = gce->delay;
+            frame->trans = gce->fields & 0x01;
         } else if(dispose != 3) {
             /* dispose = 0 or 1; if dispose is 3, we leave the new image */
             GIF_FRAME *frame;
-			if(file->gif->n) {
-				frame = &file->gif->frames[file->gif->n - 1];
-				frame = gif_add_frame(file->gif, frame->image);
-			} else {
-				frame = gif_new_frame(file->gif);
-			}
-			frame->delay = gce->delay;
-			frame->trans = gce->fields & 0x01;
-			
-			Bitmap *b = frame->image;
-			unsigned char *decoded = lzw_decode_bytes(bytes, len, min_code_size, &outlen);
+            if(file->gif->n) {
+                frame = &file->gif->frames[file->gif->n - 1];
+                frame = gif_add_frame(file->gif, frame->image);
+            } else {
+                frame = gif_new_frame(file->gif);
+            }
+            frame->delay = gce->delay;
+            frame->trans = gce->fields & 0x01;
+
+            Bitmap *b = frame->image;
+            unsigned char *decoded = lzw_decode_bytes(bytes, len, min_code_size, &outlen);
             if(decoded) {
-				if(gif_verbose > 1) {
-					for(i = 0; i < outlen; i++) {
-						output(stdout, "%02X ", decoded[i]);
-					}
-					output(stdout, "\n");
-				}
+                if(gif_verbose > 1) {
+                    for(i = 0; i < outlen; i++) {
+                        output(stdout, "%02X ", decoded[i]);
+                    }
+                    output(stdout, "\n");
+                }
                 if(outlen != gif_id->width * gif_id->height) {
                     /* Shouldn't happen unless the file is corrupt */
                     output(stderr, "error: %d decoded bytes does not fit dimensions %d x %d pixels\n", outlen, gif_id->width, gif_id->height);
@@ -835,9 +835,9 @@ static int gif_save_fp(GIF *g, FILE *f) {
     int nc, sgct, bg;
     struct gif_triplet gct[256];
     unsigned char code_size = 0x08;
-	Bitmap *b = g->n > 0 ? g->frames[0].image : NULL;
+    Bitmap *b = g->n > 0 ? g->frames[0].image : NULL;
 
-	if(!b) return 0;
+    if(!b) return 0;
 
     memcpy(file.header.signature, "GIF", 3);
     memcpy(file.header.version, "89a", 3);
@@ -850,58 +850,70 @@ static int gif_save_fp(GIF *g, FILE *f) {
     /* Using global color table, color resolution = 8-bits */
     file.lsd.fields = 0xF0;
 
-    nc = count_colors_build_palette(b, gct);
-	unsigned int palette[256], q;
-
-    if(nc < 0) {
-        /* Too many colors */
-        sgct = 256;
-        file.lsd.fields |= 0x07;
-        for(nc = 0; nc < 256; nc++) {
-			/* FIXME: Octree color quantization
-			My color quantization method is to just choose random pixels, 
-			and hope for the best. */
-            int c = bm_get(b, rand()%b->w, rand()%b->h);
-            gct[nc].r = (c >> 16) & 0xFF;
-            gct[nc].g = (c >> 8) & 0xFF;
-            gct[nc].b = (c >> 0) & 0xFF;
+    unsigned int palette[256], q;
+    if(g->palette) {
+        nc = g->palette_size;
+        assert(nc > 0); /* You must have at least some colors in your palette */
+        bg = b->color & 0x00FFFFFF;
+        for(q = 0; q < nc; q++) {
+            bm_get_rgb(g->palette[q], &gct[q].r, &gct[q].g, &gct[q].b);
         }
-        qsort(gct, nc, sizeof gct[0], comp_rgb);
+		qsort(gct, nc, sizeof gct[0], comp_rgb);
+        for(q = 0; q < nc; q++) {
+            palette[q] = (gct[q].r << 16) | (gct[q].g << 8) | gct[q].b;
+        }
     } else {
-        if(nc > 128) {
+        nc = count_colors_build_palette(b, gct);
+        if(nc < 0) {
+            /* Too many colors */
             sgct = 256;
             file.lsd.fields |= 0x07;
-        } else if(nc > 64) {
-            sgct = 128;
-            file.lsd.fields |= 0x06;
-            code_size = 7;
-        } else if(nc > 32) {
-            sgct = 64;
-            file.lsd.fields |= 0x05;
-            code_size = 6;
-        } else if(nc > 16) {
-            sgct = 32;
-            file.lsd.fields |= 0x04;
-            code_size = 5;
-        } else if(nc > 8) {
-            sgct = 16;
-            file.lsd.fields |= 0x03;
-            code_size = 4;
-        } else {
-            sgct = 8;
-            file.lsd.fields |= 0x02;
-            code_size = 3;
+            for(nc = 0; nc < 256; nc++) {
+                /* FIXME: Octree color quantization
+                My color quantization method is to just choose random pixels,
+                and hope for the best. */
+                int c = bm_get(b, rand()%b->w, rand()%b->h);
+                gct[nc].r = (c >> 16) & 0xFF;
+                gct[nc].g = (c >> 8) & 0xFF;
+                gct[nc].b = (c >> 0) & 0xFF;
+            }
+        }
+        qsort(gct, nc, sizeof gct[0], comp_rgb);
+        for(q = 0; q < nc; q++) {
+            palette[q] = (gct[q].r << 16) | (gct[q].g << 8) | gct[q].b;
         }
     }
-	for(q = 0; q < nc; q++) {
-		palette[q] = (gct[q].r << 16) | (gct[q].g << 8) | gct[q].b;
-	}
+
+    if(nc > 128) {
+        sgct = 256;
+        file.lsd.fields |= 0x07;
+    } else if(nc > 64) {
+        sgct = 128;
+        file.lsd.fields |= 0x06;
+        code_size = 7;
+    } else if(nc > 32) {
+        sgct = 64;
+        file.lsd.fields |= 0x05;
+        code_size = 6;
+    } else if(nc > 16) {
+        sgct = 32;
+        file.lsd.fields |= 0x04;
+        code_size = 5;
+    } else if(nc > 8) {
+        sgct = 16;
+        file.lsd.fields |= 0x03;
+        code_size = 4;
+    } else {
+        sgct = 8;
+        file.lsd.fields |= 0x02;
+        code_size = 3;
+    }
 
     /* See if we can find the background color in the palette */
     bg = b->color & 0x00FFFFFF;
-    bg = bsrch_palette_lookup(gct, bg, 0, nc - 1);
-    if(bg >= 0) {
-        file.lsd.background = bg;
+    q = bsrch_palette_lookup(gct, bg, 0, nc - 1);
+    if(q >= 0) {
+        file.lsd.background = q;
     }
 
     if(fwrite(&file.header, sizeof file.header, 1, f) != 1) {
@@ -919,110 +931,110 @@ static int gif_save_fp(GIF *g, FILE *f) {
         return 0;
     }
 
-	if(g->repetitions != 1) {
-		/* Netscape Application Block for looping animations
-		https://en.wikipedia.org/wiki/GIF#Animated_GIF
-		http://www.vurdalakov.net/misc/gif/netscape-looping-application-extension
-		*/
-		GIF_APP_EXT ae;
-		NAB_BLOCK nab;
+    if(g->repetitions != 1) {
+        /* Netscape Application Block for looping animations
+        https://en.wikipedia.org/wiki/GIF#Animated_GIF
+        http://www.vurdalakov.net/misc/gif/netscape-looping-application-extension
+        */
+        GIF_APP_EXT ae;
+        NAB_BLOCK nab;
 
-		fputc(0x21, f);
-		fputc(0xFF, f);
+        fputc(0x21, f);
+        fputc(0xFF, f);
 
-		ae.block_size = 0x0B;
-		memcpy(ae.app_id, "NETSCAPE", 8);
-		memcpy(ae.auth_code, "2.0", 3);
+        ae.block_size = 0x0B;
+        memcpy(ae.app_id, "NETSCAPE", 8);
+        memcpy(ae.auth_code, "2.0", 3);
 
-		nab.len = 3;
-		nab.index = 1;
-		nab.reps = g->repetitions;
-		assert(sizeof nab == 4);
+        nab.len = 3;
+        nab.index = 1;
+        nab.reps = g->repetitions;
+        assert(sizeof nab == 4);
 
-		if(fwrite(&ae, sizeof ae, 1, f) != 1 || fwrite(&nab, sizeof nab, 1, f) != 1) {
-			output(stderr, "error: unable to write Netscape Application Block.\n");
-			return 0;
-		}
-		fputc(0x00, f); /* terminating block */
-	}
+        if(fwrite(&ae, sizeof ae, 1, f) != 1 || fwrite(&nab, sizeof nab, 1, f) != 1) {
+            output(stderr, "error: unable to write Netscape Application Block.\n");
+            return 0;
+        }
+        fputc(0x00, f); /* terminating block */
+    }
 
-	unsigned char *pixels = malloc(g->w * g->h);
-	int fi;
-	for(fi = 0; fi < g->n; fi++) {
+    unsigned char *pixels = malloc(g->w * g->h);
+    int fi;
+    for(fi = 0; fi < g->n; fi++) {
 
-		b = g->frames[fi].image;
-		assert(b->w == g->w && b->h == g->h);
+        b = g->frames[fi].image;
+        assert(b->w == g->w && b->h == g->h);
 
         bm_reduce_palette(b, palette, nc);
 
-		/* Map the pixels in the image to their palette indices */
-		int x, y, p = 0;
-		for(y = 0; y < b->h; y++) {
-			for(x = 0; x < b->w; x++) {
-				int i;
-				int c = bm_get(b, x, y);
-				i = bsrch_palette_lookup(gct, c, 0, nc - 1);
-				/* At this point in time, the color MUST be in the palette */
-				assert(i >= 0);
-				assert(i < sgct);
-				pixels[p++] = i;
-			}
-		}
-		assert(p == b->w * b->h);
+        /* Map the pixels in the image to their palette indices */
+        int x, y, p = 0;
+        for(y = 0; y < b->h; y++) {
+            for(x = 0; x < b->w; x++) {
+                int i;
+                int c = bm_get(b, x, y);
+                i = bsrch_palette_lookup(gct, c, 0, nc - 1);
+                /* At this point in time, the color MUST be in the palette */
+                assert(i >= 0);
+                assert(i < sgct);
+                pixels[p++] = i;
+            }
+        }
+        assert(p == b->w * b->h);
 
-		gce.block_size = 4;
-		gce.fields = 0x04;
-		gce.delay = g->frames[fi].delay;
-		if(g->frames[fi].trans && bg >= 0) {
-			gce.fields |= 0x01;
-			gce.trans_index = bg;
-		} else {
-			gce.trans_index = 0;
-		}
-		gce.terminator = 0x00;
+        gce.block_size = 4;
+        gce.fields = 0x04;
+        gce.delay = g->frames[fi].delay;
+        if(g->frames[fi].trans && bg >= 0) {
+            gce.fields |= 0x01;
+            gce.trans_index = bg;
+        } else {
+            gce.trans_index = 0;
+        }
+        gce.terminator = 0x00;
 
-		fputc(0x21, f);
-		fputc(0xF9, f);
-		if(fwrite(&gce, sizeof gce, 1, f) != 1) {
-			output(stderr, "error: unable to write graphic control extension.\n");
-			return 0;
-		}
+        fputc(0x21, f);
+        fputc(0xF9, f);
+        if(fwrite(&gce, sizeof gce, 1, f) != 1) {
+            output(stderr, "error: unable to write graphic control extension.\n");
+            return 0;
+        }
 
-		gif_id.separator = 0x2C;
-		gif_id.left = 0x00;
-		gif_id.top = 0x00;
-		gif_id.width = b->w;
-		gif_id.height = b->h;
-		/* Not using local color table or interlacing */
-		gif_id.fields = 0;
-		if(fwrite(&gif_id, sizeof gif_id, 1, f) != 1) {
-			output(stderr, "error: unable to write image descriptor.\n");
-			return 0;
-		}
+        gif_id.separator = 0x2C;
+        gif_id.left = 0x00;
+        gif_id.top = 0x00;
+        gif_id.width = b->w;
+        gif_id.height = b->h;
+        /* Not using local color table or interlacing */
+        gif_id.fields = 0;
+        if(fwrite(&gif_id, sizeof gif_id, 1, f) != 1) {
+            output(stderr, "error: unable to write image descriptor.\n");
+            return 0;
+        }
 
-		fputc(code_size, f);
+        fputc(code_size, f);
 
-		/* Perform the LZW compression */
-		int len;
-		unsigned char *bytes = lzw_encode_bytes(pixels, b->w * b->h, code_size, &len);
+        /* Perform the LZW compression */
+        int len;
+        unsigned char *bytes = lzw_encode_bytes(pixels, b->w * b->h, code_size, &len);
 
-		/* Write out the data sub-blocks */
-		for(p = 0; p < len; p++) {
-			if(p % 0xFF == 0) {
-				/* beginning of a new block; lzw_emit_code the length byte */
-				if(len - p >= 0xFF) {
-					fputc(0xFF, f);
-				} else {
-					fputc(len - p, f);
-				}
-			}
-			fputc(bytes[p], f);
-		}
-		free(bytes);
+        /* Write out the data sub-blocks */
+        for(p = 0; p < len; p++) {
+            if(p % 0xFF == 0) {
+                /* beginning of a new block; lzw_emit_code the length byte */
+                if(len - p >= 0xFF) {
+                    fputc(0xFF, f);
+                } else {
+                    fputc(len - p, f);
+                }
+            }
+            fputc(bytes[p], f);
+        }
+        free(bytes);
 
-		fputc(0x00, f); /* terminating block */
-	}
-	free(pixels);
+        fputc(0x00, f); /* terminating block */
+    }
+    free(pixels);
 
     fputc(0x3B, f); /* trailer byte */
 
@@ -1041,61 +1053,73 @@ int gif_save(GIF *g, const char *filename) {
 }
 
 GIF *gif_create(int w, int h) {
-	GIF *gif = malloc(sizeof *gif);
-	gif->w = w;
-	gif->h = h;
-	gif->background = 0;
-	gif->repetitions = 10;
-	gif->a = 8;
-	gif->n = 0;
-	gif->frames = calloc(gif->a, sizeof *gif->frames);
-	return gif;
+    GIF *gif = malloc(sizeof *gif);
+    gif->w = w;
+    gif->h = h;
+    gif->background = 0;
+    gif->repetitions = 1;
+    gif->a = 8;
+    gif->n = 0;
+    gif->frames = calloc(gif->a, sizeof *gif->frames);
+    gif->default_delay = 2;
+
+    gif->palette = 0;
+    gif->palette_size = 0;
+
+    return gif;
 }
 
 void gif_free(GIF *gif) {
-	int i;
-	for(i = 0; i < gif->n; i++) {
-		bm_free(gif->frames[i].image);
-	}
-	free(gif->frames);
-	free(gif);
+    int i;
+    for(i = 0; i < gif->n; i++) {
+        bm_free(gif->frames[i].image);
+    }
+    free(gif->frames);
+    free(gif);
 }
 
 GIF_FRAME *gif_add_frame(GIF *g, Bitmap *b) {
-	if(b->w != g->w || b->h != g->h) {
-		if(g->w > b->w || g->h > b->h) {
-			b = bm_resample_blin(b, g->w, g->h);
-		} else {
-			b = bm_resample_bcub(b, g->w, g->h);
-		}
-	} else {
-		b = bm_copy(b);
-	}
-	bm_set_color(b, g->background);
-	if(g->n == g->a) {
-		g->a <<= 1;
-		g->frames = realloc(g->frames, g->a * sizeof *g->frames);
-	}
-	assert(g->n < g->a);
-	memset(&g->frames[g->n], 0, sizeof g->frames[g->n]);
-	g->frames[g->n].image = b;
-	g->frames[g->n].delay = 2;
-	return &g->frames[g->n++];
+    if(b->w != g->w || b->h != g->h) {
+        if(g->w > b->w || g->h > b->h) {
+            b = bm_resample_blin(b, g->w, g->h);
+        } else {
+            b = bm_resample_bcub(b, g->w, g->h);
+        }
+    } else {
+        b = bm_copy(b);
+    }
+    bm_set_color(b, g->background);
+    if(g->n == g->a) {
+        g->a <<= 1;
+        g->frames = realloc(g->frames, g->a * sizeof *g->frames);
+    }
+    assert(g->n < g->a);
+    memset(&g->frames[g->n], 0, sizeof g->frames[g->n]);
+    g->frames[g->n].image = b;
+    g->frames[g->n].delay = g->default_delay;
+    return &g->frames[g->n++];
 }
 
 GIF_FRAME *gif_new_frame(GIF *g) {
-	Bitmap *b = bm_create(g->w, g->h);
-	bm_set_color(b, g->background);
-	bm_clear(b);
-	if(g->n == g->a) {
-		g->a <<= 1;
-		g->frames = realloc(g->frames, g->a * sizeof *g->frames);
-	}
-	assert(g->n < g->a);
-	memset(&g->frames[g->n], 0, sizeof g->frames[g->n]);
-	g->frames[g->n].image = b;
-	g->frames[g->n].delay = 2;
-	return &g->frames[g->n++];
+    Bitmap *b = bm_create(g->w, g->h);
+    bm_set_color(b, g->background);
+    bm_clear(b);
+    if(g->n == g->a) {
+        g->a <<= 1;
+        g->frames = realloc(g->frames, g->a * sizeof *g->frames);
+    }
+    assert(g->n < g->a);
+    memset(&g->frames[g->n], 0, sizeof g->frames[g->n]);
+    g->frames[g->n].image = b;
+    g->frames[g->n].delay = 2;
+    return &g->frames[g->n++];
+}
+
+void gif_set_palette(GIF *gif, unsigned int *palette, unsigned int palette_size) {
+    gif->palette = palette;
+    if(palette_size > 256)
+        palette_size = 256;
+    gif->palette_size = palette_size;
 }
 
 #if 1
@@ -1174,10 +1198,10 @@ static int comp_rgb(const void *ap, const void *bp) {
 #ifdef TEST
 int main(int argc, char *argv[]) {
 
-	/* FIXME: The color quantization shouldn't depend on rand() :( */
+    /* FIXME: The color quantization shouldn't depend on rand() :( */
     srand(time(NULL));
 
-	gif_verbose = 1;
+    gif_verbose = 1;
 
     if(argc < 2) {
         fprintf(stderr, "usage: %s file.gif\n", argv[0]);
@@ -1185,26 +1209,26 @@ int main(int argc, char *argv[]) {
     }
     assert(sizeof(unsigned short) == 2);
 
-	GIF *gif = gif_load(argv[1]);
+    GIF *gif = gif_load(argv[1]);
     if(gif) {
         char buffer[50];
-		int i;
-		for(i = 0; i < gif->n; i++) {
-			sprintf(buffer, "frame%03d.bmp", i);
-			printf("Saving %s...\n", buffer);
-			bm_save(gif->frames[i].image, buffer);
-		}
-		printf("Saving GIF output...\n");
-		if(!gif_save(gif, "gifout.gif")) {
+        int i;
+        for(i = 0; i < gif->n; i++) {
+            sprintf(buffer, "frame%03d.bmp", i);
+            printf("Saving %s...\n", buffer);
+            bm_save(gif->frames[i].image, buffer);
+        }
+        printf("Saving GIF output...\n");
+        if(!gif_save(gif, "gifout.gif")) {
             fprintf(stderr, "error: Unable to save GIF\n");
             return 1;
         }
 
         gif_free(gif);
     } else {
-		fprintf(stderr, "Couldn't read GIF\n");
-		return 1;
-	}
+        fprintf(stderr, "Couldn't read GIF\n");
+        return 1;
+    }
     return 0;
 }
 #endif

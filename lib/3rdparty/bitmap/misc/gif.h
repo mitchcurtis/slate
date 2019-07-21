@@ -40,9 +40,16 @@ typedef struct GIF_FRAME {
  * It has these members:
  * * `w` and `h` - The width and height in pixels of the GIF.
  * * `background` - The background color that will be used for transparency.
- * * `repetitions` - The number of repetitions of the animation.
+ * * `repetitions` - The number of repetitions of the animation, defaults to 1.
+ *    set to 0 for infinite looping.
+ * * `default_delay` - default delay of each frame, in 100th's of a second.
+ *    The `GIF_FRAME.delay` member can be used to control the delay of each
+ *    frame individually.
  * * `frames` - The internal array of `GIF_FRAME`s for storing the
- *      individual frames.
+ *    individual frames.
+ * * `palette` and `palette_size` - The palette of the GIF. If none
+ *    is specified, a palette will be selected from the first frame.
+ *    See `gif_set_palette()` for more information.
  * * `n` - The number of frames.
  * * `a` - The number of allocated frames. `frames` is resized through
  *   `realloc()` as necessary.
@@ -52,9 +59,14 @@ typedef struct GIF {
     unsigned int background;
     int repetitions;
 
-    /*  */
+    unsigned char default_delay;
+
+    unsigned int *palette;
+    unsigned int palette_size;
+
+    /* The actual frames */
     GIF_FRAME *frames;
-    int n, a;
+    int n, a; /* Number of frames, and Allocated frames */
 
 } GIF;
 
@@ -80,6 +92,14 @@ GIF *gif_create(int w, int h);
  * Deallocates a `GIF` structure.
  */
 void gif_free(GIF *gif);
+
+/**
+ * ### `void gif_set_palette(GIF *gif, unsigned int *palette, unsigned int palette_size)`
+ * Sets a custom `palette` of the specified `palette_size` for the GIF.
+ * If a palette is not specified, one is created from the first frame in the GIF when
+ * the file is saved.
+ */
+void gif_set_palette(GIF *gif, unsigned int *palette, unsigned int palette_size);
 
 /**
  * ### `GIF *gif_load(const char *filename);`

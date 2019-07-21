@@ -254,18 +254,30 @@ Bitmap *bm_load_fp(FILE *f);
 #endif
 
 /**
- * #### `Bitmap *bm_load_mem(const unsigned char *buffer, long len)`
+ * #### `Bitmap *bm_load_mem(const char *buffer, long len)`
  *
  * Loads a bitmap file from an array of bytes `buffer` of size `len`.
  *
  * It tries to detect the file type from the first bytes in the file.
  *
  * Only supports BMP, GIF, PCX and TGA at the moment.
- * _Don't use it with user input._
+ * _Don't use it with untrusted input._
  *
  * Returns `NULL` if the file could not be loaded.
  */
-Bitmap *bm_load_mem(const unsigned char *buffer, long len);
+Bitmap *bm_load_mem(const char *buffer, long len);
+
+/**
+ * #### `Bitmap *bm_load_base64(const char *base64)`
+ *
+ * Loads a bitmap file from a [Base64][] encoded string. It uses
+ * `bm_load_mem()` internally, so the same caveats apply.
+ *
+ * Returns `NULL` if the bitmap could not be loaded.
+ *
+ * [Base64]: https://en.wikipedia.org/wiki/Base64
+ */
+Bitmap *bm_load_base64(const char *base64);
 
 #if defined(USESDL) && defined(_SDL_H)
 /**
@@ -819,17 +831,37 @@ void bm_reduce_palette_OD8(Bitmap *b, unsigned int palette[], unsigned int n);
 /**
  * #### `unsigned int *bm_load_palette(const char * filename, unsigned int *npal)`
  *
- * Loads a palette from a file named `filename`. The file is a text file containing a
- * colour on each line and semicolons for comments.
+ * Loads a palette from a file named `filename`.
+ * It returns an array of colours, or `NULL` on error. `npal` will contain the
+ * number of entries read in the palette file.
  *
- * The format of the file is similar to the Paint.NET [palette files](https://www.getpaint.net/doc/latest/WorkingWithPalettes.html)
- * except that the colours can be specified in any format supported by `bm_atoi()`.
- * A palette cannot contain more than 256 entries.
+ * The returned array must be `free()`ed after use.
  *
- * It returns an array of colours, or `NULL` on error. The returned array must be `free()`ed
- * after use. `npal` will contain the number of entries read in the palette file.
+ * Two formats are supported:
+ *
+ * - If the first line in the file is `JASC-PAL`, the file is read as a
+ *   [Paintshop Pro-type palette][Psp-pal].
+ * - Otherwise the file is read as a text file with a colour on each
+ *   line. Blank lines are ignored and semicolons indicate comments.
+ *   The format is similar to [Paint.NET palette files][Pdn-pal] except
+ *   the colours can be specified in any format supported by `bm_atoi()`,
+ *   and up to 256 colours can be defined.
+ *
+ * [Psp-pal]: http://www.cryer.co.uk/file-types/p/pal.htm
+ * [Pdn-pal]: https://www.getpaint.net/doc/latest/WorkingWithPalettes.html
  */
 unsigned int *bm_load_palette(const char * filename, unsigned int *npal);
+
+/**
+ * #### `int bm_save_palette(const char * filename, unsigned int *pal, unsigned int *npal)`
+ *
+ * Saves a palette `pal`, containing `npal` entries, to a file named `filename`.
+ *
+ * The file is always saved in the [Paintshop Pro palette format][Psp-pal].
+ *
+ * Returns 1 on success, 0 on failure.
+ */
+int bm_save_palette(const char * filename, unsigned int *pal, unsigned int npal);
 
 /**
  * ### Drawing Primitives
@@ -856,6 +888,14 @@ void bm_putpixel(Bitmap *b, int x, int y);
  * Draws a line from <x0,y0> to <x1,y1> using the pen color.
  */
 void bm_line(Bitmap *b, int x0, int y0, int x1, int y1);
+
+/**
+ * #### `void bm_line_aa(Bitmap *b, int x0, int y0, int x1, int y1)`
+ *
+ * Draws a line from <x0,y0> to <x1,y1> using the pen color that is
+ * anti-aliased using [Xiaolin Wu's line algorithm](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm)
+ */
+void bm_line_aa(Bitmap *b, int x0, int y0, int x1, int y1);
 
 /**
  * #### `void bm_rect(Bitmap *b, int x0, int y0, int x1, int y1)`
@@ -1152,6 +1192,7 @@ int bm_stricmp(const char *p, const char *q);
  *   by Darel Rex Finley.
  * * [Computer Graphics: Scan Line Polygon Fill Algorithm](https://hackernoon.com/computer-graphics-scan-line-polygon-fill-algorithm-3cb47283df6)
  *   by Alberto Scicali
+ * * [Count the consecutive zero bits (trailing) on the right in parallel](https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightParallel)
  */
 
 #if defined(__cplusplus) || defined(c_plusplus)
