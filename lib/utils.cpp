@@ -231,8 +231,6 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
     GIF *gif = gif_create(width, height);
     auto cleanup = qScopeGuard([=]{ gif_free(gif); });
 
-    // The repetitions are stored internally as uint16_t, so I guess we can't loop infinitely,
-    // but we can at least make it a huge number.
     gif->repetitions = animation.shouldLoop() ? 0 : 1;
 
     QVarLengthArray<unsigned int> argbPalette = findMax256UniqueArgbColours(gifSourceImage);
