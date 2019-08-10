@@ -39,6 +39,7 @@ ToolBar {
     readonly property int projectType: project ? project.type : 0
     readonly property bool isTilesetProject: projectType === Project.TilesetType
     readonly property bool isImageProject: projectType === Project.ImageType || projectType === Project.LayeredImageType
+    readonly property bool projectLoaded: canvas && project && project.loaded
 
     Connections {
         target: canvas
@@ -69,7 +70,6 @@ ToolBar {
 
     Row {
         id: toolbarRow
-        enabled: canvas && project && project.loaded
         anchors.fill: parent
         // Make sure that we don't end up on a sub-pixel position.
         anchors.leftMargin: Math.round(toolSeparator.implicitWidth / 2)
@@ -77,6 +77,7 @@ ToolBar {
         Ui.ToolButton {
             id: canvasSizeToolButton
             objectName: "canvasSizeToolButton"
+            enabled: projectLoaded
 
             icon.source: "qrc:/images/change-canvas-size.png"
 
@@ -89,7 +90,7 @@ ToolBar {
         Ui.ToolButton {
             id: imageSizeToolButton
             objectName: "imageSizeToolButton"
-            enabled: !isTilesetProject
+            enabled: projectLoaded && !isTilesetProject
 
             icon.source: "qrc:/images/change-image-size.png"
 
@@ -102,7 +103,7 @@ ToolBar {
         Ui.ToolButton {
             id: cropToSelectionToolButton
             objectName: "cropToSelectionToolButton"
-            enabled: !isTilesetProject && canvas && canvas.hasSelection
+            enabled: projectLoaded && !isTilesetProject && canvas.hasSelection
 
             icon.source: "qrc:/images/crop-to-selection.png"
 
@@ -121,7 +122,7 @@ ToolBar {
             Ui.IconToolButton {
                 objectName: "undoToolButton"
                 text: "\uf0e2"
-                enabled: project && canvas && (project.undoStack.canUndo || canvas.hasModifiedSelection)
+                enabled: projectLoaded && (project.undoStack.canUndo || canvas.hasModifiedSelection)
 
                 ToolTip.text: qsTr("Undo the last canvas operation")
 
@@ -131,7 +132,7 @@ ToolBar {
             Ui.IconToolButton {
                 objectName: "redoToolButton"
                 text: "\uf01e"
-                enabled: project && project.undoStack.canRedo
+                enabled: projectLoaded && project.undoStack.canRedo
 
                 ToolTip.text: qsTr("Redo the last undone canvas operation")
 
@@ -145,9 +146,9 @@ ToolBar {
             id: modeToolButton
             objectName: "modeToolButton"
             text: "\uf044"
-            checked: canvas && canvas.mode === TileCanvas.TileMode
+            checked: projectLoaded && canvas.mode === TileCanvas.TileMode
             checkable: true
-            enabled: canvas && projectType === Project.TilesetType
+            enabled: projectLoaded && projectType === Project.TilesetType
             visible: enabled
 
             ToolTip.text: qsTr("Operate on either pixels or whole tiles")
@@ -175,6 +176,7 @@ ToolBar {
                 objectName: "penToolButton"
                 text: "\uf040"
                 checked: true
+                enabled: projectLoaded
 
                 ToolTip.text: qsTr("Draw pixels%1 on the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
 
@@ -186,6 +188,7 @@ ToolBar {
                 objectName: "eyeDropperToolButton"
                 text: "\uf1fb"
                 checkable: true
+                enabled: projectLoaded
 
                 ToolTip.text: qsTr("Pick colours%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
 
@@ -197,6 +200,7 @@ ToolBar {
                 objectName: "eraserToolButton"
                 text: "\uf12d"
                 checkable: true
+                enabled: projectLoaded
 
                 ToolTip.text: qsTr("Erase pixels%1 from the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")
 
@@ -207,6 +211,7 @@ ToolBar {
                 id: fillToolButton
                 objectName: "fillToolButton"
                 checkable: true
+                enabled: projectLoaded
 
                 readonly property bool regularFill: canvas && canvas.lastFillToolUsed === ImageCanvas.FillTool
                 readonly property string imageProjectToolTipText:
@@ -258,6 +263,7 @@ ToolBar {
                 objectName: "selectionToolButton"
                 checkable: true
                 visible: projectType === Project.ImageType || projectType === Project.LayeredImageType
+                enabled: projectLoaded
                 icon.source: "qrc:/images/selection.png"
 
                 ToolTip.text: qsTr("Select pixels within an area and move them")
@@ -271,6 +277,7 @@ ToolBar {
                 text: "\uf125"
                 checkable: true
                 visible: false // TODO: implement crop
+                enabled: projectLoaded
 
                 ToolTip.text: qsTr("Crop the canvas")
 
@@ -283,6 +290,7 @@ ToolBar {
         Ui.ToolButton {
             id: toolSizeButton
             objectName: "toolSizeButton"
+            enabled: projectLoaded
             icon.source: "qrc:/images/change-tool-size.png"
 
             ToolTip.text: qsTr("Change the size of drawing tools")
@@ -301,6 +309,7 @@ ToolBar {
         Ui.ToolButton {
             id: toolShapeButton
             objectName: "toolShapeButton"
+            enabled: projectLoaded
 
             readonly property bool squareShape: canvas && canvas.toolShape === ImageCanvas.SquareToolShape
             icon.source: squareShape ? "qrc:/images/square-tool-shape.png" : "qrc:/images/circle-tool-shape.png"
@@ -353,6 +362,7 @@ ToolBar {
             height: parent.height
             spacing: 5
             visible: projectType === Project.ImageType || projectType === Project.LayeredImageType
+            enabled: projectLoaded
 
             Ui.ToolButton {
                 id: rotate90CcwToolButton
@@ -406,6 +416,7 @@ ToolBar {
         Row {
             id: viewLayout
             height: parent.height
+            enabled: projectLoaded
             spacing: 5
 
             Ui.ToolButton {
@@ -449,6 +460,7 @@ ToolBar {
         Row {
             id: viewSplitscreenLayout
             height: parent.height
+            enabled: projectLoaded
             spacing: 5
 
             Ui.ToolButton {
@@ -480,9 +492,9 @@ ToolBar {
         }
 
         Ui.IconToolButton {
-            id: fullScreenButton
+            id: fullScreenToolButton
+            objectName: "fullScreenToolButton"
             text: "\uF108"
-            enabled: true
             checkable: true
             checked: window.visibility === Window.FullScreen
 

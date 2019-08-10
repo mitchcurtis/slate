@@ -32,37 +32,6 @@ Q_LOGGING_CATEGORY(lcTestHelper, "tests.testhelper")
 TestHelper::TestHelper(int &argc, char **argv) :
     app(argc, argv, QStringLiteral("Slate Test Suite")),
     window(qobject_cast<QQuickWindow*>(app.qmlEngine()->rootObjects().first())),
-    overlay(nullptr),
-    projectManager(nullptr),
-    imageProject(nullptr),
-    tilesetProject(nullptr),
-    layeredImageProject(nullptr),
-    imageCanvas(nullptr),
-    tileCanvas(nullptr),
-    canvasSizeToolButton(nullptr),
-    imageSizeToolButton(nullptr),
-    cropToSelectionToolButton(nullptr),
-    modeToolButton(nullptr),
-    penToolButton(nullptr),
-    eyeDropperToolButton(nullptr),
-    fillToolButton(nullptr),
-    eraserToolButton(nullptr),
-    selectionToolButton(nullptr),
-    toolSizeButton(nullptr),
-    rotate90CcwToolButton(nullptr),
-    rotate90CwToolButton(nullptr),
-    flipHorizontallyToolButton(nullptr),
-    flipVerticallyToolButton(nullptr),
-    undoToolButton(nullptr),
-    redoToolButton(nullptr),
-    penForegroundColourButton(nullptr),
-    penBackgroundColourButton(nullptr),
-    tilesetSwatchPanel(nullptr),
-    tilesetSwatchFlickable(nullptr),
-    newLayerButton(nullptr),
-    moveLayerDownButton(nullptr),
-    moveLayerUpButton(nullptr),
-    animationPlayPauseButton(nullptr),
     tilesetBasename("test-tileset.png")
 {
     mTools.append(ImageCanvas::PenTool);
@@ -193,6 +162,9 @@ void TestHelper::initTestCase()
 
     desaturateButton = window->findChild<QQuickItem*>("desaturateButton");
     QVERIFY(desaturateButton);
+
+    fullScreenToolButton = window->findChild<QQuickItem*>("fullScreenToolButton");
+    QVERIFY(fullScreenToolButton);
 
     // This is not in a Loader, and hence it is always available.
     swatchesPanel = window->findChild<QQuickItem*>("swatchesPanel");

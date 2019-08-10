@@ -297,6 +297,11 @@ void tst_App::openClose()
     QCOMPARE(project->url(), QUrl());
     QCOMPARE(project->hasLoaded(), false);
 
+    // Some tool buttons need a project open...
+    QCOMPARE(canvasSizeToolButton->property("enabled").toBool(), false);
+    // ... while others don't.
+    QCOMPARE(fullScreenToolButton->property("enabled").toBool(), true);
+
     // Hovering over the canvas should result in the default cursor being displayed.
     QTest::mouseMove(window, canvas->mapToScene(
         QPointF(canvas->width() / 2, canvas->height() / 2)).toPoint());
