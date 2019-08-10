@@ -106,8 +106,7 @@ public:
         EraserTool,
         FillTool,
         SelectionTool,
-        TexturedFillTool,
-        CropTool
+        TexturedFillTool
     };
     Q_ENUM(Tool)
 
@@ -654,8 +653,6 @@ protected:
     SelectionModification mLastSelectionModification;
     // True if the selection was moved, flipped, rotated, etc.
     bool mHasModifiedSelection;
-
-    QRect mCropArea;
 
     bool mAltPressed;
     bool mShiftPressed;

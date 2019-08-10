@@ -61,9 +61,6 @@ ToolBar {
             case TileCanvas.SelectionTool:
                 toolButtonGroup.checkedButton = selectionToolButton;
                 break;
-            case TileCanvas.CropTool:
-                toolButtonGroup.checkedButton = cropToolButton;
-                break;
             }
         }
     }
@@ -269,19 +266,6 @@ ToolBar {
                 ToolTip.text: qsTr("Select pixels within an area and move them")
 
                 onClicked: canvas.tool = ImageCanvas.SelectionTool
-            }
-
-            Ui.IconToolButton {
-                id: cropToolButton
-                objectName: "cropToolButton"
-                text: "\uf125"
-                checkable: true
-                visible: false // TODO: implement crop
-                enabled: projectLoaded
-
-                ToolTip.text: qsTr("Crop the canvas")
-
-                onClicked: canvas.tool = ImageCanvas.CropTool
             }
 
             ToolSeparator {}

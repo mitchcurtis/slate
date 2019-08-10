@@ -60,8 +60,6 @@ target_sources(
   changetilecanvassizecommand.cpp
   changetilecanvassizecommand.h
   commands.h
-  crophelper.cpp
-  crophelper.h
   deleteguidecommand.cpp
   deleteguidecommand.h
   deleteimagecanvasselectioncommand.cpp

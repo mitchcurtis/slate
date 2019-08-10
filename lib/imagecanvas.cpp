@@ -1739,8 +1739,6 @@ void ImageCanvas::reset()
 
     mLastPixelPenPressScenePositionF = QPoint(0, 0);
 
-    mCropArea = QRect();
-
     clearSelection();
     setAltPressed(false);
     mToolBeforeAltPressed = PenTool;

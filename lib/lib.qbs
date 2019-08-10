@@ -107,8 +107,6 @@ Product {
         "clipboard.h",
         "clipboard.cpp",
         "commands.h",
-        "crophelper.cpp",
-        "crophelper.h",
         "deleteguidecommand.cpp",
         "deleteguidecommand.h",
         "deleteimagecanvasselectioncommand.cpp",
