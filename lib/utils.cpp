@@ -230,6 +230,9 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
     const int height = animation.frameHeight() * animation.scale();
     GIF *gif = gif_create(width, height);
     auto cleanup = qScopeGuard([=]{ gif_free(gif); });
+    qCDebug(lcUtils) << "original width:" << animation.frameWidth()
+        << "original height:" << animation.frameHeight()
+        << "width:" << width << "height:" << height << "scale:" << animation.scale();
 
     gif->repetitions = animation.shouldLoop() ? 0 : 1;
 
@@ -259,8 +262,11 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
         Bitmap *bitmap = frame->image;
 
         const QImage frameSourceImage = imageForAnimationFrame(eightBitImage, animation, frameIndex - frameStartIndex);
+        frameSourceImage.save(QString::fromLatin1("/Users/mitch/Documents/test-frame-%1.png").arg(frameIndex));
         const QImage scaledFrameSourceImage = frameSourceImage.scaled(frameSourceImage.size() * animation.scale());
+        scaledFrameSourceImage.save(QString::fromLatin1("/Users/mitch/Documents/test-frame-scaled-%1.png").arg(frameIndex));
         const uchar *imageBits = scaledFrameSourceImage.bits();
+
         for (int byteIndex = 0; byteIndex < width * height; ++byteIndex) {
             /*
                 Since the bitmap library allocates the bitmap for us,

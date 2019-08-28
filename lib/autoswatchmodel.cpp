@@ -27,6 +27,8 @@
 
 Q_LOGGING_CATEGORY(lcAutoSwatchModel, "app.autoSwatchModel")
 
+static const int maxAutoSwatchImagePixels = 400 * 400;
+
 AutoSwatchWorker::AutoSwatchWorker(QObject *parent) :
     QObject(parent)
 {
@@ -61,8 +63,12 @@ AutoSwatchModel::AutoSwatchModel(QObject *parent) :
 
 AutoSwatchModel::~AutoSwatchModel()
 {
+    qCDebug(lcAutoSwatchModel) << "destructing" << this << "...";
+
     mAutoSwatchWorkerThread.quit();
     mAutoSwatchWorkerThread.wait();
+
+    qCDebug(lcAutoSwatchModel) << "... destructed";
 }
 
 ImageCanvas *AutoSwatchModel::canvas() const
@@ -94,6 +100,34 @@ void AutoSwatchModel::setCanvas(ImageCanvas *canvas)
         if (mCanvas->project())
             onProjectChanged();
     }
+}
+
+bool AutoSwatchModel::isFindingSwatches() const
+{
+    return mFindingSwatches;
+}
+
+void AutoSwatchModel::setFindingSwatches(bool findingSwatches)
+{
+    if (findingSwatches == mFindingSwatches)
+        return;
+
+    mFindingSwatches = findingSwatches;
+    emit findingSwatchesChanged();
+}
+
+QString AutoSwatchModel::failureMessage() const
+{
+    return mFailureMessage;
+}
+
+void AutoSwatchModel::setFailureMessage(const QString &message)
+{
+    if (message == mFailureMessage)
+        return;
+
+    mFailureMessage = message;
+    emit failureMessageChanged();
 }
 
 QVariant AutoSwatchModel::data(const QModelIndex &index, int role) const
@@ -147,10 +181,20 @@ void AutoSwatchModel::onProjectChanged()
 
 void AutoSwatchModel::updateColours()
 {
+    setFailureMessage(QString());
+
     // The index of the undo stack can be set in its destructor,
     // so we need to account for that here.
     if (mCanvas && mCanvas->project() && mCanvas->project()->hasLoaded()) {
+        const QSize imageSize = mCanvas->project()->exportedImage().size();
+        if (imageSize.width() * imageSize.height() > maxAutoSwatchImagePixels) {
+            setFailureMessage(tr("Exceeded maximum image dimensions (400 x 400) supported by the auto swatch feature."));
+            return;
+        }
+
         qCDebug(lcAutoSwatchModel) << "starting auto swatch thread to find unique swatches...";
+        setFindingSwatches(true);
+
         mAutoSwatchWorkerThread.start();
 
         const bool invokeSucceeded = QMetaObject::invokeMethod(&mAutoSwatchWorker, "findUniqueColours",
@@ -158,6 +202,8 @@ void AutoSwatchModel::updateColours()
         Q_ASSERT(invokeSucceeded);
     } else {
         qCDebug(lcAutoSwatchModel) << "no canvas/project; clearing model";
+
+        setFindingSwatches(false);
 
         beginResetModel();
         mColours.clear();
@@ -173,5 +219,8 @@ void AutoSwatchModel::onFoundAllUniqueColours(const QVector<QColor> &colours)
 
     endResetModel();
 
-    qCDebug(lcAutoSwatchModel) << "... auto swatch thread finished finding unique swatches";
+    setFindingSwatches(false);
+
+    qCDebug(lcAutoSwatchModel) << "... auto swatch thread finished finding"
+        << mColours.size() << "unique swatches";
 }

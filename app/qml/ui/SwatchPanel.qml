@@ -112,6 +112,36 @@ Panel {
                         }
                     }
 
+                    BusyIndicator {
+                        anchors.centerIn: parent
+                        running: model.findingSwatches
+                    }
+
+                    ColumnLayout {
+                        width: parent.width
+                        spacing: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                        visible: autoSwatchFailureMessageLabel.text.length > 0
+
+                        Label {
+                            text: "\uf06a"
+                            font.family: "FontAwesome"
+                            font.pixelSize: Qt.application.font.pixelSize * 2.5
+
+                            Layout.alignment: Qt.AlignHCenter
+                        }
+
+                        Label {
+                            id: autoSwatchFailureMessageLabel
+                            text: model.failureMessage
+                            horizontalAlignment: Label.AlignHCenter
+                            wrapMode: Label.Wrap
+
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+                    }
+
                     ScrollBar.vertical: ScrollBar {
                         parent: autoSwatchRowLayout
 
