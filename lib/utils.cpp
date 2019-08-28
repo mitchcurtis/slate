@@ -262,9 +262,7 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
         Bitmap *bitmap = frame->image;
 
         const QImage frameSourceImage = imageForAnimationFrame(eightBitImage, animation, frameIndex - frameStartIndex);
-        frameSourceImage.save(QString::fromLatin1("/Users/mitch/Documents/test-frame-%1.png").arg(frameIndex));
         const QImage scaledFrameSourceImage = frameSourceImage.scaled(frameSourceImage.size() * animation.scale());
-        scaledFrameSourceImage.save(QString::fromLatin1("/Users/mitch/Documents/test-frame-scaled-%1.png").arg(frameIndex));
         const uchar *imageBits = scaledFrameSourceImage.bits();
 
         for (int byteIndex = 0; byteIndex < width * height; ++byteIndex) {
