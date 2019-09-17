@@ -1,6 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.12
+import QtQuick.Templates 2.12 as T
 
 import App 1.0
 
@@ -14,7 +15,7 @@ Page {
     }
 
     property bool expanded: true
-    property Popup settingsPopup: null
+    property T.Popup settingsPopup: null
     property alias settingsPopupToolButton: settingsPopupToolButton
 
     header: RowLayout {

@@ -19,6 +19,7 @@
 
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Templates 2.12 as T
 import QtQuick.Window 2.12
 
 import App 1.0
@@ -31,8 +32,8 @@ ToolBar {
 
     property Project project
     property ImageCanvas canvas
-    property Popup canvasSizePopup
-    property Popup imageSizePopup
+    property T.Popup canvasSizePopup
+    property T.Popup imageSizePopup
 
     property alias toolButtonGroup: toolButtonGroup
 
