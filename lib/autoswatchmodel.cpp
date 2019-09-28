@@ -27,7 +27,8 @@
 
 Q_LOGGING_CATEGORY(lcAutoSwatchModel, "app.autoSwatchModel")
 
-static const int maxAutoSwatchImagePixels = 400 * 400;
+static const int maxAutoSwatchImageDimensionInPixels = 2048;
+static const int maxUniqueColours = 10000;
 
 AutoSwatchWorker::AutoSwatchWorker(QObject *parent) :
     QObject(parent)
@@ -41,12 +42,21 @@ AutoSwatchWorker::~AutoSwatchWorker()
 void AutoSwatchWorker::findUniqueColours(const QImage &image)
 {
     if (image.isNull()) {
-        emit foundAllUniqueColours(QVector<QColor>());
+        emit errorOccurred(tr("Cannot find swatches in the image because it is null."));
         return;
     }
 
-    const QVector<QColor> colours = Utils::findUniqueColours(image);
-    emit foundAllUniqueColours(colours);
+    QVector<QColor> uniqueColours;
+    const Utils::FindUniqueColoursResult result = Utils::findUniqueColours(image, maxUniqueColours, uniqueColours);
+    if (result == Utils::MaximumUniqueColoursExceeded) {
+        // There was an actual error that the user should know about.
+        emit errorOccurred(tr("Exceeded maximum unique swatches (%1) supported by the auto swatch feature.")
+            .arg(maxUniqueColours));
+    } else {
+        // Regardless of whether we succeeded or our thread was interrupted,
+        // we consider it a success. If the thread was interrupted, we'll just have no colours.
+        emit foundAllUniqueColours(uniqueColours);
+    }
 }
 
 AutoSwatchModel::AutoSwatchModel(QObject *parent) :
@@ -57,16 +67,23 @@ AutoSwatchModel::AutoSwatchModel(QObject *parent) :
 
     connect(&mAutoSwatchWorker, &AutoSwatchWorker::foundAllUniqueColours,
         this, &AutoSwatchModel::onFoundAllUniqueColours);
-    connect(&mAutoSwatchWorker, &AutoSwatchWorker::foundAllUniqueColours,
-        &mAutoSwatchWorkerThread, &QThread::quit);
+    connect(&mAutoSwatchWorker, &AutoSwatchWorker::errorOccurred,
+        this, &AutoSwatchModel::onErrorOccurred);
 }
 
 AutoSwatchModel::~AutoSwatchModel()
 {
     qCDebug(lcAutoSwatchModel) << "destructing" << this << "...";
 
+    qCDebug(lcAutoSwatchModel) << "calling requestInterruption() on auto swatch worker thread...";
+    mAutoSwatchWorkerThread.requestInterruption();
+    qCDebug(lcAutoSwatchModel) << ".. called requestInterruption() on auto swatch worker thread";
+    qCDebug(lcAutoSwatchModel) << "calling quit() on auto swatch worker thread...";
     mAutoSwatchWorkerThread.quit();
+    qCDebug(lcAutoSwatchModel) << ".. called quit() on auto swatch worker thread";
+    qCDebug(lcAutoSwatchModel) << "calling wait() on auto swatch worker thread...";
     mAutoSwatchWorkerThread.wait();
+    qCDebug(lcAutoSwatchModel) << "... called wait() on auto swatch worker thread";
 
     qCDebug(lcAutoSwatchModel) << "... destructed";
 }
@@ -78,6 +95,8 @@ ImageCanvas *AutoSwatchModel::canvas() const
 
 void AutoSwatchModel::setCanvas(ImageCanvas *canvas)
 {
+    qCDebug(lcAutoSwatchModel) << "canvas changed to" << canvas;
+
     if (canvas == mCanvas)
         return;
 
@@ -169,14 +188,40 @@ QHash<int, QByteArray> AutoSwatchModel::roleNames() const
 
 void AutoSwatchModel::onProjectChanged()
 {
+    qCDebug(lcAutoSwatchModel).nospace() << "project changed to " << mCanvas->project()
+        << "; requesting interruption of auto swatch thread...";
+    mAutoSwatchWorkerThread.requestInterruption();
+    // Apparently interruption doesn't actually quit it, so we do that ourselves.
+    mAutoSwatchWorkerThread.quit();
+    mAutoSwatchWorkerThread.wait();
+    qCDebug(lcAutoSwatchModel) << "... auto swatch thread interrupted";
+
     if (mCanvas->project()) {
         connect(mCanvas->project()->undoStack(), &QUndoStack::indexChanged,
             this, &AutoSwatchModel::updateColours);
+        // onProjectChanged() is not called when an existing project is closed,
+        // as the canvas type won't change until the next project type is actually different.
+        // That is why we can't just rely on onProjectChanged() to do our cleanup in.
+        connect(mCanvas->project(), &Project::projectClosed,
+            this, &AutoSwatchModel::onProjectClosed);
 
         // Force population.
-        qCDebug(lcAutoSwatchModel) << "project changed; forcing auto swatch model population";
         updateColours();
     }
+}
+
+void AutoSwatchModel::onProjectClosed()
+{
+    qCDebug(lcAutoSwatchModel) << "project closed; requesting interruption of auto swatch thread...";
+    // Let the algorithm know that the thread it's running on has been interrupted.
+    mAutoSwatchWorkerThread.requestInterruption();
+    // Apparently interruption doesn't actually quit it, so we do that ourselves.
+    mAutoSwatchWorkerThread.quit();
+    mAutoSwatchWorkerThread.wait();
+    qCDebug(lcAutoSwatchModel) << "... auto swatch thread interrupted";
+
+    // Clear the colours.
+    updateColours();
 }
 
 void AutoSwatchModel::updateColours()
@@ -187,8 +232,9 @@ void AutoSwatchModel::updateColours()
     // so we need to account for that here.
     if (mCanvas && mCanvas->project() && mCanvas->project()->hasLoaded()) {
         const QSize imageSize = mCanvas->project()->exportedImage().size();
-        if (imageSize.width() * imageSize.height() > maxAutoSwatchImagePixels) {
-            setFailureMessage(tr("Exceeded maximum image dimensions (400 x 400) supported by the auto swatch feature."));
+        if (imageSize.width() * imageSize.height() > maxAutoSwatchImageDimensionInPixels * maxAutoSwatchImageDimensionInPixels) {
+            setFailureMessage(tr("Exceeded maximum image dimensions (%1 x %1) supported by the auto swatch feature.")
+                .arg(maxAutoSwatchImageDimensionInPixels));
             return;
         }
 
@@ -213,14 +259,28 @@ void AutoSwatchModel::updateColours()
 
 void AutoSwatchModel::onFoundAllUniqueColours(const QVector<QColor> &colours)
 {
+    qCDebug(lcAutoSwatchModel) << "auto swatch thread finished finding"
+        << colours.size() << "unique swatches; resetting model...";
+
     beginResetModel();
 
     mColours = colours;
 
     endResetModel();
 
+    qCDebug(lcAutoSwatchModel) << "... reset model";
+
     setFindingSwatches(false);
 
-    qCDebug(lcAutoSwatchModel) << "... auto swatch thread finished finding"
-        << mColours.size() << "unique swatches";
+    mAutoSwatchWorkerThread.quit();
+    mAutoSwatchWorkerThread.wait();
+}
+
+void AutoSwatchModel::onErrorOccurred(const QString &errorMessage)
+{
+    setFailureMessage(errorMessage);
+    setFindingSwatches(false);
+
+    mAutoSwatchWorkerThread.quit();
+    mAutoSwatchWorkerThread.wait();
 }

@@ -23,6 +23,7 @@
 #include <QLoggingCategory>
 #include <QPainter>
 #include <QScopeGuard>
+#include <QThread>
 
 // Need this otherwise we get linker errors.
 extern "C" {
@@ -321,17 +322,28 @@ QImage Utils::imageForAnimationFrame(const QImage &sourceImage, const AnimationP
     return image;
 }
 
-QVector<QColor> Utils::findUniqueColours(const QImage &image)
+Utils::FindUniqueColoursResult Utils::findUniqueColours(const QImage &image,
+    int maximumUniqueColours, QVector<QColor> &uniqueColoursFound)
 {
-    QVector<QColor> colours;
     for (int y = 0; y < image.height(); ++y) {
+        if (QThread::currentThread()->isInterruptionRequested()) {
+            qCDebug(lcUtils) << "Interrupt requested on the current thread; bailing out of finding unique colours";
+            return ThreadInterrupted;
+        }
+
+        if (uniqueColoursFound.size() > maximumUniqueColours) {
+            qCDebug(lcUtils).nospace() << "Exceeded maxium unique colours ("
+                << maximumUniqueColours << "); bailing out of finding unique colours";
+            return MaximumUniqueColoursExceeded;
+        }
+
         for (int x = 0; x < image.width(); ++x) {
             const QColor colour = image.pixelColor(x, y);
-            if (!colours.contains(colour))
-                colours.append(colour);
+            if (!uniqueColoursFound.contains(colour))
+                uniqueColoursFound.append(colour);
         }
     }
-    return colours;
+    return FindUniqueColoursSucceeded;
 }
 
 QVarLengthArray<unsigned int> Utils::findMax256UniqueArgbColours(const QImage &image)

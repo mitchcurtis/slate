@@ -42,6 +42,7 @@ public:
     Q_INVOKABLE void findUniqueColours(const QImage &image);
 
 signals:
+    void errorOccurred(const QString &errorMessage);
     void foundAllUniqueColours(const QVector<QColor> &colours);
 };
 
@@ -80,8 +81,10 @@ signals:
 
 private slots:
     void onProjectChanged();
+    void onProjectClosed();
     void updateColours();
     void onFoundAllUniqueColours(const QVector<QColor> &colours);
+    void onErrorOccurred(const QString &errorMessage);
 
 private:
     void setFindingSwatches(bool findingSwatches);

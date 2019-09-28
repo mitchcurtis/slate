@@ -45,7 +45,13 @@ namespace Utils {
 
     QRect ensureWithinArea(const QRect &rect, const QSize &boundsSize);
 
-    QVector<QColor> findUniqueColours(const QImage &image);
+    enum FindUniqueColoursResult {
+        ThreadInterrupted,
+        MaximumUniqueColoursExceeded,
+        FindUniqueColoursSucceeded
+    };
+
+    FindUniqueColoursResult findUniqueColours(const QImage &image, int maximumUniqueColours, QVector<QColor> &uniqueColoursFound);
     QVarLengthArray<unsigned int> findMax256UniqueArgbColours(const QImage &image);
 
     // relativeFrameIndex is the index of the animation relative to animation.startIndex()
