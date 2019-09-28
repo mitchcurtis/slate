@@ -42,7 +42,7 @@ AutoSwatchWorker::~AutoSwatchWorker()
 void AutoSwatchWorker::findUniqueColours(const QImage &image)
 {
     if (image.isNull()) {
-        emit errorOccurred(tr("Cannot find swatches in the image because it is null."));
+        emit errorOccurred(tr("Cannot find unique colours in the image because it is null."));
         return;
     }
 
@@ -50,7 +50,7 @@ void AutoSwatchWorker::findUniqueColours(const QImage &image)
     const Utils::FindUniqueColoursResult result = Utils::findUniqueColours(image, maxUniqueColours, uniqueColours);
     if (result == Utils::MaximumUniqueColoursExceeded) {
         // There was an actual error that the user should know about.
-        emit errorOccurred(tr("Exceeded maximum unique swatches (%1) supported by the auto swatch feature.")
+        emit errorOccurred(tr("Exceeded maximum unique colours (%1) supported by the auto swatch feature.")
             .arg(maxUniqueColours));
     } else {
         // Regardless of whether we succeeded or our thread was interrupted,
@@ -121,18 +121,18 @@ void AutoSwatchModel::setCanvas(ImageCanvas *canvas)
     }
 }
 
-bool AutoSwatchModel::isFindingSwatches() const
+bool AutoSwatchModel::isFindingUniqueColours() const
 {
-    return mFindingSwatches;
+    return mFindingUniqueColours;
 }
 
-void AutoSwatchModel::setFindingSwatches(bool findingSwatches)
+void AutoSwatchModel::setFindingUniqueColours(bool findingUniqueColours)
 {
-    if (findingSwatches == mFindingSwatches)
+    if (findingUniqueColours == mFindingUniqueColours)
         return;
 
-    mFindingSwatches = findingSwatches;
-    emit findingSwatchesChanged();
+    mFindingUniqueColours = findingUniqueColours;
+    emit findingUniqueColoursChanged();
 }
 
 QString AutoSwatchModel::failureMessage() const
@@ -239,7 +239,7 @@ void AutoSwatchModel::updateColours()
         }
 
         qCDebug(lcAutoSwatchModel) << "starting auto swatch thread to find unique swatches...";
-        setFindingSwatches(true);
+        setFindingUniqueColours(true);
 
         mAutoSwatchWorkerThread.start();
 
@@ -249,7 +249,7 @@ void AutoSwatchModel::updateColours()
     } else {
         qCDebug(lcAutoSwatchModel) << "no canvas/project; clearing model";
 
-        setFindingSwatches(false);
+        setFindingUniqueColours(false);
 
         beginResetModel();
         mColours.clear();
@@ -270,7 +270,7 @@ void AutoSwatchModel::onFoundAllUniqueColours(const QVector<QColor> &colours)
 
     qCDebug(lcAutoSwatchModel) << "... reset model";
 
-    setFindingSwatches(false);
+    setFindingUniqueColours(false);
 
     mAutoSwatchWorkerThread.quit();
     mAutoSwatchWorkerThread.wait();
@@ -279,7 +279,7 @@ void AutoSwatchModel::onFoundAllUniqueColours(const QVector<QColor> &colours)
 void AutoSwatchModel::onErrorOccurred(const QString &errorMessage)
 {
     setFailureMessage(errorMessage);
-    setFindingSwatches(false);
+    setFindingUniqueColours(false);
 
     mAutoSwatchWorkerThread.quit();
     mAutoSwatchWorkerThread.wait();

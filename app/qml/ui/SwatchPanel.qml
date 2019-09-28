@@ -114,7 +114,7 @@ Panel {
 
                     BusyIndicator {
                         anchors.centerIn: parent
-                        running: model.findingSwatches
+                        running: model.findingUniqueColours
                     }
 
                     ColumnLayout {

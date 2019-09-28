@@ -50,7 +50,7 @@ class SLATE_EXPORT AutoSwatchModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(ImageCanvas *canvas READ canvas WRITE setCanvas NOTIFY canvasChanged)
-    Q_PROPERTY(bool findingSwatches READ isFindingSwatches NOTIFY findingSwatchesChanged)
+    Q_PROPERTY(bool findingUniqueColours READ isFindingUniqueColours NOTIFY findingUniqueColoursChanged)
     Q_PROPERTY(QString failureMessage READ failureMessage NOTIFY failureMessageChanged)
 
 public:
@@ -65,7 +65,7 @@ public:
     ImageCanvas *canvas() const;
     void setCanvas(ImageCanvas *canvas);
 
-    bool isFindingSwatches() const;
+    bool isFindingUniqueColours() const;
 
     QString failureMessage() const;
 
@@ -76,7 +76,7 @@ public:
 
 signals:
     void canvasChanged();
-    void findingSwatchesChanged();
+    void findingUniqueColoursChanged();
     void failureMessageChanged();
 
 private slots:
@@ -87,7 +87,7 @@ private slots:
     void onErrorOccurred(const QString &errorMessage);
 
 private:
-    void setFindingSwatches(bool findingSwatches);
+    void setFindingUniqueColours(bool findingUniqueColours);
 
     void setFailureMessage(const QString &message);
 
@@ -96,7 +96,7 @@ private:
 
     AutoSwatchWorker mAutoSwatchWorker;
     QThread mAutoSwatchWorkerThread;
-    bool mFindingSwatches = false;
+    bool mFindingUniqueColours = false;
     QString mFailureMessage;
 };
 
