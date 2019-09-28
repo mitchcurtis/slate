@@ -12,5 +12,7 @@
         <file>LayerPanelMarkers.qml</file>
         <file>SwatchPanelMarkers.qml</file>
         <file>test-tileset.png</file>
+        <file>textured-fill-tool-tutorial-1.slp</file>
+        <file>textured-fill-tool-tutorial-2.slp</file>
     </qresource>
 </RCC>

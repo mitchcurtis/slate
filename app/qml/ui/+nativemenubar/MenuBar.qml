@@ -209,6 +209,17 @@ Item {
             Platform.MenuSeparator {}
 
             Platform.MenuItem {
+                objectName: "addSelectedColoursToTexturedFillSwatchMenuItem"
+                text: qsTr("Add to Textured Fill Swatch...")
+                onTriggered: {
+                    canvas.addSelectedColoursToTexturedFillSwatch()
+                    canvas.texturedFillParameters.type = TexturedFillParameters.SwatchFillType
+                    texturedFillSettingsDialog.open()
+                }
+                enabled: isImageProjectType && canvas && canvas.hasSelection
+            }
+
+            Platform.MenuItem {
                 objectName: "texturedFillSettingsMenuItem"
                 //: Opens a dialog that allows the user to change the settings for the Textured Fill tool.
                 text: qsTr("Textured Fill Settings...")

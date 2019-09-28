@@ -232,27 +232,10 @@ ToolBar {
                     visible: !isTilesetProject
                 }
 
-                Menu {
+                FillToolMenu {
                     id: fillMenu
                     y: fillToolButton.height
-                    width: 260
-
-                    MenuItem {
-                        text: qsTr("Fill Tool")
-                        icon.source: "qrc:/images/fill.png"
-                        autoExclusive: true
-                        checkable: true
-                        checked: canvas && canvas.lastFillToolUsed === ImageCanvas.FillTool
-                        onTriggered: canvas.tool = ImageCanvas.FillTool
-                    }
-                    MenuItem {
-                        text: qsTr("Textured Fill Tool")
-                        icon.source: "qrc:/images/textured-fill.png"
-                        autoExclusive: true
-                        checkable: true
-                        checked: canvas && canvas.lastFillToolUsed === ImageCanvas.TexturedFillTool
-                        onTriggered: canvas.tool = ImageCanvas.TexturedFillTool
-                    }
+                    canvas: root.canvas
                 }
             }
 

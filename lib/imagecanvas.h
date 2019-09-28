@@ -375,6 +375,7 @@ public slots:
     void modifySelectionHsl(qreal hue, qreal saturation, qreal lightness, qreal alpha = 0.0,
         AlphaAdjustmentFlags alphaAdjustmentFlags = DefaultAlphaAdjustment);
     void endModifyingSelectionHsl(AdjustmentAction adjustmentAction);
+    void addSelectedColoursToTexturedFillSwatch();
     void copySelection();
     void paste();
     void deleteSelectionOrContents();

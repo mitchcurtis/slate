@@ -93,8 +93,6 @@ void GuidesItem::drawGuide(PaneDrawingHelper *paneDrawingHelper, const Guide *gu
     const QRect visibleSceneArea = mCanvas->paneVisibleSceneArea(paneIndex);
 
     if (vertical) {
-//        if (paneIndex == 0 && guideIndex == 0)
-//            qDebug() << "index" << guideIndex << "guidePosition" << guidePosition;
         // Don't bother drawing it if it's not visible within the scene.
         // Use visibleSceneArea.x()/y() to ensure that that coordinate is within the
         // scene area, as we don't care about it and are only testing the other coordinate.

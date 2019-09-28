@@ -1,5 +1,5 @@
 /*
-    Copyright 2018, Mitch Curtis
+    Copyright 2019, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,50 +17,35 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SWATCH_H
-#define SWATCH_H
+#ifndef PROBABILITYSWATCH_H
+#define PROBABILITYSWATCH_H
 
-#include <QObject>
 #include <QVector>
 
 #include "slate-global.h"
-#include "swatchcolour.h"
+#include "swatch.h"
 
 class QJsonObject;
 
-class SLATE_EXPORT Swatch : public QObject
+class SLATE_EXPORT ProbabilitySwatch : public Swatch
 {
     Q_OBJECT
+    Q_PROPERTY(bool nonZeroProbabilitySum READ hasNonZeroProbabilitySum NOTIFY nonZeroProbabilitySumChanged)
 
 public:
-    explicit Swatch(QObject *parent = nullptr);
+    explicit ProbabilitySwatch(QObject *parent = nullptr);
 
-    QVector<SwatchColour> colours() const;
+    Q_INVOKABLE void setProbability(int index, qreal probability);
 
-    Q_INVOKABLE void addColour(const QString &name, const QColor &colour);
-    void addColours(const QVector<QColor> &colours);
-    Q_INVOKABLE void renameColour(int index, const QString &newName);
-    Q_INVOKABLE void removeColour(int index);
+    QVector<qreal> probabilities() const;
 
-    bool read(const QJsonObject &json, QString &errorMessage);
-    void write(QJsonObject &json) const;
-
-    void reset();
-    void copy(const Swatch &other);
+    // True if the sum of our probabilities is greater than zero.
+    // If the sum is zero, no colours can be chosen, which doesn't make sense.
+    bool hasNonZeroProbabilitySum() const;
 
 signals:
-    void preColourAdded();
-    void preColoursAdded();
-    void postColourAdded();
-    void postColoursAdded();
-
-    void colourRenamed(int index);
-
-    void preColourRemoved(int index);
-    void postColourRemoved();
-
-    void preImported();
-    void postImported();
+    void probabilityChanged(int index);
+    void nonZeroProbabilitySumChanged();
 
 protected:
     virtual void doAddColour(const QString &name, const QColor &colour);
@@ -70,9 +55,11 @@ protected:
     virtual bool doRead(const QJsonObject &json, QString &errorMessage);
     virtual void doWrite(QJsonObject &json) const;
 
-    bool isValidIndex(int index) const;
+private:
+    void calculateProbabilitySum();
 
-    QVector<SwatchColour> mColours;
+    QVector<qreal> mProbabilities;
+    qreal mProbabilitySum;
 };
 
-#endif // SWATCH_H
+#endif // PROBABILITYSWATCH_H

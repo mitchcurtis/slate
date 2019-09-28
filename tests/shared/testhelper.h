@@ -108,6 +108,7 @@ protected:
     void wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees);
     void keyClicks(const QString &text);
     Q_REQUIRED_RESULT bool clearAndEnterText(QQuickItem *textField, const QString &text);
+    Q_REQUIRED_RESULT bool selectComboBoxItem(const QString &comboBoxObjectName, int index);
 
     QObject *findPopupFromTypeName(const QString &typeName) const;
     QQuickItem *findDialogButtonFromText(const QObject *dialog, const QString &text);
@@ -128,7 +129,7 @@ protected:
     void setCursorPosInPixels(const QPoint &posInPixels);
     void setCursorPosInTiles(int xPosInTiles, int yPosInTiles);
     void setCursorPosInScenePixels(int xPosInScenePixels, int yPosInScenePixels, bool assertWithinWindow = true);
-    void setCursorPosInScenePixels(const QPoint &posInScenePixels);
+    void setCursorPosInScenePixels(const QPoint &posInScenePixels, bool assertWithinWindow = true);
     QPoint tilesetTileCentre(int xPosInTiles, int yPosInTiles) const;
     QPoint tilesetTileSceneCentre(int xPosInTiles, int yPosInTiles) const;
     int digits(int number);
@@ -243,8 +244,8 @@ protected:
     Q_REQUIRED_RESULT bool addSwatchWithForegroundColour();
     Q_REQUIRED_RESULT bool renameSwatchColour(int index, const QString &name);
     Q_REQUIRED_RESULT bool deleteSwatchColour(int index);
-
     Q_REQUIRED_RESULT bool addNewGuide(Qt::Orientation orientation, int position);
+    Q_REQUIRED_RESULT bool addSelectedColoursToTexturedFillSwatch();
 
     QByteArray failureMessage;
 

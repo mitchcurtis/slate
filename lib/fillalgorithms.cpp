@@ -26,12 +26,14 @@
 #include <QRandomGenerator>
 #include <QQueue>
 
+#include "swatchcolour.h"
 #include "texturedfillparameters.h"
 #include "tile.h"
 #include "tilesetproject.h"
 
 Q_LOGGING_CATEGORY(lcPixelFloodFill, "app.pixelFloodFill")
 Q_LOGGING_CATEGORY(lcTileFloodFill, "app.tileFloodFill")
+Q_LOGGING_CATEGORY(lcSwatchTexturedFill, "app.swatchTexturedFill")
 
 uint qHash(const QPoint &point, uint seed)
 {
@@ -41,6 +43,21 @@ uint qHash(const QPoint &point, uint seed)
 QColor FillColourProvider::colour(const QColor &baseColour) const
 {
     return baseColour;
+}
+
+bool FillColourProvider::allowsNoOpFills() const
+{
+    return false;
+}
+
+bool FillColourProvider::canProvideColours() const
+{
+    return true;
+}
+
+QString FillColourProvider::debugName() const
+{
+    return "FillColourProvider";
 }
 
 struct ImagePixelHash {
@@ -74,16 +91,31 @@ QImage imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QC
     QImage filledImage = *image;
     const QRect imageBounds(0, 0, filledImage.width(), filledImage.height());
     if (!imageBounds.contains(startPos)) {
+        qCDebug(lcPixelFloodFill).nospace() << "The pixel at " << startPos
+            << " is not within the image bounds (" << imageBounds << ")";
         return QImage();
     }
 
-    if (filledImage.pixelColor(startPos) == replacementColour) {
-        // The pixel at startPos is already the colour that we want to replace it with.
+    if (!fillColourProvider.allowsNoOpFills() && filledImage.pixelColor(startPos) == replacementColour) {
+        qCDebug(lcPixelFloodFill).nospace() << "The pixel at " << startPos
+            << " (" << filledImage.pixelColor(startPos).name(QColor::HexArgb) << ") "
+            << "is the same as what we want to replace it with (" << replacementColour.name(QColor::HexArgb) << ") "
+            << "and the fill colour provider (" << fillColourProvider.debugName() << ") doesn't allow this";
         return QImage();
     }
 
-    if (filledImage.pixelColor(startPos) != targetColour)
+    if (filledImage.pixelColor(startPos) != targetColour) {
+        qCDebug(lcPixelFloodFill).nospace() << "The pixel at " << startPos
+            << " (" << filledImage.pixelColor(startPos).name(QColor::HexArgb) << ") "
+            << "is not the same as our target colour: " << targetColour.name(QColor::HexArgb);
         return QImage();
+    }
+
+    if (!fillColourProvider.canProvideColours()) {
+        qCDebug(lcPixelFloodFill).nospace() << "The fill colour provider"
+            << &fillColourProvider << "cannot provide colours for us";
+        return QImage();
+    }
 
     QQueue<QPoint> queue;
     queue.append(startPos);
@@ -148,11 +180,16 @@ QImage imageGreedyPixelFill(const QImage *image, const QPoint &startPos, const Q
     const QColor &replacementColour, const FillColourProvider &fillColourProvider)
 {
     const QRect imageBounds(0, 0, image->width(), image->height());
-    if (!imageBounds.contains(startPos))
+    if (!imageBounds.contains(startPos)) {
+        qCDebug(lcPixelFloodFill).nospace() << "The pixel at " << startPos
+            << " is not within the image bounds (" << imageBounds << ")";
         return QImage();
+    }
 
     if (image->pixelColor(startPos) == replacementColour) {
-        // The pixel at startPos is already the colour that we want to replace it with.
+        qCDebug(lcPixelFloodFill).nospace() << "The pixel at " << startPos
+            << " (" << image->pixelColor(startPos).name(QColor::HexArgb) << ") "
+            << "is the same as what we want to replace it with: " << replacementColour.name(QColor::HexArgb);
         return QImage();
     }
 
@@ -172,12 +209,17 @@ qreal toRange(qreal randomNumber, qreal min, qreal max)
     return randomNumber * (max - min) + min;
 }
 
-class TextureFillColourProvider : public FillColourProvider
+class VarianceTextureFillColourProvider : public FillColourProvider
 {
 public:
-    TextureFillColourProvider(const TexturedFillParameters &parameters) :
+    VarianceTextureFillColourProvider(const TexturedFillParameters &parameters) :
         mParameters(parameters)
     {
+    }
+
+    bool allowsNoOpFills() const override
+    {
+        return true;
     }
 
     QColor colour(const QColor &baseColour) const override
@@ -211,19 +253,120 @@ public:
         return newColour;
     }
 
+    QString debugName() const override
+    {
+        return "VarianceTextureFillColourProvider";
+    }
+
     const TexturedFillParameters &mParameters;
+};
+
+class SwatchTextureFillColourProvider : public FillColourProvider
+{
+public:
+    SwatchTextureFillColourProvider(const TexturedFillParameters &parameters) :
+        mParameters(parameters)
+    {
+        if (mParameters.swatch()->colours().isEmpty()) {
+            qWarning() << "Textured fill swatch is empty!";
+            return;
+        }
+
+        qCDebug(lcSwatchTexturedFill) << "calculating chances and probability sum";
+        qCDebug(lcSwatchTexturedFill) << "swatch probabilities:" << mParameters.swatch()->probabilities();
+
+        const auto probabilities = mParameters.swatch()->probabilities();
+        const int probabilityCount = probabilities.size();
+        mChances.resize(probabilityCount);
+
+        // If there are ten colours, and each one has 100% probability,
+        // then its "chance" is 0.10.
+        // We calculate "chances" as a way of normalising the probabilities
+        // so that we can easily check which one wins.
+        const qreal oneHundredPercentProbability = 1.0 / probabilityCount;
+
+        for (int i = 0; i < probabilityCount; ++i) {
+            const qreal probability = probabilities.at(i);
+            const qreal chance = probability * oneHundredPercentProbability;
+            mChances[i] = chance;
+            mChanceSum += chance;
+        }
+
+        // I'm not 100% sure, but I think this is necessary.
+        // If the chances are [0.5, 0.1] and the random number is 0.05,
+        // the first one might be chosen more often than it should.
+        // The second number will only be chosen when the number is
+        // greater than the first but less than both combined;
+        // i.e. 0.5001, 0.5999, etc. So I guess technically
+        // the second one can be chosen, but perhaps less often? I dunno.
+        // It seems to work fine without sorting though.
+        // TODO: colours also need to be sorted if we do this, otherwise it won't work correctly.
+//        std::sort(mChances.begin(), mChances.end());
+
+        if (qFuzzyIsNull(mChanceSum))
+            qWarning() << "Sum of chances for textured fill swatch colours is zero!";
+
+        qCDebug(lcSwatchTexturedFill) << "chances:" << mChances;
+        qCDebug(lcSwatchTexturedFill) << "chance sum:" << mChanceSum;
+    }
+
+    bool allowsNoOpFills() const override
+    {
+        return true;
+    }
+
+    bool canProvideColours() const override
+    {
+        return mParameters.swatch()->hasNonZeroProbabilitySum();
+    }
+
+    QColor colour(const QColor &) const override
+    {
+        const auto randomGen = QRandomGenerator::global();
+        const QVector<SwatchColour> swatchColours = mParameters.swatch()->colours();
+
+        // We can't just use 1 for the maximum, because if there are two colours and
+        // one has 0.3 chance and the other 0.5, then the latter will never
+        // get chosen (1 - 0.3 = 0.7, which is greater than 0.5).
+        qreal randomNumber = toRange(randomGen->generateDouble(), 0, mChanceSum);
+        for (int i = 0; i < mChances.size(); ++i) {
+            const qreal chance = mChances.at(i);
+            if (randomNumber <= chance)
+                return swatchColours.at(i).colour();
+            randomNumber -= chance;
+        }
+
+        Q_UNREACHABLE();
+    }
+
+    QString debugName() const override
+    {
+        return "SwatchTextureFillColourProvider";
+    }
+
+    const TexturedFillParameters &mParameters;
+    QVector<qreal> mChances;
+    qreal mChanceSum = 0;
 };
 
 QImage texturedFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour, const TexturedFillParameters &parameters)
 {
-    return imagePixelFloodFill(image, startPos, targetColour, replacementColour, TextureFillColourProvider(parameters));
+    if (parameters.type() == TexturedFillParameters::VarianceFillType)
+        return imagePixelFloodFill(image, startPos, targetColour, replacementColour, VarianceTextureFillColourProvider(parameters));
+
+    // Swatch.
+    return imagePixelFloodFill(image, startPos, targetColour, replacementColour, SwatchTextureFillColourProvider(parameters));
 }
 
 QImage greedyTexturedFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
     const QColor &replacementColour, const TexturedFillParameters &parameters)
 {
-    return imageGreedyPixelFill(image, startPos, targetColour, replacementColour, TextureFillColourProvider(parameters));
+    if (parameters.type() == TexturedFillParameters::VarianceFillType)
+        return imageGreedyPixelFill(image, startPos, targetColour, replacementColour, VarianceTextureFillColourProvider(parameters));
+
+    // Swatch.
+    return imageGreedyPixelFill(image, startPos, targetColour, replacementColour, SwatchTextureFillColourProvider(parameters));
 }
 
 // TODO: convert these to non-recursive algorithms as above

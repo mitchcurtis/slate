@@ -20,6 +20,8 @@
 #ifndef FILLALGORITHMS_H
 #define FILLALGORITHMS_H
 
+#include <QString>
+
 class QColor;
 class QImage;
 class QPoint;
@@ -34,6 +36,18 @@ class FillColourProvider
 {
 public:
     virtual QColor colour(const QColor &baseColour) const;
+
+    // True if this provider allows filling a starting pixel whose
+    // colour is equal to the replacement colour. Regular fill providers
+    // will return false because they only fill with one colour, but textured fill
+    // providers will want to return true because they fill with random colours,
+    // so it's rarely a no-op.
+    virtual bool allowsNoOpFills() const;
+
+    // A general "can we do our job given our inputs" check.
+    virtual bool canProvideColours() const;
+
+    virtual QString debugName() const;
 };
 
 QImage imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,

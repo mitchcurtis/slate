@@ -190,7 +190,8 @@ Panel {
                 }
 
                 model: SwatchModel {
-                    project: root.project
+                    objectName: "swatchModel"
+                    swatch: root.project ? root.project.swatch : null
                 }
             }
         }
@@ -266,6 +267,7 @@ Panel {
         project: root.project
         renameSwatchColourDialog: renameSwatchColourDialog
         swatchPanel: root
+        parent: swatchGridView
     }
 
     RenameSwatchColourDialog {

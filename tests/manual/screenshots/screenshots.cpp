@@ -45,6 +45,7 @@ private Q_SLOTS:
     void toolBarFull();
     void toolBarIcons();
     void animation();
+    void texturedFill();
 
 private:
     QString makeImagePath(const QString &contentName);
@@ -382,6 +383,199 @@ void tst_Screenshots::animation()
     QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);
 
     QVERIFY2(triggerCloseProject(), failureMessage);
+}
+
+void tst_Screenshots::texturedFill()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    // Ensure that we have a temporary directory.
+    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+
+    // Roll back to the previous value at the end of this test.
+    const QSize originalWindowSize = window->size();
+    Utils::ScopeGuard windowSizeGuard([=](){
+        window->resize(originalWindowSize);
+    });
+    // This is the optimal size for the window for the tutorial.
+    // TODO
+//    window->resize(1401, 675);
+
+    // Copy the project files from resources into our temporary directory.
+    QStringList projectFileNames;
+    for (int i = 1; i <= 2; ++i) {
+        const QString projectFileName = QString::fromLatin1("textured-fill-tool-tutorial-%1.slp").arg(i);
+        projectFileNames.append(projectFileName);
+        QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+    }
+
+    // Chapter 1.
+    QString projectPath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileNames.at(0));
+    QVERIFY2(loadProject(QUrl::fromLocalFile(projectPath)), failureMessage);
+
+    QStringList panelsToExpand;
+    panelsToExpand << QLatin1String("colourPanel") << QLatin1String("swatchesPanel") << QLatin1String("layerPanel");
+    QVERIFY2(togglePanels(panelsToExpand, true), failureMessage);
+
+    QString screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-1.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Select the base colour using the eyedropper.
+    QVERIFY2(switchTool(ImageCanvas::EyeDropperTool), failureMessage);
+    setCursorPosInScenePixels(32, 32);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->penForegroundColour(), QColor::fromRgb(0x7f7f7f));
+
+    // Open the textured fill settings dialog.
+    QObject *settingsDialog = window->findChild<QObject*>("texturedFillSettingsDialog");
+    QVERIFY(settingsDialog);
+    QVERIFY(QMetaObject::invokeMethod(settingsDialog, "open"));
+    QVERIFY(settingsDialog->property("visible").toBool());
+
+    // Take a screenshot.
+    QTest::qWait(200);
+    screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-1.1.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Modify the values.
+    QQuickItem *lightnessVarianceSlider = settingsDialog->findChild<QQuickItem*>("lightnessVarianceSlider");
+    QVERIFY(lightnessVarianceSlider);
+    const QPoint firstHandlePressPos(lightnessVarianceSlider->width() * 0.25, lightnessVarianceSlider->height() / 2);
+    const QPoint firstHandleReleasePos(lightnessVarianceSlider->width() * 0.0, lightnessVarianceSlider->height() / 2);
+    const QPoint secondHandlePressPos(lightnessVarianceSlider->width() * 0.75, lightnessVarianceSlider->height() / 2);
+    const QPoint secondHandleReleasePos(lightnessVarianceSlider->width() * 0.4, lightnessVarianceSlider->height() / 2);
+    mouseEvent(lightnessVarianceSlider, firstHandlePressPos, MousePress);
+    mouseEvent(lightnessVarianceSlider, firstHandleReleasePos, MouseRelease);
+    mouseEvent(lightnessVarianceSlider, secondHandlePressPos, MousePress);
+    mouseEvent(lightnessVarianceSlider, secondHandleReleasePos, MouseRelease);
+
+    // Move the mouse away to hide any tooltips.
+    QTest::mouseMove(window, lightnessVarianceSlider->mapToScene(
+        QPoint(lightnessVarianceSlider->width() / 2, lightnessVarianceSlider->height() + 1)).toPoint());
+
+    // Take a screenshot.
+    QTest::qWait(1000);
+    screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-1.2.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Increase the preview scale.
+    QQuickItem *previewScaleSlider = settingsDialog->findChild<QQuickItem*>("previewScaleSlider");
+    QVERIFY(previewScaleSlider);
+    const QPoint scaleSliderHandlePos(previewScaleSlider->width() * 0.25, previewScaleSlider->height() / 2);
+    mouseEvent(previewScaleSlider, scaleSliderHandlePos, MouseClick);
+
+    // Move the mouse away to hide any tooltips.
+    QTest::mouseMove(window, previewScaleSlider->mapToScene(
+        QPoint(previewScaleSlider->width() + 1, previewScaleSlider->height() / 2)).toPoint());
+
+    // Take a screenshot.
+    QTest::qWait(1000);
+    screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-1.3.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Confirm the settings.
+    QQuickItem *okButton = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsDialogOkButton");
+    QVERIFY(okButton);
+    mouseEventOnCentre(okButton, MouseClick);
+    QTRY_VERIFY(!settingsDialog->property("opened").toBool());
+
+    // Switch to the textured fill tool and fill.
+    QTest::qWait(1000);
+    QVERIFY2(switchTool(ImageCanvas::TexturedFillTool), failureMessage);
+    setCursorPosInScenePixels(32, 32);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+
+    // Take a screenshot.
+    QTest::qWait(500);
+    screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-1.4.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Zoom out and centre the view.
+    canvas->setSplitScreen(false);
+    canvas->currentPane()->setZoomLevel(1);
+    QVERIFY2(triggerShortcut("centreShortcut", app.settings()->centreShortcut()), failureMessage);
+
+    // Take another screenshot.
+    QTest::qWait(100);
+    screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-1.5.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Chapter 2.
+    projectPath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileNames.at(1));
+    QVERIFY2(loadProject(QUrl::fromLocalFile(projectPath)), failureMessage);
+    QVERIFY2(togglePanels(panelsToExpand, true), failureMessage);
+
+    // Take a screenshot.
+    QTest::qWait(200);
+    screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-2.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Select the pixels.
+    QVERIFY2(selectArea(QRect(30, 21, 4, 2)), failureMessage);
+
+    // Take a screenshot.
+    QTest::qWait(200);
+    screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-2.1.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Add the colours from the selection manually since we can't open the menu.
+    QVERIFY2(addSelectedColoursToTexturedFillSwatch(), failureMessage);
+
+    // Take a screenshot.
+    QTest::qWait(200);
+    screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-2.2.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Adjust the probability of the yellow-ish colour.
+    QQuickItem *texturedFillSwatchListView = settingsDialog->findChild<QQuickItem*>("texturedFillSwatchListView");
+    QVERIFY(texturedFillSwatchListView);
+    QCOMPARE(texturedFillSwatchListView->property("count").toInt(), 7);
+    QQuickItem *swatchDelegate = nullptr;
+    // Centre the delegate so we can click on the slider.
+    QVERIFY(QMetaObject::invokeMethod(texturedFillSwatchListView, "positionViewAtIndex",
+        Qt::DirectConnection, Q_ARG(int, 4), Q_ARG(int, 1)));
+    // Get the delegate.
+    QVERIFY(QMetaObject::invokeMethod(texturedFillSwatchListView, "itemAtIndex", Qt::DirectConnection,
+        Q_RETURN_ARG(QQuickItem*, swatchDelegate), Q_ARG(int, 4)));
+    QQuickItem *probabilitySlider = swatchDelegate->findChild<QQuickItem*>("texturedFillSwatchColourProbabilitySlider");
+    QVERIFY(probabilitySlider);
+    // Click on the slider.
+    mouseEvent(probabilitySlider, QPoint(probabilitySlider->width() * 0.25, probabilitySlider->height() / 2), MouseClick);
+    const qreal sliderValue = probabilitySlider->property("value").toReal();
+    QVERIFY(sliderValue < 0.5);
+
+    // Take a screenshot.
+    QTest::qWait(200);
+    screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-2.3.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Confirm the settings.
+    mouseEventOnCentre(okButton, MouseClick);
+    QTRY_VERIFY(!settingsDialog->property("opened").toBool());
+
+    // Switch to the textured fill tool and fill.
+    QTest::qWait(1000);
+    QVERIFY2(switchTool(ImageCanvas::TexturedFillTool), failureMessage);
+    setCursorPosInScenePixels(32, 32);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+
+    // Take a screenshot.
+    QTest::qWait(200);
+    screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-2.4.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    // Zoom out and centre the view.
+    canvas->setSplitScreen(false);
+    canvas->currentPane()->setZoomLevel(1);
+    QVERIFY2(triggerShortcut("centreShortcut", app.settings()->centreShortcut()), failureMessage);
+
+    // Take another screenshot.
+    QTest::qWait(100);
+    screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-2.5.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
+    project->close();
 }
 
 QString tst_Screenshots::tst_Screenshots::makeImagePath(const QString &contentName)

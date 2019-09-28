@@ -23,8 +23,9 @@
 #include <QObject>
 
 #include "slate-global.h"
+#include "probabilityswatch.h"
 
-class SLATE_EXPORT TexturedFillParameter : public QObject
+class SLATE_EXPORT TexturedFillVarianceParameter : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY enabledChanged)
@@ -32,7 +33,7 @@ class SLATE_EXPORT TexturedFillParameter : public QObject
     Q_PROPERTY(qreal varianceUpperBound READ varianceUpperBound WRITE setVarianceUpperBound NOTIFY varianceUpperBoundChanged)
 
 public:
-    TexturedFillParameter();
+    TexturedFillVarianceParameter();
 
     bool isEnabled() const;
     void setEnabled(bool isEnabled);
@@ -43,7 +44,7 @@ public:
     qreal varianceUpperBound() const;
     void setVarianceUpperBound(const qreal &varianceUpperBound);
 
-    void copy(const TexturedFillParameter &other);
+    void copy(const TexturedFillVarianceParameter &other);
 
     void reset();
 
@@ -53,38 +54,59 @@ signals:
     void varianceUpperBoundChanged();
 
 private:
-    bool mEnabled;
-    qreal mVarianceLowerBound;
-    qreal mVarianceUpperBound;
+    bool mEnabled = false;
+    qreal mVarianceLowerBound = 0;
+    qreal mVarianceUpperBound = 0;
 };
 
 class SLATE_EXPORT TexturedFillParameters : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(TexturedFillParameter *hue READ hue CONSTANT FINAL)
-    Q_PROPERTY(TexturedFillParameter *saturation READ saturation CONSTANT FINAL)
-    Q_PROPERTY(TexturedFillParameter *lightness READ lightness CONSTANT FINAL)
+    Q_PROPERTY(TexturedFillType type READ type WRITE setType NOTIFY typeChanged)
+    Q_PROPERTY(TexturedFillVarianceParameter *hue READ hue CONSTANT FINAL)
+    Q_PROPERTY(TexturedFillVarianceParameter *saturation READ saturation CONSTANT FINAL)
+    Q_PROPERTY(TexturedFillVarianceParameter *lightness READ lightness CONSTANT FINAL)
+    Q_PROPERTY(ProbabilitySwatch *swatch READ swatch CONSTANT FINAL)
 
 public:
+    enum TexturedFillType {
+        VarianceFillType,
+        SwatchFillType
+    };
+    Q_ENUM(TexturedFillType)
+
     explicit TexturedFillParameters(QObject *parent = nullptr);
 
-    TexturedFillParameter *hue();
-    const TexturedFillParameter *hue() const;
+    TexturedFillType type() const;
+    void setType(TexturedFillType type);
 
-    TexturedFillParameter *saturation();
-    const TexturedFillParameter *saturation() const;
+    TexturedFillVarianceParameter *hue();
+    const TexturedFillVarianceParameter *hue() const;
 
-    TexturedFillParameter *lightness();
-    const TexturedFillParameter *lightness() const;
+    TexturedFillVarianceParameter *saturation();
+    const TexturedFillVarianceParameter *saturation() const;
+
+    TexturedFillVarianceParameter *lightness();
+    const TexturedFillVarianceParameter *lightness() const;
+
+    ProbabilitySwatch *swatch();
+    const ProbabilitySwatch *swatch() const;
 
     Q_INVOKABLE void copy(TexturedFillParameters *other);
 
     void reset();
 
+signals:
+    void typeChanged();
+
 private:
-    TexturedFillParameter mHue;
-    TexturedFillParameter mSaturation;
-    TexturedFillParameter mLightness;
+    TexturedFillType mType = VarianceFillType;
+
+    TexturedFillVarianceParameter mHue;
+    TexturedFillVarianceParameter mSaturation;
+    TexturedFillVarianceParameter mLightness;
+
+    ProbabilitySwatch mSwatch;
 };
 
 #endif // TEXTUREDFILLPARAMETERS_H

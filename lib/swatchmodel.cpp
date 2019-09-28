@@ -19,12 +19,14 @@
 
 #include "swatchmodel.h"
 
-#include "project.h"
+#include <QLoggingCategory>
+
 #include "swatch.h"
 
+Q_LOGGING_CATEGORY(lcSwatchModel, "app.swatchModel")
+
 SwatchModel::SwatchModel(QObject *parent) :
-    QAbstractListModel(parent),
-    mProject(nullptr)
+    QAbstractListModel(parent)
 {
 }
 
@@ -32,43 +34,37 @@ SwatchModel::~SwatchModel()
 {
 }
 
-Project *SwatchModel::project() const
+Swatch *SwatchModel::swatch() const
 {
-    return mProject;
+    return mSwatch;
 }
 
-void SwatchModel::setProject(Project *project)
+void SwatchModel::setSwatch(Swatch *swatch)
 {
-    if (project == mProject)
+    qCDebug(lcSwatchModel) << "swatch" << swatch << "set on" << this;
+    if (swatch == mSwatch)
         return;
 
-    if (mProject)
-        mProject->swatch()->disconnect(this);
+    if (mSwatch)
+        mSwatch->disconnect(this);
 
     beginResetModel();
 
-    mProject = project;
+    mSwatch = swatch;
 
     endResetModel();
-    emit projectChanged();
+    emit swatchChanged();
 
-    if (mProject) {
-        connect(mProject->swatch(), &Swatch::preColourAdded, this, &SwatchModel::onPreColourAdded);
-        connect(mProject->swatch(), &Swatch::postColourAdded, this, &SwatchModel::onPostColourAdded);
-        connect(mProject->swatch(), &Swatch::colourRenamed, this, &SwatchModel::onColourRenamed);
-        connect(mProject->swatch(), &Swatch::preColourRemoved, this, &SwatchModel::onPreColourRemoved);
-        connect(mProject->swatch(), &Swatch::postColourRemoved, this, &SwatchModel::onPostColourRemoved);
-        connect(mProject->swatch(), &Swatch::preImported, this, &SwatchModel::onPreSwatchImported);
-        connect(mProject->swatch(), &Swatch::postImported, this, &SwatchModel::onPostSwatchImported);
-    }
+    if (mSwatch)
+        connectToSwatch();
 }
 
 QVariant SwatchModel::data(const QModelIndex &index, int role) const
 {
-    if (!mProject || !checkIndex(index, CheckIndexOption::IndexIsValid))
+    if (!mSwatch || !checkIndex(index, CheckIndexOption::IndexIsValid))
         return QVariant();
 
-    const SwatchColour swatchColour = mProject->swatch()->colours().at(index.row());
+    const SwatchColour swatchColour = mSwatch->colours().at(index.row());
 
     if (role == NameRole) {
         return QVariant::fromValue(swatchColour.name());
@@ -83,10 +79,10 @@ QVariant SwatchModel::data(const QModelIndex &index, int role) const
 
 int SwatchModel::rowCount(const QModelIndex &) const
 {
-    if (!mProject)
+    if (!mSwatch)
         return 0;
 
-    return mProject->swatch()->colours().size();
+    return mSwatch->colours().size();
 }
 
 int SwatchModel::columnCount(const QModelIndex &) const
@@ -103,15 +99,42 @@ QHash<int, QByteArray> SwatchModel::roleNames() const
     return names;
 }
 
+void SwatchModel::connectToSwatch()
+{
+    connect(mSwatch, &Swatch::preColourAdded, this, &SwatchModel::onPreColourAdded);
+    connect(mSwatch, &Swatch::postColourAdded, this, &SwatchModel::onPostColourAdded);
+    connect(mSwatch, &Swatch::preColoursAdded, this, &SwatchModel::onPreColoursAdded);
+    connect(mSwatch, &Swatch::postColoursAdded, this, &SwatchModel::onPostColoursAdded);
+    connect(mSwatch, &Swatch::colourRenamed, this, &SwatchModel::onColourRenamed);
+    connect(mSwatch, &Swatch::preColourRemoved, this, &SwatchModel::onPreColourRemoved);
+    connect(mSwatch, &Swatch::postColourRemoved, this, &SwatchModel::onPostColourRemoved);
+    connect(mSwatch, &Swatch::preImported, this, &SwatchModel::onPreSwatchImported);
+    connect(mSwatch, &Swatch::postImported, this, &SwatchModel::onPostSwatchImported);
+}
+
 void SwatchModel::onPreColourAdded()
 {
-    const int swatchColourCount = mProject->swatch()->colours().size();
+    const int swatchColourCount = mSwatch->colours().size();
     beginInsertRows(QModelIndex(), swatchColourCount, swatchColourCount);
 }
 
 void SwatchModel::onPostColourAdded()
 {
     endInsertRows();
+}
+
+void SwatchModel::onPreColoursAdded()
+{
+    qCDebug(lcSwatchModel) << "swatch colours about to change (" << this << "); about to call beginResetModel()...";
+    beginResetModel();
+    qCDebug(lcSwatchModel) << "... called beginResetModel()";
+}
+
+void SwatchModel::onPostColoursAdded()
+{
+    qCDebug(lcSwatchModel) << "swatch colours changed (" << this << "); about to call endResetModel()...";
+    endResetModel();
+    qCDebug(lcSwatchModel) << "... called endResetModel()";
 }
 
 void SwatchModel::onColourRenamed(int index)

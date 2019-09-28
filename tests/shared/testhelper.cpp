@@ -268,6 +268,27 @@ bool TestHelper::clearAndEnterText(QQuickItem *textField, const QString &text)
     return true;
 }
 
+bool TestHelper::selectComboBoxItem(const QString &comboBoxObjectName, int index)
+{
+    QQuickItem *comboBox = window->findChild<QQuickItem*>(comboBoxObjectName);
+    VERIFY(comboBox);
+    mouseEventOnCentre(comboBox, MouseClick);
+    QObject *comboBoxPopup = comboBox->property("popup").value<QObject*>();
+    VERIFY(comboBoxPopup);
+    TRY_VERIFY(comboBoxPopup->property("opened").toBool() == true);
+
+    QQuickItem *listView = comboBoxPopup->property("contentItem").value<QQuickItem*>();
+    VERIFY(listView);
+    QQuickItem *delegate = nullptr;
+    VERIFY(QMetaObject::invokeMethod(listView, "itemAtIndex", Qt::DirectConnection,
+        Q_RETURN_ARG(QQuickItem*, delegate), Q_ARG(int, index)));
+    mouseEventOnCentre(delegate, MouseClick);
+    VERIFY2(comboBox->property("currentIndex").toInt() == index,
+        qPrintable(QString::fromLatin1("Expected currentIndex of %1 to be %2, but it's %3")
+            .arg(comboBoxObjectName).arg(index).arg(comboBox->property("currentIndex").toInt())));
+    return true;
+}
+
 bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDialog)
 {
     // Open the canvas size popup.
@@ -964,6 +985,24 @@ bool TestHelper::addNewGuide(Qt::Orientation orientation, int position)
     return true;
 }
 
+bool TestHelper::addSelectedColoursToTexturedFillSwatch()
+{
+    QSignalSpy errorSpy(project.data(), SIGNAL(errorOccurred(QString)));
+    VERIFY(errorSpy.isValid());
+    canvas->addSelectedColoursToTexturedFillSwatch();
+    VERIFY(errorSpy.isEmpty());
+
+    // Open the settings dialog.
+    QObject *settingsDialog = window->findChild<QObject*>("texturedFillSettingsDialog");
+    VERIFY(settingsDialog);
+    VERIFY(QMetaObject::invokeMethod(settingsDialog, "open"));
+    TRY_VERIFY(settingsDialog->property("opened").toBool());
+
+    // Switch to swatch-based textured fill.
+    VERIFY2(selectComboBoxItem("fillTypeComboBox", int(TexturedFillParameters::SwatchFillType)), failureMessage);
+    return true;
+}
+
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
 {
     QObject *popup = nullptr;
@@ -1134,17 +1173,10 @@ void TestHelper::setCursorPosInTiles(int xPosInTiles, int yPosInTiles)
 
 void TestHelper::setCursorPosInScenePixels(int xPosInScenePixels, int yPosInScenePixels, bool verifyWithinWindow)
 {
-    cursorPos = QPoint(xPosInScenePixels, yPosInScenePixels);
-    cursorWindowPos = canvas->mapToScene(cursorPos).toPoint() + canvas->firstPane()->integerOffset();
-    if (verifyWithinWindow) {
-        // As with mouseEventOnCentre(), we don't want this to be a e.g. VERIFY2, because then we'd have to
-        // verify its return value everywhere we use it, and we use it a lot, so just assert instead.
-        Q_ASSERT_X(cursorWindowPos.x() >= 0 && cursorWindowPos.y() >= 0, Q_FUNC_INFO,
-            qPrintable(QString::fromLatin1("x %1 y %2").arg(cursorWindowPos.x()).arg(cursorWindowPos.y())));
-    }
+    setCursorPosInScenePixels(QPoint(xPosInScenePixels, yPosInScenePixels), verifyWithinWindow);
 }
 
-void TestHelper::setCursorPosInScenePixels(const QPoint &posInScenePixels)
+void TestHelper::setCursorPosInScenePixels(const QPoint &posInScenePixels, bool verifyWithinWindow)
 {
     cursorPos = posInScenePixels;
     const int integerZoomLevel = canvas->currentPane()->integerZoomLevel();
@@ -1152,6 +1184,13 @@ void TestHelper::setCursorPosInScenePixels(const QPoint &posInScenePixels)
         posInScenePixels.x() * integerZoomLevel,
         posInScenePixels.y() * integerZoomLevel);
     cursorWindowPos = canvas->mapToScene(localZoomedPixelPos).toPoint() + canvas->firstPane()->integerOffset();
+
+    if (verifyWithinWindow) {
+        // As with mouseEventOnCentre(), we don't want this to be a e.g. VERIFY2, because then we'd have to
+        // verify its return value everywhere we use it, and we use it a lot, so just assert instead.
+        Q_ASSERT_X(cursorWindowPos.x() >= 0 && cursorWindowPos.y() >= 0, Q_FUNC_INFO,
+            qPrintable(QString::fromLatin1("x %1 y %2").arg(cursorWindowPos.x()).arg(cursorWindowPos.y())));
+    }
 }
 
 QPoint TestHelper::tilesetTileCentre(int xPosInTiles, int yPosInTiles) const
@@ -2283,6 +2322,27 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
             mouseEventOnCentre(fillToolButton, MouseClick);
         } else {
             QTest::keySequence(window, app.settings()->fillToolShortcut());
+        }
+        break;
+    case ImageCanvas::TexturedFillTool:
+        if (inputType == MouseInputType) {
+            VERIFY(fillToolButton->isEnabled());
+
+            // Open the menu.
+            mouseEventOnCentre(fillToolButton, MousePress);
+            TRY_VERIFY(findPopupFromTypeName("FillToolMenu"));
+            QObject *fillToolMenu = findPopupFromTypeName("FillToolMenu");
+            VERIFY(fillToolMenu);
+            TRY_VERIFY2(fillToolMenu->property("opened").toBool(), "Fill tool menu didn't open");
+            mouseEventOnCentre(fillToolButton, MouseRelease);
+
+            // Select the item.
+            auto texturedFillToolMenuItem = window->findChild<QQuickItem*>("texturedFillToolMenuItem");
+            VERIFY(texturedFillToolMenuItem);
+            mouseEventOnCentre(texturedFillToolMenuItem, MouseClick);
+            TRY_VERIFY2(!fillToolMenu->property("visible").toBool(), "Fill tool menu didn't close");
+        } else {
+            qWarning() << "No keyboard shortcut for the textured fill tool!";
         }
         break;
     case ImageCanvas::EraserTool:

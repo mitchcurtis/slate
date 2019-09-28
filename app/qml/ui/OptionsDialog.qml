@@ -347,18 +347,12 @@ Dialog {
                     anchors.bottom: parent.bottom
                 }
 
-                Rectangle {
-                    width: parent.width
-                    height: 1
+                ViewBorder {
                     anchors.top: parent.top
-                    color: "#1a000000"
                 }
 
-                Rectangle {
-                    width: parent.width
-                    height: 1
+                ViewBorder {
                     anchors.bottom: parent.bottom
-                    color: "#1a000000"
                 }
 
                 model: ObjectModel {

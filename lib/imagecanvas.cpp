@@ -1920,6 +1920,36 @@ void ImageCanvas::endModifyingSelectionHsl(AdjustmentAction adjustmentAction)
     emit adjustingImageChanged();
 }
 
+void ImageCanvas::addSelectedColoursToTexturedFillSwatch()
+{
+    if (!mHasSelection)
+        return;
+
+    // Since this operation is blocking, we have to make it quite limited in the size of selections it allows.
+    static const int maxSelectionSize = 256;
+    if (mSelectionArea.width() * mSelectionArea.height() > maxSelectionSize * maxSelectionSize) {
+        error(tr("Too many pixels selected: %1x%2 exceeds limit of %3/%4.")
+            .arg(mSelectionArea.width()).arg(mSelectionArea.height()).arg(maxSelectionSize).arg(maxSelectionSize));
+        return;
+    }
+
+    QVector<QColor> uniqueColours;
+    static const int maxUniqueColours = 100;
+    // If the user only selected an area without doing modifications like moving or rotating,
+    // then mSelectionContents will be invalid. I can't remember if that's by design or not,
+    // so just get the contents manually here.
+    const QImage selectionContents = currentProjectImage()->copy(mSelectionArea);
+    const Utils::FindUniqueColoursResult result = Utils::findUniqueColours(selectionContents, maxUniqueColours, uniqueColours);
+    if (result == Utils::MaximumUniqueColoursExceeded) {
+        emit errorOccurred(tr("Too many unique colours selected: the maximum is %1 colours.")
+            .arg(maxUniqueColours));
+        return;
+    }
+
+    qCDebug(lcImageCanvas) << "adding" << uniqueColours << "unique colours from selection to textured fill swatch";
+    mTexturedFillParameters.swatch()->addColours(uniqueColours);
+}
+
 void ImageCanvas::copySelection()
 {
     if (!mHasSelection)
@@ -2043,10 +2073,6 @@ QImage ImageCanvas::fillPixels() const
         return QImage();
 
     const QColor previousColour = currentProjectImage()->pixelColor(scenePos);
-    // Don't do anything if the colours are the same.
-    if (previousColour == penColour())
-        return QImage();
-
     return imagePixelFloodFill(currentProjectImage(), scenePos, previousColour, penColour());
 }
 
@@ -2057,9 +2083,6 @@ QImage ImageCanvas::greedyFillPixels() const
         return QImage();
 
     const QColor previousColour = currentProjectImage()->pixelColor(scenePos);
-    if (previousColour == penColour())
-        return QImage();
-
     return imageGreedyPixelFill(currentProjectImage(), scenePos, previousColour, penColour());
 }
 
@@ -2070,9 +2093,6 @@ QImage ImageCanvas::texturedFillPixels() const
         return QImage();
 
     const QColor previousColour = currentProjectImage()->pixelColor(scenePos);
-    if (previousColour == penColour())
-        return QImage();
-
     return texturedFill(currentProjectImage(), scenePos, previousColour, penColour(), mTexturedFillParameters);
 }
 
@@ -2083,9 +2103,6 @@ QImage ImageCanvas::greedyTexturedFillPixels() const
         return QImage();
 
     const QColor previousColour = currentProjectImage()->pixelColor(scenePos);
-    if (previousColour == penColour())
-        return QImage();
-
     return greedyTexturedFill(currentProjectImage(), scenePos, previousColour, penColour(), mTexturedFillParameters);
 }
 
@@ -2161,6 +2178,12 @@ void ImageCanvas::applyCurrentTool()
         break;
     }
     case TexturedFillTool: {
+        if (mTexturedFillParameters.type() == TexturedFillParameters::SwatchFillType
+                && !mTexturedFillParameters.swatch()->hasNonZeroProbabilitySum()) {
+            error(tr("Cannot use textured swatch fill without swatch colours or at least one non-zero swatch colour probability"));
+            return;
+        }
+
         if (!mShiftPressed) {
             const QImage filledImage = texturedFillPixels();
             if (filledImage.isNull())
@@ -2171,7 +2194,7 @@ void ImageCanvas::applyCurrentTool()
                 *currentProjectImage(), filledImage));
             // mProject->endMacro();
         } else {
-            const QImage filledImage = greedyFillPixels();
+            const QImage filledImage = greedyTexturedFillPixels();
             if (filledImage.isNull())
                 return;
 
@@ -2436,7 +2459,6 @@ void ImageCanvas::updateWindowCursorShape()
     }
 
     if (window()) {
-//        qDebug() << cursorShape;
         window()->setCursor(QCursor(cursorShape));
     }
 }

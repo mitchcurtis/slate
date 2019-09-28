@@ -39,6 +39,7 @@
 #include "layermodel.h"
 #include "layeredimageproject.h"
 #include "newprojectvalidator.h"
+#include "probabilityswatchmodel.h"
 #include "project.h"
 #include "projectimageprovider.h"
 #include "projectmanager.h"
@@ -103,6 +104,8 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterType<LayeredImageCanvas>("App", 1, 0, "LayeredImageCanvas");
     qmlRegisterType<LayerModel>("App", 1, 0, "LayerModel");
     qmlRegisterType<NewProjectValidator>("App", 1, 0, "NewProjectValidator");
+    qmlRegisterType<ProbabilitySwatch>();
+    qmlRegisterType<ProbabilitySwatchModel>("App", 1, 0, "ProbabilitySwatchModel");
     qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");
     qmlRegisterType<RectangularCursor>("App", 1, 0, "RectangularCursor");
     qmlRegisterType<SaturationLightnessPicker>("App", 1, 0, "SaturationLightnessPickerTemplate");
@@ -123,7 +126,7 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterUncreatableType<Project>("App", 1, 0, "Project", QLatin1String("Cannot create objects of type Project"));
     qmlRegisterUncreatableType<LayeredImageProject>("App", 1, 0, "LayeredImageProject",
         QLatin1String("Cannot create objects of type LayeredImageProject"));
-    qmlRegisterUncreatableType<TexturedFillParameter>("App", 1, 0, "TexturedFillParameter",
+    qmlRegisterUncreatableType<TexturedFillVarianceParameter>("App", 1, 0, "TexturedFillParameter",
         QLatin1String("Cannot create objects of type TexturedFillParameter"));
     qmlRegisterUncreatableType<TexturedFillParameters>("App", 1, 0, "TexturedFillParameters",
         QLatin1String("Cannot create objects of type TexturedFillParameters"));

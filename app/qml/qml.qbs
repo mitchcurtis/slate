@@ -31,6 +31,7 @@ Group {
             "ui/DoubleTextField.qml",
             "ui/ErrorLabel.qml",
             "ui/ErrorPopup.qml",
+            "ui/FillToolMenu.qml",
             "ui/FpsCounter.qml",
             "ui/HexColourRowLayout.qml",
             "ui/HorizontalGradientRectangle.qml",
@@ -77,6 +78,7 @@ Group {
             "ui/UiStateSerialisation.qml",
             "ui/UiConstants.qml",
             "ui/VerticalSeparator.qml",
+            "ui/ViewBorder.qml",
             "ui/ZoomIndicator.qml"
         ]
 

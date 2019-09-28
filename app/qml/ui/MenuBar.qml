@@ -190,6 +190,7 @@ Controls.MenuBar {
     Menu {
         id: editMenu
         title: qsTr("Edit")
+        width: 240
 
         onClosed: canvas.forceActiveFocus()
 
@@ -234,6 +235,17 @@ Controls.MenuBar {
         }
 
         MenuSeparator {}
+
+        MenuItem {
+            objectName: "addSelectedColoursToTexturedFillSwatchMenuItem"
+            text: qsTr("Add to Textured Fill Swatch...")
+            onTriggered: {
+                canvas.addSelectedColoursToTexturedFillSwatch()
+                canvas.texturedFillParameters.type = TexturedFillParameters.SwatchFillType
+                texturedFillSettingsDialog.open()
+            }
+            enabled: isImageProjectType && canvas && canvas.hasSelection
+        }
 
         MenuItem {
             objectName: "texturedFillSettingsMenuItem"

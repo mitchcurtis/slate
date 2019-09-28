@@ -27,13 +27,12 @@
 
 #include "slate-global.h"
 
-class ImageLayer;
-class Project;
+class Swatch;
 
 class SLATE_EXPORT SwatchModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(Project *project READ project WRITE setProject NOTIFY projectChanged)
+    Q_PROPERTY(Swatch *swatch READ swatch WRITE setSwatch NOTIFY swatchChanged)
 
 public:
     enum {
@@ -45,8 +44,8 @@ public:
     explicit SwatchModel(QObject *parent = nullptr);
     ~SwatchModel() override;
 
-    Project *project() const;
-    void setProject(Project *project);
+    Swatch *swatch() const;
+    void setSwatch(Swatch *swatch);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -54,19 +53,24 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
 signals:
-    void projectChanged();
+    void swatchChanged();
+
+protected:
+    virtual void connectToSwatch();
 
 private slots:
     void onPreColourAdded();
     void onPostColourAdded();
+    void onPreColoursAdded();
+    void onPostColoursAdded();
     void onColourRenamed(int index);
     void onPreColourRemoved(int index);
     void onPostColourRemoved();
     void onPreSwatchImported();
     void onPostSwatchImported();
 
-private:
-    Project *mProject;
+protected:
+    Swatch *mSwatch = nullptr;
 };
 
 #endif // SWATCHMODEL_H

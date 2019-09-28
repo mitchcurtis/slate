@@ -126,7 +126,6 @@ private:
     void applyPixelLineTool(int layerIndex, const QImage &lineImage, const QRect &lineRect, const QPointF &lastPixelPenReleaseScenePosition) override;
 
     void updateCursorPos(const QPoint &eventPos) override;
-    void error(const QString &message);
     QColor penColour() const;
     void updateTilePenPreview();
     void setTilePenPreview(bool tilePenPreview);

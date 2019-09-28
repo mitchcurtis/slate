@@ -37,6 +37,7 @@ extern "C" {
 #include "applypixelpencommand.h"
 #include "imagelayer.h"
 #include "tilecanvas.h"
+#include "probabilityswatch.h"
 #include "project.h"
 #include "projectmanager.h"
 #include "swatch.h"
@@ -123,8 +124,10 @@ private Q_SLOTS:
     void fillLayeredImageCanvas();
     void greedyPixelFillImageCanvas_data();
     void greedyPixelFillImageCanvas();
-    void texturedFill_data();
-    void texturedFill();
+    void texturedFillVariance_data();
+    void texturedFillVariance();
+    void texturedFillSwatch_data();
+    void texturedFillSwatch();
     void pixelLineToolImageCanvas_data();
     void pixelLineToolImageCanvas();
     void pixelLineToolTransparent_data();
@@ -2840,8 +2843,8 @@ void tst_App::fillImageCanvas()
     setCursorPosInScenePixels(0, 0);
     mouseEvent(canvas, cursorWindowPos, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(project->widthInPixels() - 1,
-                                                       project->heightInPixels() - 1), QColor(Qt::black));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(
+        project->widthInPixels() - 1, project->heightInPixels() - 1), QColor(Qt::black));
 }
 
 void tst_App::fillLayeredImageCanvas()
@@ -2924,12 +2927,12 @@ void tst_App::greedyPixelFillImageCanvas()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 35), QColor(Qt::black));
 }
 
-void tst_App::texturedFill_data()
+void tst_App::texturedFillVariance_data()
 {
     addImageProjectTypes();
 }
 
-void tst_App::texturedFill()
+void tst_App::texturedFillVariance()
 {
     QFETCH(Project::Type, projectType);
 
@@ -2937,9 +2940,7 @@ void tst_App::texturedFill()
 
     QVERIFY2(changeCanvasSize(90, 90), failureMessage);
 
-    // TODO: switch tools via the popup menu
-//    QVERIFY2(switchTool(ImageCanvas::TexturedFillTool), failureMessage);
-    canvas->setTool(ImageCanvas::TexturedFillTool);
+    QVERIFY2(switchTool(ImageCanvas::TexturedFillTool), failureMessage);
     QCOMPARE(canvas->lastFillToolUsed(), ImageCanvas::TexturedFillTool);
 
     QVERIFY2(setPenForegroundColour("#123456"), failureMessage);
@@ -3006,6 +3007,96 @@ void tst_App::texturedFill()
         }
     }
     QVERIFY(hasVariation);
+}
+
+void tst_App::texturedFillSwatch_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::texturedFillSwatch()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+
+    QVERIFY2(changeCanvasSize(90, 90), failureMessage);
+
+    QVERIFY2(switchTool(ImageCanvas::TexturedFillTool), failureMessage);
+    QCOMPARE(canvas->lastFillToolUsed(), ImageCanvas::TexturedFillTool);
+
+    // Draw some pixels.
+    const QColor colour1("#0000ff");
+    QVERIFY2(setPenForegroundColour(colour1.name()), failureMessage);
+    setCursorPosInScenePixels(89, 89);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    const QColor colour2("#ff0000");
+    QVERIFY2(setPenForegroundColour(colour2.name()), failureMessage);
+    setCursorPosInScenePixels(89, 88);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    // Select the pixels that we just drew so that we can use them for the texture fill swatch.
+    QVERIFY2(selectArea(QRect(89, 88, 1, 2)), failureMessage);
+
+    // Add the colours from the selection manually since we can't open the menu.
+    QVERIFY2(addSelectedColoursToTexturedFillSwatch(), failureMessage);
+
+    // Decrease probability of colour2 (red).
+    QObject *settingsDialog = window->findChild<QObject*>("texturedFillSettingsDialog");
+    QVERIFY(settingsDialog);
+    QQuickItem *texturedFillSwatchListView = settingsDialog->findChild<QQuickItem*>("texturedFillSwatchListView");
+    QVERIFY(texturedFillSwatchListView);
+    QCOMPARE(texturedFillSwatchListView->property("count").toInt(), 2);
+    QQuickItem *swatchDelegate = nullptr;
+    QVERIFY(QMetaObject::invokeMethod(texturedFillSwatchListView, "itemAtIndex", Qt::DirectConnection,
+        Q_RETURN_ARG(QQuickItem*, swatchDelegate), Q_ARG(int, 0)));
+    QQuickItem *probabilitySlider = swatchDelegate->findChild<QQuickItem*>("texturedFillSwatchColourProbabilitySlider");
+    QVERIFY(probabilitySlider);
+    mouseEvent(probabilitySlider, QPoint(probabilitySlider->width() * 0.25, probabilitySlider->height() / 2), MouseClick);
+    const qreal sliderValue = probabilitySlider->property("value").toReal();
+    QVERIFY(sliderValue < 0.5);
+
+    QQuickItem *texturedFillSettingsPreviewItem = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsPreviewItem");
+    QVERIFY(texturedFillSettingsPreviewItem);
+    auto previewParamaters = texturedFillSettingsPreviewItem->property("parameters").value<TexturedFillParameters*>();
+    QCOMPARE(previewParamaters->swatch()->probabilities().at(0), sliderValue);
+
+    // Confirm the changes.
+    QQuickItem *texturedFillSettingsDialogOkButton = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsDialogOkButton");
+    QVERIFY(texturedFillSettingsDialogOkButton);
+    mouseEventOnCentre(texturedFillSettingsDialogOkButton, MouseClick);
+    QTRY_VERIFY(!settingsDialog->property("visible").toBool());
+
+    // Switch back from the selection tool to the textured fill tool and clear the selection.
+//    QTest::keyClick(window, Qt::Key_Escape);
+    QVERIFY2(switchTool(ImageCanvas::TexturedFillTool), failureMessage);
+    QVERIFY(!canvas->hasSelection());
+
+    // Fill the canvas.
+    setCursorPosInScenePixels(0, 0);
+    mouseEvent(canvas, cursorWindowPos, MouseClick);
+    // Ensure that there is some variation to the colours.
+    int colour1Count = 0;
+    int colour2Count = 0;
+    for (int y = 0; y < canvas->currentProjectImage()->height(); ++y) {
+        for (int x = 0; x < canvas->currentProjectImage()->width(); ++x) {
+            const QColor colour = canvas->currentProjectImage()->pixelColor(x, y);
+            // (the background is white by default)
+            if (colour == colour1)
+                ++colour1Count;
+            else if (colour == colour2)
+                ++colour2Count;
+        }
+    }
+    QVERIFY(colour1Count > 0);
+    QVERIFY(colour2Count > 0);
+    const int totalPixels = 90 * 90;
+    const qreal colour1occurrence = colour1Count / qreal(totalPixels);
+    const qreal colour2occurrence = colour2Count / qreal(totalPixels);
+    QVERIFY2(colour1occurrence - colour2occurrence > 0.25, qPrintable(QString::fromLatin1(
+        "Expected occurrence of colour1 (%1) to be at least 25% higher than colour2 (%2)")
+            .arg(colour1occurrence).arg(colour2occurrence)));
 }
 
 void tst_App::pixelLineToolImageCanvas_data()

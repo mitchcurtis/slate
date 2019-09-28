@@ -108,6 +108,10 @@ target_sources(
   panedrawinghelper.h
   pasteimagecanvascommand.cpp
   pasteimagecanvascommand.h
+  probabilityswatch.cpp
+  probabilityswatch.h
+  probabilityswatchmodel.cpp
+  probabilityswatchmodel.h
   project.cpp
   project.h
   projectimageprovider.cpp

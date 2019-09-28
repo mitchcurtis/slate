@@ -137,13 +137,18 @@ ApplicationWindow {
     }
 
     Connections {
+        target: projectManager
+        onCreationFailed: errorPopup.showError(errorMessage)
+    }
+
+    Connections {
         target: projectManager.project ? projectManager.project : null
         onErrorOccurred: errorPopup.showError(errorMessage)
     }
 
     Connections {
-        target: projectManager
-        onCreationFailed: errorPopup.showError(errorMessage)
+        target: canvas
+        onErrorOccurred: errorPopup.showError(errorMessage)
     }
 
     Ui.UiStateSerialisation {

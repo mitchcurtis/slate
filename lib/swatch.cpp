@@ -38,11 +38,12 @@ QVector<SwatchColour> Swatch::colours() const
 void Swatch::addColour(const QString &name, const QColor &colour)
 {
     qCDebug(lcSwatch) << "adding colour" << colour.name() << "with name" << name << "to swatch";
-    emit preColourAdded();
+    doAddColour(name, colour);
+}
 
-    mColours.append(SwatchColour(name, colour));
-
-    emit postColourAdded();
+void Swatch::addColours(const QVector<QColor> &colours)
+{
+    doAddColours(colours);
 }
 
 void Swatch::renameColour(int index, const QString &newName)
@@ -63,6 +64,52 @@ void Swatch::removeColour(int index)
 
     qCDebug(lcSwatch) << "removing colour" << mColours.at(index).colour().name()
         << "with name" << mColours.at(index).name() << "from swatch";
+    doRemoveColour(index);
+}
+
+bool Swatch::read(const QJsonObject &json, QString &errorMessage)
+{
+    return doRead(json, errorMessage);
+}
+
+void Swatch::write(QJsonObject &json) const
+{
+    doWrite(json);
+}
+
+void Swatch::reset()
+{
+    // Should be fine to have no signals for this for now...
+    mColours.clear();
+}
+
+void Swatch::copy(const Swatch &other)
+{
+    doCopy(other);
+}
+
+void Swatch::doAddColour(const QString &name, const QColor &colour)
+{
+    emit preColourAdded();
+
+    mColours.append(SwatchColour(name, colour));
+
+    emit postColourAdded();
+}
+
+void Swatch::doAddColours(const QVector<QColor> &colours)
+{
+    emit preColoursAdded();
+
+    for (const auto colour : colours) {
+        mColours.append(SwatchColour(QString(), colour));
+    }
+
+    emit postColoursAdded();
+}
+
+void Swatch::doRemoveColour(int index)
+{
     emit preColourRemoved(index);
 
     mColours.removeAt(index);
@@ -70,14 +117,23 @@ void Swatch::removeColour(int index)
     emit postColourRemoved();
 }
 
-bool Swatch::read(const QJsonObject &json, QString &errorMessage)
+void Swatch::doCopy(const Swatch &other)
+{
+    emit preImported();
+
+    mColours = other.mColours;
+
+    emit postImported();
+}
+
+bool Swatch::doRead(const QJsonObject &json, QString &errorMessage)
 {
     if (!json.contains("colours")) {
         errorMessage = QLatin1String("No colours property");
         return false;
     }
 
-    QVector<SwatchColour> colours;
+    mColours.clear();
 
     const QJsonArray colourArray = json.value("colours").toArray();
     for (int i = 0; i < colourArray.size(); ++i) {
@@ -85,14 +141,13 @@ bool Swatch::read(const QJsonObject &json, QString &errorMessage)
         if (!colour.read(colourArray.at(i).toObject(), errorMessage))
             return false;
 
-        colours.append(colour);
+        mColours.append(colour);
     }
 
-    mColours = colours;
     return true;
 }
 
-void Swatch::write(QJsonObject &json) const
+void Swatch::doWrite(QJsonObject &json) const
 {
     QJsonArray colourArray;
     for (const SwatchColour &swatchColour : qAsConst(mColours)) {
@@ -101,15 +156,6 @@ void Swatch::write(QJsonObject &json) const
         colourArray.append(colourObject);
     }
     json["colours"] = colourArray;
-}
-
-void Swatch::copy(const Swatch &other)
-{
-    emit preImported();
-
-    mColours = other.mColours;
-
-    emit postImported();
 }
 
 bool Swatch::isValidIndex(int index) const

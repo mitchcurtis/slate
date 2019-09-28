@@ -29,6 +29,7 @@
 TexturedFillPreviewItem::TexturedFillPreviewItem() :
     mCanvas(nullptr)
 {
+    mParameters.setObjectName("texturedFillPreviewItemParameters");
 }
 
 void TexturedFillPreviewItem::paint(QPainter *painter)
@@ -69,17 +70,23 @@ void TexturedFillPreviewItem::setCanvas(ImageCanvas *canvas)
     mCanvas = canvas;
 
     if (mCanvas) {
-        connect(mParameters.hue(), &TexturedFillParameter::enabledChanged, [=]{ update(); });
-        connect(mParameters.hue(), &TexturedFillParameter::varianceLowerBoundChanged, [=]{ update(); });
-        connect(mParameters.hue(), &TexturedFillParameter::varianceUpperBoundChanged, [=]{ update(); });
+        connect(&mParameters, &TexturedFillParameters::typeChanged, [=]{ update(); });
 
-        connect(mParameters.saturation(), &TexturedFillParameter::enabledChanged, [=]{ update(); });
-        connect(mParameters.saturation(), &TexturedFillParameter::varianceLowerBoundChanged, [=]{ update(); });
-        connect(mParameters.saturation(), &TexturedFillParameter::varianceUpperBoundChanged, [=]{ update(); });
+        connect(mParameters.hue(), &TexturedFillVarianceParameter::enabledChanged, [=]{ update(); });
+        connect(mParameters.hue(), &TexturedFillVarianceParameter::varianceLowerBoundChanged, [=]{ update(); });
+        connect(mParameters.hue(), &TexturedFillVarianceParameter::varianceUpperBoundChanged, [=]{ update(); });
 
-        connect(mParameters.lightness(), &TexturedFillParameter::enabledChanged, [=]{ update(); });
-        connect(mParameters.lightness(), &TexturedFillParameter::varianceLowerBoundChanged, [=]{ update(); });
-        connect(mParameters.lightness(), &TexturedFillParameter::varianceUpperBoundChanged, [=]{ update(); });
+        connect(mParameters.saturation(), &TexturedFillVarianceParameter::enabledChanged, [=]{ update(); });
+        connect(mParameters.saturation(), &TexturedFillVarianceParameter::varianceLowerBoundChanged, [=]{ update(); });
+        connect(mParameters.saturation(), &TexturedFillVarianceParameter::varianceUpperBoundChanged, [=]{ update(); });
+
+        connect(mParameters.lightness(), &TexturedFillVarianceParameter::enabledChanged, [=]{ update(); });
+        connect(mParameters.lightness(), &TexturedFillVarianceParameter::varianceLowerBoundChanged, [=]{ update(); });
+        connect(mParameters.lightness(), &TexturedFillVarianceParameter::varianceUpperBoundChanged, [=]{ update(); });
+
+        connect(mParameters.swatch(), &ProbabilitySwatch::postColoursAdded, [=]{ update(); });
+        connect(mParameters.swatch(), &ProbabilitySwatch::postColourRemoved, [=]{ update(); });
+        connect(mParameters.swatch(), &ProbabilitySwatch::probabilityChanged, [=]{ update(); });
     }
 
     update();

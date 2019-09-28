@@ -15,6 +15,7 @@
         <file>ui/DoubleTextField.qml</file>
         <file>ui/ErrorLabel.qml</file>
         <file>ui/ErrorPopup.qml</file>
+        <file>ui/FillToolMenu.qml</file>
         <file>ui/FpsCounter.qml</file>
         <file>ui/HexColourRowLayout.qml</file>
         <file>ui/HorizontalGradientRectangle.qml</file>
@@ -62,6 +63,7 @@
         <file>ui/UiStateSerialisation.qml</file>
         <file>ui/UiConstants.qml</file>
         <file>ui/VerticalSeparator.qml</file>
+        <file>ui/ViewBorder.qml</file>
         <file>ui/ZoomIndicator.qml</file>
         <file>ui/qmldir</file>
         <file>ui/+imagine/Theme.qml</file>
