@@ -561,7 +561,7 @@ void tst_Screenshots::texturedFill()
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 
     // Take a screenshot.
-    QTest::qWait(200);
+    QTest::qWait(500);
     screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-2.4.png");
     QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
 

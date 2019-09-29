@@ -72,3 +72,7 @@ Let's reduce the frequency of the yellow-ish colour. Scroll down the list to fin
 Now that we're happy with how the preview looks, click OK to confirm the settings. Then, click in the tile with the textured fill tool to fill it:
 
 ![Chapter 2.4 screenshot](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-textured-fill-tool-tutorial-2.4.png)
+
+Zoom out and centre the view (Ctrl + Space or View > Centre) to see it from another perspective:
+
+![Chapter 2.5 screenshot](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-textured-fill-tool-tutorial-2.5.png)
