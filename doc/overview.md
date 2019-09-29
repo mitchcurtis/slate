@@ -12,6 +12,7 @@
   - [Comparison of Project Types](#comparison-of-project-types)
 - [Features](#features)
   - [Animation](#animation)
+  - [Textured Fill](#textured-fill)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -66,3 +67,7 @@ Tilesets | :x: |  :x: | :white_check_mark:
 ### Animation
 
 - [Animation Tutorial](https://github.com/mitchcurtis/slate/blob/master/doc/animation-tutorial.md)
+
+### Textured Fill
+
+- [Textured Fill Tool Tutorial](https://github.com/mitchcurtis/slate/blob/master/doc/textured-fill-tool-tutorial.md)
