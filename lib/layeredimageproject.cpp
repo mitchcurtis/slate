@@ -453,6 +453,7 @@ void LayeredImageProject::doLoad(const QUrl &url)
         }
         addLayerAboveAll(imageLayer);
     }
+    mCurrentLayerIndex = projectObject.value("currentLayerIndex").toInt(0);
 
     mAutoExportEnabled = projectObject.value("autoExportEnabled").toBool(false);
 
