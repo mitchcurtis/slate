@@ -414,7 +414,7 @@ void tst_Screenshots::texturedFill()
     QVERIFY2(loadProject(QUrl::fromLocalFile(projectPath)), failureMessage);
 
     QStringList panelsToExpand;
-    panelsToExpand << QLatin1String("colourPanel") << QLatin1String("swatchesPanel") << QLatin1String("layerPanel");
+    panelsToExpand << QLatin1String("colourPanel") << QLatin1String("layerPanel");
     QVERIFY2(togglePanels(panelsToExpand, true), failureMessage);
 
     QString screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-1.png");
@@ -571,7 +571,7 @@ void tst_Screenshots::texturedFill()
     QVERIFY2(triggerShortcut("centreShortcut", app.settings()->centreShortcut()), failureMessage);
 
     // Take another screenshot.
-    QTest::qWait(100);
+    QTest::qWait(200);
     screenshotPath = QLatin1String("slate-textured-fill-tool-tutorial-2.5.png");
     QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
 
