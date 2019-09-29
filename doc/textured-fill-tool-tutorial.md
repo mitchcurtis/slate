@@ -13,7 +13,7 @@
 
 ## Introduction
 
-This tutorial covers how to use the Textured Fill tool. The Textured Fill tool is similar to the regular Fill Tool in that it allows you to fill an area. The difference is that the area is filled with pixels randomly chosen based on some a set of parameters. There are two types of parameters: variance and swatch-based. In this tutorial, we will cover both types by creating a road texture for an isometric tileset.
+This tutorial covers how to use the Textured Fill tool. The Textured Fill tool is similar to the regular Fill Tool in that it allows you to fill an area. The difference is that the area is filled with pixels randomly chosen based on a set of parameters. There are two types of parameters: variance and swatch-based. In this tutorial, we will cover both types by creating a road texture for an isometric tileset.
 
 The initial project can be downloaded [here](https://github.com/mitchcurtis/slate/blob/master/tests/manual/screenshots/resources/textured-fill-tool-tutorial-1.slp).
 
