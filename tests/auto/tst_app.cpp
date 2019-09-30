@@ -3097,6 +3097,14 @@ void tst_App::texturedFillSwatch()
     QVERIFY2(colour1occurrence - colour2occurrence > 0.25, qPrintable(QString::fromLatin1(
         "Expected occurrence of colour1 (%1) to be at least 25% higher than colour2 (%2)")
             .arg(colour1occurrence).arg(colour2occurrence)));
+
+    // Add the same colours again; they shouldn't be added because they're duplicates.
+    QVERIFY2(selectArea(QRect(89, 88, 1, 2)), failureMessage);
+    QVERIFY2(addSelectedColoursToTexturedFillSwatch(), failureMessage);
+    mouseEventOnCentre(texturedFillSettingsDialogOkButton, MouseClick);
+    QTRY_VERIFY(!settingsDialog->property("visible").toBool());
+    QCOMPARE(canvas->texturedFillParameters()->swatch()->colours().size(), 2);
+    QCOMPARE(canvas->texturedFillParameters()->swatch()->probabilities().size(), 2);
 }
 
 void tst_App::pixelLineToolImageCanvas_data()

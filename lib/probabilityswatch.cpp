@@ -62,9 +62,13 @@ bool ProbabilitySwatch::hasNonZeroProbabilitySum() const
 
 void ProbabilitySwatch::doAddColour(const QString &name, const QColor &colour)
 {
+    const SwatchColour swatchColour = SwatchColour(name, colour);
+    if (mColours.contains(swatchColour))
+        return;
+
     emit preColourAdded();
 
-    mColours.append(SwatchColour(name, colour));
+    mColours.append(swatchColour);
     mProbabilities.append(1);
 
     calculateProbabilitySum();
@@ -77,7 +81,11 @@ void ProbabilitySwatch::doAddColours(const QVector<QColor> &colours)
     emit preColoursAdded();
 
     for (const auto colour : colours) {
-        mColours.append(SwatchColour(QString(), colour));
+        const SwatchColour swatchColour(QString(), colour);
+        if (mColours.contains(swatchColour))
+            continue;
+
+        mColours.append(swatchColour);
         mProbabilities.append(1);
     }
 
