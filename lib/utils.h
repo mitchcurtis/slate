@@ -52,6 +52,8 @@ namespace Utils {
     };
 
     FindUniqueColoursResult findUniqueColours(const QImage &image, int maximumUniqueColours, QVector<QColor> &uniqueColoursFound);
+    FindUniqueColoursResult findUniqueColoursAndProbabilities(const QImage &image, int maximumUniqueColours,
+        QVector<QColor> &uniqueColoursFound, QVector<qreal> &probabilities);
     QVarLengthArray<unsigned int> findMax256UniqueArgbColours(const QImage &image);
 
     // relativeFrameIndex is the index of the animation relative to animation.startIndex()

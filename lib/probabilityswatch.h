@@ -37,6 +37,8 @@ public:
 
     Q_INVOKABLE void setProbability(int index, qreal probability);
 
+    void addColoursWithProbabilities(const QVector<QColor> &colours, const QVector<qreal> &probabilities);
+
     QVector<qreal> probabilities() const;
 
     // True if the sum of our probabilities is greater than zero.

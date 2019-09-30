@@ -63,7 +63,7 @@ In the Edit menu, click "Add to Textured Fill Swatch...". This will add the colo
 
 ![Chapter 2.2 screenshot](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-textured-fill-tool-tutorial-2.2.png)
 
-Now we can see each colour in the swatch, along with its probability of being used for each pixel. By default, all colours have an equal chance of being used.
+Now we can see each colour in the swatch, along with its probability of being used for each pixel. By default, each colour has a probability equal to its occurrence in the original selection. This is very useful for creating variations of an existing texture, for example.
 
 Let's reduce the frequency of the yellow-ish colour. Scroll down the list to find it, and then adjust its probability slider as shown:
 

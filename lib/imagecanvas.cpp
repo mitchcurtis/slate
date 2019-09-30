@@ -1935,12 +1935,14 @@ void ImageCanvas::addSelectedColoursToTexturedFillSwatch()
     }
 
     QVector<QColor> uniqueColours;
+    QVector<qreal> probabilities;
     static const int maxUniqueColours = 100;
     // If the user only selected an area without doing modifications like moving or rotating,
     // then mSelectionContents will be invalid. I can't remember if that's by design or not,
     // so just get the contents manually here.
     const QImage selectionContents = currentProjectImage()->copy(mSelectionArea);
-    const Utils::FindUniqueColoursResult result = Utils::findUniqueColours(selectionContents, maxUniqueColours, uniqueColours);
+    const Utils::FindUniqueColoursResult result = Utils::findUniqueColoursAndProbabilities(
+        selectionContents, maxUniqueColours, uniqueColours, probabilities);
     if (result == Utils::MaximumUniqueColoursExceeded) {
         emit errorOccurred(tr("Too many unique colours selected: the maximum is %1 colours.")
             .arg(maxUniqueColours));
@@ -1948,7 +1950,7 @@ void ImageCanvas::addSelectedColoursToTexturedFillSwatch()
     }
 
     qCDebug(lcImageCanvas) << "adding" << uniqueColours << "unique colours from selection to textured fill swatch";
-    mTexturedFillParameters.swatch()->addColours(uniqueColours);
+    mTexturedFillParameters.swatch()->addColoursWithProbabilities(uniqueColours, probabilities);
 }
 
 void ImageCanvas::copySelection()

@@ -346,6 +346,41 @@ Utils::FindUniqueColoursResult Utils::findUniqueColours(const QImage &image,
     return FindUniqueColoursSucceeded;
 }
 
+Utils::FindUniqueColoursResult Utils::findUniqueColoursAndProbabilities(const QImage &image,
+    int maximumUniqueColours, QVector<QColor> &uniqueColoursFound, QVector<qreal> &probabilities)
+{
+    const int imageWidth = image.width();
+    const int imageHeight = image.height();
+    const int totalPixels = imageWidth * imageHeight;
+
+    for (int y = 0; y < imageHeight; ++y) {
+        if (QThread::currentThread()->isInterruptionRequested()) {
+            qCDebug(lcUtils) << "Interrupt requested on the current thread; bailing out of finding unique colours";
+            return ThreadInterrupted;
+        }
+
+        if (uniqueColoursFound.size() > maximumUniqueColours) {
+            qCDebug(lcUtils).nospace() << "Exceeded maxium unique colours ("
+                << maximumUniqueColours << "); bailing out of finding unique colours";
+            return MaximumUniqueColoursExceeded;
+        }
+
+        for (int x = 0; x < imageWidth; ++x) {
+            const QColor colour = image.pixelColor(x, y);
+            const int index = uniqueColoursFound.indexOf(colour);
+            if (index == -1) {
+                // This colour is unique (so far).
+                uniqueColoursFound.append(colour);
+                probabilities.append(1.0 / totalPixels);
+            } else {
+                // We already have it.
+                probabilities[index] += 1.0 / totalPixels;
+            }
+        }
+    }
+    return FindUniqueColoursSucceeded;
+}
+
 QVarLengthArray<unsigned int> Utils::findMax256UniqueArgbColours(const QImage &image)
 {
     QVarLengthArray<unsigned int> colours;

@@ -50,6 +50,30 @@ void ProbabilitySwatch::setProbability(int index, qreal probability)
     }
 }
 
+void ProbabilitySwatch::addColoursWithProbabilities(const QVector<QColor> &colours, const QVector<qreal> &probabilities)
+{
+    if (colours.size() != probabilities.size()) {
+        qWarning() << "Colour count doesn't match probability count";
+        return;
+    }
+
+    emit preColoursAdded();
+
+    for (int i = 0; i < colours.size(); ++i) {
+        const auto colour = colours.at(i);
+        const SwatchColour swatchColour(QString(), colour);
+        if (mColours.contains(swatchColour))
+            continue;
+
+        mColours.append(swatchColour);
+        mProbabilities.append(probabilities.at(i));
+    }
+
+    calculateProbabilitySum();
+
+    emit postColoursAdded();
+}
+
 QVector<qreal> ProbabilitySwatch::probabilities() const
 {
     return mProbabilities;
