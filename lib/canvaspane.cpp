@@ -65,6 +65,8 @@ void CanvasPane::setZoomLevel(qreal zoomLevel)
     if (qFuzzyCompare(adjustedLevel, mZoomLevel))
         return;
 
+    qCDebug(lcCanvasPane) << "setting zoom level of" << objectName() << "to" << adjustedLevel;
+
     mZoomLevel = adjustedLevel;
     emit zoomLevelChanged();
 }
@@ -126,10 +128,14 @@ void CanvasPane::setSceneCentered(bool sceneCentered)
 
 void CanvasPane::read(const QJsonObject &json)
 {
+    qCDebug(lcCanvasPane) << "reading pane..." << this;
+
     setSize(json.value(QLatin1String("size")).toDouble());
     setZoomLevel(json.value(QLatin1String("zoomLevel")).toInt());
     setIntegerOffset(QPoint(json.value(QLatin1String("offsetX")).toInt(), json.value(QLatin1String("offsetY")).toInt()));
     setSceneCentered(json.value(QLatin1String("sceneCentered")).toBool());
+
+    qCDebug(lcCanvasPane) << "... read pane" << this;
 }
 
 void CanvasPane::write(QJsonObject &json) const

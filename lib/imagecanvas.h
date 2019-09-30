@@ -397,7 +397,7 @@ protected slots:
     void requestPaneContentPaint(int paneIndex);
     void updateWindowCursorShape();
     void onZoomLevelChanged();
-    void onPaneintegerOffsetChanged();
+    void onPaneIntegerOffsetChanged();
     void onPaneSizeChanged();
     void onSplitterPositionChanged();
     void onGuidesChanged();

@@ -168,10 +168,10 @@ ImageCanvas::ImageCanvas() :
     mTexturedFillParameters.lightness()->setVarianceUpperBound(0.2);
 
     connect(&mFirstPane, SIGNAL(zoomLevelChanged()), this, SLOT(onZoomLevelChanged()));
-    connect(&mFirstPane, SIGNAL(integerOffsetChanged()), this, SLOT(onPaneintegerOffsetChanged()));
+    connect(&mFirstPane, SIGNAL(integerOffsetChanged()), this, SLOT(onPaneIntegerOffsetChanged()));
     connect(&mFirstPane, SIGNAL(sizeChanged()), this, SLOT(onPaneSizeChanged()));
     connect(&mSecondPane, SIGNAL(zoomLevelChanged()), this, SLOT(onZoomLevelChanged()));
-    connect(&mSecondPane, SIGNAL(integerOffsetChanged()), this, SLOT(onPaneintegerOffsetChanged()));
+    connect(&mSecondPane, SIGNAL(integerOffsetChanged()), this, SLOT(onPaneIntegerOffsetChanged()));
     connect(&mSecondPane, SIGNAL(sizeChanged()), this, SLOT(onPaneSizeChanged()));
     connect(&mSplitter, SIGNAL(positionChanged()), this, SLOT(onSplitterPositionChanged()));
 
@@ -1009,6 +1009,7 @@ void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGe
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
 
     centrePanes();
+    updateVisibleSceneArea();
     resizeRulers();
     resizeChildren();
 
@@ -2480,7 +2481,7 @@ void ImageCanvas::onZoomLevelChanged()
     mSelectionItem->update();
 }
 
-void ImageCanvas::onPaneintegerOffsetChanged()
+void ImageCanvas::onPaneIntegerOffsetChanged()
 {
     updateVisibleSceneArea();
 
