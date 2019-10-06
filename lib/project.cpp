@@ -19,6 +19,7 @@
 
 #include "project.h"
 
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QImage>
 #include <QJsonArray>
@@ -56,6 +57,16 @@ QString Project::typeToString(Project::Type type)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<Project::Type>();
     return metaEnum.valueToKey(type);
+}
+
+QVersionNumber Project::creationVersion() const
+{
+    return mCreationVersion;
+}
+
+QVersionNumber Project::modificationVersion() const
+{
+    return mModificationVersion;
 }
 
 QUrl Project::url() const
@@ -120,6 +131,8 @@ void Project::setNewProject(bool newProject)
     const bool couldSave = canSave();
 
     mFromNew = newProject;
+
+    mCreationVersion = QVersionNumber::fromString(qApp->applicationVersion());
 
     if (wasLoaded != hasLoaded()) {
         emit loadedChanged();
@@ -304,6 +317,23 @@ QUrl Project::createTemporaryImage(int width, int height, const QColor &colour)
     if (objectName().isEmpty())
         setObjectName(typeString() + QLatin1Char('-') + fileName);
     return QUrl::fromLocalFile(fileName);
+}
+
+void Project::readVersionNumbers(const QJsonObject &projectJson)
+{
+    // TODO: be strict about this in v0.10.0
+    if (projectJson.contains("creationVersion")) {
+        mCreationVersion = QVersionNumber::fromString(projectJson.value("creationVersion").toString());
+        mModificationVersion = QVersionNumber::fromString(projectJson.value("modificationVersion").toString());
+    }
+}
+
+void Project::writeVersionNumbers(QJsonObject &projectJson)
+{
+    projectJson["creationVersion"] = mCreationVersion.toString();
+
+    mModificationVersion = QVersionNumber::fromString(qApp->applicationVersion());
+    projectJson["modificationVersion"] = mModificationVersion.toString();
 }
 
 void Project::readGuides(const QJsonObject &projectJson)

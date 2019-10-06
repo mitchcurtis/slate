@@ -1,0 +1,39 @@
+{
+    "project": {
+        "currentLayerIndex": 0,
+        "guides": [
+        ],
+        "layers": [
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAC0lEQVQImWP4DwQACfsD/eNV8pwAAAAASUVORK5CYII=",
+                "name": "Layer 1",
+                "opacity": 1,
+                "visible": true
+            }
+        ],
+        "swatch": {
+            "colours": [
+            ]
+        },
+        "uiState": {
+            "firstPane": {
+                "offsetX": 718,
+                "offsetY": 460,
+                "sceneCentered": true,
+                "size": 1,
+                "zoomLevel": 1
+            },
+            "lastFillToolUsed": "FillTool",
+            "layerListViewContentY": 0,
+            "mainSplitViewState": "gqJlaW5kZXgAbnByZWZlcnJlZFdpZHRo+0CBgAAAAAAAomVpbmRleAFucHJlZmVycmVkV2lkdGj7QG4AAAAAAAA=",
+            "panelSplitViewState": "gaJlaW5kZXgBb3ByZWZlcnJlZEhlaWdodPtAbIAAAAAAAA==",
+            "secondPane": {
+                "offsetX": 0,
+                "offsetY": 460,
+                "sceneCentered": true,
+                "size": 0,
+                "zoomLevel": 1
+            }
+        }
+    }
+}

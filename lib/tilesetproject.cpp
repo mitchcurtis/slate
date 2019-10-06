@@ -154,6 +154,8 @@ void TilesetProject::doLoad(const QUrl &url)
     CONTAINS_KEY_OR_ERROR(rootJson, "project", url.toLocalFile());
     QJsonObject projectObject = rootJson.value("project").toObject();
 
+    readVersionNumbers(projectObject);
+
     CONTAINS_KEY_OR_ERROR(projectObject, "tilesWide", url.toLocalFile());
     setTilesWide(projectObject.value("tilesWide").toInt());
 
@@ -287,6 +289,9 @@ void TilesetProject::doSaveAs(const QUrl &url)
     QJsonObject rootJson;
 
     QJsonObject projectObject;
+
+    writeVersionNumbers(projectObject);
+
     projectObject["tilesWide"] = mTilesWide;
     projectObject["tilesHigh"] = mTilesHigh;
     projectObject["tileWidth"] = mTileWidth;

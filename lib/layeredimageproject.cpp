@@ -440,6 +440,8 @@ void LayeredImageProject::doLoad(const QUrl &url)
     CONTAINS_KEY_OR_ERROR(rootJson, "project", filePath);
     QJsonObject projectObject = rootJson.value("project").toObject();
 
+    writeVersionNumbers(projectObject);
+
     CONTAINS_KEY_OR_ERROR(projectObject, "layers", filePath);
     QJsonArray layerArray = projectObject.value("layers").toArray();
     for (int i = 0; i < layerArray.size(); ++i) {
@@ -529,6 +531,8 @@ void LayeredImageProject::doSaveAs(const QUrl &url)
     QJsonObject rootJson;
 
     QJsonObject projectObject;
+
+    writeVersionNumbers(projectObject);
 
     QJsonArray layersArray;
     foreach (ImageLayer *layer, mLayers) {

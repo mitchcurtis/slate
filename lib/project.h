@@ -26,6 +26,7 @@
 #include <QObject>
 #include <QSize>
 #include <QTemporaryDir>
+#include <QVersionNumber>
 #include <QUrl>
 
 #include <QUndoStack>
@@ -73,6 +74,10 @@ public:
     virtual Type type() const;
     QString typeString() const;
     static QString typeToString(Project::Type type);
+
+    QVersionNumber creationVersion() const;
+    QVersionNumber modificationVersion() const;
+
     bool hasLoaded() const;
     bool isNewProject() const;
     void setNewProject(bool newProject);
@@ -162,6 +167,8 @@ protected:
 
     QUrl createTemporaryImage(int width, int height, const QColor &colour);
 
+    void readVersionNumbers(const QJsonObject &projectJson);
+    void writeVersionNumbers(QJsonObject &projectJson);
     void readGuides(const QJsonObject &projectJson);
     void writeGuides(QJsonObject &projectJson) const;
     void readUiState(const QJsonObject &projectJson);
@@ -176,6 +183,9 @@ protected:
     void writeJsonSwatch(QJsonObject &projectJson) const;
 
     bool readPaintNetSwatch(QFile &file);
+
+    QVersionNumber mCreationVersion;
+    QVersionNumber mModificationVersion;
 
     ApplicationSettings *mSettings;
 

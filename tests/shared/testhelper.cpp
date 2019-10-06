@@ -1948,6 +1948,7 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     if (isNewProject) {
         VERIFY(project->url() == QUrl());
         VERIFY(project->isNewProject());
+        VERIFY(project->creationVersion() == QVersionNumber::fromString(qApp->applicationVersion()));
 
         // Reset any settings that have changed back to their defaults.
         QVariant settingsAsVariant = qmlEngine(canvas)->rootContext()->contextProperty("settings");

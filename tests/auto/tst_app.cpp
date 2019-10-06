@@ -537,6 +537,7 @@ void tst_App::saveAsAndLoad()
     project->saveAs(QUrl::fromLocalFile(savedProjectPath));
     QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QCOMPARE(project->url().toLocalFile(), savedProjectPath);
+    QCOMPARE(project->modificationVersion().toString(), qApp->applicationVersion());
 
     // Resize the SplitView back to its old proportions so that we
     // can check that the state is actually restored,
@@ -551,6 +552,8 @@ void tst_App::saveAsAndLoad()
 
     // Load the saved file.
     QVERIFY2(loadProject(QUrl::fromLocalFile(savedProjectPath)), failureMessage);
+
+    QCOMPARE(project->modificationVersion(), QVersionNumber::fromString(qApp->applicationVersion()));
 
     // Test SplitView state serialisation.
     panelSplitView = window->findChild<QQuickItem*>("panelSplitView");
@@ -591,9 +594,12 @@ void tst_App::saveAsAndLoad()
 void tst_App::versionCheck_data()
 {
     QTest::addColumn<QString>("projectFileName");
+    QTest::addColumn<QVersionNumber>("version");
 
-    QTest::newRow("version-check-v0.2.1.slp") << QString::fromLatin1("version-check-v0.2.1.slp");
-//    QTest::newRow("version-check-v0.2.1.stp") << QString::fromLatin1("version-check-v0.2.1.stp");
+    QTest::newRow("version-check-v0.2.1.slp") << QString::fromLatin1("version-check-v0.2.1.slp") << QVersionNumber(0, 2, 1);
+    QTest::newRow("version-check-v0.8.0.slp") << QString::fromLatin1("version-check-v0.8.0.slp") << QVersionNumber(0, 8, 0);
+    // TODO: save and add this to resources once animation stuff is done
+//    QTest::newRow("version-check-v0.9.0.slp") << QString::fromLatin1("version-check-v0.9.0.slp") << QVersionNumber(0, 9, 0);
 }
 
 // Tests that old project files can still be loaded.
@@ -601,6 +607,7 @@ void tst_App::versionCheck_data()
 void tst_App::versionCheck()
 {
     QFETCH(QString, projectFileName);
+    QFETCH(QVersionNumber, version);
 
     // Ensure that we have a temporary directory.
     if (projectManager->projectTypeForFileName(projectFileName) == Project::LayeredImageType)
@@ -614,6 +621,12 @@ void tst_App::versionCheck()
     // Try to load the project; there shouldn't be any errors.
     const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
     QVERIFY2(loadProject(QUrl::fromLocalFile(absolutePath)), failureMessage);
+
+    // Newer versions should have a version number saved in the file.
+    if (version > QVersionNumber(0, 8, 0)) {
+        QCOMPARE(project->creationVersion(), version);
+        QCOMPARE(project->modificationVersion(), version);
+    }
 }
 
 void tst_App::loadTilesetProjectWithInvalidTileset()

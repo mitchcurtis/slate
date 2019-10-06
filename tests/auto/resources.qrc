@@ -34,5 +34,6 @@
         <file>resources/loadInvalidProjects-empty.slp</file>
         <file>resources/loadInvalidProjects-empty.stp</file>
         <file>resources/animation.slp</file>
+        <file>resources/version-check-v0.8.0.slp</file>
     </qresource>
 </RCC>
