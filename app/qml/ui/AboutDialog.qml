@@ -41,9 +41,15 @@ Dialog {
         spacing: 12
 
         Label {
-            text: qsTr("Built from %1").arg(BuildInfo.version)
+            text: qsTr("Slate %1").arg(Qt.application.version)
             font.bold: true
             font.pixelSize: Qt.application.font.pixelSize * 1.1
+            Layout.fillWidth: true
+        }
+
+        Label {
+            text: qsTr("Built from %1").arg(BuildInfo.version)
+            font.pixelSize: Qt.application.font.pixelSize
             Layout.fillWidth: true
         }
 
