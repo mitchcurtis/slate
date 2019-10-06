@@ -34,6 +34,7 @@ Dialog {
     dim: false
     focus: true
     standardButtons: Dialog.Ok
+    width: Math.max(implicitWidth, 280)
 
     property Project project
 
