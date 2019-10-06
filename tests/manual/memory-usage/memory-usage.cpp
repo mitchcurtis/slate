@@ -1,5 +1,5 @@
 /*
-    Copyright 2018, Mitch Curtis
+    Copyright 2019, Mitch Curtis
 
     This file is part of Slate.
 
