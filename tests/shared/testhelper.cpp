@@ -115,6 +115,9 @@ void TestHelper::initTestCase()
     selectionToolButton = window->findChild<QQuickItem*>("selectionToolButton");
     QVERIFY(selectionToolButton);
 
+    noteToolButton = window->findChild<QQuickItem*>("noteToolButton");
+    QVERIFY(noteToolButton);
+
     toolSizeButton = window->findChild<QQuickItem*>("toolSizeButton");
     QVERIFY(toolSizeButton);
 
@@ -138,6 +141,9 @@ void TestHelper::initTestCase()
 
     redoToolButton = window->findChild<QQuickItem*>("redoToolButton");
     QVERIFY(redoToolButton);
+
+    showNotesToolButton = window->findChild<QQuickItem*>("showNotesToolButton");
+    QVERIFY(showNotesToolButton);
 
     splitScreenToolButton = window->findChild<QQuickItem*>("splitScreenToolButton");
     QVERIFY(splitScreenToolButton);
@@ -1000,6 +1006,76 @@ bool TestHelper::addSelectedColoursToTexturedFillSwatch()
 
     // Switch to swatch-based textured fill.
     VERIFY2(selectComboBoxItem("fillTypeComboBox", int(TexturedFillParameters::SwatchFillType)), failureMessage);
+    return true;
+}
+
+bool TestHelper::addNewNoteAtCursorPos(const QString &text)
+{
+    const int previousNoteCount = project->notes().size();
+
+    // Move the mouse to verify that the position is correct upon opening a creation dialog.
+    QTest::mouseMove(window, cursorWindowPos);
+
+    // Open the note dialog. It shouldn't have the text that was previously entered.
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    const QObject *noteDialog = findPopupFromTypeName("NoteDialog");
+    VERIFY(noteDialog);
+    TRY_VERIFY(noteDialog->property("opened").toBool());
+
+    QQuickItem *noteDialogTextField = noteDialog->findChild<QQuickItem*>("noteDialogTextField");
+    VERIFY(noteDialogTextField);
+    VERIFY(noteDialogTextField->property("text").toString().isEmpty());
+
+    QQuickItem *noteDialogXTextField = noteDialog->findChild<QQuickItem*>("noteDialogXTextField");
+    VERIFY(noteDialogXTextField);
+    VERIFY(noteDialogXTextField->property("text").toString() == QString::number(cursorPos.x()));
+
+    QQuickItem *noteDialogYTextField = noteDialog->findChild<QQuickItem*>("noteDialogYTextField");
+    VERIFY(noteDialogYTextField);
+    VERIFY(noteDialogYTextField->property("text").toString() == QString::number(cursorPos.y()));
+
+    VERIFY2(clearAndEnterText(noteDialogTextField, text), failureMessage);
+
+    // Accept the dialog.
+    QTest::keyClick(window, Qt::Key_Return);
+    TRY_VERIFY(!noteDialog->property("opened").toBool());
+    VERIFY(project->notes().size() == previousNoteCount + 1);
+    VERIFY(project->notes().at(previousNoteCount).position() == cursorPos);
+    VERIFY(project->notes().at(previousNoteCount).text() == text);
+    VERIFY(!project->notes().at(previousNoteCount).size().isEmpty());
+    return true;
+}
+
+bool TestHelper::dragNoteAtIndex(int noteIndex, const QPoint &newPosition)
+{
+    VERIFY(project->isValidNoteIndex(noteIndex));
+
+    const Note oldNote = project->notes().at(noteIndex);
+    const QPoint noteSize(oldNote.size().width(), oldNote.size().height());
+    QPoint noteCentrePos = oldNote.position() + noteSize / 2;
+    setCursorPosInScenePixels(noteCentrePos);
+    QTest::mouseMove(window, cursorWindowPos);
+
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    VERIFY2(canvas->pressedNoteIndex() == noteIndex, qPrintable(QString::fromLatin1(
+        "Expected note at index %1 to be pressed, but %2 is pressed instead")
+            .arg(noteIndex).arg(canvas->pressedNoteIndex())));
+
+    setCursorPosInScenePixels(newPosition + noteSize / 2);
+    QTest::mouseMove(window, cursorWindowPos);
+
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    VERIFY(canvas->pressedNoteIndex() == -1);
+    QPoint expectedPosition = newPosition;
+    QRect expectedGeometry(expectedPosition, oldNote.size());
+    if (!project->bounds().contains(expectedGeometry)) {
+        // The new position is outside the bounds of the project, so the note will be pushed within the bounds.
+        expectedGeometry = Utils::ensureWithinArea(expectedGeometry, project->size());
+        expectedPosition = expectedGeometry.topLeft();
+    }
+    VERIFY2(project->notes().at(noteIndex).position() == expectedPosition, qPrintable(QString::fromLatin1(
+        "Expected note at index %1 to be at position %2, but it's at %3 instead")
+            .arg(noteIndex).arg(QTest::toString(expectedPosition)).arg(QTest::toString(project->notes().at(noteIndex).position()))));
     return true;
 }
 
@@ -2360,6 +2436,14 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
             mouseEventOnCentre(selectionToolButton, MouseClick);
         } else {
             QTest::keySequence(window, app.settings()->selectionToolShortcut());
+        }
+        break;
+    case ImageCanvas::NoteTool:
+        if (inputType == MouseInputType) {
+            VERIFY(noteToolButton->isEnabled());
+            mouseEventOnCentre(noteToolButton, MouseClick);
+        } else {
+            QTest::keySequence(window, app.settings()->noteToolShortcut());
         }
         break;
     default:

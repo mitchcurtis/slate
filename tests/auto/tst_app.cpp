@@ -132,10 +132,18 @@ private Q_SLOTS:
     void pixelLineToolImageCanvas();
     void pixelLineToolTransparent_data();
     void pixelLineToolTransparent();
-    void rulersAndGuides_data();
-    void rulersAndGuides();
     void penToolRightClickBehaviour_data();
     void penToolRightClickBehaviour();
+
+    // Rulers, guides, notes, etc.
+    void rulersAndGuides_data();
+    void rulersAndGuides();
+    void notes_data();
+    void notes();
+    void dragNoteOutOfBounds_data();
+    void dragNoteOutOfBounds();
+    void dragNoteWithoutMoving();
+    void saveAndLoadNotes();
 
     // Swatches.
     void autoSwatch_data();
@@ -1301,17 +1309,21 @@ void tst_App::undoPixels()
     QVERIFY(tilesetProject->hasUnsavedChanges());
     QVERIFY(window->title().contains("*"));
 
+    // With the mouse pressed, move the cursor down by one pixel to draw more,
+    // checking that the tile's image changes.
     lastImage = *tilesetProject->tileAt(cursorPos)->tileset()->image();
     setCursorPosInScenePixels(cursorPos + QPoint(0, 1));
     QTest::mouseMove(window, cursorWindowPos);
     QVERIFY(*tilesetProject->tileAt(cursorPos)->tileset()->image() != lastImage);
 
+    // Now release the mouse and finish the drawing. Nothing should have changed.
     lastImage = *tilesetProject->tileAt(cursorPos)->tileset()->image();
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(*tilesetProject->tileAt(cursorPos)->tileset()->image(), lastImage);
     QVERIFY(tilesetProject->hasUnsavedChanges());
     QVERIFY(window->title().contains("*"));
 
+    // Undo the changes.
     mouseEventOnCentre(undoToolButton, MouseClick);
     QCOMPARE(*tilesetProject->tileAt(cursorPos)->tileset()->image(), originalImage);
     // Still have the tile pen changes.
@@ -3266,6 +3278,106 @@ void tst_App::pixelLineToolTransparent()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);\
 }
 
+void tst_App::penToolRightClickBehaviour_data()
+{
+    QTest::addColumn<Project::Type>("projectType");
+    QTest::addColumn<ImageCanvas::PenToolRightClickBehaviour>("penToolRightClickBehaviour");
+
+    for (const auto projectType : qAsConst(allProjectTypes)) {
+        const QString typeString = Project::typeToString(projectType);
+
+        for (const auto behaviour : qAsConst(allRightClickBehaviours)) {
+            const QMetaEnum behaviourMetaEnum = QMetaEnum::fromType<ImageCanvas::PenToolRightClickBehaviour>();
+            const QString behaviourString = behaviourMetaEnum.valueToKey(behaviour);
+
+            const QString tag = typeString + QLatin1Char(',') + behaviourString;
+            QTest::newRow(qPrintable(tag)) << projectType << behaviour;
+        }
+    }
+}
+
+void tst_App::penToolRightClickBehaviour()
+{
+    QFETCH(Project::Type, projectType);
+    QFETCH(ImageCanvas::PenToolRightClickBehaviour, penToolRightClickBehaviour);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+    QCOMPARE(app.settings()->penToolRightClickBehaviour(), ImageCanvas::PenToolRightClickAppliesEraser);
+
+    // Zoom in to make visual debugging easier.
+    canvas->setSplitScreen(false);
+    canvas->currentPane()->setZoomLevel(48);
+
+    // Open options dialog.
+    QVERIFY2(triggerOptions(), failureMessage);
+    QObject *optionsDialog = findPopupFromTypeName("OptionsDialog");
+    QVERIFY(optionsDialog);
+    QTRY_VERIFY(optionsDialog->property("opened").toBool());
+
+    // Open the general tab.
+    QQuickItem *generalTabButton = optionsDialog->findChild<QQuickItem*>("generalTabButton");
+    QVERIFY(generalTabButton);
+    mouseEventOnCentre(generalTabButton, MouseClick);
+
+    // Open penToolRightClickBehaviourComboBox's popup.
+    QQuickItem *penToolRightClickBehaviourComboBox = optionsDialog->findChild<QQuickItem*>("penToolRightClickBehaviourComboBox");
+    QVERIFY(penToolRightClickBehaviourComboBox);
+    mouseEventOnCentre(penToolRightClickBehaviourComboBox, MouseClick);
+    QVERIFY(penToolRightClickBehaviourComboBox->hasActiveFocus());
+    QObject *penToolRightClickBehaviourComboBoxPopup = penToolRightClickBehaviourComboBox->property("popup").value<QObject*>();
+    QVERIFY(penToolRightClickBehaviourComboBoxPopup);
+    QTRY_COMPARE(penToolRightClickBehaviourComboBoxPopup->property("opened").toBool(), true);
+    QCOMPARE(penToolRightClickBehaviourComboBox->property("currentIndex").toInt(), app.settings()->penToolRightClickBehaviour());
+    QCOMPARE(penToolRightClickBehaviourComboBox->property("highlightedIndex").toInt(), app.settings()->penToolRightClickBehaviour());
+
+    // Move down the list until we find the value that we're interested in.
+    for (int i = 0; i < penToolRightClickBehaviour; ++i) {
+        QTest::keyClick(window, Qt::Key_Down);
+        QCOMPARE(penToolRightClickBehaviourComboBox->property("highlightedIndex").toInt(), i + 1);
+    }
+
+    // Press space to accept it.
+    QTest::keyClick(window, Qt::Key_Space);
+    QCOMPARE(penToolRightClickBehaviourComboBox->property("currentIndex").toInt(), penToolRightClickBehaviour);
+    // The setting shouldn't change until we hit "OK".
+    QCOMPARE(app.settings()->penToolRightClickBehaviour(), app.settings()->defaultPenToolRightClickBehaviour());
+
+    // Accept the dialog to save the changes.
+    QVERIFY(QMetaObject::invokeMethod(optionsDialog, "accept"));
+    QTRY_VERIFY(!optionsDialog->property("visible").toBool());
+    QCOMPARE(app.settings()->penToolRightClickBehaviour(), penToolRightClickBehaviour);
+
+    // For RightClickAppliesBackgroundColour.
+    canvas->setPenBackgroundColour(Qt::red);
+
+    setCursorPosInScenePixels(0, 0);
+
+    if (projectType == Project::TilesetType) {
+        setCursorPosInScenePixels(0, 0);
+        QVERIFY2(drawTileAtCursorPos(), failureMessage);
+        QVERIFY2(switchMode(TileCanvas::PixelMode), failureMessage);
+    }
+
+    // Right-click and check that the correct tool was used.
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, cursorWindowPos);
+
+    const QImage projectImage = projectType == Project::TilesetType
+        ? *tilesetProject->tileAt(cursorPos)->tileset()->image() : *canvas->currentProjectImage();
+
+    switch (penToolRightClickBehaviour) {
+    case ImageCanvas::PenToolRightClickAppliesEraser:
+        QCOMPARE(projectImage.pixelColor(0, 0), Qt::transparent);
+        break;
+    case ImageCanvas::PenToolRightClickAppliesEyeDropper:
+        QCOMPARE(canvas->penForegroundColour(), projectImage.pixelColor(0, 0));
+        break;
+    case ImageCanvas::PenToolRightClickAppliesBackgroundColour:
+        QCOMPARE(projectImage.pixelColor(0, 0), Qt::red);
+        break;
+    }
+}
+
 void tst_App::rulersAndGuides_data()
 {
     addAllProjectTypes();
@@ -3384,104 +3496,260 @@ void tst_App::rulersAndGuides()
     app.settings()->setGuidesLocked(false);
 }
 
-void tst_App::penToolRightClickBehaviour_data()
+void tst_App::notes_data()
 {
-    QTest::addColumn<Project::Type>("projectType");
-    QTest::addColumn<ImageCanvas::PenToolRightClickBehaviour>("penToolRightClickBehaviour");
-
-    for (const auto projectType : qAsConst(allProjectTypes)) {
-        const QString typeString = Project::typeToString(projectType);
-
-        for (const auto behaviour : qAsConst(allRightClickBehaviours)) {
-            const QMetaEnum behaviourMetaEnum = QMetaEnum::fromType<ImageCanvas::PenToolRightClickBehaviour>();
-            const QString behaviourString = behaviourMetaEnum.valueToKey(behaviour);
-
-            const QString tag = typeString + QLatin1Char(',') + behaviourString;
-            QTest::newRow(qPrintable(tag)) << projectType << behaviour;
-        }
-    }
+    addImageProjectTypes();
 }
 
-void tst_App::penToolRightClickBehaviour()
+void tst_App::notes()
 {
     QFETCH(Project::Type, projectType);
-    QFETCH(ImageCanvas::PenToolRightClickBehaviour, penToolRightClickBehaviour);
 
     QVERIFY2(createNewProject(projectType), failureMessage);
-    QCOMPARE(app.settings()->penToolRightClickBehaviour(), ImageCanvas::PenToolRightClickAppliesEraser);
 
-    // Zoom in to make visual debugging easier.
-    canvas->setSplitScreen(false);
-    canvas->currentPane()->setZoomLevel(48);
+    QVERIFY2(switchTool(ImageCanvas::NoteTool), failureMessage);
 
-    // Open options dialog.
-    QVERIFY2(triggerOptions(), failureMessage);
-    QObject *optionsDialog = findPopupFromTypeName("OptionsDialog");
-    QVERIFY(optionsDialog);
-    QTRY_VERIFY(optionsDialog->property("opened").toBool());
+    // TODO: zoom in
 
-    // Open the general tab.
-    QQuickItem *generalTabButton = optionsDialog->findChild<QQuickItem*>("generalTabButton");
-    QVERIFY(generalTabButton);
-    mouseEventOnCentre(generalTabButton, MouseClick);
+    // Begin creating a new note.
+    setCursorPosInScenePixels(11, 12);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QTRY_VERIFY(findPopupFromTypeName("NoteDialog"));
+    const QObject *noteDialog = findPopupFromTypeName("NoteDialog");
+    QTRY_VERIFY(noteDialog->property("opened").toBool());
 
-    // Open penToolRightClickBehaviourComboBox's popup.
-    QQuickItem *penToolRightClickBehaviourComboBox = optionsDialog->findChild<QQuickItem*>("penToolRightClickBehaviourComboBox");
-    QVERIFY(penToolRightClickBehaviourComboBox);
-    mouseEventOnCentre(penToolRightClickBehaviourComboBox, MouseClick);
-    QVERIFY(penToolRightClickBehaviourComboBox->hasActiveFocus());
-    QObject *penToolRightClickBehaviourComboBoxPopup = penToolRightClickBehaviourComboBox->property("popup").value<QObject*>();
-    QVERIFY(penToolRightClickBehaviourComboBoxPopup);
-    QTRY_COMPARE(penToolRightClickBehaviourComboBoxPopup->property("opened").toBool(), true);
-    QCOMPARE(penToolRightClickBehaviourComboBox->property("currentIndex").toInt(), app.settings()->penToolRightClickBehaviour());
-    QCOMPARE(penToolRightClickBehaviourComboBox->property("highlightedIndex").toInt(), app.settings()->penToolRightClickBehaviour());
+    // Type in some stuff.
+    QQuickItem *noteDialogTextField = noteDialog->findChild<QQuickItem*>("noteDialogTextField");
+    QVERIFY(noteDialogTextField);
+    QVERIFY(noteDialogTextField->hasActiveFocus());
+    QTest::keyClick(window, Qt::Key_Z);
 
-    // Move down the list until we find the value that we're interested in.
-    for (int i = 0; i < penToolRightClickBehaviour; ++i) {
-        QTest::keyClick(window, Qt::Key_Down);
-        QCOMPARE(penToolRightClickBehaviourComboBox->property("highlightedIndex").toInt(), i + 1);
-    }
+    QQuickItem *noteDialogXTextField = noteDialog->findChild<QQuickItem*>("noteDialogXTextField");
+    QVERIFY(noteDialogXTextField);
+    QTest::keyClick(window, Qt::Key_Tab);
+    QVERIFY(noteDialogXTextField->hasActiveFocus());
+    QTest::keySequence(window, QKeySequence::SelectAll);
+    QTest::keyClick(window, Qt::Key_3);
 
-    // Press space to accept it.
-    QTest::keyClick(window, Qt::Key_Space);
-    QCOMPARE(penToolRightClickBehaviourComboBox->property("currentIndex").toInt(), penToolRightClickBehaviour);
-    // The setting shouldn't change until we hit "OK".
-    QCOMPARE(app.settings()->penToolRightClickBehaviour(), app.settings()->defaultPenToolRightClickBehaviour());
+    QQuickItem *noteDialogYTextField = noteDialog->findChild<QQuickItem*>("noteDialogYTextField");
+    QVERIFY(noteDialogYTextField);
+    QTest::keyClick(window, Qt::Key_Tab);
+    QVERIFY(noteDialogYTextField->hasActiveFocus());
+    QTest::keySequence(window, QKeySequence::SelectAll);
+    QTest::keyClick(window, Qt::Key_4);
 
-    // Accept the dialog to save the changes.
-    QVERIFY(QMetaObject::invokeMethod(optionsDialog, "accept"));
-    QTRY_VERIFY(!optionsDialog->property("visible").toBool());
-    QCOMPARE(app.settings()->penToolRightClickBehaviour(), penToolRightClickBehaviour);
+    // Cancel the dialog.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QTRY_VERIFY(!noteDialog->property("opened").toBool());
 
-    // For RightClickAppliesBackgroundColour.
-    canvas->setPenBackgroundColour(Qt::red);
-
-    setCursorPosInScenePixels(0, 0);
-
-    if (projectType == Project::TilesetType) {
-        setCursorPosInScenePixels(0, 0);
-        QVERIFY2(drawTileAtCursorPos(), failureMessage);
-        QVERIFY2(switchMode(TileCanvas::PixelMode), failureMessage);
-    }
-
-    // Right-click and check that the correct tool was used.
+    // Move the mouse to verify that the position is correct upon opening a creation dialog.
+    setCursorPosInScenePixels(13, 14);
     QTest::mouseMove(window, cursorWindowPos);
-    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, cursorWindowPos);
 
-    const QImage projectImage = projectType == Project::TilesetType
-        ? *tilesetProject->tileAt(cursorPos)->tileset()->image() : *canvas->currentProjectImage();
+    // Open it again.
+    QVERIFY2(addNewNoteAtCursorPos("test"), failureMessage);
 
-    switch (penToolRightClickBehaviour) {
-    case ImageCanvas::PenToolRightClickAppliesEraser:
-        QCOMPARE(projectImage.pixelColor(0, 0), Qt::transparent);
-        break;
-    case ImageCanvas::PenToolRightClickAppliesEyeDropper:
-        QCOMPARE(canvas->penForegroundColour(), projectImage.pixelColor(0, 0));
-        break;
-    case ImageCanvas::PenToolRightClickAppliesBackgroundColour:
-        QCOMPARE(projectImage.pixelColor(0, 0), Qt::red);
-        break;
+    // Undo the creation of the note.
+    mouseEventOnCentre(undoToolButton, MouseClick);
+    QCOMPARE(project->notes().size(), 0);
+
+    // Redo it.
+    mouseEventOnCentre(redoToolButton, MouseClick);
+    QCOMPARE(project->notes().size(), 1);
+    QCOMPARE(project->notes().at(0).position(), QPoint(13, 14));
+    QCOMPARE(project->notes().at(0).text(), QLatin1String("test"));
+    QVERIFY(!project->notes().at(0).size().isEmpty());
+
+    // Drag the note somewhere else. Make sure to click in the centre to ensure
+    // that it respects the press offset.
+    QPoint draggedNotePosition;
+    {
+        const Note note = project->notes().first();
+        const QPoint noteSize(note.size().width(), note.size().height());
+        const QPoint dragDistance(10, 10);
+        QPoint noteCentrePos = note.position() + noteSize / 2;
+        setCursorPosInScenePixels(noteCentrePos);
+        QTest::mouseMove(window, cursorWindowPos);
+        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QCOMPARE(canvas->pressedNoteIndex(), 0);
+        setCursorPosInScenePixels(noteCentrePos + dragDistance);
+        QTest::mouseMove(window, cursorWindowPos);
+        QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QCOMPARE(canvas->pressedNoteIndex(), -1);
+        draggedNotePosition = noteCentrePos + dragDistance - noteSize / 2;
+        QCOMPARE(project->notes().at(0).position(), draggedNotePosition);
     }
+
+    // Edit the note via the dialog.
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QTRY_VERIFY(noteDialog->property("opened").toBool());
+    QVERIFY(noteDialogTextField->hasActiveFocus());
+    QTest::keyClick(window, Qt::Key_1);
+    QCOMPARE(noteDialogTextField->property("text").toString(), QLatin1String("test1"));
+
+    QTest::keyClick(window, Qt::Key_Tab);
+    QVERIFY(noteDialogXTextField->hasActiveFocus());
+    QTest::keySequence(window, QKeySequence::SelectAll);
+    QTest::keyClick(window, Qt::Key_8);
+
+    QTest::keyClick(window, Qt::Key_Tab);
+    QVERIFY(noteDialogYTextField->hasActiveFocus());
+    QTest::keySequence(window, QKeySequence::SelectAll);
+    QTest::keyClick(window, Qt::Key_9);
+
+    // Cancel the dialog.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QTRY_VERIFY(!noteDialog->property("opened").toBool());
+
+    // Open it again. It shouldn't have the text that was previously entered,
+    // but the position of the note that we're editing.
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QTRY_VERIFY(noteDialog->property("opened").toBool());
+    QCOMPARE(noteDialogTextField->property("text").toString(), QLatin1String("test"));
+    QCOMPARE(noteDialogXTextField->property("text").toString(), QString::number(draggedNotePosition.x()));
+    QCOMPARE(noteDialogYTextField->property("text").toString(), QString::number(draggedNotePosition.y()));
+
+    // Edit it again.
+    QVERIFY(noteDialogTextField->hasActiveFocus());
+    const QSize oldNoteSize = project->notes().at(0).size();
+    QTest::keyClick(window, Qt::Key_0);
+    QCOMPARE(noteDialogTextField->property("text").toString(), QLatin1String("test0"));
+
+    QTest::keyClick(window, Qt::Key_Tab);
+    QVERIFY(noteDialogXTextField->hasActiveFocus());
+    QTest::keySequence(window, QKeySequence::SelectAll);
+    QTest::keyClick(window, Qt::Key_8);
+    QTest::keyClick(window, Qt::Key_1);
+
+    QTest::keyClick(window, Qt::Key_Tab);
+    QVERIFY(noteDialogYTextField->hasActiveFocus());
+    QTest::keySequence(window, QKeySequence::SelectAll);
+    QTest::keyClick(window, Qt::Key_9);
+    QTest::keyClick(window, Qt::Key_1);
+
+    // Accept the dialog.
+    QTest::keyClick(window, Qt::Key_Return);
+    QTRY_VERIFY(!noteDialog->property("opened").toBool());
+    QCOMPARE(project->notes().at(0).position(), QPoint(81, 91));
+    QCOMPARE(project->notes().at(0).text(), QLatin1String("test0"));
+    QVERIFY(!project->notes().at(0).size().isEmpty());
+    // The edited text is longer than the old one, so the note box should grow.
+    QVERIFY(project->notes().at(0).size().width() > oldNoteSize.width());
+
+    // TODO: don't serialise size; it's display-specific. lazily initialise it instead
+}
+
+void tst_App::dragNoteOutOfBounds_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::dragNoteOutOfBounds()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+
+    QVERIFY2(switchTool(ImageCanvas::NoteTool), failureMessage);
+
+    // Create a new note.
+    setCursorPosInScenePixels(10, 10);
+    QVERIFY2(addNewNoteAtCursorPos("test"), failureMessage);
+
+    QVERIFY2(dragNoteAtIndex(0, QPoint(-10, 0)), failureMessage);
+    QVERIFY2(dragNoteAtIndex(0, QPoint(0, -10)), failureMessage);
+    QVERIFY2(dragNoteAtIndex(0, QPoint(-10, -10)), failureMessage);
+    QVERIFY2(dragNoteAtIndex(0, QPoint(project->widthInPixels(), 0)), failureMessage);
+    QVERIFY2(dragNoteAtIndex(0, QPoint(project->widthInPixels(), -10)), failureMessage);
+    QVERIFY2(dragNoteAtIndex(0, QPoint(project->widthInPixels(), project->heightInPixels())), failureMessage);
+    QVERIFY2(dragNoteAtIndex(0, QPoint(0, project->heightInPixels())), failureMessage);
+    QVERIFY2(dragNoteAtIndex(0, QPoint(-10, project->heightInPixels())), failureMessage);
+}
+
+// While zoomed in, dragging a note without actually moving it
+// should not result in the edit dialog opening, only clicks should.
+void tst_App::dragNoteWithoutMoving()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    QVERIFY2(switchTool(ImageCanvas::NoteTool), failureMessage);
+
+    // Zoom in so we can see what happens when debugging.
+    canvas->setSplitScreen(false);
+    canvas->currentPane()->setZoomLevel(5);
+    canvas->firstPane()->setOffset(QPointF(686.8, 283.8));
+
+    // Create a new note.
+    setCursorPosInScenePixels(0, 0);
+    QVERIFY2(addNewNoteAtCursorPos("test"), failureMessage);
+
+    const Note oldNote = project->notes().at(0);
+    setCursorPosInScenePixels(1, 1);
+    QTest::mouseMove(window, cursorWindowPos);
+
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY2(canvas->pressedNoteIndex() == 0, qPrintable(QString::fromLatin1(
+        "Expected note at index %1 to be pressed, but %2 is pressed instead")
+            .arg(0).arg(canvas->pressedNoteIndex())));
+
+    cursorWindowPos.rx() += 3;
+    QTest::mouseMove(window, cursorWindowPos);
+
+    QSignalSpy noteModificationRequestedSpy(canvas.data(), SIGNAL(noteModificationRequested(int)));
+    QVERIFY(noteModificationRequestedSpy.isValid());
+
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY(canvas->pressedNoteIndex() == -1);
+    const QPoint expectedPosition = oldNote.position();
+    QCOMPARE(project->notes().at(0).position(), expectedPosition);
+    QCOMPARE(noteModificationRequestedSpy.count(), 0);
+}
+
+void tst_App::saveAndLoadNotes()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY(canvas->notesVisible());
+
+    QVERIFY2(switchTool(ImageCanvas::NoteTool), failureMessage);
+
+    // Create some notes.
+    setCursorPosInScenePixels(0, 0);
+    QVERIFY2(addNewNoteAtCursorPos("note1"), failureMessage);
+
+    setCursorPosInScenePixels(100, 100);
+    QVERIFY2(addNewNoteAtCursorPos("note2"), failureMessage);
+
+    setCursorPosInScenePixels(200, 200);
+    QVERIFY2(addNewNoteAtCursorPos("note3"), failureMessage);
+
+    // Save a snapshot of the rendered notes to compare against later.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage canvasGrab = imageGrabber.takeImage();
+
+    // Change the value of notesVisible so that we can test that it's
+    // saved and loaded in the project's UI state.
+    canvas->setNotesVisible(false);
+
+    // Save the project.
+    const QString savedProjectPath = tempProjectDir->path() + "/saveAndLoadNotes-project.slp";
+    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+
+    // Close the project.
+    QVERIFY2(triggerCloseProject(), failureMessage);
+    QVERIFY(!project->hasLoaded());
+
+    // Load the saved file.
+    QVERIFY2(loadProject(QUrl::fromLocalFile(savedProjectPath)), failureMessage);
+    QCOMPARE(project->notes().at(0).position(), QPoint(0, 0));
+    QCOMPARE(project->notes().at(1).position(), QPoint(100, 100));
+    QCOMPARE(project->notes().at(2).position(), QPoint(200, 200));
+    QVERIFY(canvas->notesVisible());
+
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QVERIFY2(imageGrabber.takeImage() == canvasGrab, "Notes were not rendered as expected after loading");
 }
 
 void tst_App::autoSwatch_data()

@@ -32,6 +32,7 @@
 #include <QUndoStack>
 
 #include "guide.h"
+#include "note.h"
 #include "serialisablestate.h"
 #include "slate-global.h"
 #include "swatch.h"
@@ -97,9 +98,18 @@ public:
     virtual QRect bounds() const;
 
     QVector<Guide> guides() const;
-    virtual void addGuide(const Guide &guide);
-    virtual void moveGuide(const Guide &guide, int to);
-    virtual void removeGuide(const Guide &guide);
+    void addGuide(const Guide &guide);
+    void moveGuide(const Guide &guide, int to);
+    void removeGuide(const Guide &guide);
+
+    bool hasNotes() const;
+    QVector<Note> notes() const;
+    void addNote(const Note &note);
+    void modifyNote(int noteIndex, const Note &note);
+    void removeNote(const Note &note);
+    Q_INVOKABLE QPoint notePositionAtIndex(int index) const;
+    Q_INVOKABLE QString noteTextAtIndex(int index) const;
+    bool isValidNoteIndex(int index) const;
 
     Swatch *swatch();
     const Swatch *swatch() const;
@@ -144,6 +154,7 @@ signals:
     void errorOccurred(const QString &errorMessage);
     void settingsChanged();
     void guidesChanged();
+    void notesChanged();
     void aboutToBeginMacro(const QString &text);
 
 public slots:
@@ -171,6 +182,8 @@ protected:
     void writeVersionNumbers(QJsonObject &projectJson);
     void readGuides(const QJsonObject &projectJson);
     void writeGuides(QJsonObject &projectJson) const;
+    void readNotes(const QJsonObject &projectJson);
+    void writeNotes(QJsonObject &projectJson) const;
     void readUiState(const QJsonObject &projectJson);
     void writeUiState(QJsonObject &projectJson);
 
@@ -200,6 +213,7 @@ protected:
     bool mHadUnsavedChangesBeforeMacroBegan;
 
     QVector<Guide> mGuides;
+    QVector<Note> mNotes;
 
     Swatch mSwatch;
 

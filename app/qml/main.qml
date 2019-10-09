@@ -149,6 +149,17 @@ ApplicationWindow {
     Connections {
         target: canvas
         onErrorOccurred: errorPopup.showError(errorMessage)
+        onNoteCreationRequested: {
+            noteDialog.currentAction = Ui.NoteDialog.NoteAction.Create
+            noteDialog.newNoteX = canvas.cursorSceneX
+            noteDialog.newNoteY = canvas.cursorSceneY
+            noteDialog.open()
+        }
+        onNoteModificationRequested: {
+            noteDialog.currentAction = Ui.NoteDialog.NoteAction.Modify
+            noteDialog.modifyingNoteIndex = noteIndex
+            noteDialog.open()
+        }
     }
 
     Ui.UiStateSerialisation {
@@ -479,6 +490,14 @@ ApplicationWindow {
 
     Ui.TexturedFillSettingsDialog {
         id: texturedFillSettingsDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        project: projectManager.project
+        canvas: window.canvas
+    }
+
+    Ui.NoteDialog {
+        id: noteDialog
         parent: Overlay.overlay
         anchors.centerIn: parent
         project: projectManager.project

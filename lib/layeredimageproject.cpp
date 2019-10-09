@@ -468,6 +468,7 @@ void LayeredImageProject::doLoad(const QUrl &url)
     readUiState(projectObject);
 
     readGuides(projectObject);
+    readNotes(projectObject);
     // Allow older project files without swatch support (saved with version <= 0.2.1) to still be loaded.
     if (!readJsonSwatch(projectObject, IgnoreSerialisationFailures))
         return;
@@ -545,6 +546,7 @@ void LayeredImageProject::doSaveAs(const QUrl &url)
     projectObject.insert("currentLayerIndex", mCurrentLayerIndex);
 
     writeGuides(projectObject);
+    writeNotes(projectObject);
     writeJsonSwatch(projectObject);
     writeUiState(projectObject);
 

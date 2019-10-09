@@ -489,8 +489,7 @@ void TileCanvas::updateCursorPos(const QPoint &eventPos)
     mCursorSceneX = mCursorSceneFX;
     mCursorSceneY = mCursorSceneFY;
 
-    if (mCursorSceneX < 0 || mCursorSceneX >= mTilesetProject->widthInPixels()
-        || mCursorSceneY < 0 || mCursorSceneY >= mTilesetProject->heightInPixels()) {
+    if (!isCursorWithinProjectBounds()) {
         setCursorTilePixelX(-1);
         setCursorTilePixelY(-1);
 

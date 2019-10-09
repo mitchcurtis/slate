@@ -267,6 +267,12 @@ Item {
     }
 
     Shortcut {
+        objectName: "noteToolShortcut"
+        sequence: settings.noteToolShortcut
+        onActivated: canvas.tool = ImageCanvas.NoteTool
+    }
+
+    Shortcut {
         objectName: "toolModeShortcut"
         sequence: settings.toolModeShortcut
         enabled: projectType === Project.TilesetType

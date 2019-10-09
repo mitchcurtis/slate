@@ -29,9 +29,9 @@ ImageCanvas {
 
     readonly property int currentPaneZoomLevel: imageCanvas.currentPane ? imageCanvas.currentPane.integerZoomLevel : 1
     readonly property point currentPaneOffset: imageCanvas.currentPane ? imageCanvas.currentPane.integerOffset : Qt.point(0, 0)
-    readonly property bool useCrosshairCursor: imageCanvas.tool === TileCanvas.SelectionTool
+    readonly property bool useCrosshairCursor: imageCanvas.tool === ImageCanvas.SelectionTool || imageCanvas.tool === ImageCanvas.NoteTool
         || (imageCanvas.toolSize < 4 && imageCanvas.currentPaneZoomLevel <= 3)
-    readonly property bool useIconCursor: imageCanvas.tool === TileCanvas.EyeDropperTool
+    readonly property bool useIconCursor: imageCanvas.tool === ImageCanvas.EyeDropperTool
 
     onErrorOccurred: errorPopup.showError(errorMessage)
 

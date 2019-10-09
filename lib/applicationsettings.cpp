@@ -980,6 +980,21 @@ void ApplicationSettings::setSelectionToolShortcut(const QString &shortcut)
     SET_SHORTCUT("selectionToolShortcut", defaultSelectionToolShortcut, selectionToolShortcutChanged)
 }
 
+QString ApplicationSettings::defaultNoteToolShortcut() const
+{
+    return QLatin1String("N");
+}
+
+QString ApplicationSettings::noteToolShortcut() const
+{
+    GET_SHORTCUT("noteToolShortcut", defaultNoteToolShortcut)
+}
+
+void ApplicationSettings::setNoteToolShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("noteToolShortcut", defaultNoteToolShortcut, noteToolShortcutChanged)
+}
+
 QString ApplicationSettings::defaultToolModeShortcut() const
 {
     return QLatin1String("T");

@@ -30,13 +30,16 @@
 #include <QtMath>
 
 #include "addguidecommand.h"
+#include "addnotecommand.h"
 #include "applicationsettings.h"
 #include "applygreedypixelfillcommand.h"
 #include "applypixelerasercommand.h"
 #include "applypixelfillcommand.h"
 #include "applypixellinecommand.h"
 #include "applypixelpencommand.h"
+#include "changenotecommand.h"
 #include "deleteguidecommand.h"
+#include "deletenotecommand.h"
 #include "deleteimagecanvasselectioncommand.h"
 #include "fillalgorithms.h"
 #include "flipimagecanvasselectioncommand.h"
@@ -44,6 +47,8 @@
 #include "imageproject.h"
 #include "modifyimagecanvasselectioncommand.h"
 #include "moveguidecommand.h"
+#include "note.h"
+#include "notesitem.h"
 #include "panedrawinghelper.h"
 #include "pasteimagecanvascommand.h"
 #include "project.h"
@@ -54,7 +59,11 @@
 Q_LOGGING_CATEGORY(lcImageCanvas, "app.canvas")
 Q_LOGGING_CATEGORY(lcImageCanvasCursorShape, "app.canvas.cursorshape")
 Q_LOGGING_CATEGORY(lcImageCanvasEvents, "app.canvas.events")
+Q_LOGGING_CATEGORY(lcImageCanvasHoverEvents, "app.canvas.events.hover")
+Q_LOGGING_CATEGORY(lcImageCanvasFocusEvents, "app.canvas.events.focus")
 Q_LOGGING_CATEGORY(lcImageCanvasLifecycle, "app.canvas.lifecycle")
+Q_LOGGING_CATEGORY(lcImageCanvasGuides, "app.canvas.guides")
+Q_LOGGING_CATEGORY(lcImageCanvasNotes, "app.canvas.notes")
 Q_LOGGING_CATEGORY(lcImageCanvasSelection, "app.canvas.selection")
 Q_LOGGING_CATEGORY(lcImageCanvasSelectionCursorGuideVisibility, "app.canvas.selection.cursorguidevisibility")
 Q_LOGGING_CATEGORY(lcImageCanvasSelectionPreviewImage, "app.canvas.selection.previewimage")
@@ -79,9 +88,13 @@ ImageCanvas::ImageCanvas() :
     mPressedRuler(nullptr),
     mGuidesVisible(false),
     mGuidesLocked(false),
+    mNotesVisible(false),
     mGuidePositionBeforePress(0),
+    mDraggingNote(false),
     mPressedGuideIndex(-1),
+    mPressedNoteIndex(-1),
     mGuidesItem(nullptr),
+    mNotesItem(nullptr),
     mCursorX(0),
     mCursorY(0),
     mCursorPaneX(0),
@@ -133,6 +146,9 @@ ImageCanvas::ImageCanvas() :
     mGuidesItem = new GuidesItem(this);
     qreal itemZ = 3;
     mGuidesItem->setZ(itemZ++);
+
+    mNotesItem = new NotesItem(this);
+    mNotesItem->setZ(itemZ++);
 
     mSelectionItem = new SelectionItem(this);
     mSelectionItem->setZ(itemZ++);
@@ -195,6 +211,7 @@ void ImageCanvas::restoreState()
     // Read the canvas data that was stored in the project, if there is any.
     // New projects or projects that don't have their own Slate extension
     // won't have any data.
+    // We also don't write anything if properties are equal to their default values.
 
     bool readPanes = false;
 
@@ -212,6 +229,7 @@ void ImageCanvas::restoreState()
         mSecondPane.read(QJsonObject::fromVariantMap(uiState->value("secondPane").toMap()));
         readPanes = true;
     }
+    setNotesVisible(uiState->value("notesVisible", true).toBool());
     doSetSplitScreen(uiState->value("splitScreen", false).toBool(), DontResetPaneSizes);
     mSplitter.setEnabled(uiState->value("splitterLocked", false).toBool());
 
@@ -245,6 +263,8 @@ void ImageCanvas::saveState()
     mSecondPane.write(secondPaneJson);
     mProject->uiState()->setValue("secondPane", secondPaneJson.toVariantMap());
 
+    if (mNotesVisible)
+        mProject->uiState()->setValue("notesVisible", true);
     if (mSplitScreen)
         mProject->uiState()->setValue("splitScreen", true);
     if (mSplitter.isEnabled())
@@ -336,6 +356,7 @@ bool ImageCanvas::guidesVisible() const
 
 void ImageCanvas::setGuidesVisible(bool guidesVisible)
 {
+    qCDebug(lcImageCanvasGuides) << "setting guidesVisible to" << guidesVisible;
     if (guidesVisible == mGuidesVisible)
         return;
 
@@ -360,6 +381,26 @@ void ImageCanvas::setGuidesLocked(bool guidesLocked)
 
     mGuidesLocked = guidesLocked;
     emit guidesLockedChanged();
+}
+
+bool ImageCanvas::notesVisible() const
+{
+    return mNotesVisible;
+}
+
+void ImageCanvas::setNotesVisible(bool notesVisible)
+{
+    qCDebug(lcImageCanvasNotes) << "setting notesVisible to" << notesVisible;
+    if (notesVisible == mNotesVisible)
+        return;
+
+    mNotesVisible = notesVisible;
+
+    mNotesItem->setVisible(mNotesVisible);
+    if (mNotesVisible)
+        mNotesItem->update();
+
+    emit notesVisibleChanged();
 }
 
 QColor ImageCanvas::splitColour() const
@@ -777,6 +818,16 @@ int ImageCanvas::pressedGuideIndex() const
     return mPressedGuideIndex;
 }
 
+int ImageCanvas::pressedNoteIndex() const
+{
+    return mPressedNoteIndex;
+}
+
+QPoint ImageCanvas::notePressOffset() const
+{
+    return mNotePressOffset;
+}
+
 CanvasPane *ImageCanvas::firstPane()
 {
     return &mFirstPane;
@@ -944,6 +995,7 @@ void ImageCanvas::connectSignals()
     connect(mProject, SIGNAL(projectClosed()), this, SLOT(reset()));
     connect(mProject, SIGNAL(sizeChanged()), this, SLOT(requestContentPaint()));
     connect(mProject, SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
+    connect(mProject, SIGNAL(notesChanged()), this, SLOT(onNotesChanged()));
     connect(mProject, SIGNAL(preProjectSaved()), this, SLOT(saveState()));
     connect(mProject, SIGNAL(aboutToBeginMacro(QString)),
         this, SLOT(onAboutToBeginMacro(QString)));
@@ -960,6 +1012,7 @@ void ImageCanvas::disconnectSignals()
     mProject->disconnect(SIGNAL(projectClosed()), this, SLOT(reset()));
     mProject->disconnect(SIGNAL(sizeChanged()), this, SLOT(requestContentPaint()));
     mProject->disconnect(SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
+    mProject->disconnect(SIGNAL(notesChanged()), this, SLOT(onNotesChanged()));
     mProject->disconnect(SIGNAL(preProjectSaved()), this, SLOT(saveState()));
     mProject->disconnect(SIGNAL(aboutToBeginMacro(QString)),
         this, SLOT(onAboutToBeginMacro(QString)));
@@ -998,6 +1051,7 @@ void ImageCanvas::componentComplete()
 
     updateSelectionCursorGuideVisibility();
     mGuidesItem->setVisible(mGuidesVisible);
+    mNotesItem->setVisible(mNotesVisible);
 
     resizeChildren();
 
@@ -1024,6 +1078,9 @@ void ImageCanvas::resizeChildren()
 
     mGuidesItem->setWidth(qFloor(width()));
     mGuidesItem->setHeight(height());
+
+    mNotesItem->setWidth(qFloor(width()));
+    mNotesItem->setHeight(height());
 
     mSelectionItem->setWidth(width());
     mSelectionItem->setHeight(height());
@@ -1272,9 +1329,47 @@ int ImageCanvas::guideIndexAtCursorPos()
     return -1;
 }
 
+void ImageCanvas::updatePressedNote()
+{
+    mPressedNoteIndex = noteIndexAtCursorPos();
+
+    if (mPressedNoteIndex != -1) {
+        mNotePositionBeforePress = mProject->notes().at(mPressedNoteIndex).position();
+        mNotePressOffset = QPoint(mCursorSceneX, mCursorSceneY) - mNotePositionBeforePress;
+    }
+}
+
+void ImageCanvas::updateNotesVisible()
+{
+    setNotesVisible(mProject && mProject->hasNotes());
+}
+
+int ImageCanvas::noteIndexAtCursorPos() const
+{
+    const QVector<Note> notes = mProject->notes();
+    for (int i = 0; i < notes.size(); ++i) {
+        const Note note = notes.at(i);
+        // The note's size doesn't scale with the pane's zoom level; a note stays the same
+        // size on screen as you zoom in, instead of getting bigger.
+        const QRect noteGeometry(note.position(), note.size() / mCurrentPane->integerZoomLevel());
+        if (noteGeometry.contains(mCursorSceneX, mCursorSceneY))
+            return i;
+    }
+
+    return -1;
+}
+
 void ImageCanvas::onGuidesChanged()
 {
     mGuidesItem->update();
+}
+
+void ImageCanvas::onNotesChanged()
+{
+    qCDebug(lcImageCanvasNotes) << "onNotesChanged";
+    updateNotesVisible();
+    if (mNotesVisible)
+        mNotesItem->update();
 }
 
 void ImageCanvas::onAboutToBeginMacro(const QString &macroText)
@@ -1716,6 +1811,9 @@ void ImageCanvas::reset()
     mPressedRuler = nullptr;
     mGuidePositionBeforePress = 0;
     mPressedGuideIndex = -1;
+    mNotePositionBeforePress = QPoint();
+    mNotePressOffset = QPoint();
+    mPressedNoteIndex = -1;
 
     setCursorX(0);
     setCursorY(0);
@@ -1775,6 +1873,93 @@ void ImageCanvas::zoomOut()
         return;
 
     pane->setZoomLevel(pane->integerZoomLevel() - 1);
+}
+
+void ImageCanvas::copySelection()
+{
+    if (!mHasSelection)
+        return;
+
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    clipboard->setImage(currentProjectImage()->copy(mSelectionArea));
+}
+
+void ImageCanvas::paste()
+{
+    qCDebug(lcImageCanvasSelection) << "pasting selection from clipboard";
+
+    QRect pastedArea = mSelectionArea;
+    const bool fromExternalSource = !mHasSelection;
+
+    clearOrConfirmSelection();
+
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    QImage clipboardImage = clipboard->image();
+    if (clipboardImage.isNull()) {
+        qCDebug(lcImageCanvasSelection) << "Clipboard content is not an image; can't paste";
+        return;
+    }
+
+    setTool(SelectionTool);
+
+    const QSize adjustedSize(qMin(clipboardImage.width(), mProject->widthInPixels()),
+        qMin(clipboardImage.height(), mProject->heightInPixels()));
+    if (fromExternalSource) {
+        // If the paste was from an external source, or there was no
+        // selection prior to pasting, we just paste it at 0, 0.
+        pastedArea = QRect(0, 0, adjustedSize.width(), adjustedSize.height());
+        // TODO: #16 - pastes too far to the top left for some reason
+//        if (mCurrentPane->offset().x() < 0)
+//            pastedArea.moveLeft(qAbs(mCurrentPane->offset().x()) / mCurrentPane->zoomLevel());
+//        if (mCurrentPane->offset().y() < 0)
+//            pastedArea.moveTop(qAbs(mCurrentPane->offset().y()) / mCurrentPane->zoomLevel());
+    }
+    // Crop the clipboard image if it's larger than the canvas,
+    if (adjustedSize != clipboardImage.size())
+        clipboardImage = clipboardImage.copy(pastedArea);
+
+    mProject->beginMacro(QLatin1String("PasteCommand"));
+    mProject->addChange(new PasteImageCanvasCommand(this, currentLayerIndex(), clipboardImage, pastedArea.topLeft()));
+    mProject->endMacro();
+
+    // Setting a selection area is only done when a paste is first created,
+    // not when it's redone, so we do it here instead of in the command.
+    setSelectionFromPaste(true);
+    qCDebug(lcImageCanvasSelection) << "setting selection contents to clipboard image with area" << pastedArea;
+    mSelectionContents = clipboardImage;
+
+    setSelectionArea(pastedArea);
+
+    // This part is also important, as it ensures that beginSelectionMove()
+    // doesn't overwrite the paste contents.
+    mSelectionAreaBeforeFirstModification = mSelectionArea;
+    setLastSelectionModification(SelectionPaste);
+
+    // moveSelectionArea() does this for us when we're moving, but for the initial
+    // paste, we must do it ourselves.
+    updateSelectionPreviewImage(SelectionPaste);
+
+    requestContentPaint();
+}
+
+void ImageCanvas::deleteSelectionOrContents()
+{
+    mProject->beginMacro(QLatin1String("DeleteSelection"));
+    const QRect deletionArea = mHasSelection ? mSelectionArea : mProject->bounds();
+    mProject->addChange(new DeleteImageCanvasSelectionCommand(this, currentLayerIndex(), deletionArea));
+    mProject->endMacro();
+    clearSelection();
+}
+
+void ImageCanvas::selectAll()
+{
+    if (mTool == SelectionTool) {
+        clearOrConfirmSelection();
+    } else {
+        setTool(SelectionTool);
+    }
+
+    setSelectionArea(QRect(0, 0, mProject->widthInPixels(), mProject->heightInPixels()));
 }
 
 void ImageCanvas::flipSelection(Qt::Orientation orientation)
@@ -1921,6 +2106,56 @@ void ImageCanvas::endModifyingSelectionHsl(AdjustmentAction adjustmentAction)
     emit adjustingImageChanged();
 }
 
+void ImageCanvas::addNote(const QPoint &newPosition, const QString &newText)
+{
+    const Note newNote(newPosition, newText);
+    if (mProject->notes().contains(newNote)) {
+        error(tr("Note at position %1, %2 with text \"%3\" already exists")
+            .arg(QString::number(newPosition.x())).arg(QString::number(newPosition.y())).arg(newText));
+        return;
+    }
+
+    mProject->beginMacro(QLatin1String("AddNote"));
+    mProject->addChange(new AddNoteCommand(mProject, newNote));
+    mProject->endMacro();
+
+    // The update for these note commands happens in onNotesChanged.
+}
+
+void ImageCanvas::modifyNote(int noteIndex, const QPoint &newPosition, const QString &newText)
+{
+    if (!mProject->isValidNoteIndex(noteIndex)) {
+        // Should not be possible for the user to trigger this, so it's not a user-facing error.
+        qWarning() << "Cannot modify note at index" << noteIndex << "as it's not a valid index";
+        return;
+    }
+
+    Note oldNote = mProject->notes().at(noteIndex);
+    if (newPosition == oldNote.position() && newText == oldNote.text()) {
+        // Nothing changed.
+        return;
+    }
+
+    const Note newNote(newPosition, newText);
+    mProject->beginMacro(QLatin1String("ChangeNote"));
+    mProject->addChange(new ChangeNoteCommand(mProject, noteIndex, oldNote, newNote));
+    mProject->endMacro();
+}
+
+void ImageCanvas::removeNote(int noteIndex)
+{
+    if (!mProject->isValidNoteIndex(noteIndex)) {
+        // Should not be possible for the user to trigger this, so it's not a user-facing error.
+        qWarning() << "Cannot remove note at index" << noteIndex << "as it's not a valid index";
+        return;
+    }
+
+    const Note note = mProject->notes().at(noteIndex);
+    mProject->beginMacro(QLatin1String("DeleteNote"));
+    mProject->addChange(new DeleteNoteCommand(mProject, note));
+    mProject->endMacro();
+}
+
 void ImageCanvas::addSelectedColoursToTexturedFillSwatch()
 {
     if (!mHasSelection)
@@ -1951,93 +2186,6 @@ void ImageCanvas::addSelectedColoursToTexturedFillSwatch()
 
     qCDebug(lcImageCanvas) << "adding" << uniqueColours << "unique colours from selection to textured fill swatch";
     mTexturedFillParameters.swatch()->addColoursWithProbabilities(uniqueColours, probabilities);
-}
-
-void ImageCanvas::copySelection()
-{
-    if (!mHasSelection)
-        return;
-
-    QClipboard *clipboard = QGuiApplication::clipboard();
-    clipboard->setImage(currentProjectImage()->copy(mSelectionArea));
-}
-
-void ImageCanvas::paste()
-{
-    qCDebug(lcImageCanvasSelection) << "pasting selection from clipboard";
-
-    QRect pastedArea = mSelectionArea;
-    const bool fromExternalSource = !mHasSelection;
-
-    clearOrConfirmSelection();
-
-    QClipboard *clipboard = QGuiApplication::clipboard();
-    QImage clipboardImage = clipboard->image();
-    if (clipboardImage.isNull()) {
-        qCDebug(lcImageCanvasSelection) << "Clipboard content is not an image; can't paste";
-        return;
-    }
-
-    setTool(SelectionTool);
-
-    const QSize adjustedSize(qMin(clipboardImage.width(), mProject->widthInPixels()),
-        qMin(clipboardImage.height(), mProject->heightInPixels()));
-    if (fromExternalSource) {
-        // If the paste was from an external source, or there was no
-        // selection prior to pasting, we just paste it at 0, 0.
-        pastedArea = QRect(0, 0, adjustedSize.width(), adjustedSize.height());
-        // TODO: #16 - pastes too far to the top left for some reason
-//        if (mCurrentPane->offset().x() < 0)
-//            pastedArea.moveLeft(qAbs(mCurrentPane->offset().x()) / mCurrentPane->zoomLevel());
-//        if (mCurrentPane->offset().y() < 0)
-//            pastedArea.moveTop(qAbs(mCurrentPane->offset().y()) / mCurrentPane->zoomLevel());
-    }
-    // Crop the clipboard image if it's larger than the canvas,
-    if (adjustedSize != clipboardImage.size())
-        clipboardImage = clipboardImage.copy(pastedArea);
-
-    mProject->beginMacro(QLatin1String("PasteCommand"));
-    mProject->addChange(new PasteImageCanvasCommand(this, currentLayerIndex(), clipboardImage, pastedArea.topLeft()));
-    mProject->endMacro();
-
-    // Setting a selection area is only done when a paste is first created,
-    // not when it's redone, so we do it here instead of in the command.
-    setSelectionFromPaste(true);
-    qCDebug(lcImageCanvasSelection) << "setting selection contents to clipboard image with area" << pastedArea;
-    mSelectionContents = clipboardImage;
-
-    setSelectionArea(pastedArea);
-
-    // This part is also important, as it ensures that beginSelectionMove()
-    // doesn't overwrite the paste contents.
-    mSelectionAreaBeforeFirstModification = mSelectionArea;
-    setLastSelectionModification(SelectionPaste);
-
-    // moveSelectionArea() does this for us when we're moving, but for the initial
-    // paste, we must do it ourselves.
-    updateSelectionPreviewImage(SelectionPaste);
-
-    requestContentPaint();
-}
-
-void ImageCanvas::deleteSelectionOrContents()
-{
-    mProject->beginMacro(QLatin1String("DeleteSelection"));
-    const QRect deletionArea = mHasSelection ? mSelectionArea : mProject->bounds();
-    mProject->addChange(new DeleteImageCanvasSelectionCommand(this, currentLayerIndex(), deletionArea));
-    mProject->endMacro();
-    clearSelection();
-}
-
-void ImageCanvas::selectAll()
-{
-    if (mTool == SelectionTool) {
-        clearOrConfirmSelection();
-    } else {
-        setTool(SelectionTool);
-    }
-
-    setSelectionArea(QRect(0, 0, mProject->widthInPixels(), mProject->heightInPixels()));
 }
 
 void ImageCanvas::cycleFillTools()
@@ -2208,6 +2356,16 @@ void ImageCanvas::applyCurrentTool()
         }
         break;
     }
+    case NoteTool: {
+        if (mPressedNoteIndex == -1) {
+            if (isCursorWithinProjectBounds()) {
+                emit noteCreationRequested();
+            } else {
+                error(tr("Notes must be within the image boundaries."));
+                return;
+            }
+        }
+    }
     default:
         break;
     }
@@ -2338,8 +2496,7 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     setCursorSceneX(mCursorSceneFX);
     setCursorSceneY(mCursorSceneFY);
 
-    if (mCursorSceneX < 0 || mCursorSceneX >= mProject->widthInPixels()
-        || mCursorSceneY < 0 || mCursorSceneY >= mProject->heightInPixels()
+    if (!isCursorWithinProjectBounds()
         // The cached contents can be null for some reason during tests; probably because
         // the canvas gets events before it has rendered. No big deal, it wouldn't be visible yet anyway.
         || mCachedContentImage.isNull()) {
@@ -2352,6 +2509,12 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     const bool cursorScenePosChanged = mCursorSceneX != oldCursorSceneX || mCursorSceneY != oldCursorSceneY;
     if (cursorScenePosChanged && mSelectionCursorGuide->isVisible())
         mSelectionCursorGuide->update();
+}
+
+bool ImageCanvas::isCursorWithinProjectBounds() const
+{
+    const QRect projectBounds(0, 0, mProject->widthInPixels(), mProject->heightInPixels());
+    return projectBounds.contains(QPoint(mCursorSceneX, mCursorSceneY));
 }
 
 void ImageCanvas::updateVisibleSceneArea()
@@ -2377,6 +2540,8 @@ void ImageCanvas::updateVisibleSceneArea()
 
 void ImageCanvas::onLoadedChanged()
 {
+    qCDebug(lcImageCanvas) << "onLoadedChanged - mProject->hasLoaded():" << mProject->hasLoaded();
+
     if (mProject->hasLoaded()) {
         centrePanes();
     }
@@ -2419,25 +2584,41 @@ void ImageCanvas::updateWindowCursorShape()
         }
     }
 
-    bool overGuide = false;
-    if (guidesVisible() && !guidesLocked() && !overRuler) {
-        overGuide = guideIndexAtCursorPos() != -1;
+    // Do this check first since notes should go above guides.
+    bool overNote = false;
+    bool notePressed = false;
+    // Since the note tool can be used to both edit and drag notes,
+    // we only want the hand cursor to be visible when dragging, so that the user
+    // knows that they can edit when hovering over a note.
+    // When hovering over a note, we want to use the crosshair cursor as usual.
+    if (mTool == NoteTool && notesVisible() && !overRuler) {
+        overNote = noteIndexAtCursorPos() != -1;
+        notePressed = mPressedNoteIndex != -1;
     }
+
+    bool overGuide = false;
+    if (guidesVisible() && !guidesLocked() && !overRuler && !overNote)
+        overGuide = guideIndexAtCursorPos() != -1;
 
     // Hide the window's cursor when we're in the spotlight; otherwise, use the non-custom arrow cursor.
     const bool nothingOverUs = mProject->hasLoaded() && hasActiveFocus() /*&& !mModalPopupsOpen*/ && mContainsMouse;
     const bool splitterHovered = mSplitter.isEnabled() && mSplitter.isHovered();
     const bool overSelection = cursorOverSelection();
     const bool toolsForbidden = areToolsForbidden();
-    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && !overSelection && !overRuler && !overGuide && !toolsForbidden);
+    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && !overSelection && !notePressed && !overRuler && !overGuide && !toolsForbidden);
 
     Qt::CursorShape cursorShape = Qt::BlankCursor;
     if (!mHasBlankCursor) {
         if (isPanning()) {
             // If panning while space is pressed, the left mouse button is used, otherwise it's the middle mouse button.
             cursorShape = (mMouseButtonPressed == Qt::LeftButton || mMouseButtonPressed == Qt::MiddleButton) ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
-        } else if (overGuide) {
-            cursorShape = mPressedGuideIndex != -1 ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
+        } else if (notePressed || overGuide) {
+            if (notePressed) {
+                cursorShape = Qt::ClosedHandCursor;
+            } else {
+                // A guide is hovered.
+                cursorShape = mPressedGuideIndex != -1 ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
+            }
         } else if (overSelection) {
             cursorShape = Qt::SizeAllCursor;
         } else if (splitterHovered) {
@@ -2450,15 +2631,28 @@ void ImageCanvas::updateWindowCursorShape()
     }
 
     if (lcImageCanvasCursorShape().isDebugEnabled()) {
-        qCDebug(lcImageCanvasCursorShape) << "Updating window cursor shape for" << objectName() << "..."
-            << "\n... mProject->hasLoaded()" << mProject->hasLoaded()
-            << "\n........ hasActiveFocus()" << hasActiveFocus()
-            << "\n.......... mContainsMouse" << mContainsMouse
-            << "\n............. isPanning()" << isPanning()
-            << "\n... mSplitter.isHovered()" << mSplitter.isHovered()
-            << "\n..... areToolsForbidden()" << toolsForbidden
-            << "\n......... mHasBlankCursor" << mHasBlankCursor
-            << "\n............ cursor shape" << Utils::enumToString(cursorShape);
+        qCDebug(lcImageCanvasCursorShape).nospace()
+            << "Updating window cursor shape for " << objectName() << " ..."
+            << "\n... mProject->hasLoaded() " << mProject->hasLoaded()
+            << "\n........ hasActiveFocus() " << hasActiveFocus()
+            << "\n.......... mContainsMouse " << mContainsMouse
+            << "\n............. isPanning() " << isPanning()
+            << "\n... mSplitter.isHovered() " << mSplitter.isHovered()
+            << "\n............. notePressed " << notePressed
+            << "\n....... mPressedNoteIndex " << mPressedNoteIndex
+            << "\n............... overGuide " << overGuide
+            << "\n...... mPressedGuideIndex " << mPressedGuideIndex
+            << "\n..... areToolsForbidden() " << toolsForbidden
+            << "\n......... mHasBlankCursor " << mHasBlankCursor
+            << " (nothingOverUs=" << nothingOverUs
+            << " !isPanning()=" << !isPanning()
+            << " !splitterHovered=" << !splitterHovered
+            << " !overSelection=" << !overSelection
+            << " !notePressed=" << !notePressed
+            << " !overRuler=" << !overRuler
+            << " !overGuide=" << !overGuide
+            << " !toolsForbidden=" << !toolsForbidden << ")"
+            << "\n............ cursor shape " << Utils::enumToString(cursorShape);
     }
 
     if (window()) {
@@ -2480,6 +2674,9 @@ void ImageCanvas::onZoomLevelChanged()
     if (mGuidesVisible)
         mGuidesItem->update();
 
+    if (mNotesVisible)
+        mNotesItem->update();
+
     mSelectionItem->update();
 }
 
@@ -2496,6 +2693,9 @@ void ImageCanvas::onPaneIntegerOffsetChanged()
     if (mGuidesVisible)
         mGuidesItem->update();
 
+    if (mNotesVisible)
+        mNotesItem->update();
+
     mSelectionItem->update();
 }
 
@@ -2507,6 +2707,9 @@ void ImageCanvas::onPaneSizeChanged()
 
     if (mGuidesVisible)
         mGuidesItem->update();
+
+    if (mNotesVisible)
+        mNotesItem->update();
 
     mSelectionItem->update();
 }
@@ -2682,13 +2885,13 @@ void ImageCanvas::wheelEvent(QWheelEvent *event)
 
 void ImageCanvas::mousePressEvent(QMouseEvent *event)
 {
-    qCDebug(lcImageCanvasEvents) << "mousePressEvent:" << event;
     QQuickItem::mousePressEvent(event);
 
     // Is it possible to get a press without a hover enter? If so, we need this line.
     updateCursorPos(event->pos());
 
     if (!mProject->hasLoaded()) {
+        qCDebug(lcImageCanvasEvents) << "mousePressEvent -" << event;
         return;
     }
 
@@ -2701,6 +2904,10 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
     mPressScenePositionF = QPointF(mCursorSceneFX, mCursorSceneFY);
     mCurrentPaneOffsetBeforePress = mCurrentPane->integerOffset();
     setContainsMouse(true);
+
+    qCDebug(lcImageCanvasEvents) << "mousePressEvent -" << event
+        << "mousePressEvent - mPressPosition:" << mPressPosition
+        << "mPressScenePosition:" << mPressScenePosition;
 
     if (!isPanning()) {
         if (mSplitter.isEnabled() && mouseOverSplitterHandle(event->pos())) {
@@ -2716,13 +2923,24 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
             if (!guidesLocked()) {
                 updatePressedGuide();
                 if (mPressedGuideIndex != -1) {
+                    // A guide was just pressed.
                     updateWindowCursorShape();
                     return;
                 }
             }
         }
 
-        if (!mShiftPressed) {
+        if (mNotesVisible && mTool == NoteTool) {
+            updatePressedNote();
+            if (mPressedNoteIndex != -1) {
+                qCDebug(lcImageCanvasEvents) << "the note at index" << mPressedNoteIndex
+                    << "was pressed - mNotePressOffset:" << mNotePressOffset;
+                updateWindowCursorShape();
+                return;
+            }
+        }
+
+        if (!mShiftPressed && (mTool == PenTool || mTool == EraserTool)) {
             mLastPixelPenPressScenePositionF = mPressScenePositionF;
         }
 
@@ -2747,7 +2965,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
 
 void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
 {
-    qCDebug(lcImageCanvasEvents) << "mouseMoveEvent:" << event;
+    qCDebug(lcImageCanvasEvents) << "mouseMoveEvent -" << event;
     QQuickItem::mouseMoveEvent(event);
 
     const QPointF oldCursorScenePosition = QPointF(mCursorSceneFX, mCursorSceneFY);
@@ -2767,6 +2985,9 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
             mGuidesItem->update();
         } else if (mPressedGuideIndex != -1) {
             mGuidesItem->update();
+        } else if (mPressedNoteIndex != -1) {
+            mNotesItem->update();
+            mDraggingNote = true;
         } else {
             if (!isPanning()) {
                 if (mTool != SelectionTool) {
@@ -2793,7 +3014,9 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
 
 void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
 {
-    qCDebug(lcImageCanvasEvents) << "mouseReleaseEvent:" << event;
+    qCDebug(lcImageCanvasEvents) << "mouseReleaseEvent -" << event
+         << "mCursorX:" << mCursorX << "mCursorY:" << mCursorY
+         << "mCursorSceneX:" << mCursorSceneX << "mCursorSceneY:" << mCursorSceneY;
     QQuickItem::mouseReleaseEvent(event);
 
     updateCursorPos(event->pos());
@@ -2847,6 +3070,8 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
                 }
             }
         } else {
+            // The selection is being moved.
+
             // mspaint and photoshop both exhibit the same behaviour here:
             // moving a selection several times and then undoing once will undo all movement.
             // It's for this reason that we don't create a move command here.
@@ -2871,6 +3096,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
         // A ruler was pressed but isn't hovered; create a new guide.
         addNewGuide();
     } else if (mPressedGuideIndex != -1) {
+        // A guide was pressed.
         if (hoveredRuler) {
             if (hoveredRuler->orientation() == mProject->guides().at(mPressedGuideIndex).orientation()) {
                 // A ruler wasn't pressed but a guide is, and now a ruler is hovered;
@@ -2878,10 +3104,39 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
                 removeGuide();
             }
         } else {
+            // No ruler was hovered, which means we were moving a guide.
             moveGuide();
         }
 
         mPressedGuideIndex = -1;
+        updateWindowCursorShape();
+    } else if (mPressedNoteIndex != -1) {
+        // A note was pressed and now released.
+        if (mDraggingNote) {
+            // It was dragged (regardless of whether it actually changed position).
+            qCDebug(lcImageCanvasNotes) << "the note at index" << mPressedNoteIndex << "was dragged -"
+                << "mCursorSceneX:" << mCursorSceneX << "mCursorSceneY:" << mCursorSceneY
+                << "mNotePositionBeforePress:" << mNotePositionBeforePress
+                << "mPressPosition:" << mPressPosition << "mPressScenePosition:" << mPressScenePosition
+                << "mNotePressOffset:" << mNotePressOffset;
+
+            const Note oldNote = mProject->notes().at(mPressedNoteIndex);
+            const QString oldText = oldNote.text();
+            const QRect newGeometry(QPoint(mCursorSceneX, mCursorSceneY) - mNotePressOffset, oldNote.size());
+            const QPoint newPosition = Utils::ensureWithinArea(newGeometry, mProject->size()).topLeft();
+            modifyNote(mPressedNoteIndex, newPosition, oldText);
+        } else {
+            // It was clicked.
+            qCDebug(lcImageCanvasNotes) << "the note at index" << mPressedNoteIndex << "was clicked -"
+                << "mCursorSceneX:" << mCursorSceneX << "mCursorSceneY:" << mCursorSceneY
+                << "mNotePositionBeforePress:" << mNotePositionBeforePress
+                << "mPressPosition:" << mPressPosition << "mPressScenePosition:" << mPressScenePosition
+                << "mNotePressOffset:" << mNotePressOffset;
+
+            emit noteModificationRequested(mPressedNoteIndex);
+        }
+
+        mPressedNoteIndex = -1;
         updateWindowCursorShape();
     }
 
@@ -2892,11 +3147,14 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
     mSplitter.setPressed(false);
     mPressedRuler = nullptr;
     mGuidePositionBeforePress = 0;
+    mNotePositionBeforePress = QPoint(0, 0);
+    mNotePressOffset = QPoint(0, 0);
+    mDraggingNote = false;
 }
 
 void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
 {
-    qCDebug(lcImageCanvasEvents) << "hoverEnterEvent:" << event;
+    qCDebug(lcImageCanvasHoverEvents) << "hoverEnterEvent:" << event;
     QQuickItem::hoverEnterEvent(event);
 
     updateCursorPos(event->pos());
@@ -2909,7 +3167,7 @@ void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
 
 void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
 {
-    qCDebug(lcImageCanvasEvents) << "hoverMoveEvent:" << event->posF();
+    qCDebug(lcImageCanvasHoverEvents) << "hoverMoveEvent:" << event->posF();
     QQuickItem::hoverMoveEvent(event);
 
     updateCursorPos(event->pos());
@@ -2929,7 +3187,7 @@ void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
 
 void ImageCanvas::hoverLeaveEvent(QHoverEvent *event)
 {
-    qCDebug(lcImageCanvasEvents) << "hoverLeaveEvent:" << event;
+    qCDebug(lcImageCanvasHoverEvents) << "hoverLeaveEvent:" << event;
     QQuickItem::hoverLeaveEvent(event);
 
     setContainsMouse(false);
@@ -2966,8 +3224,16 @@ void ImageCanvas::keyPressEvent(QKeyEvent *event)
     if (event->isAutoRepeat())
         return;
 
-    if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_5) {
-        const Tool activatedTool = static_cast<ImageCanvas::Tool>(PenTool + event->key() - Qt::Key_1);
+    if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_6) {
+        const int zeroBaseNumberPressed = event->key() - Qt::Key_1;
+        Tool activatedTool = static_cast<ImageCanvas::Tool>(zeroBaseNumberPressed);
+        if (activatedTool == TexturedFillTool) {
+            // This is a bit hacky, but the TexturedFillTool can't be activated directly
+            // with the number keys (it has to be cycled with the key used for the fill tool),
+            // so we have to skip it here to ensure tools after it are activated correctly.
+            activatedTool = static_cast<ImageCanvas::Tool>(zeroBaseNumberPressed + 1);
+        }
+
         if (activatedTool == FillTool && (mTool == FillTool || mTool == TexturedFillTool)) {
             // If the tool was already one of the fill tools, select the next fill tool.
             cycleFillTools();
@@ -3022,7 +3288,7 @@ void ImageCanvas::keyReleaseEvent(QKeyEvent *event)
 
 void ImageCanvas::focusInEvent(QFocusEvent *event)
 {
-    qCDebug(lcImageCanvasEvents) << "focusInEvent:" << event;
+    qCDebug(lcImageCanvasFocusEvents) << "focusInEvent:" << event;
     QQuickItem::focusInEvent(event);
 
     // When alt-tabbing away from and back to our window, we'd previously
@@ -3036,7 +3302,7 @@ void ImageCanvas::focusInEvent(QFocusEvent *event)
 
 void ImageCanvas::focusOutEvent(QFocusEvent *event)
 {
-    qCDebug(lcImageCanvasEvents) << "focusOutEvent:" << event;
+    qCDebug(lcImageCanvasFocusEvents) << "focusOutEvent:" << event;
     QQuickItem::focusOutEvent(event);
 
     // The alt-to-eyedrop feature is meant to be temporary,

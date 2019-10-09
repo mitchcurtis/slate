@@ -246,6 +246,11 @@ protected:
     Q_REQUIRED_RESULT bool deleteSwatchColour(int index);
     Q_REQUIRED_RESULT bool addNewGuide(Qt::Orientation orientation, int position);
     Q_REQUIRED_RESULT bool addSelectedColoursToTexturedFillSwatch();
+    Q_REQUIRED_RESULT bool addNewNoteAtCursorPos(const QString &text);
+    // Finds the note at \a noteIndex and attempts to drag it to \a newPosition
+    // (by dragging from its centre). If \c newPosition is out of bounds, the function
+    // tests that it was pushed back in.
+    Q_REQUIRED_RESULT bool dragNoteAtIndex(int noteIndex, const QPoint &newPosition);
 
     QByteArray failureMessage;
 
@@ -277,6 +282,7 @@ protected:
     QQuickItem *fillToolButton = nullptr;
     QQuickItem *eraserToolButton = nullptr;
     QQuickItem *selectionToolButton = nullptr;
+    QQuickItem *noteToolButton = nullptr;
     QQuickItem *toolSizeButton = nullptr;
     QQuickItem *toolShapeButton = nullptr;
     QQuickItem *rotate90CcwToolButton = nullptr;
@@ -285,6 +291,7 @@ protected:
     QQuickItem *flipVerticallyToolButton = nullptr;
     QQuickItem *undoToolButton = nullptr;
     QQuickItem *redoToolButton = nullptr;
+    QQuickItem *showNotesToolButton = nullptr;
     QQuickItem *splitScreenToolButton = nullptr;
     QQuickItem *lockSplitterToolButton = nullptr;
     QQuickItem *penForegroundColourButton = nullptr;

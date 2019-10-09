@@ -44,6 +44,7 @@ Q_DECLARE_LOGGING_CATEGORY(lcImageCanvasLifecycle)
 class Guide;
 class GuidesItem;
 class ImageProject;
+class NotesItem;
 class Project;
 class SelectionCursorGuide;
 class Tile;
@@ -59,6 +60,7 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool rulersVisible READ rulersVisible WRITE setRulersVisible NOTIFY rulersVisibleChanged)
     Q_PROPERTY(bool guidesVisible READ guidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
     Q_PROPERTY(bool guidesLocked READ guidesLocked WRITE setGuidesLocked NOTIFY guidesLockedChanged)
+    Q_PROPERTY(bool notesVisible READ notesVisible WRITE setNotesVisible NOTIFY notesVisibleChanged)
     Q_PROPERTY(QColor splitColour READ splitColour WRITE setSplitColour NOTIFY splitColourChanged)
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
@@ -106,7 +108,8 @@ public:
         EraserTool,
         FillTool,
         SelectionTool,
-        TexturedFillTool
+        TexturedFillTool,
+        NoteTool
     };
     Q_ENUM(Tool)
 
@@ -168,6 +171,9 @@ public:
     bool guidesLocked() const;
     void setGuidesLocked(bool guidesLocked);
 
+    bool notesVisible() const;
+    void setNotesVisible(bool notesVisible);
+
     QColor splitColour() const;
     void setSplitColour(const QColor &splitColour);
 
@@ -194,6 +200,9 @@ public:
 
     Ruler *pressedRuler() const;
     int pressedGuideIndex() const;
+
+    int pressedNoteIndex() const;
+    QPoint notePressOffset() const;
 
     Splitter *splitter();
 
@@ -332,6 +341,7 @@ signals:
     void rulersVisibleChanged();
     void guidesVisibleChanged();
     void guidesLockedChanged();
+    void notesVisibleChanged();
     void splitColourChanged();
     void splitScreenChanged();
     void scrollZoomChanged();
@@ -356,6 +366,9 @@ signals:
     void lineChanged();
     void pasteSelectionConfirmed();
 
+    void noteCreationRequested();
+    void noteModificationRequested(int noteIndex);
+
     // Used to signal CanvasPaneItem classes that they should redraw,
     // instead of them having to connect to lots of specific signals.
     // paneIndex is the index of the pane that should be redrawn,
@@ -369,17 +382,24 @@ public slots:
     void zoomIn();
     void zoomOut();
 
-    void flipSelection(Qt::Orientation orientation);
-    void rotateSelection(int angle);
-    void beginModifyingSelectionHsl();
-    void modifySelectionHsl(qreal hue, qreal saturation, qreal lightness, qreal alpha = 0.0,
-        AlphaAdjustmentFlags alphaAdjustmentFlags = DefaultAlphaAdjustment);
-    void endModifyingSelectionHsl(AdjustmentAction adjustmentAction);
-    void addSelectedColoursToTexturedFillSwatch();
     void copySelection();
     void paste();
     void deleteSelectionOrContents();
     void selectAll();
+    void flipSelection(Qt::Orientation orientation);
+    void rotateSelection(int angle);
+
+    void beginModifyingSelectionHsl();
+    void modifySelectionHsl(qreal hue, qreal saturation, qreal lightness, qreal alpha = 0.0,
+        AlphaAdjustmentFlags alphaAdjustmentFlags = DefaultAlphaAdjustment);
+    void endModifyingSelectionHsl(AdjustmentAction adjustmentAction);
+
+    void addNote(const QPoint &newPosition, const QString &newText);
+    void modifyNote(int noteIndex, const QPoint &newPosition, const QString &newText);
+    void removeNote(int noteIndex);
+    int noteIndexAtCursorPos() const;
+
+    void addSelectedColoursToTexturedFillSwatch();
 
     void cycleFillTools();
 
@@ -401,6 +421,7 @@ protected slots:
     void onPaneSizeChanged();
     void onSplitterPositionChanged();
     void onGuidesChanged();
+    void onNotesChanged();
     void onAboutToBeginMacro(const QString &macroText);
     void recreateCheckerImage();
 
@@ -449,6 +470,7 @@ protected:
     QRect normalisedLineRect(const QPointF &point1, const QPointF &point2) const;
 
     virtual void updateCursorPos(const QPoint &eventPos);
+    bool isCursorWithinProjectBounds() const;
     void updateVisibleSceneArea();
     void error(const QString &message);
 
@@ -487,6 +509,9 @@ protected:
     void removeGuide();
     void updatePressedGuide();
     int guideIndexAtCursorPos();
+
+    void updatePressedNote();
+    void updateNotesVisible();
 
     bool isPanning() const;
 
@@ -575,9 +600,16 @@ protected:
     Ruler *mPressedRuler;
     bool mGuidesVisible;
     bool mGuidesLocked;
+    bool mNotesVisible;
     int mGuidePositionBeforePress;
+    QPoint mNotePositionBeforePress;
+    // The position of the mouse cursor within the note.
+    QPoint mNotePressOffset;
+    bool mDraggingNote;
     int mPressedGuideIndex;
+    int mPressedNoteIndex;
     GuidesItem *mGuidesItem;
+    NotesItem *mNotesItem;
     SelectionItem *mSelectionItem;
 
     // Used for setCursorPixelColour().

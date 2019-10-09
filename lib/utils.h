@@ -43,7 +43,7 @@ namespace Utils {
 
     void strokeRectWithDashes(QPainter *painter, const QRect &rect);
 
-    QRect ensureWithinArea(const QRect &rect, const QSize &boundsSize);
+    SLATE_EXPORT QRect ensureWithinArea(const QRect &rect, const QSize &boundsSize);
 
     enum FindUniqueColoursResult {
         ThreadInterrupted,

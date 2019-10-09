@@ -31,6 +31,7 @@
 #include "applicationsettings.h"
 
 Q_LOGGING_CATEGORY(lcProject, "app.project")
+Q_LOGGING_CATEGORY(lcProjectNotes, "app.project.notes")
 Q_LOGGING_CATEGORY(lcProjectLifecycle, "app.project.lifecycle")
 
 Project::Project() :
@@ -363,6 +364,34 @@ void Project::writeGuides(QJsonObject &projectJson) const
     projectJson[QLatin1String("guides")] = guidesArray;
 }
 
+void Project::readNotes(const QJsonObject &projectJson)
+{
+    mNotes.clear();
+
+    QJsonArray notesArray = projectJson.value(QLatin1String("notes")).toArray();
+    for (int i = 0; i < notesArray.size(); ++i) {
+        QJsonObject noteObject = notesArray.at(i).toObject();
+        const int positionX = noteObject.value(QLatin1String("positionX")).toInt();
+        const int positionY = noteObject.value(QLatin1String("positionY")).toInt();
+        const QString text = noteObject.value(QLatin1String("text")).toString();
+        mNotes.append(Note(QPoint(positionX, positionY), text));
+    }
+}
+
+void Project::writeNotes(QJsonObject &projectJson) const
+{
+    QJsonArray notesArray;
+    for (int i = 0; i < mNotes.size(); ++i) {
+        QJsonObject noteObject;
+        const Note note = mNotes.at(i);
+        noteObject[QLatin1String("positionX")] = note.position().x();
+        noteObject[QLatin1String("positionY")] = note.position().y();
+        noteObject[QLatin1String("text")] = note.text();
+        notesArray.append(noteObject);
+    }
+    projectJson[QLatin1String("notes")] = notesArray;
+}
+
 void Project::readUiState(const QJsonObject &projectJson)
 {
     QVariantMap uiState;
@@ -499,9 +528,75 @@ void Project::moveGuide(const Guide &guide, int to)
 
 void Project::removeGuide(const Guide &guide)
 {
-    if (mGuides.removeOne(guide)) {
+    if (mGuides.removeOne(guide))
         emit guidesChanged();
+}
+
+bool Project::hasNotes() const
+{
+    return !mNotes.isEmpty();
+}
+
+QVector<Note> Project::notes() const
+{
+    return mNotes;
+}
+
+void Project::addNote(const Note &note)
+{
+    if (mNotes.contains(note))
+        return;
+
+    qCDebug(lcProjectNotes) << "adding note" << note;
+    mNotes.append(note);
+
+    emit notesChanged();
+}
+
+void Project::modifyNote(int noteIndex, const Note &note)
+{
+    if (!isValidNoteIndex(noteIndex)) {
+        qWarning() << "Cannot modify note at index" << noteIndex << "as it is an invalid index!";
+        return;
     }
+
+    qCDebug(lcProjectNotes) << "modifying note at index" << noteIndex << "with" << note;
+    mNotes[noteIndex] = note;
+
+    // This function assumes that the caller ensured that something actually changed.
+    emit notesChanged();
+}
+
+void Project::removeNote(const Note &note)
+{
+    qCDebug(lcProjectNotes) << "removing note" << note;
+    if (mNotes.removeOne(note))
+        emit notesChanged();
+}
+
+QPoint Project::notePositionAtIndex(int index) const
+{
+    if (!isValidNoteIndex(index)) {
+        qWarning() << "Note index" << index << "is invalid!";
+        return QPoint();
+    }
+
+    return mNotes.at(index).position();
+}
+
+QString Project::noteTextAtIndex(int index) const
+{
+    if (!isValidNoteIndex(index)) {
+        qWarning() << "Note index" << index << "is invalid!";
+        return QString();
+    }
+
+    return mNotes.at(index).text();
+}
+
+bool Project::isValidNoteIndex(int index) const
+{
+    return index >= 0 && index < mNotes.size();
 }
 
 Swatch *Project::swatch()

@@ -45,6 +45,10 @@
         <file>lock-splitter@2x.png</file>
         <file>lock-splitter@3x.png</file>
         <file>lock-splitter@4x.png</file>
+        <file>note.png</file>
+        <file>note@2x.png</file>
+        <file>note@3x.png</file>
+        <file>note@4x.png</file>
         <file>opacity.png</file>
         <file>opacity@2x.png</file>
         <file>opacity@3x.png</file>
@@ -65,6 +69,10 @@
         <file>show-guides@2x.png</file>
         <file>show-guides@3x.png</file>
         <file>show-guides@4x.png</file>
+        <file>show-notes.png</file>
+        <file>show-notes@2x.png</file>
+        <file>show-notes@3x.png</file>
+        <file>show-notes@4x.png</file>
         <file>show-rulers.png</file>
         <file>show-rulers@2x.png</file>
         <file>show-rulers@3x.png</file>

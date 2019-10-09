@@ -11,6 +11,8 @@ target_sources(
   addguidecommand.h
   addlayercommand.cpp
   addlayercommand.h
+  addnotecommand.cpp
+  addnotecommand.h
   animationplayback.cpp
   animationplayback.h
   applicationsettings.cpp
@@ -57,6 +59,8 @@ target_sources(
   changelayerordercommand.h
   changelayervisiblecommand.cpp
   changelayervisiblecommand.h
+  changenotecommand.cpp
+  changenotecommand.h
   changetilecanvassizecommand.cpp
   changetilecanvassizecommand.h
   commands.h
@@ -66,6 +70,8 @@ target_sources(
   deleteimagecanvasselectioncommand.h
   deletelayercommand.cpp
   deletelayercommand.h
+  deletenotecommand.cpp
+  deletenotecommand.h
   duplicatelayercommand.cpp
   duplicatelayercommand.h
   filevalidator.cpp
@@ -104,6 +110,10 @@ target_sources(
   movelayeredimagecontentscommand.h
   newprojectvalidator.cpp
   newprojectvalidator.h
+  note.cpp
+  note.h
+  notesitem.cpp
+  notesitem.h
   panedrawinghelper.cpp
   panedrawinghelper.h
   pasteimagecanvascommand.cpp

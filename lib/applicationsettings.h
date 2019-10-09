@@ -83,6 +83,7 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QString eraserToolShortcut READ eraserToolShortcut WRITE setEraserToolShortcut NOTIFY eraserToolShortcutChanged)
     Q_PROPERTY(QString fillToolShortcut READ fillToolShortcut WRITE setFillToolShortcut NOTIFY fillToolShortcutChanged)
     Q_PROPERTY(QString selectionToolShortcut READ selectionToolShortcut WRITE setSelectionToolShortcut NOTIFY selectionToolShortcutChanged)
+    Q_PROPERTY(QString noteToolShortcut READ noteToolShortcut WRITE setNoteToolShortcut NOTIFY noteToolShortcutChanged)
     Q_PROPERTY(QString toolModeShortcut READ toolModeShortcut WRITE setToolModeShortcut NOTIFY toolModeShortcutChanged)
     Q_PROPERTY(QString decreaseToolSizeShortcut READ decreaseToolSizeShortcut WRITE setDecreaseToolSizeShortcut NOTIFY decreaseToolSizeShortcutChanged)
     Q_PROPERTY(QString increaseToolSizeShortcut READ increaseToolSizeShortcut WRITE setIncreaseToolSizeShortcut NOTIFY increaseToolSizeShortcutChanged)
@@ -284,6 +285,10 @@ public:
     QString selectionToolShortcut() const;
     void setSelectionToolShortcut(const QString &shortcut);
 
+    QString defaultNoteToolShortcut() const;
+    QString noteToolShortcut() const;
+    void setNoteToolShortcut(const QString &shortcut);
+
     QString defaultToolModeShortcut() const;
     QString toolModeShortcut() const;
     void setToolModeShortcut(const QString &shortcut);
@@ -364,6 +369,7 @@ signals:
     void fillToolShortcutChanged();
     void eraserToolShortcutChanged();
     void selectionToolShortcutChanged();
+    void noteToolShortcutChanged();
     void toolModeShortcutChanged();
     void decreaseToolSizeShortcutChanged();
     void increaseToolSizeShortcutChanged();

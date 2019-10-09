@@ -202,7 +202,7 @@ void Ruler::paint(QPainter *painter)
     } else {
         // TODO: use QTextLayout for more compact vertical text
 
-        const int fontDigitWidth = fontMetrics.width(QLatin1Char('9'));
+        const int fontDigitWidth = fontMetrics.horizontalAdvance(QLatin1Char('9'));
         const int textX = 3;
 
         int tickmarkIndex = 0;

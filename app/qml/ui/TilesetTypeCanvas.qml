@@ -29,7 +29,7 @@ TileCanvas {
 
     readonly property int currentPaneZoomLevel: tileCanvas.currentPane ? tileCanvas.currentPane.integerZoomLevel : 1
     readonly property point currentPaneOffset: tileCanvas.currentPane ? tileCanvas.currentPane.integerOffset : Qt.point(0, 0)
-    readonly property bool useCrosshairCursor: tileCanvas.mode === TileCanvas.TileMode
+    readonly property bool useCrosshairCursor: tileCanvas.mode === TileCanvas.TileMode || tileCanvas.tool === TileCanvas.NoteTool
         || tileCanvas.tool === TileCanvas.SelectionTool || (tileCanvas.toolSize < 4 && tileCanvas.currentPaneZoomLevel <= 3)
     readonly property bool useIconCursor: tileCanvas.tool === TileCanvas.EyeDropperTool
 

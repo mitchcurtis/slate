@@ -36,6 +36,7 @@
         <file>ui/NewLayeredImageProjectPopup.qml</file>
         <file>ui/NewProjectPopup.qml</file>
         <file>ui/NewTilesetProjectPopup.qml</file>
+        <file>ui/NoteDialog.qml</file>
         <file>ui/OpacityDialog.qml</file>
         <file>ui/OptionsDialog.qml</file>
         <file>ui/Panel.qml</file>

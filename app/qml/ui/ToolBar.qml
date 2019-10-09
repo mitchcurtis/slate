@@ -46,22 +46,25 @@ ToolBar {
         target: canvas
         onToolChanged: {
             switch (canvas.tool) {
-            case TileCanvas.PenTool:
-                toolButtonGroup.checkedButton = penToolButton;
-                break;
-            case TileCanvas.EyeDropperTool:
-                toolButtonGroup.checkedButton = eyeDropperToolButton;
-                break;
-            case TileCanvas.EraserTool:
-                toolButtonGroup.checkedButton = eraserToolButton;
-                break;
-            case TileCanvas.FillTool:
-            case TileCanvas.TexturedFillTool:
-                toolButtonGroup.checkedButton = fillToolButton;
-                break;
-            case TileCanvas.SelectionTool:
-                toolButtonGroup.checkedButton = selectionToolButton;
-                break;
+            case ImageCanvas.PenTool:
+                toolButtonGroup.checkedButton = penToolButton
+                break
+            case ImageCanvas.EyeDropperTool:
+                toolButtonGroup.checkedButton = eyeDropperToolButton
+                break
+            case ImageCanvas.EraserTool:
+                toolButtonGroup.checkedButton = eraserToolButton
+                break
+            case ImageCanvas.FillTool:
+            case ImageCanvas.TexturedFillTool:
+                toolButtonGroup.checkedButton = fillToolButton
+                break
+            case ImageCanvas.SelectionTool:
+                toolButtonGroup.checkedButton = selectionToolButton
+                break
+            case ImageCanvas.NoteTool:
+                toolButtonGroup.checkedButton = noteToolButton
+                break
             }
         }
     }
@@ -243,13 +246,26 @@ ToolBar {
                 id: selectionToolButton
                 objectName: "selectionToolButton"
                 checkable: true
-                visible: projectType === Project.ImageType || projectType === Project.LayeredImageType
+                visible: isImageProject
                 enabled: projectLoaded
                 icon.source: "qrc:/images/selection.png"
 
                 ToolTip.text: qsTr("Select pixels within an area and move them")
 
                 onClicked: canvas.tool = ImageCanvas.SelectionTool
+            }
+
+            Ui.ToolButton {
+                id: noteToolButton
+                objectName: "noteToolButton"
+                checkable: true
+                visible: isImageProject
+                enabled: projectLoaded
+                icon.source: "qrc:/images/note.png"
+
+                ToolTip.text: qsTr("Add and edit notes on the canvas")
+
+                onClicked: canvas.tool = ImageCanvas.NoteTool
             }
 
             ToolSeparator {}
@@ -419,6 +435,21 @@ ToolBar {
 
                 onClicked: settings.guidesLocked = checked
             }
+        }
+
+        ToolSeparator {
+            height: parent.height
+        }
+
+        Ui.ToolButton {
+            objectName: "showNotesToolButton"
+            checkable: true
+            checked: canvas && canvas.notesVisible
+            icon.source: "qrc:/images/show-notes.png"
+
+            ToolTip.text: qsTr("Show notes")
+
+            onClicked: canvas.notesVisible = checked
         }
 
         ToolSeparator {

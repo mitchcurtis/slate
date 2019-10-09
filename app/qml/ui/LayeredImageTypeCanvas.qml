@@ -29,7 +29,7 @@ LayeredImageCanvas {
 
     readonly property int currentPaneZoomLevel: layeredCanvas.currentPane ? layeredCanvas.currentPane.integerZoomLevel : 1
     readonly property point currentPaneOffset: layeredCanvas.currentPane ? layeredCanvas.currentPane.integerOffset : Qt.point(0, 0)
-    readonly property bool useCrosshairCursor: layeredCanvas.tool === ImageCanvas.SelectionTool
+    readonly property bool useCrosshairCursor: layeredCanvas.tool === ImageCanvas.SelectionTool || layeredCanvas.tool === ImageCanvas.NoteTool
         || (layeredCanvas.toolSize < 4 && layeredCanvas.currentPaneZoomLevel <= 3)
     readonly property bool useIconCursor: layeredCanvas.tool === ImageCanvas.EyeDropperTool
 
