@@ -368,6 +368,7 @@ signals:
 
     void noteCreationRequested();
     void noteModificationRequested(int noteIndex);
+    void noteContextMenuRequested(int noteIndex);
 
     // Used to signal CanvasPaneItem classes that they should redraw,
     // instead of them having to connect to lots of specific signals.

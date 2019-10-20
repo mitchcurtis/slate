@@ -52,6 +52,7 @@ Group {
             "ui/NewLayeredImageProjectPopup.qml",
             "ui/NewProjectPopup.qml",
             "ui/NewTilesetProjectPopup.qml",
+            "ui/NoteContextMenu.qml",
             "ui/NoteDialog.qml",
             "ui/OpacityDialog.qml",
             "ui/OptionsDialog.qml",

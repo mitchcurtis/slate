@@ -160,6 +160,10 @@ ApplicationWindow {
             noteDialog.modifyingNoteIndex = noteIndex
             noteDialog.open()
         }
+        onNoteContextMenuRequested: {
+            noteContextMenu.noteIndex = noteIndex
+            noteContextMenu.popup(canvas.cursorX, canvas.cursorY)
+        }
     }
 
     Ui.UiStateSerialisation {
@@ -501,6 +505,11 @@ ApplicationWindow {
         parent: Overlay.overlay
         anchors.centerIn: parent
         project: projectManager.project
+        canvas: window.canvas
+    }
+
+    Ui.NoteContextMenu {
+        id: noteContextMenu
         canvas: window.canvas
     }
 

@@ -90,7 +90,6 @@ ImageCanvas::ImageCanvas() :
     mGuidesLocked(false),
     mNotesVisible(false),
     mGuidePositionBeforePress(0),
-    mDraggingNote(false),
     mPressedGuideIndex(-1),
     mPressedNoteIndex(-1),
     mGuidesItem(nullptr),
@@ -2586,15 +2585,8 @@ void ImageCanvas::updateWindowCursorShape()
 
     // Do this check first since notes should go above guides.
     bool overNote = false;
-    bool notePressed = false;
-    // Since the note tool can be used to both edit and drag notes,
-    // we only want the hand cursor to be visible when dragging, so that the user
-    // knows that they can edit when hovering over a note.
-    // When hovering over a note, we want to use the crosshair cursor as usual.
-    if (mTool == NoteTool && notesVisible() && !overRuler) {
+    if (mTool == NoteTool && notesVisible() && !overRuler)
         overNote = noteIndexAtCursorPos() != -1;
-        notePressed = mPressedNoteIndex != -1;
-    }
 
     bool overGuide = false;
     if (guidesVisible() && !guidesLocked() && !overRuler && !overNote)
@@ -2605,20 +2597,15 @@ void ImageCanvas::updateWindowCursorShape()
     const bool splitterHovered = mSplitter.isEnabled() && mSplitter.isHovered();
     const bool overSelection = cursorOverSelection();
     const bool toolsForbidden = areToolsForbidden();
-    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && !overSelection && !notePressed && !overRuler && !overGuide && !toolsForbidden);
+    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && !overSelection && !overNote && !overRuler && !overGuide && !toolsForbidden);
 
     Qt::CursorShape cursorShape = Qt::BlankCursor;
     if (!mHasBlankCursor) {
         if (isPanning()) {
             // If panning while space is pressed, the left mouse button is used, otherwise it's the middle mouse button.
             cursorShape = (mMouseButtonPressed == Qt::LeftButton || mMouseButtonPressed == Qt::MiddleButton) ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
-        } else if (notePressed || overGuide) {
-            if (notePressed) {
-                cursorShape = Qt::ClosedHandCursor;
-            } else {
-                // A guide is hovered.
-                cursorShape = mPressedGuideIndex != -1 ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
-            }
+        } else if (overNote || overGuide) {
+            cursorShape = mPressedGuideIndex != -1 || mPressedNoteIndex != -1 ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
         } else if (overSelection) {
             cursorShape = Qt::SizeAllCursor;
         } else if (splitterHovered) {
@@ -2636,19 +2623,14 @@ void ImageCanvas::updateWindowCursorShape()
             << "\n... mProject->hasLoaded() " << mProject->hasLoaded()
             << "\n........ hasActiveFocus() " << hasActiveFocus()
             << "\n.......... mContainsMouse " << mContainsMouse
-            << "\n............. isPanning() " << isPanning()
-            << "\n... mSplitter.isHovered() " << mSplitter.isHovered()
-            << "\n............. notePressed " << notePressed
             << "\n....... mPressedNoteIndex " << mPressedNoteIndex
-            << "\n............... overGuide " << overGuide
             << "\n...... mPressedGuideIndex " << mPressedGuideIndex
-            << "\n..... areToolsForbidden() " << toolsForbidden
             << "\n......... mHasBlankCursor " << mHasBlankCursor
             << " (nothingOverUs=" << nothingOverUs
             << " !isPanning()=" << !isPanning()
             << " !splitterHovered=" << !splitterHovered
             << " !overSelection=" << !overSelection
-            << " !notePressed=" << !notePressed
+            << " !overNote=" << !overNote
             << " !overRuler=" << !overRuler
             << " !overGuide=" << !overGuide
             << " !toolsForbidden=" << !toolsForbidden << ")"
@@ -2987,7 +2969,6 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
             mGuidesItem->update();
         } else if (mPressedNoteIndex != -1) {
             mNotesItem->update();
-            mDraggingNote = true;
         } else {
             if (!isPanning()) {
                 if (mTool != SelectionTool) {
@@ -3111,9 +3092,8 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
         mPressedGuideIndex = -1;
         updateWindowCursorShape();
     } else if (mPressedNoteIndex != -1) {
-        // A note was pressed and now released.
-        if (mDraggingNote) {
-            // It was dragged (regardless of whether it actually changed position).
+        if (event->button() == Qt::LeftButton) {
+            // A note was dragged (regardless of whether it actually changed position).
             qCDebug(lcImageCanvasNotes) << "the note at index" << mPressedNoteIndex << "was dragged -"
                 << "mCursorSceneX:" << mCursorSceneX << "mCursorSceneY:" << mCursorSceneY
                 << "mNotePositionBeforePress:" << mNotePositionBeforePress
@@ -3125,15 +3105,8 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
             const QRect newGeometry(QPoint(mCursorSceneX, mCursorSceneY) - mNotePressOffset, oldNote.size());
             const QPoint newPosition = Utils::ensureWithinArea(newGeometry, mProject->size()).topLeft();
             modifyNote(mPressedNoteIndex, newPosition, oldText);
-        } else {
-            // It was clicked.
-            qCDebug(lcImageCanvasNotes) << "the note at index" << mPressedNoteIndex << "was clicked -"
-                << "mCursorSceneX:" << mCursorSceneX << "mCursorSceneY:" << mCursorSceneY
-                << "mNotePositionBeforePress:" << mNotePositionBeforePress
-                << "mPressPosition:" << mPressPosition << "mPressScenePosition:" << mPressScenePosition
-                << "mNotePressOffset:" << mNotePressOffset;
-
-            emit noteModificationRequested(mPressedNoteIndex);
+        } else if (event->button() == Qt::RightButton) {
+            emit noteContextMenuRequested(mPressedNoteIndex);
         }
 
         mPressedNoteIndex = -1;
@@ -3149,7 +3122,6 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
     mGuidePositionBeforePress = 0;
     mNotePositionBeforePress = QPoint(0, 0);
     mNotePressOffset = QPoint(0, 0);
-    mDraggingNote = false;
 }
 
 void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
