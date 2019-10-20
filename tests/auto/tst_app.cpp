@@ -3580,8 +3580,15 @@ void tst_App::notes()
         QCOMPARE(project->notes().at(0).position(), draggedNotePosition);
     }
 
-    // Edit the note via the dialog.
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    // Edit the note via the dialog. First, open the context menu.
+    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, cursorWindowPos);
+    QTRY_VERIFY(findPopupFromTypeName("NoteContextMenu"));
+    const QObject *noteContextMenu = findPopupFromTypeName("NoteContextMenu");
+    QTRY_VERIFY(noteContextMenu->property("opened").toBool());
+
+    QQuickItem *editMenuItem = noteContextMenu->findChild<QQuickItem*>("noteContextMenuEditMenuItem");
+    QVERIFY(editMenuItem);
+    mouseEventOnCentre(editMenuItem, MouseClick);
     QTRY_VERIFY(noteDialog->property("opened").toBool());
     QVERIFY(noteDialogTextField->hasActiveFocus());
     QTest::keyClick(window, Qt::Key_1);
@@ -3603,7 +3610,9 @@ void tst_App::notes()
 
     // Open it again. It shouldn't have the text that was previously entered,
     // but the position of the note that we're editing.
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, cursorWindowPos);
+    QTRY_VERIFY(noteContextMenu->property("opened").toBool());
+    mouseEventOnCentre(editMenuItem, MouseClick);
     QTRY_VERIFY(noteDialog->property("opened").toBool());
     QCOMPARE(noteDialogTextField->property("text").toString(), QLatin1String("test"));
     QCOMPARE(noteDialogXTextField->property("text").toString(), QString::number(draggedNotePosition.x()));

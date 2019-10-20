@@ -22,17 +22,20 @@ import QtQuick.Controls 2.12
 import App 1.0
 
 Menu {
+    id: root
     objectName: "noteContextMenu"
 
     property ImageCanvas canvas
     property int noteIndex: -1
 
     MenuItem {
+        objectName: root.objectName + "EditMenuItem"
         text: qsTr("Edit...")
         onClicked: canvas.noteModificationRequested(noteIndex)
     }
 
     MenuItem {
+        objectName: root.objectName + "DeleteMenuItem"
         text: qsTr("Delete")
         onClicked: canvas.removeNote(noteIndex)
     }
