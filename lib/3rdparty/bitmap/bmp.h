@@ -5,6 +5,8 @@
  *
  * Low-level routines to manipulate bitmap graphic objects in memory and files on disk.
  *
+ * Official repository: <https://github.com/wernsey/bitmap>
+ *
  * * It supports BMP, GIF, PCX and TGA files without any third party dependencies.
  * * PNG support is optional through [libpng][]. Use `-DUSEPNG` when compiling.
  * * JPG support is optional through [libjpeg][]. Use `-DUSEJPG` when compiling.
@@ -50,22 +52,9 @@
 extern "C" {
 #endif
 
+/* See `bm_get_error()` for an explaination */
 #ifndef BM_LAST_ERROR
 #  define BM_LAST_ERROR 1
-#endif
-
-/**
- * ### Globals
- */
-
-/**
- * #### `extern const char *bm_last_error;`
- * The last error of any `bm_*` function where available.
- *
- * It can be disabled in by defining `BM_LAST_ERROR` as 0.
- */
-#if BM_LAST_ERROR
-extern const char *bm_last_error;
 #endif
 
 /**
@@ -864,6 +853,13 @@ unsigned int *bm_load_palette(const char * filename, unsigned int *npal);
 int bm_save_palette(const char * filename, unsigned int *pal, unsigned int npal);
 
 /**
+ * #### `Bitmap *bm_swap_rb(Bitmap *b)`
+ *
+ * Swaps the Red and Blue channels in a .
+ */
+Bitmap *bm_swap_rb(Bitmap *b);
+
+/**
  * ### Drawing Primitives
  * `bmp.h` provides these methods for drawing graphics primitives.
  */
@@ -960,9 +956,17 @@ void bm_fillroundrect(Bitmap *b, int x0, int y0, int x1, int y1, int r);
 /**
  * #### `void bm_bezier3(Bitmap *b, int x0, int y0, int x1, int y1, int x2, int y2)`
  *
- * Draws a Bezier curve with 3 control points `<x0,y0>`, `<x1,y1>` and `<x2,y2>`.
+ * Draws a Quadratic Bezier curve with 3 control points `<x0,y0>`, `<x1,y1>` and `<x2,y2>`.
  */
+
 void bm_bezier3(Bitmap *b, int x0, int y0, int x1, int y1, int x2, int y2);
+/**
+ * #### `void bm_bezier4(Bitmap *b, int x0, int y0, int x1, int y1, int x2, int y2, int x3, int y3)`
+ *
+ * Draws a Cubic Bezier curve with 3 control points `<x0,y0>`, `<x1,y1>`, `<x2,y2>`
+ * and `<x3,y3>`.
+ */
+void bm_bezier4(Bitmap *b, int x0, int y0, int x1, int y1, int x2, int y2, int x3, int y3);
 
 /**
  * #### `void bm_poly(Bitmap *b, BmPoint points[], unsigned int n)`
@@ -1132,6 +1136,21 @@ BmFont *bm_make_xbm_font(const unsigned char *bits, int spacing);
  * Compares strings `p` and `q` case-insensitively.
  */
 int bm_stricmp(const char *p, const char *q);
+
+/** #### `const char *bm_get_error()`
+ * Gets the last error message.
+ *
+ * Tracking error messages uses a global variable internally,
+ * which is not reentrant. To disable this functionality,
+ * `#define BM_LAST_ERROR 0` before including this header
+ * or define it as 0 in your compiler's command-line options.
+ */
+const char *bm_get_error();
+
+/** #### `void bm_set_error(const char *e)`
+ * Sets the internal error message.
+ */
+void bm_set_error(const char *e);
 
 /**
  * TODO

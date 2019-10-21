@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdarg.h>
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <ctype.h>
 #include <float.h>
@@ -65,10 +66,10 @@ Still, it is here if you need it
 #endif
 
 #if BM_LAST_ERROR
-const char *bm_last_error = "";
+static const char *bm_last_error = "no error";
 #  define SET_ERROR(e) bm_last_error = e
 #else
-#  define SET_ERROR(e)
+#  define SET_ERROR(e) (void)e
 #endif
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -171,6 +172,7 @@ struct rgb_triplet {
 #define BM_GETN(B,N,X,Y) (B->data[((Y) * BM_ROW_SIZE(B) + (X) * BM_BPP) + (N)])
 
 Bitmap *bm_create(int w, int h) {
+    SET_ERROR("no error");
     Bitmap *b = malloc(sizeof *b);
     if(!b) {
         SET_ERROR("out of memory");
@@ -258,7 +260,7 @@ static int memseek(BmMemReader *mem, long offset, int origin) {
     case SEEK_CUR: mem->pos += offset; break;
     case SEEK_END: mem->pos = mem->len - offset; break;
     }
-    if(mem->pos < 0 || mem->pos >= mem->len) {
+    if(mem->pos >= mem->len) {
         mem->pos = 0;
         return -1;
     }
@@ -303,6 +305,8 @@ static BmReader make_rwops_reader(SDL_RWops *rw) {
 #endif
 
 Bitmap *bm_load(const char *filename) {
+    SET_ERROR("no error");
+
     Bitmap *bmp;
 #ifdef SAFE_C11
     FILE *f;
@@ -336,6 +340,7 @@ static Bitmap *bm_load_jpg_fp(FILE *f);
 #endif
 
 Bitmap *bm_load_fp(FILE *f) {
+    SET_ERROR("no error");
     unsigned char magic[4];
 
     long start, isbmp = 0, ispng = 0, isjpg = 0, ispcx = 0, isgif = 0, istga = 0;
@@ -419,7 +424,9 @@ Bitmap *bm_load_fp(FILE *f) {
 }
 
 Bitmap *bm_load_mem(const char *buffer, long len) {
-    char magic[4];
+    SET_ERROR("no error");
+
+    unsigned char magic[4];
 
     long isbmp = 0, ispng = 0, isjpg = 0, ispcx = 0, isgif = 0, istga = 0;
 
@@ -508,6 +515,7 @@ Bitmap *bm_load_mem(const char *buffer, long len) {
 }
 
 Bitmap *bm_load_base64(const char *base64) {
+    SET_ERROR("no error");
     /* It would've been cool to read the Base64 data
     in place with a custom BmReader object, but I
     found that decoding first makes it easier to deal with
@@ -573,7 +581,8 @@ static Bitmap *bm_load_bmp_rd(BmReader rd) {
 
     Bitmap *b = NULL;
 
-    int rs, i, j;
+    int i, j;
+    unsigned rs;
     char *data = NULL;
 
     long start_offset = rd.ftell(rd.data);
@@ -595,10 +604,10 @@ static Bitmap *bm_load_bmp_rd(BmReader rd) {
     }
 
 
-    if (dib.bitspp != 1 && 
-        dib.bitspp != 4 && 
-        dib.bitspp != 8 && 
-        dib.bitspp != 24 && 
+    if (dib.bitspp != 1 &&
+        dib.bitspp != 4 &&
+        dib.bitspp != 8 &&
+        dib.bitspp != 24 &&
         dib.bitspp != 32) {
         /* Unsupported BMP type. Only 16bpp is missing now */
         SET_ERROR("unsupported BMP type");
@@ -610,7 +619,6 @@ static Bitmap *bm_load_bmp_rd(BmReader rd) {
         SET_ERROR("unsupported compression type");
         return NULL;
     }
-
 
     b = bm_create(dib.width, dib.height);
     if(!b) {
@@ -775,6 +783,7 @@ static int bm_save_jpg(Bitmap *b, const char *fname);
 #endif
 
 int bm_save(Bitmap *b, const char *fname) {
+    SET_ERROR("no error");
     /* Chooses the file type to save as based on the
     extension in the filename */
     char *lname = strdup(fname), *c,
@@ -810,7 +819,7 @@ int bm_save(Bitmap *b, const char *fname) {
 }
 
 static int bm_save_bmp(Bitmap *b, const char *fname) {
-
+    SET_ERROR("no error");
     /* TODO: Now that I have a function to count colors, maybe
         I should choose to save a bitmap as 8-bit if there
         are <= 256 colors in the image? */
@@ -1014,7 +1023,7 @@ static int bm_save_png(Bitmap *b, const char *fname) {
 
     png_structp png = NULL;
     png_infop info = NULL;
-    int y, rv = 1;
+    int y, rv;
 
 #ifdef SAFE_C11
     FILE *f;
@@ -1080,6 +1089,7 @@ static int bm_save_png(Bitmap *b, const char *fname) {
         goto error;
     }
 
+    rv = 1;
     goto done;
 error:
     rv = 0;
@@ -1237,6 +1247,7 @@ static Bitmap *bm_load_jpg_rw(SDL_RWops *rw);
 #  endif
 
 Bitmap *bm_load_rw(SDL_RWops *rw) {
+    SET_ERROR("no error");
     unsigned char magic[3];
     long start = SDL_RWtell(rw);
     long isbmp = 0, ispng = 0, isjpg = 0, ispcx = 0, isgif = 0;
@@ -1700,7 +1711,7 @@ static Bitmap *bm_load_gif_rd(BmReader rd) {
     GIF gif;
 
     /* From the packed fields in the logical screen descriptor */
-    int gct, sgct;
+    unsigned gct, sgct;
 
     struct rgb_triplet *palette = NULL;
 
@@ -1842,7 +1853,7 @@ static int gif_read_image(BmReader rd, GIF *gif, struct rgb_triplet *ct, int sct
     int rv = 1;
 
     /* Packed fields in the Image Descriptor */
-    int lct, slct;
+    unsigned int lct, slct;
 
     memset(&gce, 0, sizeof gce);
 
@@ -2424,7 +2435,7 @@ static int bm_save_gif(Bitmap *b, const char *fname) {
 
     if(fwrite(&gif.header, sizeof gif.header, 1, f) != 1 ||
         fwrite(&gif.lsd, sizeof gif.lsd, 1, f) != 1 ||
-        fwrite(gct, sizeof *gct, sgct, f) != sgct) {
+        fwrite(gct, sizeof *gct, sgct, f) != (unsigned)sgct) {
 
         SET_ERROR("couldn't write GIF header");
         fclose(f);
@@ -3067,6 +3078,7 @@ void bm_free(Bitmap *b) {
 }
 
 Bitmap *bm_bind(int w, int h, unsigned char *data) {
+    SET_ERROR("no error");
     Bitmap *b = malloc(sizeof *b);
     if(!b) {
         SET_ERROR("out of memory");
@@ -3463,7 +3475,7 @@ void bm_maskedblit(Bitmap *dst, int dx, int dy, Bitmap *src, int sx, int sy, int
         i = sx;
         for(x = dx; x < dx + w; x++) {
 #if IGNORE_ALPHA
-            int c = BM_GET(src, i, j) & 0x00FFFFFF;
+            unsigned int c = BM_GET(src, i, j) & 0x00FFFFFF;
             if(c != (src->color & 0x00FFFFFF))
                 BM_SET(dst, x, y, c);
 #else
@@ -3537,7 +3549,7 @@ void bm_blit_ex(Bitmap *dst, int dx, int dy, int dw, int dh, Bitmap *src, int sx
 
         assert(y >= dst->clip.y0 && sy >= 0);
         for(x = dx; x < dx + dw; x++) {
-            int c;
+            unsigned int c;
             if(sx >= src->w || x >= dst->clip.x1)
                 break;
             assert(x >= dst->clip.x0 && sx >= 0);
@@ -3634,7 +3646,7 @@ void bm_blit_callback(Bitmap *dst, int dx, int dy, int dw, int dh, Bitmap *src, 
 }
 
 unsigned int bm_smp_outline(Bitmap *dst, int dx, int dy, Bitmap *src, int sx, int sy, unsigned int dest_color) {
-
+    (void)dx;(void)dy;    
     if(bm_colcmp(src->color, bm_get(src, sx, sy))) {
         if(sx > src->clip.x0) {
             if(!bm_colcmp(src->color, bm_get(src, sx-1, sy)))
@@ -3662,7 +3674,7 @@ unsigned int bm_smp_outline(Bitmap *dst, int dx, int dy, Bitmap *src, int sx, in
 }
 
 unsigned int bm_smp_border(Bitmap *dst, int dx, int dy, Bitmap *src, int sx, int sy, unsigned int dest_color) {
-
+    (void)dx;(void)dy;    
     if(!bm_colcmp(src->color, bm_get(src, sx, sy))) {
 
         if(sx > src->clip.x0) {
@@ -3694,6 +3706,7 @@ unsigned int bm_smp_border(Bitmap *dst, int dx, int dy, Bitmap *src, int sx, int
 }
 
 unsigned int bm_smp_binary(Bitmap *dst, int dx, int dy, Bitmap *src, int sx, int sy, unsigned int dest_color) {
+    (void)dx;(void)dy;
     if(!bm_colcmp(src->color, bm_get(src, sx, sy))) {
         return dst->color;
     }
@@ -3701,6 +3714,7 @@ unsigned int bm_smp_binary(Bitmap *dst, int dx, int dy, Bitmap *src, int sx, int
 }
 
 unsigned int bm_smp_blend50(Bitmap *dst, int dx, int dy, Bitmap *src, int sx, int sy, unsigned int dest_color) {
+    (void)dst;(void)dx;(void)dy;
     unsigned int c = bm_get(src, sx, sy);
     if(bm_colcmp(src->color, c))
         return dest_color;
@@ -5054,44 +5068,99 @@ void bm_fillroundrect(Bitmap *b, int x0, int y0, int x1, int y1, int r) {
     }
 }
 
-/* Bezier curve with 3 control points.
- * See http://devmag.org.za/2011/04/05/bzier-curves-a-tutorial/
- * I tried the more optimized version at
- * http://members.chello.at/~easyfilter/bresenham.html
- * but that one had some caveats.
+/* The problem with drawing bezier functions is finding a suitable value for
+ * incrementing the `t` parameter with. My implementation takes a guess from
+ * the distance between the control points, and adjusts the guess if new pixels
+ * on the curve are too close or too far from the last pixel drawn. It seemed
+ * to work pretty well for my test cases.
+ *
+ * [bez][] describes an alternative that subdivides the curve with different
+ * values of `t` until a certain quality threshold is met and then draws lines
+ * between those points.
+ *
+ * [bez]: http://devmag.org.za/2011/04/05/bzier-curves-a-tutorial/
  */
 void bm_bezier3(Bitmap *b, int x0, int y0, int x1, int y1, int x2, int y2) {
-    int lx = x0, ly = y0, steps;
-
-    /* Compute how far the point x1,y1 deviates from the line from x0,y0 to x2,y2.
-     * I make the number of steps proportional to that deviation, but it is not
-     * a perfect system.
-     */
-    double dx = x2 - x0, dy = y2 - y0;
+    // Quadratic Bezier curve
+    int x, y, lx = x0, ly = y0;
 
     assert(b);
-    if(dx == 0 && dy == 0) {
-      steps = 2;
-    } else {
-      /* https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line */
-      double denom = sqrt(dx * dx + dy * dy);
-      double dist = fabs((double)((y2 - y0) * x1 - (x2 - x0) * y1 + x2 * y0 + y2 * x0))/denom;
-      steps = (int)sqrt(dist);
-      if(steps == 0) steps = 1;
-    }
 
-    double inc = 1.0/steps;
-    double t = inc;
+    bm_putpixel(b, x0, y0);
 
+    // Take a guess as to how many pixels need to be drawn
+    // using the Manhattan distance between the control points
+    int steps = abs(x1 - x0) + abs(y1 - y0) + abs(x2 - x1) + abs(y2 - y1) + abs(x2 - x1) + abs(y2 - y1);
+    if(steps == 0)
+        return;
+    double  t = 0, inc = 1.0/steps;
     do {
-        dx = (1-t)*(1-t)*x0 + 2*(1-t)*t*x1 + t*t*x2;
-        dy = (1-t)*(1-t)*y0 + 2*(1-t)*t*y1 + t*t*y2;
-        bm_line(b, lx, ly, (int)dx, (int)dy);
-        lx = (int)dx;
-        ly = (int)dy;
-        t += inc;
+        double dt = t + inc, nt = 1.0 - dt;
+        double dbx = nt*nt*x0 + 2.0*nt*dt*x1 + dt*dt*x2 + 0.5;
+        double dby = nt*nt*y0 + 2.0*nt*dt*y1 + dt*dt*y2 + 0.5;
+        x = dbx, y = dby;
+
+        int dx = abs(x - lx), dy = abs(y - ly);
+
+        if(dx > 1 || dy > 1) {
+            // the new point is too far from the last point, so
+            // decrease `inc` and try again.
+            inc *= 0.75;
+        } else if(dx == 0 && dy == 0) {
+            // The new pixel is on top of the last pixel, so
+            // increase `inc` and try again.
+            inc *= 1.5;
+        } else {
+            if(x >= b->clip.x0 && x < b->clip.x1 && y >= b->clip.y0 && y < b->clip.y1)
+                BM_SET(b, x, y, b->color);
+
+            t += inc;
+
+            // This has the effect of smoothing out the curve:
+            inc *= 1.05;
+
+            // Remember the last pixel drawn
+            lx = x;
+            ly = y;
+        }
     } while(t < 1.0);
-    bm_line(b, lx, ly, x2, y2);
+    bm_putpixel(b, x2, y2);
+}
+
+void bm_bezier4(Bitmap *b, int x0, int y0, int x1, int y1, int x2, int y2, int x3, int y3) {
+    // Cubic Bezier curve
+    int x, y, lx = x0, ly = y0;
+
+    assert(b);
+
+    bm_putpixel(b, x0, y0);
+
+    int steps = abs(x1 - x0) + abs(y1 - y0) + abs(x2 - x1) + abs(y2 - y1) + abs(x3 - x2) + abs(y3 - y2);
+    if(steps == 0)
+        return;
+    double t = 0, inc = 1.0/steps;
+    do {
+        double dt = t + inc, nt = 1.0 - dt;
+        double dbx = nt*nt*nt*x0 + 3.0*nt*nt*dt*x1 + 3*nt*dt*dt*x2 + dt*dt*dt*x3 + 0.5;
+        double dby = nt*nt*nt*y0 + 3.0*nt*nt*dt*y1 + 3*nt*dt*dt*y2 + dt*dt*dt*y3 + 0.5;
+
+        x = dbx, y = dby;
+
+        int dx = abs(x - lx), dy = abs(y - ly);
+
+        if(dx > 1 || dy > 1) {
+            inc *= 0.75;
+        } else if(dx == 0 && dy == 0) {
+            inc *= 1.5;
+        } else {
+            if(x >= b->clip.x0 && x < b->clip.x1 && y >= b->clip.y0 && y < b->clip.y1)
+                BM_SET(b, x, y, b->color);
+            t += inc;
+            lx = x;
+            ly = y;
+        }
+    } while(t < 1.0);
+    bm_putpixel(b, x3, y3);
 }
 
 void bm_poly(Bitmap *b, BmPoint points[], unsigned int n) {
@@ -5305,7 +5374,7 @@ static unsigned int closest_color(unsigned int c, unsigned int palette[], size_t
 }
 
 static uint32_t count_trailing_zeroes(uint32_t v) {
-    /* Count the consecutive zero bits (trailing) on the right in parallel 
+    /* Count the consecutive zero bits (trailing) on the right in parallel
        https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightParallel */
     uint32_t c = 32;
     v &= -(int32_t)(v);
@@ -5411,14 +5480,14 @@ static void reduce_palette_bayer(Bitmap *b, unsigned int palette[], size_t n, in
             int f = (bayer[(y & af) * dim + (x & af)] - sub);
 
             R += R * f / fac;
-            if(R > 255) R = 255;
-            else if(R < 0) R = 0;
+            if(R > 255) 
+                R = 255;
             G += G * f / fac;
-            if(G > 255) G = 255;
-            else if(G < 0) G = 0;
+            if(G > 255) 
+                G = 255;
             B += B * f / fac;
-            if(B > 255) B = 255;
-            else if(B < 0) B = 0;
+            if(B > 255) 
+                B = 255;
             oldpixel = (R << 16) | (G << 8) | B;
             newpixel = closest_color(oldpixel, palette, n);
             BM_SET(b, x, y, newpixel);
@@ -5524,7 +5593,7 @@ error:
 }
 
 int bm_save_palette(const char * filename, unsigned int *pal, unsigned int npal) {
-    int i;
+    unsigned i;
     FILE *f;
     if(!filename)
         return 0;
@@ -5541,6 +5610,16 @@ int bm_save_palette(const char * filename, unsigned int *pal, unsigned int npal)
     }
     fclose(f);
     return 1;
+}
+
+Bitmap *bm_swap_rb(Bitmap *b) {
+    int i;
+    for(i = 0; i < b->w * b->h; i++) {
+        unsigned int *pixp = ((unsigned int *)b->data) + i;
+        unsigned int c = *pixp;
+        *pixp = (c & 0xFF00FF00) | ((c & 0xFF) << 16) | ((c >> 16) & 0xFF);
+    }
+    return b;
 }
 
 int bm_stricmp(const char *p, const char *q) {
@@ -5792,6 +5871,7 @@ static void sf_dtor(BmFont *font) {
 }
 
 BmFont *bm_make_sfont(const char *file) {
+    SET_ERROR("no error");
     unsigned int bg, mark;
     int cnt = 0, x, w = 1, s = 0, mw = 0;
     Bitmap *b = NULL;
@@ -5961,7 +6041,7 @@ static void xbmf_putc(Bitmap *b, const unsigned char *xbm_bits, int x, int y, un
     int frow, fcol, byte;
     int i, j;
 
-    if(c < 32 || c > 127)
+    if(c < 32)
         return;
 
     c -= 32;
@@ -6032,6 +6112,7 @@ static int xbmf_width(BmFont *font) {
     return info->spacing;
 }
 static int xbmf_height(BmFont *font) {
+    (void)font;
     return 8;
 }
 
@@ -6043,6 +6124,7 @@ static void xbmf_free(BmFont *font) {
 }
 
 BmFont *bm_make_xbm_font(const unsigned char *bits, int spacing) {
+    SET_ERROR("no error");
     BmFont *font;
     XbmFontInfo *info;
     font = malloc(sizeof *font);
@@ -6073,4 +6155,18 @@ BmFont *bm_make_xbm_font(const unsigned char *bits, int spacing) {
 void bm_reset_font(Bitmap *b) {
     static BmFont font = {"XBM",xbmf_puts,xbmf_width,xbmf_height,NULL,NULL};
     bm_set_font(b, &font);
+}
+
+const char *bm_get_error() {
+#if BM_LAST_ERROR
+    return bm_last_error;
+#else
+    return "";
+#endif
+}
+
+void bm_set_error(const char *e) {
+#if BM_LAST_ERROR
+    bm_last_error = e;
+#endif
 }

@@ -290,7 +290,7 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
     }
 
     if (gif_save(gif, path.toUtf8().constData()) == 0) {
-        errorMessage = QObject::tr("Failed to export GIF: %1").arg(bm_last_error);
+        errorMessage = QObject::tr("Failed to export GIF: %1").arg(bm_get_error());
         return false;
     }
 
