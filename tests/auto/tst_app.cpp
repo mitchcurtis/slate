@@ -134,10 +134,12 @@ private Q_SLOTS:
     void pixelLineToolTransparent();
     void penToolRightClickBehaviour_data();
     void penToolRightClickBehaviour();
+    void splitScreenRendering();
 
     // Rulers, guides, notes, etc.
     void rulersAndGuides_data();
     void rulersAndGuides();
+    void rulersSplitScreen();
     void notes_data();
     void notes();
     void dragNoteOutOfBounds_data();
@@ -3378,6 +3380,27 @@ void tst_App::penToolRightClickBehaviour()
     }
 }
 
+void tst_App::splitScreenRendering()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY(canvas->isSplitScreen());
+
+    // Both panes should be visible and have rendered their white backgrounds.
+    const QQuickItem *firstPaneItem = findChildItem(layeredImageCanvas, "layeredImageCanvasPaneItem0");
+    QVERIFY(firstPaneItem);
+    QVERIFY(firstPaneItem->isVisible());
+
+    const QQuickItem *secondPaneItem = findChildItem(layeredImageCanvas, "layeredImageCanvasPaneItem1");
+    QVERIFY(secondPaneItem);
+    QVERIFY(secondPaneItem->isVisible());
+
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage canvasGrab = imageGrabber.takeImage();
+    QCOMPARE(canvasGrab.pixelColor(layeredImageCanvas->width() * 0.25, layeredImageCanvas->height() / 2), QColor(Qt::white));
+    QCOMPARE(canvasGrab.pixelColor(layeredImageCanvas->width() * 0.75, layeredImageCanvas->height() / 2), QColor(Qt::white));
+}
+
 void tst_App::rulersAndGuides_data()
 {
     addAllProjectTypes();
@@ -3494,6 +3517,30 @@ void tst_App::rulersAndGuides()
     QCOMPARE(project->guides().size(), 0);
 
     app.settings()->setGuidesLocked(false);
+}
+
+void tst_App::rulersSplitScreen()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY(canvas->isSplitScreen());
+    QVERIFY(!canvas->rulersVisible());
+
+    // Rulers are not visible by default, so they shouldn't be visible when enabling split-screen.
+    const QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
+    QVERIFY(firstHorizontalRuler);
+    QVERIFY(!firstHorizontalRuler->isVisible());
+
+    const QQuickItem *firstVerticalRuler = canvas->findChild<QQuickItem*>("firstVerticalRuler");
+    QVERIFY(firstVerticalRuler);
+    QVERIFY(!firstVerticalRuler->isVisible());
+
+    const QQuickItem *secondHorizontalRuler = canvas->findChild<QQuickItem*>("secondHorizontalRuler");
+    QVERIFY(secondHorizontalRuler);
+    QVERIFY(!secondHorizontalRuler->isVisible());
+
+    const QQuickItem *secondVerticalRuler = canvas->findChild<QQuickItem*>("secondVerticalRuler");
+    QVERIFY(secondVerticalRuler);
+    QVERIFY(!secondVerticalRuler->isVisible());
 }
 
 void tst_App::notes_data()

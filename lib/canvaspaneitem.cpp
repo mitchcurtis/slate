@@ -108,6 +108,9 @@ void CanvasPaneItem::itemChange(QQuickItem::ItemChange change, const QQuickItem:
 void CanvasPaneItem::connectToCanvas()
 {
     connect(mCanvas, &ImageCanvas::contentPaintRequested, this, &CanvasPaneItem::onContentPaintRequested);
+
+    // Fixes a problem where the second pane wasn't rendered when splitting the screen.
+    update();
 }
 
 void CanvasPaneItem::disconnectFromCanvas()

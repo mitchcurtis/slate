@@ -118,6 +118,8 @@ protected:
     static QQuickItem *findChildWithText(QQuickItem *item, const QString &text);
     QQuickItem *findViewDelegateAtIndex(QQuickItem *view, int index);
     QQuickItem* findSplitViewHandle(const QString &splitViewObjectName, int handleIndex) const;
+    // Useful for cases where an item is a QQuickItem child but not a QObject child, as is the case with e.g. Repeater.
+    static QQuickItem *findChildItem(QQuickItem *parentItem, const QString &objectName);
 
     // Returns the position of the cursor in a tile's local coordinates.
     QPoint mapToTile(const QPoint &cursorPos) const;
@@ -169,6 +171,7 @@ protected:
     Q_REQUIRED_RESULT bool triggerGuidesVisible();
     Q_REQUIRED_RESULT bool triggerSplitScreen();
     Q_REQUIRED_RESULT bool triggerSplitterLocked();
+    Q_REQUIRED_RESULT bool setSplitScreen(bool splitScreen);
     Q_REQUIRED_RESULT bool setSplitterLocked(bool splitterLocked);
     Q_REQUIRED_RESULT bool triggerAnimationPlayback();
     Q_REQUIRED_RESULT bool setAnimationPlayback(bool usingAnimation);

@@ -1200,6 +1200,21 @@ QQuickItem *TestHelper::findSplitViewHandle(const QString &splitViewObjectName, 
     return handleItems.at(handleIndex);
 }
 
+QQuickItem *TestHelper::findChildItem(QQuickItem *parentItem, const QString &objectName)
+{
+    const auto childItems = parentItem->childItems();
+    for (QQuickItem *child : childItems) {
+        if (child->objectName() == objectName)
+            return child;
+        else {
+            QQuickItem *match = findChildWithText(child, objectName);
+            if (match)
+                return match;
+        }
+    }
+    return nullptr;
+}
+
 QPoint TestHelper::mapToTile(const QPoint &cursorPos) const
 {
     return cursorPos - tileCanvas->mapToScene(QPointF(0, 0)).toPoint();
@@ -1417,6 +1432,13 @@ bool TestHelper::triggerSplitScreen()
 bool TestHelper::triggerSplitterLocked()
 {
     return triggerShortcut("splitterLockedShortcut", app.settings()->splitterLockedShortcut());
+}
+
+bool TestHelper::setSplitScreen(bool splitScreen)
+{
+    if (canvas->isSplitScreen() != splitScreen)
+        mouseEventOnCentre(splitScreenToolButton, MouseClick);
+    return canvas->isSplitScreen() == splitScreen;
 }
 
 bool TestHelper::setSplitterLocked(bool splitterLocked)

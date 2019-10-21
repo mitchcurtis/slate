@@ -7,6 +7,7 @@ import "."
 
 Repeater {
     id: root
+    objectName: "canvasPaneRepeater"
     model: 2
 
     property ImageCanvas canvas
@@ -60,7 +61,7 @@ Repeater {
         paneIndex: index
         anchors.fill: parent
         visible: index === 0 || canvas.splitScreen
-        
+
         Rectangle {
             x: index === 0 ? 0 : Math.floor(parent.width - width)
             width: Math.floor(paneItem.pane.size * parent.width)

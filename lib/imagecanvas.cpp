@@ -1225,8 +1225,9 @@ bool ImageCanvas::mouseOverSplitterHandle(const QPoint &mousePos)
 
 void ImageCanvas::updateRulerVisibility()
 {
-    mSecondHorizontalRuler->setVisible(mSplitScreen);
-    mSecondVerticalRuler->setVisible(mSplitScreen);
+    // The first pane's rulers are already taken care of, so don't need to account for them here.
+    mSecondHorizontalRuler->setVisible(rulersVisible() && mSplitScreen);
+    mSecondVerticalRuler->setVisible(rulersVisible() && mSplitScreen);
 }
 
 void ImageCanvas::resizeRulers()

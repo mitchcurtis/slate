@@ -140,7 +140,6 @@ void Ruler::paint(QPainter *painter)
     painter->setPen(mForegroundColour);
 
     QFontMetrics fontMetrics(font);
-//    const int maxTextWidth = fontMetrics.width(QString::number(width()));
 
     // Find the first number that will be visible on the ruler.
     int firstVisibleLvl1Number = 0;
