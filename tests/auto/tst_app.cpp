@@ -3719,6 +3719,8 @@ void tst_App::saveAndLoadNotes()
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
     QVERIFY(canvas->notesVisible());
 
+    canvas->setSplitScreen(false);
+
     QVERIFY2(switchTool(ImageCanvas::NoteTool), failureMessage);
 
     // Create some notes.
@@ -3758,7 +3760,10 @@ void tst_App::saveAndLoadNotes()
 
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
-    QVERIFY2(imageGrabber.takeImage() == canvasGrab, "Notes were not rendered as expected after loading");
+    const auto i = imageGrabber.takeImage();
+    QVERIFY(i.save("/Users/mitch/dev/temp/_actual.png"));
+    QVERIFY(canvasGrab.save("/Users/mitch/dev/temp/_expected.png"));
+    QVERIFY2(i == canvasGrab, "Notes were not rendered as expected after loading");
 }
 
 void tst_App::autoSwatch_data()
