@@ -120,7 +120,7 @@ static GIF *gif_load_fp(FILE *fp) {
     GIF_FILE file;
 
     /* From the packed fields in the logical screen descriptor */
-    int gct, col_res, sort_flag, sgct;
+    size_t gct, col_res, sort_flag, sgct;
     float aspect_ratio;
 
     struct gif_triplet *palette = NULL;
@@ -203,7 +203,7 @@ static GIF *gif_load_fp(FILE *fp) {
 
         output(stdout, "Global Color Table: %d entries\n", sgct);
         if(gif_verbose > 1) {
-            int i;
+            size_t i;
             for(i = 0; i < sgct; i++) {
                 output(stdout, " %3d: %02X %02X %02X\n", i, palette[i].r, palette[i].g, palette[i].b);
             }
@@ -325,7 +325,7 @@ static int gif_read_image(FILE *fp, GIF_FILE *file, struct gif_triplet *ct, int 
     GIF_ID gif_id;
 
     /* Packed fields in the Image Descriptor */
-    int lct, intl, sort, slct;
+    size_t lct, intl, sort, slct;
 
     memset(&gce, 0, sizeof gce);
 
@@ -368,7 +368,7 @@ static int gif_read_image(FILE *fp, GIF_FILE *file, struct gif_triplet *ct, int 
 
         output(stdout, "Local Color Table: %d entries\n", slct);
         if(gif_verbose > 1) {
-            int i;
+            size_t i;
             for(i = 0; i < slct; i++) {
                 output(stdout, " %3d: %02X %02X %02X\n", i, ct[i].r, ct[i].g, ct[i].b);
             }
@@ -832,7 +832,7 @@ static int gif_save_fp(GIF *g, FILE *f) {
     GIF_FILE file;
     GIF_GCE gce;
     GIF_ID gif_id;
-    int nc, sgct, bg;
+    unsigned int nc, sgct, bg;
     struct gif_triplet gct[256];
     unsigned char code_size = 0x08;
     Bitmap *b = g->n > 0 ? g->frames[0].image : NULL;
@@ -971,7 +971,7 @@ static int gif_save_fp(GIF *g, FILE *f) {
         int x, y, p = 0;
         for(y = 0; y < b->h; y++) {
             for(x = 0; x < b->w; x++) {
-                int i;
+                unsigned int i;
                 int c = bm_get(b, x, y);
                 i = bsrch_palette_lookup(gct, c, 0, nc - 1);
                 /* At this point in time, the color MUST be in the palette */
