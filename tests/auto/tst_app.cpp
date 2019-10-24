@@ -1536,8 +1536,6 @@ void tst_App::undoWithDuplicates()
     lastImage = *tilesetProject->tileAt(cursorPos)->tileset()->image();
     setCursorPosInScenePixels(0, 1);
     QTest::mouseMove(window, cursorWindowPos);
-    tilesetProject->tileAt(cursorPos)->tileset()->image()->save("C:/dev/cur.png");
-    lastImage.save("C:/dev/last.png");
     QCOMPARE(*tilesetProject->tileAt(cursorPos)->tileset()->image(), lastImage);
 
     setCursorPosInScenePixels(0, 2);
@@ -3703,8 +3701,6 @@ void tst_App::notes()
     QVERIFY(!project->notes().at(0).size().isEmpty());
     // The edited text is longer than the old one, so the note box should grow.
     QVERIFY(project->notes().at(0).size().width() > oldNoteSize.width());
-
-    // TODO: don't serialise size; it's display-specific. lazily initialise it instead
 }
 
 void tst_App::dragNoteOutOfBounds_data()
@@ -3778,8 +3774,6 @@ void tst_App::saveAndLoadNotes()
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
     QVERIFY(canvas->areNotesVisible());
 
-    canvas->setSplitScreen(false);
-
     QVERIFY2(switchTool(ImageCanvas::NoteTool), failureMessage);
 
     // Create some notes.
@@ -3799,7 +3793,13 @@ void tst_App::saveAndLoadNotes()
 
     // Change the value of notesVisible so that we can test that it's
     // saved and loaded in the project's UI state.
-    canvas->setNotesVisible(false);
+    mouseEventOnCentre(showNotesToolButton, MouseClick);
+    QVERIFY(!canvas->areNotesVisible());
+
+    // Check that the notes are no longer rendered.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QVERIFY2(imageGrabber.takeImage() != canvasGrab, "Notes were not rendered as expected after loading");
 
     // Save the project.
     const QString savedProjectPath = tempProjectDir->path() + "/saveAndLoadNotes-project.slp";
@@ -3815,14 +3815,21 @@ void tst_App::saveAndLoadNotes()
     QCOMPARE(project->notes().at(0).position(), QPoint(0, 0));
     QCOMPARE(project->notes().at(1).position(), QPoint(100, 100));
     QCOMPARE(project->notes().at(2).position(), QPoint(200, 200));
-    QVERIFY(canvas->areNotesVisible());
+    QVERIFY(!canvas->areNotesVisible());
 
+    // Check that the notes are still not rendered.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
-    const auto i = imageGrabber.takeImage();
-    QVERIFY(i.save("/Users/mitch/dev/temp/_actual.png"));
-    QVERIFY(canvasGrab.save("/Users/mitch/dev/temp/_expected.png"));
-    QVERIFY2(i == canvasGrab, "Notes were not rendered as expected after loading");
+    QVERIFY2(imageGrabber.takeImage() != canvasGrab, "Notes were not rendered as expected after loading");
+
+    // Show notes.
+    mouseEventOnCentre(showNotesToolButton, MouseClick);
+    QVERIFY(canvas->areNotesVisible());
+
+    // Check that the notes are rendered.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QVERIFY2(imageGrabber.takeImage() == canvasGrab, "Notes were not rendered as expected after showing them");
 }
 
 void tst_App::autoSwatch_data()

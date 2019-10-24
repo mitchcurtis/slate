@@ -67,6 +67,7 @@ Q_LOGGING_CATEGORY(lcImageCanvasNotes, "app.canvas.notes")
 Q_LOGGING_CATEGORY(lcImageCanvasSelection, "app.canvas.selection")
 Q_LOGGING_CATEGORY(lcImageCanvasSelectionCursorGuideVisibility, "app.canvas.selection.cursorguidevisibility")
 Q_LOGGING_CATEGORY(lcImageCanvasSelectionPreviewImage, "app.canvas.selection.previewimage")
+Q_LOGGING_CATEGORY(lcImageCanvasUiState, "app.canvas.uistate")
 
 ImageCanvas::ImageCanvas() :
     mProject(nullptr),
@@ -85,9 +86,9 @@ ImageCanvas::ImageCanvas() :
     mSecondHorizontalRuler(nullptr),
     mSecondVerticalRuler(nullptr),
     mPressedRuler(nullptr),
-    mGuidesVisible(false),
+    mGuidesVisible(true),
     mGuidesLocked(false),
-    mNotesVisible(false),
+    mNotesVisible(true),
     mGuidePositionBeforePress(0),
     mPressedGuideIndex(-1),
     mPressedNoteIndex(-1),
@@ -206,6 +207,8 @@ Project *ImageCanvas::project() const
 
 void ImageCanvas::restoreState()
 {
+    qCDebug(lcImageCanvasUiState) << "restoring UI state...";
+
     // Read the canvas data that was stored in the project, if there is any.
     // New projects or projects that don't have their own Slate extension
     // won't have any data.
@@ -240,10 +243,14 @@ void ImageCanvas::restoreState()
         setDefaultPaneSizes();
         centrePanes();
     }
+
+    qCDebug(lcImageCanvasUiState) << "... restored UI state.";
 }
 
 void ImageCanvas::saveState()
 {
+    qCDebug(lcImageCanvasUiState) << "saving UI state...";
+
     // The line between what is UI state and what is project state in an image
     // editor is a bit blurry. For example, guides are written by the project,
     // but could also be considered UI state. In general, we consider UI state
@@ -266,16 +273,18 @@ void ImageCanvas::saveState()
 
     if (!areRulersVisible())
         mProject->uiState()->setValue("rulersVisible", false);
-    if (!areGuidesVisible())
+    if (!mGuidesVisible)
         mProject->uiState()->setValue("guidesVisible", false);
-    if (areGuidesLocked())
+    if (mGuidesLocked)
         mProject->uiState()->setValue("guidesLocked", true);
-    if (mNotesVisible)
-        mProject->uiState()->setValue("notesVisible", true);
+    if (!mNotesVisible)
+        mProject->uiState()->setValue("notesVisible", false);
     if (mSplitScreen)
         mProject->uiState()->setValue("splitScreen", true);
     if (mSplitter.isEnabled())
         mProject->uiState()->setValue("splitterLocked", true);
+
+    qCDebug(lcImageCanvasUiState) << "... saved UI state.";
 }
 
 void ImageCanvas::setProject(Project *project)
