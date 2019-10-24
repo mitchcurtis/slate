@@ -445,6 +445,7 @@ ToolBar {
             objectName: "showNotesToolButton"
             checkable: true
             checked: canvas && canvas.notesVisible
+            enabled: projectLoaded
             icon.source: "qrc:/images/show-notes.png"
 
             ToolTip.text: qsTr("Show notes")
