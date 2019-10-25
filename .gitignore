@@ -18,6 +18,7 @@
 *.pro.user.*
 *.qbs.user
 *.qbs.user.*
+*CMakeLists.txt.user
 *.moc
 moc_*.cpp
 qrc_*.cpp

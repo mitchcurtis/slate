@@ -1,6 +1,6 @@
 # CMakeLists.txt
-cmake_minimum_required(VERSION 3.9)
-project(slate VERSION 1.0.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.14)
+project(slate VERSION 1.0.0 LANGUAGES CXX C)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTORCC ON)

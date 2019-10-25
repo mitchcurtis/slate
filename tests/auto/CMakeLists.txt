@@ -47,6 +47,7 @@ set_target_properties(
   CXX_EXTENSIONS FALSE
   CXX_STANDARD 11
   CXX_STANDARD_REQUIRED TRUE
+  AUTOMOC TRUE
 )
 
 target_compile_definitions(

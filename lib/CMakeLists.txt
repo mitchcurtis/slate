@@ -7,6 +7,10 @@ add_library(
 target_sources(
   slate
   PRIVATE
+  3rdparty/bitmap/bmp.c
+  3rdparty/bitmap/bmp.h
+  3rdparty/bitmap/misc/gif.c
+  3rdparty/bitmap/misc/gif.h
   addguidecommand.cpp
   addguidecommand.h
   addlayercommand.cpp
@@ -63,6 +67,8 @@ target_sources(
   changenotecommand.h
   changetilecanvassizecommand.cpp
   changetilecanvassizecommand.h
+  clipboard.h
+  clipboard.cpp
   commands.h
   deleteguidecommand.cpp
   deleteguidecommand.h
@@ -138,6 +144,8 @@ target_sources(
   selectioncursorguide.h
   selectionitem.cpp
   selectionitem.h
+  serialisablestate.cpp
+  serialisablestate.h
   slate-global.h
   splitter.cpp
   splitter.h
@@ -190,6 +198,7 @@ target_include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty
 )
 
 set_target_properties(
