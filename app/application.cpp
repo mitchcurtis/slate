@@ -94,6 +94,8 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     mSettings(new ApplicationSettings),
     mEngine(new QQmlApplicationEngine)
 {
+    qCDebug(lcApplication) << "constructing Application...";
+
     qmlRegisterType<AutoSwatchModel>("App", 1, 0, "AutoSwatchModel");
     qmlRegisterType<FileValidator>("App", 1, 0, "FileValidator");
     qmlRegisterType<ImageCanvas>();
@@ -174,6 +176,8 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     mEngine->load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
     qCDebug(lcApplication) << "... loaded main.qml";
     Q_ASSERT(!mEngine->rootObjects().isEmpty());
+
+    qCDebug(lcApplication) << "... constructed Application";
 }
 
 Application::~Application()
