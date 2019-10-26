@@ -146,10 +146,21 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qRegisterMetaType<Tileset*>();
     qRegisterMetaType<QVector<QColor>>();
 
-    if (QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf") == -1) {
-        qWarning() << "Failed to load FontAwesome font";
+    // Install fonts. It's especially important to ensure that all fonts we use
+    // are available, otherwise Qt will have to search for "font family aliases",
+    // which can take 1 second (observable with qt.qpa.fonts.warning = true).
+    const QVector<QString> fontsToLoad = {
+        QStringLiteral(":/fonts/FontAwesome.otf"),
+        QStringLiteral(":/fonts/Roboto/Roboto-Bold.ttf"),
+        QStringLiteral(":/fonts/Roboto/Roboto-Regular.ttf")
+    };
+    for (const QString &fontPath : fontsToLoad) {
+        if (QFontDatabase::addApplicationFont(fontPath) == -1) {
+            qWarning() << "Failed to load font:" << fontPath;
+        }
     }
 
+    // Install a translator for the current language.
     QTranslator translator;
     const QLocale locale(mSettings->language());
     QDir translationsDir = QDir::current();

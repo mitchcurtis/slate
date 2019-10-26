@@ -2,5 +2,7 @@
     <qresource prefix="/fonts">
         <file>FontAwesome.otf</file>
         <file>Typicons.ttf</file>
+        <file>Roboto/Roboto-Bold.ttf</file>
+        <file>Roboto/Roboto-Regular.ttf</file>
     </qresource>
 </RCC>
