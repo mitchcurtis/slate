@@ -439,6 +439,7 @@ ToolBar {
 
         ToolSeparator {
             height: parent.height
+            visible: isImageProject
         }
 
         Ui.ToolButton {
@@ -447,6 +448,7 @@ ToolBar {
             checked: canvas && canvas.notesVisible
             enabled: projectLoaded
             icon.source: "qrc:/images/show-notes.png"
+            visible: isImageProject
 
             ToolTip.text: qsTr("Show notes")
 

@@ -270,6 +270,7 @@ Item {
     Shortcut {
         objectName: "noteToolShortcut"
         sequence: settings.noteToolShortcut
+        enabled: isImageProjectType
         onActivated: canvas.tool = ImageCanvas.NoteTool
     }
 
