@@ -142,8 +142,6 @@ private Q_SLOTS:
     void rulersSplitScreen();
     void notes_data();
     void notes();
-    void dragNoteOutOfBounds_data();
-    void dragNoteOutOfBounds();
     void dragNoteWithoutMoving();
     void saveAndLoadNotes();
 
@@ -3566,8 +3564,6 @@ void tst_App::notes()
 
     QVERIFY2(switchTool(ImageCanvas::NoteTool), failureMessage);
 
-    // TODO: zoom in
-
     // Begin creating a new note.
     setCursorPosInScenePixels(11, 12);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -3701,33 +3697,6 @@ void tst_App::notes()
     QVERIFY(!project->notes().at(0).size().isEmpty());
     // The edited text is longer than the old one, so the note box should grow.
     QVERIFY(project->notes().at(0).size().width() > oldNoteSize.width());
-}
-
-void tst_App::dragNoteOutOfBounds_data()
-{
-    addImageProjectTypes();
-}
-
-void tst_App::dragNoteOutOfBounds()
-{
-    QFETCH(Project::Type, projectType);
-
-    QVERIFY2(createNewProject(projectType), failureMessage);
-
-    QVERIFY2(switchTool(ImageCanvas::NoteTool), failureMessage);
-
-    // Create a new note.
-    setCursorPosInScenePixels(10, 10);
-    QVERIFY2(addNewNoteAtCursorPos("test"), failureMessage);
-
-    QVERIFY2(dragNoteAtIndex(0, QPoint(-10, 0)), failureMessage);
-    QVERIFY2(dragNoteAtIndex(0, QPoint(0, -10)), failureMessage);
-    QVERIFY2(dragNoteAtIndex(0, QPoint(-10, -10)), failureMessage);
-    QVERIFY2(dragNoteAtIndex(0, QPoint(project->widthInPixels(), 0)), failureMessage);
-    QVERIFY2(dragNoteAtIndex(0, QPoint(project->widthInPixels(), -10)), failureMessage);
-    QVERIFY2(dragNoteAtIndex(0, QPoint(project->widthInPixels(), project->heightInPixels())), failureMessage);
-    QVERIFY2(dragNoteAtIndex(0, QPoint(0, project->heightInPixels())), failureMessage);
-    QVERIFY2(dragNoteAtIndex(0, QPoint(-10, project->heightInPixels())), failureMessage);
 }
 
 // While zoomed in, dragging a note without actually moving it

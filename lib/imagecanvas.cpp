@@ -3107,8 +3107,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
 
             const Note oldNote = mProject->notes().at(mPressedNoteIndex);
             const QString oldText = oldNote.text();
-            const QRect newGeometry(QPoint(mCursorSceneX, mCursorSceneY) - mNotePressOffset, oldNote.size());
-            const QPoint newPosition = Utils::ensureWithinArea(newGeometry, mProject->size()).topLeft();
+            const QPoint newPosition = QPoint(mCursorSceneX, mCursorSceneY) - mNotePressOffset;
             modifyNote(mPressedNoteIndex, newPosition, oldText);
         } else if (event->button() == Qt::RightButton) {
             emit noteContextMenuRequested(mPressedNoteIndex);

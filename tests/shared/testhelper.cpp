@@ -1061,16 +1061,9 @@ bool TestHelper::dragNoteAtIndex(int noteIndex, const QPoint &newPosition)
 
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     VERIFY(canvas->pressedNoteIndex() == -1);
-    QPoint expectedPosition = newPosition;
-    QRect expectedGeometry(expectedPosition, oldNote.size());
-    if (!project->bounds().contains(expectedGeometry)) {
-        // The new position is outside the bounds of the project, so the note will be pushed within the bounds.
-        expectedGeometry = Utils::ensureWithinArea(expectedGeometry, project->size());
-        expectedPosition = expectedGeometry.topLeft();
-    }
-    VERIFY2(project->notes().at(noteIndex).position() == expectedPosition, qPrintable(QString::fromLatin1(
+    VERIFY2(project->notes().at(noteIndex).position() == newPosition, qPrintable(QString::fromLatin1(
         "Expected note at index %1 to be at position %2, but it's at %3 instead")
-            .arg(noteIndex).arg(QTest::toString(expectedPosition)).arg(QTest::toString(project->notes().at(noteIndex).position()))));
+            .arg(noteIndex).arg(QTest::toString(newPosition)).arg(QTest::toString(project->notes().at(noteIndex).position()))));
     return true;
 }
 

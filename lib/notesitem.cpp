@@ -74,10 +74,9 @@ void NotesItem::drawNote(PaneDrawingHelper *paneDrawingHelper, const Note *note,
     const bool draggingNote = mCanvas->pressedNoteIndex() == noteIndex;
     QPoint notePosition;
     if (draggingNote) {
-        // Ensure that the note is drawn bounded by the project boundaries.
+        // The note is being dragged, so we have to render it at is preliminary position.
         const QPoint cursorPos(mCanvas->cursorSceneX(), mCanvas->cursorSceneY());
-        const QRect newNoteGeometry(cursorPos - mCanvas->notePressOffset(), note->size());
-        notePosition = Utils::ensureWithinArea(newNoteGeometry, mCanvas->project()->size()).topLeft();
+        notePosition = cursorPos - mCanvas->notePressOffset();
     } else {
         notePosition = note->position();
     }
