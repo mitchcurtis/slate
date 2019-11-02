@@ -73,6 +73,8 @@ Dialog {
         }
     }
 
+    onAccepted: canvas.endModifyingSelectionHsl(ImageCanvas.CommitAdjustment)
+
     contentItem: GridLayout {
         columns: 3
         columnSpacing: 24
@@ -97,6 +99,8 @@ Dialog {
             ToolTip.visible: hovered
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
+
+            Keys.onReturnPressed: root.accept()
 
             onMoved: {
                 hslAlpha = value
@@ -136,6 +140,8 @@ Dialog {
             Layout.maximumWidth: valueTextMetrics.width
             Layout.fillWidth: true
 
+            onAccepted: root.accept()
+
             // We call this here instead of just doing it in e.g. onHslHueChanged
             // because that would require us to block changes that occur when the
             // HSL property values are reset upon showing the dialog. Modifying the
@@ -156,6 +162,8 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
+            Keys.onReturnPressed: root.accept()
+
             onClicked: modifySelectionHsl()
         }
 
@@ -172,6 +180,8 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
+            Keys.onReturnPressed: root.accept()
+
             onClicked: modifySelectionHsl()
         }
     }
@@ -182,19 +192,12 @@ Dialog {
             text: qsTr("OK")
 
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
-
-            onClicked: {
-                canvas.endModifyingSelectionHsl(ImageCanvas.CommitAdjustment)
-                root.close()
-            }
         }
         Button {
             objectName: "opacityDialogCancelButton"
             text: qsTr("Cancel")
 
             DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
-
-            onClicked: root.close()
         }
     }
 }

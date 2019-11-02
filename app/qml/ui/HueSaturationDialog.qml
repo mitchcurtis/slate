@@ -81,6 +81,8 @@ Dialog {
         }
     }
 
+    onAccepted: canvas.endModifyingSelectionHsl(ImageCanvas.CommitAdjustment)
+
     contentItem: GridLayout {
         columns: 2
         rowSpacing: 0
@@ -102,6 +104,8 @@ Dialog {
 
             Layout.maximumWidth: valueTextMetrics.width
             Layout.fillWidth: true
+
+            Keys.onReturnPressed: root.accept()
 
             // We call this here instead of just doing it in e.g. onHslHueChanged
             // because that would require us to block changes that occur when the
@@ -126,6 +130,8 @@ Dialog {
             ToolTip.visible: hovered
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
+
+            Keys.onReturnPressed: root.accept()
 
             onMoved: {
                 hslHue = value
@@ -159,6 +165,8 @@ Dialog {
             Layout.maximumWidth: valueTextMetrics.width
             Layout.fillWidth: true
 
+            Keys.onReturnPressed: root.accept()
+
             onValueModified: modifySelectionHsl()
         }
         Slider {
@@ -178,6 +186,8 @@ Dialog {
             ToolTip.visible: hovered
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
+
+            Keys.onReturnPressed: root.accept()
 
             onMoved: {
                 hslSaturation = value
@@ -220,6 +230,8 @@ Dialog {
             Layout.maximumWidth: valueTextMetrics.width
             Layout.fillWidth: true
 
+            Keys.onReturnPressed: root.accept()
+
             onValueModified: modifySelectionHsl()
         }
         Slider {
@@ -239,6 +251,8 @@ Dialog {
             ToolTip.visible: hovered
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
+
+            Keys.onReturnPressed: root.accept()
 
             onMoved: {
                 hslLightness = value
@@ -274,19 +288,12 @@ Dialog {
             text: qsTr("OK")
 
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
-
-            onClicked: {
-                canvas.endModifyingSelectionHsl(ImageCanvas.CommitAdjustment)
-                root.close()
-            }
         }
         Button {
             objectName: "hueSaturationDialogCancelButton"
             text: qsTr("Cancel")
 
             DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
-
-            onClicked: root.close()
         }
     }
 }

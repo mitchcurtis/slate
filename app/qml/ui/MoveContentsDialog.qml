@@ -24,7 +24,7 @@ import QtQuick.Controls 2.12
 import App 1.0
 
 Dialog {
-    id: dialog
+    id: root
     objectName: "moveContentsDialog"
     title: qsTr("Move layer contents")
     modal: true
@@ -49,6 +49,8 @@ Dialog {
         imagePreview.source = ""
     }
 
+    onAccepted: project.moveContents(xDistanceSpinBox.value, yDistanceSpinBox.value, onlyMoveVisibleLayersCheckBox.checked)
+
     contentItem: ColumnLayout {
         GridLayout {
             columns: 2
@@ -72,6 +74,8 @@ Dialog {
                 ToolTip.visible: hovered
                 ToolTip.delay: UiConstants.toolTipDelay
                 ToolTip.timeout: UiConstants.toolTipTimeout
+
+                Keys.onReturnPressed: root.accept()
             }
 
             Label {
@@ -93,6 +97,8 @@ Dialog {
                 ToolTip.visible: hovered
                 ToolTip.delay: UiConstants.toolTipDelay
                 ToolTip.timeout: UiConstants.toolTipTimeout
+
+                Keys.onReturnPressed: root.accept()
             }
 
             Label {
@@ -109,6 +115,8 @@ Dialog {
                 ToolTip.visible: hovered
                 ToolTip.delay: UiConstants.toolTipDelay
                 ToolTip.timeout: UiConstants.toolTipTimeout
+
+                Keys.onReturnPressed: root.accept()
             }
 
             Rectangle {
@@ -166,16 +174,13 @@ Dialog {
             objectName: "moveContentsDialogOkButton"
             text: qsTr("OK")
 
-            onClicked: {
-                project.moveContents(xDistanceSpinBox.value, yDistanceSpinBox.value, onlyMoveVisibleLayersCheckBox.checked)
-                dialog.visible = false
-            }
+            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
         Button {
             objectName: "moveContentsDialogCancelButton"
             text: qsTr("Cancel")
 
-            onClicked: dialog.visible = false
+            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
         }
     }
 }
