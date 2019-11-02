@@ -328,13 +328,6 @@ void TileCanvas::applyCurrentTool()
     switch (effectiveTool()) {
     case PenTool: {
         if (mMode == PixelMode) {
-//            const PixelCandidateData candidateData = penEraserPixelCandidates(mTool);
-//            if (candidateData.scenePositions.isEmpty()) {
-//                return;
-//            }
-
-//            mTilesetProject->beginMacro(QLatin1String("PixelPenTool"));
-//            mTilesetProject->addChange(new ApplyPixelPenCommand(this, -1, candidateData.scenePositions, candidateData.previousColours, penColour()));
             mProject->beginMacro(QLatin1String("PixelLineTool"));
             // Draw the line on top of what has already been painted using a special composition mode.
             // This ensures that e.g. a translucent red overwrites whatever pixels it

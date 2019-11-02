@@ -2319,8 +2319,7 @@ void ImageCanvas::applyCurrentTool()
             mProject->beginMacro(QLatin1String("PixelFillTool"));
             mProject->addChange(new ApplyPixelFillCommand(this, mProject->currentLayerIndex(),
                 *currentProjectImage(), filledImage));
-            // TODO: see if the tests pass with these added
-            // mProject->endMacro();
+             mProject->endMacro();
         } else {
             const QImage filledImage = greedyFillPixels();
             if (filledImage.isNull())
@@ -2329,7 +2328,7 @@ void ImageCanvas::applyCurrentTool()
             mProject->beginMacro(QLatin1String("GreedyPixelFillTool"));
             mProject->addChange(new ApplyGreedyPixelFillCommand(this, mProject->currentLayerIndex(),
                 *currentProjectImage(), filledImage));
-            // mProject->endMacro();
+             mProject->endMacro();
         }
         break;
     }
@@ -2348,7 +2347,7 @@ void ImageCanvas::applyCurrentTool()
             mProject->beginMacro(QLatin1String("PixelTexturedFillTool"));
             mProject->addChange(new ApplyPixelFillCommand(this, mProject->currentLayerIndex(),
                 *currentProjectImage(), filledImage));
-            // mProject->endMacro();
+             mProject->endMacro();
         } else {
             const QImage filledImage = greedyTexturedFillPixels();
             if (filledImage.isNull())
@@ -2357,7 +2356,7 @@ void ImageCanvas::applyCurrentTool()
             mProject->beginMacro(QLatin1String("GreedyPixelTexturedFillTool"));
             mProject->addChange(new ApplyGreedyPixelFillCommand(this, mProject->currentLayerIndex(),
                 *currentProjectImage(), filledImage));
-            // mProject->endMacro();
+             mProject->endMacro();
         }
         break;
     }
