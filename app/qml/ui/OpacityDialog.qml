@@ -65,15 +65,15 @@ Dialog {
         }
     }
 
-    onClosed: {
-        canvas.forceActiveFocus()
+    onClosed: canvas.forceActiveFocus()
+
+    onAccepted: canvas.endModifyingSelectionHsl(ImageCanvas.CommitAdjustment)
+
+    onRejected: {
         if (canvas.adjustingImage) {
-            // The dialog can be closed in two ways, so it's easier just to discard any adjustment here.
             canvas.endModifyingSelectionHsl(ImageCanvas.RollbackAdjustment)
         }
     }
-
-    onAccepted: canvas.endModifyingSelectionHsl(ImageCanvas.CommitAdjustment)
 
     contentItem: GridLayout {
         columns: 3
@@ -197,7 +197,7 @@ Dialog {
             objectName: "opacityDialogCancelButton"
             text: qsTr("Cancel")
 
-            DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
+            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
         }
     }
 }
