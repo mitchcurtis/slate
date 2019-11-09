@@ -458,8 +458,8 @@ Controls.MenuBar {
             text: qsTr("Show Guides")
             enabled: canvas
             checkable: true
-            checked: settings.guidesVisible
-            onTriggered: settings.guidesVisible = checked
+            checked: canvas && canvas.guidesVisible
+            onTriggered: canvas.guidesVisible = checked
         }
 
         MenuItem {
@@ -468,8 +468,8 @@ Controls.MenuBar {
             text: qsTr("Lock Guides")
             enabled: canvas
             checkable: true
-            checked: settings.guidesLocked
-            onTriggered: settings.guidesLocked = checked
+            checked: canvas && canvas.guidesLocked
+            onTriggered: canvas.guidesLocked = checked
         }
 
         MenuSeparator {}
