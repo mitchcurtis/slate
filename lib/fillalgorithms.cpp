@@ -60,10 +60,10 @@ QString FillColourProvider::debugName() const
     return "FillColourProvider";
 }
 
-struct ImagePixelHash {
-    explicit ImagePixelHash(int hashSize, int imageWidth) : mImageWidth{imageWidth}, mData(hashSize, 0) {}
+struct ImagePixelMask {
+    explicit ImagePixelMask(int imageHeight, int imageWidth) : mImageWidth{imageWidth}, mData(imageHeight * imageWidth, 0) {}
 
-    int getImageIndex(const QPoint& point) {
+    int getImageIndex(const QPoint& point) const {
         return (point.y() * mImageWidth) + point.x();
     }
 
@@ -71,16 +71,16 @@ struct ImagePixelHash {
         mData[getImageIndex(point)] = 1;
     }
 
-    bool contains(const QPoint& point) {
+    bool contains(const QPoint& point) const {
         return mData.at(getImageIndex(point)) == 1;
     }
 
-    int size() {
+    int size() const {
         return static_cast<int>(std::count_if(mData.constBegin(), mData.constEnd(), [](int index){ return index == 1;}));
     }
 
     const int mImageWidth;
-    QVector<int> mData;
+    QVector<bool> mData;
 };
 
 QImage imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QColor &targetColour,
@@ -119,8 +119,8 @@ QImage imagePixelFloodFill(const QImage *image, const QPoint &startPos, const QC
 
     QQueue<QPoint> queue;
     queue.append(startPos);
-    // TODO: use image to track filled positions instead
-    ImagePixelHash filledPositions{filledImage.width() * filledImage.height(), filledImage.width()};
+
+    ImagePixelMask filledPositions{filledImage.height(), filledImage.width()};
     filledPositions.insert(startPos);
     filledImage.setPixelColor(startPos, fillColourProvider.colour(replacementColour));
 
