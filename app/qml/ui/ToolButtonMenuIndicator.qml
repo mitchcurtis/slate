@@ -17,7 +17,7 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.14
+import QtQuick 2.12
 
 Canvas {
     width: 4

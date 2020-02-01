@@ -20,7 +20,7 @@
 pragma Singleton
 
 import QtQml 2.12
-import QtQuick.Controls.Material 2.14
+import QtQuick.Controls.Material 2.12
 
 QtObject {
     property color focusColour: "white"
