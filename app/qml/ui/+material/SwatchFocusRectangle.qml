@@ -17,8 +17,8 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.12
-import QtQuick.Controls.Material 2.0
+import QtQuick 2.14
+import QtQuick.Controls.Material 2.14
 
 Rectangle {
     readonly property color focusColour: Material.accent

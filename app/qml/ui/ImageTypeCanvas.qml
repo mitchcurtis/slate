@@ -1,4 +1,4 @@
-import QtQuick 2.12
+import QtQuick 2.14
 
 import App 1.0
 
