@@ -27,7 +27,8 @@
 #include "projectmanager.h"
 #include "utils.h"
 
-Q_LOGGING_CATEGORY(lcTestHelper, "tests.testhelper")
+Q_LOGGING_CATEGORY(lcTestHelper, "tests.testHelper")
+Q_LOGGING_CATEGORY(lcFindPopupFromTypeName, "tests.testHelper.findPopupFromTypeName")
 
 TestHelper::TestHelper(int &argc, char **argv) :
     app(argc, argv, QStringLiteral("Slate Test Suite")),
@@ -187,13 +188,16 @@ void TestHelper::cleanup()
 
     qGuiApp->clipboard()->setImage(QImage());
 
-    // If a test fails, a popup could still be open. Ensure that they're
-    // all closed to prevent failures in future tests.
-    for (int i = 0; i < 100 && !canvas->hasActiveFocus(); ++i) {
-        QTest::qWait(50);
-        QTest::keyClick(window, Qt::Key_Escape);
+    if (canvas) {
+        qCDebug(lcTestHelper) << "trying to close any open popups";
+        // If a test fails, a popup could still be open. Ensure that they're
+        // all closed to prevent failures in future tests.
+        for (int i = 0; i < 100 && !canvas->hasActiveFocus(); ++i) {
+            QTest::qWait(20);
+            QTest::keyClick(window, Qt::Key_Escape);
+        }
+        QVERIFY(canvas->hasActiveFocus());
     }
-    QVERIFY(canvas->hasActiveFocus());
 }
 
 void TestHelper::resetCreationErrorSpy()
@@ -1078,12 +1082,28 @@ bool TestHelper::dragNoteAtIndex(int noteIndex, const QPoint &newPosition)
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
 {
     QObject *popup = nullptr;
+    qCDebug(lcFindPopupFromTypeName) << "looking through" << overlay->childItems().size()
+        << "items for popup for typeName" << typeName;
+
     foreach (QQuickItem *child, overlay->childItems()) {
+        qCDebug(lcFindPopupFromTypeName) << "- looking at overlay child" << child;
+
         if (QString::fromLatin1(child->metaObject()->className()) == "QQuickPopupItem") {
+            qCDebug(lcFindPopupFromTypeName) << "  - className() is what we expect (\"QQuickPopupItem\")";
+
             if (QString::fromLatin1(child->parent()->metaObject()->className()).contains(typeName)) {
+                qCDebug(lcFindPopupFromTypeName) << "    - typeName() of the child's parent contains typeName:"
+                    << child->parent()->metaObject()->className();
+
                 popup = child->parent();
                 break;
+            } else {
+                qCDebug(lcFindPopupFromTypeName) << "    - typeName() of the child's parent does not contain typeName:"
+                    << child->parent()->metaObject()->className();
             }
+        } else {
+            qCDebug(lcFindPopupFromTypeName) << "  - className() is not what we expect (\"QQuickPopupItem\"):"
+                << child->metaObject()->className();
         }
     }
     return popup;
@@ -1203,7 +1223,7 @@ QQuickItem *TestHelper::findChildItem(QQuickItem *parentItem, const QString &obj
         if (child->objectName() == objectName)
             return child;
         else {
-            QQuickItem *match = findChildWithText(child, objectName);
+            QQuickItem *match = findChildItem(child, objectName);
             if (match)
                 return match;
         }
@@ -1630,7 +1650,7 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     VERIFY(newProjectPopup->property("visible").toBool());
     // TODO: remove this when https://bugreports.qt.io/browse/QTBUG-53420 is fixed
     newProjectPopup->property("contentItem").value<QQuickItem*>()->forceActiveFocus();
-    ENSURE_ACTIVE_FOCUS(newProjectPopup);
+    ENSURE_ACTIVE_FOCUS(newProjectPopup)
 
     QString newProjectButtonObjectName;
     if (projectType == Project::TilesetType) {
@@ -1746,6 +1766,8 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         TRY_VERIFY2(!newTilesetProjectPopup->property("visible").toBool(),
                "NewTilesetProjectPopup should not be visible after confirming project creation");
     } else {
+        // projectType != Project::TilesetType
+
         // Create a temporary directory that we can save into, etc.
         if (projectType == Project::LayeredImageType) {
             qCDebug(lcTestHelper) << "Setting up temporary layered image project directory";
@@ -1753,10 +1775,9 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
                 return false;
         }
 
-        // Now the New Image Project popup should be visible.
-        TRY_VERIFY(findPopupFromTypeName("NewImageProjectPopup"));
-        const QObject *newImageProjectPopup = findPopupFromTypeName("NewImageProjectPopup");
-        TRY_VERIFY(newImageProjectPopup->property("opened").toBool());
+        // Now the New [Layered] Image Project popup should be visible.
+        QObject *newImageProjectPopup;
+        VERIFY(ensureNewImageProjectPopupVisible(projectType, &newImageProjectPopup));
 
         // Ensure that the popup gets reset each time it's opened.
         const QImage clipboardImage = qGuiApp->clipboard()->image();
@@ -1896,6 +1917,21 @@ bool TestHelper::createNewLayeredImageProject(int imageWidth, int imageHeight, b
     moveLayerDownButton = window->findChild<QQuickItem*>("moveLayerDownButton");
     VERIFY(moveLayerDownButton);
 
+    return true;
+}
+
+bool TestHelper::ensureNewImageProjectPopupVisible(Project::Type projectType, QObject **popup)
+{
+    // NewLayeredImageProjectPopup is basically just NewImageProjectPopup,
+    // but their file names are different so we have to account for that here.
+    const QString newProjectPopupTypeName = projectType == Project::ImageType
+            ? "NewImageProjectPopup" : "NewLayeredImageProjectPopup";
+    TRY_VERIFY(findPopupFromTypeName(newProjectPopupTypeName));
+    QObject *newImageProjectPopup = findPopupFromTypeName(newProjectPopupTypeName);
+    VERIFY(newImageProjectPopup);
+    TRY_VERIFY(newImageProjectPopup->property("opened").toBool());
+    if (popup)
+        *popup = newImageProjectPopup;
     return true;
 }
 

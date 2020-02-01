@@ -197,6 +197,7 @@ protected:
         bool transparentImageBackground = false);
     Q_REQUIRED_RESULT bool createNewLayeredImageProject(int imageWidth = 256, int imageHeight = 256,
         bool transparentImageBackground = false);
+    Q_REQUIRED_RESULT bool ensureNewImageProjectPopupVisible(Project::Type projectType, QObject **popup = nullptr);
     Q_REQUIRED_RESULT bool loadProject(const QUrl &url,
         const QRegularExpression &expectedFailureMessage = QRegularExpression());
     Q_REQUIRED_RESULT bool updateVariables(bool isNewProject, Project::Type newProjectType);

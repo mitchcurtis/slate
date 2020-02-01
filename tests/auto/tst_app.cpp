@@ -795,11 +795,10 @@ void tst_App::newProjectSizeFromClipboard()
     QTRY_COMPARE(newProjectPopup->property("visible").toBool(), false);
 
     // Now the new project popup should be visible.
-    QTRY_VERIFY(findPopupFromTypeName("NewImageProjectPopup"));
-    const QObject *newImageProjectPopup = findPopupFromTypeName("NewImageProjectPopup");
-    QTRY_VERIFY(newImageProjectPopup->property("opened").toBool());
+    QObject *newImageProjectPopup = nullptr;
+    QVERIFY2(ensureNewImageProjectPopupVisible(projectType, &newImageProjectPopup), failureMessage);
 
-    // Ensure that the width and height values much the clipboard data.
+    // Ensure that the width and height values match the clipboard data.
     QQuickItem *imageWidthSpinBox = newImageProjectPopup->findChild<QQuickItem*>("imageWidthSpinBox");
     QVERIFY(imageWidthSpinBox);
     if (!clipboardImage.isNull())
