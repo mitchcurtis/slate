@@ -1,5 +1,5 @@
 /*
-    Copyright 2019, Mitch Curtis
+    Copyright 2020, Mitch Curtis
 
     This file is part of Slate.
 
@@ -55,7 +55,7 @@ Dialog {
         }
 
         Label {
-            text: qsTr("Copyright 2019, Mitch Curtis")
+            text: qsTr("Copyright 2020, Mitch Curtis")
         }
     }
 }

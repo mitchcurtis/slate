@@ -1,7 +1,7 @@
 #include <utility>
 
 /*
-    Copyright 2019, Mitch Curtis
+    Copyright 2020, Mitch Curtis
 
     This file is part of Slate.
 

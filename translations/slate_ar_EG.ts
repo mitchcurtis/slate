@@ -15,8 +15,8 @@
     </message>
     <message>
         <location filename="../app/qml/ui/AboutDialog.qml" line="51"/>
-        <source>Copyright 2019, Mitch Curtis</source>
-        <translation>حقوق النشر 2019 Mitch Curtis</translation>
+        <source>Copyright 2020, Mitch Curtis</source>
+        <translation>حقوق النشر 2020 Mitch Curtis</translation>
     </message>
 </context>
 <context>
