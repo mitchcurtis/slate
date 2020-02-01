@@ -21,14 +21,14 @@ Item {
     Shortcut {
         objectName: "newShortcut"
         sequence: settings.newShortcut
-        enabled: canvasHasActiveFocus
+        // There could be no project open, so the canvas won't exist and hence its container will have focus.
+        enabled: canvasHasActiveFocus || canvasContainer.activeFocus
         onActivated: doIfChangesDiscarded(function() { newProjectPopup.open() }, true)
     }
 
     Shortcut {
         objectName: "openShortcut"
         sequence: settings.openShortcut
-        // There could be no project open, so the canvas won't exist and hence its container will have focus.
         enabled: canvasHasActiveFocus || canvasContainer.activeFocus
         onActivated: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
     }
