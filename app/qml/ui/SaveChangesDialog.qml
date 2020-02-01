@@ -122,7 +122,7 @@ Dialog {
     }
     
     Label {
-        text: qsTr("Save changes to the document before closing?")
+        text: qsTr("Save changes to the project before closing?")
     }
     
     // Using a DialogButtonBox allows us to assign objectNames to the buttons,

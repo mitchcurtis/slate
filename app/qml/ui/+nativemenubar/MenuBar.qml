@@ -36,6 +36,7 @@ Item {
     property var moveContentsDialog
     property var texturedFillSettingsDialog
     property var aboutDialog
+    property SaveChangesDialog saveChangesDialog
 
     Platform.MenuBar {
         Platform.Menu {
@@ -46,7 +47,7 @@ Item {
             Platform.MenuItem {
                 objectName: "newMenuItem"
                 text: qsTr("New")
-                onTriggered: doIfChangesDiscarded(function() { newProjectPopup.open() }, true)
+                onTriggered: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { newProjectPopup.open() }, true)
             }
 
             Platform.MenuSeparator {}
@@ -64,7 +65,7 @@ Item {
                     delegate: Platform.MenuItem {
                         objectName: text + "MenuItem"
                         text: settings.displayableFilePath(modelData)
-                        onTriggered: doIfChangesDiscarded(function() { loadProject(modelData) }, true)
+                        onTriggered: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { loadProject(modelData) }, true)
                     }
 
                     onObjectAdded: recentFilesSubMenu.insertItem(index, object)
@@ -84,7 +85,7 @@ Item {
             Platform.MenuItem {
                 objectName: "openMenuItem"
                 text: qsTr("Open")
-                onTriggered: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
+                onTriggered: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { openProjectDialog.open() }, true)
             }
 
             Platform.MenuSeparator {}
@@ -138,7 +139,7 @@ Item {
                 objectName: "closeMenuItem"
                 text: qsTr("Close")
                 enabled: project && project.loaded
-                onTriggered: doIfChangesDiscarded(function() { project.close() })
+                onTriggered: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { project.close() })
             }
 
             Platform.MenuSeparator {}
@@ -156,7 +157,7 @@ Item {
             Platform.MenuItem {
                 objectName: "quitMenuItem"
                 text: qsTr("Quit Slate")
-                onTriggered: doIfChangesDiscarded(function() { Qt.quit() })
+                onTriggered: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { Qt.quit() })
             }
         }
 
