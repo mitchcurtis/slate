@@ -186,6 +186,14 @@ void TestHelper::cleanup()
         layeredImageProject->setAutoExportEnabled(false);
 
     qGuiApp->clipboard()->setImage(QImage());
+
+    // If a test fails, a popup could still be open. Ensure that they're
+    // all closed to prevent failures in future tests.
+    for (int i = 0; i < 100 && !canvas->hasActiveFocus(); ++i) {
+        QTest::qWait(50);
+        QTest::keyClick(window, Qt::Key_Escape);
+    }
+    QVERIFY(canvas->hasActiveFocus());
 }
 
 void TestHelper::resetCreationErrorSpy()
