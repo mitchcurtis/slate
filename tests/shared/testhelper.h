@@ -201,6 +201,7 @@ protected:
     Q_REQUIRED_RESULT bool loadProject(const QUrl &url,
         const QRegularExpression &expectedFailureMessage = QRegularExpression());
     Q_REQUIRED_RESULT bool updateVariables(bool isNewProject, Project::Type newProjectType);
+    Q_REQUIRED_RESULT bool saveChanges();
     Q_REQUIRED_RESULT bool discardChanges();
     Q_REQUIRED_RESULT bool verifyErrorAndDismiss(const QString &expectedErrorMessage);
     Q_REQUIRED_RESULT bool verifyNoErrorOrDismiss();

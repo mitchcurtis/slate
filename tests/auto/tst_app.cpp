@@ -73,6 +73,7 @@ private Q_SLOTS:
     void newProjectSizeFromClipboard_data();
     void newProjectSizeFromClipboard();
     void splitViewStateAcrossProjects();
+    void saveOnPrompt();
 
     // Tools, misc.
     void animationPlayback_data();
@@ -844,6 +845,23 @@ void tst_App::splitViewStateAcrossProjects()
     // Create a new project. It should have the default panel split item size.
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
     QCOMPARE(panelSplitView->width(), defaultPanelSplitItemWidth);
+}
+
+// Tests that saving changes when prompted actually saves those changes.
+// Note that we can only test this for projects that were already saved,
+// as we can't interact with a native save dialog.
+void tst_App::saveOnPrompt()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/saveOnPrompt.slp"));
+    layeredImageProject->saveAs(saveUrl);
+    QVERIFY(!layeredImageProject->hasUnsavedChanges());
+
+    setCursorPosInScenePixels(1, 1);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+    QVERIFY2(triggerCloseProject(), failureMessage);
+    QVERIFY2(saveChanges(), failureMessage);
 }
 
 void tst_App::animationPlayback_data()

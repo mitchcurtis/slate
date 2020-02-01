@@ -116,7 +116,7 @@ public slots:
 protected:
     void doLoad(const QUrl &url) override;
     void doClose() override;
-    void doSaveAs(const QUrl &url) override;
+    bool doSaveAs(const QUrl &url) override;
 
 private:
     friend class AddLayerCommand;

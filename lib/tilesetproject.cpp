@@ -225,26 +225,20 @@ void TilesetProject::doClose()
     emit projectClosed();
 }
 
-void TilesetProject::doSaveAs(const QUrl &url)
+bool TilesetProject::doSaveAs(const QUrl &url)
 {
-    if (!hasLoaded())
-        return;
-
-    if (url.isEmpty())
-        return;
-
     const QString filePath = url.toLocalFile();
     const QFileInfo projectSaveFileInfo(filePath);
     if (mTempDir.isValid()) {
         if (projectSaveFileInfo.dir().path() == mTempDir.path()) {
             error(QLatin1String("Cannot save project in internal temporary directory"));
-            return;
+            return false;
         }
     }
 
     if (mTileset->image()->isNull()) {
         error(QString::fromLatin1("Failed to save project: tileset image is null"));
-        return;
+        return false;
     }
 
     QFile jsonFile;
@@ -252,20 +246,20 @@ void TilesetProject::doSaveAs(const QUrl &url)
         jsonFile.setFileName(filePath);
         if (!jsonFile.open(QIODevice::WriteOnly)) {
             error(QString::fromLatin1("Failed to open project's JSON file at %1").arg(filePath));
-            return;
+            return false;
         }
     } else {
         jsonFile.setFileName(filePath);
         if (!jsonFile.open(QIODevice::WriteOnly)) {
             error(QString::fromLatin1("Failed to create project's JSON file at %1").arg(filePath));
-            return;
+            return false;
         }
     }
 
     const QFileInfo tileFileInfo(mTileset->fileName());
     if (!tileFileInfo.exists()) {
         error(QString::fromLatin1("Failed to save project: tileset path %1 doesn't exist").arg(mTileset->fileName()));
-        return;
+        return false;
     }
 
     if (mUsingTempImage) {
@@ -274,7 +268,7 @@ void TilesetProject::doSaveAs(const QUrl &url)
         qCDebug(lcProject) << "saving temporary tileset image to" << path;
         if (!mTileset->image()->save(path)) {
             error(QString::fromLatin1("Failed to save project: failed to save tileset image %1").arg(path));
-            return;
+            return false;
         }
 
         mTileset->setFileName(path);
@@ -283,7 +277,7 @@ void TilesetProject::doSaveAs(const QUrl &url)
     } else {
         if (!mTileset->image()->save(mTileset->fileName())) {
             error(QString::fromLatin1("Failed to save project: failed to save tileset image %1").arg(mTileset->fileName()));
-            return;
+            return false;
         }
     }
 
@@ -322,12 +316,12 @@ void TilesetProject::doSaveAs(const QUrl &url)
     if (bytesWritten == -1) {
         error(QString::fromLatin1("Failed to save project: couldn't write to JSON project file: %1")
             .arg(jsonFile.errorString()));
-        return;
+        return false;
     }
 
     if (bytesWritten == 0) {
         error(QString::fromLatin1("Failed to save project: wrote zero bytes to JSON project file"));
-        return;
+        return false;
     }
 
     if (mFromNew) {
@@ -338,6 +332,7 @@ void TilesetProject::doSaveAs(const QUrl &url)
     setUrl(url);
     mUndoStack.setClean();
     mHadUnsavedChangesBeforeMacroBegan = false;
+    return true;
 }
 
 int TilesetProject::tileIdFromPosInTileset(int x, int y) const

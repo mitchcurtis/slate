@@ -145,6 +145,8 @@ signals:
     void projectLoaded();
     void projectClosed();
     void preProjectSaved();
+    // Only emitted if the project is successfully saved.
+    void postProjectSaved();
     void loadedChanged();
     void newProjectChanged();
     void unsavedChangesChanged();
@@ -160,8 +162,8 @@ signals:
 public slots:
     void load(const QUrl &url);
     void close();
-    virtual void save();
-    void saveAs(const QUrl &url);
+    virtual bool save();
+    bool saveAs(const QUrl &url);
     virtual void revert();
 
     void importSwatch(SwatchImportFormat format, const QUrl &swatchUrl);
@@ -172,7 +174,7 @@ protected:
 
     virtual void doLoad(const QUrl &url);
     virtual void doClose();
-    virtual void doSaveAs(const QUrl &url);
+    virtual bool doSaveAs(const QUrl &url);
 
     void setComposingMacro(bool composingMacro, const QString &macroText = QString());
 

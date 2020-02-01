@@ -44,6 +44,7 @@
         <file>ui/ProjectTemplateButton.qml</file>
         <file>ui/RenameSwatchColourDialog.qml</file>
         <file>ui/SaturationLightnessPicker.qml</file>
+        <file>ui/SaveChangesDialog.qml</file>
         <file>ui/ShortcutRow.qml</file>
         <file>ui/Shortcuts.qml</file>
         <file>ui/SplitterBar.qml</file>

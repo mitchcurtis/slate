@@ -60,6 +60,7 @@ Group {
             "ui/ProjectTemplateButton.qml",
             "ui/RenameSwatchColourDialog.qml",
             "ui/SaturationLightnessPicker.qml",
+            "ui/SaveChangesDialog.qml",
             "ui/ShortcutRow.qml",
             "ui/Shortcuts.qml",
             "ui/SplitterBar.qml",

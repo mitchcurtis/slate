@@ -497,20 +497,14 @@ void LayeredImageProject::doClose()
     emit projectClosed();
 }
 
-void LayeredImageProject::doSaveAs(const QUrl &url)
+bool LayeredImageProject::doSaveAs(const QUrl &url)
 {
-    if (!hasLoaded())
-        return;
-
-    if (url.isEmpty())
-        return;
-
     const QString filePath = url.toLocalFile();
     const QFileInfo projectSaveFileInfo(filePath);
     if (mTempDir.isValid()) {
         if (projectSaveFileInfo.dir().path() == mTempDir.path()) {
             error(QLatin1String("Cannot save project in internal temporary directory"));
-            return;
+            return false;
         }
     }
 
@@ -519,13 +513,13 @@ void LayeredImageProject::doSaveAs(const QUrl &url)
         jsonFile.setFileName(filePath);
         if (!jsonFile.open(QIODevice::WriteOnly)) {
             error(QString::fromLatin1("Failed to open project's JSON file:\n\n%1").arg(filePath));
-            return;
+            return false;
         }
     } else {
         jsonFile.setFileName(filePath);
         if (!jsonFile.open(QIODevice::WriteOnly)) {
             error(QString::fromLatin1("Failed to create project's JSON file:\n\n%1").arg(filePath));
-            return;
+            return false;
         }
     }
 
@@ -554,7 +548,7 @@ void LayeredImageProject::doSaveAs(const QUrl &url)
         projectObject.insert("autoExportEnabled", true);
 
         if (!exportImage(QUrl::fromLocalFile(autoExportFilePath(url))))
-            return;
+            return false;
     }
 
     if (mUsingAnimation)
@@ -575,12 +569,12 @@ void LayeredImageProject::doSaveAs(const QUrl &url)
     if (bytesWritten == -1) {
         error(QString::fromLatin1("Failed to save project - couldn't write to JSON project file:\n\n%1")
             .arg(jsonFile.errorString()));
-        return;
+        return false;
     }
 
     if (bytesWritten == 0) {
         error(QString::fromLatin1("Failed to save project - wrote zero bytes to JSON project file"));
-        return;
+        return false;
     }
 
     if (mFromNew) {
@@ -591,6 +585,8 @@ void LayeredImageProject::doSaveAs(const QUrl &url)
     setUrl(url);
     mUndoStack.setClean();
     mHadUnsavedChangesBeforeMacroBegan = false;
+
+    return true;
 }
 
 // Returns true because the auto-export feature in saveAs() needs to know whether or not it should return early.

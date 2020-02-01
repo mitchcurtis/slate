@@ -2142,16 +2142,41 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     return true;
 }
 
+bool TestHelper::saveChanges()
+{
+    if (project->isNewProject()) {
+        FAIL("Cannot save changes because the project is new, " \
+             "and we cannot automate interaction with native Save As dialog");
+    }
+
+    if (!project->hasUnsavedChanges())
+        FAIL("Cannot save changes because there are none");
+
+    const QObject *saveChangesDialog = findPopupFromTypeName("SaveChangesDialog");
+    VERIFY(saveChangesDialog);
+    TRY_VERIFY(saveChangesDialog->property("opened").toBool());
+
+    QQuickItem *saveChangesButton = findDialogButtonFromObjectName(saveChangesDialog, "saveChangesDialogButton");
+    VERIFY(saveChangesButton);
+    mouseEventOnCentre(saveChangesButton, MouseClick);
+    TRY_VERIFY(!saveChangesDialog->property("visible").toBool());
+    VERIFY(!project->hasUnsavedChanges());
+    return true;
+}
+
 bool TestHelper::discardChanges()
 {
-    const QObject *discardChangesDialog = window->contentItem()->findChild<QObject*>("discardChangesDialog");
-    VERIFY(discardChangesDialog);
-    TRY_VERIFY(discardChangesDialog->property("opened").toBool());
+    if (!project->hasUnsavedChanges())
+        FAIL("Cannot discard changes because there are none");
 
-    QQuickItem *discardChangesButton = findDialogButtonFromObjectName(discardChangesDialog, "discardChangesDialogButton");
+    const QObject *saveChangesDialog = findPopupFromTypeName("SaveChangesDialog");
+    VERIFY(saveChangesDialog);
+    TRY_VERIFY(saveChangesDialog->property("opened").toBool());
+
+    QQuickItem *discardChangesButton = findDialogButtonFromObjectName(saveChangesDialog, "discardChangesDialogButton");
     VERIFY(discardChangesButton);
     mouseEventOnCentre(discardChangesButton, MouseClick);
-    TRY_VERIFY(!discardChangesDialog->property("visible").toBool());
+    TRY_VERIFY(!saveChangesDialog->property("visible").toBool());
     return true;
 }
 

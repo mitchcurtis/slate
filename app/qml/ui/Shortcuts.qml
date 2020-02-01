@@ -12,10 +12,11 @@ Item {
     property Item canvasContainer
     property ImageCanvas canvas
     readonly property bool canvasHasActiveFocus: canvas && canvas.activeFocus
+    property SaveChangesDialog saveChangesDialog
 
     Shortcut {
         sequence: settings.quitShortcut
-        onActivated: doIfChangesDiscarded(function() { Qt.quit() })
+        onActivated: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { Qt.quit() })
     }
 
     Shortcut {
@@ -23,14 +24,14 @@ Item {
         sequence: settings.newShortcut
         // There could be no project open, so the canvas won't exist and hence its container will have focus.
         enabled: canvasHasActiveFocus || canvasContainer.activeFocus
-        onActivated: doIfChangesDiscarded(function() { newProjectPopup.open() }, true)
+        onActivated: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { newProjectPopup.open() }, true)
     }
 
     Shortcut {
         objectName: "openShortcut"
         sequence: settings.openShortcut
         enabled: canvasHasActiveFocus || canvasContainer.activeFocus
-        onActivated: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
+        onActivated: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { openProjectDialog.open() }, true)
     }
 
     Shortcut {
@@ -58,7 +59,7 @@ Item {
         objectName: "closeShortcut"
         sequence: settings.closeShortcut
         enabled: canvasHasActiveFocus
-        onActivated: doIfChangesDiscarded(function() { project.close() })
+        onActivated: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { project.close() })
     }
 
     Shortcut {

@@ -184,20 +184,34 @@ void Project::close()
     qCDebug(lcProject) << "closed project";
 }
 
-void Project::save()
+bool Project::save()
 {
     if (mFromNew) {
         Q_ASSERT_X(mUrl.isEmpty(), Q_FUNC_INFO, "New projects must have a valid URL to save to");
     }
 
-    saveAs(mUrl);
+    return saveAs(mUrl);
 }
 
-void Project::saveAs(const QUrl &url)
+bool Project::saveAs(const QUrl &url)
 {
     emit preProjectSaved();
 
-    doSaveAs(url);
+    if (!hasLoaded()) {
+        error(QLatin1String("Internal error: cannot save project as none has been loaded"));
+        return false;
+    }
+
+    if (url.isEmpty()) {
+        error(QLatin1String("Internal error: cannot save project with empty URL"));
+        return false;
+    }
+
+    if (!doSaveAs(url))
+        return false;
+
+    emit postProjectSaved();
+    return true;
 }
 
 void Project::revert()
@@ -276,8 +290,9 @@ void Project::doClose()
 {
 }
 
-void Project::doSaveAs(const QUrl &)
+bool Project::doSaveAs(const QUrl &)
 {
+    return false;
 }
 
 void Project::setComposingMacro(bool composingMacro, const QString &macroText)

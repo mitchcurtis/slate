@@ -49,13 +49,14 @@ ApplicationWindow {
     property ImageCanvas canvas: canvasContainer.canvas
     property alias newProjectPopup: newProjectPopup
     property alias openProjectDialog: openProjectDialog
-    property alias saveChangesDialog: discardChangesDialog
+    property alias saveChangesDialog: saveChangesDialog
+    property alias saveAsDialog: saveAsDialog
     property alias moveContentsDialog: moveContentsDialog
     property int oldWindowVisibility: Window.Windowed
 
     onClosing: {
         close.accepted = false
-        doIfChangesDiscarded(function() { Qt.quit() })
+        saveChangesDialog.doIfChangesSavedOrDiscarded(function() { Qt.quit() })
     }
 
     // If we set the image URL immediately, it can happen before
@@ -71,49 +72,12 @@ ApplicationWindow {
         }
     }
 
-    function doIfChangesDiscarded(actionFunction, skipChangesConfirmationIfNoProject) {
-        if ((skipChangesConfirmationIfNoProject === undefined || skipChangesConfirmationIfNoProject === true) && !project) {
-            // If there's no project open, some features should be able to
-            // be performed immediately, such as Open.
-            actionFunction();
-            return;
-        }
-
-        if (!project) {
-            // Auto tests can skip this function.
-            return;
-        }
-
-        if (!project.unsavedChanges) {
-            actionFunction();
-            return;
-        }
-
-        function disconnectSignals() {
-            saveChangesDialog.accepted.disconnect(dontDiscardChanges);
-            saveChangesDialog.discarded.disconnect(discardChanges);
-        }
-
-        function discardChanges() {
-            actionFunction();
-            disconnectSignals();
-            // TODO: temporary until https://bugreports.qt.io/browse/QTBUG-67168 is fixed.
-            saveChangesDialog.close();
-        }
-
-        function dontDiscardChanges() {
-            disconnectSignals();
-        }
-
-        saveChangesDialog.accepted.connect(dontDiscardChanges);
-        saveChangesDialog.discarded.connect(discardChanges);
-        saveChangesDialog.open();
-    }
-
     function saveOrSaveAs() {
         if (project.url.toString().length > 0) {
+            // Existing project; can save without a dialog.
             project.save();
         } else {
+            // New project; need to save as.
             saveAsDialog.open();
         }
     }
@@ -195,6 +159,7 @@ ApplicationWindow {
         window: window
         canvasContainer: canvasContainer
         canvas: window.canvas
+        saveChangesDialog: saveChangesDialog
     }
 
     menuBar: Ui.MenuBar {
@@ -207,6 +172,7 @@ ApplicationWindow {
         moveContentsDialog: moveContentsDialog
         texturedFillSettingsDialog: texturedFillSettingsDialog
         aboutDialog: aboutDialog
+        saveChangesDialog: saveChangesDialog
     }
 
     header: Ui.ToolBar {
@@ -426,32 +392,12 @@ ApplicationWindow {
         y: Math.round(parent.height - height) / 2
     }
 
-    Dialog {
-        id: discardChangesDialog
-        objectName: "discardChangesDialog"
+    Ui.SaveChangesDialog {
+        id: saveChangesDialog
         x: Math.round(parent.width - width) / 2
         y: Math.round(parent.height - height) / 2
-        title: qsTr("Unsaved changes")
-        modal: true
-
-        Label {
-            text: qsTr("The action you're about to perform could discard changes.\n\nContinue anyway?")
-        }
-
-        // Using a DialogButtonBox allows us to assign objectNames to the buttons,
-        // which makes it possible to test them.
-        footer: DialogButtonBox {
-            Button {
-                objectName: "saveChangesDialogButton"
-                text: qsTr("Save")
-                DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
-            }
-            Button {
-                objectName: "discardChangesDialogButton"
-                text: qsTr("Discard")
-                DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
-            }
-        }
+        project: projectManager.project
+        saveAsDialog: window.saveAsDialog
     }
 
     Ui.HueSaturationDialog {

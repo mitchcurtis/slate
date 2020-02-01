@@ -121,31 +121,25 @@ void ImageProject::doClose()
     emit projectClosed();
 }
 
-void ImageProject::doSaveAs(const QUrl &url)
+bool ImageProject::doSaveAs(const QUrl &url)
 {
-    if (!hasLoaded())
-        return;
-
-    if (url.isEmpty())
-        return;
-
     const QString filePath = url.toLocalFile();
     const QFileInfo projectSaveFileInfo(filePath);
     if (mTempDir.isValid()) {
         if (projectSaveFileInfo.dir().path() == mTempDir.path()) {
             error(QLatin1String("Cannot save project in internal temporary directory"));
-            return;
+            return false;
         }
     }
 
     if (mImage.isNull()) {
         error(QString::fromLatin1("Failed to save project: image is null"));
-        return;
+        return false;
     }
 
     if (!mImage.save(filePath)) {
         error(QString::fromLatin1("Failed to save project's image to %1").arg(filePath));
-        return;
+        return false;
     }
 
     mUsingTempImage = false;
@@ -158,6 +152,7 @@ void ImageProject::doSaveAs(const QUrl &url)
     setUrl(url);
     mUndoStack.setClean();
     mHadUnsavedChangesBeforeMacroBegan = false;
+    return true;
 }
 
 void ImageProject::resize(int width, int height, bool smooth)

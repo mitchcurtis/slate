@@ -40,6 +40,7 @@ Controls.MenuBar {
     property var moveContentsDialog
     property var texturedFillSettingsDialog
     property var aboutDialog
+    property SaveChangesDialog saveChangesDialog
 
     Menu {
         id: fileMenu
@@ -58,7 +59,7 @@ Controls.MenuBar {
         MenuItem {
             objectName: "newMenuButton"
             text: qsTr("New")
-            onTriggered: doIfChangesDiscarded(function() { newProjectPopup.open() }, true)
+            onTriggered: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { newProjectPopup.open() }, true)
         }
 
         MenuSeparator {}
@@ -82,7 +83,7 @@ Controls.MenuBar {
                     // https://bugreports.qt.io/browse/QTBUG-70961
                     objectName: text + "MenuItem"
                     text: settings.displayableFilePath(modelData)
-                    onTriggered: doIfChangesDiscarded(function() {
+                    onTriggered: saveChangesDialog.doIfChangesSavedOrDiscarded(function() {
                         // If we load the project immediately, it causes the menu items to be removed immediately,
                         // which means the Menu that owns them will disconnect from the triggered() signal of the
                         // menu item, resulting in the menu not closing:
@@ -114,7 +115,7 @@ Controls.MenuBar {
         MenuItem {
             objectName: "openMenuItem"
             text: qsTr("Open")
-            onTriggered: doIfChangesDiscarded(function() { openProjectDialog.open() }, true)
+            onTriggered: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { openProjectDialog.open() }, true)
         }
 
         MenuSeparator {}
@@ -168,7 +169,7 @@ Controls.MenuBar {
             objectName: "closeMenuItem"
             text: qsTr("Close")
             enabled: project && project.loaded
-            onClicked: doIfChangesDiscarded(function() { project.close() })
+            onClicked: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { project.close() })
         }
 
         MenuSeparator {}
@@ -186,7 +187,7 @@ Controls.MenuBar {
         MenuItem {
             objectName: "quitMenuItem"
             text: qsTr("Quit Slate")
-            onTriggered: doIfChangesDiscarded(function() { Qt.quit() })
+            onTriggered: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { Qt.quit() })
         }
     }
 
