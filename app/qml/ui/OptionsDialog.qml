@@ -1,5 +1,7 @@
 import QtQml.Models 2.2
 import QtQuick 2.14
+// TODO: move this back to the top once QTBUG-81787 is fixed.
+import QtQml 2.14
 import QtQuick.Layouts 1.14
 import QtQuick.Controls 2.14
 
@@ -222,6 +224,7 @@ Dialog {
                             property: "opacity"
                             value: windowOpacitySlider.value
                             when: windowOpacitySlider.pressed
+                            restoreMode: Binding.RestoreBindingOrValue
                         }
 
                         ToolTip {

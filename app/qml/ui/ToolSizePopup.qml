@@ -1,4 +1,6 @@
 import QtQuick 2.14
+// TODO: move this back to the top once QTBUG-81787 is fixed.
+import QtQml 2.14
 import QtQuick.Controls 2.14
 
 import App 1.0
@@ -25,6 +27,7 @@ Popup {
             property: "value"
             value: canvas ? canvas.toolSize : 1
             when: canvas
+            restoreMode: Binding.RestoreBindingOrValue
         }
 
         ToolTip {
