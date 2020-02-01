@@ -50,7 +50,10 @@ Controls.MenuBar {
         // has focus (i.e. no popups are open), but doing so on MenuItems
         // would prevent them from being navigable with the arrow keys.
         // Instead, we just force focus on the canvas when a menu closes.
-        onClosed: canvas.forceActiveFocus()
+        // Note that we need to check if the canvas exists, as the menu
+        // can close when e.g. creating a new project without having one
+        // already open.
+        onClosed: if (canvas) canvas.forceActiveFocus()
 
         MenuItem {
             objectName: "newMenuButton"
