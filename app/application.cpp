@@ -96,14 +96,9 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
 {
     qCDebug(lcApplication) << "constructing Application...";
 
-    qmlRegisterAnonymousType<ImageCanvas>("App", 1);
-    qmlRegisterAnonymousType<ProbabilitySwatch>("App", 1);
-    qmlRegisterAnonymousType<SerialisableState>("App", 1);
-    qmlRegisterAnonymousType<Splitter>("App", 1);
-    qmlRegisterAnonymousType<Swatch>("App", 1);
-    qmlRegisterAnonymousType<TileCanvas>("App", 1);
     qmlRegisterType<AutoSwatchModel>("App", 1, 0, "AutoSwatchModel");
     qmlRegisterType<FileValidator>("App", 1, 0, "FileValidator");
+    qmlRegisterType<ImageCanvas>();
     qmlRegisterType<ImageCanvas>("App", 1, 0, "ImageCanvas");
     qmlRegisterType<CanvasPaneItem>("App", 1, 0, "CanvasPaneItem");
     qmlRegisterType<TileCanvasPaneItem>("App", 1, 0, "TileCanvasPaneItem");
@@ -111,13 +106,18 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     qmlRegisterType<LayeredImageCanvas>("App", 1, 0, "LayeredImageCanvas");
     qmlRegisterType<LayerModel>("App", 1, 0, "LayerModel");
     qmlRegisterType<NewProjectValidator>("App", 1, 0, "NewProjectValidator");
+    qmlRegisterType<ProbabilitySwatch>();
     qmlRegisterType<ProbabilitySwatchModel>("App", 1, 0, "ProbabilitySwatchModel");
     qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");
     qmlRegisterType<RectangularCursor>("App", 1, 0, "RectangularCursor");
     qmlRegisterType<SaturationLightnessPicker>("App", 1, 0, "SaturationLightnessPickerTemplate");
+    qmlRegisterType<SerialisableState>();
     qmlRegisterType<SpriteImage>("App", 1, 0, "SpriteImage");
+    qmlRegisterType<Splitter>();
+    qmlRegisterType<Swatch>();
     qmlRegisterType<SwatchModel>("App", 1, 0, "SwatchModel");
     qmlRegisterType<TexturedFillPreviewItem>("App", 1, 0, "TexturedFillPreviewItem");
+    qmlRegisterType<TileCanvas>();
     qmlRegisterType<TileCanvas>("App", 1, 0, "TileCanvas");
     qmlRegisterType<TileGrid>("App", 1, 0, "TileGrid");
     qmlRegisterType<TilesetSwatchImage>("App", 1, 0, "TilesetSwatchImage");
