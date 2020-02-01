@@ -18,10 +18,10 @@
 */
 
 import QtQml 2.2
-import QtQuick 2.12
-import QtQuick.Layouts 1.2
-import QtQuick.Controls 2.12
-import QtQuick.Controls 2.12 as Controls
+import QtQuick 2.14
+import QtQuick.Layouts 1.14
+import QtQuick.Controls 2.14
+import QtQuick.Controls 2.14 as Controls
 
 import App 1.0
 
