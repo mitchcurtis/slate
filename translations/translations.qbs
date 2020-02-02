@@ -15,8 +15,8 @@ Product {
                 return "translations"
             else if (qbs.targetOS.contains("macos"))
                 return "Slate.app/Contents/Translations"
-            //else
-            //    return "share/tiled/translations"
+            else
+                return "share/slate/translations"
         }
     }
 }
