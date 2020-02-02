@@ -25,7 +25,6 @@
 3. Crops the image to the current selection.
 4. Undo the last canvas operation.
 5. Redo the last undone canvas operation
-N/A. Toggles between operating on pixels or whole tiles (not picured; for tileset projects only).
 6. Switches the current tool to the pen tool.
 7. Switches the current tool to the eye dropper (colour picker) tool.
 8. Switches the current tool to the eraser tool.
