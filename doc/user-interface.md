@@ -25,22 +25,26 @@
 3. Crops the image to the current selection.
 4. Undo the last canvas operation.
 5. Redo the last undone canvas operation
-6. Toggles between operating on pixels or whole tiles.
-7. Switches the current tool to the pen tool.
-8. Switches the current tool to the eye dropper (colour picker) tool.
-9. Switches the current tool to the eraser tool.
-10. Switches the current tool to the fill tool. Long press to bring up the fill tool menu.
-11. Switches the current tool to the selection tool.
+<!-- 6. Toggles between operating on pixels or whole tiles. (TODO: Tileset-only, won't show up in screenshot) -->
+6. Switches the current tool to the pen tool.
+7. Switches the current tool to the eye dropper (colour picker) tool.
+8. Switches the current tool to the eraser tool.
+9. Switches the current tool to the fill tool. Long press to bring up the fill tool menu.
+10. Switches the current tool to the selection tool.
+11. Switches the current tool to the note tool.
 12. Changes the size of drawing tools.
-13. Rotates the selection by 90 degrees counter-clockwise.
-14. Rotates the selection by 90 degrees clockwise.
-15. Flips the selection horizontally.
-16. Flips the selection vertically.
-17. Shows rulers.
-18. Shows guides.
-19. Locks guides.
-20. Toggles split screen.
-21. Locks split screen splitter.
+13. Changes the shape of drawing tools.
+14. Rotates the selection by 90 degrees counter-clockwise.
+15. Rotates the selection by 90 degrees clockwise.
+16. Flips the selection horizontally.
+17. Flips the selection vertically.
+18. Shows rulers.
+19. Shows guides.
+20. Locks guides.
+21. Shows notes.
+22. Toggles split screen.
+23. Locks split screen splitter.
+24. Toggles full screen.
 
 ### Colour
 

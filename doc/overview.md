@@ -54,6 +54,7 @@ Animation | :white_check_mark: <sup>1</sup> | :white_check_mark: | :x:
 Grid | :x: | :x: | :white_check_mark:
 Guides | :white_check_mark: <sup>1</sup> | :white_check_mark: | :white_check_mark:
 Layers | :x: | :white_check_mark: | :x:
+Notes | :white_check_mark: | :white_check_mark: | :x:
 Resize Image | :white_check_mark: | :white_check_mark: | :x:
 Selection Tool | :white_check_mark: | :white_check_mark: | :x:
 Swatches | :white_check_mark: <sup>1</sup> | :white_check_mark: | :white_check_mark:

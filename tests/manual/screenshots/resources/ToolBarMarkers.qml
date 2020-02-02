@@ -23,7 +23,6 @@ import "." as Screenshot
 
 Item {
     id: root
-    objectName: "deleteMe"
 
     Repeater {
         model: [
@@ -38,7 +37,9 @@ Item {
             "eraserToolButton",
             "fillToolButton",
             "selectionToolButton",
+            "noteToolButton",
             "toolSizeButton",
+            "toolShapeButton",
             "rotate90CcwToolButton",
             "rotate90CwToolButton",
             "flipHorizontallyToolButton",
@@ -46,8 +47,10 @@ Item {
             "showRulersToolButton",
             "showGuidesToolButton",
             "lockGuidesToolButton",
+            "showNotesToolButton",
             "splitScreenToolButton",
-            "lockSplitterToolButton"
+            "lockSplitterToolButton",
+            "fullScreenToolButton"
         ]
         delegate: Screenshot.Marker {
             parent: findChildHelper.findAnyChild(root.parent, modelData)

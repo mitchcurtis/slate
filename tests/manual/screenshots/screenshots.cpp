@@ -174,6 +174,14 @@ void tst_Screenshots::toolBarFull()
     // Ensure that we have a temporary directory.
     QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
 
+    // Roll back to the previous value at the end of this test.
+    const QSize originalWindowSize = window->size();
+    Utils::ScopeGuard windowSizeGuard([=](){
+        window->resize(originalWindowSize);
+    });
+    // Set the optimal horizontal size for the window for these screenshots.
+    window->resize(1400, 900);
+
     // Copy the project file from resources into our temporary directory.
     const QString projectFileName = QLatin1String("animation-panel.slp");
     QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
