@@ -56,4 +56,6 @@ Click OK to confirm the settings. Hit the play button to see the animation:
 
 ![Animation](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-tutorial.gif)
 
+It's also possible to export the animation as a GIF using the export button in the lower right of the animation panel.
+
 The final project can be downloaded [here](https://github.com/mitchcurtis/slate/blob/master/tests/manual/screenshots/resources/animation-tutorial-3.slp).

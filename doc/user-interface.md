@@ -88,6 +88,7 @@
 4. Plays/pauses the animation preview playback.
 5. Displays the progress of the animation preview playback.
 6. Toggles between playing once and looping.
+7. Exports the animation as a GIF.
 
 ## Settings
 

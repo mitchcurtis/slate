@@ -68,4 +68,11 @@ Item {
         anchors.bottom: parent.top
         number: 6
     }
+
+    Screenshot.Marker {
+        parent: findChildHelper.findAnyChild(root.parent, "exportGifButton")
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.top
+        number: 7
+    }
 }

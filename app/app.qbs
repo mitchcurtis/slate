@@ -52,7 +52,14 @@ QtGuiApplication {
         "main.cpp",
         "config.qrc",
         "fonts/fonts.qrc",
-        "images/images.qrc"
+        "images/images.qrc",
+        // Make docs available in Creator's locator
+        "../doc/animation-tutorial.md",
+        "../doc/getting-started-layered.md",
+        "../doc/getting-started-tileset.md",
+        "../doc/overview.md",
+        "../doc/user-interface.md",
+        "../doc/textured-fill-tool-tutorial.md"
     ]
 
     AppQmlFiles {}
