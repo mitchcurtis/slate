@@ -31,7 +31,7 @@ Item {
             "cropToSelectionToolButton",
             "undoToolButton",
             "redoToolButton",
-            "modeToolButton",
+//            "modeToolButton",
             "penToolButton",
             "eyeDropperToolButton",
             "eraserToolButton",
