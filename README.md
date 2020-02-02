@@ -52,15 +52,17 @@ Slate was built for pixel art, and its goal is to simplify the creation of sprit
 ### Downloads ###
 
 <!-- ![Linux](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.svg "Linux") -->
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.svg" width="16" height="16"> - [Slate 0.8.0 for Linux](https://github.com/mitchcurtis/slate/releases/download/v0.8.0/Slate-v0.8.0-linux.tar.xz)
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.svg" width="16" height="16"> - [Slate 0.9.0 for Linux](https://github.com/mitchcurtis/slate/releases/download/v0.9.0/Slate-v0.9.0-linux.tar.xz)
 
 <!-- ![Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.svg "Mac") -->
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.svg" width="16" height="16"> - [Slate 0.8.0 for Mac](https://github.com/mitchcurtis/slate/releases/download/v0.8.0/Slate-v0.8.0-mac.dmg)
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.svg" width="16" height="16"> - [Slate 0.9.0 for Mac](https://github.com/mitchcurtis/slate/releases/download/v0.9.0/Slate-v0.9.0-mac.dmg)
 
 <!-- ![Windows](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.svg "Windows") -->
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.svg" width="16" height="16"> - [Slate 0.8.0 for Windows](https://github.com/mitchcurtis/slate/releases/download/v0.8.0/Slate-v0.8.0-windows.zip)
+<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.svg" width="16" height="16"> - [Slate 0.9.0 for Windows](https://github.com/mitchcurtis/slate/releases/download/v0.9.0/Slate-v0.9.0-windows.zip)
 
 See the [releases](https://github.com/mitchcurtis/slate/releases) page for the full list of available downloads.
+
+Note that the Linux binaries are built on Ubuntu 18.04.3 and may not work with other distributions. If you encounter issues running Slate on Linux, try [building from source](#building-from-source).
 
 ### Installing ###
 
