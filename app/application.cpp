@@ -164,13 +164,11 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     QTranslator translator;
     const QLocale locale(mSettings->language());
     QDir translationsDir = QDir::current();
-#if defined(Q_OS_WIN32)
-    translationsDir.cd(QStringLiteral("translations"));
-#elif defined(Q_OS_MAC)
+#if defined(Q_OS_MAC)
     translationsDir.cdUp();
     translationsDir.cd(QStringLiteral("Translations"));
 #else
-    translationsDir.cd(QStringLiteral("share/slate/translations"));
+    translationsDir.cd(QStringLiteral("translations"));
 #endif
     qCDebug(lcApplication) << "looking for translation for"
         << locale.name() << "locale in" << translationsDir.absolutePath();

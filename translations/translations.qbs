@@ -11,12 +11,12 @@ Product {
         fileTagsFilter: product.type
         qbs.install: true
         qbs.installDir: {
-            if (qbs.targetOS.contains("windows") || project.linuxArchive)
-                return "translations"
-            else if (qbs.targetOS.contains("macos"))
+            if (qbs.targetOS.contains("macos"))
                 return "Slate.app/Contents/Translations"
             else
-                return "share/slate/translations"
+                // linuxdeployqt puts Qt's translation files into translations/,
+                // so we just do it that way here too.
+                return "translations"
         }
     }
 }
