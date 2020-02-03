@@ -40,6 +40,10 @@ public:
     ProjectManager *projectManager();
 
 private:
+    void registerQmlTypes();
+    void addFonts();
+    void installTranslators();
+
     QScopedPointer<QGuiApplication> mApplication;
     QScopedPointer<ApplicationSettings> mSettings;
     QScopedPointer<QQmlApplicationEngine> mEngine;
