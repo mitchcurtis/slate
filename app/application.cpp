@@ -234,10 +234,10 @@ void Application::installTranslators()
 #if defined(Q_OS_WIN32)
     slateTranslationsDir.cd(QStringLiteral("translations"));
 #elif defined(Q_OS_MAC)
-    translationsDir.cdUp();
-    translationsDir.cd(QStringLiteral("Translations"));
+    slateTranslationsDir.cdUp();
+    slateTranslationsDir.cd(QStringLiteral("Translations"));
 #else
-    translationsDir.cd(QStringLiteral("translations"));
+    slateTranslationsDir.cd(QStringLiteral("translations"));
 #endif
     qCDebug(lcApplication) << "looking for translation for"
         << locale.name() << "locale in" << slateTranslationsDir.absolutePath();
