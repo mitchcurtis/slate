@@ -23,12 +23,14 @@ import QtQuick.Controls 2.12
 
 Label {
     id: root
+    objectName: "fpsCounter"
     text: qsTr("%1 FPS").arg(root.fps)
 
     property int fps: 0
 
     Item {
         id: rotationItem
+        objectName: "fpsCounterRotationItem"
 
         property int timesUpdated: 0
 
