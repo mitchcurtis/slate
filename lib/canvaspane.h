@@ -80,6 +80,6 @@ private:
     bool mSceneCentered;
 };
 
-SLATE_EXPORT QDebug operator<<(QDebug debug, const CanvasPane *pane);
+//SLATE_EXPORT QDebug operator<<(QDebug debug, const CanvasPane *pane);
 
 #endif // CANVASPANE_H

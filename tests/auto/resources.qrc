@@ -35,5 +35,6 @@
         <file>resources/loadInvalidProjects-empty.stp</file>
         <file>resources/animation.slp</file>
         <file>resources/version-check-v0.8.0.slp</file>
+        <file>resources/loadPaneFractionalOffset.slp</file>
     </qresource>
 </RCC>

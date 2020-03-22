@@ -1,0 +1,46 @@
+{
+    "project": {
+        "creationVersion": "",
+        "currentLayerIndex": 0,
+        "guides": [
+        ],
+        "layers": [
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIUlEQVQYlWP8////fwYiABMxioa8QkZGRuIUooca9d0IAI0kBxBSInVwAAAAAElFTkSuQmCC",
+                "name": "Layer 1",
+                "opacity": 1,
+                "visible": true
+            }
+        ],
+        "modificationVersion": "0.9.0",
+        "notes": [
+        ],
+        "swatch": {
+            "colours": [
+            ]
+        },
+        "uiState": {
+            "colourPanelExpanded": true,
+            "firstPane": {
+                "offsetX": 257.0000000000015,
+                "offsetY": 235.3000000000001,
+                "sceneCentered": false,
+                "size": 1,
+                "zoomLevel": 1
+            },
+            "lastFillToolUsed": "FillTool",
+            "layerListViewContentY": 0,
+            "layerPanelExpanded": true,
+            "mainSplitViewState": "gqJlaW5kZXgAbnByZWZlcnJlZFdpZHRo+0CBgAAAAAAAomVpbmRleAFucHJlZmVycmVkV2lkdGj7QG4AAAAAAAA=",
+            "panelSplitViewState": "g6JlaW5kZXgAb3ByZWZlcnJlZEhlaWdodPtAe4jwAAAAAKJlaW5kZXgBb3ByZWZlcnJlZEhlaWdodPtAXzRAAAAAAKJlaW5kZXgEb3ByZWZlcnJlZEhlaWdodPtAcNHwAAAAAA==",
+            "secondPane": {
+                "offsetX": -5,
+                "offsetY": 283,
+                "sceneCentered": true,
+                "size": 0,
+                "zoomLevel": 1
+            },
+            "swatchPanelExpanded": false
+        }
+    }
+}

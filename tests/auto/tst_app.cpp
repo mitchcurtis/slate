@@ -74,6 +74,7 @@ private Q_SLOTS:
     void newProjectSizeFromClipboard();
     void splitViewStateAcrossProjects();
     void saveOnPrompt();
+    void loadPaneFractionalOffset();
 
     // Tools, misc.
     void animationPlayback_data();
@@ -862,6 +863,23 @@ void tst_App::saveOnPrompt()
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
     QVERIFY2(triggerCloseProject(), failureMessage);
     QVERIFY2(saveChanges(), failureMessage);
+}
+
+// Tests that pane offset is correctly read from a project file when either coordinate is not a whole number.
+void tst_App::loadPaneFractionalOffset()
+{
+    // Ensure that we have a temporary directory.
+    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+
+    // Copy the project file from resources into our temporary directory.
+    const QString projectFileName = QLatin1String("loadPaneFractionalOffset.slp");
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+
+    // Load the project and make sure the offset is correct.
+    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
+    const QUrl projectUrl = QUrl::fromLocalFile(absolutePath);
+    QVERIFY2(loadProject(projectUrl), failureMessage);
+    QCOMPARE(canvas->firstPane()->offset(), QPointF(257, 235));
 }
 
 void tst_App::animationPlayback_data()

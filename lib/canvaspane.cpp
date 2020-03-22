@@ -103,7 +103,7 @@ void CanvasPane::setOffset(const QPointF &offset)
 
     const QPoint oldIntegerOffset = integerOffset();
 
-    qCDebug(lcCanvasPane) << "setting offset of" << objectName() << "to" << offset;
+    qCDebug(lcCanvasPane) << "setting offset of" << this << "to" << offset;
 
     mOffset = offset;
 
@@ -132,7 +132,9 @@ void CanvasPane::read(const QJsonObject &json)
 
     setSize(json.value(QLatin1String("size")).toDouble());
     setZoomLevel(json.value(QLatin1String("zoomLevel")).toInt());
-    setIntegerOffset(QPoint(json.value(QLatin1String("offsetX")).toInt(), json.value(QLatin1String("offsetY")).toInt()));
+    const int offsetX = int(json.value(QLatin1String("offsetX")).toDouble());
+    const int offsetY = int(json.value(QLatin1String("offsetY")).toDouble());
+    setIntegerOffset(QPoint(offsetX, offsetY));
     setSceneCentered(json.value(QLatin1String("sceneCentered")).toBool());
 
     qCDebug(lcCanvasPane) << "... read pane" << this;
@@ -157,13 +159,13 @@ void CanvasPane::reset()
     setSceneCentered(true);
 }
 
-QDebug operator<<(QDebug debug, const CanvasPane *pane)
-{
-    QDebugStateSaver stateSaver(debug);
-    debug.nospace() << "(CanvasPane objectName=" << pane->objectName()
-        << "offset=" << pane->integerOffset()
-        << " size=" << pane->size()
-        << " zoomLevel=" << pane->zoomLevel()
-        << ")";
-    return debug.space();
-}
+//QDebug operator<<(QDebug debug, const CanvasPane *pane)
+//{
+//    QDebugStateSaver stateSaver(debug);
+//    debug.nospace() << "(CanvasPane objectName=" << pane->objectName()
+//        << "offset=" << pane->integerOffset()
+//        << " size=" << pane->size()
+//        << " zoomLevel=" << pane->zoomLevel()
+//        << ")";
+//    return debug.space();
+//}
