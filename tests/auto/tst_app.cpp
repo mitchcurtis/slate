@@ -4457,18 +4457,28 @@ void tst_App::copyPaste()
     QTest::keySequence(window, QKeySequence::Copy);
     QCOMPARE(QGuiApplication::clipboard()->image(), canvas->currentProjectImage()->copy(10, 10, 5, 5));
 
+    // Deselect.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->hasSelection(), false);
+
+    // Fill the black rectangle with red so we know that the paste works.
+    canvas->setPenForegroundColour(Qt::red);
+    QVERIFY2(switchTool(ImageCanvas::FillTool), failureMessage);
+    setCursorPosInScenePixels(12, 12);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(10, 10), QColor(Qt::red));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(14, 14), QColor(Qt::red));
+
     // Paste. The project's image shouldn't change until the paste selection is confirmed.
     QTest::keySequence(window, QKeySequence::Paste);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::white));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(10, 10), QColor(Qt::red));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(14, 14), QColor(Qt::red));
     QCOMPARE(canvas->hasSelection(), true);
     QCOMPARE(canvas->selectionArea(), QRect(10, 10, 5, 5));
     // However, the selection preview image should be visible...
-    // Note: currently this won't change, so it's commented out.
-    // If the location of the pasted image ever changes, uncomment this so that it's tested.
-    //QVERIFY(imageGrabber.requestImage(canvas));
-    //QTRY_VERIFY(imageGrabber.isReady());
-    //QCOMPARE(imageGrabber.takeImage().pixelColor(2, 2), QColor(Qt::black));
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QCOMPARE(imageGrabber.takeImage().pixelColor(12, 12), QColor(Qt::black));
 
     // Undo the paste while it's still selected.
     //QTest::keySequence(window, app.settings()->undoShortcut());
@@ -4493,25 +4503,14 @@ void tst_App::undoCopyPasteWithTransparency()
     setCursorPosInScenePixels(1, 10);
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
-    // Select it.
-    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
-
-    setCursorPosInScenePixels(QPoint(0, 9));
-    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    setCursorPosInScenePixels(QPoint(3, 12));
-    QTest::mouseMove(window, cursorWindowPos);
-    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    const QRect copyRect(QRect(0, 9, 3, 3));
-    QCOMPARE(canvas->selectionArea(), copyRect);
-
-    // Copy it.
-    QTest::keySequence(window, QKeySequence::Copy);
-    QCOMPARE(QGuiApplication::clipboard()->image(), canvas->currentProjectImage()->copy(copyRect));
-
-    // Deselect so that we paste at the top left.
-    setCursorPosInScenePixels(100, 100);
-    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QVERIFY(!canvas->hasSelection());
+    // This test was written when pasting an image would always put it at the
+    // top-left of the canvas. The test used to select {0,9 3x3} and copy it,
+    // and then paste it. To ensure the integrity of the test, we manually
+    // set the clipboard image so that it's still pasted at the top-left.
+    QImage image(3, 3, QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::transparent);
+    image.setPixelColor(1, 1, Qt::black);
+    qGuiApp->clipboard()->setImage(image);
 
     // Paste.
     QTest::keySequence(window, QKeySequence::Paste);

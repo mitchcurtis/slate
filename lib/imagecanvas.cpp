@@ -1844,6 +1844,9 @@ void ImageCanvas::reset()
     mLastPixelPenPressScenePositionF = QPoint(0, 0);
 
     clearSelection();
+    mLastCopiedSelectionArea = QRect();
+    mLastCopiedSelectionContents = QImage();
+
     setAltPressed(false);
     mToolBeforeAltPressed = PenTool;
     mSpacePressed = false;
@@ -1886,17 +1889,15 @@ void ImageCanvas::copySelection()
         return;
 
     QClipboard *clipboard = QGuiApplication::clipboard();
-    clipboard->setImage(currentProjectImage()->copy(mSelectionArea));
+    const QImage copiedImage = currentProjectImage()->copy(mSelectionArea);
+    clipboard->setImage(copiedImage);
+    mLastCopiedSelectionArea = mSelectionArea;
+    mLastCopiedSelectionContents = copiedImage;
 }
 
 void ImageCanvas::paste()
 {
     qCDebug(lcImageCanvasSelection) << "pasting selection from clipboard";
-
-    QRect pastedArea = mSelectionArea;
-    const bool fromExternalSource = !mHasSelection;
-
-    clearOrConfirmSelection();
 
     QClipboard *clipboard = QGuiApplication::clipboard();
     QImage clipboardImage = clipboard->image();
@@ -1905,19 +1906,25 @@ void ImageCanvas::paste()
         return;
     }
 
+    // If the user copied a section of the canvas and then the selection was lost (e.g. due to changing layers)
+    // then we want to paste that image into the same area.
+    // This is just an educated guess - it is possible that the user copied an identical image
+    // from outside the application and pasted it in, but... it's not a big deal.
+    const bool wasLastCopiedImageFromCanvas = clipboardImage == mLastCopiedSelectionContents;
+    // If the user didn't copy from the canvas, just use an empty rect so that it falls back to using
+    // the image's size at the top left of the canvas.
+    QRect pastedArea = wasLastCopiedImageFromCanvas ? mLastCopiedSelectionArea : QRect();
+    const bool fromExternalSource = !mHasSelection && !wasLastCopiedImageFromCanvas;
+
+    clearOrConfirmSelection();
+
     setTool(SelectionTool);
 
     const QSize adjustedSize(qMin(clipboardImage.width(), mProject->widthInPixels()),
         qMin(clipboardImage.height(), mProject->heightInPixels()));
     if (fromExternalSource) {
-        // If the paste was from an external source, or there was no
-        // selection prior to pasting, we just paste it at 0, 0.
+        // If the paste was copied from an external source, we just paste it at 0, 0.
         pastedArea = QRect(0, 0, adjustedSize.width(), adjustedSize.height());
-        // TODO: #16 - pastes too far to the top left for some reason
-//        if (mCurrentPane->offset().x() < 0)
-//            pastedArea.moveLeft(qAbs(mCurrentPane->offset().x()) / mCurrentPane->zoomLevel());
-//        if (mCurrentPane->offset().y() < 0)
-//            pastedArea.moveTop(qAbs(mCurrentPane->offset().y()) / mCurrentPane->zoomLevel());
     }
     // Crop the clipboard image if it's larger than the canvas,
     if (adjustedSize != clipboardImage.size())

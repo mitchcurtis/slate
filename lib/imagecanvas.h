@@ -667,6 +667,8 @@ protected:
     QRect mSelectionAreaBeforeLastMove;
     // The last selection area with a non-empty size. This is set after a mouse release event.
     QRect mLastValidSelectionArea;
+    // The last selection area that was copied.
+    QRect mLastCopiedSelectionArea;
     // The image contents of the selection.
     QImage mSelectionContents;
     // The entire image as it would look if the selection (that is currently being dragged)
@@ -674,6 +676,8 @@ protected:
     QImage mSelectionPreviewImage;
     // See the definition of beginModifyingSelectionHsl() for info.
     QImage mSelectionContentsBeforeImageAdjustment;
+    // The last image that was copied from this canvas.
+    QImage mLastCopiedSelectionContents;
     SelectionModification mLastSelectionModificationBeforeImageAdjustment;
     QBasicTimer mSelectionEdgePanTimer;
     SelectionCursorGuide *mSelectionCursorGuide;
