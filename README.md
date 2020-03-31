@@ -81,9 +81,7 @@ It's fine to ask questions here on GitHub as well - just [create an issue](https
 
 If you like Slate, feel free to stop by the Discord server and let me know. I'm always excited to know that people are using it.
 
-You can also say thank you by donating:
-
-[![](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LLLVPKU2JW9P8&source=url)
+You can also say thank you by donating via [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LLLVPKU2JW9P8&source=url) or [itch.io](https://mitchcurtis.itch.io/slate).
 
 ## Building From Source ##
 
