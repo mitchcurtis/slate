@@ -79,6 +79,11 @@ QHash<int, QByteArray> ProbabilitySwatchModel::roleNames() const
     return names;
 }
 
+int ProbabilitySwatchModel::indexOfColour(const QColor &colour) const
+{
+    return mSwatch->indexOfColour(colour);
+}
+
 void ProbabilitySwatchModel::onProbabilityChanged(int index)
 {
     QVector<int> roles;

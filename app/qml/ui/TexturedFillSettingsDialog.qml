@@ -17,9 +17,9 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.12
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.12
+import QtQuick 2.13
+import QtQuick.Layouts 1.13
+import QtQuick.Controls 2.13
 
 import App 1.0
 
@@ -35,13 +35,16 @@ Dialog {
     property Project project
     property ImageCanvas canvas
 
+    // Only enable the slider if there's something to show. For the swatch fill type,
+    // that means ensuring that we have swatches and their probabilities add to more than zero.
+    readonly property bool previewEnabled: previewItem.parameters.type !== TexturedFillParameters.SwatchFillType
+        || previewItem.parameters.swatch.nonZeroProbabilitySum
+
     onAboutToShow: {
         if (project) {
             // Copy the canvas' current parameters into ours. If the user accepts the dialog,
             // we'll copy our updated ones back into canvas.
             previewItem.parameters.copy(canvas.texturedFillParameters)
-
-//            hueVarianceCheckBox.contentItem.forceActiveFocus()
         }
     }
 
@@ -180,6 +183,25 @@ Dialog {
                     clip: true
                     anchors.fill: parent
 
+                    function highlightColour(colour) {
+                        let colourIndex = model.indexOfColour(colour)
+                        if (colourIndex === -1) {
+                            console.warn("Index of colour " + colour + " does not exist in ProbabilitySwatchModel")
+                            return
+                        }
+
+                        positionViewAtIndex(colourIndex, ListView.Center)
+                        let item = itemAtIndex(colourIndex)
+                        item.highlight()
+                    }
+
+                    Label {
+                        text: qsTr("No colours in swatch")
+                        font.pixelSize: Qt.application.font.pixelSize * 1.1
+                        anchors.centerIn: parent
+                        visible: swatchListView.count === 0
+                    }
+
                     ViewBorder {
                         anchors.top: swatchListView.top
                     }
@@ -198,62 +220,14 @@ Dialog {
                         objectName: "texturedFillProbabilitySwatchModel"
                         swatch: previewItem.parameters.swatch
                     }
-                    delegate: RowLayout {
+                    delegate: TexturedFillSwatchDelegate {
                         width: parent.width
 
-                        Rectangle {
-                            id: colourDelegate
-                            width: 16
-                            height: 16
-                            color: model.colour
-
-                            ToolTip.text: model.colourHexName
-                            ToolTip.visible: delegateHoverHandler.hovered
-                            ToolTip.delay: UiConstants.toolTipDelay
-                            ToolTip.timeout: UiConstants.toolTipTimeout
-
-                            HoverHandler {
-                                id: delegateHoverHandler
-                            }
+                        probabilitySlider.onPressedChanged: {
+                            if (!probabilitySlider.pressed)
+                                previewItem.parameters.swatch.setProbability(index, probabilitySlider.value)
                         }
-
-                        Label {
-                            text: "Probability"
-
-                            Layout.leftMargin: 4
-                        }
-
-                        Slider {
-                            objectName: "texturedFillSwatchColourProbabilitySlider"
-                            value: model.probability
-                            live: false
-
-                            Layout.fillWidth: true
-
-                            ToolTip.text: qsTr("Adjust the probability of this colour appearing in the fill")
-                            ToolTip.visible: hovered
-                            ToolTip.delay: UiConstants.toolTipDelay
-                            ToolTip.timeout: UiConstants.toolTipTimeout
-
-                            onPressedChanged: if (!pressed) previewItem.parameters.swatch.setProbability(index, value)
-                        }
-
-                        Button {
-                            objectName: "deleteTexturedFillSwatchColourButton"
-                            text: "\uf1f8"
-                            font.family: "FontAwesome"
-                            flat: true
-                            focusPolicy: Qt.NoFocus
-
-                            Layout.maximumWidth: implicitHeight
-
-                            ToolTip.text: qsTr("Remove this colour from the swatch")
-                            ToolTip.visible: hovered
-                            ToolTip.delay: UiConstants.toolTipDelay
-                            ToolTip.timeout: UiConstants.toolTipTimeout
-
-                            onClicked: previewItem.parameters.swatch.removeColour(index)
-                        }
+                        onDeleted: previewItem.parameters.swatch.removeColour(index)
                     }
                 }
             }
@@ -269,6 +243,7 @@ Dialog {
             objectName: "previewScaleSlider"
             from: 1
             to: 30
+            enabled: dialog.previewEnabled
 
             Layout.fillWidth: true
             Layout.maximumWidth: lightnessVarianceSlider.width
@@ -298,6 +273,9 @@ Dialog {
                 scale: previewScaleSlider.value
                 smooth: false
                 canvas: dialog.canvas
+                enabled: dialog.previewEnabled
+
+                onColourClicked: swatchListView.highlightColour(colour)
             }
         }
     }

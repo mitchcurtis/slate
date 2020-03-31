@@ -55,6 +55,7 @@
         <file>ui/SwatchPanel.qml</file>
         <file>ui/SwatchSettingsContextMenu.qml</file>
         <file>ui/TexturedFillSettingsDialog.qml</file>
+        <file>ui/TexturedFillSwatchDelegate.qml</file>
         <file>ui/TexturedFillVarianceRangedSlider.qml</file>
         <file>ui/Theme.qml</file>
         <file>ui/TilesetSwatchPanel.qml</file>

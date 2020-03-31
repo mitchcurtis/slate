@@ -42,6 +42,8 @@ public:
     Q_INVOKABLE void renameColour(int index, const QString &newName);
     Q_INVOKABLE void removeColour(int index);
 
+    int indexOfColour(const QColor &colour) const;
+
     bool read(const QJsonObject &json, QString &errorMessage);
     void write(QJsonObject &json) const;
 

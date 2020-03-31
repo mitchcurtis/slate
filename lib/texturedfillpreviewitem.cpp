@@ -30,6 +30,8 @@ TexturedFillPreviewItem::TexturedFillPreviewItem() :
     mCanvas(nullptr)
 {
     mParameters.setObjectName("texturedFillPreviewItemParameters");
+
+    setAcceptedMouseButtons(Qt::LeftButton);
 }
 
 void TexturedFillPreviewItem::paint(QPainter *painter)
@@ -47,11 +49,18 @@ void TexturedFillPreviewItem::paint(QPainter *painter)
         targetColour = ImageCanvas::invertedColour(mCanvas->penForegroundColour());
     }
 
-    QImage image(width(), height(), QImage::Format_ARGB32_Premultiplied);
-    image.fill(targetColour);
-    image = texturedFill(&image, QPoint(0, 0), targetColour, mCanvas->penForegroundColour(), mParameters);
+    const int w = width();
+    const int h = height();
+    if (mParameters.type() == TexturedFillParameters::SwatchFillType && !mParameters.swatch()->hasNonZeroProbabilitySum()) {
+        // Avoid warnings from the fill provider that occur if the swatch is empty.
+        painter->fillRect(0, 0, w, h, Qt::black);
+        return;
+    }
 
-    painter->drawImage(0, 0, image);
+    mPreviewImage = QImage(w, h, QImage::Format_ARGB32_Premultiplied);
+    mPreviewImage.fill(targetColour);
+    mPreviewImage = texturedFill(&mPreviewImage, QPoint(0, 0), targetColour, mCanvas->penForegroundColour(), mParameters);
+    painter->drawImage(0, 0, mPreviewImage);
 }
 
 ImageCanvas *TexturedFillPreviewItem::canvas() const
@@ -97,4 +106,17 @@ void TexturedFillPreviewItem::setCanvas(ImageCanvas *canvas)
 TexturedFillParameters *TexturedFillPreviewItem::parameters()
 {
     return &mParameters;
+}
+
+void TexturedFillPreviewItem::mousePressEvent(QMouseEvent *event)
+{
+    if (mParameters.type() == TexturedFillParameters::VarianceFillType)
+        event->ignore();
+}
+
+void TexturedFillPreviewItem::mouseReleaseEvent(QMouseEvent *event)
+{
+    const QPoint position = mapToItem(this, event->pos()).toPoint();
+    const QColor colour = mPreviewImage.pixelColor(position);
+    emit colourClicked(colour);
 }

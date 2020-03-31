@@ -20,6 +20,7 @@
 #ifndef TEXTUREDFILLPREVIEWITEM_H
 #define TEXTUREDFILLPREVIEWITEM_H
 
+#include <QImage>
 #include <QQuickPaintedItem>
 
 #include "slate-global.h"
@@ -45,10 +46,15 @@ public:
 
 signals:
     void canvasChanged();
+    void colourClicked(const QColor &colour);
 
 private:
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+
     ImageCanvas *mCanvas;
     TexturedFillParameters mParameters;
+    QImage mPreviewImage;
 };
 
 #endif // TEXTUREDFILLPREVIEWITEM_H

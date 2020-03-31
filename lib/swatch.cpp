@@ -67,6 +67,16 @@ void Swatch::removeColour(int index)
     doRemoveColour(index);
 }
 
+int Swatch::indexOfColour(const QColor &colour) const
+{
+    for (int i = 0; i < mColours.size(); ++i) {
+        const auto swatchColour = mColours.at(i);
+        if (swatchColour.colour() == colour)
+            return i;
+    }
+    return -1;
+}
+
 bool Swatch::read(const QJsonObject &json, QString &errorMessage)
 {
     return doRead(json, errorMessage);
