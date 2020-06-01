@@ -34,7 +34,7 @@ Dialog {
     dim: false
     focus: true
     standardButtons: Dialog.Ok
-    width: Math.max(implicitWidth, 280)
+    width: Math.max(implicitWidth, 340)
 
     property Project project
 
@@ -52,6 +52,10 @@ Dialog {
             text: qsTr("Built from %1").arg(BuildInfo.version)
             font.pixelSize: Qt.application.font.pixelSize
             Layout.fillWidth: true
+        }
+
+        Label {
+            text: qsTr("Built with Qt %1").arg(qtVersion)
         }
 
         Label {
