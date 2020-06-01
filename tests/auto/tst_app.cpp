@@ -170,6 +170,7 @@ private Q_SLOTS:
     void undoCopyPasteWithTransparency();
     void pasteFromExternalSource_data();
     void pasteFromExternalSource();
+    void undoAfterMovedPaste();
     void flipPastedImage();
     void flipOnTransparentBackground();
     void selectionEdgePan_data();
@@ -4559,6 +4560,54 @@ void tst_App::pasteFromExternalSource()
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 100);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::blue));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(31, 31), QColor(Qt::blue));
+}
+
+void tst_App::undoAfterMovedPaste()
+{
+    QVERIFY2(createNewImageProject(), failureMessage);
+
+    canvas->setSplitScreen(false);
+
+    // Make comparing grabbed image pixels easier.
+    QVERIFY2(triggerCentre(), failureMessage);
+
+    // Draw a 1x2 rectangle of red pixels.
+    // Use {0, 0} so the test applies to the old paste-at-top-left behaviour
+    // in case we need to revert the new behaviour.
+    const QPoint rectTopLeft(0, 0);
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
+    canvas->setPenForegroundColour(Qt::red);
+    setCursorPosInScenePixels(rectTopLeft.x(), rectTopLeft.y());
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+    setCursorPosInScenePixels(rectTopLeft.x(), rectTopLeft.y() + 1);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    // Select it.
+    QVERIFY2(selectArea(QRect(rectTopLeft.x(), rectTopLeft.y(), 1, 2)), failureMessage);
+
+    // Copy it.
+    QVERIFY2(triggerCopy(), failureMessage);
+    QCOMPARE(QGuiApplication::clipboard()->image(), canvas->currentProjectImage()->copy(rectTopLeft.x(), rectTopLeft.y(), 1, 2));
+
+    // Delete it. This will leave a transparent area where the selection was.
+    QTest::keyClick(window, Qt::Key_Delete);
+    QVERIFY(!canvas->hasSelection());
+
+    // Paste.
+    QVERIFY2(triggerPaste(), failureMessage);
+
+    // Move it down by half its height.
+    QTest::keyClick(window, Qt::Key_Down);
+    QCOMPARE(canvas->selectionArea(), QRect(rectTopLeft.x(), rectTopLeft.y() + 1, 1, 2));
+
+    // Deselect.
+    QTest::keyClick(window, Qt::Key_Escape);
+    QVERIFY(!canvas->hasSelection());
+
+    // Undo. There should be nothing there but transparency.
+    mouseEventOnCentre(undoToolButton, MouseClick);
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::transparent));
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 1), QColor(Qt::transparent));
 }
 
 void tst_App::flipPastedImage()

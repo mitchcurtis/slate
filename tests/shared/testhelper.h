@@ -159,11 +159,13 @@ protected:
     Q_REQUIRED_RESULT bool triggerOpenProject();
     Q_REQUIRED_RESULT bool triggerRevert();
 
+    Q_REQUIRED_RESULT bool triggerCopy();
     Q_REQUIRED_RESULT bool triggerPaste();
+    Q_REQUIRED_RESULT bool triggerSelectAll();
+    Q_REQUIRED_RESULT bool triggerDelete();
+
     Q_REQUIRED_RESULT bool triggerFlipHorizontally();
     Q_REQUIRED_RESULT bool triggerFlipVertically();
-
-    Q_REQUIRED_RESULT bool triggerSelectAll();
 
     Q_REQUIRED_RESULT bool triggerCentre();
     Q_REQUIRED_RESULT bool triggerGridVisible();

@@ -691,14 +691,17 @@ bool TestHelper::selectArea(const QRect &area)
     }
 
     // Select the area.
-    setCursorPosInScenePixels(area.topLeft());
+    const QPoint pressPos = area.topLeft();
+    setCursorPosInScenePixels(pressPos);
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     // If area is {0, 0, 5, 5}, we need to move to {x=5, y=5} to ensure
     // that we've selected all 5x5 pixels.
-    setCursorPosInScenePixels(area.bottomRight() + QPoint(1, 1));
+    const QPoint releasePos = area.bottomRight() + QPoint(1, 1);
+    setCursorPosInScenePixels(releasePos);
     QTest::mouseMove(window, cursorWindowPos);
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    VERIFY(canvas->hasSelection());
+    VERIFY2(canvas->hasSelection(), qPrintable(QString::fromLatin1("Mouse drag from {%1, %2} to {%3, %4} did not result in a selection")
+        .arg(pressPos.x()).arg(pressPos.y()).arg(releasePos.x()).arg(releasePos.y())));
     VERIFY(canvas->selectionArea() == area);
     return true;
 }
@@ -1400,9 +1403,29 @@ bool TestHelper::triggerRevert()
     return triggerShortcut("revertShortcut", app.settings()->revertShortcut());
 }
 
+bool TestHelper::triggerCopy()
+{
+    return triggerShortcut("copyShortcut", QKeySequence(QKeySequence::Copy).toString());
+}
+
 bool TestHelper::triggerPaste()
 {
     return triggerShortcut("pasteShortcut", QKeySequence(QKeySequence::Paste).toString());
+}
+
+bool TestHelper::triggerSelectAll()
+{
+    return triggerShortcut("selectAllShortcut", QKeySequence(QKeySequence::SelectAll).toString());
+}
+
+bool TestHelper::triggerDelete()
+{
+#ifdef Q_OS_MACOS
+    FAIL("macOS not supported");
+//    return triggerShortcut("deleteViaBackspaceShortcut", QKeySequence("Backspace").toString());
+#else
+    return triggerShortcut("deleteShortcut", QKeySequence(QKeySequence::Delete).toString());
+#endif
 }
 
 bool TestHelper::triggerFlipHorizontally()
@@ -1413,11 +1436,6 @@ bool TestHelper::triggerFlipHorizontally()
 bool TestHelper::triggerFlipVertically()
 {
     return triggerShortcut("flipVerticallyShortcut", app.settings()->flipVerticallyShortcut());
-}
-
-bool TestHelper::triggerSelectAll()
-{
-    return triggerShortcut("selectAllShortcut", QKeySequence(QKeySequence::SelectAll).toString());
 }
 
 bool TestHelper::triggerCentre()
@@ -2630,8 +2648,11 @@ bool TestHelper::zoomTo(int zoomLevel)
 bool TestHelper::zoomTo(int zoomLevel, const QPoint &pos)
 {
     CanvasPane *currentPane = canvas->currentPane();
-    for (int i = 0; currentPane->zoomLevel() < zoomLevel; ++i)
+    for (int i = 0; currentPane->zoomLevel() < zoomLevel; ++i) {
         wheelEvent(canvas, pos, 1);
+        if (i > 1000)
+            FAIL("Exceeed maximum loops to reach zoom (1000)");
+    }
     VERIFY(currentPane->integerZoomLevel() == zoomLevel);
     return true;
 }

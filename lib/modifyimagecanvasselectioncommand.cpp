@@ -55,21 +55,30 @@ ModifyImageCanvasSelectionCommand::ModifyImageCanvasSelectionCommand(ImageCanvas
     qCDebug(lcModifyImageCanvasSelectionCommand) << "constructed" << this;
 }
 
+ModifyImageCanvasSelectionCommand::~ModifyImageCanvasSelectionCommand()
+{
+    qCDebug(lcModifyImageCanvasSelectionCommand) << "destructed" << this;
+}
+
 void ModifyImageCanvasSelectionCommand::undo()
 {
+    qCDebug(lcModifyImageCanvasSelectionCommand) << "replacing new/destination/undone area"
+        << mTargetArea << "of canvas with" << mTargetAreaImageBeforeModification << "...";
+
+    // Probably makes sense to do this first so that we follow the reverse order of the operations we did in redo().
+    mCanvas->replacePortionOfImage(mLayerIndex, mTargetArea, mTargetAreaImageBeforeModification);
+
     if (mFromPaste) {
-        qCDebug(lcModifyImageCanvasSelectionCommand) << "undoing" << this << "- painting original/source/previous area"
-            << mSourceArea << "of canvas with paste contents" << mPasteContents << "...";
+        qCDebug(lcModifyImageCanvasSelectionCommand) << "undoing" << this << "- ... and painting original/source/previous area"
+            << mSourceArea << "of canvas with paste contents" << mPasteContents;
+
         mCanvas->paintImageOntoPortionOfImage(mLayerIndex, mSourceArea, mPasteContents);
     } else {
-        qCDebug(lcModifyImageCanvasSelectionCommand) << "undoing" << this << "- painting original/source/previous area"
-            << mSourceArea << "of canvas with" << mSouceAreaImage << "...";
+        qCDebug(lcModifyImageCanvasSelectionCommand) << "undoing" << this << "- ... and painting original/source/previous area"
+            << mSourceArea << "of canvas with" << mSouceAreaImage;
         mCanvas->paintImageOntoPortionOfImage(mLayerIndex, mSourceArea, mSouceAreaImage);
     }
 
-    qCDebug(lcModifyImageCanvasSelectionCommand) << "... and replacing new/destination/undone area"
-        << mTargetArea << "of canvas with" << mTargetAreaImageBeforeModification << "...";
-    mCanvas->replacePortionOfImage(mLayerIndex, mTargetArea, mTargetAreaImageBeforeModification);
     // This matches what mspaint does; undoing a selection move causes the selection to be cleared.
     mCanvas->clearSelection();
 }

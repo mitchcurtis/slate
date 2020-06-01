@@ -68,6 +68,7 @@ Q_LOGGING_CATEGORY(lcImageCanvasSelection, "app.canvas.selection")
 Q_LOGGING_CATEGORY(lcImageCanvasSelectionCursorGuideVisibility, "app.canvas.selection.cursorguidevisibility")
 Q_LOGGING_CATEGORY(lcImageCanvasSelectionPreviewImage, "app.canvas.selection.previewimage")
 Q_LOGGING_CATEGORY(lcImageCanvasUiState, "app.canvas.uistate")
+Q_LOGGING_CATEGORY(lcImageCanvasUndo, "app.canvas.undo")
 
 ImageCanvas::ImageCanvas() :
     mProject(nullptr),
@@ -3312,6 +3313,8 @@ void ImageCanvas::timerEvent(QTimerEvent *event)
 
 void ImageCanvas::undo()
 {
+    qCDebug(lcImageCanvasUndo) << "about to undo";
+
     if (mHasSelection && !mIsSelectionFromPaste) {
         if (mLastSelectionModification != NoSelectionModification) {
             qCDebug(lcImageCanvasSelection) << "Undo activated while a selection that has previously been modified is active;"
@@ -3333,6 +3336,33 @@ void ImageCanvas::undo()
             clearSelection();
         }
     } else {
-        mProject->undoStack()->undo();
+        /*
+            This is hacky, but I can't find another way to do it.
+            The problem is tested by undoAfterMovedPaste() - for reasons I can't remember,
+            we create a ModifyImageCanvasSelectionCommand after a PasteImageCanvasCommand
+            when e.g. moving a pasted image. When undoing, we accordingly need to undo
+            both commands.
+
+            A better way of doing this would be to make the ModifyImageCanvasSelectionCommand
+            a child of the PasteImageCanvasCommand, but since it's possible to have a paste
+            without e.g. a move afterwards, we can't know whether or not we should parent it
+            at the time of its creation. It's also not possible to modify commands that are in
+            the stack (see QUndoStack::command() function docs).
+
+            I would prefer to get the last two commands and dynamic_cast them, but since we're
+            using macros (again, I can't remember why, but stuff breaks without it), the commands
+            that are returned are plain QUndoCommand objects, so we lose access to the
+            actual commands.
+        */
+        auto undoStack = mProject->undoStack();
+        const int count = undoStack->count();
+        if (count >= 2) {
+            const QString lastText = undoStack->text(count - 1);
+            const QString secondLastText = undoStack->text(count - 2);
+            if (lastText == "ModifySelection" && secondLastText == "PasteCommand")
+                undoStack->undo();
+        }
+
+        undoStack->undo();
     }
 }

@@ -38,6 +38,8 @@ public:
         const QImage &targetAreaImageAfterModification,
         bool fromPaste, const QImage &pasteContents, QUndoCommand *parent = nullptr);
 
+    ~ModifyImageCanvasSelectionCommand();
+
     void undo() override;
     void redo() override;
 
