@@ -2428,7 +2428,7 @@ bool TestHelper::expandAndResizePanel(const QString &panelObjectName)
     QQuickItem *panelSplitView = window->findChild<QQuickItem*>(panelObjectName);
     VERIFY(panelSplitView);
     return dragSplitViewHandle("panelSplitView", std::distance(reasonablePanelSizes.begin(), panelIt),
-        QPoint(window->width() - (panelSplitView->width() / 2), panelIt->second));
+        QPoint(panelSplitView->width() / 2, panelIt->second));
 }
 
 bool TestHelper::switchMode(TileCanvas::Mode mode)
