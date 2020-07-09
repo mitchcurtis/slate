@@ -423,7 +423,7 @@ protected slots:
 
 protected:
     void componentComplete() override;
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
+    void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
     virtual void restoreState();
     void resizeChildren();

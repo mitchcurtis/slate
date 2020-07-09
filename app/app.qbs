@@ -29,7 +29,7 @@ QtGuiApplication {
     // Ensure that e.g. libslate is found.
     cpp.rpaths: darwin ? ["@loader_path/../Frameworks"] : ["$ORIGIN"]
 
-    cpp.cxxLanguageVersion: "c++11"
+    cpp.cxxLanguageVersion: "c++17"
     // https://bugreports.qt.io/browse/QBS-1434
     cpp.minimumMacosVersion: "10.7"
 

@@ -21,6 +21,7 @@
 
 #include <QClipboard>
 #include <QPainter>
+#include <QPair>
 #include <QLoggingCategory>
 #include <QtQuickTest>
 
@@ -253,7 +254,8 @@ void TestHelper::mouseEvent(QQuickItem *item, const QPointF &localPos,
 
 void TestHelper::wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees)
 {
-    QWheelEvent wheelEvent(localPos, item->window()->mapToGlobal(localPos), QPoint(0, 0), QPoint(0, degrees * 8), 0, Qt::Vertical, Qt::NoButton, 0);
+    QWheelEvent wheelEvent(localPos, item->window()->mapToGlobal(localPos), QPoint(0, 0), QPoint(0, degrees * 8),
+        Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
     QSpontaneKeyEvent::setSpontaneous(&wheelEvent);
     if (!qApp->notify(item->window(), &wheelEvent))
         QTest::qWarn("Wheel event not accepted by receiving window");

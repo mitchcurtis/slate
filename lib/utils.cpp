@@ -22,9 +22,10 @@
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QPainter>
-#include <QPainterPathStroker>
+#include <QPainterPath>
 #include <QScopeGuard>
 #include <QThread>
+#include <QTransform>
 
 // Need this otherwise we get linker errors.
 extern "C" {
@@ -66,10 +67,10 @@ QImage Utils::erasePortionOfImage(const QImage &image, const QRect &portion)
 QImage Utils::rotate(const QImage &image, int angle)
 {
     const QPoint center = image.rect().center();
-    QMatrix matrix;
-    matrix.translate(center.x(), center.y());
-    matrix.rotate(angle);
-    return image.transformed(matrix);
+    QTransform transform;
+    transform.translate(center.x(), center.y());
+    transform.rotate(angle);
+    return image.transformed(transform);
 }
 
 /*!
@@ -89,10 +90,10 @@ QImage Utils::rotateAreaWithinImage(const QImage &image, const QRect &area, int 
     // Create an image from the target area and then rotate it.
     // The resulting image will be big enough to contain the rotation.
     QImage rotatedImagePortion = image.copy(area);
-    QMatrix matrix;
-    matrix.translate(areaCentre.x(), areaCentre.y());
-    matrix.rotate(angle);
-    rotatedImagePortion = rotatedImagePortion.transformed(matrix);
+    QTransform transform;
+    transform.translate(areaCentre.x(), areaCentre.y());
+    transform.rotate(angle);
+    rotatedImagePortion = rotatedImagePortion.transformed(transform);
 
     // Remove what was behind the area and replace it with transparency.
     result = erasePortionOfImage(result, area);

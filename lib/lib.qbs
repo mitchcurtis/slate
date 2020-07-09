@@ -14,7 +14,7 @@ Product {
     Depends { name: "vcs" }
     Depends { name: "bundle" }
 
-    cpp.cxxLanguageVersion: "c++11"
+    cpp.cxxLanguageVersion: "c++17"
     cpp.includePaths: [
         product.sourceDirectory + "/3rdparty"
     ]

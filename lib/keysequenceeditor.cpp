@@ -108,14 +108,6 @@ void KeySequenceEditor::setCurrentSequence(const QString &currentSequence)
     emit displaySequenceChanged();
 }
 
-class KeyHelper : private QObject {
-public:
-    static QString keyName(int index) {
-        static int keyEnumIndex = staticQtMetaObject.indexOfEnumerator("Key");
-        return staticQtMetaObject.enumerator(keyEnumIndex).valueToKey(index);
-    }
-};
-
 void KeySequenceEditor::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape) {
@@ -135,10 +127,10 @@ void KeySequenceEditor::keyPressEvent(QKeyEvent *event)
 
         if (event->key() >= Qt::Key_Shift && event->key() <= Qt::Key_Meta) {
             qCDebug(lcKeySequenceEditor) << "Only modifiers were pressed ("
-                << event->text() << "/" << KeyHelper::keyName(event->key()) << "/" << QKeySequence(event->key()) << "; ignoring";
+                << event->text() << "/" << event->key() << "/" << QKeySequence(event->key()) << "; ignoring";
         } else {
             mKeysPressed[mCurrentKeyIndex++] = event->key() | modifiers;
-            qCDebug(lcKeySequenceEditor) << "Adding key" << event->text() << "/" << KeyHelper::keyName(event->key()) << "/"
+            qCDebug(lcKeySequenceEditor) << "Adding key" << event->text() << "/" << event->key() << "/"
                     << QKeySequence(event->key()) << " with modifiers" << modifiers
                     << "(" << QKeySequence(mKeysPressed[mCurrentKeyIndex - 1]) << ") to pressed keys";
 
