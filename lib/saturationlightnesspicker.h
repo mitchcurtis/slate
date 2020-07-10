@@ -20,6 +20,7 @@ class SLATE_EXPORT SaturationLightnessPicker : public QQuickItem
     Q_PROPERTY(QQuickItem *background READ background WRITE setBackground NOTIFY backgroundChanged FINAL)
     Q_PROPERTY(QQuickItem *contentItem READ contentItem WRITE setContentItem NOTIFY contentItemChanged FINAL)
     Q_PROPERTY(QQuickItem *handle READ handle WRITE setHandle NOTIFY handleChanged FINAL)
+    QML_ELEMENT
 
 public:
     explicit SaturationLightnessPicker(QQuickItem *parent = nullptr);

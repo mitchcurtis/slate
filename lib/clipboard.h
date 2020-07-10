@@ -22,6 +22,7 @@
 
 #include <QImage>
 #include <QObject>
+#include <QQmlEngine>
 
 #include "slate-global.h"
 
@@ -30,6 +31,8 @@ class SLATE_EXPORT ClipboardImage : public QObject
     Q_OBJECT
     Q_PROPERTY(int width READ width CONSTANT FINAL)
     Q_PROPERTY(int height READ height CONSTANT FINAL)
+    QML_ELEMENT
+    QML_UNCREATABLE("")
 
 public:
     ClipboardImage(const QImage &image, QObject *parent = nullptr);
@@ -46,6 +49,8 @@ private:
 class SLATE_EXPORT Clipboard : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
 
 public:
     explicit Clipboard(QObject *parent = nullptr);

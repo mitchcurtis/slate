@@ -21,6 +21,7 @@
 #define NEWPROJECTVALIDATOR_H
 
 #include <QObject>
+#include <QQmlEngine>
 #include <QString>
 
 #include "filevalidator.h"
@@ -37,6 +38,7 @@ class SLATE_EXPORT NewProjectValidator : public FileValidator
     Q_PROPERTY(QString tileHeightErrorMessage READ tileHeightErrorMessage NOTIFY tileHeightErrorMessageChanged)
     Q_PROPERTY(bool tileWidthValid READ isTileWidthValid NOTIFY tileWidthValidChanged)
     Q_PROPERTY(bool tileHeightValid READ isTileHeightValid NOTIFY tileHeightValidChanged)
+    QML_ELEMENT
 
 public:
     explicit NewProjectValidator(QObject *parent = nullptr);

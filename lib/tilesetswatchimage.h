@@ -31,6 +31,7 @@ class SLATE_EXPORT TilesetSwatchImage : public QQuickPaintedItem
     Q_OBJECT
     Q_PROPERTY(Tileset *tileset READ tileset WRITE setTileset NOTIFY tilesetChanged)
     Q_PROPERTY(QRect sourceRect READ sourceRect WRITE setSourceRect NOTIFY sourceRectChanged)
+    QML_ELEMENT
 
 public:
     TilesetSwatchImage();

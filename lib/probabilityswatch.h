@@ -20,6 +20,7 @@
 #ifndef PROBABILITYSWATCH_H
 #define PROBABILITYSWATCH_H
 
+#include <QQmlEngine>
 #include <QVector>
 
 #include "slate-global.h"
@@ -31,6 +32,7 @@ class SLATE_EXPORT ProbabilitySwatch : public Swatch
 {
     Q_OBJECT
     Q_PROPERTY(bool nonZeroProbabilitySum READ hasNonZeroProbabilitySum NOTIFY nonZeroProbabilitySumChanged)
+    QML_ANONYMOUS
 
 public:
     explicit ProbabilitySwatch(QObject *parent = nullptr);

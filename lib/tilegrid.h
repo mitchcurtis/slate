@@ -34,6 +34,7 @@ class SLATE_EXPORT TileGrid : public QQuickPaintedItem
     Q_PROPERTY(int highlightedIndex READ highlightedIndex WRITE setHighlightedIndex NOTIFY highlightedIndexChanged)
     Q_PROPERTY(QColor colour READ colour WRITE setColour NOTIFY colourChanged)
     Q_PROPERTY(QColor highlightColour READ highlightColour WRITE setHighlightColour NOTIFY highlightColourChanged)
+    QML_ELEMENT
 
 public:
     TileGrid();

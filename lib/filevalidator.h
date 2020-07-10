@@ -21,6 +21,7 @@
 #define FILEVALIDATOR_H
 
 #include <QObject>
+#include <QQmlEngine>
 #include <QUrl>
 
 #include "slate-global.h"
@@ -32,6 +33,7 @@ class SLATE_EXPORT FileValidator : public QObject
     Q_PROPERTY(bool fileValid READ isFileValid NOTIFY fileValidChanged)
     Q_PROPERTY(QString fileErrorMessage READ fileErrorMessage WRITE setFileErrorMessage NOTIFY fileErrorMessageChanged)
     Q_PROPERTY(bool treatAsImage READ treatAsImage WRITE setTreatAsImage NOTIFY treatAsImageChanged)
+    QML_ELEMENT
 
 public:
     explicit FileValidator(QObject *parent = nullptr);

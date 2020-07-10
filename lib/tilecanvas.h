@@ -44,6 +44,7 @@ class SLATE_EXPORT TileCanvas : public ImageCanvas
     Q_PROPERTY(Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(Tile *penTile READ penTile WRITE setPenTile NOTIFY penTileChanged)
     Q_PROPERTY(bool gridVisible READ isGridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
+    QML_ELEMENT
 
 public:
     enum Mode {

@@ -21,6 +21,7 @@
 #define TEXTUREDFILLPARAMETERS_H
 
 #include <QObject>
+#include <QQmlEngine>
 
 #include "slate-global.h"
 #include "probabilityswatch.h"
@@ -31,6 +32,8 @@ class SLATE_EXPORT TexturedFillVarianceParameter : public QObject
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY enabledChanged)
     Q_PROPERTY(qreal varianceLowerBound READ varianceLowerBound WRITE setVarianceLowerBound NOTIFY varianceLowerBoundChanged)
     Q_PROPERTY(qreal varianceUpperBound READ varianceUpperBound WRITE setVarianceUpperBound NOTIFY varianceUpperBoundChanged)
+    QML_ELEMENT
+    QML_UNCREATABLE("")
 
 public:
     TexturedFillVarianceParameter();
@@ -67,6 +70,8 @@ class SLATE_EXPORT TexturedFillParameters : public QObject
     Q_PROPERTY(TexturedFillVarianceParameter *saturation READ saturation CONSTANT FINAL)
     Q_PROPERTY(TexturedFillVarianceParameter *lightness READ lightness CONSTANT FINAL)
     Q_PROPERTY(ProbabilitySwatch *swatch READ swatch CONSTANT FINAL)
+    QML_ELEMENT
+    QML_UNCREATABLE("")
 
 public:
     enum TexturedFillType {

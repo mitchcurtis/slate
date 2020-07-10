@@ -21,6 +21,7 @@
 #define SERIALISABLESTATE_H
 
 #include <QObject>
+#include <QQmlEngine>
 #include <QVariant>
 
 #include "slate-global.h"
@@ -28,6 +29,7 @@
 class SLATE_EXPORT SerialisableState : public QObject
 {
     Q_OBJECT
+    QML_ANONYMOUS
 
 public:
     SerialisableState();

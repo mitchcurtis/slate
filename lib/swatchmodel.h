@@ -23,6 +23,7 @@
 #include <QAbstractListModel>
 #include <QColor>
 #include <QImage>
+#include <QQmlEngine>
 #include <QVector>
 
 #include "slate-global.h"
@@ -33,6 +34,7 @@ class SLATE_EXPORT SwatchModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(Swatch *swatch READ swatch WRITE setSwatch NOTIFY swatchChanged)
+    QML_ELEMENT
 
 public:
     enum {

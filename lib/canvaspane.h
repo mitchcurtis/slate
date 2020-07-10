@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QPoint>
+#include <QQmlEngine>
 #include <QSize>
 
 #include "slate-global.h"
@@ -36,6 +37,8 @@ class SLATE_EXPORT CanvasPane : public QObject
     Q_PROPERTY(int integerZoomLevel READ integerZoomLevel NOTIFY zoomLevelChanged)
     Q_PROPERTY(int maxZoomLevel READ maxZoomLevel CONSTANT)
     Q_PROPERTY(QPoint integerOffset READ integerOffset WRITE setIntegerOffset NOTIFY integerOffsetChanged)
+    QML_ELEMENT
+    QML_UNCREATABLE("")
 
 public:
     explicit CanvasPane(QObject *parent = nullptr);

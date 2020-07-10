@@ -16,7 +16,8 @@ Product {
 
     cpp.cxxLanguageVersion: "c++17"
     cpp.includePaths: [
-        product.sourceDirectory + "/3rdparty"
+        product.sourceDirectory + "/3rdparty",
+        "."
     ]
     // https://bugreports.qt.io/browse/QBS-1434
     cpp.minimumMacosVersion: "10.7"
@@ -39,6 +40,9 @@ Product {
             product.sourceDirectory
         ]
     }
+
+    Qt.qml.importName: "App"
+    Qt.qml.importVersion: "1.0"
 
     Group {
         qbs.install: true

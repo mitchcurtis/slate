@@ -21,6 +21,7 @@
 #define SWATCH_H
 
 #include <QObject>
+#include <QQmlEngine>
 #include <QVector>
 
 #include "slate-global.h"
@@ -31,6 +32,7 @@ class QJsonObject;
 class SLATE_EXPORT Swatch : public QObject
 {
     Q_OBJECT
+    QML_ANONYMOUS
 
 public:
     explicit Swatch(QObject *parent = nullptr);

@@ -60,6 +60,8 @@ class SLATE_EXPORT Project : public QObject
     Q_PROPERTY(ApplicationSettings *settings READ settings WRITE setSettings NOTIFY settingsChanged)
     Q_PROPERTY(Swatch *swatch READ swatch CONSTANT)
     Q_PROPERTY(SerialisableState *uiState READ uiState CONSTANT)
+    QML_ELEMENT
+    QML_UNCREATABLE("")
 
 public:
     enum Type {

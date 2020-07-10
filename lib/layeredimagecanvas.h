@@ -28,6 +28,7 @@ class LayeredImageProject;
 class SLATE_EXPORT LayeredImageCanvas : public ImageCanvas
 {
     Q_OBJECT
+    QML_ELEMENT
 
 public:
     LayeredImageCanvas();

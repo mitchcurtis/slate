@@ -98,6 +98,7 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool lineVisible READ isLineVisible NOTIFY lineVisibleChanged)
     Q_PROPERTY(int lineLength READ lineLength NOTIFY lineChanged)
     Q_PROPERTY(qreal lineAngle READ lineAngle NOTIFY lineChanged)
+    QML_ELEMENT
 
 public:
     // The order of these is important, as the number keys can activate the tools.

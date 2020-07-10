@@ -35,6 +35,7 @@ class SLATE_EXPORT CanvasPaneItem : public QQuickPaintedItem
     Q_PROPERTY(ImageCanvas *canvas READ canvas WRITE setCanvas NOTIFY canvasChanged)
     Q_PROPERTY(CanvasPane *pane READ pane WRITE setPane NOTIFY paneChanged)
     Q_PROPERTY(int paneIndex READ paneIndex WRITE setPaneIndex NOTIFY paneIndexChanged)
+    QML_ELEMENT
 
 public:
     explicit CanvasPaneItem(QQuickItem *parent = nullptr);

@@ -22,6 +22,7 @@
 
 #include <QDebug>
 #include <QImage>
+#include <QQmlEngine>
 
 #include "animationsystem.h"
 #include "project.h"
@@ -39,6 +40,8 @@ class SLATE_EXPORT LayeredImageProject : public Project
     Q_PROPERTY(bool autoExportEnabled READ isAutoExportEnabled WRITE setAutoExportEnabled NOTIFY autoExportEnabledChanged)
     Q_PROPERTY(bool usingAnimation READ isUsingAnimation WRITE setUsingAnimation NOTIFY usingAnimationChanged)
     Q_PROPERTY(AnimationSystem *animationSystem READ animationSystem CONSTANT FINAL)
+    QML_ELEMENT
+    QML_UNCREATABLE("")
 
 public:
     LayeredImageProject();

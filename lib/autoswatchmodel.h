@@ -23,6 +23,7 @@
 #include <QAbstractListModel>
 #include <QColor>
 #include <QImage>
+#include <QQmlEngine>
 #include <QThread>
 #include <QVector>
 
@@ -52,6 +53,7 @@ class SLATE_EXPORT AutoSwatchModel : public QAbstractListModel
     Q_PROPERTY(ImageCanvas *canvas READ canvas WRITE setCanvas NOTIFY canvasChanged)
     Q_PROPERTY(bool findingUniqueColours READ isFindingUniqueColours NOTIFY findingUniqueColoursChanged)
     Q_PROPERTY(QString failureMessage READ failureMessage NOTIFY failureMessageChanged)
+    QML_ELEMENT
 
 public:
     enum {

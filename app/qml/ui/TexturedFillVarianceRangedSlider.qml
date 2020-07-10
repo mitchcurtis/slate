@@ -30,7 +30,7 @@ RangeSlider {
     second.value: parameter.varianceUpperBound
 
     property string displayName
-    property TexturedFillParameter parameter
+    property TexturedFillVarianceParameter parameter
 
     ToolTip.text: qsTr("Adjusts the lower and upper bounds for random %1 variance").arg(displayName)
     ToolTip.visible: hovered
