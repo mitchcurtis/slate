@@ -48,7 +48,7 @@ Panel {
 
         Connections {
             target: tileCanvas
-            onPenTileChanged: {
+            function onPenTileChanged() {
                 // Don't try to change the flickable's content position if it doesn't have a size yet,
                 // as this will cause tests to fail as the wrong tile swatch is selected.
                 if (!tileCanvas.penTile || tilesetFlickable.width === 0 || tilesetFlickable.height === 0)

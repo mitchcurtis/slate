@@ -102,29 +102,29 @@ ApplicationWindow {
 
     Connections {
         target: projectManager
-        onCreationFailed: errorPopup.showError(errorMessage)
+        function onCreationFailed(errorMessage) { errorPopup.showError(errorMessage) }
     }
 
     Connections {
         target: projectManager.project ? projectManager.project : null
-        onErrorOccurred: errorPopup.showError(errorMessage)
+        function onErrorOccurred(errorMessage) { errorPopup.showError(errorMessage) }
     }
 
     Connections {
         target: canvas
-        onErrorOccurred: errorPopup.showError(errorMessage)
-        onNoteCreationRequested: {
+        function onErrorOccurred(errorMessage) { errorPopup.showError(errorMessage) }
+        function onNoteCreationRequested() {
             noteDialog.currentAction = Ui.NoteDialog.NoteAction.Create
             noteDialog.newNoteX = canvas.cursorSceneX
             noteDialog.newNoteY = canvas.cursorSceneY
             noteDialog.open()
         }
-        onNoteModificationRequested: {
+        function onNoteModificationRequested(noteIndex) {
             noteDialog.currentAction = Ui.NoteDialog.NoteAction.Modify
             noteDialog.modifyingNoteIndex = noteIndex
             noteDialog.open()
         }
-        onNoteContextMenuRequested: {
+        function onNoteContextMenuRequested(noteIndex) {
             noteContextMenu.noteIndex = noteIndex
             noteContextMenu.popup(canvas.cursorX, canvas.cursorY)
         }

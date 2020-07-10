@@ -100,11 +100,11 @@ Panel {
 
                     Connections {
                         target: autoSwatchGridView.model
-                        onModelAboutToBeReset: {
+                        function onModelAboutToBeReset() {
                             autoSwatchGridView.contentYBeforeModelReset = autoSwatchGridView.contentY
                             autoSwatchGridView.lockContentY = true
                         }
-                        onModelReset: {
+                        function onModelReset() {
                             Qt.callLater(function() {
                                 autoSwatchGridView.lockContentY = false
                                 autoSwatchGridView.contentY = autoSwatchGridView.contentYBeforeModelReset

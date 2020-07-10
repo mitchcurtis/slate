@@ -39,7 +39,7 @@ Item {
 
     Connections {
         target: project
-        onPreProjectSaved: readyToSave()
+        function onPreProjectSaved() { readyToSave() }
     }
 }
 

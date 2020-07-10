@@ -44,7 +44,7 @@ ToolBar {
 
     Connections {
         target: canvas
-        onToolChanged: {
+        function onToolChanged() {
             switch (canvas.tool) {
             case ImageCanvas.PenTool:
                 toolButtonGroup.checkedButton = penToolButton

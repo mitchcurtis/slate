@@ -47,13 +47,13 @@ GridLayout {
 
             Connections {
                 target: canvas
-                onPenForegroundColourChanged: hueSlider.updateOurColour()
-                onPenBackgroundColourChanged: hueSlider.updateOurColour()
+                function onPenForegroundColourChanged() { hueSlider.updateOurColour() }
+                function onPenBackgroundColourChanged() { hueSlider.updateOurColour() }
             }
 
             Connections {
                 target: root
-                onProjectChanged: hueSlider.updateOurColour()
+                function onProjectChanged() { hueSlider.updateOurColour() }
             }
         }
         SaturationLightnessPicker {
@@ -70,13 +70,13 @@ GridLayout {
 
             Connections {
                 target: canvas
-                onPenForegroundColourChanged: saturationLightnessPicker.updateOurColour()
-                onPenBackgroundColourChanged: saturationLightnessPicker.updateOurColour()
+                function onPenForegroundColourChanged() { saturationLightnessPicker.updateOurColour() }
+                function onPenBackgroundColourChanged() { saturationLightnessPicker.updateOurColour() }
             }
 
             Connections {
                 target: hexColourRowLayout.colourSelector
-                onCurrentPenNameChanged: saturationLightnessPicker.updateOurColour()
+                function onCurrentPenNameChanged() { saturationLightnessPicker.updateOurColour() }
             }
 
             onColorPicked: {
@@ -130,17 +130,17 @@ GridLayout {
 
         Connections {
             target: hexColourRowLayout.colourSelector
-            onCurrentPenNameChanged: {
-                opacitySlider.ignoreChanges = true;
+            function onCurrentPenNameChanged() {
+                opacitySlider.ignoreChanges = true
                 opacitySlider.updateOurValue()
-                opacitySlider.ignoreChanges = false;
+                opacitySlider.ignoreChanges = false
             }
         }
 
         Connections {
             target: canvas
-            onPenForegroundColourChanged: opacitySlider.updateOurValue()
-            onPenBackgroundColourChanged: opacitySlider.updateOurValue()
+            function onPenForegroundColourChanged() { opacitySlider.updateOurValue() }
+            function onPenBackgroundColourChanged() { opacitySlider.updateOurValue() }
         }
 
         ToolTip {
