@@ -192,6 +192,7 @@ private Q_SLOTS:
 
     // Layers.
     void addAndRemoveLayers();
+    void newLayerIndex();
     void layerVisibility();
     void moveLayerUpAndDown();
     void mergeLayerUpAndDown();
@@ -5334,14 +5335,7 @@ void tst_App::addAndRemoveLayers()
     QCOMPARE(grabWithBlueDot.pixelColor(10, 10), QColor(Qt::blue));
 
     // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 2);
-    // The current layer shouldn't change..
-    QCOMPARE(layeredImageProject->currentLayer(), expectedCurrentLayer);
-    // ..but its index should, as new layers are added above all others.
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
-    QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 2"));
-    QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
+    QVERIFY2(addNewLayer("Layer 2", 0), failureMessage);
 
     // Select the new layer.
     QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
@@ -5405,6 +5399,27 @@ void tst_App::addAndRemoveLayers()
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     QCOMPARE(imageGrabber.takeImage(), grabWithBothDots);
+}
+
+void tst_App::newLayerIndex()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
+
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
+
+    // Add a new layer. The order should then be:
+    // - Layer 2
+    // - Layer 1 (current)
+    QVERIFY2(addNewLayer("Layer 2", 0), failureMessage);
+
+    // Add another layer with Layer 1 still being current.
+    // This checks that new layers are added above the current one,
+    // which we can't verify when there was only one. The order should then be:
+    // - Layer 2
+    // - Layer 3
+    // - Layer 1 (current)
+    QVERIFY2(addNewLayer("Layer 3", 1), failureMessage);
 }
 
 void tst_App::layerVisibility()
@@ -5937,21 +5952,22 @@ void tst_App::undoAfterMovingTwoSelections()
 
     QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
-    // Create two new layers.
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 3);
-    QCOMPARE(undoToolButton->isEnabled(), true);
+    // Create two new layers. The order should then be:
+    // - Layer 2
+    // - Layer 3
+    // - Layer 1 (current)
+    QVERIFY2(addNewLayer("Layer 2", 0), failureMessage);
+    QVERIFY2(addNewLayer("Layer 3", 1), failureMessage);
 
-    // Select Layer 3, draw a semi-transparent grey dot on it.
-    QVERIFY2(selectLayer("Layer 3", 0), failureMessage);
+    // Select Layer 2, draw a semi-transparent grey dot on it.
+    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
     const QColor semiTransparentGrey(QColor::fromRgba(0xAA000000));
     layeredImageCanvas->setPenForegroundColour(semiTransparentGrey);
     setCursorPosInScenePixels(10, 10);
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
-    // Select Layer 2 and draw a red dot on it.
-    QVERIFY2(selectLayer("Layer 2", 1), failureMessage);
+    // Select Layer 3 and draw a red dot on it.
+    QVERIFY2(selectLayer("Layer 3", 1), failureMessage);
     const QColor red(Qt::red);
     layeredImageCanvas->setPenForegroundColour(red);
     setCursorPosInScenePixels(10, 20);
@@ -5960,7 +5976,7 @@ void tst_App::undoAfterMovingTwoSelections()
     const QImage expectedImage = layeredImageProject->exportedImage();
 
     // Select the grey dot and move it down.
-    QVERIFY2(selectLayer("Layer 3", 0), failureMessage);
+    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
     QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
     QVERIFY2(selectArea(QRect(10, 10, 1, 1)), failureMessage);
     QVERIFY2(dragSelection(QPoint(10, 14)), failureMessage);
@@ -5970,7 +5986,7 @@ void tst_App::undoAfterMovingTwoSelections()
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 14), semiTransparentGrey);
 
     // Change layer, select the red dot and move it down.
-    QVERIFY2(selectLayer("Layer 2", 1), failureMessage);
+    QVERIFY2(selectLayer("Layer 3", 1), failureMessage);
     QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
     QVERIFY2(selectArea(QRect(10, 20, 1, 1)), failureMessage);
     QVERIFY2(dragSelection(QPoint(10, 24)), failureMessage);
@@ -6055,31 +6071,34 @@ void tst_App::exportFileNamedLayers()
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     // Add some new layers.
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 3);
+    // Create two new layers. The order should then be:
+    // - Layer 2
+    // - Layer 3
+    // - Layer 1 (current)
+    QVERIFY2(addNewLayer("Layer 2", 0), failureMessage);
+    QVERIFY2(addNewLayer("Layer 3", 1), failureMessage);
+    ImageLayer *layer2 = layeredImageProject->layerAt(0);
+    ImageLayer *layer3 = layeredImageProject->layerAt(1);
     ImageLayer *layer1 = layeredImageProject->layerAt(2);
-    ImageLayer *layer2 = layeredImageProject->layerAt(1);
-    ImageLayer *layer3 = layeredImageProject->layerAt(0);
 
-    // Select Layer 2.
-    QVERIFY2(selectLayer("Layer 2", 1), failureMessage);
+    // Select Layer 3.
+    QVERIFY2(selectLayer("Layer 3", 1), failureMessage);
 
-    // Draw a green dot on layer 2.
+    // Draw a green dot on layer 3.
     layeredImageCanvas->setPenForegroundColour(Qt::green);
     setCursorPosInScenePixels(1, 0);
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
-    // Select Layer 3.
-    QVERIFY2(selectLayer("Layer 3", 0), failureMessage);
+    // Select Layer 2.
+    QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
 
-    // Draw a blue dot on layer 3.
+    // Draw a blue dot on layer 2.
     layeredImageCanvas->setPenForegroundColour(Qt::blue);
     setCursorPosInScenePixels(2, 0);
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
-    // Give the layer a name so that it's saved as a PNG.
-    QVERIFY2(makeCurrentAndRenameLayer("Layer 2", "[test] Layer 2"), failureMessage);
+    // Give layer 3 a name so that it's saved as a PNG.
+    QVERIFY2(makeCurrentAndRenameLayer("Layer 3", "[test] Layer 3"), failureMessage);
 
     // Save the project so that auto export is triggered and the images saved.
     const QString savedProjectPath = tempProjectDir->path() + "/exportFileNameLayers-project.slp";
@@ -6092,21 +6111,21 @@ void tst_App::exportFileNamedLayers()
     QImage exportedImage(exportedImagePath);
     // TODO: formats are wrong when comparing whole images, but I don't know why.
     QCOMPARE(exportedImage.pixelColor(0, 0), layer1->image()->pixelColor(0, 0));
-    QCOMPARE(exportedImage.pixelColor(2, 0), layer3->image()->pixelColor(2, 0));
+    QCOMPARE(exportedImage.pixelColor(2, 0), layer2->image()->pixelColor(2, 0));
 
     // Check that the one file-named layer was saved as a separate image.
     const QString exportedTestLayerImagePath = tempProjectDir->path() + "/test.png";
     QVERIFY(QFile::exists(exportedTestLayerImagePath));
     QImage exportedLayerImage(exportedTestLayerImagePath);
     QVERIFY(!exportedLayerImage.isNull());
-    QCOMPARE(exportedLayerImage.pixelColor(1, 0), layer2->image()->pixelColor(1, 0));
+    QCOMPARE(exportedLayerImage.pixelColor(1, 0), layer3->image()->pixelColor(1, 0));
 
     // Remove the image so that we can re-test it being exported.
     QVERIFY(QFile::remove(exportedTestLayerImagePath));
     QVERIFY(!QFile::exists(exportedTestLayerImagePath));
 
     // Hide that file-named layer; it should still be exported.
-    QVERIFY2(changeLayerVisiblity("[test] Layer 2", false), failureMessage);
+    QVERIFY2(changeLayerVisiblity("[test] Layer 3", false), failureMessage);
 
     // Save to export.
     project->saveAs(QUrl::fromLocalFile(savedProjectPath));
@@ -6114,12 +6133,15 @@ void tst_App::exportFileNamedLayers()
     QVERIFY(QFile::exists(exportedTestLayerImagePath));
     exportedLayerImage = QImage(exportedTestLayerImagePath);
     QVERIFY(!exportedLayerImage.isNull());
-    QCOMPARE(exportedLayerImage.pixelColor(1, 0), layer2->image()->pixelColor(1, 0));
+    QCOMPARE(exportedLayerImage.pixelColor(1, 0), layer3->image()->pixelColor(1, 0));
 
-    // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 4);
-    ImageLayer *layer4 = layeredImageProject->layerAt(0);
+    // Add a new layer. The order should now be:
+    // - Layer 2
+    // - Layer 4
+    // - [test] Layer 3 (current)
+    // - Layer 1
+    QVERIFY2(addNewLayer("Layer 4", 1), failureMessage);
+    ImageLayer *layer4 = layeredImageProject->layerAt(1);
 
     // Rename it so it's in the same group as "test".
     QVERIFY2(makeCurrentAndRenameLayer("Layer 4", "[test] Layer 4"), failureMessage);
@@ -6135,22 +6157,26 @@ void tst_App::exportFileNamedLayers()
     QVERIFY(QFile::exists(exportedTestLayerImagePath));
     exportedLayerImage = QImage(exportedTestLayerImagePath);
     QVERIFY(!exportedLayerImage.isNull());
-    QCOMPARE(exportedLayerImage.pixelColor(1, 0), layer2->image()->pixelColor(1, 0));
+    QCOMPARE(exportedLayerImage.pixelColor(1, 0), layer3->image()->pixelColor(1, 0));
     QCOMPARE(exportedLayerImage.pixelColor(3, 0), layer4->image()->pixelColor(3, 0));
 
-    // Add another new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 5);
-    ImageLayer *layer5 = layeredImageProject->layerAt(0);
+    // Add another new layer. The order should now be:
+    // - Layer 2
+    // - Layer 5
+    // - [test] Layer 4 (current)
+    // - [test] Layer 3
+    // - Layer 1
+    QVERIFY2(addNewLayer("Layer 5", 1), failureMessage);
+    ImageLayer *layer5 = layeredImageProject->layerAt(1);
 
     // Rename it so that it uses the project as a prefix.
     QVERIFY2(makeCurrentAndRenameLayer("Layer 5", "[%p-blah] Layer 5"), failureMessage);
 
     // Now we have the following layers (x = hidden):
-    // - [%p-blah] Layer 5
+    // x Layer 2
+    // - [%p-blah] Layer 5 (current)
     // - [test] Layer 4
-    // - Layer 3
-    // x [test] Layer 2
+    // - [test] Layer 3
     // - Layer 1
 
     // Draw a dot on it as usual, so that we can verify it exports correctly.
@@ -6169,13 +6195,13 @@ void tst_App::exportFileNamedLayers()
 
     // Add [no-export] to each layer without a prefix so that they're not exported.
     QVERIFY2(makeCurrentAndRenameLayer("Layer 1", "[no-export] Layer 1"), failureMessage);
-    QVERIFY2(makeCurrentAndRenameLayer("Layer 3", "[no-export] Layer 3"), failureMessage);
+    QVERIFY2(makeCurrentAndRenameLayer("Layer 2", "[no-export] Layer 2"), failureMessage);
 
     // Now we have the following layers:
+    // x [no-export] Layer 2
     // - [%p-blah] Layer 5
     // - [test] Layer 4
-    // - [no-export] Layer 3
-    // x [test] Layer 2
+    // - [test] Layer 3
     // - [no-export] Layer 1
 
     // Remove the image so that we can re-test it being exported.

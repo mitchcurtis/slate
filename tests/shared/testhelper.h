@@ -185,6 +185,7 @@ protected:
     // Finds \a layerName in the layer list view, verifies that it exists and that its name is \a layerName,
     // and sets layerDelegate to it.
     Q_REQUIRED_RESULT bool verifyLayerName(const QString &layerName, QQuickItem **layerDelegate = nullptr);
+    Q_REQUIRED_RESULT bool addNewLayer(const QString &expectedGeneratedLayerName, int expectedIndex);
     Q_REQUIRED_RESULT bool makeCurrentAndRenameLayer(const QString &from, const QString &to);
     Q_REQUIRED_RESULT bool changeLayerVisiblity(const QString &layerName, bool visible);
 

@@ -1532,6 +1532,32 @@ bool TestHelper::verifyLayerName(const QString &layerName, QQuickItem **layerDel
     return true;
 }
 
+bool TestHelper::addNewLayer(const QString &expectedGeneratedLayerName, int expectedIndex)
+{
+    const ImageLayer *expectedCurrentLayer = layeredImageProject->currentLayer();
+    const int oldCurrentLayerIndex = layeredImageProject->currentLayerIndex();
+    const int oldLayerCount = layeredImageProject->layerCount();
+    mouseEventOnCentre(newLayerButton, MouseClick);
+    VERIFY(layeredImageProject->layerCount() == oldLayerCount + 1);
+    // The current layer shouldn't change..
+    VERIFY(layeredImageProject->currentLayer() == expectedCurrentLayer);
+    // .. but its index should, as new layers are added above the current layer.
+    VERIFY(layeredImageProject->currentLayerIndex() == oldCurrentLayerIndex + 1);
+    const QString actualLayerName = layeredImageProject->layerAt(expectedIndex)->name();
+    if (actualLayerName != expectedGeneratedLayerName) {
+        QString message;
+        QDebug stream(&message);
+        stream.nospace() << "Expected new layer name to be " << expectedGeneratedLayerName
+            << " but it's " << actualLayerName << ". Layers:\n";
+        for (int i = 0; i < layeredImageProject->layerCount(); ++i) {
+            stream << "    index " << i << ": " << layeredImageProject->layerAt(i)->name() << "\n";
+        }
+        FAIL(qPrintable(message));
+    }
+    VERIFY(undoToolButton->isEnabled());
+    return true;
+}
+
 bool TestHelper::makeCurrentAndRenameLayer(const QString &from, const QString &to)
 {
     QQuickItem *layerDelegate = nullptr;

@@ -854,12 +854,14 @@ void LayeredImageProject::addNewLayer(int imageWidth, int imageHeight, bool tran
     QScopedPointer<ImageLayer> imageLayer(new ImageLayer(nullptr, emptyImage));
     imageLayer->setName(QString::fromLatin1("Layer %1").arg(++mLayersCreated));
 
+    const int layerIndex = mCurrentLayerIndex;
+
     if (undoable) {
         beginMacro(QLatin1String("AddLayerCommand"));
-        addChange(new AddLayerCommand(this, imageLayer.data(), 0));
+        addChange(new AddLayerCommand(this, imageLayer.data(), layerIndex));
         endMacro();
     } else {
-        addLayer(imageLayer.data(), 0);
+        addLayer(imageLayer.data(), layerIndex);
     }
 
     imageLayer.take();
