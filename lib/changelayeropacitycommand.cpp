@@ -56,9 +56,13 @@ int ChangeLayerOpacityCommand::id() const
 
 QDebug operator<<(QDebug debug, const ChangeLayerOpacityCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ChangeLayerOpacityCommand(0x0)";
+
     debug.nospace() << "(ChangeLayerOpacityCommand layerIndex=" << command->mLayerIndex
         << " previousOpacity=" << command->mPreviousOpacity
         << " newOpacity=" << command->mNewOpacity
         << ")";
-    return debug.space();
+    return debug;
 }

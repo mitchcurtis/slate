@@ -699,7 +699,11 @@ void Project::endMacro()
 // TODO: why aren't the individual classes' operators used?
 QDebug operator<<(QDebug debug, const QUndoCommand *command)
 {
-    debug.nospace() << "(UndoCommand id=" << command->id()
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "QUndoCommand(0x0)";
+
+    debug.nospace() << "(QUndoCommand id=" << command->id()
         << " text=" << command->text()
         << ")";
     return debug.space();

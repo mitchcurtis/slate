@@ -52,8 +52,12 @@ int DeleteGuideCommand::id() const
 
 QDebug operator<<(QDebug debug, const DeleteGuideCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "DeleteGuideCommand(0x0)";
+
     debug.nospace() << "(DeleteGuideCommand guide.position=" << command->mGuide.position()
         << " guide.orientation=" << command->mGuide.orientation()
         << ")";
-    return debug.space();
+    return debug;
 }

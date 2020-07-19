@@ -64,8 +64,12 @@ int MergeLayersCommand::id() const
 
 QDebug operator<<(QDebug debug, const MergeLayersCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "MergeLayersCommand(0x0)";
+
     debug.nospace() << "(MergeLayersCommand sourceIndex=" << command->mSourceIndex
         << " targetIndex=" << command->mTargetIndex
         << ")";
-    return debug.space();
+    return debug;
 }

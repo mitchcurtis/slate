@@ -56,9 +56,13 @@ int ChangeLayerVisibleCommand::id() const
 
 QDebug operator<<(QDebug debug, const ChangeLayerVisibleCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ChangeLayerVisibleCommand(0x0)";
+
     debug.nospace() << "(ChangeLayerVisibleCommand layerIndex=" << command->mLayerIndex
         << " previousVisible=" << command->mPreviousVisible
         << " newVisible=" << command->mNewVisible
         << ")";
-    return debug.space();
+    return debug;
 }

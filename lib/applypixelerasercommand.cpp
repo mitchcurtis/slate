@@ -79,10 +79,14 @@ bool ApplyPixelEraserCommand::mergeWith(const QUndoCommand *other)
 
 QDebug operator<<(QDebug debug, const ApplyPixelEraserCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ApplyPixelEraserCommand(0x0)";
+
     debug.nospace() << "(ApplyPixelEraserCommand"
         << " layerIndex=" << command->mLayerIndex
         << ", scenePositions=" << command->mScenePositions
         << ", previousColours=" << command->mPreviousColours
         << ")";
-    return debug.space();
+    return debug;
 }

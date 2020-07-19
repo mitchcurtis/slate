@@ -61,9 +61,13 @@ int ApplyTileCanvasPixelFillCommand::id() const
 
 QDebug operator<<(QDebug debug, const ApplyTileCanvasPixelFillCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ApplyTileCanvasPixelFillCommand(0x0)";
+
     debug.nospace() << "(ApplyTileCanvasPixelFillCommand scenePositions=" << command->mScenePositions
         << ", previousColours=" << command->mPreviousColour
         << ", colour=" << command->mColour
         << ")";
-    return debug.space();
+    return debug;
 }

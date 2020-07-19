@@ -52,8 +52,12 @@ int DeleteNoteCommand::id() const
 
 QDebug operator<<(QDebug debug, const DeleteNoteCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "DeleteNoteCommand(0x0)";
+
     debug.nospace() << "(DeleteNoteCommand note.position=" << command->mNote.position()
         << " note.text=" << command->mNote.text()
         << ")";
-    return debug.space();
+    return debug;
 }

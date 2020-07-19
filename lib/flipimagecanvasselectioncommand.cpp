@@ -52,8 +52,12 @@ int FlipImageCanvasSelectionCommand::id() const
 
 QDebug operator<<(QDebug debug, const FlipImageCanvasSelectionCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "FlipImageCanvasSelectionCommand(0x0)";
+
     debug.nospace() << "(FlipImageCanvasSelectionCommand area=" << command->mArea
         << "orientation =" << command->mOrientation
         << ")";
-    return debug.space();
+    return debug;
 }

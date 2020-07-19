@@ -52,8 +52,12 @@ int AddNoteCommand::id() const
 
 QDebug operator<<(QDebug debug, const AddNoteCommand *command)
 {
-    debug.nospace() << "(AddGuideCommand note.position=" << command->mNote.position()
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "AddNoteCommand(0x0)";
+
+    debug.nospace() << "(AddNoteCommand note.position=" << command->mNote.position()
         << " note.text=" << command->mNote.text()
         << ")";
-    return debug.space();
+    return debug;
 }

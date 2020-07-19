@@ -54,8 +54,12 @@ int ChangeLayerOrderCommand::id() const
 
 QDebug operator<<(QDebug debug, const ChangeLayerOrderCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ChangeLayerOrderCommand(0x0)";
+
     debug.nospace() << "(ChangeLayerOrderCommand newIndex=" << command->mNewIndex
         << "previousIndex=" << command->mPreviousIndex
         << ")";
-    return debug.space();
+    return debug;
 }

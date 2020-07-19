@@ -83,9 +83,13 @@ bool ApplyTilePenCommand::mergeWith(const QUndoCommand *other)
 
 QDebug operator<<(QDebug debug, const ApplyTilePenCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ApplyTilePenCommand(0x0)";
+
     debug.nospace() << "(ApplyTilePenCommand tilePositions=" << command->mTilePositions
         << ", previousIds=" << command->mPreviousIds
         << ", id=" << command->mId
         << ")";
-    return debug.space();
+    return debug;
 }

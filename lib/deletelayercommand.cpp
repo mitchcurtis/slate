@@ -58,7 +58,11 @@ int DeleteLayerCommand::id() const
 
 QDebug operator<<(QDebug debug, const DeleteLayerCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "DeleteLayerCommand(0x0)";
+
     debug.nospace() << "(DeleteLayerCommand index=" << command->mIndex
         << " layer=" << command->mLayer << ")";
-    return debug.space();
+    return debug;
 }

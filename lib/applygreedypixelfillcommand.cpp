@@ -56,8 +56,12 @@ int ApplyGreedyPixelFillCommand::id() const
 
 QDebug operator<<(QDebug debug, const ApplyGreedyPixelFillCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ApplyGreedyPixelFillCommand(0x0)";
+
     debug.nospace() << "(ApplyGreedyPixelFillCommand"
         << " layerIndex=" << command->mLayerIndex
         << ")";
-    return debug.space();
+    return debug;
 }

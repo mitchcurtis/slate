@@ -54,10 +54,14 @@ int ChangeNoteCommand::id() const
 
 QDebug operator<<(QDebug debug, const ChangeNoteCommand *command)
 {
-    debug.nospace() << "(MoveGuideCommand"
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ChangeNoteCommand(0x0)";
+
+    debug.nospace() << "(ChangeNoteCommand"
         << " note index=" << command->mNoteIndex
         << " old note=" << command->mOldNote
         << " new note" << command->mNewNote
         << ")";
-    return debug.space();
+    return debug;
 }

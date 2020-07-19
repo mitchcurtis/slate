@@ -56,8 +56,12 @@ int ChangeTileCanvasSizeCommand::id() const
 
 QDebug operator<<(QDebug debug, const ChangeTileCanvasSizeCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ChangeTileCanvasSizeCommand(0x0)";
+
     debug.nospace() << "(ChangeTileCanvasSizeCommand size=" << command->mSize
         << "previousSize=" << command->mPreviousSize
         << ")";
-    return debug.space();
+    return debug;
 }

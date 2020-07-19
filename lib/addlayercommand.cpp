@@ -59,7 +59,11 @@ int AddLayerCommand::id() const
 
 QDebug operator<<(QDebug debug, const AddLayerCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "AddLayerCommand(0x0)";
+
     debug.nospace() << "(AddLayerCommand index=" << command->mIndex
         << " layer=" << command->mLayer << ")";
-    return debug.space();
+    return debug;
 }

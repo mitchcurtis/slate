@@ -52,8 +52,12 @@ int AddGuideCommand::id() const
 
 QDebug operator<<(QDebug debug, const AddGuideCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "AddGuideCommand(0x0)";
+
     debug.nospace() << "(AddGuideCommand guide.position=" << command->mGuide.position()
         << " guide.orientation=" << command->mGuide.orientation()
         << ")";
-    return debug.space();
+    return debug;
 }

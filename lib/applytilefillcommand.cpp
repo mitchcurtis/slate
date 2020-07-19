@@ -66,9 +66,13 @@ bool ApplyTileFillCommand::mergeWith(const QUndoCommand *)
 
 QDebug operator<<(QDebug debug, const ApplyTileFillCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ApplyTileFillCommand(0x0)";
+
     debug.nospace() << "(ApplyTileFillCommand scenePositions=" << command->mTilePositions
         << ", previousTile=" << command->mPreviousTile
         << ", tile=" << command->mTile
         << ")";
-    return debug.space();
+    return debug;
 }

@@ -54,8 +54,12 @@ int ChangeImageSizeCommand::id() const
 
 QDebug operator<<(QDebug debug, const ChangeImageSizeCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ChangeImageSizeCommand(0x0)";
+
     debug.nospace() << "(ChangeImageSizeCommand new size=" << command->mNewImage.size()
         << "previous size=" << command->mPreviousImage.size()
         << ")";
-    return debug.space();
+    return debug;
 }

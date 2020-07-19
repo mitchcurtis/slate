@@ -81,9 +81,13 @@ bool ApplyPixelPenCommand::mergeWith(const QUndoCommand *other)
 
 QDebug operator<<(QDebug debug, const ApplyPixelPenCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ApplyPixelPenCommand(0x0)";
+
     debug.nospace() << "(ApplyPixelPenCommand scenePositions=" << command->mScenePositions
         << ", previousColours=" << command->mPreviousColours
         << ", colour=" << command->mColour
         << ")";
-    return debug.space();
+    return debug;
 }

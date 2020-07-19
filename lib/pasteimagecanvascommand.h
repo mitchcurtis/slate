@@ -41,7 +41,7 @@ public:
     int id() const override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const PasteImageCanvasCommand &command);
+    friend QDebug operator<<(QDebug debug, const PasteImageCanvasCommand *command);
 
     ImageCanvas *mCanvas;
     int mLayerIndex;

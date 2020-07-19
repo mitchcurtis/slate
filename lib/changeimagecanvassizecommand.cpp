@@ -54,8 +54,12 @@ int ChangeImageCanvasSizeCommand::id() const
 
 QDebug operator<<(QDebug debug, const ChangeImageCanvasSizeCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ChangeImageCanvasSizeCommand(0x0)";
+
     debug.nospace() << "(ChangeImageCanvasSizeCommand new size=" << command->mNewImage.size()
         << "previous size=" << command->mPreviousImage.size()
         << ")";
-    return debug.space();
+    return debug;
 }

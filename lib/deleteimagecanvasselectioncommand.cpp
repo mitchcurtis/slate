@@ -56,7 +56,11 @@ int DeleteImageCanvasSelectionCommand::id() const
 
 QDebug operator<<(QDebug debug, const DeleteImageCanvasSelectionCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "DeleteImageCanvasSelectionCommand(0x0)";
+
     debug.nospace() << "(DeleteImageCanvasSelectionCommand area=" << command->mDeletedArea
         << ")";
-    return debug.space();
+    return debug;
 }

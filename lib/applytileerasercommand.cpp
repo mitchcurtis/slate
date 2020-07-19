@@ -79,8 +79,12 @@ bool ApplyTileEraserCommand::mergeWith(const QUndoCommand *other)
 
 QDebug operator<<(QDebug debug, const ApplyTileEraserCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ApplyTileEraserCommand(0x0)";
+
     debug.nospace() << "(ApplyTileEraserCommand tilePositions=" << command->mTilePositions
         << ", previousIds=" << command->mPreviousIds
         << ")";
-    return debug.space();
+    return debug;
 }

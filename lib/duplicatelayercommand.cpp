@@ -60,8 +60,12 @@ int DuplicateLayerCommand::id() const
 
 QDebug operator<<(QDebug debug, const DuplicateLayerCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "DuplicateLayerCommand(0x0)";
+
     debug.nospace() << "(DuplicateLayerCommand sourceIndex=" << command->mLayerIndex
         << " layer=" << command->mLayer
         << ")";
-    return debug.space();
+    return debug;
 }

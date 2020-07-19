@@ -57,7 +57,7 @@ void PasteImageCanvasCommand::redo()
         // Although this special-casing might seem odd, the whole thing allows
         // pasting a selection and dragging it around without picking up the contents
         // of the area underneath it, as would occur if we didn't do this.
-        qCDebug(lcPasteImageCanvasCommand) << "skipping" << this
+        qCDebug(lcPasteImageCanvasCommand).nospace() << "skipping redo of " << this
             << ", as ImageCanvas does it for us the first time";
     }
     mUsed = true;
@@ -68,9 +68,13 @@ int PasteImageCanvasCommand::id() const
     return -1;
 }
 
-QDebug operator<<(QDebug debug, const PasteImageCanvasCommand &command)
+QDebug operator<<(QDebug debug, const PasteImageCanvasCommand *command)
 {
-    debug.nospace() << "(PasteImageCanvasCommand area=" << command.mArea
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "PasteImageCanvasCommand(0x0)";
+
+    debug.nospace() << "(PasteImageCanvasCommand area=" << command->mArea
         << ")";
     return debug.space();
 }

@@ -55,8 +55,12 @@ int ApplyPixelFillCommand::id() const
 
 QDebug operator<<(QDebug debug, const ApplyPixelFillCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ApplyPixelFillCommand(0x0)";
+
     debug.nospace() << "(ApplyPixelFillCommand"
         << " layerIndex=" << command->mLayerIndex
         << ")";
-    return debug.space();
+    return debug;
 }

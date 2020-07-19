@@ -98,11 +98,15 @@ bool ApplyPixelLineCommand::mergeWith(const QUndoCommand *)
 
 QDebug operator<<(QDebug debug, const ApplyPixelLineCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ApplyPixelLineCommand(0x0)";
+
     debug.nospace() << "(ApplyPixelLineCommand"
         << " layerIndex=" << command->mLayerIndex
 //        << ", lineRect" << command->mLineRect
         << ", newLastPixelPenReleaseScenePos=" << command->mNewLastPixelPenReleaseScenePos
         << ", oldLastPixelPenReleaseScenePos=" << command->mOldLastPixelPenReleaseScenePos
         << ")";
-    return debug.space();
+    return debug;
 }

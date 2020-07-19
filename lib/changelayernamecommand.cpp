@@ -56,9 +56,13 @@ int ChangeLayerNameCommand::id() const
 
 QDebug operator<<(QDebug debug, const ChangeLayerNameCommand *command)
 {
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ChangeLayerNameCommand(0x0)";
+
     debug.nospace() << "(ChangeLayerNameCommand layerIndex=" << command->mLayerIndex
         << " previousName=" << command->mPreviousName
         << " newName=" << command->mNewName
         << ")";
-    return debug.space();
+    return debug;
 }

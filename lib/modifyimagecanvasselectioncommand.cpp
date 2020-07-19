@@ -99,12 +99,16 @@ int ModifyImageCanvasSelectionCommand::id() const
 
 QDebug operator<<(QDebug debug, const ModifyImageCanvasSelectionCommand *command)
 {
-    debug.nospace() << "(modifyImageCanvasSelectionCommand"
+    QDebugStateSaver saver(debug);
+    if (!command)
+        return debug << "ModifyImageCanvasSelectionCommand(0x0)";
+
+    debug.nospace() << "(ModifyImageCanvasSelectionCommand"
         << " layerIndex=" << command->mLayerIndex
         << " modification=" << command->mModification
         << " newArea=" << command->mTargetArea
         << " previousSize=" << command->mSourceArea
         << " fromPaste=" << command->mFromPaste
         << ")";
-    return debug.space();
+    return debug;
 }
