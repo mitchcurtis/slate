@@ -1,11 +1,9 @@
-import QtQml.Models 2.2
-import QtQuick 2.12
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.12
-// TODO: remove in Qt 6
-import QtQml 2.15
+import QtQml.Models
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
 
-import App 1.0
+import App
 
 Dialog {
     id: dialog

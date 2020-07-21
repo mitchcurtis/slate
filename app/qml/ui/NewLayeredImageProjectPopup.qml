@@ -1,4 +1,4 @@
-import QtQuick 2.12
+import QtQuick
 
 NewImageProjectPopup {
     title: qsTr("New Layered Image Project")

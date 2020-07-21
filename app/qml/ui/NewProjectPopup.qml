@@ -1,10 +1,10 @@
-import QtQuick 2.12
-import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.12
-import QtQuick.Templates 2.1 as T
-import Qt.labs.platform 1.0 as Platform
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Templates as T
+import Qt.labs.platform as Platform
 
-import App 1.0
+import App
 
 Dialog {
     id: popup

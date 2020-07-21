@@ -19,8 +19,8 @@
 
 pragma Singleton
 
-import QtQml 2.12
-import QtQuick.Controls.Material 2.12
+import QtQml
+import QtQuick.Controls.Material
 
 QtObject {
     property color focusColour: Material.accent

@@ -1,6 +1,6 @@
 pragma Singleton
 
-import QtQml 2.12
+import QtQml
 
 QtObject {
     readonly property int toolTipDelay: 800

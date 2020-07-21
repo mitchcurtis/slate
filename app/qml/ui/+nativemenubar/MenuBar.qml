@@ -17,11 +17,11 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import Qt.labs.platform 1.0 as Platform
-import QtQml 2.2
-import QtQuick 2.12
+import Qt.labs.platform as Platform
+import QtQml
+import QtQuick
 
-import App 1.0
+import App
 
 Item {
     property ImageCanvas canvas
