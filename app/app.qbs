@@ -27,7 +27,7 @@ QtGuiApplication {
 
     cpp.useRPaths: darwin || (unix && !Qt.core.staticBuild)
     // Ensure that e.g. libslate is found.
-    cpp.rpaths: darwin ? ["@loader_path/../Frameworks"] : ["$ORIGIN/lib"]
+    cpp.rpaths: darwin ? ["@loader_path/../Frameworks"] : ["$ORIGIN"]
 
     cpp.cxxLanguageVersion: "c++11"
     // https://bugreports.qt.io/browse/QBS-1434
