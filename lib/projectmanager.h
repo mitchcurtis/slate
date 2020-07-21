@@ -37,6 +37,7 @@ class SLATE_EXPORT ProjectManager : public QObject
         WRITE setApplicationSettings NOTIFY applicationSettingsChanged)
     Q_PROPERTY(bool ready READ isReady NOTIFY readyChanged)
     QML_ANONYMOUS
+    Q_MOC_INCLUDE("applicationsettings.h")
 
 public:
     explicit ProjectManager(QObject *parent = nullptr);

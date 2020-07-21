@@ -33,6 +33,7 @@ class SLATE_EXPORT LayerModel : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(LayeredImageProject *layeredImageProject READ layeredImageProject WRITE setLayeredImageProject NOTIFY layeredImageProjectChanged)
     QML_ELEMENT
+    Q_MOC_INCLUDE("layeredimageproject.h")
 
 public:
     enum LayerModelRoles {

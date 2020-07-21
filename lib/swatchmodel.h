@@ -35,6 +35,7 @@ class SLATE_EXPORT SwatchModel : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(Swatch *swatch READ swatch WRITE setSwatch NOTIFY swatchChanged)
     QML_ELEMENT
+    Q_MOC_INCLUDE("swatch.h")
 
 public:
     enum {

@@ -62,6 +62,7 @@ class SLATE_EXPORT Project : public QObject
     Q_PROPERTY(SerialisableState *uiState READ uiState CONSTANT)
     QML_ELEMENT
     QML_UNCREATABLE("")
+    Q_MOC_INCLUDE("applicationsettings.h")
 
 public:
     enum Type {

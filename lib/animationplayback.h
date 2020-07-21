@@ -43,6 +43,7 @@ class SLATE_EXPORT AnimationPlayback : public QObject
     Q_PROPERTY(bool playing READ isPlaying WRITE setPlaying NOTIFY playingChanged)
     Q_PROPERTY(qreal progress READ progress NOTIFY currentFrameIndexChanged FINAL)
     QML_ELEMENT
+    Q_MOC_INCLUDE("animation.h")
 
 public:
     explicit AnimationPlayback(QObject *parent = nullptr);

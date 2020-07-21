@@ -32,6 +32,7 @@ class SLATE_EXPORT AnimationModel : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(AnimationSystem *animationSystem READ animationSystem WRITE setAnimationSystem NOTIFY animationSystemChanged)
     QML_ELEMENT
+    Q_MOC_INCLUDE("animationsystem.h")
 
 public:
     enum {

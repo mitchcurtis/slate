@@ -54,6 +54,7 @@ class SLATE_EXPORT AutoSwatchModel : public QAbstractListModel
     Q_PROPERTY(bool findingUniqueColours READ isFindingUniqueColours NOTIFY findingUniqueColoursChanged)
     Q_PROPERTY(QString failureMessage READ failureMessage NOTIFY failureMessageChanged)
     QML_ELEMENT
+    Q_MOC_INCLUDE("imagecanvas.h")
 
 public:
     enum {
