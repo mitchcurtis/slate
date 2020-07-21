@@ -5320,6 +5320,10 @@ void tst_App::playNonLoopingAnimationTwice()
 
 void tst_App::animationGifExport()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QSKIP("heap-buff-overflow with Qt 6: https://github.com/wernsey/bitmap/issues/8");
+#endif
+
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
     QVERIFY2(copyFileFromResourcesToTempProjectDir("animation.slp"), failureMessage);

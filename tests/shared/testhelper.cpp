@@ -59,8 +59,8 @@ void TestHelper::initTestCase()
     // This should not be enabled for tests.
     QVERIFY(!app.settings()->loadLastOnStartup());
 
-    QVERIFY(window->property("overlay").isValid());
-    overlay = window->property("overlay").value<QQuickItem*>();
+    QQmlExpression overlayExpression(qmlContext(window), window, "Overlay.overlay");
+    overlay = overlayExpression.evaluate().value<QQuickItem*>();
     QVERIFY(overlay);
 
     projectManager = app.projectManager();
