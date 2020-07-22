@@ -104,7 +104,7 @@ public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
 
     bool exportImage(const QUrl &url);
-    void resize(int width, int height);
+    void resize(int width, int height, bool smooth);
     void crop(const QRect &rect);
     void moveContents(int x, int y, bool onlyVisibleContents);
 

@@ -634,7 +634,7 @@ bool LayeredImageProject::exportImage(const QUrl &url)
     return true;
 }
 
-void LayeredImageProject::resize(int width, int height)
+void LayeredImageProject::resize(int width, int height, bool smooth)
 {
     const QSize newSize(width, height);
     if (newSize == size())
@@ -648,7 +648,8 @@ void LayeredImageProject::resize(int width, int height)
     for (const ImageLayer *layer : qAsConst(mLayers)) {
         previousImages.append(*layer->image());
 
-        const QImage resized = layer->image()->scaled(newSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+        const auto transformation = smooth ? Qt::SmoothTransformation : Qt::FastTransformation;
+        const QImage resized = layer->image()->scaled(newSize, Qt::IgnoreAspectRatio, transformation);
         newImages.append(resized);
     }
 

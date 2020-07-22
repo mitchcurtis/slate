@@ -163,8 +163,8 @@ void ImageProject::resize(int width, int height, bool smooth)
         return;
 
     beginMacro(QLatin1String("ChangeImageSize"));
-    const QImage resized = mImage.scaled(newSize, Qt::IgnoreAspectRatio,
-        smooth ? Qt::SmoothTransformation : Qt::FastTransformation);
+    const auto transformation = smooth ? Qt::SmoothTransformation : Qt::FastTransformation;
+    const QImage resized = mImage.scaled(newSize, Qt::IgnoreAspectRatio, transformation);
     addChange(new ChangeImageSizeCommand(this, mImage, resized));
     endMacro();
 }
