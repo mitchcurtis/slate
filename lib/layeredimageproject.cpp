@@ -360,9 +360,10 @@ void LayeredImageProject::setUsingAnimation(bool isUsingAnimation)
     if (mUsingAnimation) {
         if (!mHasUsedAnimation) {
             const QSize imageSize = size();
-            mAnimationPlayback.setFrameCount(imageSize.width() >= 8 ? 4 : 1);
-            mAnimationPlayback.setFrameWidth(imageSize.width() / mAnimationPlayback.frameCount());
-            mAnimationPlayback.setFrameHeight(imageSize.height());
+            auto currentPlayback = mAnimationSystem.currentAnimationPlayback();
+            currentPlayback->setFrameCount(imageSize.width() >= 8 ? 4 : 1);
+            currentPlayback->setFrameWidth(imageSize.width() / currentPlayback->frameCount());
+            currentPlayback->setFrameHeight(imageSize.height());
 
             mHasUsedAnimation = true;
         }
@@ -371,9 +372,9 @@ void LayeredImageProject::setUsingAnimation(bool isUsingAnimation)
     emit usingAnimationChanged();
 }
 
-AnimationPlayback *LayeredImageProject::animationPlayback()
+AnimationSystem *LayeredImageProject::animationSystem()
 {
-    return &mAnimationPlayback;
+    return &mAnimationSystem;
 }
 
 void LayeredImageProject::exportGif(const QUrl &url)
@@ -384,7 +385,7 @@ void LayeredImageProject::exportGif(const QUrl &url)
     }
 
     QString errorMessage;
-    if (!Utils::exportGif(exportedImage(), url, mAnimationPlayback, errorMessage))
+    if (!Utils::exportGif(exportedImage(), url, *mAnimationSystem.currentAnimationPlayback(), errorMessage))
         error(errorMessage);
 }
 
@@ -462,7 +463,7 @@ void LayeredImageProject::doLoad(const QUrl &url)
     mUsingAnimation = projectObject.value("usingAnimation").toBool(false);
     mHasUsedAnimation = projectObject.value("hasUsedAnimation").toBool(false);
     if (mHasUsedAnimation) {
-        mAnimationPlayback.read(projectObject.value("animationPlayback").toObject());
+        mAnimationSystem.read(projectObject.value("animationSystem").toObject());
     }
 
     readUiState(projectObject);
@@ -493,7 +494,7 @@ void LayeredImageProject::doClose()
     mAutoExportEnabled = false;
     mUsingAnimation = false;
     mHasUsedAnimation = false;
-    mAnimationPlayback.reset();
+    mAnimationSystem.reset();
     emit projectClosed();
 }
 
@@ -558,8 +559,8 @@ bool LayeredImageProject::doSaveAs(const QUrl &url)
         projectObject.insert("hasUsedAnimation", true);
 
         QJsonObject animationObject;
-        mAnimationPlayback.write(animationObject);
-        projectObject.insert("animationPlayback", animationObject);
+        mAnimationSystem.write(animationObject);
+        projectObject.insert("animationSystem", animationObject);
     }
 
     rootJson.insert("project", projectObject);

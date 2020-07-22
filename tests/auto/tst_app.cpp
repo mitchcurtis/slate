@@ -974,9 +974,8 @@ void tst_App::animationPlayback()
     QQuickItem *animationPreviewScaleSlider = window->findChild<QQuickItem*>("animationPreviewScaleSlider");
     QVERIFY(animationPreviewScaleSlider);
     mouseEventOnCentre(animationPreviewScaleSlider, MouseClick);
-    AnimationPlayback *animationPlayback = projectType == Project::ImageType
-        ? imageProject->animationPlayback() : layeredImageProject->animationPlayback();
-    const qreal modifiedScaleValue = animationPlayback->scale();
+    AnimationPlayback *currentAnimationPlayback = TestHelper::animationPlayback();
+    const qreal modifiedScaleValue = currentAnimationPlayback->scale();
     QVERIFY(modifiedScaleValue > 1.0);
 
     // Accept and close the settings popup.
@@ -985,19 +984,19 @@ void tst_App::animationPlayback()
     mouseEventOnCentre(saveButton, MouseClick);
     QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);
     QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
-    QCOMPARE(animationPlayback->frameWidth(), 256 / 4 + 1);
-    QCOMPARE(animationPlayback->frameHeight(), 256 + 1);
-    QCOMPARE(animationPlayback->frameCount(), 4 + 1);
+    QCOMPARE(currentAnimationPlayback->frameWidth(), 256 / 4 + 1);
+    QCOMPARE(currentAnimationPlayback->frameHeight(), 256 + 1);
+    QCOMPARE(currentAnimationPlayback->frameCount(), 4 + 1);
 
     mouseEventOnCentre(animationPlayPauseButton, MouseClick);
-    QCOMPARE(animationPlayback->isPlaying(), true);
-    QCOMPARE(animationPlayback->currentFrameIndex(), 0);
+    QCOMPARE(currentAnimationPlayback->isPlaying(), true);
+    QCOMPARE(currentAnimationPlayback->currentFrameIndex(), 0);
 
     if (projectType == Project::ImageType)
         return;
 
     // Let it play a bit.
-    QTRY_VERIFY(animationPlayback->currentFrameIndex() > 0);
+    QTRY_VERIFY(currentAnimationPlayback->currentFrameIndex() > 0);
 
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animationStuffSaved.slp"));
@@ -1012,14 +1011,15 @@ void tst_App::animationPlayback()
     // Load the saved file and check that our custom settings were remembered.
     layeredImageProject->load(saveUrl);
     QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    currentAnimationPlayback = TestHelper::animationPlayback();
     QCOMPARE(isUsingAnimation(), true);
     QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->frameX(), 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->frameY(), 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->frameWidth(), 256 / 4 + 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->frameHeight(), 256 + 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->frameCount(), 4 + 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->scale(), modifiedScaleValue);
+    QCOMPARE(currentAnimationPlayback->frameX(), 1);
+    QCOMPARE(currentAnimationPlayback->frameY(), 1);
+    QCOMPARE(currentAnimationPlayback->frameWidth(), 256 / 4 + 1);
+    QCOMPARE(currentAnimationPlayback->frameHeight(), 256 + 1);
+    QCOMPARE(currentAnimationPlayback->frameCount(), 4 + 1);
+    QCOMPARE(currentAnimationPlayback->scale(), modifiedScaleValue);
 }
 
 void tst_App::animationGifExport()
@@ -1056,9 +1056,11 @@ void tst_App::animationGifExport()
     // Should be looping.
     QCOMPARE(gif->repetitions, 0);
 
+    auto currentAnimationPlayback = TestHelper::animationPlayback();
+
     for (int frameIndex = 0; frameIndex < gif->n; ++frameIndex) {
         GIF_FRAME loadedGifFrame = gif->frames[frameIndex];
-        QCOMPARE(loadedGifFrame.delay, qFloor(1000.0 / layeredImageProject->animationPlayback()->fps()) / 10);
+        QCOMPARE(loadedGifFrame.delay, qFloor(1000.0 / currentAnimationPlayback->fps()) / 10);
 
         Bitmap *gifBitmap = loadedGifFrame.image;
         QCOMPARE(gifBitmap->w, frameWidth * previewScale);
@@ -1068,7 +1070,7 @@ void tst_App::animationGifExport()
             frameIndex * frameWidth, 0, frameWidth, frameHeight);
         frameSourceImage = frameSourceImage.convertToFormat(QImage::Format_RGBA8888);
         const QImage scaledFrameSourceImage = frameSourceImage.scaled(
-            frameSourceImage.size() * layeredImageProject->animationPlayback()->scale());
+            frameSourceImage.size() * currentAnimationPlayback->scale());
         const uchar *scaledFrameSourceImageBits =  scaledFrameSourceImage.bits();
         for (int y = 0; y < scaledFrameHeight; ++y) {
             for (int x = 0; x < scaledFrameWidth; ++x) {

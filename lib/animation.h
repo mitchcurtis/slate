@@ -17,8 +17,8 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ANIMATIONPLAYBACK_H
-#define ANIMATIONPLAYBACK_H
+#ifndef ANIMATION_H
+#define ANIMATION_H
 
 #include <QObject>
 #include <QPoint>
@@ -28,19 +28,23 @@
 
 class QJsonObject;
 
-class SLATE_EXPORT AnimationPlayback : public QObject
+class SLATE_EXPORT Animation : public QObject
 {
     Q_OBJECT
     // Serialised.
-    Q_PROPERTY(int currentFrameIndex READ currentFrameIndex NOTIFY currentFrameIndexChanged FINAL)
-    Q_PROPERTY(qreal scale READ scale WRITE setScale NOTIFY scaleChanged FINAL)
-    Q_PROPERTY(bool loop READ shouldLoop WRITE setLoop NOTIFY loopChanged)
-
-    // Not serialised.
-    Q_PROPERTY(bool playing READ isPlaying WRITE setPlaying NOTIFY playingChanged)
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged FINAL)
+    Q_PROPERTY(int fps READ fps WRITE setFps NOTIFY fpsChanged FINAL)
+    Q_PROPERTY(int frameCount READ frameCount WRITE setFrameCount NOTIFY frameCountChanged FINAL)
+    Q_PROPERTY(int frameX READ frameX WRITE setFrameX NOTIFY frameXChanged)
+    Q_PROPERTY(int frameY READ frameY WRITE setFrameY NOTIFY frameYChanged)
+    Q_PROPERTY(int frameWidth READ frameWidth WRITE setFrameWidth NOTIFY frameWidthChanged FINAL)
+    Q_PROPERTY(int frameHeight READ frameHeight WRITE setFrameHeight NOTIFY frameHeightChanged FINAL)
 
 public:
-    explicit AnimationPlayback(QObject *parent = nullptr);
+    explicit Animation(QObject *parent = nullptr);
+
+    QString name() const;
+    void setName(const QString &name);
 
     int fps() const;
     void setFps(int fps);
@@ -61,17 +65,6 @@ public:
     int frameHeight() const;
     void setFrameHeight(int frameHeight);
 
-    int currentFrameIndex() const;
-
-    qreal scale() const;
-    void setScale(const qreal &scale);
-
-    bool isPlaying() const;
-    void setPlaying(bool playing);
-
-    bool shouldLoop() const;
-    void setLoop(bool shouldLoop);
-
     int startColumn() const;
     int startRow() const;
     int startIndex(int sourceImageWidth) const;
@@ -79,37 +72,23 @@ public:
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
 
-    void reset();
-
 signals:
+    void nameChanged();
     void fpsChanged();
     void frameCountChanged();
     void frameXChanged();
     void frameYChanged();
     void frameWidthChanged();
     void frameHeightChanged();
-    void currentFrameIndexChanged();
-    void scaleChanged();
-    void loopChanged();
-    void playingChanged();
 
 private:
-    void setCurrentFrameIndex(int currentFrameIndex);
-
-    void timerEvent(QTimerEvent *event) override;
-
-    int mFps;
-    int mFrameCount;
-    int mFrameX;
-    int mFrameY;
-    int mFrameWidth;
-    int mFrameHeight;
-    int mCurrentFrameIndex;
-    qreal mScale;
-    bool mPlaying;
-    bool mLoop;
-
-    int mTimerId;
+    QString mName;
+    int mFps = 0;
+    int mFrameCount = 0;
+    int mFrameX = 0;
+    int mFrameY = 0;
+    int mFrameWidth = 0;
+    int mFrameHeight = 0;
 };
 
-#endif // ANIMATIONPLAYBACK_H
+#endif // ANIMATION_H

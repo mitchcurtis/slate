@@ -22,7 +22,7 @@
 
 #include <QImage>
 
-#include "animationplayback.h"
+#include "animationsystem.h"
 #include "project.h"
 #include "slate-global.h"
 
@@ -30,7 +30,7 @@ class SLATE_EXPORT ImageProject : public Project
 {
     Q_OBJECT
     Q_PROPERTY(bool usingAnimation READ isUsingAnimation WRITE setUsingAnimation NOTIFY usingAnimationChanged FINAL)
-    Q_PROPERTY(AnimationPlayback *animationPlayback READ animationPlayback CONSTANT FINAL)
+    Q_PROPERTY(AnimationSystem *animationSystem READ animationSystem CONSTANT FINAL)
 
 public:
     ImageProject();
@@ -49,7 +49,7 @@ public:
     bool isUsingAnimation() const;
     void setUsingAnimation(bool isUsingAnimation);
 
-    AnimationPlayback *animationPlayback();
+    AnimationSystem *animationSystem();
 
     QImage exportedImage() const override;
 
@@ -79,7 +79,7 @@ private:
     QUrl mImageUrl;
     QImage mImage;
     bool mUsingAnimation;
-    AnimationPlayback mAnimationPlayback;
+    AnimationSystem mAnimationSystem;
 };
 
 

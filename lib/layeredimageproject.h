@@ -23,7 +23,7 @@
 #include <QDebug>
 #include <QImage>
 
-#include "animationplayback.h"
+#include "animationsystem.h"
 #include "project.h"
 #include "slate-global.h"
 
@@ -37,7 +37,7 @@ class SLATE_EXPORT LayeredImageProject : public Project
     Q_PROPERTY(int layerCount READ layerCount NOTIFY layerCountChanged)
     Q_PROPERTY(bool autoExportEnabled READ isAutoExportEnabled WRITE setAutoExportEnabled NOTIFY autoExportEnabledChanged)
     Q_PROPERTY(bool usingAnimation READ isUsingAnimation WRITE setUsingAnimation NOTIFY usingAnimationChanged)
-    Q_PROPERTY(AnimationPlayback *animationPlayback READ animationPlayback CONSTANT FINAL)
+    Q_PROPERTY(AnimationSystem *animationSystem READ animationSystem CONSTANT FINAL)
 
 public:
     LayeredImageProject();
@@ -70,7 +70,7 @@ public:
     bool isUsingAnimation() const;
     void setUsingAnimation(bool isUsingAnimation);
 
-    AnimationPlayback *animationPlayback();
+    AnimationSystem *animationSystem();
 
     Q_INVOKABLE void exportGif(const QUrl &url);
 
@@ -158,7 +158,7 @@ private:
     bool mAutoExportEnabled;
     bool mUsingAnimation;
     bool mHasUsedAnimation;
-    AnimationPlayback mAnimationPlayback;
+    AnimationSystem mAnimationSystem;
 };
 
 #endif // LAYEREDIMAGEPROJECT_H

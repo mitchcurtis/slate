@@ -1348,7 +1348,9 @@ bool TestHelper::isUsingAnimation() const
 
 AnimationPlayback *TestHelper::animationPlayback()
 {
-    return imageProject ? imageProject->animationPlayback() : layeredImageProject->animationPlayback();
+    return imageProject
+        ? imageProject->animationSystem()->currentAnimationPlayback()
+        : layeredImageProject->animationSystem()->currentAnimationPlayback();
 }
 
 bool TestHelper::triggerShortcut(const QString &objectName, const QString &sequenceAsString)
