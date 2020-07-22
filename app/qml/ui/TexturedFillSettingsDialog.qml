@@ -221,7 +221,7 @@ Dialog {
                         swatch: previewItem.parameters.swatch
                     }
                     delegate: TexturedFillSwatchDelegate {
-                        width: parent.width
+                        width: swatchListView.width
 
                         probabilitySlider.onPressedChanged: {
                             if (!probabilitySlider.pressed)
