@@ -30,7 +30,11 @@ Dialog {
     modal: true
     standardButtons: Dialog.Save | Dialog.Cancel
 
-    property AnimationPlayback animationPlayback
+    property Project project
+    readonly property AnimationSystem animationSystem: project ? project.animationSystem : null
+    readonly property AnimationPlayback animationPlayback: animationSystem ? animationSystem.currentAnimationPlayback : null
+
+    property real originalPreviewScale
 
     property int originalFps
     property int originalFrameCount
@@ -38,10 +42,22 @@ Dialog {
     property int originalFrameY
     property int originalFrameWidth
     property int originalFrameHeight
-    property real originalPreviewScale
+
+    property int modifiedFps
+    property int modifiedFrameCount
+    property int modifiedFrameX
+    property int modifiedFrameY
+    property int modifiedFrameWidth
+    property int modifiedFrameHeight
+
     readonly property int controlWidth: 180
 
     onAboutToShow: {
+        // Let the animation system know that it should temporarily listen to the property changes
+        // of the current animation so that the changes can be visualised live. We do this to avoid
+        // in bulk
+//        animationSystem.editingCurrentAnimation = true
+
         originalFps = animationPlayback.fps
         originalFrameCount = animationPlayback.frameCount
         originalFrameX = animationPlayback.frameX
@@ -60,6 +76,10 @@ Dialog {
         animationPlayback.frameHeight = originalFrameHeight
         animationPlayback.scale = originalPreviewScale
     }
+
+//    onAboutToHide: {
+//        animationSystem.editingCurrentAnimation = false
+//    }
 
     TextMetrics {
         id: labelTextMetrics

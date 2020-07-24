@@ -38,7 +38,7 @@ Panel {
 
     property Project project
     property ImageCanvas canvas
-    property AnimationPlayback animationPlayback: project ? project.animationPlayback : null
+    property AnimationPlayback animationPlayback: project ? project.animationSystem.currentAnimationPlayback : null
 
     readonly property int minimumUsefulHeight: header.implicitHeight + 100
 
@@ -61,7 +61,6 @@ Panel {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
         parent: root.parent.Window.contentItem
-        animationPlayback: root.animationPlayback
 
         onClosed: canvas.forceActiveFocus()
     }

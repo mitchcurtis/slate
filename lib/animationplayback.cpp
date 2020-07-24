@@ -23,16 +23,12 @@
 #include <QJsonObject>
 #include <QLoggingCategory>
 
+#include "animation.h"
+
 Q_LOGGING_CATEGORY(lcAnimationPlayback, "app.animationPlayback")
 
 AnimationPlayback::AnimationPlayback(QObject *parent) :
     QObject(parent),
-    mFps(0),
-    mFrameCount(0),
-    mFrameX(0),
-    mFrameY(0),
-    mFrameWidth(0),
-    mFrameHeight(0),
     mCurrentFrameIndex(0),
     mScale(0.0),
     mPlaying(false),
@@ -42,99 +38,25 @@ AnimationPlayback::AnimationPlayback(QObject *parent) :
     reset();
 }
 
-int AnimationPlayback::fps() const
+Animation *AnimationPlayback::animation() const
 {
-    return mFps;
+    return mAnimation;
 }
 
-void AnimationPlayback::setFps(int fps)
+void AnimationPlayback::setAnimation(Animation *animation)
 {
-    if (fps == mFps)
+    if (animation == mAnimation)
         return;
 
-    mFps = fps;
+    if (mAnimation)
+        mAnimation->disconnect(this);
 
-    if (mPlaying && mTimerId != -1) {
-        killTimer(mTimerId);
-        mTimerId = startTimer(1000 / mFps);
-    }
+    mAnimation = animation;
 
-    emit fpsChanged();
-}
+    if (mAnimation)
+        connect(mAnimation, &Animation::fpsChanged, this, &AnimationPlayback::fpsChanged);
 
-int AnimationPlayback::frameCount() const
-{
-    return mFrameCount;
-}
-
-void AnimationPlayback::setFrameCount(int frameCount)
-{
-    if (frameCount == mFrameCount)
-        return;
-
-    mFrameCount = frameCount;
-    emit frameCountChanged();
-}
-
-int AnimationPlayback::frameX() const
-{
-    return mFrameX;
-}
-
-void AnimationPlayback::setFrameX(int frameX)
-{
-    if (frameX == mFrameX)
-        return;
-
-    mFrameX = frameX;
-    emit frameXChanged();
-}
-
-int AnimationPlayback::frameY() const
-{
-    return mFrameY;
-}
-
-void AnimationPlayback::setFrameY(int frameY)
-{
-    if (frameY == mFrameY)
-        return;
-
-    mFrameY = frameY;
-    emit frameYChanged();
-}
-
-int AnimationPlayback::frameWidth() const
-{
-    return mFrameWidth;
-}
-
-int AnimationPlayback::framesWide(int sourceImageWidth) const
-{
-    return sourceImageWidth / mFrameWidth;
-}
-
-void AnimationPlayback::setFrameWidth(int frameWidth)
-{
-    if (frameWidth == mFrameWidth)
-        return;
-
-    mFrameWidth = frameWidth;
-    emit frameWidthChanged();
-}
-
-int AnimationPlayback::frameHeight() const
-{
-    return mFrameHeight;
-}
-
-void AnimationPlayback::setFrameHeight(int frameHeight)
-{
-    if (frameHeight == mFrameHeight)
-        return;
-
-    mFrameHeight = frameHeight;
-    emit frameHeightChanged();
+    emit animationChanged();
 }
 
 int AnimationPlayback::currentFrameIndex() const
@@ -164,19 +86,10 @@ void AnimationPlayback::setPlaying(bool playing)
 
     if (mPlaying) {
         qCDebug(lcAnimationPlayback) << "playing";
-        mTimerId = startTimer(1000 / mFps);
+        mTimerId = startTimer(1000 / mAnimation->fps());
     }
 
     emit playingChanged();
-}
-
-void AnimationPlayback::setCurrentFrameIndex(int currentFrameIndex)
-{
-    if (currentFrameIndex == mCurrentFrameIndex)
-        return;
-
-    mCurrentFrameIndex = currentFrameIndex;
-    emit currentFrameIndexChanged();
 }
 
 qreal AnimationPlayback::scale() const
@@ -193,41 +106,12 @@ void AnimationPlayback::setScale(const qreal &scale)
     emit scaleChanged();
 }
 
-bool AnimationPlayback::shouldLoop() const
-{
-    return mLoop;
-}
-
-void AnimationPlayback::setLoop(bool loop)
-{
-    if (loop == mLoop)
-        return;
-
-    mLoop = loop;
-    emit loopChanged();
-}
-
-int AnimationPlayback::startColumn() const
-{
-    return mFrameX / mFrameWidth;
-}
-
-int AnimationPlayback::startRow() const
-{
-    return mFrameY / mFrameHeight;
-}
-
-int AnimationPlayback::startIndex(int sourceImageWidth) const
-{
-    return startRow() * framesWide(sourceImageWidth) + startColumn();
-}
-
 void AnimationPlayback::timerEvent(QTimerEvent *)
 {
     Q_ASSERT(mPlaying);
 
     int newFrameIndex = mCurrentFrameIndex + 1;
-    if (newFrameIndex >= mFrameCount) {
+    if (newFrameIndex >= mAnimation->frameCount()) {
         newFrameIndex = 0;
 
         if (!mLoop) {
@@ -242,12 +126,6 @@ void AnimationPlayback::timerEvent(QTimerEvent *)
 
 void AnimationPlayback::read(const QJsonObject &json)
 {
-    setFps(json.value(QLatin1String("fps")).toInt());
-    setFrameCount(json.value(QLatin1String("frameCount")).toInt());
-    setFrameX(json.value(QLatin1String("frameX")).toInt());
-    setFrameY(json.value(QLatin1String("frameY")).toInt());
-    setFrameWidth(json.value(QLatin1String("frameWidth")).toInt());
-    setFrameHeight(json.value(QLatin1String("frameHeight")).toInt());
     setScale(json.value(QLatin1String("scale")).toDouble());
     setLoop(json.value(QLatin1String("loop")).toBool());
     setPlaying(false);
@@ -255,27 +133,33 @@ void AnimationPlayback::read(const QJsonObject &json)
 
 void AnimationPlayback::write(QJsonObject &json) const
 {
-    json[QLatin1String("fps")] = mFps;
-    json[QLatin1String("frameX")] = mFrameX;
-    json[QLatin1String("frameY")] = mFrameY;
-    json[QLatin1String("frameCount")] = mFrameCount;
-    json[QLatin1String("frameWidth")] = mFrameWidth;
-    json[QLatin1String("frameHeight")] = mFrameHeight;
     json[QLatin1String("scale")] = mScale;
     json[QLatin1String("loop")] = mLoop;
 }
 
 void AnimationPlayback::reset()
 {
-    setFps(4);
-    setFrameCount(4);
-    setFrameX(0);
-    setFrameY(0);
-    setFrameWidth(32);
-    setFrameHeight(32);
     setCurrentFrameIndex(0);
     setPlaying(false);
     setScale(1.0);
     setLoop(true);
     mTimerId = -1;
+}
+
+void AnimationPlayback::fpsChanged()
+{
+    if (!mPlaying || mTimerId == -1)
+        return;
+
+    killTimer(mTimerId);
+    mTimerId = startTimer(1000 / mAnimation->fps());
+}
+
+void AnimationPlayback::setCurrentFrameIndex(int currentFrameIndex)
+{
+    if (currentFrameIndex == mCurrentFrameIndex)
+        return;
+
+    mCurrentFrameIndex = currentFrameIndex;
+    emit currentFrameIndexChanged();
 }

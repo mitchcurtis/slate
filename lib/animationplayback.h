@@ -28,6 +28,8 @@
 
 class QJsonObject;
 
+class Animation;
+
 class SLATE_EXPORT AnimationPlayback : public QObject
 {
     Q_OBJECT
@@ -37,29 +39,14 @@ class SLATE_EXPORT AnimationPlayback : public QObject
     Q_PROPERTY(bool loop READ shouldLoop WRITE setLoop NOTIFY loopChanged)
 
     // Not serialised.
+    Q_PROPERTY(Animation *animation READ animation WRITE setAnimation NOTIFY animationChanged)
     Q_PROPERTY(bool playing READ isPlaying WRITE setPlaying NOTIFY playingChanged)
 
 public:
     explicit AnimationPlayback(QObject *parent = nullptr);
 
-    int fps() const;
-    void setFps(int fps);
-
-    int frameCount() const;
-    void setFrameCount(int frameCount);
-
-    int frameX() const;
-    void setFrameX(int frameX);
-
-    int frameY() const;
-    void setFrameY(int frameY);
-
-    int frameWidth() const;
-    void setFrameWidth(int frameWidth);
-    int framesWide(int sourceImageWidth) const;
-
-    int frameHeight() const;
-    void setFrameHeight(int frameHeight);
+    Animation *animation() const;
+    void setAnimation(Animation *animation);
 
     int currentFrameIndex() const;
 
@@ -82,34 +69,28 @@ public:
     void reset();
 
 signals:
-    void fpsChanged();
-    void frameCountChanged();
-    void frameXChanged();
-    void frameYChanged();
-    void frameWidthChanged();
-    void frameHeightChanged();
+    void animationChanged();
     void currentFrameIndexChanged();
     void scaleChanged();
     void loopChanged();
     void playingChanged();
+
+private slots:
+    void fpsChanged();
 
 private:
     void setCurrentFrameIndex(int currentFrameIndex);
 
     void timerEvent(QTimerEvent *event) override;
 
-    int mFps;
-    int mFrameCount;
-    int mFrameX;
-    int mFrameY;
-    int mFrameWidth;
-    int mFrameHeight;
-    int mCurrentFrameIndex;
-    qreal mScale;
-    bool mPlaying;
-    bool mLoop;
+    Animation *mAnimation = nullptr;
 
-    int mTimerId;
+    int mCurrentFrameIndex = -1;
+    qreal mScale = 0.0;
+    bool mPlaying = false;
+    bool mLoop = false;
+
+    int mTimerId = -1;
 };
 
 #endif // ANIMATIONPLAYBACK_H

@@ -34,9 +34,16 @@ class SLATE_EXPORT AnimationSystem : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(AnimationPlayback *currentAnimationPlayback READ currentAnimationPlayback CONSTANT FINAL)
+    Q_PROPERTY(int currentAnimationIndex READ currentAnimationIndex WRITE setCurrentAnimationIndex NOTIFY currentAnimationIndexChanged)
+    Q_PROPERTY(Animation *currentAnimation READ currentAnimation NOTIFY currentAnimationIndexChanged FINAL)
 
 public:
     explicit AnimationSystem(QObject *parent = nullptr);
+
+    int currentAnimationIndex() const;
+    void setCurrentAnimationIndex(int index);
+
+    Animation *currentAnimation();
 
     AnimationPlayback *currentAnimationPlayback();
 
@@ -46,12 +53,11 @@ public:
     void reset();
 
 public slots:
-    void addAnimation(const QString &name, int fps, int frameCount,
-        int frameX, int frameY, int frameWidth, int frameHeight);
+    void addAnimation(const QSize &canvasSize);
     void removeAnimation(const QString &name);
 
 signals:
-    void currentFrameIndexChanged();
+    void currentAnimationIndexChanged();
     void scaleChanged();
     void loopChanged();
     void playingChanged();
@@ -61,6 +67,7 @@ private:
     Animation *animationAtNameOrWarn(const QString &name);
 
     QVector<Animation*> mAnimations;
+    int mCurrentAnimationIndex = -1;
     AnimationPlayback mCurrentAnimationPlayback;
 };
 

@@ -184,6 +184,7 @@ void Application::registerQmlTypes()
     qmlRegisterType<TileGrid>("App", 1, 0, "TileGrid");
     qmlRegisterType<TilesetSwatchImage>("App", 1, 0, "TilesetSwatchImage");
     qmlRegisterUncreatableType<AnimationPlayback>("App", 1, 0, "AnimationPlayback", QLatin1String("Cannot create objects of type AnimationPlayback"));
+    qmlRegisterUncreatableType<AnimationSystem>("App", 1, 0, "AnimationSystem", QLatin1String("Cannot create objects of type AnimationSystem"));
     qmlRegisterUncreatableType<CanvasPane>("App", 1, 0, "CanvasPane", "Can't create instances of CanvasPane");
     qmlRegisterUncreatableType<ClipboardImage>("App", 1, 0, "ClipboardImage",
         QLatin1String("Cannot create objects of type ClipboardImage"));

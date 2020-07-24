@@ -361,9 +361,12 @@ void LayeredImageProject::setUsingAnimation(bool isUsingAnimation)
         if (!mHasUsedAnimation) {
             const QSize imageSize = size();
             auto currentPlayback = mAnimationSystem.currentAnimationPlayback();
-            currentPlayback->setFrameCount(imageSize.width() >= 8 ? 4 : 1);
-            currentPlayback->setFrameWidth(imageSize.width() / currentPlayback->frameCount());
-            currentPlayback->setFrameHeight(imageSize.height());
+            const int frameX = 0;
+            const int frameY = 0;
+            const int frameCount = imageSize.width() >= 8 ? 4 : 1;
+            const int frameWidth = imageSize.width() / frameCount;
+            const int frameHeight = imageSize.height();
+            mAnimationSystem.addAnimation(tr("Animation 1"), frameCount, frameX, frameY, frameWidth, frameHeight);
 
             mHasUsedAnimation = true;
         }

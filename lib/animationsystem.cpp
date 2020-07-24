@@ -30,6 +30,32 @@ AnimationSystem::AnimationSystem(QObject *parent) :
 {
 }
 
+int AnimationSystem::currentAnimationIndex() const
+{
+    return mCurrentAnimationIndex;
+}
+
+void AnimationSystem::setCurrentAnimationIndex(int index)
+{
+    if (index < 0 || index > mAnimations.size()) {
+        qWarning() << "Animation index" << index << "is invalid";
+        return;
+    }
+
+    if (index == mCurrentAnimationIndex)
+        return;
+
+    mCurrentAnimationIndex = index;
+    emit currentAnimationIndexChanged();
+}
+
+Animation *AnimationSystem::currentAnimation()
+{
+    if (mCurrentAnimationIndex == -1)
+        return nullptr;
+    return mAnimations.at(mCurrentAnimationIndex);
+}
+
 AnimationPlayback *AnimationSystem::currentAnimationPlayback()
 {
     return &mCurrentAnimationPlayback;
@@ -55,8 +81,14 @@ void AnimationSystem::reset()
     mCurrentAnimationPlayback.reset();
 }
 
-void AnimationSystem::addAnimation(const QString &name, int fps, int frameCount, int frameX, int frameY, int frameWidth, int frameHeight)
+void AnimationSystem::addAnimation(const QSize &canvasSize)
 {
+    const int frameX = 0;
+    const int frameY = 0;
+    const int frameCount = canvasSize.width() >= 8 ? 4 : 1;
+    const int frameWidth = canvasSize.width() / frameCount;
+    const int frameHeight = canvasSize.height();
+
     auto existingAnimationIt = findAnimationWithName(name);
     if (existingAnimationIt != mAnimations.end()) {
         qWarning() << "Animation named \"" << name << "\" already exists";
@@ -64,6 +96,7 @@ void AnimationSystem::addAnimation(const QString &name, int fps, int frameCount,
     }
 
     // todo: undo command
+    // TODO: update currentAnimationIndex if it was added before the current
 
     auto animation = new Animation();
     animation->setName(name);
@@ -85,6 +118,8 @@ void AnimationSystem::removeAnimation(const QString &name)
     }
 
     // todo: undo command
+    // TODO: update currentAnimationIndex if it was removed before the current
+
     mAnimations.erase(animationIt);
 }
 
