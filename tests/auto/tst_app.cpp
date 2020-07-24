@@ -975,6 +975,7 @@ void tst_App::animationPlayback()
     QVERIFY(animationPreviewScaleSlider);
     mouseEventOnCentre(animationPreviewScaleSlider, MouseClick);
     AnimationPlayback *currentAnimationPlayback = TestHelper::animationPlayback();
+    Animation *currentAnimation = currentAnimationPlayback->animation();
     const qreal modifiedScaleValue = currentAnimationPlayback->scale();
     QVERIFY(modifiedScaleValue > 1.0);
 
@@ -984,9 +985,9 @@ void tst_App::animationPlayback()
     mouseEventOnCentre(saveButton, MouseClick);
     QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);
     QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
-    QCOMPARE(currentAnimationPlayback->frameWidth(), 256 / 4 + 1);
-    QCOMPARE(currentAnimationPlayback->frameHeight(), 256 + 1);
-    QCOMPARE(currentAnimationPlayback->frameCount(), 4 + 1);
+    QCOMPARE(currentAnimation->frameWidth(), 256 / 4 + 1);
+    QCOMPARE(currentAnimation->frameHeight(), 256 + 1);
+    QCOMPARE(currentAnimation->frameCount(), 4 + 1);
 
     mouseEventOnCentre(animationPlayPauseButton, MouseClick);
     QCOMPARE(currentAnimationPlayback->isPlaying(), true);
@@ -1012,13 +1013,14 @@ void tst_App::animationPlayback()
     layeredImageProject->load(saveUrl);
     QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     currentAnimationPlayback = TestHelper::animationPlayback();
+    currentAnimation = currentAnimationPlayback->animation();
     QCOMPARE(isUsingAnimation(), true);
     QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
-    QCOMPARE(currentAnimationPlayback->frameX(), 1);
-    QCOMPARE(currentAnimationPlayback->frameY(), 1);
-    QCOMPARE(currentAnimationPlayback->frameWidth(), 256 / 4 + 1);
-    QCOMPARE(currentAnimationPlayback->frameHeight(), 256 + 1);
-    QCOMPARE(currentAnimationPlayback->frameCount(), 4 + 1);
+    QCOMPARE(currentAnimation->frameX(), 1);
+    QCOMPARE(currentAnimation->frameY(), 1);
+    QCOMPARE(currentAnimation->frameWidth(), 256 / 4 + 1);
+    QCOMPARE(currentAnimation->frameHeight(), 256 + 1);
+    QCOMPARE(currentAnimation->frameCount(), 4 + 1);
     QCOMPARE(currentAnimationPlayback->scale(), modifiedScaleValue);
 }
 
@@ -1060,7 +1062,7 @@ void tst_App::animationGifExport()
 
     for (int frameIndex = 0; frameIndex < gif->n; ++frameIndex) {
         GIF_FRAME loadedGifFrame = gif->frames[frameIndex];
-        QCOMPARE(loadedGifFrame.delay, qFloor(1000.0 / currentAnimationPlayback->fps()) / 10);
+        QCOMPARE(loadedGifFrame.delay, qFloor(1000.0 / currentAnimationPlayback->animation()->fps()) / 10);
 
         Bitmap *gifBitmap = loadedGifFrame.image;
         QCOMPARE(gifBitmap->w, frameWidth * previewScale);

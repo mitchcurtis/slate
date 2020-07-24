@@ -46,6 +46,7 @@ void AnimationSystem::setCurrentAnimationIndex(int index)
         return;
 
     mCurrentAnimationIndex = index;
+    mCurrentAnimationPlayback.setAnimation(currentAnimation());
     emit currentAnimationIndexChanged();
 }
 
@@ -79,16 +80,12 @@ void AnimationSystem::reset()
 {
     mAnimations.clear();
     mCurrentAnimationPlayback.reset();
+    mAnimationsCreated = 0;
 }
 
 void AnimationSystem::addAnimation(const QSize &canvasSize)
 {
-    const int frameX = 0;
-    const int frameY = 0;
-    const int frameCount = canvasSize.width() >= 8 ? 4 : 1;
-    const int frameWidth = canvasSize.width() / frameCount;
-    const int frameHeight = canvasSize.height();
-
+    const QString name = QString::fromLatin1("Animation %1").arg(++mAnimationsCreated);
     auto existingAnimationIt = findAnimationWithName(name);
     if (existingAnimationIt != mAnimations.end()) {
         qWarning() << "Animation named \"" << name << "\" already exists";
@@ -100,13 +97,16 @@ void AnimationSystem::addAnimation(const QSize &canvasSize)
 
     auto animation = new Animation();
     animation->setName(name);
-    animation->setFps(fps);
-    animation->setFrameCount(frameCount);
-    animation->setFrameX(frameX);
-    animation->setFrameY(frameY);
-    animation->setFrameWidth(frameWidth);
-    animation->setFrameHeight(frameHeight);
+    animation->setFps(4);
+    animation->setFrameCount(canvasSize.width() >= 8 ? 4 : 1);
+    animation->setFrameX(0);
+    animation->setFrameY(0);
+    animation->setFrameWidth(canvasSize.width() / animation->frameCount());
+    animation->setFrameHeight(canvasSize.height());
     mAnimations.append(animation);
+
+    if (mAnimations.size() == 1)
+        setCurrentAnimationIndex(0);
 }
 
 void AnimationSystem::removeAnimation(const QString &name)
@@ -116,6 +116,9 @@ void AnimationSystem::removeAnimation(const QString &name)
         qWarning() << "Animation named \"" << name << "\" doesn't exist";
         return;
     }
+
+    if (mAnimations.size() == 1)
+        setCurrentAnimationIndex(0);
 
     // todo: undo command
     // TODO: update currentAnimationIndex if it was removed before the current

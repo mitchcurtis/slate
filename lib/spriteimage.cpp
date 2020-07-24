@@ -88,9 +88,8 @@ void SpriteImage::setAnimationPlayback(AnimationPlayback *animationPlayback)
     mAnimationPlayback = animationPlayback;
 
     if (mAnimationPlayback) {
+        connect(mAnimationPlayback, &AnimationPlayback::animationChanged, this, &SpriteImage::onAnimationChanged);
         connect(mAnimationPlayback, &AnimationPlayback::currentFrameIndexChanged, [=]{ update(); });
-        connect(mAnimationPlayback->animation(), &Animation::frameWidthChanged, this, &SpriteImage::onFrameSizeChanged);
-        connect(mAnimationPlayback->animation(), &Animation::frameHeightChanged, this, &SpriteImage::onFrameSizeChanged);
     }
 
     // Force implicit size change & repaint.
@@ -101,7 +100,21 @@ void SpriteImage::setAnimationPlayback(AnimationPlayback *animationPlayback)
 
 void SpriteImage::onFrameSizeChanged()
 {
-    setImplicitWidth(mAnimationPlayback ? mAnimationPlayback->animation()->frameWidth() : 0);
-    setImplicitHeight(mAnimationPlayback ? mAnimationPlayback->animation()->frameHeight() : 0);
+    const auto animation = mAnimationPlayback ? mAnimationPlayback->animation() : nullptr;
+    setImplicitWidth(animation ? animation->frameWidth() : 0);
+    setImplicitHeight(animation ? animation->frameHeight() : 0);
     update();
+}
+
+void SpriteImage::onAnimationChanged(Animation *oldAnimation)
+{
+    if (oldAnimation)
+        oldAnimation->disconnect(this);
+
+    onFrameSizeChanged();
+
+    if (mAnimationPlayback->animation()) {
+        connect(mAnimationPlayback->animation(), &Animation::frameWidthChanged, this, &SpriteImage::onFrameSizeChanged);
+        connect(mAnimationPlayback->animation(), &Animation::frameHeightChanged, this, &SpriteImage::onFrameSizeChanged);
+    }
 }

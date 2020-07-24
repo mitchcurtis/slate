@@ -256,7 +256,7 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
     // Convert it to an 8 bit image so that the byte order is as we expect.
     const QImage eightBitImage = gifSourceImage.convertToFormat(QImage::Format_RGBA8888);
 
-    const int frameStartIndex = playback.startIndex(gifSourceImage.width());
+    const int frameStartIndex = playback.animation()->startIndex(gifSourceImage.width());
     for (int frameIndex = frameStartIndex; frameIndex < frameStartIndex + animation->frameCount(); ++frameIndex) {
         GIF_FRAME *frame = gif_new_frame(gif);
         // Divide 1000.0 by the FPS to get the delay in MS, and then convert

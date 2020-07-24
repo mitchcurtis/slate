@@ -59,17 +59,13 @@ public:
     bool shouldLoop() const;
     void setLoop(bool shouldLoop);
 
-    int startColumn() const;
-    int startRow() const;
-    int startIndex(int sourceImageWidth) const;
-
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
 
     void reset();
 
 signals:
-    void animationChanged();
+    void animationChanged(Animation *oldAnimation);
     void currentFrameIndexChanged();
     void scaleChanged();
     void loopChanged();

@@ -48,20 +48,35 @@ void AnimationPlayback::setAnimation(Animation *animation)
     if (animation == mAnimation)
         return;
 
-    if (mAnimation)
-        mAnimation->disconnect(this);
+    auto oldAnimation = mAnimation;
+    if (oldAnimation)
+        oldAnimation->disconnect(this);
 
     mAnimation = animation;
 
     if (mAnimation)
         connect(mAnimation, &Animation::fpsChanged, this, &AnimationPlayback::fpsChanged);
 
-    emit animationChanged();
+    emit animationChanged(oldAnimation);
 }
 
 int AnimationPlayback::currentFrameIndex() const
 {
     return mCurrentFrameIndex;
+}
+
+qreal AnimationPlayback::scale() const
+{
+    return mScale;
+}
+
+void AnimationPlayback::setScale(const qreal &scale)
+{
+    if (qFuzzyCompare(scale, mScale))
+        return;
+
+    mScale = scale;
+    emit scaleChanged();
 }
 
 bool AnimationPlayback::isPlaying() const
@@ -92,18 +107,18 @@ void AnimationPlayback::setPlaying(bool playing)
     emit playingChanged();
 }
 
-qreal AnimationPlayback::scale() const
+bool AnimationPlayback::shouldLoop() const
 {
-    return mScale;
+    return mLoop;
 }
 
-void AnimationPlayback::setScale(const qreal &scale)
+void AnimationPlayback::setLoop(bool loop)
 {
-    if (qFuzzyCompare(scale, mScale))
+    if (loop == mLoop)
         return;
 
-    mScale = scale;
-    emit scaleChanged();
+    mLoop = loop;
+    emit loopChanged();
 }
 
 void AnimationPlayback::timerEvent(QTimerEvent *)

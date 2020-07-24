@@ -69,6 +69,7 @@ private:
     QVector<Animation*> mAnimations;
     int mCurrentAnimationIndex = -1;
     AnimationPlayback mCurrentAnimationPlayback;
+    int mAnimationsCreated = 0;
 };
 
 #endif // ANIMATIONSYSTEM_H
