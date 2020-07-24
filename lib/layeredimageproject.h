@@ -113,6 +113,16 @@ public slots:
     void setLayerVisible(int layerIndex, bool visible);
     void setLayerOpacity(int layerIndex, qreal opacity);
 
+    void addAnimation();
+    /*
+        Animation settings are modified directly to simplify the live preview,
+        so that's why there are no arguments besides the name; the modifications
+        are done and then this can be called to push a ModifyAnimationCommand
+        which gathers the already-modified values itself.
+    */
+    void modifyAnimation(int index);
+    void removeAnimation(const QString &name);
+
 protected:
     void doLoad(const QUrl &url) override;
     void doClose() override;

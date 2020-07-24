@@ -26,6 +26,7 @@
 #include <QPainter>
 #include <QRegularExpression>
 
+#include "addanimationcommand.h"
 #include "addlayercommand.h"
 #include "changelayeredimagesizecommand.h"
 #include "changelayeredimagecanvassizecommand.h"
@@ -33,11 +34,13 @@
 #include "changelayeropacitycommand.h"
 #include "changelayerordercommand.h"
 #include "changelayervisiblecommand.h"
+#include "deleteanimationcommand.h"
 #include "deletelayercommand.h"
 #include "duplicatelayercommand.h"
 #include "imagelayer.h"
 #include "jsonutils.h"
 #include "mergelayerscommand.h"
+#include "modifyanimationcommand.h"
 #include "movelayeredimagecontentscommand.h"
 #include "utils.h"
 
@@ -359,7 +362,7 @@ void LayeredImageProject::setUsingAnimation(bool isUsingAnimation)
 
     if (mUsingAnimation) {
         if (!mHasUsedAnimation) {
-            mAnimationSystem.addAnimation(size());
+            mAnimationSystem.addNewAnimation(size());
 
             mHasUsedAnimation = true;
         }
@@ -792,6 +795,45 @@ void LayeredImageProject::setLayerOpacity(int layerIndex, qreal opacity)
 
     beginMacro(QLatin1String("ChangeLayerOpacityCommand"));
     addChange(new ChangeLayerOpacityCommand(this, layerIndex, layerAt(layerIndex)->opacity(), opacity));
+    endMacro();
+}
+
+void LayeredImageProject::addAnimation()
+{
+    if (!mUsingAnimation) {
+        qWarning() << "Can't add animation when mUsingAnimation is false";
+        return;
+    }
+
+    beginMacro(QLatin1String("AddAnimationCommand"));
+    addChange(new AddAnimationCommand(this));
+    endMacro();
+}
+
+void LayeredImageProject::modifyAnimation(int index)
+{
+    Animation *animation = mAnimationSystem.animationAt(index);
+    if (!animation) {
+        qWarning() << "Cannot modify animation" << index << "because it does not exist";
+        return;
+    }
+
+    beginMacro(QLatin1String("ModifyAnimationCommand"));
+    addChange(new ModifyAnimationCommand(this, animation, animation->name(),
+        animation->fps(), animation->frameCount(), animation->frameX(), animation->frameY(), animation->frameWidth(), animation->frameHeight()));
+    endMacro();
+}
+
+void LayeredImageProject::removeAnimation(const QString &name)
+{
+    const int index = mAnimationSystem.indexOfAnimation(name);
+    if (index == -1) {
+        qWarning() << "Cannot remove animation" << name << "because it does not exist";
+        return;
+    }
+
+    beginMacro(QLatin1String("RemoveAnimationCommand"));
+    addChange(new DeleteAnimationCommand(this, index));
     endMacro();
 }
 

@@ -47,14 +47,21 @@ public:
 
     AnimationPlayback *currentAnimationPlayback();
 
+    bool containsAnimation(const QString &name) const;
+    int indexOfAnimation(const QString &name) const;
+    int animationCount() const;
+    /*! Adds a new animation using default values, returning the generated name. */
+    QString addNewAnimation(const QSize &canvasSize);
+    /*! Adds the given animation, taking ownership of it. */
+    void addAnimation(Animation *animation, int index);
+    void takeAnimation(const QString &name); // TODO: remove if ends up unused
+    Animation *animationAt(int index);
+    Animation *takeAnimation(int index);
+
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
 
     void reset();
-
-public slots:
-    void addAnimation(const QSize &canvasSize);
-    void removeAnimation(const QString &name);
 
 signals:
     void currentAnimationIndexChanged();
@@ -63,7 +70,12 @@ signals:
     void playingChanged();
 
 private:
+    bool isValidIndexOrWarn(int index) const;
+    QString peekNextGeneratedName() const;
+    QString takeNextGeneratedName();
+
     QVector<Animation*>::iterator findAnimationWithName(const QString &name);
+    QVector<Animation*>::const_iterator findAnimationWithName(const QString &name) const;
     Animation *animationAtNameOrWarn(const QString &name);
 
     QVector<Animation*> mAnimations;
