@@ -61,10 +61,19 @@ Panel {
         onAccepted: project.exportGif(file)
     }
 
-    settingsPopup: AnimationSettingsPopup {
+    settingsPopup: AnimationPreviewSettingsPopup {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
         parent: root.parent.Window.contentItem
+        project: root.project
+
+        onClosed: canvas.forceActiveFocus()
+    }
+
+    AnimationSettingsPopup {
+        id: animationSettingsPopup
+        anchors.centerIn: Overlay.overlay
+        project: root.project
 
         onClosed: canvas.forceActiveFocus()
     }
@@ -82,12 +91,6 @@ Panel {
 
             Layout.fillWidth: true
             Layout.fillHeight: true
-
-            Rectangle {
-                anchors.fill: parent
-                color: "transparent"
-                border.color: "darkorange"
-            }
 
             ScrollBar.horizontal: ScrollBar {}
             ScrollBar.vertical: ScrollBar {}
@@ -184,6 +187,10 @@ Panel {
                 project: root.project
 
                 onEditingFinished: root.canvas.forceActiveFocus()
+                onSettingsRequested: {
+                    animationSettingsPopup.animation = animation
+                    animationSettingsPopup.open()
+                }
             }
         }
 

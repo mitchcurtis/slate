@@ -19,6 +19,7 @@ Group {
             "ui/AboutDialog.qml",
             "ui/AnimationDelegate.qml",
             "ui/AnimationPanel.qml",
+            "ui/AnimationPreviewSettingsPopup.qml",
             "ui/AnimationSettingsPopup.qml",
             "ui/Theme.qml",
             "ui/CanvasContainer.qml",

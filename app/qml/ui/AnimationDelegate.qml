@@ -31,7 +31,8 @@ ItemDelegate {
     objectName: model.animation.name
     checkable: true
     checked: animationSystem && animationSystem.currentAnimationIndex === index
-    implicitHeight: Math.max(implicitBackgroundHeight, animationNameTextField.implicitHeight + topPadding + bottomPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight,
+        Math.max(animationNameTextField.implicitHeight, settingsPopupToolButton.implicitHeight) + topPadding + bottomPadding)
     leftPadding: thumbnailPreview.width + 18
     topPadding: 0
     bottomPadding: 0
@@ -42,6 +43,7 @@ ItemDelegate {
     readonly property AnimationSystem animationSystem: project ? project.animationSystem : null
 
     signal editingFinished
+    signal settingsRequested(var animation)
 
     onClicked: project.animationSystem.currentAnimationIndex = index
     onDoubleClicked: animationNameTextField.forceActiveFocus()
@@ -71,8 +73,8 @@ ItemDelegate {
         activeFocusOnPress: false
         anchors.left: thumbnailPreview.right
         anchors.leftMargin: 4
-        anchors.right: parent.right
-        anchors.rightMargin: parent.rightPadding
+        anchors.right: settingsPopupToolButton.left
+        anchors.rightMargin: 4
         anchors.verticalCenter: parent.verticalCenter
         anchors.verticalCenterOffset: 6
         background.visible: false
@@ -94,6 +96,24 @@ ItemDelegate {
 
             root.editingFinished()
         }
+    }
+
+    ToolButton {
+        id: settingsPopupToolButton
+        objectName: root.objectName + "AnimationSettingsToolButton"
+        text: "\uf1de"
+        font.family: "FontAwesome"
+        focusPolicy: Qt.NoFocus
+        width: implicitHeight
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+
+        ToolTip.text: qsTr("Configure this animation")
+        ToolTip.visible: hovered
+        ToolTip.delay: UiConstants.toolTipDelay
+        ToolTip.timeout: UiConstants.toolTipTimeout
+
+        onClicked: root.settingsRequested(model.animation)
     }
 
     // We don't want TextField's editable cursor to be visible,

@@ -70,13 +70,13 @@ ItemDelegate {
         visible: false
 
         onAccepted: {
-            project.setLayerName(index, text);
-            layeredImageCanvas.forceActiveFocus();
+            project.setLayerName(index, text)
+            layeredImageCanvas.forceActiveFocus()
         }
 
         Keys.onEscapePressed: {
             text = model.layer.name;
-            layeredImageCanvas.forceActiveFocus();
+            layeredImageCanvas.forceActiveFocus()
         }
     }
 

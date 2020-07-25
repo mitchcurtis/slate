@@ -32,10 +32,7 @@ Dialog {
 
     property Project project
     property AnimationSystem animationSystem: project ? project.animationSystem : null
-    property AnimationPlayback animationPlayback: animationSystem ? animationSystem.currentAnimationPlayback : null
-    property Animation animation: animationSystem ? animationSystem.currentAnimation : null
-
-    property real originalPreviewScale
+    property Animation animation
 
     property int originalFps
     property int originalFrameCount
@@ -44,28 +41,15 @@ Dialog {
     property int originalFrameWidth
     property int originalFrameHeight
 
-//    property int modifiedFps
-//    property int modifiedFrameCount
-//    property int modifiedFrameX
-//    property int modifiedFrameY
-//    property int modifiedFrameWidth
-//    property int modifiedFrameHeight
-
     readonly property int controlWidth: 180
 
     onAboutToShow: {
-        // Let the animation system know that it should temporarily listen to the property changes
-        // of the current animation so that the changes can be visualised live. We do this to avoid
-        // in bulk
-//        animationSystem.editingCurrentAnimation = true
-
         originalFps = animation.fps
         originalFrameCount = animation.frameCount
         originalFrameX = animation.frameX
         originalFrameY = animation.frameY
         originalFrameWidth = animation.frameWidth
         originalFrameHeight = animation.frameHeight
-        originalPreviewScale = animationPlayback.scale
     }
 
     onRejected: {
@@ -75,12 +59,7 @@ Dialog {
         animation.frameY = originalFrameY
         animation.frameWidth = originalFrameWidth
         animation.frameHeight = originalFrameHeight
-        animationPlayback.scale = originalPreviewScale
     }
-
-//    onAboutToHide: {
-//        animationSystem.editingCurrentAnimation = false
-//    }
 
     TextMetrics {
         id: labelTextMetrics
@@ -91,6 +70,7 @@ Dialog {
     GridLayout {
         rowSpacing: 0
         columns: 2
+        enabled: root.animation
 
         Label {
             id: frameXLabel
@@ -102,7 +82,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameXSpinBox"
             from: 0
-            value: animationPlayback ? animationPlayback.frameX : 0
+            value: animation ? animation.frameX : 0
             to: 4096
             editable: true
             focusPolicy: Qt.NoFocus
@@ -114,7 +94,7 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationPlayback.frameX = value
+            onValueModified: animation.frameX = value
         }
 
         Label {
@@ -127,7 +107,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameYSpinBox"
             from: 0
-            value: animationPlayback ? animationPlayback.frameY : 0
+            value: animation ? animation.frameY : 0
             to: 4096
             editable: true
             focusPolicy: Qt.NoFocus
@@ -139,7 +119,7 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationPlayback.frameY = value
+            onValueModified: animation.frameY = value
         }
 
         Label {
@@ -152,7 +132,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameWidthSpinBox"
             from: 1
-            value: animationPlayback ? animationPlayback.frameWidth : 0
+            value: animation ? animation.frameWidth : 0
             to: 512
             editable: true
             focusPolicy: Qt.NoFocus
@@ -164,7 +144,7 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationPlayback.frameWidth = value
+            onValueModified: animation.frameWidth = value
         }
 
         Label {
@@ -176,7 +156,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameHeightSpinBox"
             from: 1
-            value: animationPlayback ? animationPlayback.frameHeight : 0
+            value: animation ? animation.frameHeight : 0
             to: 512
             editable: true
             focusPolicy: Qt.NoFocus
@@ -188,7 +168,7 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationPlayback.frameHeight = value
+            onValueModified: animation.frameHeight = value
         }
 
         Label {
@@ -200,7 +180,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameCountSpinBox"
             from: 1
-            value: animationPlayback ? animationPlayback.frameCount : 0
+            value: animation ? animation.frameCount : 0
             to: 1000
             editable: true
             focusPolicy: Qt.NoFocus
@@ -212,7 +192,7 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationPlayback.frameCount = value
+            onValueModified: animation.frameCount = value
         }
 
         Label {
@@ -224,7 +204,7 @@ Dialog {
         SpinBox {
             objectName: "animationFpsSpinBox"
             from: 1
-            value: animationPlayback ? animationPlayback.fps : 0
+            value: animation ? animation.fps : 0
             to: 60
             editable: true
             focusPolicy: Qt.NoFocus
@@ -239,37 +219,7 @@ Dialog {
             // Update the actual values as the controls are modified so that
             // the user gets a preview of the changes they're making.
             // If the dialog is cancelled, we revert the changes.
-            onValueModified: animationPlayback.fps = value
-        }
-
-        Label {
-            text: qsTr("Preview Scale")
-
-            Layout.preferredWidth: labelTextMetrics.width
-        }
-
-        Slider {
-            id: animationPreviewScaleSlider
-            objectName: "animationPreviewScaleSlider"
-            from: 0.5
-            value: animationPlayback ? animationPlayback.scale : 1.0
-            to: 10
-            stepSize: 0.01
-            leftPadding: 0
-            rightPadding: 0
-            focusPolicy: Qt.NoFocus
-            transformOrigin: Item.TopLeft
-
-            Layout.alignment: Qt.AlignHCenter
-            Layout.preferredWidth: controlWidth - 30
-
-            onMoved: animationPlayback.scale = value
-
-            ToolTip {
-                parent: animationPreviewScaleSlider.handle
-                visible: animationPreviewScaleSlider.hovered
-                text: animationPreviewScaleSlider.valueAt(animationPreviewScaleSlider.position).toFixed(2)
-            }
+            onValueModified: animation.fps = value
         }
     }
 }
