@@ -26,12 +26,12 @@
 
 Q_LOGGING_CATEGORY(lcModifyAnimationCommand, "app.undo.modifyAnimationCommand")
 
-ModifyAnimationCommand::ModifyAnimationCommand(LayeredImageProject *project, Animation *animation,
+ModifyAnimationCommand::ModifyAnimationCommand(LayeredImageProject *project, int index,
     const QString &name, int fps, int frameCount, int frameX, int frameY, int frameWidth, int frameHeight, QUndoCommand *parent) :
     QUndoCommand(parent),
     mProject(project),
-    mAnimation(animation),
-    mIndex(project->animationSystem()->indexOfAnimation(name)),
+    mAnimation(project->animationSystem()->animationAt(index)),
+    mIndex(index),
     mNewName(name),
     mNewFps(fps),
     mNewFrameCount(frameCount),
@@ -39,13 +39,13 @@ ModifyAnimationCommand::ModifyAnimationCommand(LayeredImageProject *project, Ani
     mNewFrameY(frameY),
     mNewFrameWidth(frameWidth),
     mNewFrameHeight(frameHeight),
-    mOldName(animation->name()),
-    mOldFps(animation->fps()),
-    mOldFrameCount(animation->frameCount()),
-    mOldFrameX(animation->frameX()),
-    mOldFrameY(animation->frameY()),
-    mOldFrameWidth(animation->frameWidth()),
-    mOldFrameHeight(animation->frameHeight())
+    mOldName(mAnimation->name()),
+    mOldFps(mAnimation->fps()),
+    mOldFrameCount(mAnimation->frameCount()),
+    mOldFrameX(mAnimation->frameX()),
+    mOldFrameY(mAnimation->frameY()),
+    mOldFrameWidth(mAnimation->frameWidth()),
+    mOldFrameHeight(mAnimation->frameHeight())
 
 {
     qCDebug(lcModifyAnimationCommand) << "constructed" << this;

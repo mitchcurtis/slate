@@ -36,6 +36,7 @@ class SLATE_EXPORT AnimationSystem : public QObject
     Q_PROPERTY(AnimationPlayback *currentAnimationPlayback READ currentAnimationPlayback CONSTANT FINAL)
     Q_PROPERTY(int currentAnimationIndex READ currentAnimationIndex WRITE setCurrentAnimationIndex NOTIFY currentAnimationIndexChanged)
     Q_PROPERTY(Animation *currentAnimation READ currentAnimation NOTIFY currentAnimationIndexChanged FINAL)
+    Q_PROPERTY(Animation *editAnimation READ editAnimation CONSTANT FINAL)
     Q_PROPERTY(int animationCount READ animationCount NOTIFY animationCountChanged)
 
 public:
@@ -45,6 +46,7 @@ public:
     void setCurrentAnimationIndex(int index);
 
     Animation *currentAnimation();
+    Animation *editAnimation();
 
     AnimationPlayback *currentAnimationPlayback();
 
@@ -94,6 +96,7 @@ private:
     QVector<Animation*> mAnimations;
     int mCurrentAnimationIndex = -1;
     AnimationPlayback mCurrentAnimationPlayback;
+    Animation mEditAnimation;
     int mAnimationsCreated = 0;
 };
 

@@ -30,6 +30,7 @@ AnimationSystem::AnimationSystem(QObject *parent) :
     QObject(parent)
 {
     mCurrentAnimationPlayback.setObjectName("animationSystemPlayback");
+    mEditAnimation.setObjectName("editAnimation");
 }
 
 int AnimationSystem::currentAnimationIndex() const
@@ -55,6 +56,11 @@ Animation *AnimationSystem::currentAnimation()
     if (mCurrentAnimationIndex == -1)
         return nullptr;
     return mAnimations.at(mCurrentAnimationIndex);
+}
+
+Animation *AnimationSystem::editAnimation()
+{
+    return &mEditAnimation;
 }
 
 AnimationPlayback *AnimationSystem::currentAnimationPlayback()

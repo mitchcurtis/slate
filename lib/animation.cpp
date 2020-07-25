@@ -152,9 +152,9 @@ void Animation::read(const QJsonObject &json)
 {
     setName(json.value(QLatin1String("name")).toString());
     setFps(json.value(QLatin1String("fps")).toInt());
-    setFrameCount(json.value(QLatin1String("frameCount")).toInt());
     setFrameX(json.value(QLatin1String("frameX")).toInt());
     setFrameY(json.value(QLatin1String("frameY")).toInt());
+    setFrameCount(json.value(QLatin1String("frameCount")).toInt());
     setFrameWidth(json.value(QLatin1String("frameWidth")).toInt());
     setFrameHeight(json.value(QLatin1String("frameHeight")).toInt());
 }
@@ -168,4 +168,15 @@ void Animation::write(QJsonObject &json) const
     json[QLatin1String("frameCount")] = mFrameCount;
     json[QLatin1String("frameWidth")] = mFrameWidth;
     json[QLatin1String("frameHeight")] = mFrameHeight;
+}
+
+bool operator==(const Animation &lhs, const Animation &rhs)
+{
+    return lhs.fps() == rhs.fps()
+        && lhs.name() == rhs.name()
+        && lhs.frameX() == rhs.frameY()
+        && lhs.frameY() == rhs.frameY()
+        && lhs.frameCount() == rhs.frameCount()
+        && lhs.frameWidth() == rhs.frameWidth()
+        && lhs.frameHeight() == rhs.frameHeight();
 }

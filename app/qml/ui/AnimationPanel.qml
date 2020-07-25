@@ -185,8 +185,9 @@ Panel {
             delegate: AnimationDelegate {
                 width: animationListView.width
                 project: root.project
+                editing: animationSettingsPopup.animationIndex === index
 
-                onEditingFinished: root.canvas.forceActiveFocus()
+                onRenamed: root.canvas.forceActiveFocus()
                 onSettingsRequested: {
                     animationSettingsPopup.animationIndex = animationIndex
                     animationSettingsPopup.animation = animation

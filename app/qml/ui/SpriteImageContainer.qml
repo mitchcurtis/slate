@@ -35,6 +35,7 @@ Item {
 
     SpriteImage {
         id: spriteImage
+        objectName: root.objectName + "SpriteImage"
         project: root.project
         animationPlayback: root.animationPlayback
         scale: animationPlayback ? animationPlayback.scale : 1.0

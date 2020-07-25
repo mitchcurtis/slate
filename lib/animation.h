@@ -91,4 +91,6 @@ private:
     int mFrameHeight = 0;
 };
 
+SLATE_EXPORT bool operator==(const Animation &lhs, const Animation &rhs);
+
 #endif // ANIMATION_H

@@ -35,43 +35,29 @@ Dialog {
     property int animationIndex: -1
     property Animation animation
 
-    property int originalFps
-    property int originalFrameCount
-    property int originalFrameX
-    property int originalFrameY
-    property int originalFrameWidth
-    property int originalFrameHeight
+    property bool ignoreChanges
 
     readonly property int controlWidth: 180
 
     onAboutToShow: {
-        originalFps = animation.fps
-        originalFrameCount = animation.frameCount
-        originalFrameX = animation.frameX
-        originalFrameY = animation.frameY
-        originalFrameWidth = animation.frameWidth
-        originalFrameHeight = animation.frameHeight
+        // Unfortunately we need to do this, as SpinBox's valueModified signal
+        // isn't emitted when text is edited, only when it's accepted, and we
+        // want a live update, so we need to respond to valueChanged instead.
+        // Use textEdited eventually: https://bugreports.qt.io/browse/QTBUG-85739
+        ignoreChanges = true
+
+        animationSystem.editAnimation.name = animation.name
+        animationSystem.editAnimation.fps = animation.fps
+        animationSystem.editAnimation.frameCount = animation.frameCount
+        animationSystem.editAnimation.frameX = animation.frameX
+        animationSystem.editAnimation.frameY = animation.frameY
+        animationSystem.editAnimation.frameWidth = animation.frameWidth
+        animationSystem.editAnimation.frameHeight = animation.frameHeight
+
+        ignoreChanges = false
     }
 
-    onAccepted: {
-        // Only create the undo command if something actually changed.
-        if (animation.fps !== originalFps
-            || animation.frameCount !== originalFrameCount
-            || animation.originalFrameX !== originalFrameX
-            || animation.originalFrameY !== originalFrameY
-            || animation.originalFrameWidth !== originalFrameWidth
-            || animation.originalFrameHeight !== originalFrameHeight)
-        project.modifyAnimation(animationIndex)
-    }
-
-    onRejected: {
-        animation.fps = originalFps
-        animation.frameCount = originalFrameCount
-        animation.frameX = originalFrameX
-        animation.frameY = originalFrameY
-        animation.frameWidth = originalFrameWidth
-        animation.frameHeight = originalFrameHeight
-    }
+    onAccepted: project.modifyAnimation(animationIndex)
 
     onClosed: {
         animationIndex = -1
@@ -99,7 +85,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameXSpinBox"
             from: 0
-            value: animation ? animation.frameX : 0
+            value: animationSystem ? animationSystem.editAnimation.frameX : 0
             to: 4096
             editable: true
             focusPolicy: Qt.NoFocus
@@ -113,7 +99,7 @@ Dialog {
 
             Keys.onReturnPressed: root.accept()
 
-            onValueModified: animation.frameX = value
+            onDisplayTextChanged: if (root.visible && !ignoreChanges) animationSystem.editAnimation.frameX = value
         }
 
         Label {
@@ -126,7 +112,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameYSpinBox"
             from: 0
-            value: animation ? animation.frameY : 0
+            value: animationSystem ? animationSystem.editAnimation.frameY : 0
             to: 4096
             editable: true
             focusPolicy: Qt.NoFocus
@@ -140,7 +126,7 @@ Dialog {
 
             Keys.onReturnPressed: root.accept()
 
-            onValueModified: animation.frameY = value
+            onDisplayTextChanged: if (root.visible && !ignoreChanges) animationSystem.editAnimation.frameY = value
         }
 
         Label {
@@ -153,7 +139,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameWidthSpinBox"
             from: 1
-            value: animation ? animation.frameWidth : 0
+            value: animationSystem ? animationSystem.editAnimation.frameWidth : 0
             to: 512
             editable: true
             focusPolicy: Qt.NoFocus
@@ -167,7 +153,7 @@ Dialog {
 
             Keys.onReturnPressed: root.accept()
 
-            onValueModified: animation.frameWidth = value
+            onDisplayTextChanged: if (root.visible && !ignoreChanges) animationSystem.editAnimation.frameWidth = value
         }
 
         Label {
@@ -179,7 +165,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameHeightSpinBox"
             from: 1
-            value: animation ? animation.frameHeight : 0
+            value: animationSystem ? animationSystem.editAnimation.frameHeight : 0
             to: 512
             editable: true
             focusPolicy: Qt.NoFocus
@@ -193,7 +179,7 @@ Dialog {
 
             Keys.onReturnPressed: root.accept()
 
-            onValueModified: animation.frameHeight = value
+            onDisplayTextChanged: if (root.visible && !ignoreChanges) animationSystem.editAnimation.frameHeight = value
         }
 
         Label {
@@ -205,7 +191,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameCountSpinBox"
             from: 1
-            value: animation ? animation.frameCount : 0
+            value: animationSystem ? animationSystem.editAnimation.frameCount : 0
             to: 1000
             editable: true
             focusPolicy: Qt.NoFocus
@@ -219,7 +205,7 @@ Dialog {
 
             Keys.onReturnPressed: root.accept()
 
-            onValueModified: animation.frameCount = value
+            onDisplayTextChanged: if (root.visible && !ignoreChanges) animationSystem.editAnimation.frameCount = value
         }
 
         Label {
@@ -231,7 +217,7 @@ Dialog {
         SpinBox {
             objectName: "animationFpsSpinBox"
             from: 1
-            value: animation ? animation.fps : 0
+            value: animationSystem ? animationSystem.editAnimation.fps : 0
             to: 60
             editable: true
             focusPolicy: Qt.NoFocus
@@ -245,10 +231,7 @@ Dialog {
 
             Keys.onReturnPressed: root.accept()
 
-            // Update the actual values as the controls are modified so that
-            // the user gets a preview of the changes they're making.
-            // If the dialog is cancelled, we revert the changes.
-            onValueModified: animation.fps = value
+            onDisplayTextChanged: if (root.visible && !ignoreChanges) animationSystem.editAnimation.fps = value
         }
     }
 }

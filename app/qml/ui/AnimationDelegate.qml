@@ -42,7 +42,9 @@ ItemDelegate {
     property ImageCanvas canvas
     readonly property AnimationSystem animationSystem: project ? project.animationSystem : null
 
-    signal editingFinished
+    property bool editing
+
+    signal renamed
     signal settingsRequested(int animationIndex, var animation)
 
     onClicked: project.animationSystem.currentAnimationIndex = index
@@ -50,11 +52,11 @@ ItemDelegate {
 
     SpriteImageContainer {
         id: thumbnailPreview
-        objectName: "thumbnailPreview"
+        objectName: root.objectName + "ThumbnailPreview"
         project: root.project
         animationPlayback: AnimationPlayback {
             objectName: root.objectName + "AnimationPlayback"
-            animation: model.animation
+            animation: root.editing ? animationSystem.editAnimation : model.animation
             // Fit us in the thumbnail.
             scale: Math.min(thumbnailPreview.width / animation.frameWidth, thumbnailPreview.height / animation.frameHeight)
         }
@@ -83,17 +85,17 @@ ItemDelegate {
         onAccepted: {
             model.animation.name = text
             animationSystem.animationModified(index)
-            // We call it "editingFinished", but it's not the same as TextField's signal,
-            // which is only emitted when it loses focus. We need to handle the accepted
-            // and rejected signals separately, and also take care of relieving ourselves
-            // of focus (which is done by the calling code via the editingFinished signal).
-            root.editingFinished()
+            // We need to handle the accepted and rejected (escape pressed) signals separately,
+            // and also take care of relieving ourselves of focus (which is done by the calling
+            // code via the renamed signal), otherwise we'd just respond to editingFinished in
+            // order to emit this. (editingFinished is only emitted after we lose focus)
+            root.renamed()
         }
 
         Keys.onEscapePressed: {
             text = model.animation.name
 
-            root.editingFinished()
+            root.renamed()
         }
     }
 

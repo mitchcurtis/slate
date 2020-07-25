@@ -40,7 +40,7 @@ public:
     // - modifyAnimation(index) can still be called as usual, as LayeredImageProject can use editAnimation to pass
     //   values to our constructor
     // - have AnimationSettingsPopup set currentAnimationPlayback.animation back to currentAnimation when it closes
-    ModifyAnimationCommand(LayeredImageProject *project, Animation *animation,
+    ModifyAnimationCommand(LayeredImageProject *project, int index,
         const QString &name, int fps, int frameCount, int frameX, int frameY, int frameWidth, int frameHeight,
         QUndoCommand *parent = nullptr);
 

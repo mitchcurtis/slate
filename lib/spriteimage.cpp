@@ -94,12 +94,15 @@ void SpriteImage::setAnimationPlayback(AnimationPlayback *animationPlayback)
 
     // Force implicit size change & repaint.
     onFrameSizeChanged();
+    // Make sure we're listening to the animation if it's already set on the playback object.
+    onAnimationChanged(nullptr);
 
     emit animationPlaybackChanged();
 }
 
 void SpriteImage::onNeedsUpdate()
 {
+    qDebug() << "onNeedsUpdate" << this << mAnimationPlayback->animation()->frameY();
     update();
 }
 
@@ -118,7 +121,7 @@ void SpriteImage::onAnimationChanged(Animation *oldAnimation)
 
     onFrameSizeChanged();
 
-    qDebug() << this << oldAnimation << mAnimationPlayback->animation();
+    qDebug() << "onAnimationChanged" << this << mAnimationPlayback->animation();
     if (mAnimationPlayback->animation()) {
         connect(mAnimationPlayback->animation(), &Animation::frameXChanged, this, &SpriteImage::onNeedsUpdate);
         connect(mAnimationPlayback->animation(), &Animation::frameYChanged, this, &SpriteImage::onNeedsUpdate);

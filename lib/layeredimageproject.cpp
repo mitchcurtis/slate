@@ -844,9 +844,16 @@ void LayeredImageProject::modifyAnimation(int index)
         return;
     }
 
+    const Animation *editAnimation = mAnimationSystem.editAnimation();
+    if (*editAnimation == *animation) {
+        // Nothing to do, but we don't need to warn about it.
+        return;
+    }
+
     beginMacro(QLatin1String("ModifyAnimationCommand"));
-    addChange(new ModifyAnimationCommand(this, animation, animation->name(),
-        animation->fps(), animation->frameCount(), animation->frameX(), animation->frameY(), animation->frameWidth(), animation->frameHeight()));
+    addChange(new ModifyAnimationCommand(this, index, editAnimation->name(),
+        editAnimation->fps(), editAnimation->frameCount(), editAnimation->frameX(),
+        editAnimation->frameY(), editAnimation->frameWidth(), editAnimation->frameHeight()));
     endMacro();
 }
 
