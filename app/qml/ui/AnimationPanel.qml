@@ -102,7 +102,7 @@ Panel {
         Ui.VerticalSeparator {
             padding: 6
             topPadding: 4
-            bottomPadding: 4
+            bottomPadding: 0
 
             Layout.fillWidth: true
         }
@@ -158,7 +158,7 @@ Panel {
 
         Ui.VerticalSeparator {
             padding: 6
-            topPadding: 4
+            topPadding: 0
             bottomPadding: 4
 
             Layout.fillWidth: true
@@ -185,6 +185,14 @@ Panel {
 
                 onEditingFinished: root.canvas.forceActiveFocus()
             }
+        }
+
+        Ui.VerticalSeparator {
+            padding: 6
+            topPadding: 0
+            bottomPadding: 0
+
+            Layout.fillWidth: true
         }
     }
 
