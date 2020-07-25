@@ -18,7 +18,7 @@ SaturationLightnessPickerTemplate {
             id: map
             width: 64
             height: 64
-            scale: contentItem.width / width;
+            scale: contentItem.width / width
             layer.enabled: true
             layer.smooth: true
             anchors.centerIn: parent

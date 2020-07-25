@@ -28,12 +28,7 @@
 Q_LOGGING_CATEGORY(lcAnimationPlayback, "app.animationPlayback")
 
 AnimationPlayback::AnimationPlayback(QObject *parent) :
-    QObject(parent),
-    mCurrentFrameIndex(0),
-    mScale(0.0),
-    mPlaying(false),
-    mLoop(false),
-    mTimerId(-1)
+    QObject(parent)
 {
     reset();
 }
@@ -101,7 +96,7 @@ void AnimationPlayback::setPlaying(bool playing)
 
     if (mPlaying) {
         qCDebug(lcAnimationPlayback) << "playing";
-        mTimerId = startTimer(1000 / mAnimation->fps());
+        mTimerId = startTimer(1000 / qMax(1, mAnimation->fps()));
     }
 
     emit playingChanged();

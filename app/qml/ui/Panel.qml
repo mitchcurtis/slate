@@ -13,6 +13,8 @@ Page {
     background: Rectangle {
         color: Ui.Theme.panelColour
     }
+    topPadding: 0
+    bottomPadding: 0
 
     property bool expanded: true
     property T.Popup settingsPopup: null

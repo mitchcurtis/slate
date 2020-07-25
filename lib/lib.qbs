@@ -62,6 +62,8 @@ Product {
         "addnotecommand.h",
         "animation.cpp",
         "animation.h",
+        "animationmodel.h",
+        "animationmodel.cpp",
         "animationplayback.cpp",
         "animationplayback.h",
         "animationsystem.cpp",

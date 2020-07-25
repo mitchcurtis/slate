@@ -462,7 +462,13 @@ void LayeredImageProject::doLoad(const QUrl &url)
     mUsingAnimation = projectObject.value("usingAnimation").toBool(false);
     mHasUsedAnimation = projectObject.value("hasUsedAnimation").toBool(false);
     if (mHasUsedAnimation) {
-        mAnimationSystem.read(projectObject.value("animationSystem").toObject());
+        if (projectObject.contains("animationPlayback")) {
+            // Pre-0.10 format.
+            mAnimationSystem.read(projectObject.value("animationPlayback").toObject());
+        } else {
+            // >= 0.10 format.
+            mAnimationSystem.read(projectObject.value("animationSystem").toObject());
+        }
     }
 
     readUiState(projectObject);
@@ -824,11 +830,11 @@ void LayeredImageProject::modifyAnimation(int index)
     endMacro();
 }
 
-void LayeredImageProject::removeAnimation(const QString &name)
+void LayeredImageProject::removeAnimation(int index)
 {
-    const int index = mAnimationSystem.indexOfAnimation(name);
-    if (index == -1) {
-        qWarning() << "Cannot remove animation" << name << "because it does not exist";
+    const Animation *animation = mAnimationSystem.animationAt(index);
+    if (!animation) {
+        qWarning() << "Cannot remove animation at index" << index << "because it does not exist";
         return;
     }
 

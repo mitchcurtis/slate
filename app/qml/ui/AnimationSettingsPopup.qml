@@ -31,8 +31,9 @@ Dialog {
     standardButtons: Dialog.Save | Dialog.Cancel
 
     property Project project
-    readonly property AnimationSystem animationSystem: project ? project.animationSystem : null
-    readonly property AnimationPlayback animationPlayback: animationSystem ? animationSystem.currentAnimationPlayback : null
+    property AnimationSystem animationSystem: project ? project.animationSystem : null
+    property AnimationPlayback animationPlayback: animationSystem ? animationSystem.currentAnimationPlayback : null
+    property Animation animation: animationSystem ? animationSystem.currentAnimation : null
 
     property real originalPreviewScale
 
@@ -43,12 +44,12 @@ Dialog {
     property int originalFrameWidth
     property int originalFrameHeight
 
-    property int modifiedFps
-    property int modifiedFrameCount
-    property int modifiedFrameX
-    property int modifiedFrameY
-    property int modifiedFrameWidth
-    property int modifiedFrameHeight
+//    property int modifiedFps
+//    property int modifiedFrameCount
+//    property int modifiedFrameX
+//    property int modifiedFrameY
+//    property int modifiedFrameWidth
+//    property int modifiedFrameHeight
 
     readonly property int controlWidth: 180
 
@@ -58,22 +59,22 @@ Dialog {
         // in bulk
 //        animationSystem.editingCurrentAnimation = true
 
-        originalFps = animationPlayback.fps
-        originalFrameCount = animationPlayback.frameCount
-        originalFrameX = animationPlayback.frameX
-        originalFrameY = animationPlayback.frameY
-        originalFrameWidth = animationPlayback.frameWidth
-        originalFrameHeight = animationPlayback.frameHeight
+        originalFps = animation.fps
+        originalFrameCount = animation.frameCount
+        originalFrameX = animation.frameX
+        originalFrameY = animation.frameY
+        originalFrameWidth = animation.frameWidth
+        originalFrameHeight = animation.frameHeight
         originalPreviewScale = animationPlayback.scale
     }
 
     onRejected: {
-        animationPlayback.fps = originalFps
-        animationPlayback.frameCount = originalFrameCount
-        animationPlayback.frameX = originalFrameX
-        animationPlayback.frameY = originalFrameY
-        animationPlayback.frameWidth = originalFrameWidth
-        animationPlayback.frameHeight = originalFrameHeight
+        animation.fps = originalFps
+        animation.frameCount = originalFrameCount
+        animation.frameX = originalFrameX
+        animation.frameY = originalFrameY
+        animation.frameWidth = originalFrameWidth
+        animation.frameHeight = originalFrameHeight
         animationPlayback.scale = originalPreviewScale
     }
 

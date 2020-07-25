@@ -54,6 +54,7 @@ void ModifyAnimationCommand::undo()
     animation->setFrameY(mOldFrameY);
     animation->setFrameWidth(mOldFrameWidth);
     animation->setFrameHeight(mOldFrameHeight);
+    emit mProject->animationSystem()->animationModified(mIndex);
 }
 
 void ModifyAnimationCommand::redo()
@@ -67,6 +68,7 @@ void ModifyAnimationCommand::redo()
     animation->setFrameY(mNewFrameY);
     animation->setFrameWidth(mNewFrameWidth);
     animation->setFrameHeight(mNewFrameHeight);
+    emit mProject->animationSystem()->animationModified(mIndex);
 }
 
 int ModifyAnimationCommand::id() const

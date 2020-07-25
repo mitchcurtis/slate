@@ -32,13 +32,17 @@ Panel {
     id: root
     objectName: "animationPanel"
     title: qsTr("Animation")
+    // TODO: check if we actually need this, and remove from every panel if not
     clip: true
     enabled: project && animationPlayback
     padding: 12
 
     property Project project
     property ImageCanvas canvas
-    property AnimationPlayback animationPlayback: project ? project.animationSystem.currentAnimationPlayback : null
+    property AnimationSystem animationSystem: project ? project.animationSystem : null
+    property Animation currentAnimation: project ? animationSystem.currentAnimation : null
+    property AnimationPlayback animationPlayback: project ? animationSystem.currentAnimationPlayback : null
+    readonly property int currentAnimationIndex: animationSystem ? animationSystem.currentAnimationIndex : -1
 
     readonly property int minimumUsefulHeight: header.implicitHeight + 100
 
@@ -79,34 +83,33 @@ Panel {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
+            Rectangle {
+                anchors.fill: parent
+                color: "transparent"
+                border.color: "darkorange"
+            }
+
             ScrollBar.horizontal: ScrollBar {}
             ScrollBar.vertical: ScrollBar {}
 
-            Item {
+            SpriteImageContainer {
                 id: spriteImageContainer
-                implicitWidth: spriteImage.implicitWidth * spriteImage.scale
-                implicitHeight: spriteImage.implicitHeight * spriteImage.scale
-
-                SpriteImage {
-                    id: spriteImage
-                    project: root.project
-                    animationPlayback: root.animationPlayback
-                    scale: animationPlayback ? animationPlayback.scale : 1.0
-                    smooth: false
-                    anchors.centerIn: parent
-                }
+                project: root.project
+                animationPlayback: root.animationPlayback
             }
         }
 
         Ui.VerticalSeparator {
             padding: 6
-            topPadding: 0
-            bottomPadding: 0
+            topPadding: 4
+            bottomPadding: 4
 
             Layout.fillWidth: true
         }
 
         RowLayout {
+            enabled: root.animationSystem.currentAnimation
+
             // We only use one icon from typicons.
             FontLoader {
                 id: fontLoader
@@ -123,7 +126,7 @@ Panel {
 
             ProgressBar {
                 objectName: "animationProgressBar"
-                value: animationPlayback ? animationPlayback.currentFrameIndex / (animationPlayback.frameCount - 1) : 0
+                value: animationPlayback ? animationPlayback.currentFrameIndex / (currentAnimation.frameCount - 1) : 0
 
                 Layout.fillWidth: true
             }
@@ -151,6 +154,100 @@ Panel {
 
                 onClicked: saveGifDialog.open()
             }
+        }
+
+        Ui.VerticalSeparator {
+            padding: 6
+            topPadding: 4
+            bottomPadding: 4
+
+            Layout.fillWidth: true
+        }
+
+        ListView {
+            id: animationListView
+            objectName: "animationListView"
+            boundsBehavior: ListView.StopAtBounds
+            clip: true
+
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            ScrollBar.vertical: ScrollBar {}
+
+            model: AnimationModel {
+                animationSystem: root.project.animationSystem
+            }
+
+            delegate: AnimationDelegate {
+                width: animationListView.width
+                project: root.project
+
+                onEditingFinished: root.canvas.forceActiveFocus()
+            }
+        }
+    }
+
+    footer: RowLayout {
+        visible: root.expanded
+
+        RowActionButton {
+            objectName: "newAnimationButton"
+
+            Layout.leftMargin: 6
+
+            ToolTip.text: qsTr("Add a new animation")
+
+            onClicked: project.addAnimation()
+        }
+
+        RowActionButton {
+            objectName: "moveAnimationDownButton"
+            text: "\uf107"
+            font.family: "FontAwesome"
+            enabled: root.animationSystem && root.currentAnimationIndex < root.animationSystem.animationCount - 1
+
+            ToolTip.text: qsTr("Move the current animation down")
+
+            onClicked: project.moveCurrentAnimationDown()
+        }
+
+        RowActionButton {
+            objectName: "moveAnimationUpButton"
+            text: "\uf106"
+            font.family: "FontAwesome"
+            enabled: root.animationSystem && root.currentAnimationIndex > 0
+
+            ToolTip.text: qsTr("Move the current animation up")
+
+            onClicked: project.moveCurrentAnimationUp()
+        }
+
+        RowActionButton {
+            objectName: "duplicateAnimationButton"
+            text: "\uf24d"
+            font.family: "FontAwesome"
+            enabled: root.animationSystem && root.currentAnimationIndex >= 0 && project.currentAnimationIndex < root.animationSystem.animationCount
+
+            ToolTip.text: qsTr("Duplicate the animation layer")
+
+            onClicked: project.duplicateAnimation(root.currentAnimationIndex)
+        }
+
+        Item {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+        }
+
+        RowActionButton {
+            objectName: "deleteAnimationButton"
+            text: "\uf1f8"
+            font.family: "FontAwesome"
+            enabled: currentAnimation
+
+            ToolTip.text: qsTr("Delete the current animation")
+
+            onClicked: project.removeAnimation(currentAnimation.name)
         }
     }
 }

@@ -121,7 +121,7 @@ public slots:
         which gathers the already-modified values itself.
     */
     void modifyAnimation(int index);
-    void removeAnimation(const QString &name);
+    void removeAnimation(int index);
 
 protected:
     void doLoad(const QUrl &url) override;

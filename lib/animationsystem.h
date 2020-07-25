@@ -36,6 +36,7 @@ class SLATE_EXPORT AnimationSystem : public QObject
     Q_PROPERTY(AnimationPlayback *currentAnimationPlayback READ currentAnimationPlayback CONSTANT FINAL)
     Q_PROPERTY(int currentAnimationIndex READ currentAnimationIndex WRITE setCurrentAnimationIndex NOTIFY currentAnimationIndexChanged)
     Q_PROPERTY(Animation *currentAnimation READ currentAnimation NOTIFY currentAnimationIndexChanged FINAL)
+    Q_PROPERTY(int animationCount READ animationCount NOTIFY animationCountChanged)
 
 public:
     explicit AnimationSystem(QObject *parent = nullptr);
@@ -68,6 +69,15 @@ signals:
     void scaleChanged();
     void loopChanged();
     void playingChanged();
+    void animationCountChanged();
+
+    void preAnimationAdded(int index);
+    void postAnimationAdded(int index);
+    void animationModified(int index);
+    void preAnimationRemoved(int index);
+    void postAnimationRemoved(int index);
+    void preAnimationMoved(int fromIndex, int toIndex);
+    void postAnimationMoved(int fromIndex, int toIndex);
 
 private:
     bool isValidIndexOrWarn(int index) const;

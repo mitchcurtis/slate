@@ -20,14 +20,16 @@
 #include "animationsystem.h"
 
 #include <QDebug>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(lcAnimationSystem, "app.AnimationSystem")
+Q_LOGGING_CATEGORY(lcAnimationSystem, "app.animationSystem")
 
 AnimationSystem::AnimationSystem(QObject *parent) :
     QObject(parent)
 {
+    mCurrentAnimationPlayback.setObjectName("animationSystemPlayback");
 }
 
 int AnimationSystem::currentAnimationIndex() const
@@ -88,6 +90,11 @@ QString AnimationSystem::addNewAnimation(const QSize &canvasSize)
         return QString();
     }
 
+    qCDebug(lcAnimationSystem()) << "adding new animation" << name;
+
+    const int addIndex = mAnimations.size() - 1;
+    emit preAnimationAdded(addIndex);
+
     ++mAnimationsCreated;
 
     // todo: undo command
@@ -106,6 +113,8 @@ QString AnimationSystem::addNewAnimation(const QSize &canvasSize)
     if (mAnimations.size() == 1)
         setCurrentAnimationIndex(0);
 
+    emit postAnimationAdded(addIndex);
+
     return name;
 }
 
@@ -121,6 +130,10 @@ void AnimationSystem::addAnimation(Animation *animation, int index)
     if (!isValidIndexOrWarn(index))
         return;
 
+    qCDebug(lcAnimationSystem()) << "adding new animation" << animation->name() << "at index" << index;
+
+    emit preAnimationAdded(index);
+
     animation->setParent(this);
 
     mAnimations.insert(index, animation);
@@ -130,6 +143,9 @@ void AnimationSystem::addAnimation(Animation *animation, int index)
     else if (index <= mCurrentAnimationIndex) {
         setCurrentAnimationIndex(mCurrentAnimationIndex + 1);
     }
+
+    emit postAnimationAdded(index);
+    emit animationCountChanged();
 }
 
 void AnimationSystem::takeAnimation(const QString &name)
@@ -140,14 +156,19 @@ void AnimationSystem::takeAnimation(const QString &name)
         return;
     }
 
+    const int removedIndex = std::distance(mAnimations.begin(), animationIt);
+    emit preAnimationRemoved(removedIndex);
+
     if (mAnimations.size() == 1)
         setCurrentAnimationIndex(-1);
 
-    const int removedIndex = std::distance(mAnimations.begin(), animationIt);
     if (removedIndex <= mCurrentAnimationIndex)
         setCurrentAnimationIndex(mCurrentAnimationIndex - 1);
 
     mAnimations.erase(animationIt);
+
+    emit postAnimationRemoved(removedIndex);
+    emit animationCountChanged();
 }
 
 Animation *AnimationSystem::animationAt(int index)
@@ -163,8 +184,14 @@ Animation *AnimationSystem::takeAnimation(int index)
     if (!isValidIndexOrWarn(index))
         return nullptr;
 
+    emit preAnimationRemoved(index);
+
     Animation *animation = mAnimations.takeAt(index);
     animation->setParent(nullptr);
+
+    emit postAnimationRemoved(index);
+    emit animationCountChanged();
+
     return animation;
 }
 
@@ -172,7 +199,7 @@ void AnimationSystem::read(const QJsonObject &json)
 {
     // Pre-0.10.0 projects don't support multiple animations, so we
     // create an animation for them (and then later save it using the new format).
-    if (json.contains("animationPlayback")) {
+    if (json.contains("fps")) {
         QScopedPointer<Animation> animation(new Animation);
         animation->setName(takeNextGeneratedName());
         animation->setFps(json.value(QLatin1String("fps")).toInt());
@@ -187,9 +214,17 @@ void AnimationSystem::read(const QJsonObject &json)
         mCurrentAnimationPlayback.setScale(json.value(QLatin1String("scale")).toDouble());
         mCurrentAnimationPlayback.setLoop(json.value(QLatin1String("loop")).toBool());
         mCurrentAnimationPlayback.setPlaying(false);
-    }
+    } else {
+        QJsonArray animationArray = json.value("animations").toArray();
+        for (int i = 0; i < animationArray.size(); ++i) {
+            QJsonObject layerObject = animationArray.at(i).toObject();
+            QScopedPointer<Animation> animation(new Animation(this));
+            animation->read(layerObject);
+            mAnimations.append(animation.take());
+        }
 
-    mCurrentAnimationPlayback.read(json.value("currentAnimationPlayback").toObject());
+        mCurrentAnimationPlayback.read(json.value("currentAnimationPlayback").toObject());
+    }
 }
 
 void AnimationSystem::write(QJsonObject &json) const
