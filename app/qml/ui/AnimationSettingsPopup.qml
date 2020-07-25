@@ -99,7 +99,8 @@ Dialog {
 
             Keys.onReturnPressed: root.accept()
 
-            onDisplayTextChanged: if (root.visible && !ignoreChanges) animationSystem.editAnimation.frameX = value
+            // TODO: use textEdited when implemented: https://bugreports.qt.io/browse/QTBUG-85739
+            onValueModified: animationSystem.editAnimation.frameX = value
         }
 
         Label {
@@ -110,6 +111,7 @@ Dialog {
         }
 
         SpinBox {
+            id: animationFrameYSpinBox
             objectName: "animationFrameYSpinBox"
             from: 0
             value: animationSystem ? animationSystem.editAnimation.frameY : 0
@@ -124,9 +126,9 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            Keys.onReturnPressed: root.accept()
+            onValueModified: animationSystem.editAnimation.frameY = value
 
-            onDisplayTextChanged: if (root.visible && !ignoreChanges) animationSystem.editAnimation.frameY = value
+            Keys.onReturnPressed: root.accept()
         }
 
         Label {
@@ -151,9 +153,9 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            Keys.onReturnPressed: root.accept()
+            onValueModified: animationSystem.editAnimation.frameWidth = value
 
-            onDisplayTextChanged: if (root.visible && !ignoreChanges) animationSystem.editAnimation.frameWidth = value
+            Keys.onReturnPressed: root.accept()
         }
 
         Label {
@@ -177,9 +179,9 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            Keys.onReturnPressed: root.accept()
+            onValueModified: animationSystem.editAnimation.frameHeight = value
 
-            onDisplayTextChanged: if (root.visible && !ignoreChanges) animationSystem.editAnimation.frameHeight = value
+            Keys.onReturnPressed: root.accept()
         }
 
         Label {
@@ -203,9 +205,9 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            Keys.onReturnPressed: root.accept()
+            onValueModified: animationSystem.editAnimation.frameCount = value
 
-            onDisplayTextChanged: if (root.visible && !ignoreChanges) animationSystem.editAnimation.frameCount = value
+            Keys.onReturnPressed: root.accept()
         }
 
         Label {
@@ -229,9 +231,9 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            Keys.onReturnPressed: root.accept()
+            onValueModified: animationSystem.editAnimation.fps = value
 
-            onDisplayTextChanged: if (root.visible && !ignoreChanges) animationSystem.editAnimation.fps = value
+            Keys.onReturnPressed: root.accept()
         }
     }
 }
