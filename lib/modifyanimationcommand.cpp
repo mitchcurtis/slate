@@ -38,7 +38,15 @@ ModifyAnimationCommand::ModifyAnimationCommand(LayeredImageProject *project, Ani
     mNewFrameX(frameX),
     mNewFrameY(frameY),
     mNewFrameWidth(frameWidth),
-    mNewFrameHeight(frameHeight)
+    mNewFrameHeight(frameHeight),
+    mOldName(animation->name()),
+    mOldFps(animation->fps()),
+    mOldFrameCount(animation->frameCount()),
+    mOldFrameX(animation->frameX()),
+    mOldFrameY(animation->frameY()),
+    mOldFrameWidth(animation->frameWidth()),
+    mOldFrameHeight(animation->frameHeight())
+
 {
     qCDebug(lcModifyAnimationCommand) << "constructed" << this;
 }
@@ -48,6 +56,7 @@ void ModifyAnimationCommand::undo()
     qCDebug(lcModifyAnimationCommand) << "undoing" << this;
 
     auto animation = mProject->animationSystem()->animationAt(mIndex);
+    animation->setName(mOldName);
     animation->setFps(mOldFps);
     animation->setFrameCount(mOldFrameCount);
     animation->setFrameX(mOldFrameX);
@@ -62,6 +71,7 @@ void ModifyAnimationCommand::redo()
     qCDebug(lcModifyAnimationCommand) << "redoing" << this;
 
     auto animation = mProject->animationSystem()->animationAt(mIndex);
+    animation->setName(mNewName);
     animation->setFps(mNewFps);
     animation->setFrameCount(mNewFrameCount);
     animation->setFrameX(mNewFrameX);

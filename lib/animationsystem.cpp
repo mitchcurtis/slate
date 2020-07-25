@@ -64,12 +64,12 @@ AnimationPlayback *AnimationSystem::currentAnimationPlayback()
 
 bool AnimationSystem::containsAnimation(const QString &name) const
 {
-    return findAnimationWithName(name) != mAnimations.end();
+    return findAnimationItWithName(name) != mAnimations.end();
 }
 
 int AnimationSystem::indexOfAnimation(const QString &name) const
 {
-    const auto animationIt = findAnimationWithName(name);
+    const auto animationIt = findAnimationItWithName(name);
     if (animationIt == mAnimations.end())
         return -1;
 
@@ -84,7 +84,7 @@ int AnimationSystem::animationCount() const
 QString AnimationSystem::addNewAnimation(const QSize &canvasSize)
 {
     const QString name = peekNextGeneratedName();
-    auto existingAnimationIt = findAnimationWithName(name);
+    auto existingAnimationIt = findAnimationItWithName(name);
     if (existingAnimationIt != mAnimations.end()) {
         qWarning().nospace() << "Animation named \"" << name << "\" already exists";
         return QString();
@@ -150,7 +150,7 @@ void AnimationSystem::addAnimation(Animation *animation, int index)
 
 void AnimationSystem::takeAnimation(const QString &name)
 {
-    auto animationIt = findAnimationWithName(name);
+    auto animationIt = findAnimationItWithName(name);
     if (animationIt == mAnimations.end()) {
         qWarning().nospace() << "Animation named \"" << name << "\" doesn't exist";
         return;
@@ -193,6 +193,47 @@ Animation *AnimationSystem::takeAnimation(int index)
     emit animationCountChanged();
 
     return animation;
+}
+
+Animation *AnimationSystem::findAnimationWithName(const QString &name)
+{
+    auto it = findAnimationItWithName(name);
+    return it != mAnimations.end() ? *it : nullptr;
+}
+
+QString AnimationSystem::generateDuplicateName(const Animation *animation) const
+{
+    static int copyLimit = 1000;
+
+    QString generatedName;
+    int copyNumber = 1;
+    bool nameAlreadyTaken = false;
+
+    do {
+        Q_ASSERT(!mAnimations.isEmpty());
+        nameAlreadyTaken = false;
+
+        for (const auto otherAnimation : mAnimations) {
+            generatedName = animation->name() + " Copy";
+            if (copyNumber > 1)
+                generatedName += QString::fromLatin1(" #%1").arg(copyNumber);
+
+            if (otherAnimation->name() == generatedName) {
+                // There's already a copy with this name; we have to bump our number
+                // and start the search from the beginning with a new number.
+                ++copyNumber;
+
+                // Should never happen, but just to be safe...
+                if (copyNumber == copyLimit)
+                    return QString();
+
+                nameAlreadyTaken = true;
+                break;
+            }
+        }
+    } while (nameAlreadyTaken);
+
+    return generatedName;
 }
 
 void AnimationSystem::read(const QJsonObject &json)
@@ -263,14 +304,14 @@ QString AnimationSystem::takeNextGeneratedName()
     return name;
 }
 
-QVector<Animation*>::iterator AnimationSystem::findAnimationWithName(const QString &name)
+QVector<Animation*>::iterator AnimationSystem::findAnimationItWithName(const QString &name)
 {
     return std::find_if(mAnimations.begin(), mAnimations.end(), [name](Animation *animation) {
         return animation->name() == name;
     });
 }
 
-QVector<Animation*>::const_iterator AnimationSystem::findAnimationWithName(const QString &name) const
+QVector<Animation*>::const_iterator AnimationSystem::findAnimationItWithName(const QString &name) const
 {
     return std::find_if(mAnimations.begin(), mAnimations.end(), [name](Animation *animation) {
         return animation->name() == name;
@@ -279,7 +320,7 @@ QVector<Animation*>::const_iterator AnimationSystem::findAnimationWithName(const
 
 Animation *AnimationSystem::animationAtNameOrWarn(const QString &name)
 {
-    auto animationIt = findAnimationWithName(name);
+    auto animationIt = findAnimationItWithName(name);
     if (animationIt == mAnimations.end())
         qWarning().nospace() << "Animation named \"" << name << "\" doesn't exist";
 

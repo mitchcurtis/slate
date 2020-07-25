@@ -33,6 +33,13 @@ class LayeredImageProject;
 class SLATE_EXPORT ModifyAnimationCommand : public QUndoCommand
 {
 public:
+    // TODO:
+    // - add Animation *editAnimation to AnimationSystem
+    // - have AnimationSettingsPopup set editAnimation's properties to those of currentAnimation and then
+    //   currentAnimationPlayback.animation to editAnimation when it opens
+    // - modifyAnimation(index) can still be called as usual, as LayeredImageProject can use editAnimation to pass
+    //   values to our constructor
+    // - have AnimationSettingsPopup set currentAnimationPlayback.animation back to currentAnimation when it closes
     ModifyAnimationCommand(LayeredImageProject *project, Animation *animation,
         const QString &name, int fps, int frameCount, int frameX, int frameY, int frameWidth, int frameHeight,
         QUndoCommand *parent = nullptr);
@@ -48,20 +55,22 @@ private:
     LayeredImageProject *mProject = nullptr;
     Animation *mAnimation = nullptr;
     int mIndex = -1;
-    QString mOldName;
+
     QString mNewName;
-    int mOldFps = 0;
     int mNewFps = 0;
-    int mOldFrameCount = 0;
     int mNewFrameCount = 0;
-    int mOldFrameX = 0;
     int mNewFrameX = 0;
-    int mOldFrameY = 0;
     int mNewFrameY = 0;
-    int mOldFrameWidth = 0;
     int mNewFrameWidth = 0;
-    int mOldFrameHeight = 0;
     int mNewFrameHeight = 0;
+
+    QString mOldName;
+    int mOldFps = 0;
+    int mOldFrameCount = 0;
+    int mOldFrameX = 0;
+    int mOldFrameY = 0;
+    int mOldFrameWidth = 0;
+    int mOldFrameHeight = 0;
 };
 
 

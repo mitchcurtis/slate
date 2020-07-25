@@ -58,6 +58,9 @@ public:
     void takeAnimation(const QString &name); // TODO: remove if ends up unused
     Animation *animationAt(int index);
     Animation *takeAnimation(int index);
+    Animation *findAnimationWithName(const QString &name);
+
+    QString generateDuplicateName(const Animation *animation) const;
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
@@ -84,8 +87,8 @@ private:
     QString peekNextGeneratedName() const;
     QString takeNextGeneratedName();
 
-    QVector<Animation*>::iterator findAnimationWithName(const QString &name);
-    QVector<Animation*>::const_iterator findAnimationWithName(const QString &name) const;
+    QVector<Animation*>::iterator findAnimationItWithName(const QString &name);
+    QVector<Animation*>::const_iterator findAnimationItWithName(const QString &name) const;
     Animation *animationAtNameOrWarn(const QString &name);
 
     QVector<Animation*> mAnimations;

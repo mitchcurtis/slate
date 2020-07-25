@@ -32,6 +32,7 @@ Dialog {
 
     property Project project
     property AnimationSystem animationSystem: project ? project.animationSystem : null
+    property int animationIndex: -1
     property Animation animation
 
     property int originalFps
@@ -52,6 +53,17 @@ Dialog {
         originalFrameHeight = animation.frameHeight
     }
 
+    onAccepted: {
+        // Only create the undo command if something actually changed.
+        if (animation.fps !== originalFps
+            || animation.frameCount !== originalFrameCount
+            || animation.originalFrameX !== originalFrameX
+            || animation.originalFrameY !== originalFrameY
+            || animation.originalFrameWidth !== originalFrameWidth
+            || animation.originalFrameHeight !== originalFrameHeight)
+        project.modifyAnimation(animationIndex)
+    }
+
     onRejected: {
         animation.fps = originalFps
         animation.frameCount = originalFrameCount
@@ -59,6 +71,11 @@ Dialog {
         animation.frameY = originalFrameY
         animation.frameWidth = originalFrameWidth
         animation.frameHeight = originalFrameHeight
+    }
+
+    onClosed: {
+        animationIndex = -1
+        animation = null
     }
 
     TextMetrics {
@@ -94,6 +111,8 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
+            Keys.onReturnPressed: root.accept()
+
             onValueModified: animation.frameX = value
         }
 
@@ -118,6 +137,8 @@ Dialog {
             ToolTip.visible: hovered
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
+
+            Keys.onReturnPressed: root.accept()
 
             onValueModified: animation.frameY = value
         }
@@ -144,6 +165,8 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
+            Keys.onReturnPressed: root.accept()
+
             onValueModified: animation.frameWidth = value
         }
 
@@ -167,6 +190,8 @@ Dialog {
             ToolTip.visible: hovered
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
+
+            Keys.onReturnPressed: root.accept()
 
             onValueModified: animation.frameHeight = value
         }
@@ -192,6 +217,8 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
+            Keys.onReturnPressed: root.accept()
+
             onValueModified: animation.frameCount = value
         }
 
@@ -215,6 +242,8 @@ Dialog {
             ToolTip.visible: hovered
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
+
+            Keys.onReturnPressed: root.accept()
 
             // Update the actual values as the controls are modified so that
             // the user gets a preview of the changes they're making.

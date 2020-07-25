@@ -89,13 +89,18 @@ void SpriteImage::setAnimationPlayback(AnimationPlayback *animationPlayback)
 
     if (mAnimationPlayback) {
         connect(mAnimationPlayback, &AnimationPlayback::animationChanged, this, &SpriteImage::onAnimationChanged);
-        connect(mAnimationPlayback, &AnimationPlayback::currentFrameIndexChanged, [=]{ update(); });
+        connect(mAnimationPlayback, &AnimationPlayback::currentFrameIndexChanged, this, &SpriteImage::onNeedsUpdate);
     }
 
     // Force implicit size change & repaint.
     onFrameSizeChanged();
 
     emit animationPlaybackChanged();
+}
+
+void SpriteImage::onNeedsUpdate()
+{
+    update();
 }
 
 void SpriteImage::onFrameSizeChanged()
@@ -113,7 +118,10 @@ void SpriteImage::onAnimationChanged(Animation *oldAnimation)
 
     onFrameSizeChanged();
 
+    qDebug() << this << oldAnimation << mAnimationPlayback->animation();
     if (mAnimationPlayback->animation()) {
+        connect(mAnimationPlayback->animation(), &Animation::frameXChanged, this, &SpriteImage::onNeedsUpdate);
+        connect(mAnimationPlayback->animation(), &Animation::frameYChanged, this, &SpriteImage::onNeedsUpdate);
         connect(mAnimationPlayback->animation(), &Animation::frameWidthChanged, this, &SpriteImage::onFrameSizeChanged);
         connect(mAnimationPlayback->animation(), &Animation::frameHeightChanged, this, &SpriteImage::onFrameSizeChanged);
     }

@@ -50,6 +50,7 @@ signals:
     void animationPlaybackChanged();
 
 private slots:
+    void onNeedsUpdate();
     void onFrameSizeChanged();
     void onAnimationChanged(Animation *oldAnimation);
 

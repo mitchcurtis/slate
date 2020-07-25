@@ -114,6 +114,7 @@ public slots:
     void setLayerOpacity(int layerIndex, qreal opacity);
 
     void addAnimation();
+    void duplicateAnimation(int index);
     /*
         Animation settings are modified directly to simplify the live preview,
         so that's why there are no arguments besides the name; the modifications

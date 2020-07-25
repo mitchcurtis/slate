@@ -43,7 +43,7 @@ ItemDelegate {
     readonly property AnimationSystem animationSystem: project ? project.animationSystem : null
 
     signal editingFinished
-    signal settingsRequested(var animation)
+    signal settingsRequested(int animationIndex, var animation)
 
     onClicked: project.animationSystem.currentAnimationIndex = index
     onDoubleClicked: animationNameTextField.forceActiveFocus()
@@ -51,7 +51,6 @@ ItemDelegate {
     SpriteImageContainer {
         id: thumbnailPreview
         objectName: "thumbnailPreview"
-        x: 14
         project: root.project
         animationPlayback: AnimationPlayback {
             objectName: root.objectName + "AnimationPlayback"
@@ -71,6 +70,8 @@ ItemDelegate {
         text: model.animation.name
         font.family: "FontAwesome"
         activeFocusOnPress: false
+        font.pixelSize: 12
+        visible: false
         anchors.left: thumbnailPreview.right
         anchors.leftMargin: 4
         anchors.right: settingsPopupToolButton.left
@@ -78,8 +79,6 @@ ItemDelegate {
         anchors.verticalCenter: parent.verticalCenter
         anchors.verticalCenterOffset: 6
         background.visible: false
-        font.pixelSize: 12
-        visible: false
 
         onAccepted: {
             model.animation.name = text
@@ -113,7 +112,7 @@ ItemDelegate {
         ToolTip.delay: UiConstants.toolTipDelay
         ToolTip.timeout: UiConstants.toolTipTimeout
 
-        onClicked: root.settingsRequested(model.animation)
+        onClicked: root.settingsRequested(index, model.animation)
     }
 
     // We don't want TextField's editable cursor to be visible,

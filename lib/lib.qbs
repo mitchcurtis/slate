@@ -129,6 +129,8 @@ Product {
         "deletelayercommand.h",
         "deletenotecommand.cpp",
         "deletenotecommand.h",
+        "duplicateanimationcommand.cpp",
+        "duplicateanimationcommand.h",
         "duplicatelayercommand.cpp",
         "duplicatelayercommand.h",
         "filevalidator.cpp",

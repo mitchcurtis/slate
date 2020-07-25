@@ -36,6 +36,7 @@
 #include "changelayervisiblecommand.h"
 #include "deleteanimationcommand.h"
 #include "deletelayercommand.h"
+#include "duplicateanimationcommand.h"
 #include "duplicatelayercommand.h"
 #include "imagelayer.h"
 #include "jsonutils.h"
@@ -807,12 +808,31 @@ void LayeredImageProject::setLayerOpacity(int layerIndex, qreal opacity)
 void LayeredImageProject::addAnimation()
 {
     if (!mUsingAnimation) {
-        qWarning() << "Can't add animation when mUsingAnimation is false";
+        qWarning() << "Can't add animations when mUsingAnimation is false";
         return;
     }
 
     beginMacro(QLatin1String("AddAnimationCommand"));
     addChange(new AddAnimationCommand(this));
+    endMacro();
+}
+
+void LayeredImageProject::duplicateAnimation(int index)
+{
+    if (!mUsingAnimation) {
+        qWarning() << "Can't duplicate animations when mUsingAnimation is false";
+        return;
+    }
+
+    const auto targetAnimation = mAnimationSystem.animationAt(index);
+    const QString duplicateName = mAnimationSystem.generateDuplicateName(targetAnimation);
+    if (duplicateName.isEmpty()) {
+        qWarning() << "Failed to generate duplicate name for" << targetAnimation->name();
+        return;
+    }
+
+    beginMacro(QLatin1String("DuplicateAnimationCommand"));
+    addChange(new DuplicateAnimationCommand(this, index, index + 1, duplicateName));
     endMacro();
 }
 

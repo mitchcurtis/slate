@@ -37,13 +37,13 @@ DeleteAnimationCommand::DeleteAnimationCommand(LayeredImageProject *project, int
 void DeleteAnimationCommand::undo()
 {
     qCDebug(lcDeleteAnimationCommand) << "undoing" << this;
-    mAnimationGuard.reset(mProject->animationSystem()->takeAnimation(mIndex));
+    mProject->animationSystem()->addAnimation(mAnimationGuard.take(), mIndex);
 }
 
 void DeleteAnimationCommand::redo()
 {
     qCDebug(lcDeleteAnimationCommand) << "redoing" << this;
-    mProject->animationSystem()->addAnimation(mAnimationGuard.take(), mIndex);
+    mAnimationGuard.reset(mProject->animationSystem()->takeAnimation(mIndex));
 }
 
 int DeleteAnimationCommand::id() const

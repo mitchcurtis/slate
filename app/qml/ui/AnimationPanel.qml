@@ -188,6 +188,7 @@ Panel {
 
                 onEditingFinished: root.canvas.forceActiveFocus()
                 onSettingsRequested: {
+                    animationSettingsPopup.animationIndex = animationIndex
                     animationSettingsPopup.animation = animation
                     animationSettingsPopup.open()
                 }
@@ -242,7 +243,7 @@ Panel {
             objectName: "duplicateAnimationButton"
             text: "\uf24d"
             font.family: "FontAwesome"
-            enabled: root.animationSystem && root.currentAnimationIndex >= 0 && project.currentAnimationIndex < root.animationSystem.animationCount
+            enabled: root.animationSystem && root.currentAnimationIndex >= 0 && root.currentAnimationIndex < root.animationSystem.animationCount
 
             ToolTip.text: qsTr("Duplicate the animation layer")
 
