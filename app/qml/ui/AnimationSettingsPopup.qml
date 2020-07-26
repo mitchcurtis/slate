@@ -30,35 +30,44 @@ Dialog {
     modal: true
     standardButtons: Dialog.Save | Dialog.Cancel
 
-    property AnimationPlayback animationPlayback
+    property Project project
+    property AnimationSystem animationSystem: project ? project.animationSystem : null
+    property int animationIndex: -1
+    property Animation animation
 
-    property int originalFps
-    property int originalFrameCount
-    property int originalFrameX
-    property int originalFrameY
-    property int originalFrameWidth
-    property int originalFrameHeight
-    property real originalPreviewScale
+    property bool ignoreChanges
+    // We want to use Keys.onReturnPressed to accept the dialog,
+    // but by the time it's emitted, the value hasn't been updated,
+    // and e.g. callLater() happens too soon to be used as a workaround.
+    // We also can't use valueFromText() because of https://bugreports.qt.io/browse/QTBUG-64151.
+    property bool acceptOnNextModify
+
     readonly property int controlWidth: 180
 
     onAboutToShow: {
-        originalFps = animationPlayback.fps
-        originalFrameCount = animationPlayback.frameCount
-        originalFrameX = animationPlayback.frameX
-        originalFrameY = animationPlayback.frameY
-        originalFrameWidth = animationPlayback.frameWidth
-        originalFrameHeight = animationPlayback.frameHeight
-        originalPreviewScale = animationPlayback.scale
+        // Unfortunately we need to do this, as SpinBox's valueModified signal
+        // isn't emitted when text is edited, only when it's accepted, and we
+        // want a live update, so we need to respond to valueChanged instead.
+        // Use textEdited eventually: https://bugreports.qt.io/browse/QTBUG-85739
+        ignoreChanges = true
+
+        animationSystem.editAnimation.name = animation.name
+        animationSystem.editAnimation.fps = animation.fps
+        animationSystem.editAnimation.frameCount = animation.frameCount
+        animationSystem.editAnimation.frameX = animation.frameX
+        animationSystem.editAnimation.frameY = animation.frameY
+        animationSystem.editAnimation.frameWidth = animation.frameWidth
+        animationSystem.editAnimation.frameHeight = animation.frameHeight
+
+        ignoreChanges = false
     }
 
-    onRejected: {
-        animationPlayback.fps = originalFps
-        animationPlayback.frameCount = originalFrameCount
-        animationPlayback.frameX = originalFrameX
-        animationPlayback.frameY = originalFrameY
-        animationPlayback.frameWidth = originalFrameWidth
-        animationPlayback.frameHeight = originalFrameHeight
-        animationPlayback.scale = originalPreviewScale
+    onAccepted: project.modifyAnimation(animationIndex)
+
+    onClosed: {
+        animationIndex = -1
+        animation = null
+        acceptOnNextModify = false
     }
 
     TextMetrics {
@@ -70,6 +79,7 @@ Dialog {
     GridLayout {
         rowSpacing: 0
         columns: 2
+        enabled: root.animation
 
         Label {
             id: frameXLabel
@@ -81,7 +91,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameXSpinBox"
             from: 0
-            value: animationPlayback ? animationPlayback.frameX : 0
+            value: animationSystem ? animationSystem.editAnimation.frameX : 0
             to: 4096
             editable: true
             focusPolicy: Qt.NoFocus
@@ -93,7 +103,14 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationPlayback.frameX = value
+            // TODO: use textEdited when implemented: https://bugreports.qt.io/browse/QTBUG-85739
+            onValueModified: {
+                animationSystem.editAnimation.frameX = value
+                if (acceptOnNextModify)
+                    root.accept()
+            }
+
+            Keys.onReturnPressed: acceptOnNextModify = true
         }
 
         Label {
@@ -104,9 +121,10 @@ Dialog {
         }
 
         SpinBox {
+            id: animationFrameYSpinBox
             objectName: "animationFrameYSpinBox"
             from: 0
-            value: animationPlayback ? animationPlayback.frameY : 0
+            value: animationSystem ? animationSystem.editAnimation.frameY : 0
             to: 4096
             editable: true
             focusPolicy: Qt.NoFocus
@@ -118,7 +136,13 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationPlayback.frameY = value
+            onValueModified: {
+                animationSystem.editAnimation.frameY = value
+                if (acceptOnNextModify)
+                    root.accept()
+            }
+
+            Keys.onReturnPressed: acceptOnNextModify = true
         }
 
         Label {
@@ -131,7 +155,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameWidthSpinBox"
             from: 1
-            value: animationPlayback ? animationPlayback.frameWidth : 0
+            value: animationSystem ? animationSystem.editAnimation.frameWidth : 0
             to: 512
             editable: true
             focusPolicy: Qt.NoFocus
@@ -143,7 +167,13 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationPlayback.frameWidth = value
+            onValueModified: {
+                animationSystem.editAnimation.frameWidth = value
+                if (acceptOnNextModify)
+                    root.accept()
+            }
+
+            Keys.onReturnPressed: acceptOnNextModify = true
         }
 
         Label {
@@ -155,7 +185,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameHeightSpinBox"
             from: 1
-            value: animationPlayback ? animationPlayback.frameHeight : 0
+            value: animationSystem ? animationSystem.editAnimation.frameHeight : 0
             to: 512
             editable: true
             focusPolicy: Qt.NoFocus
@@ -167,7 +197,13 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationPlayback.frameHeight = value
+            onValueModified: {
+                animationSystem.editAnimation.frameHeight = value
+                if (acceptOnNextModify)
+                    root.accept()
+            }
+
+            Keys.onReturnPressed: acceptOnNextModify = true
         }
 
         Label {
@@ -179,7 +215,7 @@ Dialog {
         SpinBox {
             objectName: "animationFrameCountSpinBox"
             from: 1
-            value: animationPlayback ? animationPlayback.frameCount : 0
+            value: animationSystem ? animationSystem.editAnimation.frameCount : 0
             to: 1000
             editable: true
             focusPolicy: Qt.NoFocus
@@ -191,7 +227,13 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationPlayback.frameCount = value
+            onValueModified: {
+                animationSystem.editAnimation.frameCount = value
+                if (acceptOnNextModify)
+                    root.accept()
+            }
+
+            Keys.onReturnPressed: acceptOnNextModify = true
         }
 
         Label {
@@ -203,7 +245,7 @@ Dialog {
         SpinBox {
             objectName: "animationFpsSpinBox"
             from: 1
-            value: animationPlayback ? animationPlayback.fps : 0
+            value: animationSystem ? animationSystem.editAnimation.fps : 0
             to: 60
             editable: true
             focusPolicy: Qt.NoFocus
@@ -215,40 +257,13 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            // Update the actual values as the controls are modified so that
-            // the user gets a preview of the changes they're making.
-            // If the dialog is cancelled, we revert the changes.
-            onValueModified: animationPlayback.fps = value
-        }
-
-        Label {
-            text: qsTr("Preview Scale")
-
-            Layout.preferredWidth: labelTextMetrics.width
-        }
-
-        Slider {
-            id: animationPreviewScaleSlider
-            objectName: "animationPreviewScaleSlider"
-            from: 0.5
-            value: animationPlayback ? animationPlayback.scale : 1.0
-            to: 10
-            stepSize: 0.01
-            leftPadding: 0
-            rightPadding: 0
-            focusPolicy: Qt.NoFocus
-            transformOrigin: Item.TopLeft
-
-            Layout.alignment: Qt.AlignHCenter
-            Layout.preferredWidth: controlWidth - 30
-
-            onMoved: animationPlayback.scale = value
-
-            ToolTip {
-                parent: animationPreviewScaleSlider.handle
-                visible: animationPreviewScaleSlider.hovered
-                text: animationPreviewScaleSlider.valueAt(animationPreviewScaleSlider.position).toFixed(2)
+            onValueModified: {
+                animationSystem.editAnimation.fps = value
+                if (acceptOnNextModify)
+                    root.accept()
             }
+
+            Keys.onReturnPressed: acceptOnNextModify = true
         }
     }
 }

@@ -23,6 +23,7 @@
 #include <QLoggingCategory>
 #include <QPainter>
 
+#include "animation.h"
 #include "animationplayback.h"
 #include "project.h"
 #include "utils.h"
@@ -49,8 +50,8 @@ void SpriteImage::paint(QPainter *painter)
     Q_ASSERT(!copy.isNull());
 
     qCDebug(lcSpriteImage).nospace() << "painting sprite animation starting at"
-        << " frameX=" << mAnimationPlayback->frameX()
-        << " frameY=" << mAnimationPlayback->frameY()
+        << " frameX=" << mAnimationPlayback->animation()->frameX()
+        << " frameY=" << mAnimationPlayback->animation()->frameY()
         << " currentFrameIndex=" << mAnimationPlayback->currentFrameIndex();
 
     painter->drawImage(0, 0, copy);
@@ -87,20 +88,42 @@ void SpriteImage::setAnimationPlayback(AnimationPlayback *animationPlayback)
     mAnimationPlayback = animationPlayback;
 
     if (mAnimationPlayback) {
-        connect(mAnimationPlayback, &AnimationPlayback::currentFrameIndexChanged, [=]{ update(); });
-        connect(mAnimationPlayback, &AnimationPlayback::frameWidthChanged, this, &SpriteImage::onFrameSizeChanged);
-        connect(mAnimationPlayback, &AnimationPlayback::frameHeightChanged, this, &SpriteImage::onFrameSizeChanged);
+        connect(mAnimationPlayback, &AnimationPlayback::animationChanged, this, &SpriteImage::onAnimationChanged);
+        connect(mAnimationPlayback, &AnimationPlayback::currentFrameIndexChanged, this, &SpriteImage::onNeedsUpdate);
     }
 
     // Force implicit size change & repaint.
     onFrameSizeChanged();
+    // Make sure we're listening to the animation if it's already set on the playback object.
+    onAnimationChanged(nullptr);
 
     emit animationPlaybackChanged();
 }
 
+void SpriteImage::onNeedsUpdate()
+{
+    update();
+}
+
 void SpriteImage::onFrameSizeChanged()
 {
-    setImplicitWidth(mAnimationPlayback ? mAnimationPlayback->frameWidth() : 0);
-    setImplicitHeight(mAnimationPlayback ? mAnimationPlayback->frameHeight() : 0);
+    const auto animation = mAnimationPlayback ? mAnimationPlayback->animation() : nullptr;
+    setImplicitWidth(animation ? animation->frameWidth() : 0);
+    setImplicitHeight(animation ? animation->frameHeight() : 0);
     update();
+}
+
+void SpriteImage::onAnimationChanged(Animation *oldAnimation)
+{
+    if (oldAnimation)
+        oldAnimation->disconnect(this);
+
+    onFrameSizeChanged();
+
+    if (mAnimationPlayback && mAnimationPlayback->animation()) {
+        connect(mAnimationPlayback->animation(), &Animation::frameXChanged, this, &SpriteImage::onNeedsUpdate);
+        connect(mAnimationPlayback->animation(), &Animation::frameYChanged, this, &SpriteImage::onNeedsUpdate);
+        connect(mAnimationPlayback->animation(), &Animation::frameWidthChanged, this, &SpriteImage::onFrameSizeChanged);
+        connect(mAnimationPlayback->animation(), &Animation::frameHeightChanged, this, &SpriteImage::onFrameSizeChanged);
+    }
 }

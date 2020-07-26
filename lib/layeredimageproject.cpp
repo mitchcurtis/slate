@@ -26,18 +26,23 @@
 #include <QPainter>
 #include <QRegularExpression>
 
+#include "addanimationcommand.h"
 #include "addlayercommand.h"
+#include "changeanimationordercommand.h"
 #include "changelayeredimagesizecommand.h"
 #include "changelayeredimagecanvassizecommand.h"
 #include "changelayernamecommand.h"
 #include "changelayeropacitycommand.h"
 #include "changelayerordercommand.h"
 #include "changelayervisiblecommand.h"
+#include "deleteanimationcommand.h"
 #include "deletelayercommand.h"
+#include "duplicateanimationcommand.h"
 #include "duplicatelayercommand.h"
 #include "imagelayer.h"
 #include "jsonutils.h"
 #include "mergelayerscommand.h"
+#include "modifyanimationcommand.h"
 #include "movelayeredimagecontentscommand.h"
 #include "utils.h"
 
@@ -359,10 +364,7 @@ void LayeredImageProject::setUsingAnimation(bool isUsingAnimation)
 
     if (mUsingAnimation) {
         if (!mHasUsedAnimation) {
-            const QSize imageSize = size();
-            mAnimationPlayback.setFrameCount(imageSize.width() >= 8 ? 4 : 1);
-            mAnimationPlayback.setFrameWidth(imageSize.width() / mAnimationPlayback.frameCount());
-            mAnimationPlayback.setFrameHeight(imageSize.height());
+            mAnimationSystem.addNewAnimation(size());
 
             mHasUsedAnimation = true;
         }
@@ -371,9 +373,9 @@ void LayeredImageProject::setUsingAnimation(bool isUsingAnimation)
     emit usingAnimationChanged();
 }
 
-AnimationPlayback *LayeredImageProject::animationPlayback()
+AnimationSystem *LayeredImageProject::animationSystem()
 {
-    return &mAnimationPlayback;
+    return &mAnimationSystem;
 }
 
 void LayeredImageProject::exportGif(const QUrl &url)
@@ -384,7 +386,7 @@ void LayeredImageProject::exportGif(const QUrl &url)
     }
 
     QString errorMessage;
-    if (!Utils::exportGif(exportedImage(), url, mAnimationPlayback, errorMessage))
+    if (!Utils::exportGif(exportedImage(), url, *mAnimationSystem.currentAnimationPlayback(), errorMessage))
         error(errorMessage);
 }
 
@@ -462,7 +464,13 @@ void LayeredImageProject::doLoad(const QUrl &url)
     mUsingAnimation = projectObject.value("usingAnimation").toBool(false);
     mHasUsedAnimation = projectObject.value("hasUsedAnimation").toBool(false);
     if (mHasUsedAnimation) {
-        mAnimationPlayback.read(projectObject.value("animationPlayback").toObject());
+        if (projectObject.contains("animationPlayback")) {
+            // Pre-0.10 format.
+            mAnimationSystem.read(projectObject.value("animationPlayback").toObject());
+        } else {
+            // >= 0.10 format.
+            mAnimationSystem.read(projectObject.value("animationSystem").toObject());
+        }
     }
 
     readUiState(projectObject);
@@ -493,7 +501,7 @@ void LayeredImageProject::doClose()
     mAutoExportEnabled = false;
     mUsingAnimation = false;
     mHasUsedAnimation = false;
-    mAnimationPlayback.reset();
+    mAnimationSystem.reset();
     emit projectClosed();
 }
 
@@ -558,8 +566,8 @@ bool LayeredImageProject::doSaveAs(const QUrl &url)
         projectObject.insert("hasUsedAnimation", true);
 
         QJsonObject animationObject;
-        mAnimationPlayback.write(animationObject);
-        projectObject.insert("animationPlayback", animationObject);
+        mAnimationSystem.write(animationObject);
+        projectObject.insert("animationSystem", animationObject);
     }
 
     rootJson.insert("project", projectObject);
@@ -795,6 +803,97 @@ void LayeredImageProject::setLayerOpacity(int layerIndex, qreal opacity)
 
     beginMacro(QLatin1String("ChangeLayerOpacityCommand"));
     addChange(new ChangeLayerOpacityCommand(this, layerIndex, layerAt(layerIndex)->opacity(), opacity));
+    endMacro();
+}
+
+void LayeredImageProject::addAnimation()
+{
+    if (!mUsingAnimation) {
+        qWarning() << "Can't add animations when mUsingAnimation is false";
+        return;
+    }
+
+    beginMacro(QLatin1String("AddAnimationCommand"));
+    addChange(new AddAnimationCommand(this));
+    endMacro();
+}
+
+void LayeredImageProject::duplicateAnimation(int index)
+{
+    if (!mUsingAnimation) {
+        qWarning() << "Can't duplicate animations when mUsingAnimation is false";
+        return;
+    }
+
+    const auto targetAnimation = mAnimationSystem.animationAt(index);
+    const QString duplicateName = mAnimationSystem.generateDuplicateName(targetAnimation);
+    if (duplicateName.isEmpty()) {
+        qWarning() << "Failed to generate duplicate name for" << targetAnimation->name();
+        return;
+    }
+
+    beginMacro(QLatin1String("DuplicateAnimationCommand"));
+    addChange(new DuplicateAnimationCommand(this, index, index + 1, duplicateName));
+    endMacro();
+}
+
+void LayeredImageProject::modifyAnimation(int index)
+{
+    Animation *animation = mAnimationSystem.animationAt(index);
+    if (!animation) {
+        qWarning() << "Cannot modify animation" << index << "because it does not exist";
+        return;
+    }
+
+    const Animation *editAnimation = mAnimationSystem.editAnimation();
+    if (*editAnimation == *animation) {
+        // Nothing to do, but we don't need to warn about it.
+        return;
+    }
+
+    beginMacro(QLatin1String("ModifyAnimationCommand"));
+    addChange(new ModifyAnimationCommand(this, index, editAnimation->name(),
+        editAnimation->fps(), editAnimation->frameCount(), editAnimation->frameX(),
+        editAnimation->frameY(), editAnimation->frameWidth(), editAnimation->frameHeight()));
+    endMacro();
+}
+
+void LayeredImageProject::moveCurrentAnimationUp()
+{
+    const int currentIndex = mAnimationSystem.currentAnimationIndex();
+    if (currentIndex <= 0) {
+        qWarning() << "Cannot move current animation up as it's already at the top";
+        return;
+    }
+
+    beginMacro(QLatin1String("ChangeAnimationOrderCommand"));
+    addChange(new ChangeAnimationOrderCommand(this, currentIndex, currentIndex - 1));
+    endMacro();
+}
+
+void LayeredImageProject::moveCurrentAnimationDown()
+{
+    const int currentIndex = mAnimationSystem.currentAnimationIndex();
+    if (currentIndex >= mAnimationSystem.animationCount() - 1) {
+        qWarning() << "Cannot move current animation down as it's already at the bottom";
+        return;
+    }
+
+    beginMacro(QLatin1String("ChangeAnimationOrderCommand"));
+    addChange(new ChangeAnimationOrderCommand(this, currentIndex, currentIndex + 1));
+    endMacro();
+}
+
+void LayeredImageProject::removeAnimation(int index)
+{
+    const Animation *animation = mAnimationSystem.animationAt(index);
+    if (!animation) {
+        qWarning() << "Cannot remove animation at index" << index << "because it does not exist";
+        return;
+    }
+
+    beginMacro(QLatin1String("RemoveAnimationCommand"));
+    addChange(new DeleteAnimationCommand(this, index));
     endMacro();
 }
 

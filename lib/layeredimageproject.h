@@ -23,7 +23,7 @@
 #include <QDebug>
 #include <QImage>
 
-#include "animationplayback.h"
+#include "animationsystem.h"
 #include "project.h"
 #include "slate-global.h"
 
@@ -37,7 +37,7 @@ class SLATE_EXPORT LayeredImageProject : public Project
     Q_PROPERTY(int layerCount READ layerCount NOTIFY layerCountChanged)
     Q_PROPERTY(bool autoExportEnabled READ isAutoExportEnabled WRITE setAutoExportEnabled NOTIFY autoExportEnabledChanged)
     Q_PROPERTY(bool usingAnimation READ isUsingAnimation WRITE setUsingAnimation NOTIFY usingAnimationChanged)
-    Q_PROPERTY(AnimationPlayback *animationPlayback READ animationPlayback CONSTANT FINAL)
+    Q_PROPERTY(AnimationSystem *animationSystem READ animationSystem CONSTANT FINAL)
 
 public:
     LayeredImageProject();
@@ -70,7 +70,7 @@ public:
     bool isUsingAnimation() const;
     void setUsingAnimation(bool isUsingAnimation);
 
-    AnimationPlayback *animationPlayback();
+    AnimationSystem *animationSystem();
 
     Q_INVOKABLE void exportGif(const QUrl &url);
 
@@ -112,6 +112,19 @@ public slots:
     void setLayerName(int layerIndex, const QString &name);
     void setLayerVisible(int layerIndex, bool visible);
     void setLayerOpacity(int layerIndex, qreal opacity);
+
+    void addAnimation();
+    void duplicateAnimation(int index);
+    /*
+        Animation settings are modified directly to simplify the live preview,
+        so that's why there are no arguments besides the name; the modifications
+        are done and then this can be called to push a ModifyAnimationCommand
+        which gathers the already-modified values itself.
+    */
+    void modifyAnimation(int index);
+    void moveCurrentAnimationUp();
+    void moveCurrentAnimationDown();
+    void removeAnimation(int index);
 
 protected:
     void doLoad(const QUrl &url) override;
@@ -158,7 +171,7 @@ private:
     bool mAutoExportEnabled;
     bool mUsingAnimation;
     bool mHasUsedAnimation;
-    AnimationPlayback mAnimationPlayback;
+    AnimationSystem mAnimationSystem;
 };
 
 #endif // LAYEREDIMAGEPROJECT_H

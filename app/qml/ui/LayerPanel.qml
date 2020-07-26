@@ -99,88 +99,47 @@ Panel {
     }
 
     footer: RowLayout {
-        id: footerRowLayout
         visible: root.expanded
 
-        Button {
+        RowActionButton {
             objectName: "newLayerButton"
-            text: "+"
-            flat: true
-            focusPolicy: Qt.NoFocus
-            hoverEnabled: true
 
-            Layout.maximumWidth: implicitHeight
-            Layout.fillWidth: true
-            Layout.fillHeight: true
             Layout.leftMargin: 6
 
             ToolTip.text: qsTr("Add a new layer")
-            ToolTip.visible: hovered
-            ToolTip.delay: UiConstants.toolTipDelay
-            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onClicked: project.addNewLayer()
         }
 
-        Button {
+        RowActionButton {
             objectName: "moveLayerDownButton"
             text: "\uf107"
             font.family: "FontAwesome"
-            flat: true
-            focusPolicy: Qt.NoFocus
-            hoverEnabled: true
             enabled: project && project.currentLayerIndex < project.layerCount - 1
 
-            Layout.maximumWidth: implicitHeight
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
             ToolTip.text: qsTr("Move the current layer down")
-            ToolTip.visible: hovered
-            ToolTip.delay: UiConstants.toolTipDelay
-            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onClicked: project.moveCurrentLayerDown()
         }
 
-        Button {
+        RowActionButton {
             objectName: "moveLayerUpButton"
             text: "\uf106"
             font.family: "FontAwesome"
-            flat: true
-            focusPolicy: Qt.NoFocus
-            hoverEnabled: true
             enabled: project && project.currentLayerIndex > 0
 
-            Layout.maximumWidth: implicitHeight
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
             ToolTip.text: qsTr("Move the current layer up")
-            ToolTip.visible: hovered
-            ToolTip.delay: UiConstants.toolTipDelay
-            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onClicked: project.moveCurrentLayerUp()
         }
 
-        Button {
+        RowActionButton {
             objectName: "duplicateLayerButton"
             text: "\uf24d"
             font.family: "FontAwesome"
-            flat: true
-            focusPolicy: Qt.NoFocus
-            hoverEnabled: true
             enabled: project && project.currentLayerIndex >= 0 && project.currentLayerIndex < project.layerCount
 
-            Layout.maximumWidth: implicitHeight
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
             ToolTip.text: qsTr("Duplicate the current layer")
-            ToolTip.visible: hovered
-            ToolTip.delay: UiConstants.toolTipDelay
-            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onClicked: project.duplicateCurrentLayer()
         }
@@ -190,24 +149,13 @@ Panel {
             Layout.fillHeight: true
         }
 
-        Button {
+        RowActionButton {
             objectName: "deleteLayerButton"
             text: "\uf1f8"
             font.family: "FontAwesome"
-            flat: true
-            focusPolicy: Qt.NoFocus
             enabled: project && project.currentLayer && project.layerCount > 1
-            hoverEnabled: true
-
-            Layout.maximumWidth: implicitHeight
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.rightMargin: 6
 
             ToolTip.text: qsTr("Delete the current layer")
-            ToolTip.visible: hovered
-            ToolTip.delay: UiConstants.toolTipDelay
-            ToolTip.timeout: UiConstants.toolTipTimeout
 
             onClicked: project.deleteCurrentLayer()
         }

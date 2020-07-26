@@ -117,7 +117,7 @@ void ImageProject::doClose()
     mImageUrl = QUrl();
     mUsingTempImage = false;
     mUsingAnimation = false;
-    mAnimationPlayback.reset();
+    mAnimationSystem.reset();
     emit projectClosed();
 }
 
@@ -209,9 +209,9 @@ void ImageProject::doSetImageSize(const QImage &newImage)
     emit sizeChanged();
 }
 
-AnimationPlayback *ImageProject::animationPlayback()
+AnimationSystem *ImageProject::animationSystem()
 {
-    return &mAnimationPlayback;
+    return &mAnimationSystem;
 }
 
 QImage ImageProject::exportedImage() const
@@ -228,7 +228,7 @@ void ImageProject::exportGif(const QUrl &url)
     }
 
     QString errorMessage;
-    if (!Utils::exportGif(exportedImage(), url, mAnimationPlayback, errorMessage))
+    if (!Utils::exportGif(exportedImage(), url, *mAnimationSystem.currentAnimationPlayback(), errorMessage))
         error(errorMessage);
 }
 

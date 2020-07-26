@@ -28,44 +28,25 @@
 
 class QJsonObject;
 
+class Animation;
+
 class SLATE_EXPORT AnimationPlayback : public QObject
 {
     Q_OBJECT
     // Serialised.
-    Q_PROPERTY(int fps READ fps WRITE setFps NOTIFY fpsChanged FINAL)
-    Q_PROPERTY(int frameCount READ frameCount WRITE setFrameCount NOTIFY frameCountChanged FINAL)
-    Q_PROPERTY(int frameX READ frameX WRITE setFrameX NOTIFY frameXChanged)
-    Q_PROPERTY(int frameY READ frameY WRITE setFrameY NOTIFY frameYChanged)
-    Q_PROPERTY(int frameWidth READ frameWidth WRITE setFrameWidth NOTIFY frameWidthChanged FINAL)
-    Q_PROPERTY(int frameHeight READ frameHeight WRITE setFrameHeight NOTIFY frameHeightChanged FINAL)
     Q_PROPERTY(int currentFrameIndex READ currentFrameIndex NOTIFY currentFrameIndexChanged FINAL)
     Q_PROPERTY(qreal scale READ scale WRITE setScale NOTIFY scaleChanged FINAL)
     Q_PROPERTY(bool loop READ shouldLoop WRITE setLoop NOTIFY loopChanged)
 
     // Not serialised.
+    Q_PROPERTY(Animation *animation READ animation WRITE setAnimation NOTIFY animationChanged)
     Q_PROPERTY(bool playing READ isPlaying WRITE setPlaying NOTIFY playingChanged)
 
 public:
     explicit AnimationPlayback(QObject *parent = nullptr);
 
-    int fps() const;
-    void setFps(int fps);
-
-    int frameCount() const;
-    void setFrameCount(int frameCount);
-
-    int frameX() const;
-    void setFrameX(int frameX);
-
-    int frameY() const;
-    void setFrameY(int frameY);
-
-    int frameWidth() const;
-    void setFrameWidth(int frameWidth);
-    int framesWide(int sourceImageWidth) const;
-
-    int frameHeight() const;
-    void setFrameHeight(int frameHeight);
+    Animation *animation() const;
+    void setAnimation(Animation *animation);
 
     int currentFrameIndex() const;
 
@@ -78,44 +59,34 @@ public:
     bool shouldLoop() const;
     void setLoop(bool shouldLoop);
 
-    int startColumn() const;
-    int startRow() const;
-    int startIndex(int sourceImageWidth) const;
-
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
 
     void reset();
 
 signals:
-    void fpsChanged();
-    void frameCountChanged();
-    void frameXChanged();
-    void frameYChanged();
-    void frameWidthChanged();
-    void frameHeightChanged();
+    void animationChanged(Animation *oldAnimation);
     void currentFrameIndexChanged();
     void scaleChanged();
     void loopChanged();
     void playingChanged();
+
+private slots:
+    void fpsChanged();
 
 private:
     void setCurrentFrameIndex(int currentFrameIndex);
 
     void timerEvent(QTimerEvent *event) override;
 
-    int mFps;
-    int mFrameCount;
-    int mFrameX;
-    int mFrameY;
-    int mFrameWidth;
-    int mFrameHeight;
-    int mCurrentFrameIndex;
-    qreal mScale;
-    bool mPlaying;
-    bool mLoop;
+    Animation *mAnimation = nullptr;
 
-    int mTimerId;
+    int mCurrentFrameIndex = -1;
+    qreal mScale = 0.0;
+    bool mPlaying = false;
+    bool mLoop = false;
+
+    int mTimerId = -1;
 };
 
 #endif // ANIMATIONPLAYBACK_H

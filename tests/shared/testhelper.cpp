@@ -302,6 +302,37 @@ bool TestHelper::selectComboBoxItem(const QString &comboBoxObjectName, int index
     return true;
 }
 
+bool TestHelper::incrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue)
+{
+    QQuickItem *spinBox = window->findChild<QQuickItem*>(spinBoxObjectName);
+    VERIFY2(spinBox, qPrintable(QString::fromLatin1(
+        "Failed to find SpinBox named \"%1\" amongst window children").arg(spinBoxObjectName)));
+    QVariant valueVariant = spinBox->property("value");
+    VERIFY(valueVariant.isValid());
+    const int oldValue = valueVariant.toInt();
+    VERIFY2(oldValue == expectedInitialValue, qPrintable(QString::fromLatin1(
+        "Expected initial value to be %1, but it's %2").arg(expectedInitialValue).arg(oldValue)));
+
+    mouseEvent(spinBox, QPoint(spinBox->width() - 10, spinBox->height() / 2), MouseClick);
+    VERIFY(spinBox->property("value").toInt() == expectedInitialValue + 1);
+    return true;
+}
+
+bool TestHelper::decrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue)
+{
+    QQuickItem *spinBox = window->findChild<QQuickItem*>(spinBoxObjectName);
+    VERIFY(spinBox);
+    QVariant valueVariant = spinBox->property("value");
+    VERIFY(valueVariant.isValid());
+    const int oldValue = valueVariant.toInt();
+    VERIFY2(oldValue == expectedInitialValue, qPrintable(QString::fromLatin1(
+        "Expected initial value to be %1, but it's %2").arg(expectedInitialValue).arg(oldValue)));
+
+    mouseEvent(spinBox, QPoint(10, spinBox->height() / 2), MouseClick);
+    VERIFY(spinBox->property("value").toInt() == expectedInitialValue - 1);
+    return true;
+}
+
 bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDialog)
 {
     // Open the canvas size popup.
@@ -1082,6 +1113,53 @@ bool TestHelper::dragNoteAtIndex(int noteIndex, const QPoint &newPosition)
     return true;
 }
 
+AnimationSystem *TestHelper::getAnimationSystem() const
+{
+    return imageProject ? imageProject->animationSystem() : layeredImageProject->animationSystem();
+}
+
+bool TestHelper::addNewAnimation(const QString &expectedGeneratedAnimationName, int expectedIndex)
+{
+    VERIFY(imageProject || layeredImageProject);
+
+    auto *animationSystem = getAnimationSystem();
+
+    const int oldCurrentAnimationIndex = animationSystem->currentAnimationIndex();
+    const Animation *oldCurrentAnimation = animationSystem->currentAnimation();
+    const int oldAnimationCount = animationSystem->animationCount();
+
+    // Add the animation.
+    mouseEventOnCentre(newAnimationButton, MouseClick);
+
+    const int animationCount = animationSystem->animationCount();
+    VERIFY(animationCount == oldAnimationCount + 1);
+    Animation *newAnimation = animationSystem->animationAt(oldAnimationCount);
+    VERIFY(newAnimation);
+    if (expectedIndex == 0) {
+        // If the new animation is the only animation, it's now the current.
+        VERIFY(animationSystem->currentAnimation() == newAnimation);
+        VERIFY(animationSystem->currentAnimationIndex() == 0);
+    } else {
+        // New animations are appended to the end of the list, so the currentIndex
+        // should never change if there were any animations before we added this one.
+        VERIFY(animationSystem->currentAnimation() == oldCurrentAnimation);
+        VERIFY(animationSystem->currentAnimationIndex() == oldCurrentAnimationIndex);
+    }
+    const QString actualAnimationName = animationSystem->animationAt(expectedIndex)->name();
+    if (actualAnimationName != expectedGeneratedAnimationName) {
+        QString message;
+        QDebug stream(&message);
+        stream.nospace() << "Expected new animation name to be " << expectedGeneratedAnimationName
+            << " but it's " << actualAnimationName << ". Animation:\n";
+        for (int i = 0; i < animationCount; ++i) {
+            stream << "    index " << i << ": " << animationSystem->animationAt(i)->name() << "\n";
+        }
+        FAIL(qPrintable(message));
+    }
+    VERIFY(undoToolButton->isEnabled());
+    return true;
+}
+
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
 {
     QObject *popup = nullptr;
@@ -1348,7 +1426,9 @@ bool TestHelper::isUsingAnimation() const
 
 AnimationPlayback *TestHelper::animationPlayback()
 {
-    return imageProject ? imageProject->animationPlayback() : layeredImageProject->animationPlayback();
+    return imageProject
+        ? imageProject->animationSystem()->currentAnimationPlayback()
+        : layeredImageProject->animationSystem()->currentAnimationPlayback();
 }
 
 bool TestHelper::triggerShortcut(const QString &objectName, const QString &sequenceAsString)
@@ -1496,6 +1576,24 @@ bool TestHelper::setAnimationPlayback(bool usingAnimation)
         if (!triggerAnimationPlayback())
             return false;
         VERIFY(isUsingAnimation() == usingAnimation);
+        if (usingAnimation) {
+            newAnimationButton = window->findChild<QQuickItem*>("newAnimationButton");
+            VERIFY(newAnimationButton);
+            duplicateAnimationButton = window->findChild<QQuickItem*>("duplicateAnimationButton");
+            VERIFY(duplicateAnimationButton);
+            moveAnimationDownButton = window->findChild<QQuickItem*>("moveAnimationDownButton");
+            VERIFY(moveAnimationDownButton);
+            moveAnimationUpButton = window->findChild<QQuickItem*>("moveAnimationUpButton");
+            VERIFY(moveAnimationUpButton);
+            deleteAnimationButton = window->findChild<QQuickItem*>("deleteAnimationButton");
+            VERIFY(deleteAnimationButton);
+        } else {
+            newAnimationButton = nullptr;
+            duplicateAnimationButton = nullptr;
+            moveAnimationDownButton = nullptr;
+            moveAnimationUpButton = nullptr;
+            deleteAnimationButton = nullptr;
+        }
     }
     return true;
 }

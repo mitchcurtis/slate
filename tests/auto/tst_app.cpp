@@ -77,9 +77,6 @@ private Q_SLOTS:
     void loadPaneFractionalOffset();
 
     // Tools, misc.
-    void animationPlayback_data();
-    void animationPlayback();
-    void animationGifExport();
     void keyboardShortcuts();
     void optionsShortcutCancelled();
     void optionsTransparencyCancelled();
@@ -189,6 +186,11 @@ private Q_SLOTS:
     void opacityDialog();
     void cropToSelection_data();
     void cropToSelection();
+
+    // Animation.
+    void animationPlayback_data();
+    void animationPlayback();
+    void animationGifExport();
 
     // Layers.
     void addAndRemoveLayers();
@@ -882,213 +884,6 @@ void tst_App::loadPaneFractionalOffset()
     const QUrl projectUrl = QUrl::fromLocalFile(absolutePath);
     QVERIFY2(loadProject(projectUrl), failureMessage);
     QCOMPARE(canvas->firstPane()->offset(), QPointF(257, 235));
-}
-
-void tst_App::animationPlayback_data()
-{
-    addImageProjectTypes();
-}
-
-void tst_App::animationPlayback()
-{
-    QFETCH(Project::Type, projectType);
-
-    QVERIFY2(createNewProject(projectType), failureMessage);
-    QCOMPARE(isUsingAnimation(), false);
-
-    QVERIFY2(setAnimationPlayback(true), failureMessage);
-    // Ensure that the animation panel is visible and expanded when animation playback is enabled.
-    QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
-    QVERIFY(animationPanel);
-    QVERIFY(animationPanel->property("visible").toBool());
-    QVERIFY(isPanelExpanded("animationPanel"));
-
-    // TODO: fix the test to allow testing down to the next projectType check
-    if (projectType == Project::ImageType)
-        return;
-
-    // Open the settings popup to modify the settings slightly.
-    QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
-    QVERIFY(animationPanelSettingsToolButton);
-    mouseEventOnCentre(animationPanelSettingsToolButton, MouseClick);
-
-    QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
-    QVERIFY(animationSettingsPopup);
-    QTRY_COMPARE(animationSettingsPopup->property("opened").toBool(), true);
-
-    // Increase FPS.
-    QQuickItem *animationFpsSpinBox = window->findChild<QQuickItem*>("animationFpsSpinBox");
-    QVERIFY(animationFpsSpinBox);
-    QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4);
-
-    mouseEvent(animationFpsSpinBox, QPoint(animationFpsSpinBox->width() - 10,
-        animationFpsSpinBox->height() / 2), MouseClick);
-    QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
-
-    // Increase frame x.
-    QQuickItem *animationFrameXSpinBox = window->findChild<QQuickItem*>("animationFrameXSpinBox");
-    QVERIFY(animationFrameXSpinBox);
-    QCOMPARE(animationFrameXSpinBox->property("value").toInt(), 0);
-
-    mouseEvent(animationFrameXSpinBox, QPoint(animationFrameXSpinBox->width() - 10,
-        animationFrameXSpinBox->height() / 2), MouseClick);
-    QCOMPARE(animationFrameXSpinBox->property("value").toInt(), 1);
-
-    // Increase frame y.
-    QQuickItem *animationFrameYSpinBox = window->findChild<QQuickItem*>("animationFrameYSpinBox");
-    QVERIFY(animationFrameYSpinBox);
-    QCOMPARE(animationFrameYSpinBox->property("value").toInt(), 0);
-
-    mouseEvent(animationFrameYSpinBox, QPoint(animationFrameYSpinBox->width() - 10,
-        animationFrameYSpinBox->height() / 2), MouseClick);
-    QCOMPARE(animationFrameYSpinBox->property("value").toInt(), 1);
-
-    // Increase frame width.
-    QQuickItem *animationFrameWidthSpinBox = window->findChild<QQuickItem*>("animationFrameWidthSpinBox");
-    QVERIFY(animationFrameWidthSpinBox);
-    QCOMPARE(animationFrameWidthSpinBox->property("value").toInt(), 256 / 4);
-
-    mouseEvent(animationFrameWidthSpinBox, QPoint(animationFrameWidthSpinBox->width() - 10,
-        animationFrameWidthSpinBox->height() / 2), MouseClick);
-    QCOMPARE(animationFrameWidthSpinBox->property("value").toInt(), 256 / 4 + 1);
-
-    // Increase frame height.
-    QQuickItem *animationFrameHeightSpinBox = window->findChild<QQuickItem*>("animationFrameHeightSpinBox");
-    QVERIFY(animationFrameHeightSpinBox);
-    QCOMPARE(animationFrameHeightSpinBox->property("value").toInt(), 256);
-
-    mouseEvent(animationFrameHeightSpinBox, QPoint(animationFrameHeightSpinBox->width() - 10,
-        animationFrameHeightSpinBox->height() / 2), MouseClick);
-    QCOMPARE(animationFrameHeightSpinBox->property("value").toInt(), 256 + 1);
-
-    // Increase frame count.
-    QQuickItem *animationFrameCountSpinBox = window->findChild<QQuickItem*>("animationFrameCountSpinBox");
-    QVERIFY(animationFrameCountSpinBox);
-    QCOMPARE(animationFrameCountSpinBox->property("value").toInt(), 4);
-
-    mouseEvent(animationFrameCountSpinBox, QPoint(animationFrameCountSpinBox->width() - 10,
-        animationFrameCountSpinBox->height() / 2), MouseClick);
-    QCOMPARE(animationFrameCountSpinBox->property("value").toInt(), 4 + 1);
-
-    // Click in the middle of the slider to increase the scale.
-    QQuickItem *animationPreviewScaleSlider = window->findChild<QQuickItem*>("animationPreviewScaleSlider");
-    QVERIFY(animationPreviewScaleSlider);
-    mouseEventOnCentre(animationPreviewScaleSlider, MouseClick);
-    AnimationPlayback *animationPlayback = projectType == Project::ImageType
-        ? imageProject->animationPlayback() : layeredImageProject->animationPlayback();
-    const qreal modifiedScaleValue = animationPlayback->scale();
-    QVERIFY(modifiedScaleValue > 1.0);
-
-    // Accept and close the settings popup.
-    QQuickItem *saveButton = findDialogButtonFromText(animationSettingsPopup, "Save");
-    QVERIFY(saveButton);
-    mouseEventOnCentre(saveButton, MouseClick);
-    QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);
-    QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
-    QCOMPARE(animationPlayback->frameWidth(), 256 / 4 + 1);
-    QCOMPARE(animationPlayback->frameHeight(), 256 + 1);
-    QCOMPARE(animationPlayback->frameCount(), 4 + 1);
-
-    mouseEventOnCentre(animationPlayPauseButton, MouseClick);
-    QCOMPARE(animationPlayback->isPlaying(), true);
-    QCOMPARE(animationPlayback->currentFrameIndex(), 0);
-
-    if (projectType == Project::ImageType)
-        return;
-
-    // Let it play a bit.
-    QTRY_VERIFY(animationPlayback->currentFrameIndex() > 0);
-
-    // Save.
-    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animationStuffSaved.slp"));
-    layeredImageProject->saveAs(saveUrl);
-    QVERIFY(!layeredImageProject->hasUnsavedChanges());
-
-    // Close.
-    QVERIFY2(triggerCloseProject(), failureMessage);
-    QVERIFY(!layeredImageProject->hasLoaded());
-    QCOMPARE(isUsingAnimation(), false);
-
-    // Load the saved file and check that our custom settings were remembered.
-    layeredImageProject->load(saveUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
-    QCOMPARE(isUsingAnimation(), true);
-    QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->frameX(), 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->frameY(), 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->frameWidth(), 256 / 4 + 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->frameHeight(), 256 + 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->frameCount(), 4 + 1);
-    QCOMPARE(layeredImageProject->animationPlayback()->scale(), modifiedScaleValue);
-}
-
-void tst_App::animationGifExport()
-{
-    QVERIFY2(createNewLayeredImageProject(), failureMessage);
-
-    QVERIFY2(copyFileFromResourcesToTempProjectDir("animation.slp"), failureMessage);
-
-    const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animation.slp"));
-    layeredImageProject->load(projectUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
-    QCOMPARE(isUsingAnimation(), true);
-
-    // Export the GIF. Can't interact with native dialogs here, so we just do it directly.
-    QSignalSpy errorSpy(layeredImageProject.data(), SIGNAL(errorOccurred(QString)));
-    QVERIFY(errorSpy.isValid());
-    const QUrl exportedGifUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animation.gif"));
-    layeredImageProject->exportGif(exportedGifUrl);
-    QVERIFY(errorSpy.isEmpty());
-    QVERIFY(QFile::exists(exportedGifUrl.toLocalFile()));
-
-    // Now read the GIF and verify that each frame is correct.
-    GIF *gif = gif_load(exportedGifUrl.toLocalFile().toLatin1().constData());
-    QVERIFY(gif);
-    const int previewScale = 4;
-    const int frameCount = 6;
-    const int frameWidth = 36;
-    const int frameHeight = 38;
-    const int scaledFrameWidth = frameWidth * previewScale;
-    const int scaledFrameHeight = frameHeight * previewScale;
-    QCOMPARE(gif->w, frameWidth * previewScale);
-    QCOMPARE(gif->h, frameHeight * previewScale);
-    QCOMPARE(gif->n, frameCount);
-    // Should be looping.
-    QCOMPARE(gif->repetitions, 0);
-
-    for (int frameIndex = 0; frameIndex < gif->n; ++frameIndex) {
-        GIF_FRAME loadedGifFrame = gif->frames[frameIndex];
-        QCOMPARE(loadedGifFrame.delay, qFloor(1000.0 / layeredImageProject->animationPlayback()->fps()) / 10);
-
-        Bitmap *gifBitmap = loadedGifFrame.image;
-        QCOMPARE(gifBitmap->w, frameWidth * previewScale);
-        QCOMPARE(gifBitmap->h, frameHeight * previewScale);
-
-        QImage frameSourceImage = layeredImageProject->exportedImage().copy(
-            frameIndex * frameWidth, 0, frameWidth, frameHeight);
-        frameSourceImage = frameSourceImage.convertToFormat(QImage::Format_RGBA8888);
-        const QImage scaledFrameSourceImage = frameSourceImage.scaled(
-            frameSourceImage.size() * layeredImageProject->animationPlayback()->scale());
-        const uchar *scaledFrameSourceImageBits =  scaledFrameSourceImage.bits();
-        for (int y = 0; y < scaledFrameHeight; ++y) {
-            for (int x = 0; x < scaledFrameWidth; ++x) {
-                const int byteIndex = x * y;
-                const int actualBlue = gifBitmap->data[byteIndex * 4];
-                const int actualGreen = gifBitmap->data[byteIndex * 4 + 1];
-                const int actualRed = gifBitmap->data[byteIndex * 4 + 2];
-                const int actualAlpha = gifBitmap->data[byteIndex * 4 + 3];
-                const int expectedBlue = scaledFrameSourceImageBits[byteIndex * 4 + 2];
-                const int expectedGreen = scaledFrameSourceImageBits[byteIndex * 4 + 1];
-                const int expectedRed = scaledFrameSourceImageBits[byteIndex * 4];
-                const int expectedAlpha = scaledFrameSourceImageBits[byteIndex * 4 + 3];
-                const QColor actualColour = QColor(actualRed, actualGreen, actualBlue, actualAlpha);
-                const QColor expectedColour = QColor(expectedRed, expectedGreen, expectedBlue, expectedAlpha);
-                QVERIFY2(actualColour == expectedColour,
-                    qPrintable(QString::fromLatin1("Expected pixel at x=%1 y=%2 of frame %3 to be %4 but it's %5")
-                        .arg(x).arg(y).arg(frameIndex).arg(actualColour.name(QColor::HexArgb)).arg(expectedColour.name(QColor::HexArgb))));
-            }
-        }
-    }
 }
 
 void tst_App::keyboardShortcuts()
@@ -5312,6 +5107,213 @@ void tst_App::cropToSelection()
     const QImage grab = imageGrabber.takeImage();
     QCOMPARE(grab.pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(grab.pixelColor(cropRect.width() - 1, cropRect.width() - 1), QColor(Qt::black));
+}
+
+void tst_App::animationPlayback_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::animationPlayback()
+{
+    QSKIP("https://bugreports.qt.io/browse/QTBUG-85748");
+
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+    QCOMPARE(isUsingAnimation(), false);
+
+    QVERIFY2(setAnimationPlayback(true), failureMessage);
+    auto *animationSystem = getAnimationSystem();
+    QVERIFY(animationSystem);
+    // Enabling animations automatically creates the first animation for us.
+    QCOMPARE(animationSystem->animationCount(), 1);
+    QVERIFY(animationSystem->currentAnimation());
+    QCOMPARE(animationSystem->currentAnimationIndex(), 0);
+    // Ensure that the animation panel is visible and expanded when animation playback is enabled.
+    QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
+    QVERIFY(animationPanel);
+    QVERIFY(animationPanel->property("visible").toBool());
+    QVERIFY(isPanelExpanded("animationPanel"));
+
+    // Open the preview settings popup to modify the scale.
+    QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
+    QVERIFY(animationPanelSettingsToolButton);
+    mouseEventOnCentre(animationPanelSettingsToolButton, MouseClick);
+    QObject *animationPreviewSettingsPopup = findPopupFromTypeName("AnimationPreviewSettingsPopup");
+    QVERIFY(animationPreviewSettingsPopup);
+    QTRY_COMPARE(animationPreviewSettingsPopup->property("opened").toBool(), true);
+
+    // Click in the middle of the slider to increase the scale.
+    QQuickItem *animationPreviewScaleSlider = window->findChild<QQuickItem*>("animationPreviewScaleSlider");
+    QVERIFY(animationPreviewScaleSlider);
+    mouseEventOnCentre(animationPreviewScaleSlider, MouseClick);
+    AnimationPlayback *currentAnimationPlayback = TestHelper::animationPlayback();
+    Animation *currentAnimation = currentAnimationPlayback->animation();
+    const qreal modifiedScaleValue = currentAnimationPlayback->scale();
+    QVERIFY(modifiedScaleValue > 1.0);
+
+    // Accept and close the preview settings popup.
+    QQuickItem *previewSettingsSaveButton = findDialogButtonFromText(animationPreviewSettingsPopup, "Save");
+    QVERIFY(previewSettingsSaveButton);
+    mouseEventOnCentre(previewSettingsSaveButton, MouseClick);
+    QTRY_COMPARE(animationPreviewSettingsPopup->property("visible").toBool(), false);
+
+    // Open the animation settings popup for the current animation.
+    QQuickItem *animation1Delegate = findListViewChild("animationListView", "Animation 1_Delegate");
+    QVERIFY(animation1Delegate);
+    QQuickItem *configureAnimationToolButton = animation1Delegate->findChild<QQuickItem*>("Animation 1_DelegateAnimationSettingsToolButton");
+    QVERIFY(configureAnimationToolButton);
+    mouseEventOnCentre(configureAnimationToolButton, MouseClick);
+    QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
+    QVERIFY(animationSettingsPopup);
+    QTRY_COMPARE(animationSettingsPopup->property("opened").toBool(), true);
+
+    const int oldFps = animationSystem->currentAnimation()->fps();
+    const int expectedFps = oldFps + 1;
+    const int oldFrameX = animationSystem->currentAnimation()->frameX();
+    const int expectedFrameX = oldFrameX + 1;
+    const int oldFrameY = animationSystem->currentAnimation()->frameY();
+    const int expectedFrameY = oldFrameY + 1;
+    const int oldFrameWidth = animationSystem->currentAnimation()->frameWidth();
+    const int expectedFrameWidth = oldFrameWidth + 1;
+    const int oldFrameHeight = animationSystem->currentAnimation()->frameHeight();
+    const int expectedFrameHeight = oldFrameHeight + 1;
+    const int oldFrameCount = animationSystem->currentAnimation()->frameCount();
+    const int expectedFrameCount = oldFrameCount + 1;
+
+    // Change (increase) the values.
+    QVERIFY2(incrementSpinBox("animationFpsSpinBox", oldFps), failureMessage);
+    // The changes shouldn't be made to the actual animation until the save button is clicked.
+    QCOMPARE(animationSystem->currentAnimation()->fps(), oldFps);
+    QCOMPARE(animationSystem->editAnimation()->fps(), expectedFps);
+    QVERIFY2(incrementSpinBox("animationFrameXSpinBox", oldFrameX), failureMessage);
+    QCOMPARE(animationSystem->currentAnimation()->frameX(), oldFrameX);
+    QCOMPARE(animationSystem->editAnimation()->frameX(), expectedFrameX);
+    QVERIFY2(incrementSpinBox("animationFrameYSpinBox", oldFrameY), failureMessage);
+    QCOMPARE(animationSystem->currentAnimation()->frameY(), oldFrameY);
+    QCOMPARE(animationSystem->editAnimation()->frameY(), expectedFrameY);
+    QVERIFY2(incrementSpinBox("animationFrameWidthSpinBox", oldFrameWidth), failureMessage);
+    QCOMPARE(animationSystem->currentAnimation()->frameWidth(), oldFrameWidth);
+    QCOMPARE(animationSystem->editAnimation()->frameWidth(), expectedFrameWidth);
+    QVERIFY2(incrementSpinBox("animationFrameHeightSpinBox", oldFrameHeight), failureMessage);
+    QCOMPARE(animationSystem->currentAnimation()->frameHeight(), oldFrameHeight);
+    QCOMPARE(animationSystem->editAnimation()->frameHeight(), expectedFrameHeight);
+    QVERIFY2(incrementSpinBox("animationFrameCountSpinBox", oldFrameCount), failureMessage);
+    QCOMPARE(animationSystem->currentAnimation()->frameCount(), oldFrameCount);
+    QCOMPARE(animationSystem->editAnimation()->frameCount(), expectedFrameCount);
+
+    // Accept and close the animation settings popup.
+    QQuickItem *animationSettingsSaveButton = findDialogButtonFromText(animationSettingsPopup, "Save");
+    QVERIFY(animationSettingsSaveButton);
+    mouseEventOnCentre(animationSettingsSaveButton, MouseClick);
+    QTRY_COMPARE(animationPreviewSettingsPopup->property("visible").toBool(), false);
+
+    // Play the animation.
+    mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+    QCOMPARE(currentAnimationPlayback->isPlaying(), true);
+    QCOMPARE(currentAnimationPlayback->currentFrameIndex(), 0);
+
+    if (projectType == Project::ImageType)
+        return;
+
+    // Let it play a bit.
+    QTRY_VERIFY(currentAnimationPlayback->currentFrameIndex() > 0);
+
+    // Save.
+    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animationStuffSaved.slp"));
+    layeredImageProject->saveAs(saveUrl);
+    QVERIFY(!layeredImageProject->hasUnsavedChanges());
+
+    // Close.
+    QVERIFY2(triggerCloseProject(), failureMessage);
+    QVERIFY(!layeredImageProject->hasLoaded());
+    QCOMPARE(isUsingAnimation(), false);
+
+    // Load the saved file and check that our custom settings were remembered.
+    layeredImageProject->load(saveUrl);
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    currentAnimationPlayback = TestHelper::animationPlayback();
+    currentAnimation = currentAnimationPlayback->animation();
+    QCOMPARE(isUsingAnimation(), true);
+    QCOMPARE(currentAnimation->fps(), expectedFps);
+    QCOMPARE(currentAnimation->frameX(), expectedFrameX);
+    QCOMPARE(currentAnimation->frameY(), expectedFrameY);
+    QCOMPARE(currentAnimation->frameWidth(), expectedFrameWidth);
+    QCOMPARE(currentAnimation->frameHeight(), expectedFrameHeight);
+    QCOMPARE(currentAnimation->frameCount(), expectedFrameCount);
+    QCOMPARE(currentAnimationPlayback->scale(), modifiedScaleValue);
+}
+
+void tst_App::animationGifExport()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    QVERIFY2(copyFileFromResourcesToTempProjectDir("animation.slp"), failureMessage);
+
+    const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animation.slp"));
+    layeredImageProject->load(projectUrl);
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QCOMPARE(isUsingAnimation(), true);
+
+    // Export the GIF. Can't interact with native dialogs here, so we just do it directly.
+    QSignalSpy errorSpy(layeredImageProject.data(), SIGNAL(errorOccurred(QString)));
+    QVERIFY(errorSpy.isValid());
+    const QUrl exportedGifUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animation.gif"));
+    layeredImageProject->exportGif(exportedGifUrl);
+    QVERIFY(errorSpy.isEmpty());
+    QVERIFY(QFile::exists(exportedGifUrl.toLocalFile()));
+
+    // Now read the GIF and verify that each frame is correct.
+    GIF *gif = gif_load(exportedGifUrl.toLocalFile().toLatin1().constData());
+    QVERIFY(gif);
+    const int previewScale = 4;
+    const int frameCount = 6;
+    const int frameWidth = 36;
+    const int frameHeight = 38;
+    const int scaledFrameWidth = frameWidth * previewScale;
+    const int scaledFrameHeight = frameHeight * previewScale;
+    QCOMPARE(gif->w, frameWidth * previewScale);
+    QCOMPARE(gif->h, frameHeight * previewScale);
+    QCOMPARE(gif->n, frameCount);
+    // Should be looping.
+    QCOMPARE(gif->repetitions, 0);
+
+    auto currentAnimationPlayback = TestHelper::animationPlayback();
+
+    for (int frameIndex = 0; frameIndex < gif->n; ++frameIndex) {
+        GIF_FRAME loadedGifFrame = gif->frames[frameIndex];
+        QCOMPARE(loadedGifFrame.delay, qFloor(1000.0 / currentAnimationPlayback->animation()->fps()) / 10);
+
+        Bitmap *gifBitmap = loadedGifFrame.image;
+        QCOMPARE(gifBitmap->w, frameWidth * previewScale);
+        QCOMPARE(gifBitmap->h, frameHeight * previewScale);
+
+        QImage frameSourceImage = layeredImageProject->exportedImage().copy(
+            frameIndex * frameWidth, 0, frameWidth, frameHeight);
+        frameSourceImage = frameSourceImage.convertToFormat(QImage::Format_RGBA8888);
+        const QImage scaledFrameSourceImage = frameSourceImage.scaled(
+            frameSourceImage.size() * currentAnimationPlayback->scale());
+        const uchar *scaledFrameSourceImageBits =  scaledFrameSourceImage.bits();
+        for (int y = 0; y < scaledFrameHeight; ++y) {
+            for (int x = 0; x < scaledFrameWidth; ++x) {
+                const int byteIndex = x * y;
+                const int actualBlue = gifBitmap->data[byteIndex * 4];
+                const int actualGreen = gifBitmap->data[byteIndex * 4 + 1];
+                const int actualRed = gifBitmap->data[byteIndex * 4 + 2];
+                const int actualAlpha = gifBitmap->data[byteIndex * 4 + 3];
+                const int expectedBlue = scaledFrameSourceImageBits[byteIndex * 4 + 2];
+                const int expectedGreen = scaledFrameSourceImageBits[byteIndex * 4 + 1];
+                const int expectedRed = scaledFrameSourceImageBits[byteIndex * 4];
+                const int expectedAlpha = scaledFrameSourceImageBits[byteIndex * 4 + 3];
+                const QColor actualColour = QColor(actualRed, actualGreen, actualBlue, actualAlpha);
+                const QColor expectedColour = QColor(expectedRed, expectedGreen, expectedBlue, expectedAlpha);
+                QVERIFY2(actualColour == expectedColour,
+                    qPrintable(QString::fromLatin1("Expected pixel at x=%1 y=%2 of frame %3 to be %4 but it's %5")
+                        .arg(x).arg(y).arg(frameIndex).arg(actualColour.name(QColor::HexArgb)).arg(expectedColour.name(QColor::HexArgb))));
+            }
+        }
+    }
 }
 
 void tst_App::addAndRemoveLayers()

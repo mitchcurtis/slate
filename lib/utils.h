@@ -57,8 +57,8 @@ namespace Utils {
     QVarLengthArray<unsigned int> findMax256UniqueArgbColours(const QImage &image);
 
     // relativeFrameIndex is the index of the animation relative to animation.startIndex()
-    QImage imageForAnimationFrame(const QImage &sourceImage, const AnimationPlayback &animation, int relativeFrameIndex);
-    bool exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &animation, QString &errorMessage);
+    QImage imageForAnimationFrame(const QImage &sourceImage, const AnimationPlayback &playback, int relativeFrameIndex);
+    bool exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &playback, QString &errorMessage);
 
     template<typename T>
     QString enumToString(T enumValue)

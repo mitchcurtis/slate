@@ -24,6 +24,7 @@
 
 #include "slate-global.h"
 
+class Animation;
 class AnimationPlayback;
 class Project;
 
@@ -49,7 +50,9 @@ signals:
     void animationPlaybackChanged();
 
 private slots:
+    void onNeedsUpdate();
     void onFrameSizeChanged();
+    void onAnimationChanged(Animation *oldAnimation);
 
 private:
     Project *mProject;

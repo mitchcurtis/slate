@@ -31,6 +31,7 @@ extern "C" {
 #include "bitmap/misc/gif.h"
 }
 
+#include "animation.h"
 #include "animationplayback.h"
 
 Q_LOGGING_CATEGORY(lcUtils, "app.utils")
@@ -212,7 +213,7 @@ void Utils::modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightnes
     }
 }
 
-bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &animation, QString &errorMessage)
+bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &playback, QString &errorMessage)
 {
     const QString path = url.toLocalFile();
     if (!path.endsWith(QLatin1String(".gif"))) {
@@ -227,15 +228,16 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
 
     qCDebug(lcUtils).nospace() << "exporting gif to: " << path << "...";
 
-    const int width = animation.frameWidth() * animation.scale();
-    const int height = animation.frameHeight() * animation.scale();
+    const Animation *animation = playback.animation();
+    const int width = animation->frameWidth() * playback.scale();
+    const int height = animation->frameHeight() * playback.scale();
     GIF *gif = gif_create(width, height);
     auto cleanup = qScopeGuard([=]{ gif_free(gif); });
-    qCDebug(lcUtils) << "original width:" << animation.frameWidth()
-        << "original height:" << animation.frameHeight()
-        << "width:" << width << "height:" << height << "scale:" << animation.scale();
+    qCDebug(lcUtils) << "original width:" << animation->frameWidth()
+        << "original height:" << animation->frameHeight()
+        << "width:" << width << "height:" << height << "scale:" << playback.scale();
 
-    gif->repetitions = animation.shouldLoop() ? 0 : 1;
+    gif->repetitions = playback.shouldLoop() ? 0 : 1;
 
     QVarLengthArray<unsigned int> argbPalette = findMax256UniqueArgbColours(gifSourceImage);
     gif_set_palette(gif, argbPalette.data(), argbPalette.size());
@@ -254,16 +256,16 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
     // Convert it to an 8 bit image so that the byte order is as we expect.
     const QImage eightBitImage = gifSourceImage.convertToFormat(QImage::Format_RGBA8888);
 
-    const int frameStartIndex = animation.startIndex(gifSourceImage.width());
-    for (int frameIndex = frameStartIndex; frameIndex < frameStartIndex + animation.frameCount(); ++frameIndex) {
+    const int frameStartIndex = playback.animation()->startIndex(gifSourceImage.width());
+    for (int frameIndex = frameStartIndex; frameIndex < frameStartIndex + animation->frameCount(); ++frameIndex) {
         GIF_FRAME *frame = gif_new_frame(gif);
         // Divide 1000.0 by the FPS to get the delay in MS, and then convert
         // that to 100ths of a second, because that's what the bitmap library expects.
-        frame->delay = (1000.0 / animation.fps()) / 10;
+        frame->delay = (1000.0 / animation->fps()) / 10;
         Bitmap *bitmap = frame->image;
 
-        const QImage frameSourceImage = imageForAnimationFrame(eightBitImage, animation, frameIndex - frameStartIndex);
-        const QImage scaledFrameSourceImage = frameSourceImage.scaled(frameSourceImage.size() * animation.scale());
+        const QImage frameSourceImage = imageForAnimationFrame(eightBitImage, playback, frameIndex - frameStartIndex);
+        const QImage scaledFrameSourceImage = frameSourceImage.scaled(frameSourceImage.size() * playback.scale());
         const uchar *imageBits = scaledFrameSourceImage.bits();
 
         for (int byteIndex = 0; byteIndex < width * height; ++byteIndex) {
@@ -299,12 +301,13 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
     return true;
 }
 
-QImage Utils::imageForAnimationFrame(const QImage &sourceImage, const AnimationPlayback &animation, int relativeFrameIndex)
+QImage Utils::imageForAnimationFrame(const QImage &sourceImage, const AnimationPlayback &playback, int relativeFrameIndex)
 {
-    const int frameWidth = animation.frameWidth();
-    const int frameHeight = animation.frameHeight();
-    const int framesWide = animation.framesWide(sourceImage.width());
-    const int startIndex = animation.startIndex(sourceImage.width());
+    const Animation *animation = playback.animation();
+    const int frameWidth = animation->frameWidth();
+    const int frameHeight = animation->frameHeight();
+    const int framesWide = animation->framesWide(sourceImage.width());
+    const int startIndex = animation->startIndex(sourceImage.width());
 
     const int absoluteCurrentIndex = startIndex + relativeFrameIndex;
     const int frameX = (absoluteCurrentIndex % framesWide) * frameWidth;
@@ -312,9 +315,9 @@ QImage Utils::imageForAnimationFrame(const QImage &sourceImage, const AnimationP
 
     const QImage image = sourceImage.copy(frameX, frameY, frameWidth, frameHeight);
     qCDebug(lcUtils).nospace() << "returning image for animation:"
-        << " frameX=" << animation.frameX()
-        << " frameY=" << animation.frameY()
-        << " currentFrameIndex=" << animation.currentFrameIndex()
+        << " frameX=" << animation->frameX()
+        << " frameY=" << animation->frameY()
+        << " currentFrameIndex=" << playback.currentFrameIndex()
         << " x=" << frameX
         << " y=" << frameY
         << " w=" << frameWidth

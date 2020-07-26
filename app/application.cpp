@@ -25,6 +25,7 @@
 #include <QQmlFileSelector>
 #include <QUndoStack>
 
+#include "animationmodel.h"
 #include "autoswatchmodel.h"
 #include "buildinfo.h"
 #include "canvaspane.h"
@@ -158,6 +159,8 @@ ProjectManager *Application::projectManager()
 
 void Application::registerQmlTypes()
 {
+    qmlRegisterType<AnimationModel>("App", 1, 0, "AnimationModel");
+    qmlRegisterType<AnimationPlayback>("App", 1, 0, "AnimationPlayback");
     qmlRegisterType<AutoSwatchModel>("App", 1, 0, "AutoSwatchModel");
     qmlRegisterType<FileValidator>("App", 1, 0, "FileValidator");
     qmlRegisterType<ImageCanvas>();
@@ -183,7 +186,8 @@ void Application::registerQmlTypes()
     qmlRegisterType<TileCanvas>("App", 1, 0, "TileCanvas");
     qmlRegisterType<TileGrid>("App", 1, 0, "TileGrid");
     qmlRegisterType<TilesetSwatchImage>("App", 1, 0, "TilesetSwatchImage");
-    qmlRegisterUncreatableType<AnimationPlayback>("App", 1, 0, "AnimationPlayback", QLatin1String("Cannot create objects of type AnimationPlayback"));
+    qmlRegisterUncreatableType<Animation>("App", 1, 0, "Animation", QLatin1String("Cannot create objects of type Animation"));
+    qmlRegisterUncreatableType<AnimationSystem>("App", 1, 0, "AnimationSystem", QLatin1String("Cannot create objects of type AnimationSystem"));
     qmlRegisterUncreatableType<CanvasPane>("App", 1, 0, "CanvasPane", "Can't create instances of CanvasPane");
     qmlRegisterUncreatableType<ClipboardImage>("App", 1, 0, "ClipboardImage",
         QLatin1String("Cannot create objects of type ClipboardImage"));
