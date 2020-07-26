@@ -1,5 +1,3 @@
-#include <utility>
-
 /*
     Copyright 2020, Mitch Curtis
 
@@ -51,7 +49,8 @@ LayeredImageProject::LayeredImageProject() :
     mLayersCreated(0),
     mAutoExportEnabled(false),
     mUsingAnimation(false),
-    mHasUsedAnimation(false)
+    mHasUsedAnimation(false),
+    mAnimationHelper(this, &mAnimationSystem, &mUsingAnimation)
 {
     setObjectName(QLatin1String("LayeredImageProject"));
     qCDebug(lcProjectLifecycle) << "constructing" << this;
@@ -808,93 +807,32 @@ void LayeredImageProject::setLayerOpacity(int layerIndex, qreal opacity)
 
 void LayeredImageProject::addAnimation()
 {
-    if (!mUsingAnimation) {
-        qWarning() << "Can't add animations when mUsingAnimation is false";
-        return;
-    }
-
-    beginMacro(QLatin1String("AddAnimationCommand"));
-    addChange(new AddAnimationCommand(this));
-    endMacro();
+    mAnimationHelper.addAnimation();
 }
 
 void LayeredImageProject::duplicateAnimation(int index)
 {
-    if (!mUsingAnimation) {
-        qWarning() << "Can't duplicate animations when mUsingAnimation is false";
-        return;
-    }
-
-    const auto targetAnimation = mAnimationSystem.animationAt(index);
-    const QString duplicateName = mAnimationSystem.generateDuplicateName(targetAnimation);
-    if (duplicateName.isEmpty()) {
-        qWarning() << "Failed to generate duplicate name for" << targetAnimation->name();
-        return;
-    }
-
-    beginMacro(QLatin1String("DuplicateAnimationCommand"));
-    addChange(new DuplicateAnimationCommand(this, index, index + 1, duplicateName));
-    endMacro();
+    mAnimationHelper.duplicateAnimation(index);
 }
 
 void LayeredImageProject::modifyAnimation(int index)
 {
-    Animation *animation = mAnimationSystem.animationAt(index);
-    if (!animation) {
-        qWarning() << "Cannot modify animation" << index << "because it does not exist";
-        return;
-    }
-
-    const Animation *editAnimation = mAnimationSystem.editAnimation();
-    if (*editAnimation == *animation) {
-        // Nothing to do, but we don't need to warn about it.
-        return;
-    }
-
-    beginMacro(QLatin1String("ModifyAnimationCommand"));
-    addChange(new ModifyAnimationCommand(this, index, editAnimation->name(),
-        editAnimation->fps(), editAnimation->frameCount(), editAnimation->frameX(),
-        editAnimation->frameY(), editAnimation->frameWidth(), editAnimation->frameHeight()));
-    endMacro();
+    mAnimationHelper.modifyAnimation(index);
 }
 
 void LayeredImageProject::moveCurrentAnimationUp()
 {
-    const int currentIndex = mAnimationSystem.currentAnimationIndex();
-    if (currentIndex <= 0) {
-        qWarning() << "Cannot move current animation up as it's already at the top";
-        return;
-    }
-
-    beginMacro(QLatin1String("ChangeAnimationOrderCommand"));
-    addChange(new ChangeAnimationOrderCommand(this, currentIndex, currentIndex - 1));
-    endMacro();
+    mAnimationHelper.moveCurrentAnimationUp();
 }
 
 void LayeredImageProject::moveCurrentAnimationDown()
 {
-    const int currentIndex = mAnimationSystem.currentAnimationIndex();
-    if (currentIndex >= mAnimationSystem.animationCount() - 1) {
-        qWarning() << "Cannot move current animation down as it's already at the bottom";
-        return;
-    }
-
-    beginMacro(QLatin1String("ChangeAnimationOrderCommand"));
-    addChange(new ChangeAnimationOrderCommand(this, currentIndex, currentIndex + 1));
-    endMacro();
+    mAnimationHelper.moveCurrentAnimationDown();
 }
 
 void LayeredImageProject::removeAnimation(int index)
 {
-    const Animation *animation = mAnimationSystem.animationAt(index);
-    if (!animation) {
-        qWarning() << "Cannot remove animation at index" << index << "because it does not exist";
-        return;
-    }
-
-    beginMacro(QLatin1String("RemoveAnimationCommand"));
-    addChange(new DeleteAnimationCommand(this, index));
-    endMacro();
+    mAnimationHelper.removeAnimation(index);
 }
 
 bool LayeredImageProject::isValidIndex(int index) const

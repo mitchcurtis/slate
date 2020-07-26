@@ -22,15 +22,15 @@
 #include <QLoggingCategory>
 
 #include "animation.h"
-#include "layeredimageproject.h"
+#include "animationsystem.h"
 
 Q_LOGGING_CATEGORY(lcAddAnimationCommand, "app.undo.addAnimationCommand")
 
-AddAnimationCommand::AddAnimationCommand(LayeredImageProject *project, QUndoCommand *parent) :
+AddAnimationCommand::AddAnimationCommand(AnimationSystem *animationSystem, const QSize &projectSize, QUndoCommand *parent) :
     QUndoCommand(parent),
-    mProject(project),
-    mIndex(project->animationSystem()->animationCount()),
-    mProjectSize(project->size())
+    mAnimationSystem(animationSystem),
+    mIndex(animationSystem->animationCount()),
+    mProjectSize(projectSize)
 {
     qCDebug(lcAddAnimationCommand) << "constructed" << this;
 }
@@ -38,13 +38,13 @@ AddAnimationCommand::AddAnimationCommand(LayeredImageProject *project, QUndoComm
 void AddAnimationCommand::undo()
 {
     qCDebug(lcAddAnimationCommand) << "undoing" << this;
-    delete mProject->animationSystem()->takeAnimation(mIndex);
+    delete mAnimationSystem->takeAnimation(mIndex);
 }
 
 void AddAnimationCommand::redo()
 {
     qCDebug(lcAddAnimationCommand) << "redoing" << this;
-    mName = mProject->animationSystem()->addNewAnimation(mProjectSize);
+    mName = mAnimationSystem->addNewAnimation(mProjectSize);
 }
 
 int AddAnimationCommand::id() const

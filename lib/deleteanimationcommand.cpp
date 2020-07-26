@@ -22,13 +22,13 @@
 #include <QLoggingCategory>
 
 #include "animation.h"
-#include "layeredimageproject.h"
+#include "animationsystem.h"
 
 Q_LOGGING_CATEGORY(lcDeleteAnimationCommand, "app.undo.deleteAnimationCommand")
 
-DeleteAnimationCommand::DeleteAnimationCommand(LayeredImageProject *project, int index, QUndoCommand *parent) :
+DeleteAnimationCommand::DeleteAnimationCommand(AnimationSystem *animationSystem, int index, QUndoCommand *parent) :
     QUndoCommand(parent),
-    mProject(project),
+    mAnimationSystem(animationSystem),
     mIndex(index)
 {
     qCDebug(lcDeleteAnimationCommand) << "constructed" << this;
@@ -37,13 +37,13 @@ DeleteAnimationCommand::DeleteAnimationCommand(LayeredImageProject *project, int
 void DeleteAnimationCommand::undo()
 {
     qCDebug(lcDeleteAnimationCommand) << "undoing" << this;
-    mProject->animationSystem()->addAnimation(mAnimationGuard.take(), mIndex);
+    mAnimationSystem->addAnimation(mAnimationGuard.take(), mIndex);
 }
 
 void DeleteAnimationCommand::redo()
 {
     qCDebug(lcDeleteAnimationCommand) << "redoing" << this;
-    mAnimationGuard.reset(mProject->animationSystem()->takeAnimation(mIndex));
+    mAnimationGuard.reset(mAnimationSystem->takeAnimation(mIndex));
 }
 
 int DeleteAnimationCommand::id() const

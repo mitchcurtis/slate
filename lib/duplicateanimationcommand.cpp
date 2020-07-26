@@ -26,16 +26,16 @@
 
 Q_LOGGING_CATEGORY(lcDuplicateAnimationCommand, "app.undo.duplicateAnimationCommand")
 
-DuplicateAnimationCommand::DuplicateAnimationCommand(LayeredImageProject *project, int targetIndex, int duplicateIndex,
+DuplicateAnimationCommand::DuplicateAnimationCommand(AnimationSystem *animationSystem, int targetIndex, int duplicateIndex,
     const QString &name, QUndoCommand *parent) :
     QUndoCommand(parent),
-    mProject(project),
+    mAnimationSystem(animationSystem),
     mTargetIndex(targetIndex),
     mDuplicateIndex(duplicateIndex)
 {
     qCDebug(lcDuplicateAnimationCommand) << "constructing" << this;
 
-    const auto targetAnimation = project->animationSystem()->animationAt(mTargetIndex);
+    const auto targetAnimation = animationSystem->animationAt(mTargetIndex);
 
     mAnimationGuard.reset(new Animation);
     mAnimationGuard->setName(name);
@@ -51,14 +51,14 @@ void DuplicateAnimationCommand::undo()
 {
     qCDebug(lcDuplicateAnimationCommand) << "undoing" << this;
 
-    mAnimationGuard.reset(mProject->animationSystem()->takeAnimation(mDuplicateIndex));
+    mAnimationGuard.reset(mAnimationSystem->takeAnimation(mDuplicateIndex));
 }
 
 void DuplicateAnimationCommand::redo()
 {
     qCDebug(lcDuplicateAnimationCommand) << "redoing" << this;
 
-    mProject->animationSystem()->addAnimation(mAnimationGuard.take(), mDuplicateIndex);
+    mAnimationSystem->addAnimation(mAnimationGuard.take(), mDuplicateIndex);
 }
 
 int DuplicateAnimationCommand::id() const

@@ -26,13 +26,13 @@
 
 #include "slate-global.h"
 
+class AnimationSystem;
 class ImageLayer;
-class LayeredImageProject;
 
 class SLATE_EXPORT AddAnimationCommand : public QUndoCommand
 {
 public:
-    AddAnimationCommand(LayeredImageProject *project, QUndoCommand *parent = nullptr);
+    AddAnimationCommand(AnimationSystem *animationSystem, const QSize &projectSize, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
@@ -42,7 +42,7 @@ public:
 private:
     friend QDebug operator<<(QDebug debug, const AddAnimationCommand *command);
 
-    LayeredImageProject *mProject = nullptr;
+    AnimationSystem *mAnimationSystem = nullptr;
     QString mName;
     int mIndex = -1;
     QSize mProjectSize;

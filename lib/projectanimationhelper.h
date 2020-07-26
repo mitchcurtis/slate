@@ -17,36 +17,34 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CHANGEANIMATIONORDERCOMMAND_H
-#define CHANGEANIMATIONORDERCOMMAND_H
-
-#include <QDebug>
-#include <QSize>
-#include <QUndoCommand>
+#ifndef PROJECTANIMATIONHELPER_H
+#define PROJECTANIMATIONHELPER_H
 
 #include "slate-global.h"
 
-class Animation;
 class AnimationSystem;
-class ImageLayer;
+class Project;
 
-class SLATE_EXPORT ChangeAnimationOrderCommand : public QUndoCommand
+/*!
+    Convenience class to reuse code that would otherwise be duplicated between
+    LayeredImageProject and ImageProject, since animation is not supported by all project types.
+*/
+class SLATE_EXPORT ProjectAnimationHelper
 {
 public:
-    ChangeAnimationOrderCommand(AnimationSystem *animationSystem, int oldIndex, int newIndex, QUndoCommand *parent = nullptr);
+    ProjectAnimationHelper(Project *project, AnimationSystem *animationSystem, const bool *const usingAnimation);
 
-    void undo() override;
-    void redo() override;
-
-    int id() const override;
+    void addAnimation();
+    void duplicateAnimation(int index);
+    void modifyAnimation(int index);
+    void moveCurrentAnimationUp();
+    void moveCurrentAnimationDown();
+    void removeAnimation(int index);
 
 private:
-    friend QDebug operator<<(QDebug debug, const ChangeAnimationOrderCommand *command);
-
-    AnimationSystem *mAnimationSystem = nullptr;
-    int mOldIndex = -1;
-    int mNewIndex = -1;
+    Project *mProject;
+    AnimationSystem *mAnimationSystem;
+    const bool *const mUsingAnimation;
 };
 
-
-#endif // CHANGEANIMATIONORDERCOMMAND_H
+#endif // PROJECTANIMATIONHELPER_H

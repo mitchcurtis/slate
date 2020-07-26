@@ -25,6 +25,7 @@
 
 #include "animationsystem.h"
 #include "project.h"
+#include "projectanimationhelper.h"
 #include "slate-global.h"
 
 class ImageLayer;
@@ -172,6 +173,7 @@ private:
     bool mUsingAnimation;
     bool mHasUsedAnimation;
     AnimationSystem mAnimationSystem;
+    ProjectAnimationHelper mAnimationHelper;
 };
 
 #endif // LAYEREDIMAGEPROJECT_H

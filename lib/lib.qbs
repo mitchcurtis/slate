@@ -185,6 +185,8 @@ Product {
         "probabilityswatch.h",
         "probabilityswatchmodel.cpp",
         "probabilityswatchmodel.h",
+        "projectanimationhelper.cpp",
+        "projectanimationhelper.h",
         "project.cpp",
         "project.h",
         "projectimageprovider.cpp",

@@ -27,13 +27,13 @@
 #include "slate-global.h"
 
 class Animation;
+class AnimationSystem;
 class ImageLayer;
-class LayeredImageProject;
 
 class SLATE_EXPORT DuplicateAnimationCommand : public QUndoCommand
 {
 public:
-    DuplicateAnimationCommand(LayeredImageProject *project, int targetIndex, int duplicateIndex, const QString &name,
+    DuplicateAnimationCommand(AnimationSystem *animationSystem, int targetIndex, int duplicateIndex, const QString &name,
         QUndoCommand *parent = nullptr);
 
     void undo() override;
@@ -44,7 +44,7 @@ public:
 private:
     friend QDebug operator<<(QDebug debug, const DuplicateAnimationCommand *command);
 
-    LayeredImageProject *mProject = nullptr;
+    AnimationSystem *mAnimationSystem = nullptr;
     // The index of the animation we want to duplicate.
     int mTargetIndex = -1;
     // The index we want the duplicate to have.

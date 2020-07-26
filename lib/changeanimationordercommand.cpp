@@ -22,13 +22,14 @@
 #include <QLoggingCategory>
 
 #include "animation.h"
-#include "layeredimageproject.h"
+#include "animationsystem.h"
 
 Q_LOGGING_CATEGORY(lcChangeAnimationOrderCommand, "app.undo.changeAnimationOrderCommand")
 
-ChangeAnimationOrderCommand::ChangeAnimationOrderCommand(LayeredImageProject *project, int oldIndex, int newIndex, QUndoCommand *parent) :
+ChangeAnimationOrderCommand::ChangeAnimationOrderCommand(AnimationSystem *animationSystem,
+        int oldIndex, int newIndex, QUndoCommand *parent) :
     QUndoCommand(parent),
-    mProject(project),
+    mAnimationSystem(animationSystem),
     mOldIndex(oldIndex),
     mNewIndex(newIndex)
 {
@@ -39,14 +40,14 @@ void ChangeAnimationOrderCommand::undo()
 {
     qCDebug(lcChangeAnimationOrderCommand) << "undoing" << this;
 
-    mProject->animationSystem()->moveAnimation(mNewIndex, mOldIndex);
+    mAnimationSystem->moveAnimation(mNewIndex, mOldIndex);
 }
 
 void ChangeAnimationOrderCommand::redo()
 {
     qCDebug(lcChangeAnimationOrderCommand) << "redoing" << this;
 
-    mProject->animationSystem()->moveAnimation(mOldIndex, mNewIndex);
+    mAnimationSystem->moveAnimation(mOldIndex, mNewIndex);
 }
 
 int ChangeAnimationOrderCommand::id() const

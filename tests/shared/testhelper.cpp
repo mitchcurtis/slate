@@ -1160,6 +1160,42 @@ bool TestHelper::addNewAnimation(const QString &expectedGeneratedAnimationName, 
     return true;
 }
 
+bool TestHelper::duplicateCurrentAnimation(const QString &expectedGeneratedAnimationName, int expectedDuplicateIndex)
+{
+    VERIFY(imageProject || layeredImageProject);
+
+    auto *animationSystem = getAnimationSystem();
+
+    const int currentIndex = animationSystem->currentAnimationIndex();
+    const Animation *currentAnimation = animationSystem->currentAnimation();
+    VERIFY(currentAnimation);
+    const int oldAnimationCount = animationSystem->animationCount();
+
+    // Add the animation.
+    mouseEventOnCentre(duplicateAnimationButton, MouseClick);
+
+    const int animationCount = animationSystem->animationCount();
+    VERIFY(animationCount == oldAnimationCount + 1);
+    Animation *duplicateAnimation = animationSystem->animationAt(currentIndex + 1);
+    VERIFY(duplicateAnimation);
+    // New animations are appended to the end of the list, so the currentIndex should not change.
+    VERIFY(animationSystem->currentAnimation() == currentAnimation);
+    VERIFY(animationSystem->currentAnimationIndex() == currentIndex);
+    const QString actualAnimationName = animationSystem->animationAt(expectedDuplicateIndex)->name();
+    if (actualAnimationName != expectedGeneratedAnimationName) {
+        QString message;
+        QDebug stream(&message);
+        stream.nospace() << "Expected duplicate animation name to be " << expectedGeneratedAnimationName
+            << " but it's " << actualAnimationName << ". Animation:\n";
+        for (int i = 0; i < animationCount; ++i) {
+            stream << "    index " << i << ": " << animationSystem->animationAt(i)->name() << "\n";
+        }
+        FAIL(qPrintable(message));
+    }
+    VERIFY(undoToolButton->isEnabled());
+    return true;
+}
+
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
 {
     QObject *popup = nullptr;

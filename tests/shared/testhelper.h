@@ -267,6 +267,7 @@ protected:
     // Animation helpers.
     AnimationSystem *getAnimationSystem() const;
     Q_REQUIRED_RESULT bool addNewAnimation(const QString &expectedGeneratedAnimationName, int expectedIndex);
+    Q_REQUIRED_RESULT bool duplicateCurrentAnimation(const QString &expectedGeneratedAnimationName, int expectedDuplicateIndex);
 
     QByteArray failureMessage;
 

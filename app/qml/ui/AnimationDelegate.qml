@@ -64,6 +64,7 @@ ItemDelegate {
             // Fit us in the thumbnail.
             scale: Math.min(thumbnailPreview.width / animation.frameWidth, thumbnailPreview.height / animation.frameHeight)
         }
+        x: 3
         width: height
         height: parent.height
     }

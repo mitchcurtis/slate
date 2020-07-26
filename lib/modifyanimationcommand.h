@@ -27,8 +27,8 @@
 #include "slate-global.h"
 
 class Animation;
+class AnimationSystem;
 class ImageLayer;
-class LayeredImageProject;
 
 class SLATE_EXPORT ModifyAnimationCommand : public QUndoCommand
 {
@@ -40,7 +40,7 @@ public:
     // - modifyAnimation(index) can still be called as usual, as LayeredImageProject can use editAnimation to pass
     //   values to our constructor
     // - have AnimationSettingsPopup set currentAnimationPlayback.animation back to currentAnimation when it closes
-    ModifyAnimationCommand(LayeredImageProject *project, int index,
+    ModifyAnimationCommand(AnimationSystem *animationSystem, int index,
         const QString &name, int fps, int frameCount, int frameX, int frameY, int frameWidth, int frameHeight,
         QUndoCommand *parent = nullptr);
 
@@ -52,7 +52,7 @@ public:
 private:
     friend QDebug operator<<(QDebug debug, const ModifyAnimationCommand *command);
 
-    LayeredImageProject *mProject = nullptr;
+    AnimationSystem *mAnimationSystem = nullptr;
     Animation *mAnimation = nullptr;
     int mIndex = -1;
 

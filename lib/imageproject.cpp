@@ -24,7 +24,8 @@
 #include "utils.h"
 
 ImageProject::ImageProject() :
-    mUsingAnimation(false)
+    mUsingAnimation(false),
+    mAnimationHelper(this, &mAnimationSystem, &mUsingAnimation)
 {
     setObjectName(QLatin1String("imageProject"));
     qCDebug(lcProjectLifecycle) << "constructing" << this;
@@ -212,6 +213,36 @@ void ImageProject::doSetImageSize(const QImage &newImage)
 AnimationSystem *ImageProject::animationSystem()
 {
     return &mAnimationSystem;
+}
+
+void ImageProject::addAnimation()
+{
+    mAnimationHelper.addAnimation();
+}
+
+void ImageProject::duplicateAnimation(int index)
+{
+    mAnimationHelper.duplicateAnimation(index);
+}
+
+void ImageProject::modifyAnimation(int index)
+{
+    mAnimationHelper.modifyAnimation(index);
+}
+
+void ImageProject::moveCurrentAnimationUp()
+{
+    mAnimationHelper.moveCurrentAnimationUp();
+}
+
+void ImageProject::moveCurrentAnimationDown()
+{
+    mAnimationHelper.moveCurrentAnimationDown();
+}
+
+void ImageProject::removeAnimation(int index)
+{
+    mAnimationHelper.removeAnimation(index);
 }
 
 QImage ImageProject::exportedImage() const

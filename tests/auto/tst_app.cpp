@@ -191,6 +191,10 @@ private Q_SLOTS:
     void animationPlayback_data();
     void animationPlayback();
     void animationGifExport();
+    void newAnimations_data();
+    void newAnimations();
+    void duplicateAnimations_data();
+    void duplicateAnimations();
 
     // Layers.
     void addAndRemoveLayers();
@@ -5314,6 +5318,68 @@ void tst_App::animationGifExport()
             }
         }
     }
+}
+
+void tst_App::newAnimations_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::newAnimations()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+    QCOMPARE(isUsingAnimation(), false);
+
+    QVERIFY2(setAnimationPlayback(true), failureMessage);
+    auto *animationSystem = getAnimationSystem();
+    QVERIFY(animationSystem);
+    // Enabling animations automatically creates the first animation for us.
+    QCOMPARE(animationSystem->animationCount(), 1);
+    QVERIFY(animationSystem->currentAnimation());
+    QCOMPARE(animationSystem->currentAnimationIndex(), 0);
+    // Ensure that the animation panel is visible and expanded when animation playback is enabled.
+    QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
+    QVERIFY(animationPanel);
+    QVERIFY(animationPanel->property("visible").toBool());
+    QVERIFY(isPanelExpanded("animationPanel"));
+
+    QVERIFY2(addNewAnimation("Animation 1 (Copy)", 1), failureMessage);
+    QVERIFY2(addNewAnimation("Animation 1 (Copy #2)", 2), failureMessage);
+    QVERIFY2(addNewAnimation("Animation 1 (Copy #3)", 3), failureMessage);
+    QVERIFY2(addNewAnimation("Animation 1 (Copy #4)", 4), failureMessage);
+}
+
+void tst_App::duplicateAnimations_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::duplicateAnimations()
+{
+    QFETCH(Project::Type, projectType);
+
+    QVERIFY2(createNewProject(projectType), failureMessage);
+    QCOMPARE(isUsingAnimation(), false);
+
+    QVERIFY2(setAnimationPlayback(true), failureMessage);
+    auto *animationSystem = getAnimationSystem();
+    QVERIFY(animationSystem);
+    // Enabling animations automatically creates the first animation for us.
+    QCOMPARE(animationSystem->animationCount(), 1);
+    QVERIFY(animationSystem->currentAnimation());
+    QCOMPARE(animationSystem->currentAnimationIndex(), 0);
+    // Ensure that the animation panel is visible and expanded when animation playback is enabled.
+    QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
+    QVERIFY(animationPanel);
+    QVERIFY(animationPanel->property("visible").toBool());
+    QVERIFY(isPanelExpanded("animationPanel"));
+
+    QVERIFY2(duplicateCurrentAnimation("Animation 1 (Copy)", 1), failureMessage);
+    QVERIFY2(duplicateCurrentAnimation("Animation 1 (Copy #2)", 2), failureMessage);
+    QVERIFY2(duplicateCurrentAnimation("Animation 1 (Copy #3)", 3), failureMessage);
+    QVERIFY2(duplicateCurrentAnimation("Animation 1 (Copy #4)", 4), failureMessage);
 }
 
 void tst_App::addAndRemoveLayers()

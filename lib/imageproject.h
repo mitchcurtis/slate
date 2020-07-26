@@ -24,6 +24,7 @@
 
 #include "animationsystem.h"
 #include "project.h"
+#include "projectanimationhelper.h"
 #include "slate-global.h"
 
 class SLATE_EXPORT ImageProject : public Project
@@ -50,6 +51,13 @@ public:
     void setUsingAnimation(bool isUsingAnimation);
 
     AnimationSystem *animationSystem();
+
+    void addAnimation();
+    void duplicateAnimation(int index);
+    void modifyAnimation(int index);
+    void moveCurrentAnimationUp();
+    void moveCurrentAnimationDown();
+    void removeAnimation(int index);
 
     QImage exportedImage() const override;
 
@@ -80,6 +88,7 @@ private:
     QImage mImage;
     bool mUsingAnimation;
     AnimationSystem mAnimationSystem;
+    ProjectAnimationHelper mAnimationHelper;
 };
 
 

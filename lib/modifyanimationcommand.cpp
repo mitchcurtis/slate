@@ -22,15 +22,15 @@
 #include <QLoggingCategory>
 
 #include "animation.h"
-#include "layeredimageproject.h"
+#include "animationsystem.h"
 
 Q_LOGGING_CATEGORY(lcModifyAnimationCommand, "app.undo.modifyAnimationCommand")
 
-ModifyAnimationCommand::ModifyAnimationCommand(LayeredImageProject *project, int index,
+ModifyAnimationCommand::ModifyAnimationCommand(AnimationSystem *animationSystem, int index,
     const QString &name, int fps, int frameCount, int frameX, int frameY, int frameWidth, int frameHeight, QUndoCommand *parent) :
     QUndoCommand(parent),
-    mProject(project),
-    mAnimation(project->animationSystem()->animationAt(index)),
+    mAnimationSystem(animationSystem),
+    mAnimation(mAnimationSystem->animationAt(index)),
     mIndex(index),
     mNewName(name),
     mNewFps(fps),
@@ -55,7 +55,7 @@ void ModifyAnimationCommand::undo()
 {
     qCDebug(lcModifyAnimationCommand) << "undoing" << this;
 
-    auto animation = mProject->animationSystem()->animationAt(mIndex);
+    auto animation = mAnimationSystem->animationAt(mIndex);
     animation->setName(mOldName);
     animation->setFps(mOldFps);
     animation->setFrameCount(mOldFrameCount);
@@ -63,14 +63,14 @@ void ModifyAnimationCommand::undo()
     animation->setFrameY(mOldFrameY);
     animation->setFrameWidth(mOldFrameWidth);
     animation->setFrameHeight(mOldFrameHeight);
-    emit mProject->animationSystem()->animationModified(mIndex);
+    emit mAnimationSystem->animationModified(mIndex);
 }
 
 void ModifyAnimationCommand::redo()
 {
     qCDebug(lcModifyAnimationCommand) << "redoing" << this;
 
-    auto animation = mProject->animationSystem()->animationAt(mIndex);
+    auto animation = mAnimationSystem->animationAt(mIndex);
     animation->setName(mNewName);
     animation->setFps(mNewFps);
     animation->setFrameCount(mNewFrameCount);
@@ -78,7 +78,7 @@ void ModifyAnimationCommand::redo()
     animation->setFrameY(mNewFrameY);
     animation->setFrameWidth(mNewFrameWidth);
     animation->setFrameHeight(mNewFrameHeight);
-    emit mProject->animationSystem()->animationModified(mIndex);
+    emit mAnimationSystem->animationModified(mIndex);
 }
 
 int ModifyAnimationCommand::id() const

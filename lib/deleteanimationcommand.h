@@ -28,12 +28,12 @@
 #include "slate-global.h"
 
 class Animation;
-class LayeredImageProject;
+class AnimationSystem;
 
 class SLATE_EXPORT DeleteAnimationCommand : public QUndoCommand
 {
 public:
-    DeleteAnimationCommand(LayeredImageProject *project, int index, QUndoCommand *parent = nullptr);
+    DeleteAnimationCommand(AnimationSystem *animationSystem, int index, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
@@ -43,7 +43,7 @@ public:
 private:
     friend QDebug operator<<(QDebug debug, const DeleteAnimationCommand *command);
 
-    LayeredImageProject *mProject = nullptr;
+    AnimationSystem *mAnimationSystem = nullptr;
     int mIndex = -1;
     QScopedPointer<Animation> mAnimationGuard;
 };
