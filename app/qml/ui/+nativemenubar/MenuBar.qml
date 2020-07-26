@@ -376,9 +376,12 @@ Item {
 
             Platform.MenuItem {
                 objectName: "animationPlayMenuItem"
-                text: enabled && !project.animationPlayback.playing ? qsTr("Play") : qsTr("Pause")
-                enabled: animationPlaybackMenuItem.checked
-                onTriggered: project.animationPlayback.playing = !project.animationPlayback.playing
+                text: enabled && !playback.playing ? qsTr("Play") : qsTr("Pause")
+                enabled: animationPlaybackMenuItem.checked && playback
+                onTriggered: playback.playing = !playback.playing
+
+                readonly property AnimationPlayback playback: project && project.animationSystem
+                    ? project.animationSystem.currentAnimationPlayback : null
             }
         }
 
