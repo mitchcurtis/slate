@@ -20,6 +20,7 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
+#include <QDebug>
 #include <QObject>
 #include <QPoint>
 #include <QSize>
@@ -92,5 +93,7 @@ private:
 };
 
 SLATE_EXPORT bool operator==(const Animation &lhs, const Animation &rhs);
+
+SLATE_EXPORT QDebug operator<<(QDebug debug, const Animation *animation);
 
 #endif // ANIMATION_H

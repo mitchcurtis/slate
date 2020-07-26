@@ -53,12 +53,12 @@ public:
     bool containsAnimation(const QString &name) const;
     int indexOfAnimation(const QString &name) const;
     int animationCount() const;
+    Animation *animationAt(int index);
     /*! Adds a new animation using default values, returning the generated name. */
     QString addNewAnimation(const QSize &canvasSize);
     /*! Adds the given animation, taking ownership of it. */
     void addAnimation(Animation *animation, int index);
-    void takeAnimation(const QString &name); // TODO: remove if ends up unused
-    Animation *animationAt(int index);
+    void moveAnimation(int fromIndex, int toIndex);
     Animation *takeAnimation(int index);
     Animation *findAnimationWithName(const QString &name);
 
@@ -79,10 +79,10 @@ signals:
     void preAnimationAdded(int index);
     void postAnimationAdded(int index);
     void animationModified(int index);
-    void preAnimationRemoved(int index);
-    void postAnimationRemoved(int index);
     void preAnimationMoved(int fromIndex, int toIndex);
     void postAnimationMoved(int fromIndex, int toIndex);
+    void preAnimationRemoved(int index);
+    void postAnimationRemoved(int index);
 
 private:
     bool isValidIndexOrWarn(int index) const;

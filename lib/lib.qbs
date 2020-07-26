@@ -96,6 +96,8 @@ Product {
         "canvaspane.h",
         "canvaspaneitem.cpp",
         "canvaspaneitem.h",
+        "changeanimationordercommand.cpp",
+        "changeanimationordercommand.h",
         "changeimagecanvassizecommand.cpp",
         "changeimagecanvassizecommand.h",
         "changeimagesizecommand.cpp",

@@ -40,7 +40,8 @@ int AnimationSystem::currentAnimationIndex() const
 
 void AnimationSystem::setCurrentAnimationIndex(int index)
 {
-    if (!isValidIndexOrWarn(index))
+    // If we're about to remove the last one, it's OK.
+    if (!(index == -1 && mAnimations.size() == 1) && !isValidIndexOrWarn(index))
         return;
 
     if (index == mCurrentAnimationIndex)
@@ -87,6 +88,14 @@ int AnimationSystem::animationCount() const
     return mAnimations.size();
 }
 
+Animation *AnimationSystem::animationAt(int index)
+{
+    if (!isValidIndexOrWarn(index))
+        return nullptr;
+
+    return mAnimations.at(index);
+}
+
 QString AnimationSystem::addNewAnimation(const QSize &canvasSize)
 {
     const QString name = peekNextGeneratedName();
@@ -98,13 +107,7 @@ QString AnimationSystem::addNewAnimation(const QSize &canvasSize)
 
     qCDebug(lcAnimationSystem()) << "adding new animation" << name;
 
-    const int addIndex = mAnimations.size() - 1;
-    emit preAnimationAdded(addIndex);
-
     ++mAnimationsCreated;
-
-    // todo: undo command
-    // TODO: update currentAnimationIndex if it was added before the current
 
     auto animation = new Animation();
     animation->setName(name);
@@ -114,26 +117,29 @@ QString AnimationSystem::addNewAnimation(const QSize &canvasSize)
     animation->setFrameY(0);
     animation->setFrameWidth(canvasSize.width() / animation->frameCount());
     animation->setFrameHeight(canvasSize.height());
-    mAnimations.append(animation);
 
-    if (mAnimations.size() == 1)
-        setCurrentAnimationIndex(0);
-
-    emit postAnimationAdded(addIndex);
+    const int addIndex = mAnimations.size();
+    addAnimation(animation, addIndex);
 
     return name;
 }
 
 void AnimationSystem::addAnimation(Animation *animation, int index)
 {
-    const int existingIndex = mAnimations.indexOf(animation);
-    if (existingIndex != -1) {
-        qWarning().nospace() << "Animation named \"" << animation->name()
-            << "\" already exists (at index " << existingIndex << ")";
-        return;
+    // Don't try to check for existing animations if we're adding one at the end.
+    if (index < mAnimations.size()) {
+        const int existingIndex = mAnimations.indexOf(animation);
+        if (existingIndex != -1) {
+            qWarning().nospace() << "Animation named \"" << animation->name()
+                << "\" already exists (at index " << existingIndex << ")";
+            return;
+        }
     }
 
-    if (!isValidIndexOrWarn(index))
+    // If we're adding the only animation, don't use isValidIndexOrWarn(),
+    // as that assumes that it's not empty.
+    // Similarly, if we're adding an animation at the end, it would assume that it's out of bounds.
+    if (!(index == 0 && mAnimations.isEmpty()) && index != mAnimations.size() && !isValidIndexOrWarn(index))
         return;
 
     qCDebug(lcAnimationSystem()) << "adding new animation" << animation->name() << "at index" << index;
@@ -146,43 +152,40 @@ void AnimationSystem::addAnimation(Animation *animation, int index)
 
     if (mAnimations.size() == 1)
         setCurrentAnimationIndex(0);
-    else if (index <= mCurrentAnimationIndex) {
+    else if (index <= mCurrentAnimationIndex)
         setCurrentAnimationIndex(mCurrentAnimationIndex + 1);
-    }
 
     emit postAnimationAdded(index);
     emit animationCountChanged();
+
+    qCDebug(lcAnimationSystem) << "animations after adding:";
+    for (const auto animation : mAnimations)
+        qCDebug(lcAnimationSystem) << "- " << animation;
 }
 
-void AnimationSystem::takeAnimation(const QString &name)
+void AnimationSystem::moveAnimation(int fromIndex, int toIndex)
 {
-    auto animationIt = findAnimationItWithName(name);
-    if (animationIt == mAnimations.end()) {
-        qWarning().nospace() << "Animation named \"" << name << "\" doesn't exist";
+    if (fromIndex == toIndex) {
+        qWarning() << "Cannot move animation as fromIndex and toIndex are equal";
         return;
     }
 
-    const int removedIndex = std::distance(mAnimations.begin(), animationIt);
-    emit preAnimationRemoved(removedIndex);
+    if (!isValidIndexOrWarn(fromIndex) || !isValidIndexOrWarn(toIndex))
+        return;
 
-    if (mAnimations.size() == 1)
-        setCurrentAnimationIndex(-1);
+    qCDebug(lcAnimationSystem) << "moving animation at index" << fromIndex << "to index" << toIndex;
 
-    if (removedIndex <= mCurrentAnimationIndex)
-        setCurrentAnimationIndex(mCurrentAnimationIndex - 1);
+    auto current = currentAnimation();
+    emit preAnimationMoved(fromIndex, toIndex);
 
-    mAnimations.erase(animationIt);
+    mAnimations.move(fromIndex, toIndex);
 
-    emit postAnimationRemoved(removedIndex);
-    emit animationCountChanged();
-}
+    setCurrentAnimationIndex(mAnimations.indexOf(current));
+    emit postAnimationMoved(fromIndex, toIndex);
 
-Animation *AnimationSystem::animationAt(int index)
-{
-    if (!isValidIndexOrWarn(index))
-        return nullptr;
-
-    return mAnimations.at(index);
+    qCDebug(lcAnimationSystem) << "animations after moving:";
+    for (const auto animation : mAnimations)
+        qCDebug(lcAnimationSystem) << "- " << animation;
 }
 
 Animation *AnimationSystem::takeAnimation(int index)
@@ -191,6 +194,9 @@ Animation *AnimationSystem::takeAnimation(int index)
         return nullptr;
 
     emit preAnimationRemoved(index);
+
+    if (index <= mCurrentAnimationIndex)
+        setCurrentAnimationIndex(mCurrentAnimationIndex - 1);
 
     Animation *animation = mAnimations.takeAt(index);
     animation->setParent(nullptr);
@@ -290,7 +296,7 @@ void AnimationSystem::reset()
 
 bool AnimationSystem::isValidIndexOrWarn(int index) const
 {
-    if (index < 0 || index > mAnimations.size()) {
+    if (index < 0 || index >= mAnimations.size()) {
         qWarning() << "Animation index" << index << "is invalid";
         return false;
     }

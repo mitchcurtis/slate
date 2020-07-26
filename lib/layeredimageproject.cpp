@@ -28,6 +28,7 @@
 
 #include "addanimationcommand.h"
 #include "addlayercommand.h"
+#include "changeanimationordercommand.h"
 #include "changelayeredimagesizecommand.h"
 #include "changelayeredimagecanvassizecommand.h"
 #include "changelayernamecommand.h"
@@ -854,6 +855,32 @@ void LayeredImageProject::modifyAnimation(int index)
     addChange(new ModifyAnimationCommand(this, index, editAnimation->name(),
         editAnimation->fps(), editAnimation->frameCount(), editAnimation->frameX(),
         editAnimation->frameY(), editAnimation->frameWidth(), editAnimation->frameHeight()));
+    endMacro();
+}
+
+void LayeredImageProject::moveCurrentAnimationUp()
+{
+    const int currentIndex = mAnimationSystem.currentAnimationIndex();
+    if (currentIndex <= 0) {
+        qWarning() << "Cannot move current animation up as it's already at the top";
+        return;
+    }
+
+    beginMacro(QLatin1String("ChangeAnimationOrderCommand"));
+    addChange(new ChangeAnimationOrderCommand(this, currentIndex, currentIndex - 1));
+    endMacro();
+}
+
+void LayeredImageProject::moveCurrentAnimationDown()
+{
+    const int currentIndex = mAnimationSystem.currentAnimationIndex();
+    if (currentIndex >= mAnimationSystem.animationCount() - 1) {
+        qWarning() << "Cannot move current animation down as it's already at the bottom";
+        return;
+    }
+
+    beginMacro(QLatin1String("ChangeAnimationOrderCommand"));
+    addChange(new ChangeAnimationOrderCommand(this, currentIndex, currentIndex + 1));
     endMacro();
 }
 

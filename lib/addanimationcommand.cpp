@@ -29,7 +29,7 @@ Q_LOGGING_CATEGORY(lcAddAnimationCommand, "app.undo.addAnimationCommand")
 AddAnimationCommand::AddAnimationCommand(LayeredImageProject *project, QUndoCommand *parent) :
     QUndoCommand(parent),
     mProject(project),
-    mIndex(project->animationSystem()->animationCount() - 1),
+    mIndex(project->animationSystem()->animationCount()),
     mProjectSize(project->size())
 {
     qCDebug(lcAddAnimationCommand) << "constructed" << this;

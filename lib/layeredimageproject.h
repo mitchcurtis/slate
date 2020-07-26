@@ -122,6 +122,8 @@ public slots:
         which gathers the already-modified values itself.
     */
     void modifyAnimation(int index);
+    void moveCurrentAnimationUp();
+    void moveCurrentAnimationDown();
     void removeAnimation(int index);
 
 protected:

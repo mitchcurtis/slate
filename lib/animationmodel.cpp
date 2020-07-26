@@ -53,6 +53,8 @@ void AnimationModel::setAnimationSystem(AnimationSystem *animationSystem)
         connect(mAnimationSystem, &AnimationSystem::preAnimationAdded, this, &AnimationModel::onPreAnimationAdded);
         connect(mAnimationSystem, &AnimationSystem::postAnimationAdded, this, &AnimationModel::onPostAnimationAdded);
         connect(mAnimationSystem, &AnimationSystem::animationModified, this, &AnimationModel::onAnimationModified);
+        connect(mAnimationSystem, &AnimationSystem::preAnimationMoved, this, &AnimationModel::onPreAnimationMoved);
+        connect(mAnimationSystem, &AnimationSystem::postAnimationMoved, this, &AnimationModel::onPostAnimationMoved);
         connect(mAnimationSystem, &AnimationSystem::preAnimationRemoved, this, &AnimationModel::onPreAnimationRemoved);
         connect(mAnimationSystem, &AnimationSystem::postAnimationRemoved, this, &AnimationModel::onPostAnimationRemoved);
     }

@@ -415,10 +415,11 @@ Controls.MenuBar {
         MenuItem {
             objectName: "animationPlayMenuItem"
             text: enabled && !playback.playing ? qsTr("Play") : qsTr("Pause")
-            enabled: animationPlaybackMenuItem.checked
+            enabled: animationPlaybackMenuItem.checked && playback
             onTriggered: playback.playing = !project.animationPlayback.playing
 
-            readonly property AnimationPlayback playback: project.animationSystem.currentAnimationPlayback
+            readonly property AnimationPlayback playback: project && project.animationSystem
+                ? project.animationSystem.currentAnimationPlayback : null
         }
     }
 

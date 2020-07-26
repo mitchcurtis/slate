@@ -180,3 +180,19 @@ bool operator==(const Animation &lhs, const Animation &rhs)
         && lhs.frameWidth() == rhs.frameWidth()
         && lhs.frameHeight() == rhs.frameHeight();
 }
+
+QDebug operator<<(QDebug debug, const Animation *animation)
+{
+    QDebugStateSaver saver(debug);
+    if (!animation)
+        return debug << "Animation(0x0)";
+
+    debug.nospace() << "(Animation name=" << animation->name()
+        << " fps=" << animation->fps()
+        << " frameX=" << animation->frameX()
+        << " frameY=" << animation->frameY()
+        << " frameWidth=" << animation->frameWidth()
+        << " frameHeight=" << animation->frameHeight()
+        << " frameCount=" << animation->frameCount() << ")";
+    return debug;
+}

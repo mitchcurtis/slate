@@ -111,7 +111,7 @@ Panel {
         }
 
         RowLayout {
-            enabled: root.animationSystem.currentAnimation
+            enabled: root.animationSystem && root.animationSystem.currentAnimation
 
             // We only use one icon from typicons.
             FontLoader {
@@ -129,7 +129,7 @@ Panel {
 
             ProgressBar {
                 objectName: "animationProgressBar"
-                value: animationPlayback ? animationPlayback.currentFrameIndex / (currentAnimation.frameCount - 1) : 0
+                value: animationPlayback && currentAnimation ? animationPlayback.currentFrameIndex / (currentAnimation.frameCount - 1) : 0
 
                 Layout.fillWidth: true
             }
@@ -179,7 +179,7 @@ Panel {
             ScrollBar.vertical: ScrollBar {}
 
             model: AnimationModel {
-                animationSystem: root.project.animationSystem
+                animationSystem: root.project ? root.project.animationSystem : null
             }
 
             delegate: AnimationDelegate {
@@ -264,7 +264,7 @@ Panel {
 
             ToolTip.text: qsTr("Delete the current animation")
 
-            onClicked: project.removeAnimation(currentAnimation.name)
+            onClicked: project.removeAnimation(currentAnimationIndex)
         }
     }
 }

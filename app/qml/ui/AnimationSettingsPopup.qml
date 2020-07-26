@@ -36,6 +36,11 @@ Dialog {
     property Animation animation
 
     property bool ignoreChanges
+    // We want to use Keys.onReturnPressed to accept the dialog,
+    // but by the time it's emitted, the value hasn't been updated,
+    // and e.g. callLater() happens too soon to be used as a workaround.
+    // We also can't use valueFromText() because of https://bugreports.qt.io/browse/QTBUG-64151.
+    property bool acceptOnNextModify
 
     readonly property int controlWidth: 180
 
@@ -62,6 +67,7 @@ Dialog {
     onClosed: {
         animationIndex = -1
         animation = null
+        acceptOnNextModify = false
     }
 
     TextMetrics {
@@ -97,10 +103,14 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            Keys.onReturnPressed: root.accept()
-
             // TODO: use textEdited when implemented: https://bugreports.qt.io/browse/QTBUG-85739
-            onValueModified: animationSystem.editAnimation.frameX = value
+            onValueModified: {
+                animationSystem.editAnimation.frameX = value
+                if (acceptOnNextModify)
+                    root.accept()
+            }
+
+            Keys.onReturnPressed: acceptOnNextModify = true
         }
 
         Label {
@@ -126,9 +136,13 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationSystem.editAnimation.frameY = value
+            onValueModified: {
+                animationSystem.editAnimation.frameY = value
+                if (acceptOnNextModify)
+                    root.accept()
+            }
 
-            Keys.onReturnPressed: root.accept()
+            Keys.onReturnPressed: acceptOnNextModify = true
         }
 
         Label {
@@ -153,9 +167,13 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationSystem.editAnimation.frameWidth = value
+            onValueModified: {
+                animationSystem.editAnimation.frameWidth = value
+                if (acceptOnNextModify)
+                    root.accept()
+            }
 
-            Keys.onReturnPressed: root.accept()
+            Keys.onReturnPressed: acceptOnNextModify = true
         }
 
         Label {
@@ -179,9 +197,13 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationSystem.editAnimation.frameHeight = value
+            onValueModified: {
+                animationSystem.editAnimation.frameHeight = value
+                if (acceptOnNextModify)
+                    root.accept()
+            }
 
-            Keys.onReturnPressed: root.accept()
+            Keys.onReturnPressed: acceptOnNextModify = true
         }
 
         Label {
@@ -205,9 +227,13 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationSystem.editAnimation.frameCount = value
+            onValueModified: {
+                animationSystem.editAnimation.frameCount = value
+                if (acceptOnNextModify)
+                    root.accept()
+            }
 
-            Keys.onReturnPressed: root.accept()
+            Keys.onReturnPressed: acceptOnNextModify = true
         }
 
         Label {
@@ -231,9 +257,13 @@ Dialog {
             ToolTip.delay: UiConstants.toolTipDelay
             ToolTip.timeout: UiConstants.toolTipTimeout
 
-            onValueModified: animationSystem.editAnimation.fps = value
+            onValueModified: {
+                animationSystem.editAnimation.fps = value
+                if (acceptOnNextModify)
+                    root.accept()
+            }
 
-            Keys.onReturnPressed: root.accept()
+            Keys.onReturnPressed: acceptOnNextModify = true
         }
     }
 }
