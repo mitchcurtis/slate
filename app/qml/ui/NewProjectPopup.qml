@@ -64,7 +64,8 @@ Dialog {
             objectName: "imageProjectButton"
             icon.source: "qrc:/images/image-project.png"
             titleText: qsTr("New Image")
-            descriptionText: qsTr("Creates a new bitmap image for direct editing, with no layer support.")
+            descriptionText: qsTr("Creates a new bitmap image for direct editing, with no layer support. "
+                + "Rulers, guides, animations, etc. can be used, but they are not saved.")
             radius: popup.background.radius
             iconBackgroundColour: Qt.darker(popup.background.color, 1.15)
 
