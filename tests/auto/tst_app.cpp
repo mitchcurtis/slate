@@ -5116,84 +5116,33 @@ void tst_App::animationPlayback_data()
 
 void tst_App::animationPlayback()
 {
+    QSKIP("https://bugreports.qt.io/browse/QTBUG-85748");
+
     QFETCH(Project::Type, projectType);
 
     QVERIFY2(createNewProject(projectType), failureMessage);
     QCOMPARE(isUsingAnimation(), false);
 
     QVERIFY2(setAnimationPlayback(true), failureMessage);
+    auto *animationSystem = getAnimationSystem();
+    QVERIFY(animationSystem);
+    // Enabling animations automatically creates the first animation for us.
+    QCOMPARE(animationSystem->animationCount(), 1);
+    QVERIFY(animationSystem->currentAnimation());
+    QCOMPARE(animationSystem->currentAnimationIndex(), 0);
     // Ensure that the animation panel is visible and expanded when animation playback is enabled.
     QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
     QVERIFY(animationPanel);
     QVERIFY(animationPanel->property("visible").toBool());
     QVERIFY(isPanelExpanded("animationPanel"));
 
-    // TODO: fix the test to allow testing down to the next projectType check
-    if (projectType == Project::ImageType)
-        return;
-
-    // Open the settings popup to modify the settings slightly.
+    // Open the preview settings popup to modify the scale.
     QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
     QVERIFY(animationPanelSettingsToolButton);
     mouseEventOnCentre(animationPanelSettingsToolButton, MouseClick);
-
-    QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
-    QVERIFY(animationSettingsPopup);
-    QTRY_COMPARE(animationSettingsPopup->property("opened").toBool(), true);
-
-    // Increase FPS.
-    QQuickItem *animationFpsSpinBox = window->findChild<QQuickItem*>("animationFpsSpinBox");
-    QVERIFY(animationFpsSpinBox);
-    QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4);
-
-    mouseEvent(animationFpsSpinBox, QPoint(animationFpsSpinBox->width() - 10,
-        animationFpsSpinBox->height() / 2), MouseClick);
-    QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
-
-    // Increase frame x.
-    QQuickItem *animationFrameXSpinBox = window->findChild<QQuickItem*>("animationFrameXSpinBox");
-    QVERIFY(animationFrameXSpinBox);
-    QCOMPARE(animationFrameXSpinBox->property("value").toInt(), 0);
-
-    mouseEvent(animationFrameXSpinBox, QPoint(animationFrameXSpinBox->width() - 10,
-        animationFrameXSpinBox->height() / 2), MouseClick);
-    QCOMPARE(animationFrameXSpinBox->property("value").toInt(), 1);
-
-    // Increase frame y.
-    QQuickItem *animationFrameYSpinBox = window->findChild<QQuickItem*>("animationFrameYSpinBox");
-    QVERIFY(animationFrameYSpinBox);
-    QCOMPARE(animationFrameYSpinBox->property("value").toInt(), 0);
-
-    mouseEvent(animationFrameYSpinBox, QPoint(animationFrameYSpinBox->width() - 10,
-        animationFrameYSpinBox->height() / 2), MouseClick);
-    QCOMPARE(animationFrameYSpinBox->property("value").toInt(), 1);
-
-    // Increase frame width.
-    QQuickItem *animationFrameWidthSpinBox = window->findChild<QQuickItem*>("animationFrameWidthSpinBox");
-    QVERIFY(animationFrameWidthSpinBox);
-    QCOMPARE(animationFrameWidthSpinBox->property("value").toInt(), 256 / 4);
-
-    mouseEvent(animationFrameWidthSpinBox, QPoint(animationFrameWidthSpinBox->width() - 10,
-        animationFrameWidthSpinBox->height() / 2), MouseClick);
-    QCOMPARE(animationFrameWidthSpinBox->property("value").toInt(), 256 / 4 + 1);
-
-    // Increase frame height.
-    QQuickItem *animationFrameHeightSpinBox = window->findChild<QQuickItem*>("animationFrameHeightSpinBox");
-    QVERIFY(animationFrameHeightSpinBox);
-    QCOMPARE(animationFrameHeightSpinBox->property("value").toInt(), 256);
-
-    mouseEvent(animationFrameHeightSpinBox, QPoint(animationFrameHeightSpinBox->width() - 10,
-        animationFrameHeightSpinBox->height() / 2), MouseClick);
-    QCOMPARE(animationFrameHeightSpinBox->property("value").toInt(), 256 + 1);
-
-    // Increase frame count.
-    QQuickItem *animationFrameCountSpinBox = window->findChild<QQuickItem*>("animationFrameCountSpinBox");
-    QVERIFY(animationFrameCountSpinBox);
-    QCOMPARE(animationFrameCountSpinBox->property("value").toInt(), 4);
-
-    mouseEvent(animationFrameCountSpinBox, QPoint(animationFrameCountSpinBox->width() - 10,
-        animationFrameCountSpinBox->height() / 2), MouseClick);
-    QCOMPARE(animationFrameCountSpinBox->property("value").toInt(), 4 + 1);
+    QObject *animationPreviewSettingsPopup = findPopupFromTypeName("AnimationPreviewSettingsPopup");
+    QVERIFY(animationPreviewSettingsPopup);
+    QTRY_COMPARE(animationPreviewSettingsPopup->property("opened").toBool(), true);
 
     // Click in the middle of the slider to increase the scale.
     QQuickItem *animationPreviewScaleSlider = window->findChild<QQuickItem*>("animationPreviewScaleSlider");
@@ -5204,16 +5153,63 @@ void tst_App::animationPlayback()
     const qreal modifiedScaleValue = currentAnimationPlayback->scale();
     QVERIFY(modifiedScaleValue > 1.0);
 
-    // Accept and close the settings popup.
-    QQuickItem *saveButton = findDialogButtonFromText(animationSettingsPopup, "Save");
-    QVERIFY(saveButton);
-    mouseEventOnCentre(saveButton, MouseClick);
-    QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);
-    QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
-    QCOMPARE(currentAnimation->frameWidth(), 256 / 4 + 1);
-    QCOMPARE(currentAnimation->frameHeight(), 256 + 1);
-    QCOMPARE(currentAnimation->frameCount(), 4 + 1);
+    // Accept and close the preview settings popup.
+    QQuickItem *previewSettingsSaveButton = findDialogButtonFromText(animationPreviewSettingsPopup, "Save");
+    QVERIFY(previewSettingsSaveButton);
+    mouseEventOnCentre(previewSettingsSaveButton, MouseClick);
+    QTRY_COMPARE(animationPreviewSettingsPopup->property("visible").toBool(), false);
 
+    // Open the animation settings popup for the current animation.
+    QQuickItem *animation1Delegate = findListViewChild("animationListView", "Animation 1_Delegate");
+    QVERIFY(animation1Delegate);
+    QQuickItem *configureAnimationToolButton = animation1Delegate->findChild<QQuickItem*>("Animation 1_DelegateAnimationSettingsToolButton");
+    QVERIFY(configureAnimationToolButton);
+    mouseEventOnCentre(configureAnimationToolButton, MouseClick);
+    QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
+    QVERIFY(animationSettingsPopup);
+    QTRY_COMPARE(animationSettingsPopup->property("opened").toBool(), true);
+
+    const int oldFps = animationSystem->currentAnimation()->fps();
+    const int expectedFps = oldFps + 1;
+    const int oldFrameX = animationSystem->currentAnimation()->frameX();
+    const int expectedFrameX = oldFrameX + 1;
+    const int oldFrameY = animationSystem->currentAnimation()->frameY();
+    const int expectedFrameY = oldFrameY + 1;
+    const int oldFrameWidth = animationSystem->currentAnimation()->frameWidth();
+    const int expectedFrameWidth = oldFrameWidth + 1;
+    const int oldFrameHeight = animationSystem->currentAnimation()->frameHeight();
+    const int expectedFrameHeight = oldFrameHeight + 1;
+    const int oldFrameCount = animationSystem->currentAnimation()->frameCount();
+    const int expectedFrameCount = oldFrameCount + 1;
+
+    // Change (increase) the values.
+    QVERIFY2(incrementSpinBox("animationFpsSpinBox", oldFps), failureMessage);
+    // The changes shouldn't be made to the actual animation until the save button is clicked.
+    QCOMPARE(animationSystem->currentAnimation()->fps(), oldFps);
+    QCOMPARE(animationSystem->editAnimation()->fps(), expectedFps);
+    QVERIFY2(incrementSpinBox("animationFrameXSpinBox", oldFrameX), failureMessage);
+    QCOMPARE(animationSystem->currentAnimation()->frameX(), oldFrameX);
+    QCOMPARE(animationSystem->editAnimation()->frameX(), expectedFrameX);
+    QVERIFY2(incrementSpinBox("animationFrameYSpinBox", oldFrameY), failureMessage);
+    QCOMPARE(animationSystem->currentAnimation()->frameY(), oldFrameY);
+    QCOMPARE(animationSystem->editAnimation()->frameY(), expectedFrameY);
+    QVERIFY2(incrementSpinBox("animationFrameWidthSpinBox", oldFrameWidth), failureMessage);
+    QCOMPARE(animationSystem->currentAnimation()->frameWidth(), oldFrameWidth);
+    QCOMPARE(animationSystem->editAnimation()->frameWidth(), expectedFrameWidth);
+    QVERIFY2(incrementSpinBox("animationFrameHeightSpinBox", oldFrameHeight), failureMessage);
+    QCOMPARE(animationSystem->currentAnimation()->frameHeight(), oldFrameHeight);
+    QCOMPARE(animationSystem->editAnimation()->frameHeight(), expectedFrameHeight);
+    QVERIFY2(incrementSpinBox("animationFrameCountSpinBox", oldFrameCount), failureMessage);
+    QCOMPARE(animationSystem->currentAnimation()->frameCount(), oldFrameCount);
+    QCOMPARE(animationSystem->editAnimation()->frameCount(), expectedFrameCount);
+
+    // Accept and close the animation settings popup.
+    QQuickItem *animationSettingsSaveButton = findDialogButtonFromText(animationSettingsPopup, "Save");
+    QVERIFY(animationSettingsSaveButton);
+    mouseEventOnCentre(animationSettingsSaveButton, MouseClick);
+    QTRY_COMPARE(animationPreviewSettingsPopup->property("visible").toBool(), false);
+
+    // Play the animation.
     mouseEventOnCentre(animationPlayPauseButton, MouseClick);
     QCOMPARE(currentAnimationPlayback->isPlaying(), true);
     QCOMPARE(currentAnimationPlayback->currentFrameIndex(), 0);
@@ -5240,12 +5236,12 @@ void tst_App::animationPlayback()
     currentAnimationPlayback = TestHelper::animationPlayback();
     currentAnimation = currentAnimationPlayback->animation();
     QCOMPARE(isUsingAnimation(), true);
-    QCOMPARE(animationFpsSpinBox->property("value").toInt(), 4 + 1);
-    QCOMPARE(currentAnimation->frameX(), 1);
-    QCOMPARE(currentAnimation->frameY(), 1);
-    QCOMPARE(currentAnimation->frameWidth(), 256 / 4 + 1);
-    QCOMPARE(currentAnimation->frameHeight(), 256 + 1);
-    QCOMPARE(currentAnimation->frameCount(), 4 + 1);
+    QCOMPARE(currentAnimation->fps(), expectedFps);
+    QCOMPARE(currentAnimation->frameX(), expectedFrameX);
+    QCOMPARE(currentAnimation->frameY(), expectedFrameY);
+    QCOMPARE(currentAnimation->frameWidth(), expectedFrameWidth);
+    QCOMPARE(currentAnimation->frameHeight(), expectedFrameHeight);
+    QCOMPARE(currentAnimation->frameCount(), expectedFrameCount);
     QCOMPARE(currentAnimationPlayback->scale(), modifiedScaleValue);
 }
 

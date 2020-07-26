@@ -109,6 +109,8 @@ protected:
     void keyClicks(const QString &text);
     Q_REQUIRED_RESULT bool clearAndEnterText(QQuickItem *textField, const QString &text);
     Q_REQUIRED_RESULT bool selectComboBoxItem(const QString &comboBoxObjectName, int index);
+    Q_REQUIRED_RESULT bool incrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
+    Q_REQUIRED_RESULT bool decrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
 
     QObject *findPopupFromTypeName(const QString &typeName) const;
     QQuickItem *findDialogButtonFromText(const QObject *dialog, const QString &text);
@@ -245,6 +247,7 @@ protected:
     Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
     Q_REQUIRED_RESULT bool fuzzyImageCompare(const QImage &image1, const QImage &image2);
     Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
+
     Q_REQUIRED_RESULT bool compareSwatches(const Swatch &actualSwatch, const Swatch &expectedSwatch);
     Q_REQUIRED_RESULT bool enableAutoSwatch();
     Q_REQUIRED_RESULT bool swatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour);
@@ -254,11 +257,16 @@ protected:
     Q_REQUIRED_RESULT bool deleteSwatchColour(int index);
     Q_REQUIRED_RESULT bool addNewGuide(Qt::Orientation orientation, int position);
     Q_REQUIRED_RESULT bool addSelectedColoursToTexturedFillSwatch();
+
     Q_REQUIRED_RESULT bool addNewNoteAtCursorPos(const QString &text);
     // Finds the note at \a noteIndex and attempts to drag it to \a newPosition
     // (by dragging from its centre). If \c newPosition is out of bounds, the function
     // tests that it was pushed back in.
     Q_REQUIRED_RESULT bool dragNoteAtIndex(int noteIndex, const QPoint &newPosition);
+
+    // Animation helpers.
+    AnimationSystem *getAnimationSystem() const;
+    Q_REQUIRED_RESULT bool addNewAnimation(const QString &expectedGeneratedAnimationName, int expectedIndex);
 
     QByteArray failureMessage;
 
@@ -318,6 +326,11 @@ protected:
     QQuickItem *moveLayerUpButton = nullptr;
     QQuickItem *animationPlayPauseButton = nullptr;
     QQuickItem *fullScreenToolButton = nullptr;
+    QQuickItem *newAnimationButton = nullptr;
+    QQuickItem *duplicateAnimationButton = nullptr;
+    QQuickItem *moveAnimationDownButton = nullptr;
+    QQuickItem *moveAnimationUpButton = nullptr;
+    QQuickItem *deleteAnimationButton = nullptr;
 
     QVector<ImageCanvas::Tool> mTools;
 

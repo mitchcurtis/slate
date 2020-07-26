@@ -20,8 +20,10 @@ QtGuiApplication {
     // Additional import path used to resolve QML modules in Qt Creator's code model
     property pathList qmlImportPaths: []
 
+    readonly property bool darwin: qbs.targetOS.contains("darwin")
+
     cpp.useRPaths: qbs.targetOS.contains("darwin")
-    cpp.rpaths: ["@loader_path/../Frameworks"]
+    cpp.rpaths: darwin ? ["@loader_path/../Frameworks"] : ["$ORIGIN"]
 
     cpp.cxxLanguageVersion: "c++11"
     // https://bugreports.qt.io/browse/QBS-1434

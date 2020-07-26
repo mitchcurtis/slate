@@ -40,8 +40,8 @@ int AnimationSystem::currentAnimationIndex() const
 
 void AnimationSystem::setCurrentAnimationIndex(int index)
 {
-    // If we're about to remove the last one, it's OK.
-    if (!(index == -1 && mAnimations.size() == 1) && !isValidIndexOrWarn(index))
+    // It's possible to have no entries, so allow -1.
+    if (index != -1 && !isValidIndexOrWarn(index))
         return;
 
     if (index == mCurrentAnimationIndex)
@@ -290,6 +290,7 @@ void AnimationSystem::write(QJsonObject &json) const
 void AnimationSystem::reset()
 {
     mAnimations.clear();
+    mCurrentAnimationIndex = -1;
     mCurrentAnimationPlayback.reset();
     mAnimationsCreated = 0;
 }

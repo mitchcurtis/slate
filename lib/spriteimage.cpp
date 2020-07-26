@@ -120,7 +120,7 @@ void SpriteImage::onAnimationChanged(Animation *oldAnimation)
 
     onFrameSizeChanged();
 
-    if (mAnimationPlayback->animation()) {
+    if (mAnimationPlayback && mAnimationPlayback->animation()) {
         connect(mAnimationPlayback->animation(), &Animation::frameXChanged, this, &SpriteImage::onNeedsUpdate);
         connect(mAnimationPlayback->animation(), &Animation::frameYChanged, this, &SpriteImage::onNeedsUpdate);
         connect(mAnimationPlayback->animation(), &Animation::frameWidthChanged, this, &SpriteImage::onFrameSizeChanged);

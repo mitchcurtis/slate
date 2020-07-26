@@ -36,6 +36,8 @@ Panel {
     clip: true
     enabled: project && animationPlayback
     padding: 12
+    leftPadding: 0
+    rightPadding: 0
 
     property Project project
     property ImageCanvas canvas
@@ -90,6 +92,8 @@ Panel {
             contentHeight: spriteImageContainer.implicitHeight
 
             Layout.fillWidth: true
+            Layout.leftMargin: root.padding
+            Layout.rightMargin: root.padding
             Layout.fillHeight: true
 
             ScrollBar.horizontal: ScrollBar {}

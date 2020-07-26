@@ -28,8 +28,8 @@ import "." as Ui
 
 ItemDelegate {
     id: root
-    objectName: model.animation.name
-    checkable: true
+    objectName: model.animation.name + "_Delegate"
+    checkable: false
     checked: animationSystem && animationSystem.currentAnimationIndex === index
     implicitHeight: Math.max(implicitBackgroundHeight,
         Math.max(animationNameTextField.implicitHeight, settingsPopupToolButton.implicitHeight) + topPadding + bottomPadding)
@@ -47,7 +47,11 @@ ItemDelegate {
     signal renamed
     signal settingsRequested(int animationIndex, var animation)
 
-    onClicked: project.animationSystem.currentAnimationIndex = index
+    // The checked binding gets broken when clicking on an already-current item, and even Binding
+    // is not enough to restore it apparently (though somehow, LayerDelegate works just fine).
+    // TODO: investigate this ^
+    // So, we just allow having no current animation, even when there is more than one.
+    onClicked: project.animationSystem.currentAnimationIndex = project.animationSystem.currentAnimationIndex === index ? -1 : index
     onDoubleClicked: animationNameTextField.forceActiveFocus()
 
     SpriteImageContainer {
