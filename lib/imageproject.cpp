@@ -24,7 +24,6 @@
 #include "utils.h"
 
 ImageProject::ImageProject() :
-    mUsingAnimation(false),
     mAnimationHelper(this, &mAnimationSystem, &mUsingAnimation)
 {
     setObjectName(QLatin1String("imageProject"));
@@ -118,6 +117,7 @@ void ImageProject::doClose()
     mImageUrl = QUrl();
     mUsingTempImage = false;
     mUsingAnimation = false;
+    mHasUsedAnimation = false;
     mAnimationSystem.reset();
     emit projectClosed();
 }
@@ -274,5 +274,14 @@ void ImageProject::setUsingAnimation(bool usingAnimation)
         return;
 
     mUsingAnimation = usingAnimation;
+
+    if (mUsingAnimation) {
+        if (!mHasUsedAnimation) {
+            mAnimationSystem.addNewAnimation(size());
+
+            mHasUsedAnimation = true;
+        }
+    }
+
     emit usingAnimationChanged();
 }

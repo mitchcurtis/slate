@@ -61,7 +61,8 @@ void ProjectAnimationHelper::duplicateAnimation(int index)
     }
 
     mProject->beginMacro(QLatin1String("DuplicateAnimationCommand"));
-    mProject->addChange(new DuplicateAnimationCommand(mAnimationSystem, index, index + 1, duplicateName));
+    mProject->addChange(new DuplicateAnimationCommand(mAnimationSystem, index,
+        mAnimationSystem->animationCount(), duplicateName));
     mProject->endMacro();
 }
 

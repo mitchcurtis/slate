@@ -52,13 +52,6 @@ public:
 
     AnimationSystem *animationSystem();
 
-    void addAnimation();
-    void duplicateAnimation(int index);
-    void modifyAnimation(int index);
-    void moveCurrentAnimationUp();
-    void moveCurrentAnimationDown();
-    void removeAnimation(int index);
-
     QImage exportedImage() const override;
 
     Q_INVOKABLE void exportGif(const QUrl &url);
@@ -71,6 +64,13 @@ public slots:
 
     void resize(int width, int height, bool smooth);
     void crop(const QRect &rect);
+
+    void addAnimation();
+    void duplicateAnimation(int index);
+    void modifyAnimation(int index);
+    void moveCurrentAnimationUp();
+    void moveCurrentAnimationDown();
+    void removeAnimation(int index);
 
 protected:
     void doLoad(const QUrl &url) override;
@@ -86,7 +86,8 @@ private:
 
     QUrl mImageUrl;
     QImage mImage;
-    bool mUsingAnimation;
+    bool mUsingAnimation = false;
+    bool mHasUsedAnimation = false;
     AnimationSystem mAnimationSystem;
     ProjectAnimationHelper mAnimationHelper;
 };

@@ -5345,10 +5345,10 @@ void tst_App::newAnimations()
     QVERIFY(animationPanel->property("visible").toBool());
     QVERIFY(isPanelExpanded("animationPanel"));
 
-    QVERIFY2(addNewAnimation("Animation 1 (Copy)", 1), failureMessage);
-    QVERIFY2(addNewAnimation("Animation 1 (Copy #2)", 2), failureMessage);
-    QVERIFY2(addNewAnimation("Animation 1 (Copy #3)", 3), failureMessage);
-    QVERIFY2(addNewAnimation("Animation 1 (Copy #4)", 4), failureMessage);
+    QVERIFY2(addNewAnimation("Animation 2", 1), failureMessage);
+    QVERIFY2(addNewAnimation("Animation 3", 2), failureMessage);
+    QVERIFY2(addNewAnimation("Animation 4", 3), failureMessage);
+    QVERIFY2(addNewAnimation("Animation 5", 4), failureMessage);
 }
 
 void tst_App::duplicateAnimations_data()
@@ -5376,10 +5376,10 @@ void tst_App::duplicateAnimations()
     QVERIFY(animationPanel->property("visible").toBool());
     QVERIFY(isPanelExpanded("animationPanel"));
 
-    QVERIFY2(duplicateCurrentAnimation("Animation 1 (Copy)", 1), failureMessage);
-    QVERIFY2(duplicateCurrentAnimation("Animation 1 (Copy #2)", 2), failureMessage);
-    QVERIFY2(duplicateCurrentAnimation("Animation 1 (Copy #3)", 3), failureMessage);
-    QVERIFY2(duplicateCurrentAnimation("Animation 1 (Copy #4)", 4), failureMessage);
+    QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy", 1), failureMessage);
+    QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy #2", 2), failureMessage);
+    QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy #3", 3), failureMessage);
+    QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy #4", 4), failureMessage);
 }
 
 void tst_App::addAndRemoveLayers()
