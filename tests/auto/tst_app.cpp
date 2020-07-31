@@ -195,6 +195,7 @@ private Q_SLOTS:
     void newAnimations();
     void duplicateAnimations_data();
     void duplicateAnimations();
+    void saveAnimations();
 
     // Layers.
     void addAndRemoveLayers();
@@ -5132,13 +5133,10 @@ void tst_App::animationPlayback()
     QCOMPARE(animationSystem->animationCount(), 1);
     QVERIFY(animationSystem->currentAnimation());
     QCOMPARE(animationSystem->currentAnimationIndex(), 0);
-    // Ensure that the animation panel is visible and expanded when animation playback is enabled.
-    QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
-    QVERIFY(animationPanel);
-    QVERIFY(animationPanel->property("visible").toBool());
-    QVERIFY(isPanelExpanded("animationPanel"));
 
     // Open the preview settings popup to modify the scale.
+    QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
+    QVERIFY(animationPanel);
     QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
     QVERIFY(animationPanelSettingsToolButton);
     mouseEventOnCentre(animationPanelSettingsToolButton, MouseClick);
@@ -5337,11 +5335,6 @@ void tst_App::newAnimations()
     QCOMPARE(animationSystem->animationCount(), 1);
     QVERIFY(animationSystem->currentAnimation());
     QCOMPARE(animationSystem->currentAnimationIndex(), 0);
-    // Ensure that the animation panel is visible and expanded when animation playback is enabled.
-    QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
-    QVERIFY(animationPanel);
-    QVERIFY(animationPanel->property("visible").toBool());
-    QVERIFY(isPanelExpanded("animationPanel"));
 
     QVERIFY2(addNewAnimation("Animation 2", 1), failureMessage);
     QVERIFY2(addNewAnimation("Animation 3", 2), failureMessage);
@@ -5368,16 +5361,69 @@ void tst_App::duplicateAnimations()
     QCOMPARE(animationSystem->animationCount(), 1);
     QVERIFY(animationSystem->currentAnimation());
     QCOMPARE(animationSystem->currentAnimationIndex(), 0);
-    // Ensure that the animation panel is visible and expanded when animation playback is enabled.
-    QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
-    QVERIFY(animationPanel);
-    QVERIFY(animationPanel->property("visible").toBool());
-    QVERIFY(isPanelExpanded("animationPanel"));
-
     QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy", 1), failureMessage);
     QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy #2", 2), failureMessage);
     QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy #3", 3), failureMessage);
     QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy #4", 4), failureMessage);
+}
+
+// Tests that the list of animations is actually saved.
+void tst_App::saveAnimations()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QCOMPARE(isUsingAnimation(), false);
+
+    QVERIFY2(setAnimationPlayback(true), failureMessage);
+    auto *animationSystem = getAnimationSystem();
+    QVERIFY(animationSystem);
+    // Enabling animations automatically creates the first animation for us.
+    QCOMPARE(animationSystem->animationCount(), 1);
+    QVERIFY(animationSystem->currentAnimation());
+    QCOMPARE(animationSystem->currentAnimationIndex(), 0);
+
+    QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy", 1), failureMessage);
+    QVERIFY2(makeCurrentAnimation("Animation 1 Copy", 1), failureMessage);
+
+    // Open the animation settings popup for the current animation.
+    QQuickItem *animation1Delegate = findListViewChild("animationListView", "Animation 1 Copy_Delegate");
+    QVERIFY(animation1Delegate);
+    QQuickItem *configureAnimationToolButton = animation1Delegate->findChild<QQuickItem*>("Animation 1 Copy_DelegateAnimationSettingsToolButton");
+    QVERIFY(configureAnimationToolButton);
+    mouseEventOnCentre(configureAnimationToolButton, MouseClick);
+    QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
+    QVERIFY(animationSettingsPopup);
+    QTRY_COMPARE(animationSettingsPopup->property("opened").toBool(), true);
+
+    const int oldFps = animationSystem->currentAnimation()->fps();
+    const int expectedFps = oldFps + 1;
+
+    // Change the FPS.
+    QVERIFY2(incrementSpinBox("animationFpsSpinBox", oldFps), failureMessage);
+    // The changes shouldn't be made to the actual animation until the save button is clicked.
+    QCOMPARE(animationSystem->currentAnimation()->fps(), oldFps);
+    QCOMPARE(animationSystem->editAnimation()->fps(), expectedFps);
+
+    // Accept and close the animation settings popup.
+    QQuickItem *animationSettingsSaveButton = findDialogButtonFromText(animationSettingsPopup, "Save");
+    QVERIFY(animationSettingsSaveButton);
+    mouseEventOnCentre(animationSettingsSaveButton, MouseClick);
+    QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);
+
+    // Save.
+    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/saveAnimations.slp"));
+    layeredImageProject->saveAs(saveUrl);
+    QVERIFY(!layeredImageProject->hasUnsavedChanges());
+
+    // Close.
+    QVERIFY2(triggerCloseProject(), failureMessage);
+    QVERIFY(!layeredImageProject->hasLoaded());
+    QCOMPARE(isUsingAnimation(), false);
+
+    // Load the saved file and check that our custom settings were remembered.
+    layeredImageProject->load(saveUrl);
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QCOMPARE(animationSystem->animationCount(), 2);
+    QCOMPARE(animationSystem->animationAt(1)->fps(), expectedFps);
 }
 
 void tst_App::addAndRemoveLayers()

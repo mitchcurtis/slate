@@ -266,7 +266,11 @@ protected:
 
     // Animation helpers.
     AnimationSystem *getAnimationSystem() const;
+    // Finds \a animationName in the layer list view, verifies that it exists and that its name is \a animationName,
+    // and sets animationDelegate to it.
+    Q_REQUIRED_RESULT bool verifyAnimationName(const QString &animationName, QQuickItem **animationDelegate = nullptr);
     Q_REQUIRED_RESULT bool addNewAnimation(const QString &expectedGeneratedAnimationName, int expectedIndex);
+    Q_REQUIRED_RESULT bool makeCurrentAnimation(const QString &animationName, int index);
     Q_REQUIRED_RESULT bool duplicateCurrentAnimation(const QString &expectedGeneratedAnimationName, int expectedDuplicateIndex);
 
     QByteArray failureMessage;

@@ -22,12 +22,14 @@
 #include <QClipboard>
 #include <QPainter>
 #include <QLoggingCategory>
+#include <QtQuickTest>
 
 #include "imagelayer.h"
 #include "projectmanager.h"
 #include "utils.h"
 
 Q_LOGGING_CATEGORY(lcTestHelper, "tests.testHelper")
+Q_LOGGING_CATEGORY(lcFindListViewChild, "tests.testHelper.findListViewChild")
 Q_LOGGING_CATEGORY(lcFindPopupFromTypeName, "tests.testHelper.findPopupFromTypeName")
 
 TestHelper::TestHelper(int &argc, char **argv) :
@@ -1118,6 +1120,18 @@ AnimationSystem *TestHelper::getAnimationSystem() const
     return imageProject ? imageProject->animationSystem() : layeredImageProject->animationSystem();
 }
 
+bool TestHelper::verifyAnimationName(const QString &animationName, QQuickItem **animationDelegate)
+{
+    QQuickItem *delegate = findListViewChild("animationListView", animationName + QLatin1String("_Delegate"));
+    VERIFY(delegate);
+    QQuickItem *animationDelegateNameTextField = delegate->findChild<QQuickItem*>("animationNameTextField");
+    VERIFY(animationDelegateNameTextField);
+    VERIFY(animationDelegateNameTextField->property("text").toString() == animationName);
+    if (animationDelegate)
+        *animationDelegate = delegate;
+    return true;
+}
+
 bool TestHelper::addNewAnimation(const QString &expectedGeneratedAnimationName, int expectedIndex)
 {
     VERIFY(imageProject || layeredImageProject);
@@ -1157,6 +1171,25 @@ bool TestHelper::addNewAnimation(const QString &expectedGeneratedAnimationName, 
         FAIL(qPrintable(message));
     }
     VERIFY(undoToolButton->isEnabled());
+    return true;
+}
+
+bool TestHelper::makeCurrentAnimation(const QString &animationName, int index)
+{
+    VERIFY(imageProject || layeredImageProject);
+
+    auto *animationSystem = getAnimationSystem();
+
+    const int oldCurrentIndex = animationSystem->currentAnimationIndex();
+    VERIFY2(index != oldCurrentIndex, "Can't make animation current because it already is");
+
+    QQuickItem *animationDelegate = nullptr;
+    VERIFY2(verifyAnimationName(animationName, &animationDelegate), failureMessage);
+
+    mouseEventOnCentre(animationDelegate, MouseClick);
+    VERIFY(animationDelegate->property("checked").toBool() == true);
+    VERIFY(animationSystem->currentAnimationIndex() == index);
+
     return true;
 }
 
@@ -1246,12 +1279,18 @@ QQuickItem *TestHelper::findDialogButtonFromObjectName(const QObject *dialog, co
 
 QQuickItem *TestHelper::findListViewChild(QQuickItem *listView, const QString &childObjectName) const
 {
+    if (QQuickTest::qIsPolishScheduled(listView))
+        if (!QQuickTest::qWaitForItemPolished(listView))
+            return nullptr;
+
     QQuickItem *listViewContentItem = listView->property("contentItem").value<QQuickItem*>();
     if (!listViewContentItem)
         return nullptr;
 
+    qCDebug(lcFindListViewChild) << "looking for ListView child" << childObjectName << "in" << listView->objectName();
     QQuickItem *listViewChild = nullptr;
     foreach (QQuickItem *child, listViewContentItem->childItems()) {
+        qCDebug(lcFindListViewChild).nospace() << "- " << child->objectName();
         if (child->objectName() == childObjectName) {
             listViewChild = child;
             break;
@@ -1271,6 +1310,10 @@ QQuickItem *TestHelper::findListViewChild(const QString &listViewObjectName, con
 
 QQuickItem *TestHelper::findChildWithText(QQuickItem *item, const QString &text)
 {
+    if (QQuickTest::qIsPolishScheduled(item))
+        if (!QQuickTest::qWaitForItemPolished(item))
+            return nullptr;
+
     foreach (QQuickItem *child, item->childItems()) {
         if (child->property("text").toString() == text)
             return child;
@@ -1623,6 +1666,12 @@ bool TestHelper::setAnimationPlayback(bool usingAnimation)
             VERIFY(moveAnimationUpButton);
             deleteAnimationButton = window->findChild<QQuickItem*>("deleteAnimationButton");
             VERIFY(deleteAnimationButton);
+
+            // Ensure that the animation panel is visible and expanded when animation playback is enabled.
+            QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
+            VERIFY(animationPanel);
+            VERIFY(animationPanel->property("visible").toBool());
+            VERIFY(isPanelExpanded("animationPanel"));
         } else {
             newAnimationButton = nullptr;
             duplicateAnimationButton = nullptr;

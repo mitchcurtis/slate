@@ -285,6 +285,14 @@ void AnimationSystem::write(QJsonObject &json) const
     QJsonObject playbackJson;
     mCurrentAnimationPlayback.write(playbackJson);
     json["currentAnimationPlayback"] = playbackJson;
+
+    QJsonArray animationsArray;
+    for (Animation *animation : qAsConst(mAnimations)) {
+        QJsonObject animationObject;
+        animation->write(animationObject);
+        animationsArray.append(animationObject);
+    }
+    json["animations"] = animationsArray;
 }
 
 void AnimationSystem::reset()
