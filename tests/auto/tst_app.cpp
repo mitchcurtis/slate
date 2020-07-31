@@ -1011,13 +1011,13 @@ void tst_App::optionsShortcutCancelled()
     QCOMPARE(app.settings()->newShortcut(), app.settings()->defaultNewShortcut());
 
     QTest::keyClick(window, Qt::Key_Escape);
-    QVERIFY(!optionsDialog->property("visible").toBool());
+    QTRY_VERIFY(!optionsDialog->property("visible").toBool());
     // Cancelling the dialog shouldn't change anything.
     QCOMPARE(app.settings()->newShortcut(), app.settings()->defaultNewShortcut());
 
     // Reopen the dialog to make sure that the editor shows the default shortcut.
     QVERIFY2(triggerOptions(), failureMessage);
-    QVERIFY(optionsDialog->property("visible").toBool());
+    QTRY_VERIFY(optionsDialog->property("opened").toBool());
     QTRY_COMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
     QCOMPARE(app.settings()->newShortcut(), app.settings()->defaultNewShortcut());
 
@@ -1064,7 +1064,7 @@ void tst_App::optionsTransparencyCancelled()
     QCOMPARE(app.settings()->checkerColour1(), app.settings()->defaultCheckerColour1());
 
     QTest::keyClick(window, Qt::Key_Escape);
-    QVERIFY(!optionsDialog->property("visible").toBool());
+    QTRY_VERIFY(!optionsDialog->property("visible").toBool());
     // Cancelling the dialog shouldn't change anything.
     QCOMPARE(app.settings()->checkerColour1(), app.settings()->defaultCheckerColour1());
 
@@ -2842,11 +2842,11 @@ void tst_App::texturedFillVariance()
     // Cancel the dialog..
     QQuickItem *texturedFillSettingsCancelButton = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsCancelButton");
     mouseEventOnCentre(texturedFillSettingsCancelButton, MouseClick);
-    QVERIFY(!settingsDialog->property("visible").toBool());
+    QTRY_VERIFY(!settingsDialog->property("visible").toBool());
 
     // .. and then open it again.
     QVERIFY(QMetaObject::invokeMethod(settingsDialog, "open"));
-    QVERIFY(settingsDialog->property("visible").toBool());
+    QTRY_VERIFY(settingsDialog->property("opened").toBool());
 
     // The original settings should be restored.
     QVERIFY(hueVarianceCheckBox->setProperty("checked", QVariant(false)));
@@ -2854,7 +2854,7 @@ void tst_App::texturedFillVariance()
     QVERIFY(lightnessVarianceCheckBox->setProperty("checked", QVariant(true)));
 
     // Open the settings dialog again.
-    QVERIFY(settingsDialog->property("visible").toBool());
+    QTRY_VERIFY(settingsDialog->property("opened").toBool());
     QCOMPARE(hueVarianceCheckBox->property("checked").toBool(), false);
     QCOMPARE(saturationVarianceCheckBox->property("checked").toBool(), false);
     QCOMPARE(lightnessVarianceCheckBox->property("checked").toBool(), true);
@@ -2863,7 +2863,7 @@ void tst_App::texturedFillVariance()
     QQuickItem *texturedFillSettingsDialogOkButton = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsDialogOkButton");
     QVERIFY(texturedFillSettingsDialogOkButton);
     mouseEventOnCentre(texturedFillSettingsDialogOkButton, MouseClick);
-    QVERIFY(!settingsDialog->property("visible").toBool());
+    QTRY_VERIFY(!settingsDialog->property("visible").toBool());
 
     // Fill the canvas with the default settings.
     setCursorPosInScenePixels(0, 0);
@@ -3429,7 +3429,7 @@ void tst_App::notes()
 
     // Cancel the dialog.
     QTest::keyClick(window, Qt::Key_Escape);
-    QTRY_VERIFY(!noteDialog->property("opened").toBool());
+    QTRY_VERIFY(!noteDialog->property("visible").toBool());
 
     // Move the mouse to verify that the position is correct upon opening a creation dialog.
     setCursorPosInScenePixels(13, 14);
@@ -3495,7 +3495,7 @@ void tst_App::notes()
 
     // Cancel the dialog.
     QTest::keyClick(window, Qt::Key_Escape);
-    QTRY_VERIFY(!noteDialog->property("opened").toBool());
+    QTRY_VERIFY(!noteDialog->property("visible").toBool());
 
     // Open it again. It shouldn't have the text that was previously entered,
     // but the position of the note that we're editing.
@@ -3527,7 +3527,7 @@ void tst_App::notes()
 
     // Accept the dialog.
     QTest::keyClick(window, Qt::Key_Return);
-    QTRY_VERIFY(!noteDialog->property("opened").toBool());
+    QTRY_VERIFY(!noteDialog->property("visible").toBool());
     QCOMPARE(project->notes().at(0).position(), QPoint(81, 91));
     QCOMPARE(project->notes().at(0).text(), QLatin1String("test0"));
     QVERIFY(!project->notes().at(0).size().isEmpty());
@@ -5120,8 +5120,6 @@ void tst_App::animationPlayback_data()
 
 void tst_App::animationPlayback()
 {
-    QSKIP("https://bugreports.qt.io/browse/QTBUG-85748");
-
     QFETCH(Project::Type, projectType);
 
     QVERIFY2(createNewProject(projectType), failureMessage);
@@ -5211,7 +5209,7 @@ void tst_App::animationPlayback()
     QQuickItem *animationSettingsSaveButton = findDialogButtonFromText(animationSettingsPopup, "Save");
     QVERIFY(animationSettingsSaveButton);
     mouseEventOnCentre(animationSettingsSaveButton, MouseClick);
-    QTRY_COMPARE(animationPreviewSettingsPopup->property("visible").toBool(), false);
+    QTRY_COMPARE(animationSettingsSaveButton->property("visible").toBool(), false);
 
     // Play the animation.
     mouseEventOnCentre(animationPlayPauseButton, MouseClick);
@@ -6406,6 +6404,7 @@ void tst_App::undoMoveContentsOfVisibleLayers()
 
 int main(int argc, char *argv[])
 {
+    qputenv("QT_QUICK_CONTROLS_STYLE_PATH", qPrintable(QDir().absolutePath()));
     tst_App test(argc, argv);
     return QTest::qExec(&test, argc, argv);
 }

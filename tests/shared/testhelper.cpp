@@ -423,14 +423,14 @@ bool TestHelper::changeImageSize(int width, int height)
     QQuickItem *cancelButton = imageSizePopup->findChild<QQuickItem*>("imageSizePopupCancelButton");
     VERIFY(cancelButton);
     mouseEventOnCentre(cancelButton, MouseClick);
-    VERIFY(!imageSizePopup->property("visible").toBool());
+    TRY_VERIFY(!imageSizePopup->property("visible").toBool());
     VERIFY(project->size().width() == originalWidthSpinBoxValue);
     VERIFY(project->size().height() == originalHeightSpinBoxValue);
 
     // Open the popup again.
     mouseEventOnCentre(imageSizeToolButton, MouseClick);
     VERIFY(imageSizePopup);
-    VERIFY(imageSizePopup->property("visible").toBool());
+    TRY_VERIFY(imageSizePopup->property("opened").toBool());
     // The old values should be restored.
     VERIFY(widthSpinBox->property("value").toInt() == originalWidthSpinBoxValue);
     VERIFY(heightSpinBox->property("value").toInt() == originalHeightSpinBoxValue);
@@ -444,7 +444,7 @@ bool TestHelper::changeImageSize(int width, int height)
     QQuickItem *okButton = imageSizePopup->findChild<QQuickItem*>("imageSizePopupOkButton");
     VERIFY(okButton);
     mouseEventOnCentre(okButton, MouseClick);
-    VERIFY(!imageSizePopup->property("visible").toBool());
+    TRY_VERIFY(!imageSizePopup->property("visible").toBool());
     VERIFY(project->size().width() == width);
     VERIFY(project->size().height() == height);
     VERIFY(widthSpinBox->property("value").toInt() == width);
@@ -538,7 +538,7 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     VERIFY2(triggerShortcut("moveContentsShortcut", app.settings()->moveContentsShortcut()), failureMessage);
     const QObject *moveContentsDialog = findPopupFromTypeName("MoveContentsDialog");
     VERIFY(moveContentsDialog);
-    VERIFY(moveContentsDialog->property("visible").toBool());
+    TRY_VERIFY(moveContentsDialog->property("opened").toBool());
 
     // Change the values and then cancel.
     // TODO: use actual input events...
@@ -559,12 +559,12 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     QQuickItem *cancelButton = moveContentsDialog->findChild<QQuickItem*>("moveContentsDialogCancelButton");
     VERIFY(cancelButton);
     mouseEventOnCentre(cancelButton, MouseClick);
-    VERIFY(!moveContentsDialog->property("visible").toBool());
+    TRY_VERIFY(!moveContentsDialog->property("visible").toBool());
     VERIFY(project->exportedImage() == originalContents);
 
     // Open the dialog again.
     VERIFY(triggerShortcut("moveContentsShortcut", app.settings()->moveContentsShortcut()));
-    VERIFY(moveContentsDialog->property("visible").toBool());
+    TRY_VERIFY(moveContentsDialog->property("opened").toBool());
     // The old values should be restored.
     VERIFY(moveContentsXSpinBox->property("value").toInt() == originalXSpinBoxValue);
     VERIFY(moveContentsYSpinBox->property("value").toInt() == originalYSpinBoxValue);
@@ -594,7 +594,7 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     QQuickItem *okButton = moveContentsDialog->findChild<QQuickItem*>("moveContentsDialogOkButton");
     VERIFY(okButton);
     mouseEventOnCentre(okButton, MouseClick);
-    VERIFY(!moveContentsDialog->property("visible").toBool());
+    TRY_VERIFY(!moveContentsDialog->property("visible").toBool());
     VERIFY(project->exportedImage() == movedContents);
     VERIFY(moveContentsXSpinBox->property("value").toInt() == x);
     VERIFY(moveContentsYSpinBox->property("value").toInt() == y);
@@ -937,7 +937,7 @@ bool TestHelper::renameSwatchColour(int index, const QString &name)
     // Replace with Qt API if https://bugreports.qt.io/browse/QTBUG-71224 ever gets done.
     QTest::qWait(50);
     mouseEventOnCentre(renameSwatchColourMenuItem, MouseClick);
-    TRY_VERIFY(!swatchContextMenu->property("opened").toBool());
+    TRY_VERIFY(!swatchContextMenu->property("visible").toBool());
 
     QObject *renameSwatchColourDialog = findPopupFromTypeName("RenameSwatchColourDialog");
     VERIFY(renameSwatchColourDialog);
@@ -948,7 +948,7 @@ bool TestHelper::renameSwatchColour(int index, const QString &name)
     VERIFY(swatchNameTextField);
     VERIFY2(clearAndEnterText(swatchNameTextField, name), failureMessage);
     QTest::keyClick(window, Qt::Key_Return);
-    TRY_VERIFY(!renameSwatchColourDialog->property("opened").toBool());
+    TRY_VERIFY(!renameSwatchColourDialog->property("visible").toBool());
     return true;
 }
 
@@ -966,7 +966,7 @@ bool TestHelper::deleteSwatchColour(int index)
     QQuickItem *deleteSwatchColourMenuItem = window->findChild<QQuickItem*>("deleteSwatchColourMenuItem");
     VERIFY(deleteSwatchColourMenuItem);
     mouseEventOnCentre(deleteSwatchColourMenuItem, MouseClick);
-    TRY_VERIFY(!swatchContextMenu->property("opened").toBool());
+    TRY_VERIFY(!swatchContextMenu->property("visible").toBool());
     return true;
 }
 
@@ -1079,7 +1079,7 @@ bool TestHelper::addNewNoteAtCursorPos(const QString &text)
 
     // Accept the dialog.
     QTest::keyClick(window, Qt::Key_Return);
-    TRY_VERIFY(!noteDialog->property("opened").toBool());
+    TRY_VERIFY(!noteDialog->property("visible").toBool());
     VERIFY(project->notes().size() == previousNoteCount + 1);
     VERIFY(project->notes().at(previousNoteCount).position() == cursorPos);
     VERIFY(project->notes().at(previousNoteCount).text() == text);
@@ -2162,7 +2162,7 @@ bool TestHelper::loadProject(const QUrl &url, const QRegularExpression &expected
     // QTest::mouseClick(window, Qt::LeftButton) didn't work on mac after a couple of data row runs,
     // so we use the keyboard to close it instead.
     QTest::keyClick(window, Qt::Key_Escape);
-    VERIFY(!errorPopup->property("visible").toBool());
+    TRY_VERIFY(!errorPopup->property("visible").toBool());
 
     if (projectCreationFailedSpy)
         projectCreationFailedSpy->clear();

@@ -5,6 +5,7 @@ QtGuiApplication {
     name: "screenshots"
 
     Depends { name: "Qt.core" }
+    Depends { name: "Qt.qmltest" }
     Depends { name: "Qt.quick" }
     Depends { name: "Qt.test" }
     Depends { name: "Qt.widgets" }

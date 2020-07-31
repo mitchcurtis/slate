@@ -66,6 +66,36 @@ QtGuiApplication {
 
     AppQmlFiles {}
 
+    // These two groups are a workaround for QTBUG-85748,
+    // and can be removed (along with the files) when we build with Qt 6.
+    Group {
+        name: "teststyle-conf"
+        prefix: path + "/resources/"
+        fileTags: [ "qt.core.resource_data" ]
+
+        Qt.core.resourcePrefix: "/"
+
+        files: [
+            "qtquickcontrols2.conf"
+        ]
+    }
+
+    // We can't get access to the engine before it loads the QML,
+    // and resource paths aren't allowed in QML2_IMPORT_PATH,
+    // so install the style to the directory that contains the test executable.
+    Group {
+        name: "teststyle-qml"
+        prefix: path + "/resources/"
+
+        qbs.install: true
+        qbs.installDir: "."
+        qbs.installSourceBase: path + "/resources/"
+
+        files: [
+            "TestStyle/Dialog.qml"
+        ]
+    }
+
     Group {     // Properties for the produced executable
         fileTagsFilter: "application"
         qbs.install: true
