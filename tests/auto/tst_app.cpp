@@ -5537,7 +5537,23 @@ void tst_App::reverseAnimation()
     for (int frameIndex = 0; frameIndex < currentAnimation->frameCount(); ++frameIndex) {
         QTRY_COMPARE_WITH_TIMEOUT(currentPlayback->currentFrameIndex(), frameIndex, 1000);
 
+        // Pause the animation so we can grab the SpriteImage without making the test flaky.
+        mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+        QCOMPARE(currentAnimationPlayback->isPlaying(), false);
+
         QVERIFY(imageGrabber.requestImage(previewSpriteImage));
+
+        if (frameIndex < currentAnimation->frameCount() - 1) {
+            // This is not the last frame; resume.
+            // We have this check for the same reason we pause; we want to make the tests reliable.
+            // If we don't do this, the currentFrameIndex comparison below can fail since
+            // the animations are time-based and so is the image grab.
+            // Note that it's important that we do this before the QTRY_VERIFY(imageGrabber.isReady()) below,
+            // as it is where the actual image grabbing happens.
+            mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+            QCOMPARE(currentAnimationPlayback->isPlaying(), true);
+        }
+
         QTRY_VERIFY(imageGrabber.isReady());
         frames.append(imageGrabber.takeImage());
     }
@@ -5547,13 +5563,28 @@ void tst_App::reverseAnimation()
     QVERIFY2(openAnimationSettingsPopupForCurrentAnimation(&animationSettingsPopup), failureMessage);
     QVERIFY2(setCheckBoxChecked("animationReverseCheckBox", true), failureMessage);
     QVERIFY2(clickDialogFooterButton(animationSettingsPopup, "Save"), failureMessage);
+    // The current index should be updated whenever the animation is reversed.
+    QCOMPARE(currentPlayback->currentFrameIndex(), currentAnimation->frameCount() - 1);
 
     for (int frameIndex = currentAnimation->frameCount() - 1; frameIndex >= 0; --frameIndex) {
         QTRY_COMPARE_WITH_TIMEOUT(currentPlayback->currentFrameIndex(), frameIndex, 1000);
 
+        // The animation is paused on the start of the first loop.
+        if (currentAnimationPlayback->isPlaying()) {
+            // Pause the animation so we can grab the SpriteImage without making the test flaky.
+            mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+        }
+        QCOMPARE(currentAnimationPlayback->isPlaying(), false);
+
         QVERIFY(imageGrabber.requestImage(previewSpriteImage));
+
+        // Resume.
+        mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+        QCOMPARE(currentAnimationPlayback->isPlaying(), true);
+
         QTRY_VERIFY(imageGrabber.isReady());
-        QCOMPARE(imageGrabber.takeImage(), frames.at(frameIndex));
+        QVERIFY2(imageGrabber.takeImage() == frames.at(frameIndex),
+            qPrintable(QString::fromLatin1("Frame comparison for frame index %1 failed").arg(frameIndex)));
     }
 }
 
