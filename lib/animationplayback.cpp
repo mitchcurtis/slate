@@ -59,18 +59,32 @@ void AnimationPlayback::setAnimation(Animation *animation)
 
     if (mAnimation) {
         connect(mAnimation, &Animation::fpsChanged, this, &AnimationPlayback::onFpsChanged);
-        connect(mAnimation, &Animation::fpsChanged, this, &AnimationPlayback::setCurrentIndexToStart);
+        connect(mAnimation, &Animation::reverseChanged, this, &AnimationPlayback::setCurrentIndexToStart);
 
         if (mWasPlayingBeforeAnimationChanged)
             setPlaying(true);
     }
 
     emit animationChanged(oldAnimation);
+
+    setCurrentIndexToStart();
 }
 
 int AnimationPlayback::currentFrameIndex() const
 {
     return mCurrentFrameIndex;
+}
+
+qreal AnimationPlayback::progress() const
+{
+    if (!mAnimation)
+        return 0;
+
+    const qreal nonReversedProgress = qreal(mCurrentFrameIndex) / (mAnimation->frameCount() - 1);
+    if (!mAnimation->isReverse())
+        return nonReversedProgress;
+
+    return 1.0 - nonReversedProgress;
 }
 
 qreal AnimationPlayback::scale() const

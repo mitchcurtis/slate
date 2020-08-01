@@ -41,6 +41,7 @@ class SLATE_EXPORT AnimationPlayback : public QObject
     // Not serialised.
     Q_PROPERTY(Animation *animation READ animation WRITE setAnimation NOTIFY animationChanged)
     Q_PROPERTY(bool playing READ isPlaying WRITE setPlaying NOTIFY playingChanged)
+    Q_PROPERTY(qreal progress READ progress NOTIFY currentFrameIndexChanged FINAL)
 
 public:
     explicit AnimationPlayback(QObject *parent = nullptr);
@@ -49,6 +50,7 @@ public:
     void setAnimation(Animation *animation);
 
     int currentFrameIndex() const;
+    qreal progress() const;
 
     qreal scale() const;
     void setScale(const qreal &scale);

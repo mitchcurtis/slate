@@ -134,7 +134,7 @@ Panel {
 
             ProgressBar {
                 objectName: "animationProgressBar"
-                value: animationPlayback && currentAnimation ? animationPlayback.currentFrameIndex / (currentAnimation.frameCount - 1) : 0
+                value: animationPlayback && currentAnimation ? animationPlayback.progress : 0
 
                 Layout.fillWidth: true
             }
