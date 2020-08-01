@@ -44,13 +44,20 @@ void AnimationPlayback::setAnimation(Animation *animation)
         return;
 
     auto oldAnimation = mAnimation;
-    if (oldAnimation)
+    if (oldAnimation) {
         oldAnimation->disconnect(this);
+        const bool wasPlaying = mPlaying;
+        setPlaying(false);
+        mWasPlaying = wasPlaying;
+    }
 
     mAnimation = animation;
 
-    if (mAnimation)
+    if (mAnimation) {
         connect(mAnimation, &Animation::fpsChanged, this, &AnimationPlayback::fpsChanged);
+        if (mWasPlaying)
+            setPlaying(true);
+    }
 
     emit animationChanged(oldAnimation);
 }
@@ -93,6 +100,7 @@ void AnimationPlayback::setPlaying(bool playing)
     }
 
     mPlaying = playing;
+    mWasPlaying = mPlaying;
 
     if (mPlaying) {
         qCDebug(lcAnimationPlayback) << "playing";
@@ -151,6 +159,7 @@ void AnimationPlayback::reset()
 {
     setCurrentFrameIndex(0);
     setPlaying(false);
+    mWasPlaying = false;
     setScale(1.0);
     setLoop(true);
     mTimerId = -1;

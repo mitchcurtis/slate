@@ -84,6 +84,9 @@ private:
     int mCurrentFrameIndex = -1;
     qreal mScale = 0.0;
     bool mPlaying = false;
+    // Store this so that we can resume playing if the animation is changed,
+    // which is convenient because it allows us to switch between playing animations quickly.
+    bool mWasPlaying = false;
     bool mLoop = false;
 
     int mTimerId = -1;

@@ -196,6 +196,7 @@ private Q_SLOTS:
     void duplicateAnimations_data();
     void duplicateAnimations();
     void saveAnimations();
+    void clickOnCurrentAnimation();
 
     // Layers.
     void addAndRemoveLayers();
@@ -5448,6 +5449,35 @@ void tst_App::saveAnimations()
     QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QCOMPARE(animationSystem->animationCount(), 2);
     QCOMPARE(animationSystem->animationAt(1)->fps(), expectedFps);
+}
+
+void tst_App::clickOnCurrentAnimation()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QCOMPARE(isUsingAnimation(), false);
+
+    QVERIFY2(setAnimationPlayback(true), failureMessage);
+    auto *animationSystem = getAnimationSystem();
+    QVERIFY(animationSystem);
+
+    // Play the current animation.
+    mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+    AnimationPlayback *currentAnimationPlayback = TestHelper::animationPlayback();
+    QCOMPARE(currentAnimationPlayback->isPlaying(), true);
+    QCOMPARE(currentAnimationPlayback->currentFrameIndex(), 0);
+
+    // Duplicate the current animation, and make the duplicate current.
+    QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy", 1), failureMessage);
+    QVERIFY2(makeCurrentAnimation("Animation 1 Copy", 1), failureMessage);
+
+    for (int i = 0; i < 2; ++i) {
+        QTest::qWait(300);
+
+        // Shouldn't crash when clicking on an already-current animation.
+        QQuickItem *animationDelegate = nullptr;
+        QVERIFY2(verifyAnimationName("Animation 1 Copy", &animationDelegate), failureMessage);
+        mouseEventOnCentre(animationDelegate, MouseClick);
+    }
 }
 
 void tst_App::addAndRemoveLayers()
