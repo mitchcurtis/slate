@@ -197,6 +197,7 @@ private Q_SLOTS:
     void duplicateAnimations();
     void saveAnimations();
     void clickOnCurrentAnimation();
+    void renameAnimation();
 
     // Layers.
     void addAndRemoveLayers();
@@ -5478,6 +5479,31 @@ void tst_App::clickOnCurrentAnimation()
         QVERIFY2(verifyAnimationName("Animation 1 Copy", &animationDelegate), failureMessage);
         mouseEventOnCentre(animationDelegate, MouseClick);
     }
+}
+
+void tst_App::renameAnimation()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QCOMPARE(isUsingAnimation(), false);
+
+    QVERIFY2(setAnimationPlayback(true), failureMessage);
+    auto *animationSystem = getAnimationSystem();
+    QVERIFY(animationSystem);
+
+    auto animationPanelFlickable = window->findChild<QQuickItem*>("animationPanelFlickable");
+    QVERIFY(animationPanelFlickable);
+
+    QVERIFY(imageGrabber.requestImage(animationPanelFlickable));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabBeforeRename = imageGrabber.takeImage();
+
+    QVERIFY2(makeCurrentAndRenameAnimation("Animation 1", "test"), failureMessage);
+
+    // The preview should not be affected by a rename.
+    QVERIFY(imageGrabber.requestImage(animationPanelFlickable));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabAfterRename = imageGrabber.takeImage();
+    QCOMPARE(grabAfterRename, grabBeforeRename);
 }
 
 void tst_App::addAndRemoveLayers()

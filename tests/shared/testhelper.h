@@ -272,6 +272,7 @@ protected:
     Q_REQUIRED_RESULT bool addNewAnimation(const QString &expectedGeneratedAnimationName, int expectedIndex);
     Q_REQUIRED_RESULT bool makeCurrentAnimation(const QString &animationName, int index);
     Q_REQUIRED_RESULT bool duplicateCurrentAnimation(const QString &expectedGeneratedAnimationName, int expectedDuplicateIndex);
+    Q_REQUIRED_RESULT bool makeCurrentAndRenameAnimation(const QString &from, const QString &to);
 
     QByteArray failureMessage;
 

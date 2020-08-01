@@ -230,6 +230,11 @@ void ImageProject::modifyAnimation(int index)
     mAnimationHelper.modifyAnimation(index);
 }
 
+void ImageProject::renameAnimation(int index)
+{
+    mAnimationHelper.renameAnimation(index);
+}
+
 void ImageProject::moveCurrentAnimationUp()
 {
     mAnimationHelper.moveCurrentAnimationUp();

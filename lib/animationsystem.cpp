@@ -40,8 +40,10 @@ int AnimationSystem::currentAnimationIndex() const
 
 void AnimationSystem::setCurrentAnimationIndex(int index)
 {
-    // It's possible to have no entries, so allow -1.
-    if (index != -1 && !isValidIndexOrWarn(index))
+    qCDebug(lcAnimationSystem()) << "setCurrentAnimationIndex called with" << index
+        << "- mCurrentAnimationIndex is" << mCurrentAnimationIndex;
+
+    if (!isValidCurrentIndexOrWarn(index))
         return;
 
     if (index == mCurrentAnimationIndex)
@@ -276,6 +278,8 @@ void AnimationSystem::read(const QJsonObject &json)
             mAnimations.append(animation.take());
         }
 
+        mCurrentAnimationIndex = json.value("currentAnimationIndex").toInt(-1);
+
         mCurrentAnimationPlayback.read(json.value("currentAnimationPlayback").toObject());
     }
 }
@@ -293,6 +297,8 @@ void AnimationSystem::write(QJsonObject &json) const
         animationsArray.append(animationObject);
     }
     json["animations"] = animationsArray;
+
+    json["currentAnimationIndex"] = mCurrentAnimationIndex;
 }
 
 void AnimationSystem::reset()
@@ -307,6 +313,19 @@ bool AnimationSystem::isValidIndexOrWarn(int index) const
 {
     if (index < 0 || index >= mAnimations.size()) {
         qWarning() << "Animation index" << index << "is invalid";
+        return false;
+    }
+    return true;
+}
+
+bool AnimationSystem::isValidCurrentIndexOrWarn(int currentIndex) const
+{
+    // If there are no animations, allow setting -1 as the current index.
+    if (mAnimations.isEmpty() && currentIndex == -1)
+        return true;
+
+    if (currentIndex < 0  || currentIndex >= mAnimations.size()) {
+        qWarning() << "Index" << currentIndex << "is not a valid current index";
         return false;
     }
     return true;

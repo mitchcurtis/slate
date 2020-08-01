@@ -86,6 +86,8 @@ signals:
 
 private:
     bool isValidIndexOrWarn(int index) const;
+    bool isValidCurrentIndexOrWarn(int currentIndex) const;
+
     QString peekNextGeneratedName() const;
     QString takeNextGeneratedName();
 

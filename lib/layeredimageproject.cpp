@@ -825,6 +825,11 @@ void LayeredImageProject::modifyAnimation(int index)
     mAnimationHelper.modifyAnimation(index);
 }
 
+void LayeredImageProject::renameAnimation(int index)
+{
+    mAnimationHelper.renameAnimation(index);
+}
+
 void LayeredImageProject::moveCurrentAnimationUp()
 {
     mAnimationHelper.moveCurrentAnimationUp();

@@ -40,6 +40,8 @@ Animation *AnimationPlayback::animation() const
 
 void AnimationPlayback::setAnimation(Animation *animation)
 {
+    qCDebug(lcAnimationPlayback) << "setAnimation called on" << objectName()
+        << "with" << animation << "- current animation is" << mAnimation;
     if (animation == mAnimation)
         return;
 
@@ -88,11 +90,13 @@ bool AnimationPlayback::isPlaying() const
 
 void AnimationPlayback::setPlaying(bool playing)
 {
+    qCDebug(lcAnimationPlayback) << "setPlaying called on" << objectName()
+        << "with" << playing << "- current value is" << mPlaying;
     if (playing == mPlaying)
         return;
 
     if (mPlaying) {
-        qCDebug(lcAnimationPlayback) << "pausing";
+        qCDebug(lcAnimationPlayback) << "killing timer";
         if (mTimerId != -1) {
             killTimer(mTimerId);
             mTimerId = -1;
@@ -103,7 +107,7 @@ void AnimationPlayback::setPlaying(bool playing)
     mWasPlaying = mPlaying;
 
     if (mPlaying) {
-        qCDebug(lcAnimationPlayback) << "playing";
+        qCDebug(lcAnimationPlayback) << "starting timer";
         mTimerId = startTimer(1000 / qMax(1, mAnimation->fps()));
     }
 

@@ -124,6 +124,9 @@ public slots:
         which gathers the already-modified values itself.
     */
     void modifyAnimation(int index);
+    // This is here so that the delegate doesn't have to do all of the assignment for
+    // the properties that aren't affected by the rename.
+    void renameAnimation(int index);
     void moveCurrentAnimationUp();
     void moveCurrentAnimationDown();
     void removeAnimation(int index);

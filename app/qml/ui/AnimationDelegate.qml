@@ -29,7 +29,7 @@ import "." as Ui
 ItemDelegate {
     id: root
     objectName: model.animation.name + "_Delegate"
-    checkable: false
+    checkable: true
     checked: animationSystem && animationSystem.currentAnimationIndex === index
     implicitHeight: Math.max(implicitBackgroundHeight,
         Math.max(animationNameTextField.implicitHeight, settingsPopupToolButton.implicitHeight) + topPadding + bottomPadding)
@@ -47,11 +47,7 @@ ItemDelegate {
     signal renamed
     signal settingsRequested(int animationIndex, var animation)
 
-    // The checked binding gets broken when clicking on an already-current item, and even Binding
-    // is not enough to restore it apparently (though somehow, LayerDelegate works just fine).
-    // TODO: investigate this ^
-    // So, we just allow having no current animation, even when there is more than one.
-    onClicked: project.animationSystem.currentAnimationIndex = project.animationSystem.currentAnimationIndex === index ? -1 : index
+    onClicked: project.animationSystem.currentAnimationIndex = index
     onDoubleClicked: animationNameTextField.forceActiveFocus()
 
     SpriteImageContainer {
@@ -88,8 +84,8 @@ ItemDelegate {
         background.visible: false
 
         onAccepted: {
-            model.animation.name = text
-            animationSystem.animationModified(index)
+            animationSystem.editAnimation.name = text
+            project.renameAnimation(index)
             // We need to handle the accepted and rejected (escape pressed) signals separately,
             // and also take care of relieving ourselves of focus (which is done by the calling
             // code via the renamed signal), otherwise we'd just respond to editingFinished in

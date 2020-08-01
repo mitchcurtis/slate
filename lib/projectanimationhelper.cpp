@@ -87,6 +87,27 @@ void ProjectAnimationHelper::modifyAnimation(int index)
     mProject->endMacro();
 }
 
+void ProjectAnimationHelper::renameAnimation(int index)
+{
+    Animation *animation = mAnimationSystem->animationAt(index);
+    if (!animation) {
+        qWarning() << "Cannot rename animation" << index << "because it does not exist";
+        return;
+    }
+
+    const Animation *editAnimation = mAnimationSystem->editAnimation();
+    if (*editAnimation == *animation) {
+        // Nothing to do, but we don't need to warn about it.
+        return;
+    }
+
+    mProject->beginMacro(QLatin1String("ModifyAnimationCommand"));
+    mProject->addChange(new ModifyAnimationCommand(mAnimationSystem, index, editAnimation->name(),
+        animation->fps(), animation->frameCount(), animation->frameX(),
+        animation->frameY(), animation->frameWidth(), animation->frameHeight()));
+    mProject->endMacro();
+}
+
 void ProjectAnimationHelper::moveCurrentAnimationUp()
 {
     const int currentIndex = mAnimationSystem->currentAnimationIndex();

@@ -68,6 +68,7 @@ public slots:
     void addAnimation();
     void duplicateAnimation(int index);
     void modifyAnimation(int index);
+    void renameAnimation(int index);
     void moveCurrentAnimationUp();
     void moveCurrentAnimationDown();
     void removeAnimation(int index);

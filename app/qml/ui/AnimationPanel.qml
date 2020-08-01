@@ -171,6 +171,11 @@ Panel {
             Layout.fillWidth: true
         }
 
+        ButtonGroup {
+            objectName: "animationPanelButtonGroup"
+            buttons: animationListView.contentItem.children
+        }
+
         ListView {
             id: animationListView
             objectName: "animationListView"

@@ -1229,6 +1229,50 @@ bool TestHelper::duplicateCurrentAnimation(const QString &expectedGeneratedAnima
     return true;
 }
 
+bool TestHelper::makeCurrentAndRenameAnimation(const QString &from, const QString &to)
+{
+    VERIFY(imageProject || layeredImageProject);
+
+    auto *animationSystem = getAnimationSystem();
+    const int index = animationSystem->indexOfAnimation(from);
+    VERIFY(index != -1);
+
+    QQuickItem *animationDelegate = nullptr;
+    VERIFY2(verifyAnimationName(from, &animationDelegate), failureMessage);
+
+    // If it's not current, make it.
+    if (animationSystem->currentAnimationIndex() != index) {
+        mouseEventOnCentre(animationDelegate, MouseClick);
+        VERIFY(animationDelegate->property("checked").toBool() == true);
+        VERIFY(animationSystem->currentAnimationIndex() == index);
+    }
+
+    QQuickItem *nameTextField = animationDelegate->findChild<QQuickItem*>("animationNameTextField");
+    VERIFY(nameTextField);
+
+    // Give the text field focus.
+    mouseEventOnCentre(nameTextField, MouseDoubleClick);
+    VERIFY(nameTextField->hasActiveFocus() == true);
+
+    // Enter the text.
+    QTest::keySequence(window, QKeySequence(QKeySequence::SelectAll));
+    foreach (const auto character, to)
+        QTest::keyClick(window, character.toLatin1());
+    VERIFY2(nameTextField->property("text").toString() == to, qPrintable(QString::fromLatin1(
+        "Expected animationNameTextField to contain \"%1\" after entering new layer name, but it contains \"%2\"")
+            .arg(to, nameTextField->property("text").toString())));
+    VERIFY(animationSystem->currentAnimation()->name() == from);
+
+    // Confirm the changes.
+    QTest::keyClick(window, Qt::Key_Enter);
+    VERIFY2(nameTextField->property("text").toString() == to, qPrintable(QString::fromLatin1(
+        "Expected animationNameTextField to contain \"%1\" after confirming changes, but it contains \"%2\"")
+            .arg(to, nameTextField->property("text").toString())));
+    VERIFY(animationSystem->currentAnimation()->name() == to);
+    VERIFY(project->hasUnsavedChanges());
+    return true;
+}
+
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
 {
     QObject *popup = nullptr;
@@ -1766,7 +1810,7 @@ bool TestHelper::makeCurrentAndRenameLayer(const QString &from, const QString &t
     foreach (const auto character, to)
         QTest::keyClick(window, character.toLatin1());
     VERIFY2(nameTextField->property("text").toString() == to, qPrintable(QString::fromLatin1(
-        "Expected layerNameTextField to contain \"%1\" after inputting new layer name, but it contains \"%2\"")
+        "Expected layerNameTextField to contain \"%1\" after entering new layer name, but it contains \"%2\"")
             .arg(to, nameTextField->property("text").toString())));
     VERIFY(layeredImageProject->currentLayer()->name() == from);
 
