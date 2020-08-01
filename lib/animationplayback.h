@@ -72,9 +72,12 @@ signals:
     void playingChanged();
 
 private slots:
-    void fpsChanged();
+    void onFpsChanged();
+    void setCurrentIndexToStart();
 
 private:
+    int startFrameIndex() const;
+
     void setCurrentFrameIndex(int currentFrameIndex);
 
     void timerEvent(QTimerEvent *event) override;
@@ -82,11 +85,12 @@ private:
     Animation *mAnimation = nullptr;
 
     int mCurrentFrameIndex = -1;
+    int mPauseIndex = -1;
     qreal mScale = 0.0;
     bool mPlaying = false;
     // Store this so that we can resume playing if the animation is changed,
     // which is convenient because it allows us to switch between playing animations quickly.
-    bool mWasPlaying = false;
+    bool mWasPlayingBeforeAnimationChanged = false;
     bool mLoop = false;
 
     int mTimerId = -1;

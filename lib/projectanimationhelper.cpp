@@ -83,7 +83,7 @@ void ProjectAnimationHelper::modifyAnimation(int index)
     mProject->beginMacro(QLatin1String("ModifyAnimationCommand"));
     mProject->addChange(new ModifyAnimationCommand(mAnimationSystem, index, editAnimation->name(),
         editAnimation->fps(), editAnimation->frameCount(), editAnimation->frameX(),
-        editAnimation->frameY(), editAnimation->frameWidth(), editAnimation->frameHeight()));
+        editAnimation->frameY(), editAnimation->frameWidth(), editAnimation->frameHeight(), editAnimation->isReverse()));
     mProject->endMacro();
 }
 
@@ -104,7 +104,7 @@ void ProjectAnimationHelper::renameAnimation(int index)
     mProject->beginMacro(QLatin1String("ModifyAnimationCommand"));
     mProject->addChange(new ModifyAnimationCommand(mAnimationSystem, index, editAnimation->name(),
         animation->fps(), animation->frameCount(), animation->frameX(),
-        animation->frameY(), animation->frameWidth(), animation->frameHeight()));
+        animation->frameY(), animation->frameWidth(), animation->frameHeight(), animation->isReverse()));
     mProject->endMacro();
 }
 

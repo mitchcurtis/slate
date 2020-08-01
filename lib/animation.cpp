@@ -133,6 +133,20 @@ void Animation::setFrameHeight(int frameHeight)
     emit frameHeightChanged();
 }
 
+bool Animation::isReverse() const
+{
+    return mReverse;
+}
+
+void Animation::setReverse(bool reverse)
+{
+    if (reverse == mReverse)
+        return;
+
+    mReverse = reverse;
+    emit reverseChanged();
+}
+
 int Animation::startColumn() const
 {
     return mFrameX / mFrameWidth;
@@ -157,6 +171,7 @@ void Animation::read(const QJsonObject &json)
     setFrameCount(json.value(QLatin1String("frameCount")).toInt());
     setFrameWidth(json.value(QLatin1String("frameWidth")).toInt());
     setFrameHeight(json.value(QLatin1String("frameHeight")).toInt());
+    setReverse(json.value(QLatin1String("reverse")).toBool());
 }
 
 void Animation::write(QJsonObject &json) const
@@ -168,6 +183,8 @@ void Animation::write(QJsonObject &json) const
     json[QLatin1String("frameCount")] = mFrameCount;
     json[QLatin1String("frameWidth")] = mFrameWidth;
     json[QLatin1String("frameHeight")] = mFrameHeight;
+    if (mReverse)
+        json[QLatin1String("reverse")] = true;
 }
 
 bool operator==(const Animation &lhs, const Animation &rhs)
@@ -178,7 +195,8 @@ bool operator==(const Animation &lhs, const Animation &rhs)
         && lhs.frameY() == rhs.frameY()
         && lhs.frameCount() == rhs.frameCount()
         && lhs.frameWidth() == rhs.frameWidth()
-        && lhs.frameHeight() == rhs.frameHeight();
+        && lhs.frameHeight() == rhs.frameHeight()
+        && lhs.isReverse() == rhs.isReverse();
 }
 
 QDebug operator<<(QDebug debug, const Animation *animation)
@@ -193,6 +211,7 @@ QDebug operator<<(QDebug debug, const Animation *animation)
         << " frameY=" << animation->frameY()
         << " frameWidth=" << animation->frameWidth()
         << " frameHeight=" << animation->frameHeight()
-        << " frameCount=" << animation->frameCount() << ")";
+        << " frameCount=" << animation->frameCount()
+        << " reverse=" << animation->isReverse() << ")";
     return debug;
 }

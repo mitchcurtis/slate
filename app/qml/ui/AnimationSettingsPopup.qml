@@ -58,6 +58,7 @@ Dialog {
         animationSystem.editAnimation.frameY = animation.frameY
         animationSystem.editAnimation.frameWidth = animation.frameWidth
         animationSystem.editAnimation.frameHeight = animation.frameHeight
+        animationSystem.editAnimation.reverse = animation.reverse
 
         ignoreChanges = false
     }
@@ -94,7 +95,7 @@ Dialog {
             value: animationSystem ? animationSystem.editAnimation.frameX : 0
             to: 4096
             editable: true
-            focusPolicy: Qt.NoFocus
+            focusPolicy: Qt.TabFocus
 
             Layout.preferredWidth: controlWidth
 
@@ -127,7 +128,7 @@ Dialog {
             value: animationSystem ? animationSystem.editAnimation.frameY : 0
             to: 4096
             editable: true
-            focusPolicy: Qt.NoFocus
+            focusPolicy: Qt.TabFocus
 
             Layout.preferredWidth: controlWidth
 
@@ -158,7 +159,7 @@ Dialog {
             value: animationSystem ? animationSystem.editAnimation.frameWidth : 0
             to: 512
             editable: true
-            focusPolicy: Qt.NoFocus
+            focusPolicy: Qt.TabFocus
 
             Layout.preferredWidth: controlWidth
 
@@ -188,7 +189,7 @@ Dialog {
             value: animationSystem ? animationSystem.editAnimation.frameHeight : 0
             to: 512
             editable: true
-            focusPolicy: Qt.NoFocus
+            focusPolicy: Qt.TabFocus
 
             Layout.preferredWidth: controlWidth
 
@@ -218,7 +219,7 @@ Dialog {
             value: animationSystem ? animationSystem.editAnimation.frameCount : 0
             to: 1000
             editable: true
-            focusPolicy: Qt.NoFocus
+            focusPolicy: Qt.TabFocus
 
             Layout.preferredWidth: controlWidth
 
@@ -248,7 +249,7 @@ Dialog {
             value: animationSystem ? animationSystem.editAnimation.fps : 0
             to: 60
             editable: true
-            focusPolicy: Qt.NoFocus
+            focusPolicy: Qt.TabFocus
 
             Layout.preferredWidth: controlWidth
 
@@ -264,6 +265,23 @@ Dialog {
             }
 
             Keys.onReturnPressed: acceptOnNextModify = true
+        }
+
+        Label {
+            text: qsTr("Reverse")
+        }
+
+        CheckBox {
+            objectName: "animationReverseCheckBox"
+            checked: animationSystem ? animationSystem.editAnimation.reverse : false
+            focusPolicy: Qt.TabFocus
+
+            ToolTip.text: qsTr("Reverse the animation")
+            ToolTip.visible: hovered
+            ToolTip.delay: UiConstants.toolTipDelay
+            ToolTip.timeout: UiConstants.toolTipTimeout
+
+            onClicked: animationSystem.editAnimation.reverse = checked
         }
     }
 }

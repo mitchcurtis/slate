@@ -101,6 +101,7 @@ Panel {
 
             SpriteImageContainer {
                 id: spriteImageContainer
+                objectName: "animationPreviewContainer"
                 project: root.project
                 animationPlayback: root.animationPlayback
             }

@@ -48,16 +48,20 @@ void AnimationPlayback::setAnimation(Animation *animation)
     auto oldAnimation = mAnimation;
     if (oldAnimation) {
         oldAnimation->disconnect(this);
+
         const bool wasPlaying = mPlaying;
         setPlaying(false);
-        mWasPlaying = wasPlaying;
+        mWasPlayingBeforeAnimationChanged = wasPlaying;
     }
 
     mAnimation = animation;
+    mPauseIndex = -1;
 
     if (mAnimation) {
-        connect(mAnimation, &Animation::fpsChanged, this, &AnimationPlayback::fpsChanged);
-        if (mWasPlaying)
+        connect(mAnimation, &Animation::fpsChanged, this, &AnimationPlayback::onFpsChanged);
+        connect(mAnimation, &Animation::fpsChanged, this, &AnimationPlayback::setCurrentIndexToStart);
+
+        if (mWasPlayingBeforeAnimationChanged)
             setPlaying(true);
     }
 
@@ -90,6 +94,11 @@ bool AnimationPlayback::isPlaying() const
 
 void AnimationPlayback::setPlaying(bool playing)
 {
+    if (playing && !mAnimation) {
+        qWarning() << "Can't play without an animation";
+        return;
+    }
+
     qCDebug(lcAnimationPlayback) << "setPlaying called on" << objectName()
         << "with" << playing << "- current value is" << mPlaying;
     if (playing == mPlaying)
@@ -104,11 +113,24 @@ void AnimationPlayback::setPlaying(bool playing)
     }
 
     mPlaying = playing;
-    mWasPlaying = mPlaying;
+    mWasPlayingBeforeAnimationChanged = mPlaying;
 
     if (mPlaying) {
         qCDebug(lcAnimationPlayback) << "starting timer";
+
+        if (mPauseIndex == -1) {
+            // Force the start index to be calculated based on whether the animation is reversed or not.
+            setCurrentIndexToStart();
+        } else {
+            // The animation hasn't changed since we stopped playing, so resume from where it was stopped.
+            setCurrentFrameIndex(mPauseIndex);
+            mPauseIndex = -1;
+        }
+
         mTimerId = startTimer(1000 / qMax(1, mAnimation->fps()));
+    } else {
+        // We paused, so store the index at which we paused so we can resume later.
+        mPauseIndex = mCurrentFrameIndex;
     }
 
     emit playingChanged();
@@ -132,16 +154,17 @@ void AnimationPlayback::timerEvent(QTimerEvent *)
 {
     Q_ASSERT(mPlaying);
 
-    int newFrameIndex = mCurrentFrameIndex + 1;
-    if (newFrameIndex >= mAnimation->frameCount()) {
-        newFrameIndex = 0;
+    int newFrameIndex = !mAnimation->isReverse() ? mCurrentFrameIndex + 1 : mCurrentFrameIndex - 1;
+    const bool finished = !mAnimation->isReverse() ? newFrameIndex >= mAnimation->frameCount() : newFrameIndex < 0;
+    if (finished) {
+        newFrameIndex = startFrameIndex();
 
         if (!mLoop) {
             setPlaying(false);
         }
     }
 
-    qCDebug(lcAnimationPlayback) << "timer triggered; new frame index is" << newFrameIndex;
+    qCDebug(lcAnimationPlayback) << "timer triggered";
 
     setCurrentFrameIndex(newFrameIndex);
 }
@@ -162,14 +185,15 @@ void AnimationPlayback::write(QJsonObject &json) const
 void AnimationPlayback::reset()
 {
     setCurrentFrameIndex(0);
+    mPauseIndex = -1;
     setPlaying(false);
-    mWasPlaying = false;
+    mWasPlayingBeforeAnimationChanged = false;
     setScale(1.0);
     setLoop(true);
     mTimerId = -1;
 }
 
-void AnimationPlayback::fpsChanged()
+void AnimationPlayback::onFpsChanged()
 {
     if (!mPlaying || mTimerId == -1)
         return;
@@ -178,11 +202,27 @@ void AnimationPlayback::fpsChanged()
     mTimerId = startTimer(1000 / mAnimation->fps());
 }
 
+void AnimationPlayback::setCurrentIndexToStart()
+{
+    // Start from the beginning.
+    setCurrentFrameIndex(startFrameIndex());
+    // This function is called when the animation is reversed (amongst other things),
+    // so clear the pause index since it would no longer make sense.
+    mPauseIndex = -1;
+}
+
+int AnimationPlayback::startFrameIndex() const
+{
+    return !mAnimation->isReverse() ? 0 : mAnimation->frameCount() - 1;
+}
+
 void AnimationPlayback::setCurrentFrameIndex(int currentFrameIndex)
 {
     if (currentFrameIndex == mCurrentFrameIndex)
         return;
 
+    qCDebug(lcAnimationPlayback) << "setCurrentFrameIndex called with" << currentFrameIndex
+        << "- mCurrentFrameIndex is" << mCurrentFrameIndex;
     mCurrentFrameIndex = currentFrameIndex;
     emit currentFrameIndexChanged();
 }

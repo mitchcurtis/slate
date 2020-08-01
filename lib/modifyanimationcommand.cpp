@@ -27,7 +27,7 @@
 Q_LOGGING_CATEGORY(lcModifyAnimationCommand, "app.undo.modifyAnimationCommand")
 
 ModifyAnimationCommand::ModifyAnimationCommand(AnimationSystem *animationSystem, int index,
-    const QString &name, int fps, int frameCount, int frameX, int frameY, int frameWidth, int frameHeight, QUndoCommand *parent) :
+    const QString &name, int fps, int frameCount, int frameX, int frameY, int frameWidth, int frameHeight, bool reverse, QUndoCommand *parent) :
     QUndoCommand(parent),
     mAnimationSystem(animationSystem),
     mAnimation(mAnimationSystem->animationAt(index)),
@@ -39,13 +39,15 @@ ModifyAnimationCommand::ModifyAnimationCommand(AnimationSystem *animationSystem,
     mNewFrameY(frameY),
     mNewFrameWidth(frameWidth),
     mNewFrameHeight(frameHeight),
+    mNewReverse(reverse),
     mOldName(mAnimation->name()),
     mOldFps(mAnimation->fps()),
     mOldFrameCount(mAnimation->frameCount()),
     mOldFrameX(mAnimation->frameX()),
     mOldFrameY(mAnimation->frameY()),
     mOldFrameWidth(mAnimation->frameWidth()),
-    mOldFrameHeight(mAnimation->frameHeight())
+    mOldFrameHeight(mAnimation->frameHeight()),
+    mOldReverse(mAnimation->isReverse())
 
 {
     qCDebug(lcModifyAnimationCommand) << "constructed" << this;
@@ -63,6 +65,7 @@ void ModifyAnimationCommand::undo()
     animation->setFrameY(mOldFrameY);
     animation->setFrameWidth(mOldFrameWidth);
     animation->setFrameHeight(mOldFrameHeight);
+    animation->setReverse(mOldReverse);
     emit mAnimationSystem->animationModified(mIndex);
 }
 
@@ -78,6 +81,7 @@ void ModifyAnimationCommand::redo()
     animation->setFrameY(mNewFrameY);
     animation->setFrameWidth(mNewFrameWidth);
     animation->setFrameHeight(mNewFrameHeight);
+    animation->setReverse(mNewReverse);
     emit mAnimationSystem->animationModified(mIndex);
 }
 

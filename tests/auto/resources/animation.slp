@@ -1,7 +1,7 @@
 {
     "project": {
         "animationPlayback": {
-            "fps": 8,
+            "fps": 20,
             "frameCount": 6,
             "frameHeight": 38,
             "frameWidth": 36,

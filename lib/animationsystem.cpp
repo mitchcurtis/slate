@@ -278,9 +278,9 @@ void AnimationSystem::read(const QJsonObject &json)
             mAnimations.append(animation.take());
         }
 
-        mCurrentAnimationIndex = json.value("currentAnimationIndex").toInt(-1);
-
         mCurrentAnimationPlayback.read(json.value("currentAnimationPlayback").toObject());
+
+        setCurrentAnimationIndex(json.value("currentAnimationIndex").toInt(-1));
     }
 }
 

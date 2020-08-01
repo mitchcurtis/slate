@@ -42,7 +42,7 @@ public:
     // - have AnimationSettingsPopup set currentAnimationPlayback.animation back to currentAnimation when it closes
     ModifyAnimationCommand(AnimationSystem *animationSystem, int index,
         const QString &name, int fps, int frameCount, int frameX, int frameY, int frameWidth, int frameHeight,
-        QUndoCommand *parent = nullptr);
+        bool reverse, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
@@ -63,6 +63,7 @@ private:
     int mNewFrameY = 0;
     int mNewFrameWidth = 0;
     int mNewFrameHeight = 0;
+    bool mNewReverse = false;
 
     QString mOldName;
     int mOldFps = 0;
@@ -71,6 +72,7 @@ private:
     int mOldFrameY = 0;
     int mOldFrameWidth = 0;
     int mOldFrameHeight = 0;
+    bool mOldReverse = false;
 };
 
 

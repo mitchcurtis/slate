@@ -335,6 +335,30 @@ bool TestHelper::decrementSpinBox(const QString &spinBoxObjectName, int expected
     return true;
 }
 
+bool TestHelper::setCheckBoxChecked(const QString &checkBoxObjectName, bool checked)
+{
+    auto checkBox = window->findChild<QQuickItem*>(checkBoxObjectName);
+    VERIFY(checkBox);
+    VERIFY(checkBox->property("enabled").toBool() == true);
+    VERIFY(checkBox->property("visible").toBool() == true);
+
+    if (checkBox->property("checked").toBool() == checked)
+        return true;
+
+    mouseEventOnCentre(checkBox, MouseClick);
+    VERIFY(checkBox->property("checked").toBool() == checked);
+    return true;
+}
+
+bool TestHelper::clickDialogFooterButton(const QObject *dialog, const QString &buttonText)
+{
+    QQuickItem *saveButton = findDialogButtonFromText(dialog, buttonText);
+    VERIFY(saveButton);
+    mouseEventOnCentre(saveButton, MouseClick);
+    TRY_VERIFY(dialog->property("visible").toBool() == false);
+    return true;
+}
+
 bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDialog)
 {
     // Open the canvas size popup.
@@ -1273,6 +1297,27 @@ bool TestHelper::makeCurrentAndRenameAnimation(const QString &from, const QStrin
     return true;
 }
 
+bool TestHelper::openAnimationSettingsPopupForCurrentAnimation(QObject **popup)
+{
+    auto currentAnimation = getAnimationSystem()->currentAnimation();
+    VERIFY(currentAnimation);
+
+    const auto delegateObjectName = currentAnimation->name() + "_Delegate";
+    QQuickItem *animationDelegate = findListViewChild("animationListView", delegateObjectName);
+    VERIFY(animationDelegate);
+
+    QQuickItem *configureAnimationToolButton = animationDelegate->findChild<QQuickItem*>(delegateObjectName + "AnimationSettingsToolButton");
+    VERIFY(configureAnimationToolButton);
+
+    mouseEventOnCentre(configureAnimationToolButton, MouseClick);
+    QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
+    VERIFY(animationSettingsPopup);
+    if (popup)
+        *popup = animationSettingsPopup;
+    TRY_VERIFY(animationSettingsPopup->property("opened").toBool());
+    return true;
+}
+
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
 {
     QObject *popup = nullptr;
@@ -1699,31 +1744,33 @@ bool TestHelper::setAnimationPlayback(bool usingAnimation)
         if (!triggerAnimationPlayback())
             return false;
         VERIFY(isUsingAnimation() == usingAnimation);
-        if (usingAnimation) {
-            newAnimationButton = window->findChild<QQuickItem*>("newAnimationButton");
-            VERIFY(newAnimationButton);
-            duplicateAnimationButton = window->findChild<QQuickItem*>("duplicateAnimationButton");
-            VERIFY(duplicateAnimationButton);
-            moveAnimationDownButton = window->findChild<QQuickItem*>("moveAnimationDownButton");
-            VERIFY(moveAnimationDownButton);
-            moveAnimationUpButton = window->findChild<QQuickItem*>("moveAnimationUpButton");
-            VERIFY(moveAnimationUpButton);
-            deleteAnimationButton = window->findChild<QQuickItem*>("deleteAnimationButton");
-            VERIFY(deleteAnimationButton);
-
-            // Ensure that the animation panel is visible and expanded when animation playback is enabled.
-            QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
-            VERIFY(animationPanel);
-            VERIFY(animationPanel->property("visible").toBool());
-            VERIFY(isPanelExpanded("animationPanel"));
-        } else {
-            newAnimationButton = nullptr;
-            duplicateAnimationButton = nullptr;
-            moveAnimationDownButton = nullptr;
-            moveAnimationUpButton = nullptr;
-            deleteAnimationButton = nullptr;
-        }
     }
+
+    if (usingAnimation) {
+        newAnimationButton = window->findChild<QQuickItem*>("newAnimationButton");
+        VERIFY(newAnimationButton);
+        duplicateAnimationButton = window->findChild<QQuickItem*>("duplicateAnimationButton");
+        VERIFY(duplicateAnimationButton);
+        moveAnimationDownButton = window->findChild<QQuickItem*>("moveAnimationDownButton");
+        VERIFY(moveAnimationDownButton);
+        moveAnimationUpButton = window->findChild<QQuickItem*>("moveAnimationUpButton");
+        VERIFY(moveAnimationUpButton);
+        deleteAnimationButton = window->findChild<QQuickItem*>("deleteAnimationButton");
+        VERIFY(deleteAnimationButton);
+
+        // Ensure that the animation panel is visible and expanded when animation playback is enabled.
+        QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
+        VERIFY(animationPanel);
+        VERIFY(animationPanel->property("visible").toBool());
+        VERIFY(isPanelExpanded("animationPanel"));
+    } else {
+        newAnimationButton = nullptr;
+        duplicateAnimationButton = nullptr;
+        moveAnimationDownButton = nullptr;
+        moveAnimationUpButton = nullptr;
+        deleteAnimationButton = nullptr;
+    }
+
     return true;
 }
 

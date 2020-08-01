@@ -40,6 +40,7 @@ class SLATE_EXPORT Animation : public QObject
     Q_PROPERTY(int frameY READ frameY WRITE setFrameY NOTIFY frameYChanged)
     Q_PROPERTY(int frameWidth READ frameWidth WRITE setFrameWidth NOTIFY frameWidthChanged FINAL)
     Q_PROPERTY(int frameHeight READ frameHeight WRITE setFrameHeight NOTIFY frameHeightChanged FINAL)
+    Q_PROPERTY(bool reverse READ isReverse WRITE setReverse NOTIFY reverseChanged)
 
 public:
     explicit Animation(QObject *parent = nullptr);
@@ -66,6 +67,9 @@ public:
     int frameHeight() const;
     void setFrameHeight(int frameHeight);
 
+    bool isReverse() const;
+    void setReverse(bool reverse);
+
     int startColumn() const;
     int startRow() const;
     int startIndex(int sourceImageWidth) const;
@@ -81,6 +85,7 @@ signals:
     void frameYChanged();
     void frameWidthChanged();
     void frameHeightChanged();
+    void reverseChanged();
 
 private:
     QString mName;
@@ -90,6 +95,7 @@ private:
     int mFrameY = 0;
     int mFrameWidth = 0;
     int mFrameHeight = 0;
+    bool mReverse = false;
 };
 
 SLATE_EXPORT bool operator==(const Animation &lhs, const Animation &rhs);

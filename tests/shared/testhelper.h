@@ -111,6 +111,8 @@ protected:
     Q_REQUIRED_RESULT bool selectComboBoxItem(const QString &comboBoxObjectName, int index);
     Q_REQUIRED_RESULT bool incrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
     Q_REQUIRED_RESULT bool decrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
+    Q_REQUIRED_RESULT bool setCheckBoxChecked(const QString &checkBoxObjectName, bool checked);
+    Q_REQUIRED_RESULT bool clickDialogFooterButton(const QObject *dialog, const QString &buttonText);
 
     QObject *findPopupFromTypeName(const QString &typeName) const;
     QQuickItem *findDialogButtonFromText(const QObject *dialog, const QString &text);
@@ -273,6 +275,7 @@ protected:
     Q_REQUIRED_RESULT bool makeCurrentAnimation(const QString &animationName, int index);
     Q_REQUIRED_RESULT bool duplicateCurrentAnimation(const QString &expectedGeneratedAnimationName, int expectedDuplicateIndex);
     Q_REQUIRED_RESULT bool makeCurrentAndRenameAnimation(const QString &from, const QString &to);
+    Q_REQUIRED_RESULT bool openAnimationSettingsPopupForCurrentAnimation(QObject **popup);
 
     QByteArray failureMessage;
 

@@ -198,6 +198,7 @@ private Q_SLOTS:
     void saveAnimations();
     void clickOnCurrentAnimation();
     void renameAnimation();
+    void reverseAnimation();
 
     // Layers.
     void addAndRemoveLayers();
@@ -5207,6 +5208,7 @@ void tst_App::animationPlayback()
     const int expectedFrameHeight = oldFrameHeight + 1;
     const int oldFrameCount = animationSystem->currentAnimation()->frameCount();
     const int expectedFrameCount = oldFrameCount + 1;
+    const bool expectedReverse = true;
 
     // Change (increase) the values.
     QVERIFY2(incrementSpinBox("animationFpsSpinBox", oldFps), failureMessage);
@@ -5228,6 +5230,7 @@ void tst_App::animationPlayback()
     QVERIFY2(incrementSpinBox("animationFrameCountSpinBox", oldFrameCount), failureMessage);
     QCOMPARE(animationSystem->currentAnimation()->frameCount(), oldFrameCount);
     QCOMPARE(animationSystem->editAnimation()->frameCount(), expectedFrameCount);
+    QVERIFY2(setCheckBoxChecked("animationReverseCheckBox", true), failureMessage);
 
     // Accept and close the animation settings popup.
     QQuickItem *animationSettingsSaveButton = findDialogButtonFromText(animationSettingsPopup, "Save");
@@ -5238,13 +5241,14 @@ void tst_App::animationPlayback()
     // Play the animation.
     mouseEventOnCentre(animationPlayPauseButton, MouseClick);
     QCOMPARE(currentAnimationPlayback->isPlaying(), true);
-    QCOMPARE(currentAnimationPlayback->currentFrameIndex(), 0);
+    // It's reversed, so it should start at the end.
+    QCOMPARE(currentAnimationPlayback->currentFrameIndex(), 4);
 
     if (projectType == Project::ImageType)
         return;
 
     // Let it play a bit.
-    QTRY_VERIFY(currentAnimationPlayback->currentFrameIndex() > 0);
+    QTRY_VERIFY(currentAnimationPlayback->currentFrameIndex() < 4);
 
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animationStuffSaved.slp"));
@@ -5268,6 +5272,7 @@ void tst_App::animationPlayback()
     QCOMPARE(currentAnimation->frameWidth(), expectedFrameWidth);
     QCOMPARE(currentAnimation->frameHeight(), expectedFrameHeight);
     QCOMPARE(currentAnimation->frameCount(), expectedFrameCount);
+    QCOMPARE(currentAnimation->isReverse(), expectedReverse);
     QCOMPARE(currentAnimationPlayback->scale(), modifiedScaleValue);
 }
 
@@ -5409,16 +5414,8 @@ void tst_App::saveAnimations()
 
     QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy", 1), failureMessage);
     QVERIFY2(makeCurrentAnimation("Animation 1 Copy", 1), failureMessage);
-
-    // Open the animation settings popup for the current animation.
-    QQuickItem *animation1Delegate = findListViewChild("animationListView", "Animation 1 Copy_Delegate");
-    QVERIFY(animation1Delegate);
-    QQuickItem *configureAnimationToolButton = animation1Delegate->findChild<QQuickItem*>("Animation 1 Copy_DelegateAnimationSettingsToolButton");
-    QVERIFY(configureAnimationToolButton);
-    mouseEventOnCentre(configureAnimationToolButton, MouseClick);
-    QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
-    QVERIFY(animationSettingsPopup);
-    QTRY_COMPARE(animationSettingsPopup->property("opened").toBool(), true);
+    QObject *animationSettingsPopup = nullptr;
+    QVERIFY2(openAnimationSettingsPopupForCurrentAnimation(&animationSettingsPopup), failureMessage);
 
     const int oldFps = animationSystem->currentAnimation()->fps();
     const int expectedFps = oldFps + 1;
@@ -5430,10 +5427,7 @@ void tst_App::saveAnimations()
     QCOMPARE(animationSystem->editAnimation()->fps(), expectedFps);
 
     // Accept and close the animation settings popup.
-    QQuickItem *animationSettingsSaveButton = findDialogButtonFromText(animationSettingsPopup, "Save");
-    QVERIFY(animationSettingsSaveButton);
-    mouseEventOnCentre(animationSettingsSaveButton, MouseClick);
-    QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);
+    QVERIFY2(clickDialogFooterButton(animationSettingsPopup, "Save"), failureMessage);
 
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/saveAnimations.slp"));
@@ -5504,6 +5498,63 @@ void tst_App::renameAnimation()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabAfterRename = imageGrabber.takeImage();
     QCOMPARE(grabAfterRename, grabBeforeRename);
+}
+
+void tst_App::reverseAnimation()
+{
+    // Ensure that we have a temporary directory.
+    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+
+    // Copy the project file from resources into our temporary directory.
+    const QString projectFileName = QLatin1String("animation.slp");
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+
+    // Load the project and play the animation.
+    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
+    const QUrl projectUrl = QUrl::fromLocalFile(absolutePath);
+    QVERIFY2(loadProject(projectUrl), failureMessage);
+    // updateVariables() calls collapseAllPanels(), so we must manually show this, even if the
+    // UI state for the project had it as open.
+    QVERIFY2(togglePanel("animationPanel", true), failureMessage);
+
+    QVERIFY2(setAnimationPlayback(true), failureMessage);
+    auto *animationSystem = getAnimationSystem();
+    QVERIFY(animationSystem);
+
+    // Play the current animation.
+    mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+    AnimationPlayback *currentAnimationPlayback = TestHelper::animationPlayback();
+    QCOMPARE(currentAnimationPlayback->isPlaying(), true);
+    QCOMPARE(currentAnimationPlayback->currentFrameIndex(), 0);
+
+    auto previewSpriteImage = window->findChild<QQuickItem*>("animationPreviewContainerSpriteImage");
+    QVERIFY(previewSpriteImage);
+
+    QVector<QImage> frames;
+
+    auto currentPlayback = animationSystem->currentAnimationPlayback();
+    auto currentAnimation = currentPlayback->animation();
+    for (int frameIndex = 0; frameIndex < currentAnimation->frameCount(); ++frameIndex) {
+        QTRY_COMPARE_WITH_TIMEOUT(currentPlayback->currentFrameIndex(), frameIndex, 1000);
+
+        QVERIFY(imageGrabber.requestImage(previewSpriteImage));
+        QTRY_VERIFY(imageGrabber.isReady());
+        frames.append(imageGrabber.takeImage());
+    }
+
+    // Reverse the animation.
+    QObject *animationSettingsPopup = nullptr;
+    QVERIFY2(openAnimationSettingsPopupForCurrentAnimation(&animationSettingsPopup), failureMessage);
+    QVERIFY2(setCheckBoxChecked("animationReverseCheckBox", true), failureMessage);
+    QVERIFY2(clickDialogFooterButton(animationSettingsPopup, "Save"), failureMessage);
+
+    for (int frameIndex = currentAnimation->frameCount() - 1; frameIndex >= 0; --frameIndex) {
+        QTRY_COMPARE_WITH_TIMEOUT(currentPlayback->currentFrameIndex(), frameIndex, 1000);
+
+        QVERIFY(imageGrabber.requestImage(previewSpriteImage));
+        QTRY_VERIFY(imageGrabber.isReady());
+        QCOMPARE(imageGrabber.takeImage(), frames.at(frameIndex));
+    }
 }
 
 void tst_App::addAndRemoveLayers()
