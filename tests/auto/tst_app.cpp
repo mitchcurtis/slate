@@ -622,23 +622,40 @@ void tst_App::saveAsAndLoad()
     }
 }
 
+enum ValidationCheck {
+    NoExtraValidation = 0x0,
+    HasVersion = 0x1,
+    HasAnimation = 0x2
+};
+
+Q_DECLARE_FLAGS(ValidationChecks, ValidationCheck)
+Q_DECLARE_METATYPE(ValidationCheck)
+Q_DECLARE_METATYPE(ValidationChecks)
+
 void tst_App::versionCheck_data()
 {
     QTest::addColumn<QString>("projectFileName");
     QTest::addColumn<QVersionNumber>("version");
+    QTest::addColumn<ValidationChecks>("validation");
 
-    QTest::newRow("version-check-v0.2.1.slp") << QString::fromLatin1("version-check-v0.2.1.slp") << QVersionNumber(0, 2, 1);
-    QTest::newRow("version-check-v0.8.0.slp") << QString::fromLatin1("version-check-v0.8.0.slp") << QVersionNumber(0, 8, 0);
-    // TODO: save and add this to resources once animation stuff is done
-//    QTest::newRow("version-check-v0.9.0.slp") << QString::fromLatin1("version-check-v0.9.0.slp") << QVersionNumber(0, 9, 0);
+    QTest::newRow("version-check-v0.2.1.slp") << QString::fromLatin1("version-check-v0.2.1.slp")
+        << QVersionNumber(0, 2, 1) << ValidationChecks(NoExtraValidation);
+
+    QTest::newRow("version-check-v0.8.0.slp") << QString::fromLatin1("version-check-v0.8.0.slp")
+        << QVersionNumber(0, 8, 0) << ValidationChecks(NoExtraValidation);
+
+    // 0.9 and newer should have a version number saved in the file.
+    // 0.9 only had one animation. We should support it by converting it to the first animation in our list of animations.
+    QTest::newRow("version-check-v0.9.0.slp") << QString::fromLatin1("version-check-v0.9.0.slp")
+        << QVersionNumber(0, 9, 0) << ValidationChecks(HasVersion | HasAnimation);
 }
 
-// Tests that old project files can still be loaded.
-// TODO: save version in project file (#76)
+// Tests that old project files (within reason) can still be loaded.
 void tst_App::versionCheck()
 {
     QFETCH(QString, projectFileName);
     QFETCH(QVersionNumber, version);
+    QFETCH(ValidationChecks, validation);
 
     // Ensure that we have a temporary directory.
     if (projectManager->projectTypeForFileName(projectFileName) == Project::LayeredImageType)
@@ -653,10 +670,17 @@ void tst_App::versionCheck()
     const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
     QVERIFY2(loadProject(QUrl::fromLocalFile(absolutePath)), failureMessage);
 
-    // Newer versions should have a version number saved in the file.
-    if (version > QVersionNumber(0, 8, 0)) {
+    if (validation.testFlag(HasVersion)) {
         QCOMPARE(project->creationVersion(), version);
         QCOMPARE(project->modificationVersion(), version);
+    }
+
+    if (validation.testFlag(HasAnimation)) {
+        // Only LayeredImageProject supports saving animations.
+        QVERIFY(layeredImageProject);
+        QVERIFY(layeredImageProject->isUsingAnimation());
+        const auto animationSystem = layeredImageProject->animationSystem();
+        QCOMPARE(animationSystem->animationCount(), 1);
     }
 }
 

@@ -72,6 +72,7 @@ public:
     void setUsingAnimation(bool isUsingAnimation);
 
     AnimationSystem *animationSystem();
+    const AnimationSystem *animationSystem() const;
 
     Q_INVOKABLE void exportGif(const QUrl &url);
 

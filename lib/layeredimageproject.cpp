@@ -377,6 +377,11 @@ AnimationSystem *LayeredImageProject::animationSystem()
     return &mAnimationSystem;
 }
 
+const AnimationSystem *LayeredImageProject::animationSystem() const
+{
+    return &mAnimationSystem;
+}
+
 void LayeredImageProject::exportGif(const QUrl &url)
 {
     if (!mUsingAnimation) {
@@ -441,7 +446,7 @@ void LayeredImageProject::doLoad(const QUrl &url)
     CONTAINS_KEY_OR_ERROR(rootJson, "project", filePath);
     QJsonObject projectObject = rootJson.value("project").toObject();
 
-    writeVersionNumbers(projectObject);
+    readVersionNumbers(projectObject);
 
     CONTAINS_KEY_OR_ERROR(projectObject, "layers", filePath);
     QJsonArray layerArray = projectObject.value("layers").toArray();

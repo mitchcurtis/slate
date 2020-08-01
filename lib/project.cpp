@@ -337,7 +337,8 @@ QUrl Project::createTemporaryImage(int width, int height, const QColor &colour)
 
 void Project::readVersionNumbers(const QJsonObject &projectJson)
 {
-    // TODO: be strict about this in v0.10.0
+    // TODO: call error() if this is missing in v0.11.0, and advise to use v0.10.0 to convert the project so that
+    // it's readable with newer versions
     if (projectJson.contains("creationVersion")) {
         mCreationVersion = QVersionNumber::fromString(projectJson.value("creationVersion").toString());
         mModificationVersion = QVersionNumber::fromString(projectJson.value("modificationVersion").toString());
