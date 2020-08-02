@@ -199,6 +199,7 @@ private Q_SLOTS:
     void clickOnCurrentAnimation();
     void renameAnimation();
     void reverseAnimation();
+    void animationFrameWidthTooLarge();
 
     // Layers.
     void addAndRemoveLayers();
@@ -5586,6 +5587,21 @@ void tst_App::reverseAnimation()
         QVERIFY2(imageGrabber.takeImage() == frames.at(frameIndex),
             qPrintable(QString::fromLatin1("Frame comparison for frame index %1 failed").arg(frameIndex)));
     }
+}
+
+void tst_App::animationFrameWidthTooLarge()
+{
+    // Ensure that we have a temporary directory.
+    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+
+    // Copy the project file from resources into our temporary directory.
+    const QString projectFileName = QLatin1String("animationFrameWidthTooLarge.slp");
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+
+    // Load the project - it shouldn't crash.
+    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
+    const QUrl projectUrl = QUrl::fromLocalFile(absolutePath);
+    QVERIFY2(loadProject(projectUrl), failureMessage);
 }
 
 void tst_App::addAndRemoveLayers()

@@ -107,7 +107,9 @@ int Animation::frameWidth() const
 
 int Animation::framesWide(int sourceImageWidth) const
 {
-    return sourceImageWidth / mFrameWidth;
+    // In case we get into a situation where sourceImageWidth / mFrameWidth is 0,
+    // return 1 to be sure that calling code doesn't crash due to division-by-zero.
+    return qMax(1, sourceImageWidth / mFrameWidth);
 }
 
 void Animation::setFrameWidth(int frameWidth)

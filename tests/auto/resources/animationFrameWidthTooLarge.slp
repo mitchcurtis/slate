@@ -1,0 +1,88 @@
+{
+    "project": {
+        "animationSystem": {
+            "animations": [
+                {
+                    "fps": 6,
+                    "frameCount": 2,
+                    "frameHeight": 196,
+                    "frameWidth": 228,
+                    "frameX": 0,
+                    "frameY": 0,
+                    "name": "Animation 1"
+                },
+                {
+                    "fps": 6,
+                    "frameCount": 2,
+                    "frameHeight": 196,
+                    "frameWidth": 228,
+                    "frameX": 0,
+                    "frameY": 196,
+                    "name": "Animation 2"
+                }
+            ],
+            "currentAnimationIndex": 1,
+            "currentAnimationPlayback": {
+                "loop": true,
+                "scale": 1
+            }
+        },
+        "autoExportEnabled": true,
+        "creationVersion": "0.10.0",
+        "currentLayerIndex": 0,
+        "guides": [
+            {
+                "orientation": 2,
+                "position": 64
+            }
+        ],
+        "hasUsedAnimation": true,
+        "layers": [
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAAIAAAABACAYAAADS1n9/AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAN0lEQVR4nO3BMQEAAADCoPVPbQhfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACA1wCAQAABxsP2LwAAAABJRU5ErkJggg==",
+                "name": "bg",
+                "opacity": 1,
+                "visible": true
+            },
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAAIAAAABACAYAAADS1n9/AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAN0lEQVR4nO3BMQEAAADCoPVPbQhfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACA1wCAQAABxsP2LwAAAABJRU5ErkJggg==",
+                "name": "content",
+                "opacity": 1,
+                "visible": true
+            }
+        ],
+        "modificationVersion": "0.10.0",
+        "notes": [
+        ],
+        "swatch": {
+            "colours": [
+            ]
+        },
+        "uiState": {
+            "animationPanelExpanded": true,
+            "colourPanelExpanded": false,
+            "firstPane": {
+                "offsetX": 298.4999999999997,
+                "offsetY": 192.30000000000013,
+                "sceneCentered": false,
+                "size": 1,
+                "zoomLevel": 5
+            },
+            "guidesLocked": true,
+            "lastFillToolUsed": "FillTool",
+            "layerListViewContentY": 0,
+            "layerPanelExpanded": true,
+            "mainSplitViewState": "gqJlaW5kZXgAbnByZWZlcnJlZFdpZHRo+0CBgAAAAAAAomVpbmRleAFucHJlZmVycmVkV2lkdGj7QG4AAAAAAAA=",
+            "panelSplitViewState": "g6JlaW5kZXgAb3ByZWZlcnJlZEhlaWdodPtAV+oAAAAAAKJlaW5kZXgBb3ByZWZlcnJlZEhlaWdodPtAbIAAAAAAAKJlaW5kZXgEb3ByZWZlcnJlZEhlaWdodPtAhOrAAAAAAA==",
+            "secondPane": {
+                "offsetX": -228,
+                "offsetY": 264,
+                "sceneCentered": true,
+                "size": 0,
+                "zoomLevel": 1
+            },
+            "swatchPanelExpanded": false
+        },
+        "usingAnimation": true
+    }
+}
