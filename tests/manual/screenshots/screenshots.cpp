@@ -375,10 +375,12 @@ void tst_Screenshots::animation()
     QVERIFY2(togglePanels(panelsToExpand, true), failureMessage);
 
     // Open the settings popup.
-    QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
-    QVERIFY(animationPanelSettingsToolButton);
-    mouseEventOnCentre(animationPanelSettingsToolButton, MouseClick);
-
+    // Open the animation settings popup for the current animation.
+    QQuickItem *animation1Delegate = findListViewChild("animationListView", "Animation 1_Delegate");
+    QVERIFY(animation1Delegate);
+    QQuickItem *configureAnimationToolButton = animation1Delegate->findChild<QQuickItem*>("Animation 1_DelegateAnimationSettingsToolButton");
+    QVERIFY(configureAnimationToolButton);
+    mouseEventOnCentre(configureAnimationToolButton, MouseClick);
     QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
     QVERIFY(animationSettingsPopup);
     QTRY_COMPARE(animationSettingsPopup->property("opened").toBool(), true);
