@@ -8,7 +8,7 @@
 
 # Slate - Animation Tutorial
 
-In Slate, it's possible to see a preview of how an animation will look. The animation is based on one or more "frames" or "cells" in your image. This tutorial will show one way to create these frames and then go through the process of customising the animation settings.
+In Slate, it's possible to preview animations. Each animation is based on one or more "frames" in your image. This tutorial will show one way to create these frames and then go through the process of customising the animation settings.
 
 Firstly, we'll start off with a single frame, composed of three layers:
 
@@ -22,7 +22,7 @@ We want to have 6 frames in our animation, so we need to increase the size of th
 
 Change the width of the image to 216 pixels and click OK to confirm. Now you should see this:
 
-![Change Canvas Size](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-tutorial-2.png)
+![New Canvas Size](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-tutorial-2.png)
 
 Let's make the transparent background white. Select the "background" layer in the Layers panel. Switch to the Fill tool, and the click on the transparent area to fill it with white. It will look then like this:
 
@@ -38,9 +38,19 @@ We're going to recreate the following guides:
 
 To drag a vertical guide onto the canvas, click on the ruler on the left side of the screen and drag outwards. Repeat this step until there are five vertical guides on the canvas at 36 pixel intervals. Then, drag a horizontal guide onto the canvas so that we have some reference for vertical movement in our animation.
 
-Now we'll set up the animation. To enable animation playback for a project, open the Animation menu and check "Animation Playback". The Animation panel will then become visible. Click on the settings icon in the top right of the panel to open the animation settings dialog. Input the following values:
+Now we'll set up the animation. To enable animation playback for a project, either press the A key or open the Animation menu and check "Animation Playback". The Animation panel will then become visible.
 
-![Guides](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-tutorial-3.png)
+![Animation Panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-tutorial-3.png)
+
+Let's make more room for the Animation panel. Collapse the Layers panel by clicking the button in its top-right corner.
+
+We'll now increase the size of the animation preview to make it easier to see. Click on the settings icon in the top right of the Animation panel to open the Animation Rreview Settings dialog. Increase the scale to 4, and then click OK:
+
+![Animation Settings](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-tutorial-3-1.png)
+
+Now we'll set up the animation. Click on the configure button next to "Animation 1" in the Animation panel to open the Animation Settings dialog. Input the following values:
+
+![Animation Settings](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-tutorial-3-2.png)
 
 Together, the "Frame X" and "Frame Y" form the starting point of the animation. We set them both to 0 here, but in a project with several different animations (such as a character in an idle animation, attacking animation, etc.), they would be set to different values to test out the different animations.
 
@@ -49,8 +59,6 @@ The "Frame Width" and "Frame Height" fields store the size of each frame.
 The "Frame Count" controls how many frames are in this animation.
 
 The "FPS", or Frames Per Second, controls the speed at which the animation plays.
-
-The "Preview Scale" determines how large the animation preview is.
 
 Click OK to confirm the settings. Hit the play button to see the animation:
 

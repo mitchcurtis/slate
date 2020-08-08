@@ -78,7 +78,7 @@
 3. Creates a new layer.
 4. Moves the current layer down.
 5. Moves the current layer up.
-6. Duplicates the current layer up.
+6. Duplicates the current layer.
 7. Deletes the current layer.
 
 ### Animation
@@ -92,6 +92,12 @@
 5. Displays the progress of the animation preview playback.
 6. Toggles between playing once and looping.
 7. Exports the animation as a GIF.
+8. Displays animations. Each animation can be previewed by clicking on it, renamed by double-clicking on it, and configured by clicking the configure button.
+9. Creates a new animation.
+10. Moves the current animation down.
+11. Moves the current animation up.
+12. Duplicates the current animation.
+13. Deletes the current animation.
 
 ## Settings
 

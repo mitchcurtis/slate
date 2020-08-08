@@ -108,7 +108,7 @@ void tst_Screenshots::panels_data()
     QTest::addRow("animation")
         << QString::fromLatin1("animation-panel.slp")
         << QString::fromLatin1("animationPanel")
-        << (QStringList() << QLatin1String("colourPanel") << QLatin1String("layerPanel"))
+        << (QStringList() << QLatin1String("colourPanel"))
         << QString::fromLatin1(":/resources/AnimationPanelMarkers.qml")
         << QString::fromLatin1("slate-animation-panel.png");
 }
@@ -141,6 +141,8 @@ void tst_Screenshots::panels()
 
     app.settings()->setAutoSwatchEnabled(true);
 
+    // Wait a frame, otherwise the toggle panels check fails with no change in height (e.g. 394 vs 394).
+    QTest::qWait(0);
     QVERIFY2(togglePanels(extraPanelsToExpand, true), failureMessage);
 
     QQuickItem *panel = window->findChild<QQuickItem*>(panelToMark);
@@ -275,7 +277,7 @@ void tst_Screenshots::toolBarIcons()
     QVERIFY2(createNewTilesetProject(), failureMessage);
     grabToolButtonImages();
 }
-
+#include <QScreen>
 void tst_Screenshots::animation()
 {
     // Ensure that we have a temporary directory.
@@ -374,25 +376,44 @@ void tst_Screenshots::animation()
     panelsToExpand << QLatin1String("animationPanel");
     QVERIFY2(togglePanels(panelsToExpand, true), failureMessage);
 
-    // Open the settings popup.
-    // Open the animation settings popup for the current animation.
-    QQuickItem *animation1Delegate = findListViewChild("animationListView", "Animation 1_Delegate");
-    QVERIFY(animation1Delegate);
-    QQuickItem *configureAnimationToolButton = animation1Delegate->findChild<QQuickItem*>("Animation 1_DelegateAnimationSettingsToolButton");
-    QVERIFY(configureAnimationToolButton);
-    mouseEventOnCentre(configureAnimationToolButton, MouseClick);
-    QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
-    QVERIFY(animationSettingsPopup);
-    QTRY_COMPARE(animationSettingsPopup->property("opened").toBool(), true);
-
+    // Take a screenshot of the Animation panel.
+    QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
+    QVERIFY(animationPanel);
     screenshotPath = QLatin1String("slate-animation-tutorial-3.png");
-    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+    QVERIFY(imageGrabber.requestImage(window->contentItem()));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QImage panelGrab = imageGrabber.takeImage();
+    QRectF panelRectInScene(0, 0, animationPanel->width(), animationPanel->height());
+    panelRectInScene = animationPanel->mapRectToScene(panelRectInScene).toRect();
+    panelGrab = panelGrab.copy(panelRectInScene.toRect());
+    QVERIFY(panelGrab.save(mOutputDirectory.absoluteFilePath(screenshotPath)));
 
+    // Close the Layers panel to make more room.
+    QVERIFY2(togglePanel("layerPanel", false), failureMessage);
+
+    // Open the preview settings popup to modify the scale.
+    QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
+    QVERIFY(animationPanelSettingsToolButton);
+    mouseEventOnCentre(animationPanelSettingsToolButton, MouseClick);
+    QObject *animationPreviewSettingsPopup = findPopupFromTypeName("AnimationPreviewSettingsPopup");
+    QVERIFY(animationPreviewSettingsPopup);
+    QTRY_COMPARE(animationPreviewSettingsPopup->property("opened").toBool(), true);
+
+    // Cheat a bit and modify it manually, then take the screenshot.
+    AnimationPlayback *currentAnimationPlayback = TestHelper::animationPlayback();
+    currentAnimationPlayback->setScale(4);
+    screenshotPath = QLatin1String("slate-animation-tutorial-3-1.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
     // Close it.
-    QQuickItem *cancelButton = findDialogButtonFromText(animationSettingsPopup, "Cancel");
-    QVERIFY(cancelButton);
-    mouseEventOnCentre(cancelButton, MouseClick);
-    QTRY_COMPARE(animationSettingsPopup->property("visible").toBool(), false);
+    QVERIFY2(clickDialogFooterButton(animationPreviewSettingsPopup, "OK"), failureMessage);
+
+    // Open the animation settings popup for the current animation and take a screenshot.
+    QObject *animationSettingsPopup = nullptr;
+    QVERIFY2(openAnimationSettingsPopupForCurrentAnimation(&animationSettingsPopup), failureMessage);
+    screenshotPath = QLatin1String("slate-animation-tutorial-3-2.png");
+    QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+    // Close it.
+    QVERIFY2(clickDialogFooterButton(animationSettingsPopup, "OK"), failureMessage);
 
     QVERIFY2(triggerCloseProject(), failureMessage);
 }

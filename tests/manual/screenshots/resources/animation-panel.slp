@@ -1,14 +1,22 @@
 {
     "project": {
-        "animationPlayback": {
-            "fps": 4,
-            "frameCount": 6,
-            "frameHeight": 38,
-            "frameWidth": 36,
-            "frameX": 0,
-            "frameY": 0,
-            "loop": true,
-            "scale": 2.02
+        "animationSystem": {
+            "animations": [
+                {
+                    "fps": 4,
+                    "frameCount": 6,
+                    "frameHeight": 38,
+                    "frameWidth": 36,
+                    "frameX": 0,
+                    "frameY": 0,
+                    "name": "Animation 1"
+                }
+            ],
+            "currentAnimationIndex": 0,
+            "currentAnimationPlayback": {
+                "loop": true,
+                "scale": 2.02
+            }
         },
         "creationVersion": "",
         "currentLayerIndex": 1,
@@ -59,7 +67,7 @@
                 "visible": true
             }
         ],
-        "modificationVersion": "0.9.0",
+        "modificationVersion": "0.10.0",
         "notes": [
         ],
         "swatch": {

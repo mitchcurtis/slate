@@ -56,7 +56,6 @@ Item {
     Screenshot.Marker {
         parent: findChildHelper.findAnyChild(root.parent, "animationProgressBar")
         anchors.horizontalCenter: parent.horizontalCenter
-//        anchors.bottom: playPauseMarker.bottom
         anchors.bottom: parent.top
         anchors.bottomMargin: 12
         number: 5
@@ -74,5 +73,47 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.top
         number: 7
+    }
+
+    Screenshot.Marker {
+        parent: findChildHelper.findAnyChild(root.parent, "Animation 1_Delegate")
+        anchors.centerIn: parent
+        anchors.horizontalCenterOffset: 32
+        number: 8
+    }
+
+    Screenshot.Marker {
+        parent: findChildHelper.findAnyChild(root.parent, "newAnimationButton")
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.top
+        number: 9
+    }
+
+    Screenshot.Marker {
+        parent: findChildHelper.findAnyChild(root.parent, "moveAnimationDownButton")
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.top
+        number: 10
+    }
+
+    Screenshot.Marker {
+        parent: findChildHelper.findAnyChild(root.parent, "moveAnimationUpButton")
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.top
+        number: 11
+    }
+
+    Screenshot.Marker {
+        parent: findChildHelper.findAnyChild(root.parent, "duplicateAnimationButton")
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.top
+        number: 12
+    }
+
+    Screenshot.Marker {
+        parent: findChildHelper.findAnyChild(root.parent, "deleteAnimationButton")
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.top
+        number: 13
     }
 }

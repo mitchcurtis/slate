@@ -352,9 +352,9 @@ bool TestHelper::setCheckBoxChecked(const QString &checkBoxObjectName, bool chec
 
 bool TestHelper::clickDialogFooterButton(const QObject *dialog, const QString &buttonText)
 {
-    QQuickItem *saveButton = findDialogButtonFromText(dialog, buttonText);
-    VERIFY(saveButton);
-    mouseEventOnCentre(saveButton, MouseClick);
+    QQuickItem *button = findDialogButtonFromText(dialog, buttonText);
+    VERIFY(button);
+    mouseEventOnCentre(button, MouseClick);
     TRY_VERIFY(dialog->property("visible").toBool() == false);
     return true;
 }
@@ -2650,8 +2650,8 @@ bool TestHelper::togglePanel(const QString &panelObjectName, bool expanded)
     if (expanded) {
         // Ensure that it has time to grow, otherwise stuff like input events will not work.
         TRY_VERIFY2(panel->height() > originalHeight, qPrintable(QString::fromLatin1(
-            "Expected expanded height of %1 to be larger than collapsed height of %2, but it wasn't")
-                .arg(panelObjectName).arg(originalHeight)));
+            "Expected expanded height of \"%1\" to be larger than collapsed height of %2, but it wasn't (%3)")
+                .arg(panelObjectName).arg(originalHeight).arg(panel->height())));
     } else {
         // If it's not visible, it's height might not update until it's visible again, apparently.
         // That's fine with us.
@@ -2659,7 +2659,7 @@ bool TestHelper::togglePanel(const QString &panelObjectName, bool expanded)
             // Ensure that the panel isn't visually expanded. We don't want to hard-code what the collapsed height
             // is, so we just make sure it's less than some large height.
             TRY_VERIFY2(panel->height() < 100, qPrintable(QString::fromLatin1(
-                "Expected collapsed height of %1 to be small, but it's %2")
+                "Expected collapsed height of \"%1\" to be small, but it's %2")
                     .arg(panelObjectName).arg(panel->height())));
         }
     }
