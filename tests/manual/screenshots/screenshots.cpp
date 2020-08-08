@@ -108,7 +108,7 @@ void tst_Screenshots::panels_data()
     QTest::addRow("animation")
         << QString::fromLatin1("animation-panel.slp")
         << QString::fromLatin1("animationPanel")
-        << (QStringList() << QLatin1String("colourPanel") << QLatin1String("layerPanel"))
+        << (QStringList() << QLatin1String("colourPanel"))
         << QString::fromLatin1(":/resources/AnimationPanelMarkers.qml")
         << QString::fromLatin1("slate-animation-panel.png");
 }
@@ -141,6 +141,8 @@ void tst_Screenshots::panels()
 
     app.settings()->setAutoSwatchEnabled(true);
 
+    // Wait a frame, otherwise the toggle panels check fails with no change in height (e.g. 394 vs 394).
+    QTest::qWait(0);
     QVERIFY2(togglePanels(extraPanelsToExpand, true), failureMessage);
 
     QQuickItem *panel = window->findChild<QQuickItem*>(panelToMark);
