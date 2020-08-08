@@ -28,7 +28,7 @@ Dialog {
     objectName: "animationSettingsPopup"
     title: qsTr("Animation Settings")
     modal: true
-    standardButtons: Dialog.Save | Dialog.Cancel
+    standardButtons: Dialog.Ok | Dialog.Cancel
 
     property Project project
     property AnimationSystem animationSystem: project ? project.animationSystem : null

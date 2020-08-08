@@ -40,9 +40,15 @@ To drag a vertical guide onto the canvas, click on the ruler on the left side of
 
 Now we'll set up the animation. To enable animation playback for a project, either press the A key or open the Animation menu and check "Animation Playback". The Animation panel will then become visible.
 
-![Animation Panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-tutorial-3-1.png)
+![Animation Panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-tutorial-3.png)
 
-Click on the settings icon in the top right of the panel to open the animation settings dialog. Input the following values:
+Let's make more room for the Animation panel. Collapse the Layers panel by clicking the button in its top-right corner.
+
+We'll now increase the size of the animation preview to make it easier to see. Click on the settings icon in the top right of the Animation panel to open the Animation Rreview Settings dialog. Increase the scale to 4, and then click OK:
+
+![Animation Settings](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-tutorial-3-1.png)
+
+Now we'll set up the animation. Click on the configure button next to "Animation 1" in the Animation panel to open the Animation Settings dialog. Input the following values:
 
 ![Animation Settings](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-tutorial-3-2.png)
 
@@ -53,8 +59,6 @@ The "Frame Width" and "Frame Height" fields store the size of each frame.
 The "Frame Count" controls how many frames are in this animation.
 
 The "FPS", or Frames Per Second, controls the speed at which the animation plays.
-
-The "Preview Scale" determines how large the animation preview is.
 
 Click OK to confirm the settings. Hit the play button to see the animation:
 

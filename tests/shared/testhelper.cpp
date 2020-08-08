@@ -352,9 +352,9 @@ bool TestHelper::setCheckBoxChecked(const QString &checkBoxObjectName, bool chec
 
 bool TestHelper::clickDialogFooterButton(const QObject *dialog, const QString &buttonText)
 {
-    QQuickItem *saveButton = findDialogButtonFromText(dialog, buttonText);
-    VERIFY(saveButton);
-    mouseEventOnCentre(saveButton, MouseClick);
+    QQuickItem *button = findDialogButtonFromText(dialog, buttonText);
+    VERIFY(button);
+    mouseEventOnCentre(button, MouseClick);
     TRY_VERIFY(dialog->property("visible").toBool() == false);
     return true;
 }
