@@ -374,13 +374,15 @@ void tst_Screenshots::animation()
     panelsToExpand << QLatin1String("animationPanel");
     QVERIFY2(togglePanels(panelsToExpand, true), failureMessage);
 
-    // Take a screenshot of the panel SplitView.
-    QQuickItem *panelSplitView = window->findChild<QQuickItem*>("panelSplitView");
-    QVERIFY(panelSplitView);
+    // Take a screenshot of the Animation panel.
+    QQuickItem *animationPanel = window->findChild<QQuickItem*>("animationPanel");
+    QVERIFY(animationPanel);
     screenshotPath = QLatin1String("slate-animation-tutorial-3-1.png");
-    QImage panelGrab = window->grabWindow();
-    QRectF panelRectInScene(0, 0, panelSplitView->width(), panelSplitView->height());
-    panelRectInScene = panelSplitView->mapRectToScene(panelRectInScene).toRect();
+    QVERIFY(imageGrabber.requestImage(window->contentItem()));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QImage panelGrab = imageGrabber.takeImage();
+    QRectF panelRectInScene(0, 0, animationPanel->width(), animationPanel->height());
+    panelRectInScene = animationPanel->mapRectToScene(panelRectInScene).toRect();
     panelGrab = panelGrab.copy(panelRectInScene.toRect());
     QVERIFY(panelGrab.save(mOutputDirectory.absoluteFilePath(screenshotPath)));
 
