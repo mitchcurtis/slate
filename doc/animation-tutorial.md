@@ -42,6 +42,8 @@ Now we'll set up the animation. To enable animation playback for a project, eith
 
 ![Animation Panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-tutorial-3.png)
 
+Note: to save having to recreate the animation itself, you can download the project file [here](https://github.com/mitchcurtis/slate/blob/master/tests/manual/screenshots/resources/animation-tutorial-3.slp) to skip to the end result.
+
 Let's make more room for the Animation panel. Collapse the Layers panel by clicking the button in its top-right corner.
 
 We'll now increase the size of the animation preview to make it easier to see. Click on the settings icon in the top right of the Animation panel to open the Animation Rreview Settings dialog. Increase the scale to 4, and then click OK:
