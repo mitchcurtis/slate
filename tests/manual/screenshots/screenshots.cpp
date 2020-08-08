@@ -275,7 +275,7 @@ void tst_Screenshots::toolBarIcons()
     QVERIFY2(createNewTilesetProject(), failureMessage);
     grabToolButtonImages();
 }
-
+#include <QScreen>
 void tst_Screenshots::animation()
 {
     // Ensure that we have a temporary directory.
@@ -374,6 +374,16 @@ void tst_Screenshots::animation()
     panelsToExpand << QLatin1String("animationPanel");
     QVERIFY2(togglePanels(panelsToExpand, true), failureMessage);
 
+    // Take a screenshot of the panel SplitView.
+    QQuickItem *panelSplitView = window->findChild<QQuickItem*>("panelSplitView");
+    QVERIFY(panelSplitView);
+    screenshotPath = QLatin1String("slate-animation-tutorial-3-1.png");
+    QImage panelGrab = window->grabWindow();
+    QRectF panelRectInScene(0, 0, panelSplitView->width(), panelSplitView->height());
+    panelRectInScene = panelSplitView->mapRectToScene(panelRectInScene).toRect();
+    panelGrab = panelGrab.copy(panelRectInScene.toRect());
+    QVERIFY(panelGrab.save(mOutputDirectory.absoluteFilePath(screenshotPath)));
+
     // Open the settings popup.
     // Open the animation settings popup for the current animation.
     QQuickItem *animation1Delegate = findListViewChild("animationListView", "Animation 1_Delegate");
@@ -385,7 +395,7 @@ void tst_Screenshots::animation()
     QVERIFY(animationSettingsPopup);
     QTRY_COMPARE(animationSettingsPopup->property("opened").toBool(), true);
 
-    screenshotPath = QLatin1String("slate-animation-tutorial-3.png");
+    screenshotPath = QLatin1String("slate-animation-tutorial-3-2.png");
     QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
 
     // Close it.
