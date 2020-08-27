@@ -95,16 +95,16 @@ Group {
             Qt.core.resourceSourceBase: path
             fileTags: ["qt.qml.qml", "qt.core.resource_data"]
             files: [
-                "ui/+material/DialogButton.qml",
-                "ui/+material/IconRectangle.qml",
-                "ui/+material/SwatchFocusRectangle.qml",
-                "ui/+material/Theme.qml",
-                "ui/+imagine/Theme.qml",
+                "ui/+Material/DialogButton.qml",
+                "ui/+Material/IconRectangle.qml",
+                "ui/+Material/SwatchFocusRectangle.qml",
+                "ui/+Material/Theme.qml",
+                "ui/+Imagine/Theme.qml",
                 "ui/+nativemenubar/MenuBar.qml",
-                "ui/+universal/IconRectangle.qml",
-                "ui/+universal/SwatchFocusRectangle.qml",
-                "ui/+universal/Theme.qml",
-                "ui/+universal/VerticalSeparator.qml"
+                "ui/+Universal/IconRectangle.qml",
+                "ui/+Universal/SwatchFocusRectangle.qml",
+                "ui/+Universal/Theme.qml",
+                "ui/+Universal/VerticalSeparator.qml"
             ]
         }
     }
