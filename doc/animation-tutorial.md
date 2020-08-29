@@ -14,7 +14,7 @@ Firstly, we'll start off with a single frame, composed of three layers:
 
 ![Single frame](https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-animation-tutorial-1.png)
 
-The initial project can be downloaded [here](https://github.com/mitchcurtis/slate/blob/master/tests/manual/screenshots/resources/animation-tutorial-1.slp).
+The initial project can be downloaded [here](https://github.com/mitchcurtis/slate/blob/release/tests/manual/screenshots/resources/animation-tutorial-1.slp).
 
 We want to have 6 frames in our animation, so we need to increase the size of the canvas. To do so, open the Change Canvas Size dialog by clicking on the tool button in the left-hand side of the toolbar:
 
@@ -58,4 +58,4 @@ Click OK to confirm the settings. Hit the play button to see the animation:
 
 It's also possible to export the animation as a GIF using the export button in the lower right of the animation panel. Note that transparency is not currently supported.
 
-The final project can be downloaded [here](https://github.com/mitchcurtis/slate/blob/master/tests/manual/screenshots/resources/animation-tutorial-3.slp).
+The final project can be downloaded [here](https://github.com/mitchcurtis/slate/blob/release/tests/manual/screenshots/resources/animation-tutorial-3.slp).
