@@ -15,7 +15,7 @@
 
 This tutorial covers how to use the Textured Fill tool. The Textured Fill tool is similar to the regular Fill Tool in that it allows you to fill an area. The difference is that the area is filled with pixels randomly chosen based on a set of parameters. There are two types of parameters: variance and swatch-based. In this tutorial, we will cover both types by creating a road texture for an isometric tileset.
 
-The initial project can be downloaded [here](https://github.com/mitchcurtis/slate/blob/master/tests/manual/screenshots/resources/textured-fill-tool-tutorial-1.slp).
+The initial project can be downloaded [here](https://github.com/mitchcurtis/slate/blob/release/tests/manual/screenshots/resources/textured-fill-tool-tutorial-1.slp).
 
 When opened, you should see the following:
 
@@ -51,7 +51,7 @@ Zoom out and centre the view (Ctrl + Space or View > Centre) to see it from anot
 
 The Swatch textured fill type allows you to fill an area with colours from a swatch. This is a good tool to use if you have a specific colour palette that you want to follow.
 
-In the [project](https://github.com/mitchcurtis/slate/blob/master/tests/manual/screenshots/resources/slate-textured-fill-tool-tutorial-2.slp) shown in the image below, we've already started to draw some colours that we like onto the tile.
+In the [project](https://github.com/mitchcurtis/slate/blob/release/tests/manual/screenshots/resources/slate-textured-fill-tool-tutorial-2.slp) shown in the image below, we've already started to draw some colours that we like onto the tile.
 
 ![Chapter 2 screenshot](https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-textured-fill-tool-tutorial-2.png)
 

@@ -1,7 +1,7 @@
 # Slate - Pixel Art Editor
 
 <p align="center">
-  <img src="https://github.com/mitchcurtis/slate/blob/master/app/images/logo/slate-icon-web.svg" />
+  <img src="https://github.com/mitchcurtis/slate/blob/release/app/images/logo/slate-icon-web.svg" />
 </p>
 
 Slate is a bitmap editor available for Linux, Windows and Mac. With Slate, you can:
@@ -91,7 +91,7 @@ You can also say thank you by donating via [PayPal](https://www.paypal.com/cgi-b
 
 ### Cloning ###
 
-`master` is the default branch where all work is done, and is not guaranteed to be stable. I [tag](https://github.com/mitchcurtis/slate/tags) releases, so if you're looking for a stable build to try out, it's best to pick the latest one from `git tag -l`.
+`master` is the branch where development is done, and `release` is the stable branch where releases are made from. I also [tag](https://github.com/mitchcurtis/slate/tags) releases.
 
 ### Building ###
 
@@ -101,7 +101,7 @@ Slate uses Qbs as the primary build system, with experimental CMake support adde
 
 It's recommended to build using Qt Creator for convenience.
 
-Open [slate.qbs](https://github.com/mitchcurtis/slate/blob/master/slate.qbs) in Qt Creator, configure the project using a kit with a Qt version that meets the requirement listed in the [Dependencies](#dependencies) section, and then build it.
+Open [slate.qbs](https://github.com/mitchcurtis/slate/blob/release/slate.qbs) in Qt Creator, configure the project using a kit with a Qt version that meets the requirement listed in the [Dependencies](#dependencies) section, and then build it.
 
 #### Command Line ####
 
