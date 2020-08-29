@@ -54,6 +54,7 @@ QtGuiApplication {
         "fonts/fonts.qrc",
         "images/images.qrc",
         // Make docs available in Creator's locator
+        "../README.md",
         "../doc/animation-tutorial.md",
         "../doc/getting-started-layered.md",
         "../doc/getting-started-tileset.md",
