@@ -87,7 +87,7 @@ You can also say thank you by donating via [PayPal](https://www.paypal.com/cgi-b
 
 ### Dependencies ###
 
-* Qt 5.13
+* Qt 5.15
 
 ### Cloning ###
 
