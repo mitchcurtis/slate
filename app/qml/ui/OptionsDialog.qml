@@ -2,6 +2,8 @@ import QtQml.Models 2.2
 import QtQuick 2.12
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.12
+// TODO: remove in Qt 6
+import QtQml 2.15
 
 import App 1.0
 
@@ -222,6 +224,8 @@ Dialog {
                             property: "opacity"
                             value: windowOpacitySlider.value
                             when: windowOpacitySlider.pressed
+                            // TODO: remove in Qt 6
+                            restoreMode: Binding.RestoreBindingOrValue
                         }
 
                         ToolTip {

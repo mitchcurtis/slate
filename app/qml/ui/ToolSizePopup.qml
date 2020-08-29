@@ -1,5 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+// TODO: remove in Qt 6
+import QtQml 2.15
 
 import App 1.0
 
@@ -25,6 +27,8 @@ Popup {
             property: "value"
             value: canvas ? canvas.toolSize : 1
             when: canvas
+            // TODO: remove in Qt 6
+            restoreMode: Binding.RestoreBindingOrValue
         }
 
         ToolTip {
