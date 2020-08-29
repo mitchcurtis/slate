@@ -21,8 +21,10 @@ QtGuiApplication {
     property pathList qmlImportPaths: []
 
     readonly property bool darwin: qbs.targetOS.contains("darwin")
+    readonly property bool unix: qbs.targetOS.contains("unix")
 
-    cpp.useRPaths: qbs.targetOS.contains("darwin")
+    cpp.useRPaths: darwin || (unix && !Qt.core.staticBuild)
+    // Ensure that e.g. libslate is found.
     cpp.rpaths: darwin ? ["@loader_path/../Frameworks"] : ["$ORIGIN"]
 
     cpp.cxxLanguageVersion: "c++11"
