@@ -42,7 +42,7 @@ Now we'll set up the animation. To enable animation playback for a project, eith
 
 ![Animation Panel](https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-animation-tutorial-3.png)
 
-Note: to save having to recreate the animation itself, you can download the project file [here](https://github.com/mitchcurtis/slate/blob/master/tests/manual/screenshots/resources/animation-tutorial-3.slp) to skip to the end result.
+Note: to save having to recreate the animation itself, you can download the project file [here](https://github.com/mitchcurtis/slate/blob/release/tests/manual/screenshots/resources/animation-tutorial-3.slp) to skip to the end result.
 
 Let's make more room for the Animation panel. Collapse the Layers panel by clicking the button in its top-right corner.
 
