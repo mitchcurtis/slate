@@ -43,22 +43,22 @@ Slate was built for pixel art, and its goal is to simplify the creation of sprit
 
 ### Screenshots
 
-![Screenshot of Slate on Linux](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.1.0-tileset-linux.png "Screenshot of Slate on Linux")
+![Screenshot of Slate on Linux](https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-v0.1.0-tileset-linux.png "Screenshot of Slate on Linux")
 
-![Screenshot of Slate v0.4.0 on Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.4.0-layers-mac.png "Screenshot of Slate v0.4.0 on Mac")
+![Screenshot of Slate v0.4.0 on Mac](https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-v0.4.0-layers-mac.png "Screenshot of Slate v0.4.0 on Mac")
 
-![Screenshot of Slate v0.4.0 on Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-v0.4.0-animation-mac.png "Screenshot of Slate v0.4.0 on Mac")
+![Screenshot of Slate v0.4.0 on Mac](https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-v0.4.0-animation-mac.png "Screenshot of Slate v0.4.0 on Mac")
 
 ### Downloads ###
 
-<!-- ![Linux](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.svg "Linux") -->
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-tux.svg" width="16" height="16"> - [Slate 0.8.0 for Linux](https://github.com/mitchcurtis/slate/releases/download/v0.8.0/Slate-v0.8.0-linux.tar.xz)
+<!-- ![Linux](https://github.com/mitchcurtis/slate/blob/release/doc/images/os-icon-tux.svg "Linux") -->
+<img src="https://github.com/mitchcurtis/slate/blob/release/doc/images/os-icon-tux.svg" width="16" height="16"> - [Slate 0.8.0 for Linux](https://github.com/mitchcurtis/slate/releases/download/v0.8.0/Slate-v0.8.0-linux.tar.xz)
 
-<!-- ![Mac](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.svg "Mac") -->
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-mac.svg" width="16" height="16"> - [Slate 0.8.0 for Mac](https://github.com/mitchcurtis/slate/releases/download/v0.8.0/Slate-v0.8.0-mac.dmg)
+<!-- ![Mac](https://github.com/mitchcurtis/slate/blob/release/doc/images/os-icon-mac.svg "Mac") -->
+<img src="https://github.com/mitchcurtis/slate/blob/release/doc/images/os-icon-mac.svg" width="16" height="16"> - [Slate 0.8.0 for Mac](https://github.com/mitchcurtis/slate/releases/download/v0.8.0/Slate-v0.8.0-mac.dmg)
 
-<!-- ![Windows](https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.svg "Windows") -->
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/os-icon-win.svg" width="16" height="16"> - [Slate 0.8.0 for Windows](https://github.com/mitchcurtis/slate/releases/download/v0.8.0/Slate-v0.8.0-windows.zip)
+<!-- ![Windows](https://github.com/mitchcurtis/slate/blob/release/doc/images/os-icon-win.svg "Windows") -->
+<img src="https://github.com/mitchcurtis/slate/blob/release/doc/images/os-icon-win.svg" width="16" height="16"> - [Slate 0.8.0 for Windows](https://github.com/mitchcurtis/slate/releases/download/v0.8.0/Slate-v0.8.0-windows.zip)
 
 See the [releases](https://github.com/mitchcurtis/slate/releases) page for the full list of available downloads.
 
@@ -67,7 +67,7 @@ See the [releases](https://github.com/mitchcurtis/slate/releases) page for the f
 All Slate builds are portable, meaning that no installation is necessary. On Windows, however, it may be necessary to run the vc_redist.x64.exe file that comes with the download in order to install certain Microsoft C++ libraries if you've never installed any applications that require this prior to running Slate.
 
 ### Documentation ###
-- [Overview](https://github.com/mitchcurtis/slate/blob/master/doc/overview.md)
+- [Overview](https://github.com/mitchcurtis/slate/blob/release/doc/overview.md)
 
 ### Discussion ###
 

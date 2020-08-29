@@ -18,7 +18,7 @@
 
 ## User Interface
 
-- [User Interface](https://github.com/mitchcurtis/slate/blob/master/doc/user-interface.md)
+- [User Interface](https://github.com/mitchcurtis/slate/blob/release/docc/user-interface.md)
 
 ## Project Types
 
@@ -34,7 +34,7 @@ Slate supports editing bitmap images directly. This project type has no layer su
 
 A layered image project can contain several images, each of which is stored as a layer. The highest layer in the list is drawn on top of the layers below it. This type of project can be exported as one or more images.
 
-- [Getting Started with Layered Image Projects](https://github.com/mitchcurtis/slate/blob/master/doc/getting-started-layered.md)
+- [Getting Started with Layered Image Projects](https://github.com/mitchcurtis/slate/blob/release/docc/getting-started-layered.md)
 
 ### Tilesets
 
@@ -42,7 +42,7 @@ A layered image project can contain several images, each of which is stored as a
 
 Tileset projects have a tileset bitmap image that can be edited by first painting tiles onto the grid, and then editing those tiles. An accompanying project file is created to save the contents of the grid. The tileset image is edited directly (i.e overwritten when the project is saved).
 
-- [Getting Started with Tilesets](https://github.com/mitchcurtis/slate/blob/master/doc/getting-started-tileset.md)
+- [Getting Started with Tilesets](https://github.com/mitchcurtis/slate/blob/release/docc/getting-started-tileset.md)
 
 ### Comparison of Project Types
 
@@ -67,8 +67,8 @@ Tilesets | :x: |  :x: | :white_check_mark:
 
 ### Animation
 
-- [Animation Tutorial](https://github.com/mitchcurtis/slate/blob/master/doc/animation-tutorial.md)
+- [Animation Tutorial](https://github.com/mitchcurtis/slate/blob/release/docc/animation-tutorial.md)
 
 ### Textured Fill
 
-- [Textured Fill Tool Tutorial](https://github.com/mitchcurtis/slate/blob/master/doc/textured-fill-tool-tutorial.md)
+- [Textured Fill Tool Tutorial](https://github.com/mitchcurtis/slate/blob/release/docc/textured-fill-tool-tutorial.md)

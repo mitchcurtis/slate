@@ -18,7 +18,7 @@
 
 ### Tool Bar
 
-![Tool bar](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-tool-bar.png)
+![Tool bar](https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-tool-bar.png)
 
 1. Changes the size of the canvas.
 2. Changes the size of the image.
@@ -47,7 +47,7 @@
 
 ### Colour
 
-![Colour panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-colour-panel.png)
+![Colour panel](https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-colour-panel.png)
 
 1. Toggles the visibility of the panel.
 2. Switches between foreground and background colours.
@@ -62,7 +62,7 @@
 
 ### Swatches
 
-![Swatches panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-swatches-panel.png)
+![Swatches panel](https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-swatches-panel.png)
 
 1. Toggles the visibility of the panel.
 2. Displays auto swatch colours if enabled (**Settings > Enable auto swatch (experimental)**).
@@ -71,7 +71,7 @@
 
 ### Layers
 
-![Layers panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-layers-panel.png)
+![Layers panel](https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-layers-panel.png)
 
 1. Toggles the visibility of the panel.
 2. Displays layers. Each layer can be hidden by clicking on the icon, and renamed by double-clicking on its name.
@@ -83,7 +83,7 @@
 
 ### Animation
 
-![Animation panel](https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-animation-panel.png)
+![Animation panel](https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-animation-panel.png)
 
 1. Opens animation playback settings.
 2. Toggles the visibility of the panel.
