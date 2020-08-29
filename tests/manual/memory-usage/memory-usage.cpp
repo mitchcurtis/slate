@@ -52,24 +52,25 @@ void tst_MemoryUsage::pen()
     QCOMPARE(layeredImageProject->layerCount(), 2);
     QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
 
-    QVERIFY2(panTopLeftTo(100, 100), failureMessage);
+    QVERIFY2(switchTool(TileCanvas::PenTool), failureMessage);
 
-    // Draw horizontal lines.
-    for (int y = 1; y < project->heightInPixels() - 1; ++y) {
-        setCursorPosInScenePixels(1, y);
-        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-
-        for (int x = 1; x < project->widthInPixels() - 1; ++x) {
-            setCursorPosInScenePixels(x, y);
-            QTest::mouseMove(window, cursorWindowPos);
+    int x = 1;
+    int y = 1;
+    QBENCHMARK {
+        ++x;
+        if (x >= project->widthInPixels()) {
+            x = 0;
+            ++y;
+            if (y >= project->heightInPixels())
+                y = 0;
         }
 
+        setCursorPosInScenePixels(1, y);
+        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        setCursorPosInScenePixels(x, y);
+        QTest::mouseMove(window, cursorWindowPos);
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     }
-
-    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
-
-    QTest::qWait(200000);
 }
 
 int main(int argc, char *argv[])
