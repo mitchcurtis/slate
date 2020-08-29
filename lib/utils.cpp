@@ -22,6 +22,7 @@
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QPainter>
+#include <QPainterPathStroker>
 #include <QScopeGuard>
 #include <QThread>
 

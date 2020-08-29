@@ -21,6 +21,7 @@
 
 #include <QtMath>
 #include <QPainter>
+#include <QPainterPath>
 
 TileGrid::TileGrid() :
     mTileWidth(32),
