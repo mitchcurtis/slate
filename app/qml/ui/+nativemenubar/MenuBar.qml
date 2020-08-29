@@ -489,7 +489,7 @@ Item {
             Platform.MenuItem {
                 objectName: "onlineDocumentationMenuItem"
                 text: qsTr("Online Documentation...")
-                onTriggered: Qt.openUrlExternally("https://github.com/mitchcurtis/slate/blob/master/doc/overview.md")
+                onTriggered: Qt.openUrlExternally("https://github.com/mitchcurtis/slate/blob/release/doc/overview.md")
             }
 
             Platform.MenuItem {

@@ -18,15 +18,15 @@
 
 To create a new Layered Image Project, select File > New or press Ctrl+N. Then, select New Layered Image from the list:
 
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-new-project-dialog.png" width="600">
+<img src="https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-new-project-dialog.png" width="600">
 
 Choose a width and height for the canvas. You can also choose whether or not the first layer is transparent or filled with white.
 
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-new-layered-image-project-dialog.png" width="400">
+<img src="https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-new-layered-image-project-dialog.png" width="400">
 
 Hit OK. You'll now be looking at a new layered image project:
 
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-new-layered-image-project.png" width="600">
+<img src="https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-new-layered-image-project.png" width="600">
 
 On the right side of the screen, you'll see the Layer panel. This allows you to add, remove, rename, re-order and delete layers.
 
@@ -34,13 +34,13 @@ On the right side of the screen, you'll see the Layer panel. This allows you to 
 
 In the bottom left of the Layer panel, click the "+" button to add a new layer. Afterwards, you will see two layers:
 
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-layered-image-project-new-layer.png" height="600">
+<img src="https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-layered-image-project-new-layer.png" height="600">
 
 ## Renaming Layers
 
 Double click on the layer to rename it. Press Enter to confirm the changes, or Escape to cancel.
 
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-layered-image-project-rename-layers.png" width="285">
+<img src="https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-layered-image-project-rename-layers.png" width="285">
 
 ## Moving Layers
 
@@ -68,7 +68,7 @@ Layered image projects can be exported by File > Export or with Ctrl+Shift+E. If
 
 It's also possible to export one or more layers into a separate image by giving those layers a prefix. For example, in the image below, the layer at the top is given the prefix **[something]**, and will be saved as **something.png**:
 
-<img src="https://github.com/mitchcurtis/slate/blob/master/doc/images/slate-layered-image-project-export-layers.png" height="600">
+<img src="https://github.com/mitchcurtis/slate/blob/release/doc/images/slate-layered-image-project-export-layers.png" height="600">
 
 A common use case for exporting images is to use the name of the project and a suffix. The **%p** variable can be used for this purpose. It expands to the name of the project, and anything after it will be appended to the file name of the exported image. For example, if the project was named **my-project.slp**, the layers named **[%p-content] left** and **[%p-content] right** would be exported as an image named **my-project-content.png**. Anything after the prefix is ignored and only serves to differentiate layers with the same prefix.
 
