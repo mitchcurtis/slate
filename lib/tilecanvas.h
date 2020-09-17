@@ -46,6 +46,7 @@ class SLATE_EXPORT TileCanvas : public ImageCanvas
     Q_PROPERTY(bool gridVisible READ isGridVisible WRITE setGridVisible NOTIFY gridVisibleChanged)
     QML_ELEMENT
     Q_MOC_INCLUDE("tile.h")
+    Q_MOC_INCLUDE("tileset.h")
 
 public:
     enum Mode {
