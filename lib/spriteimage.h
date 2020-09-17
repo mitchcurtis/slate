@@ -34,6 +34,7 @@ class SLATE_EXPORT SpriteImage : public QQuickPaintedItem
     Q_PROPERTY(Project *project READ project WRITE setProject NOTIFY projectChanged)
     Q_PROPERTY(AnimationPlayback *animationPlayback READ animationPlayback WRITE setAnimationPlayback NOTIFY animationPlaybackChanged)
     QML_ELEMENT
+    Q_MOC_INCLUDE("animation.h")
     Q_MOC_INCLUDE("animationplayback.h")
     Q_MOC_INCLUDE("project.h")
 

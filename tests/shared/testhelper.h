@@ -60,7 +60,7 @@ class ImageGrabber
 public:
     bool requestImage(QQuickItem *item) {
         result = item->grabToImage();
-        return result;
+        return !result.isNull();
     }
 
     bool isReady() const {
