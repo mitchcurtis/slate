@@ -23,7 +23,6 @@
 #include "application.h"
 #include "project.h"
 #include "testhelper.h"
-#include "utils.h"
 
 class tst_MemoryUsage : public TestHelper
 {

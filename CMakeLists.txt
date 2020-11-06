@@ -8,7 +8,12 @@ set(CMAKE_AUTOMOC ON)
 
 option(ENABLE_TESTING "" ON)
 
-find_package(Qt5 5.12 COMPONENTS Core Gui Quick Widgets Test REQUIRED)
+find_package(Qt6 COMPONENTS Core)
+find_package(Qt6 COMPONENTS Gui)
+find_package(Qt6 COMPONENTS Qml)
+find_package(Qt6 COMPONENTS Quick)
+find_package(Qt6 COMPONENTS Widgets)
+find_package(Qt6 COMPONENTS Test)
 
 add_library(
   projectWarning INTERFACE

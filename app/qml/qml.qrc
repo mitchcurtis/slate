@@ -1,9 +1,25 @@
 <RCC>
     <qresource prefix="/qml">
         <file>main.qml</file>
+        <file>ui/+Imagine/Theme.qml</file>
+        <file>ui/+Material/DialogButton.qml</file>
+        <file>ui/+Material/IconRectangle.qml</file>
+        <file>ui/+Material/SwatchFocusRectangle.qml</file>
+        <file>ui/+Material/Theme.qml</file>
+        <file>ui/+Universal/IconRectangle.qml</file>
+        <file>ui/+Universal/SwatchFocusRectangle.qml</file>
+        <file>ui/+Universal/Theme.qml</file>
+        <file>ui/+Universal/VerticalSeparator.qml</file>
+        <file>ui/+nativemenubar/MenuBar.qml</file>
         <file>ui/AboutDialog.qml</file>
+        <file>ui/AddGuidesDialog.qml</file>
+        <file>ui/AnimationDelegate.qml</file>
+        <file>ui/AnimationFrameMarkerRepeater.qml</file>
         <file>ui/AnimationPanel.qml</file>
+        <file>ui/AnimationPreviewSettingsPopup.qml</file>
         <file>ui/AnimationSettingsPopup.qml</file>
+        <file>ui/AppearanceTab.qml</file>
+        <file>ui/BehaviourTab.qml</file>
         <file>ui/CanvasContainer.qml</file>
         <file>ui/CanvasPaneRepeater.qml</file>
         <file>ui/CanvasSizePopup.qml</file>
@@ -39,15 +55,20 @@
         <file>ui/NoteContextMenu.qml</file>
         <file>ui/NoteDialog.qml</file>
         <file>ui/OpacityDialog.qml</file>
+        <file>ui/OptionalToolSeparator.qml</file>
         <file>ui/OptionsDialog.qml</file>
         <file>ui/Panel.qml</file>
+        <file>ui/PasteAcrossLayersDialog.qml</file>
         <file>ui/ProjectTemplateButton.qml</file>
+        <file>ui/RearrangeContentsIntoGridDialog.qml</file>
         <file>ui/RenameSwatchColourDialog.qml</file>
+        <file>ui/RowActionButton.qml</file>
         <file>ui/SaturationLightnessPicker.qml</file>
         <file>ui/SaveChangesDialog.qml</file>
         <file>ui/ShortcutRow.qml</file>
         <file>ui/Shortcuts.qml</file>
         <file>ui/SplitterBar.qml</file>
+        <file>ui/SpriteImageContainer.qml</file>
         <file>ui/StatusBar.qml</file>
         <file>ui/SwatchContextMenu.qml</file>
         <file>ui/SwatchFocusRectangle.qml</file>
@@ -64,21 +85,12 @@
         <file>ui/ToolButton.qml</file>
         <file>ui/ToolButtonMenuIndicator.qml</file>
         <file>ui/ToolSizePopup.qml</file>
-        <file>ui/UiStateSerialisation.qml</file>
         <file>ui/UiConstants.qml</file>
+        <file>ui/UiStateSerialisation.qml</file>
         <file>ui/VerticalSeparator.qml</file>
         <file>ui/ViewBorder.qml</file>
         <file>ui/ZoomIndicator.qml</file>
         <file>ui/qmldir</file>
-        <file>ui/+imagine/Theme.qml</file>
-        <file>ui/+material/DialogButton.qml</file>
-        <file>ui/+material/IconRectangle.qml</file>
-        <file>ui/+material/SwatchFocusRectangle.qml</file>
-        <file>ui/+material/Theme.qml</file>
-        <file>ui/+nativemenubar/MenuBar.qml</file>
-        <file>ui/+universal/IconRectangle.qml</file>
-        <file>ui/+universal/SwatchFocusRectangle.qml</file>
-        <file>ui/+universal/VerticalSeparator.qml</file>
-        <file>ui/+universal/Theme.qml</file>
+        <file>ui/shaders/SaturationLightness.frag.qsb</file>
     </qresource>
 </RCC>
