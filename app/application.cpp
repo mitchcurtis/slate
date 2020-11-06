@@ -21,8 +21,10 @@
 
 #include <QApplication>
 #include <QFontDatabase>
+#include <QLibraryInfo>
 #include <QLoggingCategory>
 #include <QQmlFileSelector>
+#include <QTranslator>
 #include <QUndoStack>
 
 #include "canvaspane.h"

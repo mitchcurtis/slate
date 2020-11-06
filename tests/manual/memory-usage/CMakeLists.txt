@@ -16,15 +16,22 @@ target_sources(
   ${CMAKE_SOURCE_DIR}/app/qml/qml.qrc
 )
 
+find_package(Qt6 COMPONENTS Core)
+find_package(Qt6 COMPONENTS Gui)
+find_package(Qt6 COMPONENTS Qml)
+find_package(Qt6 COMPONENTS Quick)
+find_package(Qt6 COMPONENTS QuickTest)
+
 target_link_libraries(
   memory-usage
   PRIVATE
   slate
   projectWarning
-  Qt5::Core
-  Qt5::Quick
-  Qt5::Test
-  Qt5::Widgets
+  Qt::Core
+  Qt::Quick
+  Qt::QuickTest
+  Qt::Test
+  Qt::Widgets
 )
 
 target_include_directories(
