@@ -25,16 +25,17 @@
 #include <QUndoCommand>
 
 #include "slate-global.h"
+#include "undocommand.h"
 
 class Animation;
 class AnimationSystem;
 class ImageLayer;
 
-class SLATE_EXPORT DuplicateAnimationCommand : public QUndoCommand
+class SLATE_EXPORT DuplicateAnimationCommand : public UndoCommand
 {
 public:
     DuplicateAnimationCommand(AnimationSystem *animationSystem, int targetIndex, int duplicateIndex, const QString &name,
-        QUndoCommand *parent = nullptr);
+        UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

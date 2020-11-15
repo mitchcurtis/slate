@@ -21,22 +21,24 @@
 #define CHANGELAYEROPACITYCOMMAND_H
 
 #include <QDebug>
-#include <QUndoCommand>
 
 #include "slate-global.h"
+#include "undocommand.h"
 
 class LayeredImageProject;
 
-class SLATE_EXPORT ChangeLayerOpacityCommand : public QUndoCommand
+class SLATE_EXPORT ChangeLayerOpacityCommand : public UndoCommand
 {
 public:
     ChangeLayerOpacityCommand(LayeredImageProject *project, int layerIndex, qreal previousOpacity,
-        qreal newOpacity, QUndoCommand *parent = nullptr);
+        qreal newOpacity, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
 
     int id() const override;
+
+    bool modifiesContents() const override;
 
 private:
     friend QDebug operator<<(QDebug debug, const ChangeLayerOpacityCommand *command);

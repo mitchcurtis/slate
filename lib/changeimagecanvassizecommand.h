@@ -22,22 +22,24 @@
 
 #include <QDebug>
 #include <QImage>
-#include <QUndoCommand>
 
 #include "slate-global.h"
+#include "undocommand.h"
 
 class ImageProject;
 
-class SLATE_EXPORT ChangeImageCanvasSizeCommand : public QUndoCommand
+class SLATE_EXPORT ChangeImageCanvasSizeCommand : public UndoCommand
 {
 public:
     ChangeImageCanvasSizeCommand(ImageProject *project, const QImage &previousImage, const QImage &newImage,
-        QUndoCommand *parent = nullptr);
+        UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
 
     int id() const override;
+
+    bool modifiesContents() const override;
 
 private:
     friend QDebug operator<<(QDebug debug, const ChangeImageCanvasSizeCommand *command);

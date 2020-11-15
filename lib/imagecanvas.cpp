@@ -2566,6 +2566,7 @@ void ImageCanvas::requestContentPaint()
     // It's nice to be able to debug where a paint request comes from;
     // that's the only reason that these functions are slots and the signal isn't
     // just emitted immediately instead.
+    // Note that this function can be called for drawing _and_ e.g. panning, zooming, etc.
     emit contentPaintRequested(-1);
 }
 

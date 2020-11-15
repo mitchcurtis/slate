@@ -23,12 +23,12 @@
 #include <QDebug>
 #include <QImage>
 #include <QRect>
-#include <QUndoCommand>
 
 #include "imagecanvas.h"
 #include "slate-global.h"
+#include "undocommand.h"
 
-class SLATE_EXPORT ModifyImageCanvasSelectionCommand : public QUndoCommand
+class SLATE_EXPORT ModifyImageCanvasSelectionCommand : public UndoCommand
 {
 public:
     ModifyImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex,
@@ -36,7 +36,7 @@ public:
         const QRect &sourceArea, const QImage &sourceAreaImage,
         const QRect &targetArea, const QImage &targetAreaImageBeforeModification,
         const QImage &targetAreaImageAfterModification,
-        bool fromPaste, const QImage &pasteContents, QUndoCommand *parent = nullptr);
+        bool fromPaste, const QImage &pasteContents, UndoCommand *parent = nullptr);
 
     ~ModifyImageCanvasSelectionCommand();
 
@@ -44,6 +44,8 @@ public:
     void redo() override;
 
     int id() const override;
+
+    bool modifiesContents() const override;
 
 private:
     friend QDebug operator<<(QDebug debug, const ModifyImageCanvasSelectionCommand *command);

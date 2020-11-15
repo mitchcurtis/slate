@@ -27,8 +27,8 @@
 Q_LOGGING_CATEGORY(lcApplyGreedyPixelFillCommand, "app.undo.applyGreedyPixelFillCommand")
 
 ApplyGreedyPixelFillCommand::ApplyGreedyPixelFillCommand(ImageCanvas *canvas, int layerIndex, const QImage &previousImage,
-    const QImage &newImage, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    const QImage &newImage, UndoCommand *parent) :
+    UndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex),
     mPreviousImage(previousImage),
@@ -52,6 +52,11 @@ void ApplyGreedyPixelFillCommand::redo()
 int ApplyGreedyPixelFillCommand::id() const
 {
     return -1;
+}
+
+bool ApplyGreedyPixelFillCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const ApplyGreedyPixelFillCommand *command)

@@ -36,6 +36,7 @@
 #include "serialisablestate.h"
 #include "slate-global.h"
 #include "swatch.h"
+#include "undocommand.h"
 
 Q_DECLARE_LOGGING_CATEGORY(lcProject)
 Q_DECLARE_LOGGING_CATEGORY(lcProjectLifecycle)
@@ -125,7 +126,7 @@ public:
     bool isComposingMacro() const;
     void beginMacro(const QString &text);
     void endMacro();
-    void addChange(QUndoCommand *undoCommand);
+    void addChange(UndoCommand *undoCommand);
     void clearChanges();
 
     ApplicationSettings *settings() const;
@@ -158,6 +159,9 @@ signals:
     void guidesChanged();
     void notesChanged();
     void aboutToBeginMacro(const QString &text);
+    // Emitted whenever the image contents are modified
+    // (e.g. pixels drawn, layers added, etc.)
+    void contentsModified();
 
 public slots:
     void load(const QUrl &url);

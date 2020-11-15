@@ -200,6 +200,7 @@ private Q_SLOTS:
     void renameAnimation();
     void reverseAnimation();
     void animationFrameWidthTooLarge();
+    void animationPreviewUpdated();
 
     // Layers.
     void addAndRemoveLayers();
@@ -5182,7 +5183,7 @@ void tst_App::animationPlayback()
     QVERIFY(modifiedScaleValue > 1.0);
 
     // Accept and close the preview settings popup.
-    QQuickItem *previewSettingsSaveButton = findDialogButtonFromText(animationPreviewSettingsPopup, "Save");
+    QQuickItem *previewSettingsSaveButton = findDialogButtonFromText(animationPreviewSettingsPopup, "OK");
     QVERIFY(previewSettingsSaveButton);
     mouseEventOnCentre(previewSettingsSaveButton, MouseClick);
     QTRY_COMPARE(animationPreviewSettingsPopup->property("visible").toBool(), false);
@@ -5234,7 +5235,7 @@ void tst_App::animationPlayback()
     QVERIFY2(setCheckBoxChecked("animationReverseCheckBox", true), failureMessage);
 
     // Accept and close the animation settings popup.
-    QQuickItem *animationSettingsSaveButton = findDialogButtonFromText(animationSettingsPopup, "Save");
+    QQuickItem *animationSettingsSaveButton = findDialogButtonFromText(animationSettingsPopup, "OK");
     QVERIFY(animationSettingsSaveButton);
     mouseEventOnCentre(animationSettingsSaveButton, MouseClick);
     QTRY_COMPARE(animationSettingsSaveButton->property("visible").toBool(), false);
@@ -5428,7 +5429,7 @@ void tst_App::saveAnimations()
     QCOMPARE(animationSystem->editAnimation()->fps(), expectedFps);
 
     // Accept and close the animation settings popup.
-    QVERIFY2(clickDialogFooterButton(animationSettingsPopup, "Save"), failureMessage);
+    QVERIFY2(clickDialogFooterButton(animationSettingsPopup, "OK"), failureMessage);
 
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/saveAnimations.slp"));
@@ -5563,7 +5564,7 @@ void tst_App::reverseAnimation()
     QObject *animationSettingsPopup = nullptr;
     QVERIFY2(openAnimationSettingsPopupForCurrentAnimation(&animationSettingsPopup), failureMessage);
     QVERIFY2(setCheckBoxChecked("animationReverseCheckBox", true), failureMessage);
-    QVERIFY2(clickDialogFooterButton(animationSettingsPopup, "Save"), failureMessage);
+    QVERIFY2(clickDialogFooterButton(animationSettingsPopup, "OK"), failureMessage);
     // The current index should be updated whenever the animation is reversed.
     QCOMPARE(currentPlayback->currentFrameIndex(), currentAnimation->frameCount() - 1);
 
@@ -5602,6 +5603,44 @@ void tst_App::animationFrameWidthTooLarge()
     const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
     const QUrl projectUrl = QUrl::fromLocalFile(absolutePath);
     QVERIFY2(loadProject(projectUrl), failureMessage);
+}
+
+void tst_App::animationPreviewUpdated()
+{
+    // Ensure that we have a temporary directory.
+    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+
+    // Copy the project file from resources into our temporary directory.
+    const QString projectFileName = QLatin1String("animation.slp");
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+
+    // Load the project.
+    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
+    const QUrl projectUrl = QUrl::fromLocalFile(absolutePath);
+    QVERIFY2(loadProject(projectUrl), failureMessage);
+
+    // Open the animation panel.
+    QVERIFY2(togglePanel("animationPanel", true), failureMessage);
+    QVERIFY(isUsingAnimation());
+
+    // Grab the preview image before we make changes to it.
+    auto previewSpriteImage = window->findChild<QQuickItem*>("animationPreviewContainerSpriteImage");
+    QVERIFY(previewSpriteImage);
+
+    QVERIFY(imageGrabber.requestImage(previewSpriteImage));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage oldPreviewGrab = imageGrabber.takeImage();
+
+    // Draw a red dot at {10, 10}. The preview should update immediately.
+    setCursorPosInScenePixels(10, 10);
+    layeredImageCanvas->setPenForegroundColour(Qt::red);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    // Grab the preview image after we've made changes to it.
+    QVERIFY(imageGrabber.requestImage(previewSpriteImage));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage newPreviewGrab = imageGrabber.takeImage();
+    QCOMPARE(newPreviewGrab.pixelColor(10, 10), QColor(Qt::red));
 }
 
 void tst_App::addAndRemoveLayers()

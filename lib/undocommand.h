@@ -17,36 +17,22 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DELETEANIMATIONCOMMAND_H
-#define DELETEANIMATIONCOMMAND_H
+#ifndef UNDOCOMMAND_H
+#define UNDOCOMMAND_H
 
-#include <QDebug>
-#include <QScopedPointer>
-#include <QSize>
+#include <QUndoCommand>
 
 #include "slate-global.h"
-#include "undocommand.h"
 
-class Animation;
-class AnimationSystem;
-
-class SLATE_EXPORT DeleteAnimationCommand : public UndoCommand
+class SLATE_EXPORT UndoCommand : public QUndoCommand
 {
 public:
-    DeleteAnimationCommand(AnimationSystem *animationSystem, int index, UndoCommand *parent = nullptr);
+    UndoCommand(QUndoCommand *parent = nullptr);
+    ~UndoCommand() override;
 
-    void undo() override;
-    void redo() override;
-
-    int id() const override;
-
-private:
-    friend QDebug operator<<(QDebug debug, const DeleteAnimationCommand *command);
-
-    AnimationSystem *mAnimationSystem = nullptr;
-    int mIndex = -1;
-    QScopedPointer<Animation> mAnimationGuard;
+    // Returns true if this undo command should cause the Project::contentsModified() signal to be emitted.
+    virtual bool modifiesContents() const;
 };
 
 
-#endif // DELETEANIMATIONCOMMAND_H
+#endif // UNDOCOMMAND_H

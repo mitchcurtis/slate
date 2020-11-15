@@ -27,8 +27,8 @@
 Q_LOGGING_CATEGORY(lcDuplicateAnimationCommand, "app.undo.duplicateAnimationCommand")
 
 DuplicateAnimationCommand::DuplicateAnimationCommand(AnimationSystem *animationSystem, int targetIndex, int duplicateIndex,
-    const QString &name, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    const QString &name, UndoCommand *parent) :
+    UndoCommand(parent),
     mAnimationSystem(animationSystem),
     mTargetIndex(targetIndex),
     mDuplicateIndex(duplicateIndex)

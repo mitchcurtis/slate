@@ -710,10 +710,16 @@ QDebug operator<<(QDebug debug, const QUndoCommand *command)
     return debug.space();
 }
 
-void Project::addChange(QUndoCommand *undoCommand)
+void Project::addChange(UndoCommand *undoCommand)
 {
     qCDebug(lcProject) << "adding change" << undoCommand;
+
+    const bool modifiedContents = undoCommand->modifiesContents();
+
     mUndoStack.push(undoCommand);
+
+    if (modifiedContents)
+        emit contentsModified();
 }
 
 void Project::clearChanges()

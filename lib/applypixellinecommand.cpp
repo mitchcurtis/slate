@@ -31,8 +31,8 @@ Q_LOGGING_CATEGORY(lcApplyPixelLineCommand, "app.undo.applyPixelLineCommand")
 // the line was drawn on it.
 ApplyPixelLineCommand::ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex, QImage &currentProjectImage, const QPointF &point1, const QPointF &point2,
         const QPointF &newLastPixelPenReleaseScenePos, const QPointF &oldLastPixelPenReleaseScenePos,
-        QPainter::CompositionMode mode, QUndoCommand *parent) :
-    QUndoCommand(parent),
+        QPainter::CompositionMode mode, UndoCommand *parent) :
+    UndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex),
     mNewLastPixelPenReleaseScenePos(newLastPixelPenReleaseScenePos),
@@ -94,6 +94,11 @@ int ApplyPixelLineCommand::id() const
 bool ApplyPixelLineCommand::mergeWith(const QUndoCommand *)
 {
     return false;
+}
+
+bool ApplyPixelLineCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const ApplyPixelLineCommand *command)

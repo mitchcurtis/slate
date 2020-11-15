@@ -27,8 +27,8 @@
 Q_LOGGING_CATEGORY(lcApplyTileEraserCommand, "app.undo.applyTileEraserCommand")
 
 ApplyTileEraserCommand::ApplyTileEraserCommand(TileCanvas *canvas, const QPoint &tilePos,
-    int previousId, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    int previousId, UndoCommand *parent) :
+    UndoCommand(parent),
     mCanvas(canvas)
 {
     mTilePositions.append(tilePos);

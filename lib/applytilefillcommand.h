@@ -24,16 +24,16 @@
 #include <QDebug>
 #include <QPoint>
 #include <QVector>
-#include <QUndoCommand>
 
 #include "slate-global.h"
 #include "tilecanvas.h"
+#include "undocommand.h"
 
-class SLATE_EXPORT ApplyTileFillCommand : public QUndoCommand
+class SLATE_EXPORT ApplyTileFillCommand : public UndoCommand
 {
 public:
     ApplyTileFillCommand(TileCanvas *canvas, const QVector<QPoint> &tilePositions, int previousTile,
-        int tile, QUndoCommand *parent = nullptr);
+        int tile, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

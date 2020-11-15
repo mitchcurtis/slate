@@ -21,17 +21,17 @@
 #define ADDGUIDECOMMAND_H
 
 #include <QDebug>
-#include <QUndoCommand>
 
 #include "guide.h"
 #include "slate-global.h"
+#include "undocommand.h"
 
 class Project;
 
-class SLATE_EXPORT AddGuideCommand : public QUndoCommand
+class SLATE_EXPORT AddGuideCommand : public UndoCommand
 {
 public:
-    AddGuideCommand(Project *project, const Guide &guide, QUndoCommand *parent = nullptr);
+    AddGuideCommand(Project *project, const Guide &guide, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

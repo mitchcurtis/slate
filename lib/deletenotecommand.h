@@ -21,17 +21,17 @@
 #define DELETENOTECOMMAND_H
 
 #include <QDebug>
-#include <QUndoCommand>
 
 #include "note.h"
 #include "slate-global.h"
+#include "undocommand.h"
 
 class Project;
 
-class SLATE_EXPORT DeleteNoteCommand : public QUndoCommand
+class SLATE_EXPORT DeleteNoteCommand : public UndoCommand
 {
 public:
-    DeleteNoteCommand(Project *project, const Note &note, QUndoCommand *parent = nullptr);
+    DeleteNoteCommand(Project *project, const Note &note, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

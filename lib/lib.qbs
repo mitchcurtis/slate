@@ -240,6 +240,8 @@ Product {
         "tilesetproject.h",
         "tilesetswatchimage.cpp",
         "tilesetswatchimage.h",
+        "undocommand.h",
+        "undocommand.cpp",
         "utils.cpp",
         "utils.h",
     ]

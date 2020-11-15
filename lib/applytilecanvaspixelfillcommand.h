@@ -23,23 +23,25 @@
 #include <QColor>
 #include <QDebug>
 #include <QPoint>
-#include <QUndoCommand>
 #include <QVector>
 
 #include "slate-global.h"
+#include "undocommand.h"
 
 class TileCanvas;
 
-class SLATE_EXPORT ApplyTileCanvasPixelFillCommand : public QUndoCommand
+class SLATE_EXPORT ApplyTileCanvasPixelFillCommand : public UndoCommand
 {
 public:
     ApplyTileCanvasPixelFillCommand(TileCanvas *canvas, const QVector<QPoint> &scenePositions, const QColor &previousColour,
-        const QColor &colour, QUndoCommand *parent = nullptr);
+        const QColor &colour, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
 
     int id() const override;
+
+    bool modifiesContents() const override;
 
 private:
     friend QDebug operator<<(QDebug debug, const ApplyTileCanvasPixelFillCommand *command);

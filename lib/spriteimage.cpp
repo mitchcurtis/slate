@@ -67,8 +67,16 @@ void SpriteImage::setProject(Project *project)
     if (project == mProject)
         return;
 
+    if (mProject)
+        disconnect(mProject, &Project::contentsModified, this, &SpriteImage::onNeedsUpdate);
+
     mProject = project;
+
+    if (mProject)
+        connect(mProject, &Project::contentsModified, this, &SpriteImage::onNeedsUpdate);
+
     update();
+
     emit projectChanged();
 }
 

@@ -22,22 +22,24 @@
 
 #include <QDebug>
 #include <QScopedPointer>
-#include <QUndoCommand>
 
 #include "slate-global.h"
+#include "undocommand.h"
 
 class ImageLayer;
 class LayeredImageProject;
 
-class SLATE_EXPORT AddLayerCommand : public QUndoCommand
+class SLATE_EXPORT AddLayerCommand : public UndoCommand
 {
 public:
-    AddLayerCommand(LayeredImageProject *project, ImageLayer *layer, int index, QUndoCommand *parent = nullptr);
+    AddLayerCommand(LayeredImageProject *project, ImageLayer *layer, int index, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
 
     int id() const override;
+
+    bool modifiesContents() const override;
 
 private:
     friend QDebug operator<<(QDebug debug, const AddLayerCommand *command);

@@ -22,17 +22,17 @@
 
 #include <QDebug>
 #include <QPointF>
-#include <QUndoCommand>
 
 #include "imagecanvas.h"
 #include "slate-global.h"
+#include "undocommand.h"
 
-class SLATE_EXPORT ApplyPixelLineCommand : public QUndoCommand
+class SLATE_EXPORT ApplyPixelLineCommand : public UndoCommand
 {
 public:
     ApplyPixelLineCommand(ImageCanvas *canvas, int layerIndex, QImage &currentProjectImage, const QPointF &point1, const QPointF &point2,
         const QPointF &newLastPixelPenReleaseScenePos, const QPointF &oldLastPixelPenReleaseScenePos,
-        QPainter::CompositionMode mode, QUndoCommand *parent = nullptr);
+        QPainter::CompositionMode mode, UndoCommand *parent = nullptr);
     ~ApplyPixelLineCommand() override;
 
     void undo() override;
@@ -40,6 +40,8 @@ public:
 
     int id() const override;
     bool mergeWith(const QUndoCommand *other) override;
+
+    bool modifiesContents() const override;
 
 private:
     friend QDebug operator<<(QDebug debug, const ApplyPixelLineCommand *command);

@@ -21,22 +21,24 @@
 #define CHANGELAYERVISIBLECOMMAND_H
 
 #include <QDebug>
-#include <QUndoCommand>
 
 #include "slate-global.h"
+#include "undocommand.h"
 
 class LayeredImageProject;
 
-class SLATE_EXPORT ChangeLayerVisibleCommand : public QUndoCommand
+class SLATE_EXPORT ChangeLayerVisibleCommand : public UndoCommand
 {
 public:
     ChangeLayerVisibleCommand(LayeredImageProject *project, int layerIndex, bool previousVisible,
-        bool newVisible, QUndoCommand *parent = nullptr);
+        bool newVisible, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
 
     int id() const override;
+
+    bool modifiesContents() const override;
 
 private:
     friend QDebug operator<<(QDebug debug, const ChangeLayerVisibleCommand *command);

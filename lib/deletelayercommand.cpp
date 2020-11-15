@@ -26,8 +26,8 @@
 
 Q_LOGGING_CATEGORY(lcDeleteLayerCommand, "app.undo.deleteLayerCommand")
 
-DeleteLayerCommand::DeleteLayerCommand(LayeredImageProject *project, int index, QUndoCommand *parent) :
-    QUndoCommand(parent),
+DeleteLayerCommand::DeleteLayerCommand(LayeredImageProject *project, int index, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mIndex(index),
     mLayer(project->layerAt(index))
@@ -54,6 +54,11 @@ void DeleteLayerCommand::redo()
 int DeleteLayerCommand::id() const
 {
     return -1;
+}
+
+bool DeleteLayerCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const DeleteLayerCommand *command)

@@ -25,8 +25,8 @@
 Q_LOGGING_CATEGORY(lcPasteImageCanvasCommand, "app.undo.pasteImageCanvasCommand")
 
 PasteImageCanvasCommand::PasteImageCanvasCommand(ImageCanvas *canvas, int layerIndex, const QImage &image,
-    const QPoint &position, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    const QPoint &position, UndoCommand *parent) :
+    UndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex),
     mNewImage(image),
@@ -66,6 +66,11 @@ void PasteImageCanvasCommand::redo()
 int PasteImageCanvasCommand::id() const
 {
     return -1;
+}
+
+bool PasteImageCanvasCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const PasteImageCanvasCommand *command)

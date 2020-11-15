@@ -25,8 +25,8 @@
 
 Q_LOGGING_CATEGORY(lcChangeNoteCommand, "app.undo.changeNoteCommand")
 
-ChangeNoteCommand::ChangeNoteCommand(Project *project, int noteIndex, const Note &oldNote, const Note &newNote, QUndoCommand *parent) :
-    QUndoCommand(parent),
+ChangeNoteCommand::ChangeNoteCommand(Project *project, int noteIndex, const Note &oldNote, const Note &newNote, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mNoteIndex(noteIndex),
     mOldNote(oldNote),

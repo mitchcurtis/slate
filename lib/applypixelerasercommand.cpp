@@ -26,8 +26,8 @@
 Q_LOGGING_CATEGORY(lcApplyPixelEraserCommand, "app.undo.applyPixelEraserCommand")
 
 ApplyPixelEraserCommand::ApplyPixelEraserCommand(ImageCanvas *canvas, int layerIndex, const QVector<QPoint> &scenePositions,
-    const QVector<QColor> &previousColours, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    const QVector<QColor> &previousColours, UndoCommand *parent) :
+    UndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex)
 {
@@ -74,6 +74,11 @@ bool ApplyPixelEraserCommand::mergeWith(const QUndoCommand *other)
     qCDebug(lcApplyPixelEraserCommand) << "\nmerging:\n    " << otherCommand << "\nwith:\n    " << this;
     mScenePositions.append(otherCommand->mScenePositions);
     mPreviousColours.append(otherCommand->mPreviousColours);
+    return true;
+}
+
+bool ApplyPixelEraserCommand::modifiesContents() const
+{
     return true;
 }
 

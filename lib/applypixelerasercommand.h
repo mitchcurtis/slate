@@ -24,22 +24,24 @@
 #include <QDebug>
 #include <QPoint>
 #include <QVector>
-#include <QUndoCommand>
 
 #include "imagecanvas.h"
 #include "slate-global.h"
+#include "undocommand.h"
 
-class SLATE_EXPORT ApplyPixelEraserCommand : public QUndoCommand
+class SLATE_EXPORT ApplyPixelEraserCommand : public UndoCommand
 {
 public:
     ApplyPixelEraserCommand(ImageCanvas *canvas, int layerIndex, const QVector<QPoint> &scenePositions, const QVector<QColor> &previousColours,
-        QUndoCommand *parent = nullptr);
+        UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
 
     int id() const override;
     bool mergeWith(const QUndoCommand *other) override;
+
+    bool modifiesContents() const override;
 
 private:
     friend QDebug operator<<(QDebug debug, const ApplyPixelEraserCommand *command);

@@ -26,8 +26,8 @@
 Q_LOGGING_CATEGORY(lcChangeImageCanvasSizeCommand, "app.undo.changeImageCanvasSizeCommand")
 
 ChangeImageCanvasSizeCommand::ChangeImageCanvasSizeCommand(ImageProject *project, const QImage &previousImage,
-    const QImage &newImage, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    const QImage &newImage, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mPreviousImage(previousImage),
     mNewImage(newImage)
@@ -50,6 +50,11 @@ void ChangeImageCanvasSizeCommand::redo()
 int ChangeImageCanvasSizeCommand::id() const
 {
     return -1;
+}
+
+bool ChangeImageCanvasSizeCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const ChangeImageCanvasSizeCommand *command)

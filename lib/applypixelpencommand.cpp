@@ -26,8 +26,8 @@
 Q_LOGGING_CATEGORY(lcApplyPixelPenCommand, "app.undo.applyPixelPenCommand")
 
 ApplyPixelPenCommand::ApplyPixelPenCommand(ImageCanvas *canvas, int layerIndex, const QVector<QPoint> &scenePositions,
-    const QVector<QColor> &previousColours, const QColor &colour, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    const QVector<QColor> &previousColours, const QColor &colour, UndoCommand *parent) :
+    UndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex),
     mColour(colour)
@@ -77,6 +77,11 @@ bool ApplyPixelPenCommand::mergeWith(const QUndoCommand *other)
     }
 
     return false;
+}
+
+bool ApplyPixelPenCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const ApplyPixelPenCommand *command)

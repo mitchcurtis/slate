@@ -27,8 +27,8 @@
 Q_LOGGING_CATEGORY(lcDuplicateLayerCommand, "app.undo.duplicateLayerCommand")
 
 DuplicateLayerCommand::DuplicateLayerCommand(LayeredImageProject *project,
-        int layerIndex, ImageLayer *layer, QUndoCommand *parent) :
-    QUndoCommand(parent),
+        int layerIndex, ImageLayer *layer, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mLayerIndex(layerIndex),
     mLayer(layer),
@@ -56,6 +56,11 @@ void DuplicateLayerCommand::redo()
 int DuplicateLayerCommand::id() const
 {
     return -1;
+}
+
+bool DuplicateLayerCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const DuplicateLayerCommand *command)

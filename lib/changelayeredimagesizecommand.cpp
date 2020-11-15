@@ -26,8 +26,8 @@
 Q_LOGGING_CATEGORY(lcChangeLayeredImageSizeCommand, "app.undo.changeLayeredImageSizeCommand")
 
 ChangeLayeredImageSizeCommand::ChangeLayeredImageSizeCommand(LayeredImageProject *project,
-    const QVector<QImage> &previousImages, const QVector<QImage> &newImages, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    const QVector<QImage> &previousImages, const QVector<QImage> &newImages, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mPreviousImages(previousImages),
     mNewImages(newImages)
@@ -50,6 +50,11 @@ void ChangeLayeredImageSizeCommand::redo()
 int ChangeLayeredImageSizeCommand::id() const
 {
     return -1;
+}
+
+bool ChangeLayeredImageSizeCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const ChangeLayeredImageSizeCommand *)

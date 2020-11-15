@@ -27,8 +27,8 @@
 Q_LOGGING_CATEGORY(lcChangeAnimationOrderCommand, "app.undo.changeAnimationOrderCommand")
 
 ChangeAnimationOrderCommand::ChangeAnimationOrderCommand(AnimationSystem *animationSystem,
-        int oldIndex, int newIndex, QUndoCommand *parent) :
-    QUndoCommand(parent),
+        int oldIndex, int newIndex, UndoCommand *parent) :
+    UndoCommand(parent),
     mAnimationSystem(animationSystem),
     mOldIndex(oldIndex),
     mNewIndex(newIndex)

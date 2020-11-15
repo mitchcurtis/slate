@@ -26,8 +26,8 @@
 Q_LOGGING_CATEGORY(lcApplyTilePenCommand, "app.undo.applyTilePenCommand")
 
 ApplyTilePenCommand::ApplyTilePenCommand(TileCanvas *canvas, const QPoint &tilePos,
-    int previousId, int id, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    int previousId, int id, UndoCommand *parent) :
+    UndoCommand(parent),
     mCanvas(canvas),
     mId(id)
 {

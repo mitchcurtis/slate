@@ -27,8 +27,8 @@
 Q_LOGGING_CATEGORY(lcChangeLayerNameCommand, "app.undo.changeLayerNameCommand")
 
 ChangeLayerNameCommand::ChangeLayerNameCommand(LayeredImageProject *project, int layerIndex, const QString &previousName,
-    const QString &newName, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    const QString &newName, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mLayerIndex(layerIndex),
     mPreviousName(previousName),

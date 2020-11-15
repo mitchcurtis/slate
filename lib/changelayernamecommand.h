@@ -21,18 +21,17 @@
 #define CHANGELAYERNAMECOMMAND_H
 
 #include <QDebug>
-#include <QUndoCommand>
 
-#include "changelayernamecommand.h"
 #include "slate-global.h"
+#include "undocommand.h"
 
 class LayeredImageProject;
 
-class SLATE_EXPORT ChangeLayerNameCommand : public QUndoCommand
+class SLATE_EXPORT ChangeLayerNameCommand : public UndoCommand
 {
 public:
     ChangeLayerNameCommand(LayeredImageProject *project, int layerIndex, const QString &previousName,
-        const QString &newName, QUndoCommand *parent = nullptr);
+        const QString &newName, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

@@ -27,8 +27,8 @@
 Q_LOGGING_CATEGORY(lcModifyAnimationCommand, "app.undo.modifyAnimationCommand")
 
 ModifyAnimationCommand::ModifyAnimationCommand(AnimationSystem *animationSystem, int index,
-    const QString &name, int fps, int frameCount, int frameX, int frameY, int frameWidth, int frameHeight, bool reverse, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    const QString &name, int fps, int frameCount, int frameX, int frameY, int frameWidth, int frameHeight, bool reverse, UndoCommand *parent) :
+    UndoCommand(parent),
     mAnimationSystem(animationSystem),
     mAnimation(mAnimationSystem->animationAt(index)),
     mIndex(index),

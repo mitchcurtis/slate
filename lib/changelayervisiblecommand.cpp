@@ -27,8 +27,8 @@
 Q_LOGGING_CATEGORY(lcChangeLayerVisibleCommand, "app.undo.changeLayerVisibleCommand")
 
 ChangeLayerVisibleCommand::ChangeLayerVisibleCommand(LayeredImageProject *project, int layerIndex, bool previousVisible,
-    bool newVisible, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    bool newVisible, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mLayerIndex(layerIndex),
     mPreviousVisible(previousVisible),
@@ -52,6 +52,11 @@ void ChangeLayerVisibleCommand::redo()
 int ChangeLayerVisibleCommand::id() const
 {
     return -1;
+}
+
+bool ChangeLayerVisibleCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const ChangeLayerVisibleCommand *command)

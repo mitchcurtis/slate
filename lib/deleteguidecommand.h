@@ -21,17 +21,17 @@
 #define DELETEGUIDECOMMAND_H
 
 #include <QDebug>
-#include <QUndoCommand>
 
 #include "guide.h"
 #include "slate-global.h"
+#include "undocommand.h"
 
 class Project;
 
-class SLATE_EXPORT DeleteGuideCommand : public QUndoCommand
+class SLATE_EXPORT DeleteGuideCommand : public UndoCommand
 {
 public:
-    DeleteGuideCommand(Project *project, const Guide &guide, QUndoCommand *parent = nullptr);
+    DeleteGuideCommand(Project *project, const Guide &guide, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

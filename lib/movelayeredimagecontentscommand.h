@@ -22,23 +22,25 @@
 
 #include <QDebug>
 #include <QImage>
-#include <QUndoCommand>
 #include <QVector>
 
 #include "slate-global.h"
+#include "undocommand.h"
 
 class LayeredImageProject;
 
-class SLATE_EXPORT MoveLayeredImageContentsCommand : public QUndoCommand
+class SLATE_EXPORT MoveLayeredImageContentsCommand : public UndoCommand
 {
 public:
     MoveLayeredImageContentsCommand(LayeredImageProject *project, const QVector<QImage> &previousImages,
-        const QVector<QImage> &newImages, QUndoCommand *parent = nullptr);
+        const QVector<QImage> &newImages, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
 
     int id() const override;
+
+    bool modifiesContents() const override;
 
 private:
     friend QDebug operator<<(QDebug debug, const MoveLayeredImageContentsCommand *command);

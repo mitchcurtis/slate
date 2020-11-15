@@ -22,17 +22,17 @@
 
 #include <QDebug>
 #include <QSize>
-#include <QUndoCommand>
 
 #include "slate-global.h"
+#include "undocommand.h"
 
 class AnimationSystem;
 class ImageLayer;
 
-class SLATE_EXPORT AddAnimationCommand : public QUndoCommand
+class SLATE_EXPORT AddAnimationCommand : public UndoCommand
 {
 public:
-    AddAnimationCommand(AnimationSystem *animationSystem, const QSize &projectSize, QUndoCommand *parent = nullptr);
+    AddAnimationCommand(AnimationSystem *animationSystem, const QSize &projectSize, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

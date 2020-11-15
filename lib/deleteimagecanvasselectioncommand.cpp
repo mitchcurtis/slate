@@ -25,8 +25,8 @@
 Q_LOGGING_CATEGORY(lcDeleteImageCanvasSelectionCommand, "app.undo.deleteImageCanvasSelectionCommand")
 
 DeleteImageCanvasSelectionCommand::DeleteImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex,
-        const QRect &area, QUndoCommand *parent) :
-    QUndoCommand(parent),
+        const QRect &area, UndoCommand *parent) :
+    UndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex),
     mDeletedArea(area),
@@ -52,6 +52,11 @@ void DeleteImageCanvasSelectionCommand::redo()
 int DeleteImageCanvasSelectionCommand::id() const
 {
     return -1;
+}
+
+bool DeleteImageCanvasSelectionCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const DeleteImageCanvasSelectionCommand *command)

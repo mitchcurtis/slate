@@ -26,8 +26,8 @@
 
 Q_LOGGING_CATEGORY(lcAddLayerCommand, "app.undo.addLayerCommand")
 
-AddLayerCommand::AddLayerCommand(LayeredImageProject *project, ImageLayer *layer, int index, QUndoCommand *parent) :
-    QUndoCommand(parent),
+AddLayerCommand::AddLayerCommand(LayeredImageProject *project, ImageLayer *layer, int index, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mIndex(index),
     mLayer(layer),
@@ -55,6 +55,11 @@ void AddLayerCommand::redo()
 int AddLayerCommand::id() const
 {
     return -1;
+}
+
+bool AddLayerCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const AddLayerCommand *command)

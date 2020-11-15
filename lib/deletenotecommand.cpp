@@ -25,8 +25,8 @@
 
 Q_LOGGING_CATEGORY(lcDeleteNoteCommand, "app.undo.deleteNoteCommand")
 
-DeleteNoteCommand::DeleteNoteCommand(Project *project, const Note &note, QUndoCommand *parent) :
-    QUndoCommand(parent),
+DeleteNoteCommand::DeleteNoteCommand(Project *project, const Note &note, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mNote(note)
 {

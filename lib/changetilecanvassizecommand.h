@@ -23,17 +23,17 @@
 #include <QDebug>
 #include <QSize>
 #include <QVector>
-#include <QUndoCommand>
 
 #include "slate-global.h"
+#include "undocommand.h"
 
 class TilesetProject;
 
-class SLATE_EXPORT ChangeTileCanvasSizeCommand : public QUndoCommand
+class SLATE_EXPORT ChangeTileCanvasSizeCommand : public UndoCommand
 {
 public:
     ChangeTileCanvasSizeCommand(TilesetProject *project, const QSize &previousSize, const QSize &size,
-        QUndoCommand *parent = nullptr);
+        UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

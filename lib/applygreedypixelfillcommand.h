@@ -22,22 +22,24 @@
 
 #include <QDebug>
 #include <QImage>
-#include <QUndoCommand>
 
 #include "slate-global.h"
+#include "undocommand.h"
 
 class ImageCanvas;
 
-class SLATE_EXPORT ApplyGreedyPixelFillCommand : public QUndoCommand
+class SLATE_EXPORT ApplyGreedyPixelFillCommand : public UndoCommand
 {
 public:
     ApplyGreedyPixelFillCommand(ImageCanvas *canvas, int layerIndex,const QImage &previousImage,
-        const QImage &newImage, QUndoCommand *parent = nullptr);
+        const QImage &newImage, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
 
     int id() const override;
+
+    bool modifiesContents() const override;
 
 private:
     friend QDebug operator<<(QDebug debug, const ApplyGreedyPixelFillCommand *command);

@@ -22,18 +22,18 @@
 
 #include <QDebug>
 #include <QSize>
-#include <QUndoCommand>
 #include <QVector>
 
 #include "slate-global.h"
+#include "undocommand.h"
 
 class LayeredImageProject;
 
-class SLATE_EXPORT ChangeLayerOrderCommand : public QUndoCommand
+class SLATE_EXPORT ChangeLayerOrderCommand : public UndoCommand
 {
 public:
     ChangeLayerOrderCommand(LayeredImageProject *project, int previousIndex, int newIndex,
-        QUndoCommand *parent = nullptr);
+        UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

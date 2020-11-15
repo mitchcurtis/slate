@@ -22,15 +22,15 @@
 
 #include <QDebug>
 #include <QSize>
-#include <QUndoCommand>
 
 #include "slate-global.h"
+#include "undocommand.h"
 
 class Animation;
 class AnimationSystem;
 class ImageLayer;
 
-class SLATE_EXPORT ModifyAnimationCommand : public QUndoCommand
+class SLATE_EXPORT ModifyAnimationCommand : public UndoCommand
 {
 public:
     // TODO:
@@ -42,7 +42,7 @@ public:
     // - have AnimationSettingsPopup set currentAnimationPlayback.animation back to currentAnimation when it closes
     ModifyAnimationCommand(AnimationSystem *animationSystem, int index,
         const QString &name, int fps, int frameCount, int frameX, int frameY, int frameWidth, int frameHeight,
-        bool reverse, QUndoCommand *parent = nullptr);
+        bool reverse, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

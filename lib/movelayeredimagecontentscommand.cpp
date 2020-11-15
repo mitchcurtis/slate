@@ -26,8 +26,8 @@
 Q_LOGGING_CATEGORY(lcMoveLayeredImageContentsCommand, "app.undo.moveLayeredImageContentsCommand")
 
 MoveLayeredImageContentsCommand::MoveLayeredImageContentsCommand(LayeredImageProject *project,
-    const QVector<QImage> &previousImages, const QVector<QImage> &newImages, QUndoCommand *parent) :
-    QUndoCommand(parent),
+    const QVector<QImage> &previousImages, const QVector<QImage> &newImages, UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mPreviousImages(previousImages),
     mNewImages(newImages)
@@ -50,6 +50,11 @@ void MoveLayeredImageContentsCommand::redo()
 int MoveLayeredImageContentsCommand::id() const
 {
     return -1;
+}
+
+bool MoveLayeredImageContentsCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const MoveLayeredImageContentsCommand *)

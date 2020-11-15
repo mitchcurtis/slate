@@ -38,8 +38,8 @@ ModifyImageCanvasSelectionCommand::ModifyImageCanvasSelectionCommand(ImageCanvas
         const QRect &sourceArea, const QImage &sourceAreaImage,
         const QRect &targetArea, const QImage &targetAreaImageBeforeModification,
         const QImage &targetAreaImageAfterModification,
-        bool fromPaste, const QImage &pasteContents, QUndoCommand *parent) :
-    QUndoCommand(parent),
+        bool fromPaste, const QImage &pasteContents, UndoCommand *parent) :
+    UndoCommand(parent),
     mCanvas(canvas),
     mLayerIndex(layerIndex),
     mModification(modification),
@@ -104,6 +104,11 @@ void ModifyImageCanvasSelectionCommand::redo()
 int ModifyImageCanvasSelectionCommand::id() const
 {
     return -1;
+}
+
+bool ModifyImageCanvasSelectionCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const ModifyImageCanvasSelectionCommand *command)

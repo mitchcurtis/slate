@@ -28,8 +28,8 @@ Q_LOGGING_CATEGORY(lcMergeLayersCommand, "app.undo.mergeLayersCommand")
 
 MergeLayersCommand::MergeLayersCommand(LayeredImageProject *project,
         int sourceIndex, ImageLayer *sourceLayer, int targetIndex, ImageLayer *targetLayer,
-    QUndoCommand *parent) :
-    QUndoCommand(parent),
+    UndoCommand *parent) :
+    UndoCommand(parent),
     mProject(project),
     mSourceIndex(sourceIndex),
     mSourceLayer(sourceLayer),
@@ -60,6 +60,11 @@ void MergeLayersCommand::redo()
 int MergeLayersCommand::id() const
 {
     return -1;
+}
+
+bool MergeLayersCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const MergeLayersCommand *command)

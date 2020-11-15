@@ -26,8 +26,8 @@
 
 Q_LOGGING_CATEGORY(lcDeleteAnimationCommand, "app.undo.deleteAnimationCommand")
 
-DeleteAnimationCommand::DeleteAnimationCommand(AnimationSystem *animationSystem, int index, QUndoCommand *parent) :
-    QUndoCommand(parent),
+DeleteAnimationCommand::DeleteAnimationCommand(AnimationSystem *animationSystem, int index, UndoCommand *parent) :
+    UndoCommand(parent),
     mAnimationSystem(animationSystem),
     mIndex(index)
 {

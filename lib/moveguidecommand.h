@@ -21,17 +21,17 @@
 #define MOVEGUIDECOMMAND_H
 
 #include <QDebug>
-#include <QUndoCommand>
 
 #include "guide.h"
 #include "slate-global.h"
+#include "undocommand.h"
 
 class Project;
 
-class SLATE_EXPORT MoveGuideCommand : public QUndoCommand
+class SLATE_EXPORT MoveGuideCommand : public UndoCommand
 {
 public:
-    MoveGuideCommand(Project *project, const Guide &guide, int newPosition, QUndoCommand *parent = nullptr);
+    MoveGuideCommand(Project *project, const Guide &guide, int newPosition, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

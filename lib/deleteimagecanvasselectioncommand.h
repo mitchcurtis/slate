@@ -23,22 +23,24 @@
 #include <QDebug>
 #include <QImage>
 #include <QRect>
-#include <QUndoCommand>
 
 #include "slate-global.h"
+#include "undocommand.h"
 
 class ImageCanvas;
 
-class SLATE_EXPORT DeleteImageCanvasSelectionCommand : public QUndoCommand
+class SLATE_EXPORT DeleteImageCanvasSelectionCommand : public UndoCommand
 {
 public:
     DeleteImageCanvasSelectionCommand(ImageCanvas *canvas, int layerIndex, const QRect &area,
-        QUndoCommand *parent = nullptr);
+        UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
 
     int id() const override;
+
+    bool modifiesContents() const override;
 
 private:
     friend QDebug operator<<(QDebug debug, const DeleteImageCanvasSelectionCommand *command);

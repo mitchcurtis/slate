@@ -26,8 +26,8 @@
 
 Q_LOGGING_CATEGORY(lcAddAnimationCommand, "app.undo.addAnimationCommand")
 
-AddAnimationCommand::AddAnimationCommand(AnimationSystem *animationSystem, const QSize &projectSize, QUndoCommand *parent) :
-    QUndoCommand(parent),
+AddAnimationCommand::AddAnimationCommand(AnimationSystem *animationSystem, const QSize &projectSize, UndoCommand *parent) :
+    UndoCommand(parent),
     mAnimationSystem(animationSystem),
     mIndex(animationSystem->animationCount()),
     mProjectSize(projectSize)

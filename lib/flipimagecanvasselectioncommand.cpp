@@ -24,8 +24,8 @@
 Q_LOGGING_CATEGORY(lcFlipImageCanvasSelectionCommand, "app.undo.flipImageCanvasSelectionCommand")
 
 FlipImageCanvasSelectionCommand::FlipImageCanvasSelectionCommand(ImageCanvas *canvas,
-        const QRect &area, Qt::Orientation orientation, QUndoCommand *parent) :
-    QUndoCommand(parent),
+        const QRect &area, Qt::Orientation orientation, UndoCommand *parent) :
+    UndoCommand(parent),
     mCanvas(canvas),
     mOrientation(orientation),
     mArea(area)
@@ -48,6 +48,11 @@ void FlipImageCanvasSelectionCommand::redo()
 int FlipImageCanvasSelectionCommand::id() const
 {
     return -1;
+}
+
+bool FlipImageCanvasSelectionCommand::modifiesContents() const
+{
+    return true;
 }
 
 QDebug operator<<(QDebug debug, const FlipImageCanvasSelectionCommand *command)
