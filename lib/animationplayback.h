@@ -61,6 +61,8 @@ public:
     bool shouldLoop() const;
     void setLoop(bool shouldLoop);
 
+    int pauseIndex() const;
+
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
 

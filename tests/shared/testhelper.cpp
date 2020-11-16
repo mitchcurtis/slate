@@ -1318,6 +1318,49 @@ bool TestHelper::openAnimationSettingsPopupForCurrentAnimation(QObject **popup)
     return true;
 }
 
+bool TestHelper::grabFramesOfCurrentAnimation(QVector<QImage> &frames)
+{
+    auto currentPlayback = TestHelper::animationPlayback();
+    auto currentAnimation = currentPlayback->animation();
+    VERIFY2(!currentPlayback->shouldLoop(), "This function hasn't been tested with looping animations");
+
+    VERIFY2(currentPlayback->currentFrameIndex() == 0, qPrintable(QString::fromLatin1(
+        "Expected currentFrameIndex to be 0 when this function is called, but it's %1").arg(currentPlayback->currentFrameIndex())));
+
+    mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+    VERIFY(currentPlayback->isPlaying() == true);
+
+    VERIFY2(currentPlayback->currentFrameIndex() == 0, qPrintable(QString::fromLatin1(
+        "Expected currentFrameIndex to be 0 after hitting play, but it's %1").arg(currentPlayback->currentFrameIndex())));
+
+    auto previewSpriteImage = window->findChild<QQuickItem*>("animationPreviewContainerSpriteImage");
+    VERIFY(previewSpriteImage);
+
+    for (int frameIndex = 0; frameIndex < currentAnimation->frameCount(); ++frameIndex) {
+        TRY_VERIFY2(currentPlayback->currentFrameIndex() == frameIndex, qPrintable(QString::fromLatin1(
+            "Expected currentFrameIndex to be %1 before pausing, but it's %2").arg(frameIndex).arg(currentPlayback->currentFrameIndex())));
+
+        // Pause the animation so we can grab the SpriteImage without making the test flaky.
+        currentPlayback->setPlaying(false);
+        VERIFY(currentPlayback->isPlaying() == false);
+        VERIFY(currentPlayback->pauseIndex() == frameIndex);
+
+        VERIFY(imageGrabber.requestImage(previewSpriteImage));
+        TRY_VERIFY(imageGrabber.isReady());
+        frames.append(imageGrabber.takeImage());
+
+        // Resume.
+        const int frameIndexAfterPausing = currentPlayback->currentFrameIndex();
+        VERIFY2(frameIndexAfterPausing == frameIndex, qPrintable(QString::fromLatin1(
+            "Expected currentFrameIndex to be %1 after resuming, but it's %2").arg(frameIndex).arg(frameIndexAfterPausing)));
+        currentPlayback->setPlaying(true);
+        VERIFY(currentPlayback->isPlaying() == true);
+    }
+    TRY_VERIFY_WITH_TIMEOUT(currentPlayback->isPlaying() == false, 2000);
+    VERIFY(currentPlayback->pauseIndex() == -1);
+    return true;
+}
+
 QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
 {
     QObject *popup = nullptr;

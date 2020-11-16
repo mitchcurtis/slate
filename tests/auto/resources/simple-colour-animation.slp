@@ -1,0 +1,76 @@
+{
+    "project": {
+        "animationSystem": {
+            "animations": [
+                {
+                    "fps": 3,
+                    "frameCount": 3,
+                    "frameHeight": 10,
+                    "frameWidth": 10,
+                    "frameX": 0,
+                    "frameY": 0,
+                    "name": "short"
+                },
+                {
+                    "fps": 3,
+                    "frameCount": 5,
+                    "frameHeight": 10,
+                    "frameWidth": 10,
+                    "frameX": 30,
+                    "frameY": 0,
+                    "name": "long"
+                }
+            ],
+            "currentAnimationIndex": 0,
+            "currentAnimationPlayback": {
+                "loop": false,
+                "scale": 10
+            }
+        },
+        "creationVersion": "0.10.0",
+        "currentLayerIndex": 0,
+        "guides": [
+        ],
+        "hasUsedAnimation": true,
+        "layers": [
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAAFAAAAAKCAYAAAAjBNk8AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAWUlEQVRIiWM85O7+n4EYYEuUKgYGY+KU3ecmTt0yBkciLbYkTtlyRqKUKd0jzjgm4pSNAlxgNAApBKMBSCEYDUAKwWgAUghGA5BCMBqAFILRAKQQjAYghQAATKEGhQ+f8WcAAAAASUVORK5CYII=",
+                "name": "Layer 1",
+                "opacity": 1,
+                "visible": true
+            }
+        ],
+        "modificationVersion": "0.10.0",
+        "notes": [
+        ],
+        "swatch": {
+            "colours": [
+            ]
+        },
+        "uiState": {
+            "animationPanelExpanded": true,
+            "colourPanelExpanded": false,
+            "firstPane": {
+                "offsetX": 247,
+                "offsetY": 277,
+                "sceneCentered": false,
+                "size": 1,
+                "zoomLevel": 11
+            },
+            "lastFillToolUsed": "FillTool",
+            "layerListViewContentY": 0,
+            "layerPanelExpanded": true,
+            "mainSplitViewState": "gqJlaW5kZXgAbnByZWZlcnJlZFdpZHRo+0CDTVVVVVVVomVpbmRleAFucHJlZmVycmVkV2lkdGj7QG4AAAAAAAA=",
+            "panelSplitViewState": "hKJlaW5kZXgAb3ByZWZlcnJlZEhlaWdodPtAeolQAAAAAKJlaW5kZXgBb3ByZWZlcnJlZEhlaWdodPtAbIAAAAAAAKJlaW5kZXgDb3ByZWZlcnJlZEhlaWdodPtAc5AAAAAAAKJlaW5kZXgEb3ByZWZlcnJlZEhlaWdodPtAfC6AAAAAAA==",
+            "secondPane": {
+                "offsetX": -40,
+                "offsetY": 455,
+                "sceneCentered": true,
+                "size": 0,
+                "zoomLevel": 1
+            },
+            "swatchPanelExpanded": false
+        },
+        "usingAnimation": true
+    }
+}

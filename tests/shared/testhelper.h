@@ -276,6 +276,7 @@ protected:
     Q_REQUIRED_RESULT bool duplicateCurrentAnimation(const QString &expectedGeneratedAnimationName, int expectedDuplicateIndex);
     Q_REQUIRED_RESULT bool makeCurrentAndRenameAnimation(const QString &from, const QString &to);
     Q_REQUIRED_RESULT bool openAnimationSettingsPopupForCurrentAnimation(QObject **popup);
+    Q_REQUIRED_RESULT bool grabFramesOfCurrentAnimation(QVector<QImage> &frames);
 
     QByteArray failureMessage;
 

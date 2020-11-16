@@ -119,7 +119,7 @@ void AnimationPlayback::setPlaying(bool playing)
         return;
 
     if (mPlaying) {
-        qCDebug(lcAnimationPlayback) << "killing timer";
+        qCDebug(lcAnimationPlayback) << "killing timer on" << objectName();
         if (mTimerId != -1) {
             killTimer(mTimerId);
             mTimerId = -1;
@@ -130,13 +130,15 @@ void AnimationPlayback::setPlaying(bool playing)
     mWasPlayingBeforeAnimationChanged = mPlaying;
 
     if (mPlaying) {
-        qCDebug(lcAnimationPlayback) << "starting timer";
+        qCDebug(lcAnimationPlayback) << "starting timer on" << objectName();
 
         if (mPauseIndex == -1) {
             // Force the start index to be calculated based on whether the animation is reversed or not.
+            qCDebug(lcAnimationPlayback) << "starting animation on" << objectName() << "from first frame";
             setCurrentIndexToStart();
         } else {
             // The animation hasn't changed since we stopped playing, so resume from where it was stopped.
+            qCDebug(lcAnimationPlayback) << "resuming animation on" << objectName() << "from" << mPauseIndex;
             setCurrentFrameIndex(mPauseIndex);
             mPauseIndex = -1;
         }
@@ -164,21 +166,28 @@ void AnimationPlayback::setLoop(bool loop)
     emit loopChanged();
 }
 
+int AnimationPlayback::pauseIndex() const
+{
+    return mPauseIndex;
+}
+
 void AnimationPlayback::timerEvent(QTimerEvent *)
 {
     Q_ASSERT(mPlaying);
 
     int newFrameIndex = !mAnimation->isReverse() ? mCurrentFrameIndex + 1 : mCurrentFrameIndex - 1;
     const bool finished = !mAnimation->isReverse() ? newFrameIndex >= mAnimation->frameCount() : newFrameIndex < 0;
+    qCDebug(lcAnimationPlayback) << "timer triggered on" << objectName() << "- finished" << finished;
     if (finished) {
         newFrameIndex = startFrameIndex();
 
         if (!mLoop) {
             setPlaying(false);
+            // setPlaying(false) tells it to pause, which causes the pause index to be set,
+            // which we don't want for the natural end of an animation.
+            mPauseIndex = -1;
         }
     }
-
-    qCDebug(lcAnimationPlayback) << "timer triggered";
 
     setCurrentFrameIndex(newFrameIndex);
 }
@@ -235,8 +244,8 @@ void AnimationPlayback::setCurrentFrameIndex(int currentFrameIndex)
     if (currentFrameIndex == mCurrentFrameIndex)
         return;
 
-    qCDebug(lcAnimationPlayback) << "setCurrentFrameIndex called with" << currentFrameIndex
-        << "- mCurrentFrameIndex is" << mCurrentFrameIndex;
+    qCDebug(lcAnimationPlayback) << "currentFrameIndex of" << objectName() << "was" << mCurrentFrameIndex
+        << "and is now" << currentFrameIndex;
     mCurrentFrameIndex = currentFrameIndex;
     emit currentFrameIndexChanged();
 }

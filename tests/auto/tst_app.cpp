@@ -190,6 +190,7 @@ private Q_SLOTS:
     // Animation.
     void animationPlayback_data();
     void animationPlayback();
+    void playNonLoopingAnimationTwice();
     void animationGifExport();
     void newAnimations_data();
     void newAnimations();
@@ -5276,6 +5277,45 @@ void tst_App::animationPlayback()
     QCOMPARE(currentAnimation->frameCount(), expectedFrameCount);
     QCOMPARE(currentAnimation->isReverse(), expectedReverse);
     QCOMPARE(currentAnimationPlayback->scale(), modifiedScaleValue);
+}
+
+void tst_App::playNonLoopingAnimationTwice()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    QVERIFY2(copyFileFromResourcesToTempProjectDir("simple-colour-animation.slp"), failureMessage);
+
+    const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/simple-colour-animation.slp"));
+    layeredImageProject->load(projectUrl);
+    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+
+    auto *animationSystem = getAnimationSystem();
+    QVERIFY(animationSystem);
+
+    QCOMPARE(animationSystem->currentAnimationIndex(), 0);
+    auto currentPlayback = TestHelper::animationPlayback();
+    QVERIFY(!currentPlayback->shouldLoop());
+
+    // Create the expected frames.
+    QVector<QImage> expectedFrames;
+    for (int i = 0; i < 3; ++i) {
+        const QImage frame = layeredImageProject->layerAt(0)->image()->copy(i * 10, 0, 10, 10);
+        expectedFrames.append(frame);
+    }
+
+    // Play the first animation and grab the frames.
+    QVector<QImage> actualFrames;
+    QVERIFY2(grabFramesOfCurrentAnimation(actualFrames), failureMessage);
+    QCOMPARE(actualFrames.size(), expectedFrames.size());
+    for (int i = 0; i < 3; ++i)
+        QVERIFY2(everyPixelIs(actualFrames.at(i), expectedFrames.at(i).pixelColor(0, 0)), failureMessage);
+
+    // Play it again. It should play the same each time.
+    actualFrames.clear();
+    QVERIFY2(grabFramesOfCurrentAnimation(actualFrames), failureMessage);
+    QCOMPARE(actualFrames.size(), expectedFrames.size());
+    for (int i = 0; i < 3; ++i)
+        QVERIFY2(everyPixelIs(actualFrames.at(i), expectedFrames.at(i).pixelColor(0, 0)), failureMessage);
 }
 
 void tst_App::animationGifExport()

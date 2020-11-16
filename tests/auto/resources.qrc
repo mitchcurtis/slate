@@ -38,5 +38,6 @@
         <file>resources/loadPaneFractionalOffset.slp</file>
         <file>resources/version-check-v0.9.0.slp</file>
         <file>resources/animationFrameWidthTooLarge.slp</file>
+        <file>resources/simple-colour-animation.slp</file>
     </qresource>
 </RCC>
