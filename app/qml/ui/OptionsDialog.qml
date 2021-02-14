@@ -138,6 +138,10 @@ Dialog {
                             {
                                 value: "ar_EG",
                                 display: "العربيه"
+                            },
+                            {
+                                value: "zh_CN",
+                                display: "简体中文"
                             }
                         ]
                     }
