@@ -41,8 +41,8 @@
         </message>
         <message>
             <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="91" />
-            <source>要制作动画的第一帧的X坐标</source>
-            <translation></translation>
+            <source>X coordinate of the first frame to animate</source>
+            <translation>要制作动画的第一帧的X坐标</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="100" />
@@ -56,8 +56,8 @@
         </message>
         <message>
             <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="124" />
-            <source>帧宽</source>
-            <translation></translation>
+            <source>Frame Width</source>
+            <translation>帧宽</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="139" />
@@ -87,7 +87,7 @@
         <message>
             <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="193" />
             <source>FPS</source>
-            <translation>帧/秒</translation>
+            <translation>FPS</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="208" />
@@ -96,8 +96,8 @@
         </message>
         <message>
             <location filename="../app/qml/ui/AnimationSettingsPopup.qml" line="219" />
-            <source>预览比例</source>
-            <translation></translation>
+            <source>Preview Scale</source>
+            <translation>预览比例</translation>
         </message>
     </context>
     <context>
@@ -653,7 +653,7 @@
             <location filename="../app/qml/ui/MenuBar.qml" line="427" />
             <location filename="../app/qml/ui/+nativemenubar/MenuBar.qml" line="405" />
             <source>Lock Guides</source>
-            <translation></translation>
+            <translation>锁定指南</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/MenuBar.qml" line="438" />
@@ -709,47 +709,47 @@
         <message>
             <location filename="../app/qml/ui/MoveContentsDialog.qml" line="29" />
             <source>Move layer contents</source>
-            <translation></translation>
+            <translation>移动图层内容</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/MoveContentsDialog.qml" line="57" />
             <source>Horizontal distance</source>
-            <translation></translation>
+            <translation>水平距离</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/MoveContentsDialog.qml" line="71" />
             <source>Horizontal distance to move the contents by (in pixels)</source>
-            <translation></translation>
+            <translation>内容移动的水平距离（以像素为单位）</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/MoveContentsDialog.qml" line="77" />
             <source>Vertical distance</source>
-            <translation></translation>
+            <translation>垂直距离</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/MoveContentsDialog.qml" line="91" />
             <source>Vertical distance to move the contents by (in pixels)</source>
-            <translation></translation>
+            <translation>内容移动的垂直距离（以像素为单位）</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/MoveContentsDialog.qml" line="97" />
             <source>Only move visible layers</source>
-            <translation></translation>
+            <translation>仅移动可见图层</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/MoveContentsDialog.qml" line="106" />
             <source>Only move contents of visible layers</source>
-            <translation></translation>
+            <translation>仅移动可见图层的内容</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/MoveContentsDialog.qml" line="164" />
             <source>OK</source>
-            <translation></translation>
+            <translation>确定</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/MoveContentsDialog.qml" line="173" />
             <source>Cancel</source>
-            <translation></translation>
+            <translation>取消</translation>
         </message>
     </context>
     <context>
@@ -757,38 +757,38 @@
         <message>
             <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="10" />
             <source>New Image Project</source>
-            <translation></translation>
+            <translation>新建图像工程</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="36" />
             <source>Image Width</source>
-            <translation></translation>
+            <translation>图像宽度</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="48" />
             <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="70" />
             <source>The height of the image</source>
-            <translation></translation>
+            <translation>图像的高度</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="58" />
             <source>Image Height</source>
-            <translation></translation>
+            <translation>图像高度</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="82" />
             <source>Transparent Background</source>
-            <translation></translation>
+            <translation>透明背景</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="93" />
             <source>OK</source>
-            <translation></translation>
+            <translation>确定</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewImageProjectPopup.qml" line="99" />
             <source>Cancel</source>
-            <translation></translation>
+            <translation>取消</translation>
         </message>
     </context>
     <context>
@@ -796,7 +796,7 @@
         <message>
             <location filename="../app/qml/ui/NewLayeredImageProjectPopup.qml" line="4" />
             <source>New Layered Image Project</source>
-            <translation></translation>
+            <translation>新建分层图像工程</translation>
         </message>
     </context>
     <context>
@@ -804,32 +804,32 @@
         <message>
             <location filename="../app/qml/ui/NewProjectPopup.qml" line="50" />
             <source>New Layered Image</source>
-            <translation></translation>
+            <translation>新建分层图像</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewProjectPopup.qml" line="51" />
             <source>Creates a new layered image project. Several images are drawn on top of each other, and can be exported as a single image.</source>
-            <translation></translation>
+            <translation>创建一个新的分层图像工程。 多个图像相互叠加绘制，并且可以导出为单个图像。</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewProjectPopup.qml" line="66" />
             <source>New Image</source>
-            <translation></translation>
+            <translation>新建图像</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewProjectPopup.qml" line="67" />
             <source>Creates a new bitmap image for direct editing, with no layer support.</source>
-            <translation></translation>
+            <translation>创建不直接支持图层的位图图像以进行直接编辑。</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewProjectPopup.qml" line="81" />
             <source>New Tileset</source>
-            <translation></translation>
+            <translation>新建Tileset</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewProjectPopup.qml" line="82" />
             <source>Creates a new tileset bitmap image for editing. Paint tiles from an image onto a grid. An accompanying project file is created to save the contents of the grid.</source>
-            <translation></translation>
+            <translation>创建一个新的tileset位图图像进行编辑。 从图像上绘tile砖到网格上。 创建一个随附的工程文件以保存网格的内容。</translation>
         </message>
     </context>
     <context>
@@ -837,87 +837,87 @@
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="10" />
             <source>New Tileset Project</source>
-            <translation></translation>
+            <translation>新建Tileset工程</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="73" />
             <source>Use existing tileset</source>
-            <translation></translation>
+            <translation>使用现有的tileset</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="85" />
             <source>Tileset</source>
-            <translation></translation>
+            <translation>Tileset</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="111" />
             <source>...</source>
-            <translation></translation>
+            <translation>...</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="115" />
             <source>Click to choose the path to a tileset image</source>
-            <translation></translation>
+            <translation>单击以选择tileset图像的路径</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="124" />
             <source>Tile Width</source>
-            <translation></translation>
+            <translation>Tile宽度</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="143" />
             <source>How wide each tile is in pixels</source>
-            <translation></translation>
+            <translation>每个tile的宽度（以像素为单位）</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="154" />
             <source>Tile Height</source>
-            <translation></translation>
+            <translation>Tile高度</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="173" />
             <source>How high each tile is in pixels</source>
-            <translation></translation>
+            <translation>每个tile的高度（以像素为单位）</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="183" />
             <source>Tiles Wide</source>
-            <translation></translation>
+            <translation>Tiles宽度</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="196" />
             <source>How many tiles should be displayed horizontally</source>
-            <translation></translation>
+            <translation>水平应显示多少个tile</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="206" />
             <source>Tiles High</source>
-            <translation></translation>
+            <translation>Tiles高度</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="219" />
             <source>How many tiles should be displayed vertically</source>
-            <translation></translation>
+            <translation>垂直应显示多少个tile</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="231" />
             <source>Transparent Background</source>
-            <translation></translation>
+            <translation>透明背景</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="239" />
             <source>Preview</source>
-            <translation></translation>
+            <translation>预览</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="306" />
             <source>OK</source>
-            <translation></translation>
+            <translation>确定</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/NewTilesetProjectPopup.qml" line="313" />
             <source>Cancel</source>
-            <translation></translation>
+            <translation>取消</translation>
         </message>
     </context>
     <context>
@@ -926,42 +926,42 @@
             <location filename="../app/qml/ui/OpacityDialog.qml" line="31" />
             <location filename="../app/qml/ui/OpacityDialog.qml" line="82" />
             <source>Opacity</source>
-            <translation></translation>
+            <translation>不透明度</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OpacityDialog.qml" line="96" />
             <source>Changes the opacity of the image</source>
-            <translation></translation>
+            <translation>调整图像的不透明度</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OpacityDialog.qml" line="148" />
             <source>Do not modify fully transparent pixels</source>
-            <translation></translation>
+            <translation>请勿修改完全透明的像素</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OpacityDialog.qml" line="153" />
             <source>Only change the alpha if it&apos;s non-zero to prevent fully transparent pixels from gaining opacity.</source>
-            <translation></translation>
+            <translation>仅在Alpha值不为零时才对其进行更改，以防止完全透明的像素获得不透明度。</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OpacityDialog.qml" line="163" />
             <source>Do not modify fully opaque pixels</source>
-            <translation></translation>
+            <translation>不要修改完全不透明的像素</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OpacityDialog.qml" line="168" />
             <source>Only change the alpha if it&apos;s less than one to prevent fully opaque pixels from losing opacity.</source>
-            <translation></translation>
+            <translation>仅在Alpha值小于1时更改它，以防止完全不透明的像素失去不透明度。</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OpacityDialog.qml" line="179" />
             <source>OK</source>
-            <translation></translation>
+            <translation>确定</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OpacityDialog.qml" line="190" />
             <source>Cancel</source>
-            <translation></translation>
+            <translation>取消</translation>
         </message>
     </context>
     <context>
@@ -969,258 +969,258 @@
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="71" />
             <source>General</source>
-            <translation></translation>
+            <translation>常规</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="76" />
             <source>Shortcuts</source>
-            <translation></translation>
+            <translation>快捷键</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="106" />
             <source>Load last project on startup</source>
-            <translation></translation>
+            <translation>在启动时加载最后一个工程</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="115" />
             <source>Enable gestures (macOS only)</source>
-            <translation></translation>
+            <translation>启用手势（仅适用于macOS）</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="122" />
             <source>Enables the use of two-finger panning and pinch-to-zoom on macOS</source>
-            <translation></translation>
+            <translation>在macOS上启用两指平移和缩放</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="128" />
             <source>Pen tool right click behaviour</source>
-            <translation></translation>
+            <translation>笔工具右键单击行为</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="142" />
             <source>Apply eraser</source>
-            <translation></translation>
+            <translation>应用橡皮擦</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="146" />
             <source>Apply colour picker</source>
-            <translation></translation>
+            <translation>应用颜色选择器</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="150" />
             <source>Apply background colour</source>
-            <translation></translation>
+            <translation>应用背景色</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="166" />
             <source>Window opacity</source>
-            <translation></translation>
+            <translation>窗口不透明度</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="176" />
             <source>Changes the opacity of the window. Useful for tracing over an image in another window.</source>
-            <translation></translation>
+            <translation>更改窗口的不透明度。 在另一个窗口中跟踪图像时很有用。</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="196" />
             <source>Transparency grid colours</source>
-            <translation></translation>
+            <translation>网格颜色透明的</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="254" />
             <source>Show FPS</source>
-            <translation></translation>
+            <translation>显示FPS</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="263" />
             <source>Always show crosshair cursor</source>
-            <translation></translation>
+            <translation>始终显示十字光标</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="270" />
             <source>Don&apos;t hide crosshair cursor when rectangle cursor is visible</source>
-            <translation></translation>
+            <translation>矩形光标可见时不要隐藏十字线光标</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="276" />
             <source>Enable auto swatch (experimental)</source>
-            <translation></translation>
+            <translation>启用自动色板（实验性）</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="283" />
             <source>Enables the use of a read-only swatch whose colours come from the image</source>
-            <translation></translation>
+            <translation>启用使用颜色来自图像的只读色板</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="327" />
             <source>New Project</source>
-            <translation></translation>
+            <translation>新建工程</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="331" />
             <location filename="../app/qml/ui/OptionsDialog.qml" line="343" />
             <source>Close Project</source>
-            <translation></translation>
+            <translation>关闭工程</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="335" />
             <source>Save Project</source>
-            <translation></translation>
+            <translation>保存工程</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="339" />
             <source>Save Project As</source>
-            <translation></translation>
+            <translation>另存工程为</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="347" />
             <source>Revert To Last Save</source>
-            <translation></translation>
+            <translation>恢复到上次保存</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="351" />
             <source>Undo Action</source>
-            <translation></translation>
+            <translation>撤消动作</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="355" />
             <source>Redo Action</source>
-            <translation></translation>
+            <translation>恢复动作</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="359" />
             <source>Flip Horizontally</source>
-            <translation></translation>
+            <translation>水平翻转</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="363" />
             <source>Flip Vertically</source>
-            <translation></translation>
+            <translation>垂直翻转</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="367" />
             <source>Resize Canvas</source>
-            <translation></translation>
+            <translation>调整画布大小</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="371" />
             <source>Resize Image</source>
-            <translation></translation>
+            <translation>调整图像大小</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="375" />
             <source>Move Contents</source>
-            <translation></translation>
+            <translation>移动内容</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="379" />
             <source>Centre View</source>
-            <translation></translation>
+            <translation>视图居中</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="383" />
             <source>Zoom In</source>
-            <translation></translation>
+            <translation>放大</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="387" />
             <source>Zoom Out</source>
-            <translation></translation>
+            <translation>缩小</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="391" />
             <source>Toggle Grid Visibility</source>
-            <translation></translation>
+            <translation>切换网格可见性</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="395" />
             <source>Toggle Ruler Visibility</source>
-            <translation></translation>
+            <translation>切换标尺可见性</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="399" />
             <source>Toggle Guide Visibility</source>
-            <translation></translation>
+            <translation>切换指南可见性</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="403" />
             <source>Toggle Split Screen</source>
-            <translation></translation>
+            <translation>切换分割屏幕</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="407" />
             <source>Animation Playback</source>
-            <translation></translation>
+            <translation>启用动画播放</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="411" />
             <source>Options</source>
-            <translation></translation>
+            <translation>选项</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="415" />
             <source>Pen Tool</source>
-            <translation></translation>
+            <translation>钢笔工具</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="419" />
             <source>Eye Dropper Tool</source>
-            <translation></translation>
+            <translation>滴管工具</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="423" />
             <source>Fill Tool</source>
-            <translation></translation>
+            <translation>填充工具</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="427" />
             <source>Eraser Tool</source>
-            <translation></translation>
+            <translation>橡皮擦工具</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="431" />
             <source>Selection Tool</source>
-            <translation></translation>
+            <translation>选择工具</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="435" />
             <source>Toggle Tool Mode</source>
-            <translation></translation>
+            <translation>切换工具模式</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="439" />
             <source>Decrease Tool Size</source>
-            <translation></translation>
+            <translation>减小工具尺寸</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="443" />
             <source>Increase Tool Size</source>
-            <translation></translation>
+            <translation>增加工具尺寸</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="447" />
             <source>Move Swatch Selection Left</source>
-            <translation></translation>
+            <translation>移动色板选择左侧</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="451" />
             <source>Move Swatch Selection Right</source>
-            <translation></translation>
+            <translation>向右移动色板选中内容</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="455" />
             <source>Move Swatch Selection Up</source>
-            <translation></translation>
+            <translation>向上移动色板选中内容</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="459" />
             <source>Move Swatch Selection Down</source>
-            <translation></translation>
+            <translation>向下移动色板选中内容</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/OptionsDialog.qml" line="463" />
             <source>Toggle fullscreen</source>
-            <translation></translation>
+            <translation>切换全屏</translation>
         </message>
     </context>
     <context>
@@ -1228,7 +1228,7 @@
         <message>
             <location filename="../app/qml/ui/RenameSwatchColourDialog.qml" line="32" />
             <source>Rename swatch colour</source>
-            <translation></translation>
+            <translation>重命名色板颜色</translation>
         </message>
     </context>
     <context>
@@ -1236,12 +1236,12 @@
         <message>
             <location filename="../app/qml/ui/SwatchContextMenu.qml" line="39" />
             <source>Rename</source>
-            <translation></translation>
+            <translation>重命名</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/SwatchContextMenu.qml" line="49" />
             <source>Delete</source>
-            <translation></translation>
+            <translation>删除</translation>
         </message>
     </context>
     <context>
@@ -1249,12 +1249,12 @@
         <message>
             <location filename="../app/qml/ui/SwatchPanel.qml" line="32" />
             <source>Swatches</source>
-            <translation></translation>
+            <translation>色板</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/SwatchPanel.qml" line="180" />
             <source>New swatch colour</source>
-            <translation></translation>
+            <translation>新色板颜色</translation>
         </message>
     </context>
     <context>
@@ -1262,17 +1262,17 @@
         <message>
             <location filename="../app/qml/ui/SwatchSettingsContextMenu.qml" line="30" />
             <source>Import Slate Swatch...</source>
-            <translation></translation>
+            <translation>导入Slate色板...</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/SwatchSettingsContextMenu.qml" line="40" />
             <source>Import Paint.NET Swatch...</source>
-            <translation></translation>
+            <translation>导入Paint.NET色板...</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/SwatchSettingsContextMenu.qml" line="49" />
             <source>Export Swatch...</source>
-            <translation></translation>
+            <translation>导出色板...</translation>
         </message>
     </context>
     <context>
@@ -1280,52 +1280,52 @@
         <message>
             <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="29" />
             <source>Textured Fill settings</source>
-            <translation></translation>
+            <translation>纹理填充设置</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="56" />
             <source>Hue variance</source>
-            <translation></translation>
+            <translation>色调变化</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="61" />
             <source>Enable random variance in hue</source>
-            <translation></translation>
+            <translation>启用色调的随机变化</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="82" />
             <source>Saturation variance</source>
-            <translation></translation>
+            <translation>饱和度变化</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="87" />
             <source>Enable random variance in saturation</source>
-            <translation></translation>
+            <translation>启用饱和度的随机变化</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="107" />
             <source>Lightness variance</source>
-            <translation></translation>
+            <translation>亮度变化</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="112" />
             <source>Enable random variance in lightness</source>
-            <translation></translation>
+            <translation>启用亮度随机变化</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="130" />
             <source>Preview scale</source>
-            <translation></translation>
+            <translation>预览比例</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="172" />
             <source>OK</source>
-            <translation></translation>
+            <translation>确定</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/TexturedFillSettingsDialog.qml" line="181" />
             <source>Cancel</source>
-            <translation></translation>
+            <translation>取消</translation>
         </message>
     </context>
     <context>
@@ -1333,7 +1333,7 @@
         <message>
             <location filename="../app/qml/ui/TexturedFillVarianceRangedSlider.qml" line="35" />
             <source>Adjusts the lower and upper bounds for random %1 variance</source>
-            <translation></translation>
+            <translation>调整%1随机变化的下限和上限</translation>
         </message>
     </context>
     <context>
@@ -1341,22 +1341,22 @@
         <message>
             <location filename="../app/qml/ui/TilesetSwatch.qml" line="13" />
             <source>Tileset Swatch</source>
-            <translation></translation>
+            <translation>Tileset色板</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/TilesetSwatch.qml" line="185" />
             <source>Duplicate</source>
-            <translation></translation>
+            <translation>重复</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/TilesetSwatch.qml" line="194" />
             <source>Rotate 90° Left</source>
-            <translation></translation>
+            <translation>向左旋转90°</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/TilesetSwatch.qml" line="203" />
             <source>Rotate 90° Right</source>
-            <translation></translation>
+            <translation>向右旋转90°</translation>
         </message>
     </context>
     <context>
@@ -1364,155 +1364,156 @@
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="83" />
             <source>Change the size of the canvas</source>
-            <translation></translation>
+            <translation>更改画布的大小</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="96" />
             <source>Change the size of the image</source>
-            <translation></translation>
+            <translation>更改图像大小</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="109" />
             <source>Crop the image to the current selection</source>
-            <translation></translation>
+            <translation>裁剪图像作为当前选择</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="126" />
             <source>Undo the last canvas operation</source>
-            <translation></translation>
+            <translation>撤消上一个画布操作</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="136" />
             <source>Redo the last undone canvas operation</source>
-            <translation></translation>
+            <translation>恢复上一个未完成的画布操作</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="153" />
             <source>Operate on either pixels or whole tiles</source>
-            <translation></translation>
+            <translation>在像素或整个tiles上操作</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="179" />
             <source>Draw pixels%1 on the canvas</source>
-            <translation></translation>
+            <translation>在画布上绘制像素%1</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="179" />
             <location filename="../app/qml/ui/ToolBar.qml" line="190" />
             <location filename="../app/qml/ui/ToolBar.qml" line="201" />
             <source> or tiles</source>
-            <translation></translation>
+            <translation>或tiles</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="190" />
             <source>Pick colours%1 from the canvas</source>
-            <translation></translation>
+            <translation>从画布中选择颜色%1</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="201" />
             <source>Erase pixels%1 from the canvas</source>
-            <translation></translation>
+            <translation>从画布上擦除像素%1</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="213" />
             <source>Fill a contiguous area with %1pixels.
 Hold Shift to fill all pixels matching the target colour.</source>
-            <translation></translation>
+            <translation>用%1像素填充连续区域。
+按住Shift键以填充与目标颜色匹配的所有像素。</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="218" />
             <source>Fill a contiguous area with pixels or tiles</source>
-            <translation></translation>
+            <translation>用像素或tile填充连续区域</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="238" />
             <source>Fill Tool</source>
-            <translation></translation>
+            <translation>填充工具</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="246" />
             <source>Textured Fill Tool</source>
-            <translation></translation>
+            <translation>纹理填充工具</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="263" />
             <source>Select pixels within an area and move them</source>
-            <translation></translation>
+            <translation>选择区域内的像素并移动它们</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="275" />
             <source>Crop the canvas</source>
-            <translation></translation>
+            <translation>裁剪画布</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="288" />
             <source>Change the size of drawing tools</source>
-            <translation></translation>
+            <translation>更改绘图工具的大小</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="308" />
             <source>Choose brush shape</source>
-            <translation></translation>
+            <translation>选择笔刷形状</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="327" />
             <source>Square</source>
-            <translation></translation>
+            <translation>正方形</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="336" />
             <source>Circle</source>
-            <translation></translation>
+            <translation>圆圈</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="363" />
             <source>Rotate the selection by 90 degrees counter-clockwise</source>
-            <translation></translation>
+            <translation>将选中内容逆时针旋转90度</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="374" />
             <source>Rotate the selection by 90 degrees clockwise</source>
-            <translation></translation>
+            <translation>将选中内容顺时针旋转90度</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="385" />
             <source>Flip the selection horizontally</source>
-            <translation></translation>
+            <translation>水平翻转选中内容</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="396" />
             <source>Flip the selection vertically</source>
-            <translation></translation>
+            <translation>垂直翻转选中内容</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="417" />
             <source>Show rulers</source>
-            <translation></translation>
+            <translation>显示标尺</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="428" />
             <source>Show guides</source>
-            <translation></translation>
+            <translation>显示指南</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="439" />
             <source>Lock guides</source>
-            <translation></translation>
+            <translation>锁定指南</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="460" />
             <source>Split Screen</source>
-            <translation></translation>
+            <translation>分割屏幕</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="472" />
             <source>Lock Splitter</source>
-            <translation></translation>
+            <translation>锁定分割器</translation>
         </message>
         <message>
             <location filename="../app/qml/ui/ToolBar.qml" line="489" />
             <source>Toggle fullscreen window</source>
-            <translation></translation>
+            <translation>切换全屏窗口</translation>
         </message>
     </context>
     <context>
@@ -1520,24 +1521,26 @@ Hold Shift to fill all pixels matching the target colour.</source>
         <message>
             <location filename="../app/qml/main.qml" line="391" />
             <source>Unsaved changes</source>
-            <translation></translation>
+            <translation>未保存的更改</translation>
         </message>
         <message>
             <location filename="../app/qml/main.qml" line="395" />
             <source>The action you&apos;re about to perform could discard changes.
 
 Continue anyway?</source>
-            <translation></translation>
+            <translation>您将要执行的动作可能会放弃更改。
+
+继续吗？</translation>
         </message>
         <message>
             <location filename="../app/qml/main.qml" line="403" />
             <source>Save</source>
-            <translation></translation>
+            <translation>保存</translation>
         </message>
         <message>
             <location filename="../app/qml/main.qml" line="408" />
             <source>Discard</source>
-            <translation></translation>
+            <translation>放弃</translation>
         </message>
     </context>
 </TS>
