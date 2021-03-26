@@ -48,7 +48,7 @@ void ApplicationSettings::setLanguage(const QString &language)
     const QVariant existingValue = value("language");
     QString existingStringValue = defaultLanguage();
     if (contains("language"))
-        existingStringValue = existingValue.toBool();
+        existingStringValue = existingValue.toString();
 
     if (language == existingStringValue)
         return;
