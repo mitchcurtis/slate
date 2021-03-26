@@ -4,26 +4,36 @@
 // https://bugreports.qt.io/browse/QTBUG-66320
 // Taken from qtestcase.h and modified to return bool and store a failureMessage
 // so that they can be used in helper functions (non-test functions).
-// We don't have COMPARE, because it would require us to get the failure message
-// into a string, the logic for which is hidden in testlib.
 #define VERIFY(statement) \
 do { \
     if (!static_cast<bool>(statement)) { \
-        failureMessage = #statement; \
+        failureMessage = ("\n    " + QString::fromLatin1(Q_FUNC_INFO) + ":" + QString::number(__LINE__) + ": " + #statement).toLatin1(); \
+        return false; \
+    } \
+} while (false)
+
+// We don't have COMPARE, because it would require us to get the failure message
+// into a string, the logic for which is hidden in testlib. Instead we use
+// operator!= and operator<<.
+#define COMPARE_NON_FLOAT(actual, expected) \
+do { \
+    if ((actual) != (expected)) { \
+        failureMessage = (QString::fromLatin1("%1 Compared values are not the same\n   Actual:   (%2): %3\n   Expected: (%4): %5") \
+            .arg(Q_FUNC_INFO).arg(#actual).arg(QtUtils::toString((actual))).arg(#expected).arg(QtUtils::toString((expected)))).toLatin1(); \
         return false; \
     } \
 } while (false)
 
 #define FAIL(message) \
 do { \
-    failureMessage = message; \
+    failureMessage = ("\n    " + QString::fromLatin1(Q_FUNC_INFO) + ":" + QString::number(__LINE__) + ": " + message).toLatin1(); \
     return false; \
 } while (false)
 
 #define VERIFY2(statement, description) \
 do { \
     if (!static_cast<bool>(statement)) { \
-        failureMessage = description; \
+        failureMessage = ("\n    " + QString::fromLatin1(Q_FUNC_INFO) + ":" + QString::number(__LINE__) + ": " + description).toLatin1(); \
         return false; \
     } \
 } while (false)
