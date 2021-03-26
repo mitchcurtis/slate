@@ -190,8 +190,8 @@ void Utils::modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightnes
             qreal finalAlpha = hsl.alphaF();
             if (!modifyAlpha) {
                 // At least one of the flags was set, so check further if we should modify.
-                const bool isFullyTransparent = qFuzzyCompare(hsl.alphaF(), 0.0);
-                const bool isFullyOpaque = qFuzzyCompare(hsl.alphaF(), 1.0);
+                const bool isFullyTransparent = qFuzzyCompare(hsl.alphaF(), 0.0f);
+                const bool isFullyOpaque = qFuzzyCompare(hsl.alphaF(), 1.0f);
 
                 if (doNotModifyFullyTransparentPixels && doNotModifyFullyOpaquePixels)
                     modifyAlpha = !isFullyTransparent && !isFullyOpaque;

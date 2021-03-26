@@ -2814,7 +2814,7 @@ bool ImageCanvas::event(QEvent *event)
 
                 const qreal zoomAmount = gestureEvent->value() * scaledZoomFactor;
                 const qreal newZoom = mCurrentPane->zoomLevel() + zoomAmount;
-                applyZoom(newZoom, gestureEvent->pos());
+                applyZoom(newZoom, gestureEvent->position().toPoint());
             }
             return true;
         }
@@ -3142,7 +3142,7 @@ void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
     qCDebug(lcImageCanvasHoverEvents) << "hoverEnterEvent:" << event;
     QQuickItem::hoverEnterEvent(event);
 
-    updateCursorPos(event->pos());
+    updateCursorPos(event->position().toPoint());
 
     setContainsMouse(true);
 
@@ -3152,17 +3152,17 @@ void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
 
 void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
 {
-    qCDebug(lcImageCanvasHoverEvents) << "hoverMoveEvent:" << event->posF();
+    qCDebug(lcImageCanvasHoverEvents) << "hoverMoveEvent:" << event->position();
     QQuickItem::hoverMoveEvent(event);
 
-    updateCursorPos(event->pos());
+    updateCursorPos(event->position().toPoint());
 
     setContainsMouse(true);
 
     if (!mProject->hasLoaded())
         return;
 
-    mSplitter.setHovered(mouseOverSplitterHandle(event->pos()));
+    mSplitter.setHovered(mouseOverSplitterHandle(event->position().toPoint()));
 
     updateWindowCursorShape();
 

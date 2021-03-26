@@ -1656,7 +1656,7 @@ bool TestHelper::triggerShortcut(const QString &objectName, const QString &seque
     VERIFY(activatedSpy.isValid());
 
     VERIFY(QTest::qWaitForWindowActive(window));
-    const int value = QKeySequence(sequenceAsString)[0];
+    const int value = QKeySequence(sequenceAsString)[0].toCombined();
     Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(value & Qt::KeyboardModifierMask);
     QTest::keyClick(window, value & ~mods, mods);
     VERIFY2(activatedSpy.count() == 1, qPrintable(QString::fromLatin1(

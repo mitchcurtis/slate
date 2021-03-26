@@ -48,7 +48,10 @@ static QGuiApplication *createApplication(int &argc, char **argv, const QString 
     // TODO: move the test rules to test code if possible - e.g. testhelper.cpp
     QLoggingCategory::setFilterRules("app.* = false\ntests.* = false\nui.* = false");
 
+    // High-DPI scaling is always enabled in Qt 6.
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 
     QApplication::setOrganizationName("Mitch Curtis");
     QApplication::setApplicationName(applicationName);
@@ -188,7 +191,7 @@ void Application::installTranslators()
         slateTranslator = nullptr;
     }
 
-    const QString qtTranslationsDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+    const QString qtTranslationsDir = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
     QTranslator *qtTranslator = new QTranslator(mApplication.data());
     if (qtTranslator->load(locale, QStringLiteral("qt_"), QString(), qtTranslationsDir)) {
         mApplication->installTranslator(qtTranslator);
