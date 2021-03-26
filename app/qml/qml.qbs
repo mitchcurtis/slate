@@ -2,12 +2,14 @@ import qbs
 
 Group {
     id: root
+    name: "qml-main"
     files: [path + "/main.qml"]
     Qt.core.resourcePrefix: "/qml"
     Qt.core.resourceSourceBase: path
     fileTags: ["qt.qml.qml", "qt.core.resource_data"]
 
     Group {
+        name: "qml-ui"
         Qt.core.resourcePrefix: "/qml"
         Qt.core.resourceSourceBase: path
         fileTags: ["qt.qml.qml", "qt.core.resource_data"]
@@ -88,6 +90,7 @@ Group {
         ]
 
         Group {
+            name: "qml-ui-fileselectors"
             Qt.core.resourcePrefix: "/qml"
             Qt.core.resourceSourceBase: path
             fileTags: ["qt.qml.qml", "qt.core.resource_data"]
@@ -106,6 +109,7 @@ Group {
         }
 
         Group {
+            name: "qml-ui-shaders"
             Qt.core.resourcePrefix: "/qml"
             Qt.core.resourceSourceBase: path
             fileTags: ["qt.core.resource_data"]
