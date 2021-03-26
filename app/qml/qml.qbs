@@ -2,15 +2,12 @@ import qbs
 
 Group {
     id: root
-    // The qrc prefix to assign the files.
     files: [path + "/main.qml"]
     Qt.core.resourcePrefix: "/qml"
     Qt.core.resourceSourceBase: path
     fileTags: ["qt.qml.qml", "qt.core.resource_data"]
 
     Group {
-        // The directory the files are in; saves writing it for each line.
-        // The qrc prefix to assign the files.
         Qt.core.resourcePrefix: "/qml"
         Qt.core.resourceSourceBase: path
         fileTags: ["qt.qml.qml", "qt.core.resource_data"]
@@ -105,6 +102,15 @@ Group {
                 "ui/+Universal/SwatchFocusRectangle.qml",
                 "ui/+Universal/Theme.qml",
                 "ui/+Universal/VerticalSeparator.qml"
+            ]
+        }
+
+        Group {
+            Qt.core.resourcePrefix: "/qml"
+            Qt.core.resourceSourceBase: path
+            fileTags: ["qt.core.resource_data"]
+            files: [
+                "ui/shaders/SaturationLightness.frag.qsb"
             ]
         }
     }
