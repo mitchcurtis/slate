@@ -119,8 +119,10 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
 
     qCDebug(lcApplication) << "Loading main.qml...";
     mEngine->load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
-    qCDebug(lcApplication) << "... loaded main.qml";
-    Q_ASSERT(!mEngine->rootObjects().isEmpty());
+    if (!mEngine->rootObjects().isEmpty())
+        qCDebug(lcApplication) << "... loaded main.qml";
+    else
+        qCDebug(lcApplication) << "... failed to load main.qml";
 
     qCDebug(lcApplication) << "... constructed Application";
 }
