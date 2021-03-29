@@ -131,6 +131,7 @@ private Q_SLOTS:
     void pixelLineToolImageCanvas();
     void pixelLineToolTransparent_data();
     void pixelLineToolTransparent();
+    void lineMiddleMouseButton();
     void penToolRightClickBehaviour_data();
     void penToolRightClickBehaviour();
     void splitScreenRendering();
@@ -3152,7 +3153,32 @@ void tst_App::pixelLineToolTransparent()
     mouseEventOnCentre(redoToolButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), translucentRed);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);\
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);
+}
+
+void tst_App::lineMiddleMouseButton()
+{
+    QVERIFY2(createNewProject(Project::LayeredImageType), failureMessage);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
+
+    // Draw a black pixel.
+    setCursorPosInScenePixels(10, 10);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    // Middle-click once.
+    QTest::mouseClick(window, Qt::MiddleButton, Qt::NoModifier, cursorWindowPos);
+
+    // Change foreground colour to red so we can tell that the line preview is rendered.
+    canvas->setPenForegroundColour(Qt::red);
+    // Hold shift; the line preview should be black, not white.
+    QTest::keyPress(window, Qt::Key_Shift);
+    // If the test fails before we can release, we don't want to affect future tests.
+    auto releaseShift = qScopeGuard([=](){ QTest::keyRelease(window, Qt::Key_Shift); });
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithRedPixel = imageGrabber.takeImage();
+    QCOMPARE(grabWithRedPixel.pixelColor(10, 10), QColor(Qt::red));
 }
 
 void tst_App::penToolRightClickBehaviour_data()

@@ -2725,7 +2725,9 @@ Qt::MouseButton ImageCanvas::pressedMouseButton() const
 
 QColor ImageCanvas::penColour() const
 {
-    return pressedMouseButton() == Qt::LeftButton ? mPenForegroundColour : mPenBackgroundColour;
+    // When using the right button we want to use the background colour.
+    // For every other mouse button, use the foreground. This affects e.g. the line preview too.
+    return pressedMouseButton() == Qt::RightButton ? mPenBackgroundColour : mPenForegroundColour;
 }
 
 void ImageCanvas::setPenColourThroughEyedropper(const QColor &colour)
