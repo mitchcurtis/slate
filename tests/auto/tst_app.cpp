@@ -2068,10 +2068,13 @@ void tst_App::colours()
     // Ensure that the buttons are visible in the panel.
     QQuickItem *colourPanelFlickable = window->findChild<QQuickItem*>("colourPanelFlickable");
     QVERIFY(colourPanelFlickable);
-    const qreal colourPanelFlickableContentHeight = colourPanelFlickable->property("contentHeight").toReal();
-    const qreal colourPanelFlickableContentY = colourPanelFlickableContentHeight - colourPanelFlickable->height();
-    QVERIFY(colourPanelFlickableContentY > 0);
-    QVERIFY(colourPanelFlickable->setProperty("contentY", colourPanelFlickableContentY));
+    auto desaturateButton = window->findChild<QQuickItem*>("desaturateButton");
+    QVERIFY(desaturateButton);
+    const QRectF colourPanelFlickableBounds(colourPanelFlickable->mapToScene(QPointF(0, 0)),
+        QSizeF(colourPanelFlickable->width(), colourPanelFlickable->height()));
+    const QRectF desaturateButtonBounds(desaturateButton->mapToScene(QPointF(0, 0)),
+        QSizeF(desaturateButton->width(), desaturateButton->height()));
+    QVERIFY(colourPanelFlickableBounds.contains(desaturateButtonBounds));
 
     // Test that the "Lighter" button works.
     QColor oldColour = canvas->penForegroundColour();

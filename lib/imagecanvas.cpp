@@ -57,6 +57,7 @@
 #include "utils.h"
 
 Q_LOGGING_CATEGORY(lcImageCanvas, "app.canvas")
+Q_LOGGING_CATEGORY(lcImageCanvasCursorPos, "app.canvas.cursorpos")
 Q_LOGGING_CATEGORY(lcImageCanvasCursorShape, "app.canvas.cursorshape")
 Q_LOGGING_CATEGORY(lcImageCanvasEvents, "app.canvas.events")
 Q_LOGGING_CATEGORY(lcImageCanvasHoverEvents, "app.canvas.events.hover")
@@ -1072,8 +1073,10 @@ void ImageCanvas::geometryChange(const QRectF &newGeometry, const QRectF &oldGeo
     resizeRulers();
     resizeChildren();
 
-    if (mProject)
+    if (mProject) {
+        qDebug() << "===" << Q_FUNC_INFO << newGeometry << oldGeometry;
         updateCursorPos(QPoint(mCursorX, mCursorY));
+    }
 }
 
 void ImageCanvas::resizeChildren()
@@ -1694,6 +1697,8 @@ void ImageCanvas::setSelectionFromPaste(bool isSelectionFromPaste)
 
 void ImageCanvas::panWithSelectionIfAtEdge(ImageCanvas::SelectionPanReason reason)
 {
+    qCDebug(lcImageCanvasSelection) << "panning with selection - reason:" << reason;
+
     // Only pan if there's a selection being moved or created.
     // Also, don't pan from mouse events, as the timer takes care of that
     // (prevents jumpiness when moving the mouse)
@@ -1770,6 +1775,7 @@ void ImageCanvas::panWithSelectionIfAtEdge(ImageCanvas::SelectionPanReason reaso
 
         // The pane offset changing causes the cursor scene position to change, which
         // in turn affects the selection area.
+        qDebug() << "===" << Q_FUNC_INFO;
         updateCursorPos(QPoint(mCursorX, mCursorY));
         updateOrMoveSelectionArea();
 
@@ -2475,6 +2481,8 @@ QRect ImageCanvas::normalisedLineRect(const QPointF &point1, const QPointF &poin
 
 void ImageCanvas::updateCursorPos(const QPoint &eventPos)
 {
+    qCDebug(lcImageCanvasCursorPos).nospace() << "updating cursor pos to " << eventPos << "...";
+
     setCursorX(eventPos.x());
     setCursorY(eventPos.y());
     // Don't change current panes if panning, as the mouse position should
@@ -2500,6 +2508,8 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     }
 
     // We need the position as floating point numbers so that pen sizes > 1 work properly.
+    // TODO: mCurrentPane->integerOffset().x() goes from 111 to 194...
+    qDebug() << "___" << inFirstPane << mCursorPaneX << mCurrentPane->integerOffset().x() << mCurrentPane->integerZoomLevel();
     mCursorSceneFX = qreal(mCursorPaneX - mCurrentPane->integerOffset().x()) / mCurrentPane->integerZoomLevel();
     mCursorSceneFY = qreal(mCursorPaneY - mCurrentPane->integerOffset().y()) / mCurrentPane->integerZoomLevel();
 
@@ -2521,6 +2531,12 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     const bool cursorScenePosChanged = mCursorSceneX != oldCursorSceneX || mCursorSceneY != oldCursorSceneY;
     if (cursorScenePosChanged && mSelectionCursorGuide->isVisible())
         mSelectionCursorGuide->update();
+
+    qCDebug(lcImageCanvasCursorPos).nospace() << "... updated cursor pos -"
+        << " mCursorX=" << mCursorX << " mCursorY=" << mCursorY
+        << " mCursorPaneX=" << mCursorPaneX << " mCursorPaneY=" << mCursorPaneY
+        << " mCursorSceneX=" << mCursorSceneX << " mCursorSceneY=" << mCursorSceneY
+        << " mCursorSceneFX=" << mCursorSceneFX << " mCursorSceneFY=" << mCursorSceneFY;
 }
 
 bool ImageCanvas::isCursorWithinProjectBounds() const
@@ -2884,6 +2900,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
     QQuickItem::mousePressEvent(event);
 
     // Is it possible to get a press without a hover enter? If so, we need this line.
+    qDebug() << "===" << Q_FUNC_INFO;
     updateCursorPos(event->pos());
 
     if (!mProject->hasLoaded()) {
@@ -2965,6 +2982,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
     QQuickItem::mouseMoveEvent(event);
 
     const QPointF oldCursorScenePosition = QPointF(mCursorSceneFX, mCursorSceneFY);
+    qDebug() << "===" << Q_FUNC_INFO;
     updateCursorPos(event->pos());
 
     if (!mProject->hasLoaded())
@@ -3014,6 +3032,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
          << "mCursorSceneX:" << mCursorSceneX << "mCursorSceneY:" << mCursorSceneY;
     QQuickItem::mouseReleaseEvent(event);
 
+    qDebug() << "===" << Q_FUNC_INFO;
     updateCursorPos(event->pos());
 
     if (!mProject->hasLoaded())
@@ -3142,6 +3161,7 @@ void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
     qCDebug(lcImageCanvasHoverEvents) << "hoverEnterEvent:" << event;
     QQuickItem::hoverEnterEvent(event);
 
+    qDebug() << "===" << Q_FUNC_INFO;
     updateCursorPos(event->position().toPoint());
 
     setContainsMouse(true);
@@ -3155,6 +3175,7 @@ void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
     qCDebug(lcImageCanvasHoverEvents) << "hoverMoveEvent:" << event->position();
     QQuickItem::hoverMoveEvent(event);
 
+    qDebug() << "===" << Q_FUNC_INFO;
     updateCursorPos(event->position().toPoint());
 
     setContainsMouse(true);
