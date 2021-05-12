@@ -208,7 +208,8 @@ Project *ImageCanvas::project() const
 
 void ImageCanvas::restoreState()
 {
-    qCDebug(lcImageCanvasUiState) << "restoring UI state...";
+    SerialisableState *uiState = mProject->uiState();
+    qCDebug(lcImageCanvasUiState) << "restoring UI state:\n" << uiState->map();
 
     // Read the canvas data that was stored in the project, if there is any.
     // New projects or projects that don't have their own Slate extension
@@ -216,8 +217,6 @@ void ImageCanvas::restoreState()
     // We also don't write anything if properties are equal to their default values.
 
     bool readPanes = false;
-
-    SerialisableState *uiState = mProject->uiState();
 
     if (uiState->contains("lastFillToolUsed")) {
         mLastFillToolUsed = static_cast<Tool>(QMetaEnum::fromType<Tool>().keyToValue(
@@ -272,20 +271,14 @@ void ImageCanvas::saveState()
     mSecondPane.write(secondPaneJson);
     mProject->uiState()->setValue("secondPane", secondPaneJson.toVariantMap());
 
-    if (!areRulersVisible())
-        mProject->uiState()->setValue("rulersVisible", false);
-    if (!mGuidesVisible)
-        mProject->uiState()->setValue("guidesVisible", false);
-    if (mGuidesLocked)
-        mProject->uiState()->setValue("guidesLocked", true);
-    if (!mNotesVisible)
-        mProject->uiState()->setValue("notesVisible", false);
-    if (mSplitScreen)
-        mProject->uiState()->setValue("splitScreen", true);
-    if (mSplitter.isEnabled())
-        mProject->uiState()->setValue("splitterLocked", true);
+    mProject->uiState()->setValue("rulersVisible", areRulersVisible());
+    mProject->uiState()->setValue("guidesVisible", mGuidesVisible);
+    mProject->uiState()->setValue("guidesLocked", mGuidesLocked);
+    mProject->uiState()->setValue("notesVisible", mNotesVisible);
+    mProject->uiState()->setValue("splitScreen", mSplitScreen);
+    mProject->uiState()->setValue("splitterLocked", mSplitter.isEnabled());
 
-    qCDebug(lcImageCanvasUiState) << "... saved UI state.";
+    qCDebug(lcImageCanvasUiState) << "... saved UI state:\n" << mProject->uiState()->map();
 }
 
 void ImageCanvas::setProject(Project *project)

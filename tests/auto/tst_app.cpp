@@ -3657,6 +3657,7 @@ void tst_App::saveAndLoadNotes()
     // saved and loaded in the project's UI state.
     mouseEventOnCentre(showNotesToolButton, MouseClick);
     QVERIFY(!canvas->areNotesVisible());
+    QVERIFY(!showNotesToolButton->property("checked").toBool());
 
     // Check that the notes are no longer rendered.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
@@ -3665,8 +3666,7 @@ void tst_App::saveAndLoadNotes()
 
     // Save the project.
     const QString savedProjectPath = tempProjectDir->path() + "/saveAndLoadNotes-project.slp";
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
 
     // Close the project.
     QVERIFY2(triggerCloseProject(), failureMessage);
@@ -3678,6 +3678,7 @@ void tst_App::saveAndLoadNotes()
     QCOMPARE(project->notes().at(1).position(), QPoint(100, 100));
     QCOMPARE(project->notes().at(2).position(), QPoint(200, 200));
     QVERIFY(!canvas->areNotesVisible());
+    QVERIFY(!showNotesToolButton->property("checked").toBool());
 
     // Check that the notes are still not rendered.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
@@ -3687,11 +3688,31 @@ void tst_App::saveAndLoadNotes()
     // Show notes.
     mouseEventOnCentre(showNotesToolButton, MouseClick);
     QVERIFY(canvas->areNotesVisible());
+    QVERIFY(showNotesToolButton->property("checked").toBool());
 
     // Check that the notes are rendered.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     QVERIFY2(imageGrabber.takeImage() == canvasGrab, "Notes were not rendered as expected after showing them");
+
+    // Save it again, but this time with notes visible.
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
+
+    // Hide notes.
+    mouseEventOnCentre(showNotesToolButton, MouseClick);
+    QVERIFY(!canvas->areNotesVisible());
+    QVERIFY(!showNotesToolButton->property("checked").toBool());
+
+    // Load it again.
+    QVERIFY2(loadProject(QUrl::fromLocalFile(savedProjectPath)), failureMessage);
+    QCOMPARE(project->notes().at(0).position(), QPoint(0, 0));
+    QCOMPARE(project->notes().at(1).position(), QPoint(100, 100));
+    QCOMPARE(project->notes().at(2).position(), QPoint(200, 200));
+    QVERIFY(canvas->areNotesVisible());
+    QVERIFY(showNotesToolButton->property("checked").toBool());
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QVERIFY2(imageGrabber.takeImage() == canvasGrab, "Notes were not rendered as expected after loading");
 }
 
 void tst_App::autoSwatch_data()
