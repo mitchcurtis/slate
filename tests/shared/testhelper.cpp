@@ -2681,6 +2681,12 @@ bool TestHelper::togglePanel(const QString &panelObjectName, bool expanded)
     if (panel->property("expanded").toBool() == expanded)
         return true;
 
+    // This is a layout, so we need to ensure that its polish has completed before testing sizes of items.
+    auto panelContentItem = panel->property("contentItem").value<QQuickItem*>();
+    VERIFY(panelContentItem);
+    if (QQuickTest::qIsPolishScheduled(panelContentItem))
+        VERIFY(QQuickTest::qWaitForItemPolished(panelContentItem));
+
     const qreal originalHeight = panel->height();
     VERIFY(panel->setProperty("expanded", QVariant(expanded)));
     VERIFY(panel->property("expanded").toBool() == expanded);
