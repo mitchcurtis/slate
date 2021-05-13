@@ -49,7 +49,6 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(int penToolRightClickBehaviour READ penToolRightClickBehaviour WRITE setPenToolRightClickBehaviour NOTIFY penToolRightClickBehaviourChanged)
     Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
 
-    Q_PROPERTY(QString quitShortcut READ quitShortcut WRITE setQuitShortcut NOTIFY quitShortcutChanged)
     Q_PROPERTY(QString newShortcut READ newShortcut WRITE setNewShortcut NOTIFY newShortcutChanged)
     Q_PROPERTY(QString openShortcut READ openShortcut WRITE setOpenShortcut NOTIFY openShortcutChanged)
     Q_PROPERTY(QString saveShortcut READ saveShortcut WRITE setSaveShortcut NOTIFY saveShortcutChanged)
@@ -57,6 +56,7 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QString exportShortcut READ exportShortcut WRITE setExportShortcut NOTIFY exportShortcutChanged)
     Q_PROPERTY(QString closeShortcut READ closeShortcut WRITE setCloseShortcut NOTIFY closeShortcutChanged)
     Q_PROPERTY(QString revertShortcut READ revertShortcut WRITE setRevertShortcut NOTIFY revertShortcutChanged)
+    Q_PROPERTY(QString quitShortcut READ quitShortcut WRITE setQuitShortcut NOTIFY quitShortcutChanged)
     Q_PROPERTY(QString undoShortcut READ undoShortcut WRITE setUndoShortcut NOTIFY undoShortcutChanged)
     Q_PROPERTY(QString redoShortcut READ redoShortcut WRITE setRedoShortcut NOTIFY redoShortcutChanged)
     Q_PROPERTY(QString flipHorizontallyShortcut READ flipHorizontallyShortcut WRITE setFlipHorizontallyShortcut NOTIFY flipHorizontallyShortcutChanged)
@@ -145,10 +145,6 @@ public:
 
     Q_INVOKABLE void resetShortcutsToDefaults();
 
-    QString defaultQuitShortcut() const;
-    QString quitShortcut() const;
-    void setQuitShortcut(const QString &shortcut);
-
     QString defaultNewShortcut() const;
     QString newShortcut() const;
     void setNewShortcut(const QString &shortcut);
@@ -176,6 +172,10 @@ public:
     QString defaultRevertShortcut() const;
     QString revertShortcut() const;
     void setRevertShortcut(const QString &shortcut);
+
+    QString defaultQuitShortcut() const;
+    QString quitShortcut() const;
+    void setQuitShortcut(const QString &shortcut);
 
     QString defaultUndoShortcut() const;
     QString undoShortcut() const;

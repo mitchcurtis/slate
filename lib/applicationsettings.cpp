@@ -415,20 +415,6 @@ void ApplicationSettings::resetShortcutsToDefaults()
     setValue(shortcutName, shortcut); \
     emit notifySignal();
 
-QString ApplicationSettings::defaultQuitShortcut() const
-{
-    return QKeySequence(QKeySequence::Quit).toString();
-}
-
-QString ApplicationSettings::quitShortcut() const
-{
-    GET_SHORTCUT("quitShortcut", defaultQuitShortcut)
-}
-void ApplicationSettings::setQuitShortcut(const QString &shortcut)
-{
-    SET_SHORTCUT("quitShortcut", defaultQuitShortcut, quitShortcutChanged)
-}
-
 QString ApplicationSettings::defaultNewShortcut() const
 {
     return QKeySequence(QKeySequence::New).toString();
@@ -537,6 +523,20 @@ QString ApplicationSettings::revertShortcut() const
 void ApplicationSettings::setRevertShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("revertShortcut", defaultRevertShortcut, revertShortcutChanged)
+}
+
+QString ApplicationSettings::defaultQuitShortcut() const
+{
+    return QKeySequence(QKeySequence::Quit).toString();
+}
+
+QString ApplicationSettings::quitShortcut() const
+{
+    GET_SHORTCUT("quitShortcut", defaultQuitShortcut)
+}
+void ApplicationSettings::setQuitShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("quitShortcut", defaultQuitShortcut, quitShortcutChanged)
 }
 
 QString ApplicationSettings::defaultUndoShortcut() const
