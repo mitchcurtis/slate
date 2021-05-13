@@ -1547,6 +1547,31 @@ bool TestHelper::clickButton(QQuickItem *button, Qt::MouseButton mouseButton)
     return true;
 }
 
+bool TestHelper::ensureScrollViewChildVisible(const QString &scrollViewObjectName, const QString &childObjectName)
+{
+    auto scrollView = window->findChild<QQuickItem*>(scrollViewObjectName);
+    VERIFY(scrollView);
+    auto flickable = scrollView->property("contentItem").value<QQuickItem*>();
+    VERIFY(flickable);
+    auto child = window->findChild<QQuickItem*>(childObjectName);
+    VERIFY(child);
+    return ensureFlickableChildVisible(flickable, child);
+}
+
+bool TestHelper::ensureFlickableChildVisible(QQuickItem *flickable, QQuickItem *child)
+{
+    VERIFY(flickable);
+    VERIFY(child);
+    VERIFY(flickable->isAncestorOf(child));
+
+    auto flickableContentItem = flickable->property("contentItem").value<QQuickItem*>();
+    VERIFY(flickableContentItem);
+
+    const int newContentY = child->mapToItem(flickableContentItem, QPoint(0, 0)).y();
+    VERIFY(flickable->setProperty("contentY", QVariant(newContentY)));
+    return true;
+}
+
 QPoint TestHelper::mapToTile(const QPoint &cursorPos) const
 {
     return cursorPos - tileCanvas->mapToScene(QPointF(0, 0)).toPoint();

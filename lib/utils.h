@@ -69,6 +69,14 @@ namespace Utils {
         return string;
     }
 
+    template <typename T>
+    QString toString(const T &object) {
+        QString buffer;
+        QDebug stream(&buffer);
+        stream.nospace() << object;
+        return buffer;
+    }
+
     template<typename T>
     inline T divFloor(const T dividend, const T divisor) {
         T quotient = dividend / divisor;

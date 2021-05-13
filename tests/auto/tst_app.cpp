@@ -941,15 +941,18 @@ void tst_App::keyboardShortcuts()
     QTest::keyRelease(window, Qt::Key_3);
     QCOMPARE(tileCanvas->tool(), TileCanvas::EraserTool);
 
-    // Open the shortcut tab of the options dialog.
+    // Open the behaviour tab of the options dialog.
     QObject *optionsDialog = nullptr;
-    QVERIFY2(openOptionsTab("shortcutsTabButton", &optionsDialog), failureMessage);
+    QVERIFY2(openOptionsTab("behaviourTabButton", &optionsDialog), failureMessage);
+
+    // Bring the "New Project" shortcut row into view.
+    QVERIFY2(ensureScrollViewChildVisible("behaviourScrollView", "newShortcutRow"), failureMessage);
 
     // Give "New Project" shortcut editor focus.
     QQuickItem *newShortcutButton = optionsDialog->findChild<QQuickItem*>("newShortcutButton");
     QVERIFY(newShortcutButton);
     QCOMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
-    mouseEventOnCentre(newShortcutButton, MouseClick);
+    QVERIFY2(clickButton(newShortcutButton), failureMessage);
 
     QQuickItem *newShortcutEditor = optionsDialog->findChild<QQuickItem*>("newShortcutEditor");
     QVERIFY(newShortcutEditor);
@@ -1003,9 +1006,9 @@ void tst_App::optionsShortcutCancelled()
     // Ensure that cancelling the options dialog after changing a shortcut cancels the shortcut change.
     QVERIFY2(createNewTilesetProject(), failureMessage);
 
-    // Open the shortcut tab of the options dialog.
+    // Open the behaviour tab of the options dialog.
     QObject *optionsDialog = nullptr;
-    QVERIFY2(openOptionsTab("shortcutsTabButton", &optionsDialog), failureMessage);
+    QVERIFY2(openOptionsTab("behaviourTabButton", &optionsDialog), failureMessage);
 
     // Give "New Project" shortcut editor focus.
     QQuickItem *newShortcutButton = optionsDialog->findChild<QQuickItem*>("newShortcutButton");
@@ -1047,9 +1050,9 @@ void tst_App::optionsTransparencyCancelled()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
-    // Open the general tab of the options dialog.
+    // Open the appearance tab of the options dialog.
     QObject *optionsDialog = nullptr;
-    QVERIFY2(openOptionsTab("generalTabButton", &optionsDialog), failureMessage);
+    QVERIFY2(openOptionsTab("appearanceTabButton", &optionsDialog), failureMessage);
 
     // Give "checkerColour1TextField" focus.
     QQuickItem *checkerColour1TextField = optionsDialog->findChild<QQuickItem*>("checkerColour1TextField");
@@ -3190,15 +3193,18 @@ void tst_App::penToolRightClickBehaviour()
     canvas->setSplitScreen(false);
     canvas->currentPane()->setZoomLevel(48);
 
-    // Open the general tab of the options dialog.
+    // Open the behaviour tab of the options dialog.
     QObject *optionsDialog = nullptr;
-    QVERIFY2(openOptionsTab("generalTabButton", &optionsDialog), failureMessage);
+    QVERIFY2(openOptionsTab("behaviourTabButton", &optionsDialog), failureMessage);
+
+    // Ensure that penToolRightClickBehaviourComboBox is visible in the options dialog.
+    QVERIFY2(ensureScrollViewChildVisible("behaviourScrollView", "penToolRightClickBehaviourComboBox"), failureMessage);
 
     // Open penToolRightClickBehaviourComboBox's popup.
     QQuickItem *penToolRightClickBehaviourComboBox = optionsDialog->findChild<QQuickItem*>("penToolRightClickBehaviourComboBox");
     QVERIFY(penToolRightClickBehaviourComboBox);
     mouseEventOnCentre(penToolRightClickBehaviourComboBox, MouseClick);
-    QVERIFY(penToolRightClickBehaviourComboBox->hasActiveFocus());
+    QVERIFY2(penToolRightClickBehaviourComboBox->hasActiveFocus(), qPrintable(Utils::toString(window->activeFocusItem())));
     QObject *penToolRightClickBehaviourComboBoxPopup = penToolRightClickBehaviourComboBox->property("popup").value<QObject*>();
     QVERIFY(penToolRightClickBehaviourComboBoxPopup);
     QTRY_COMPARE(penToolRightClickBehaviourComboBoxPopup->property("opened").toBool(), true);

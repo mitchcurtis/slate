@@ -124,7 +124,9 @@ protected:
     QQuickItem* findSplitViewHandle(const QString &splitViewObjectName, int handleIndex) const;
     // Useful for cases where an item is a QQuickItem child but not a QObject child, as is the case with e.g. Repeater.
     static QQuickItem *findChildItem(QQuickItem *parentItem, const QString &objectName);
-    bool clickButton(QQuickItem *button, Qt::MouseButton mouseButton = Qt::LeftButton);
+    Q_REQUIRED_RESULT bool clickButton(QQuickItem *button, Qt::MouseButton mouseButton = Qt::LeftButton);
+    Q_REQUIRED_RESULT bool ensureScrollViewChildVisible(const QString &scrollViewObjectName, const QString &childObjectName);
+    Q_REQUIRED_RESULT bool ensureFlickableChildVisible(QQuickItem *flickable, QQuickItem *child);
 
     // Returns the position of the cursor in a tile's local coordinates.
     QPoint mapToTile(const QPoint &cursorPos) const;
