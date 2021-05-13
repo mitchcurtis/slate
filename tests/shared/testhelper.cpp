@@ -1162,8 +1162,6 @@ bool TestHelper::addNewAnimation(const QString &expectedGeneratedAnimationName, 
 
     auto *animationSystem = getAnimationSystem();
 
-    const int oldCurrentAnimationIndex = animationSystem->currentAnimationIndex();
-    const Animation *oldCurrentAnimation = animationSystem->currentAnimation();
     const int oldAnimationCount = animationSystem->animationCount();
 
     // Add the animation.
@@ -1173,16 +1171,9 @@ bool TestHelper::addNewAnimation(const QString &expectedGeneratedAnimationName, 
     VERIFY(animationCount == oldAnimationCount + 1);
     Animation *newAnimation = animationSystem->animationAt(oldAnimationCount);
     VERIFY(newAnimation);
-    if (expectedIndex == 0) {
-        // If the new animation is the only animation, it's now the current.
-        VERIFY(animationSystem->currentAnimation() == newAnimation);
-        VERIFY(animationSystem->currentAnimationIndex() == 0);
-    } else {
-        // New animations are appended to the end of the list, so the currentIndex
-        // should never change if there were any animations before we added this one.
-        VERIFY(animationSystem->currentAnimation() == oldCurrentAnimation);
-        VERIFY(animationSystem->currentAnimationIndex() == oldCurrentAnimationIndex);
-    }
+    // New animations are appended to the end of the list and made current.
+    VERIFY(animationSystem->currentAnimation() == newAnimation);
+    VERIFY(animationSystem->currentAnimationIndex() == expectedIndex);
     const QString actualAnimationName = animationSystem->animationAt(expectedIndex)->name();
     if (actualAnimationName != expectedGeneratedAnimationName) {
         QString message;
