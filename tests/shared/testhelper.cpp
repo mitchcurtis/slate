@@ -55,6 +55,11 @@ TestHelper::~TestHelper()
 
 void TestHelper::initTestCase()
 {
+    QVERIFY(window);
+    QVERIFY(QTest::qWaitForWindowExposed(window));
+    const QPoint screenCentre = window->screen()->availableGeometry().center();
+    window->setPosition(screenCentre.x() - window->size().width() / 2, screenCentre.y() - window->size().height() / 2);
+
     // This should not be enabled for tests.
     QVERIFY(!app.settings()->loadLastOnStartup());
 
