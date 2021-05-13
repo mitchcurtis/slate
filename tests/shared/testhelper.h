@@ -124,6 +124,7 @@ protected:
     QQuickItem* findSplitViewHandle(const QString &splitViewObjectName, int handleIndex) const;
     // Useful for cases where an item is a QQuickItem child but not a QObject child, as is the case with e.g. Repeater.
     static QQuickItem *findChildItem(QQuickItem *parentItem, const QString &objectName);
+    bool clickButton(QQuickItem *button, Qt::MouseButton mouseButton = Qt::LeftButton);
 
     // Returns the position of the cursor in a tile's local coordinates.
     QPoint mapToTile(const QPoint &cursorPos) const;
@@ -218,6 +219,8 @@ protected:
     Q_REQUIRED_RESULT bool setupTempLayeredImageProjectDir();
     Q_REQUIRED_RESULT bool setupTempProjectDir(const QStringList &resourceFilesToCopy = QStringList(),
         QStringList *filesCopied = nullptr);
+
+    Q_REQUIRED_RESULT bool openOptionsTab(const QString &tabButtonObjectName, QObject **optionsDialog = nullptr);
 
     Q_REQUIRED_RESULT bool collapseAllPanels();
     Q_REQUIRED_RESULT bool isPanelExpanded(const QString &panelObjectName);

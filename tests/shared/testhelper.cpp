@@ -1519,6 +1519,34 @@ QQuickItem *TestHelper::findChildItem(QQuickItem *parentItem, const QString &obj
     return nullptr;
 }
 
+bool TestHelper::clickButton(QQuickItem *button, Qt::MouseButton mouseButton)
+{
+    VERIFY(button);
+    VERIFY2(button->property("visible").toBool(),
+        QString::fromLatin1("Expected visible property of \"%1\" to be true").arg(button->objectName()));
+    VERIFY2(button->property("enabled").toBool(),
+        QString::fromLatin1("Expected enabled property of \"%1\" to be true").arg(button->objectName()));
+    VERIFY2(button->width() > 0.0,
+        QString::fromLatin1("Expected width property of \"%1\" to be greater than zero").arg(button->objectName()));
+    VERIFY2(button->height() > 0.0,
+        QString::fromLatin1("Expected height property of \"%1\" to be greater than zero").arg(button->objectName()));
+
+    QSignalSpy buttonClickedSpy(button, SIGNAL(clicked()));
+    VERIFY(buttonClickedSpy.isValid());
+
+    mouseEventOnCentre(button, MouseClick, mouseButton);
+    if (buttonClickedSpy.count() < 1) {
+        // In case there is e.g. a popup transitioning out and blocking it.
+        const auto imageGrabPath = QDir().absolutePath() + "/window-grab.png";
+        qDebug() << "Saving window's image grab to " << imageGrabPath;
+        VERIFY(window->grabWindow().save(imageGrabPath));
+    }
+    VERIFY2(buttonClickedSpy.count() == 1, qPrintable(QString::fromLatin1(
+        "Expected clicked signal of \"%1\" to be emitted once, but it was emitted %2 time(s)")
+            .arg(button->objectName()).arg(buttonClickedSpy.count())));
+    return true;
+}
+
 QPoint TestHelper::mapToTile(const QPoint &cursorPos) const
 {
     return cursorPos - tileCanvas->mapToScene(QPointF(0, 0)).toPoint();
@@ -2634,6 +2662,26 @@ bool TestHelper::setupTempProjectDir(const QStringList &resourceFilesToCopy, QSt
         }
     }
 
+    return true;
+}
+
+bool TestHelper::openOptionsTab(const QString &tabButtonObjectName, QObject **optionsDialog)
+{
+    // Open options dialog.
+    if (!triggerOptions())
+        return false;
+    QObject *theOptionsDialog = findPopupFromTypeName("OptionsDialog");
+    VERIFY(theOptionsDialog);
+    TRY_VERIFY(theOptionsDialog->property("opened").toBool());
+
+    // Open the relevant tab.
+    QQuickItem *tabButton = theOptionsDialog->findChild<QQuickItem*>(tabButtonObjectName);
+    VERIFY(tabButton);
+    if (!clickButton(tabButton))
+        return false;
+
+    if (optionsDialog)
+        *optionsDialog = theOptionsDialog;
     return true;
 }
 
