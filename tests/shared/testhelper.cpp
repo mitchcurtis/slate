@@ -2681,15 +2681,18 @@ bool TestHelper::togglePanel(const QString &panelObjectName, bool expanded)
     if (panel->property("expanded").toBool() == expanded)
         return true;
 
-    // This is a layout, so we need to ensure that its polish has completed before testing sizes of items.
-    auto panelContentItem = panel->property("contentItem").value<QQuickItem*>();
-    VERIFY(panelContentItem);
-    if (QQuickTest::qIsPolishScheduled(panelContentItem))
-        VERIFY(QQuickTest::qWaitForItemPolished(panelContentItem));
+    // Not sure why, but it's necessary to wait before expanding too.
+    if (!ensurePanelPolished(panel))
+        return false;
 
     const qreal originalHeight = panel->height();
     VERIFY(panel->setProperty("expanded", QVariant(expanded)));
     VERIFY(panel->property("expanded").toBool() == expanded);
+
+    // This is a layout, so we need to ensure that its polish has completed before testing sizes of items.
+    if (!ensurePanelPolished(panel))
+        return false;
+
     if (expanded) {
         // Ensure that it has time to grow, otherwise stuff like input events will not work.
         TRY_VERIFY2(panel->height() > originalHeight, qPrintable(QString::fromLatin1(
@@ -2790,6 +2793,18 @@ bool TestHelper::expandAndResizePanel(const QString &panelObjectName)
     VERIFY(panelSplitView);
     return dragSplitViewHandle("panelSplitView", std::distance(reasonablePanelSizes.begin(), panelIt),
         QPoint(panelSplitView->width() / 2, panelIt->second));
+}
+
+bool TestHelper::ensurePanelPolished(QQuickItem *panel)
+{
+    VERIFY(panel);
+
+    auto panelContentItem = panel->property("contentItem").value<QQuickItem*>();
+    VERIFY(panelContentItem);
+    if (QQuickTest::qIsPolishScheduled(panelContentItem))
+        VERIFY(QQuickTest::qWaitForItemPolished(panelContentItem));
+
+    return true;
 }
 
 bool TestHelper::switchMode(TileCanvas::Mode mode)

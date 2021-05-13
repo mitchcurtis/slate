@@ -224,6 +224,7 @@ protected:
     Q_REQUIRED_RESULT bool togglePanel(const QString &panelObjectName, bool expanded);
     Q_REQUIRED_RESULT bool togglePanels(const QStringList &panelObjectNames, bool expanded);
     Q_REQUIRED_RESULT bool expandAndResizePanel(const QString &panelObjectName);
+    Q_REQUIRED_RESULT bool ensurePanelPolished(QQuickItem *panel);
 
     Q_REQUIRED_RESULT bool dragSplitViewHandle(const QString &splitViewObjectName, int index,
         const QPoint &newHandleCentreRelativeToSplitView, QPoint *oldHandleCentreRelativeToSplitView = nullptr);
