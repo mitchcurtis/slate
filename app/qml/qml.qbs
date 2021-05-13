@@ -21,6 +21,8 @@ Group {
             "ui/AnimationPanel.qml",
             "ui/AnimationPreviewSettingsPopup.qml",
             "ui/AnimationSettingsPopup.qml",
+            "ui/AppearanceTab.qml",
+            "ui/BehaviourTab.qml",
             "ui/Theme.qml",
             "ui/CanvasContainer.qml",
             "ui/CanvasPaneRepeater.qml",
