@@ -2552,7 +2552,7 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     return true;
 }
 
-bool TestHelper::saveChanges()
+bool TestHelper::saveChanges(const QString &expectedErrorMessage)
 {
     if (project->isNewProject()) {
         FAIL("Cannot save changes because the project is new, " \
@@ -2570,6 +2570,14 @@ bool TestHelper::saveChanges()
     VERIFY(saveChangesButton);
     mouseEventOnCentre(saveChangesButton, MouseClick);
     TRY_VERIFY(!saveChangesDialog->property("visible").toBool());
+
+    if (!expectedErrorMessage.isEmpty()) {
+        // The save should fail.
+        if (!verifyErrorAndDismiss(expectedErrorMessage))
+            return false;
+        return true;
+    }
+
     VERIFY(!project->hasUnsavedChanges());
     return true;
 }

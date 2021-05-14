@@ -261,8 +261,7 @@ void tst_App::newProjectWithNewTileset()
 
     // Save the project.
     const QUrl saveFileName = QUrl::fromLocalFile(tempProjectDir->path() + "/mytileset.stp");
-    tilesetProject->saveAs(saveFileName);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(tilesetProject->saveAs(saveFileName));
     // Should save the image at the same location as the project.
     const QString tilesetPath = tempProjectDir->path() + "/mytileset.png";
     QCOMPARE(tilesetProject->tilesetUrl(), QUrl::fromLocalFile(tilesetPath));
@@ -360,8 +359,7 @@ void tst_App::saveTilesetProject()
 
     // Save our drawing.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/project.stp");
-    tilesetProject->saveAs(saveUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(tilesetProject->saveAs(saveUrl));
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -380,8 +378,7 @@ void tst_App::saveAsAndLoadTilesetProject()
 
     // Save the untouched project.
     const QString originalProjectPath = tempProjectDir->path() + "/project.stp";
-    tilesetProject->saveAs(QUrl::fromLocalFile(originalProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(tilesetProject->saveAs(QUrl::fromLocalFile(originalProjectPath)));
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(!window->title().contains("*"));
     QCOMPARE(tilesetProject->url().toLocalFile(), originalProjectPath);
@@ -401,8 +398,7 @@ void tst_App::saveAsAndLoadTilesetProject()
 
     // Save the project to a new file.
     const QString savedProjectPath = tempProjectDir->path() + "/project2.stp";
-    tilesetProject->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(tilesetProject->saveAs(QUrl::fromLocalFile(savedProjectPath)));
     QCOMPARE(tilesetProject->url().toLocalFile(), savedProjectPath);
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -421,8 +417,7 @@ void tst_App::saveAsAndLoadTilesetProject()
     QVERIFY(window->title().contains("*"));
 
     // Save our project.
-    tilesetProject->save();
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(tilesetProject->save());
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -569,8 +564,7 @@ void tst_App::saveAsAndLoad()
 
     // Save the project.
     const QString savedProjectPath = tempProjectDir->path() + "/saveAsAndLoad-project." + projectExtension;
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
     QCOMPARE(project->url().toLocalFile(), savedProjectPath);
     QCOMPARE(project->modificationVersion().toString(), qApp->applicationVersion());
 
@@ -764,8 +758,7 @@ void tst_App::recentFiles()
     QCOMPARE(recentFilesInstantiator->property("count").toInt(), 0);
 
     // Save.
-    project->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/recentFiles.png"));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/recentFiles.png")));
     QCOMPARE(recentFilesInstantiator->property("count").toInt(), 1);
 
     // Get the recent file menu item from the instantiator and ensure its text is correct.
@@ -880,7 +873,7 @@ void tst_App::splitViewStateAcrossProjects()
     // Save the project with the new split size.
     QVERIFY(layeredImageProject->canSave());
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/splitViewStateAcrossProjects.slp"));
-    layeredImageProject->saveAs(saveUrl);
+    QVERIFY(layeredImageProject->saveAs(saveUrl));
     QVERIFY(!layeredImageProject->hasUnsavedChanges());
 
     // Create a new project. It should have the default panel split item size.
@@ -896,7 +889,7 @@ void tst_App::saveOnPrompt()
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/saveOnPrompt.slp"));
-    layeredImageProject->saveAs(saveUrl);
+    QVERIFY(layeredImageProject->saveAs(saveUrl));
     QVERIFY(!layeredImageProject->hasUnsavedChanges());
 
     setCursorPosInScenePixels(1, 1);
@@ -1131,8 +1124,7 @@ void tst_App::undoPixels()
     QVERIFY(!window->title().contains("*"));
 
     // Save the project so that we can test hasUnsavedChanges.
-    tilesetProject->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/project.stp"));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(tilesetProject->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/project.stp")));
     QVERIFY(!tilesetProject->canSave());
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(!window->title().contains("*"));
@@ -4712,8 +4704,7 @@ void tst_App::rotateSelection()
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path()
         + "/" + Project::typeToString(projectType)
         + "." + app.projectManager()->projectExtensionForType(projectType));
-    project->saveAs(saveUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(saveUrl));
     QVERIFY2(loadProject(saveUrl), failureMessage);
     QCOMPARE(project->hasUnsavedChanges(), false);
     QCOMPARE(canvas->hasModifiedSelection(), false);
@@ -5280,7 +5271,7 @@ void tst_App::animationPlayback()
 
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animationStuffSaved.slp"));
-    layeredImageProject->saveAs(saveUrl);
+    QVERIFY(layeredImageProject->saveAs(saveUrl));
     QVERIFY(!layeredImageProject->hasUnsavedChanges());
 
     // Close.
@@ -5495,7 +5486,7 @@ void tst_App::saveAnimations()
 
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/saveAnimations.slp"));
-    layeredImageProject->saveAs(saveUrl);
+    QVERIFY(layeredImageProject->saveAs(saveUrl));
     QVERIFY(!layeredImageProject->hasUnsavedChanges());
 
     // Close.
@@ -6150,8 +6141,7 @@ void tst_App::saveAndLoadLayeredImageProject()
 
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/layeredimageproject.slp");
-    layeredImageProject->saveAs(saveUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(layeredImageProject->saveAs(saveUrl));
     QVERIFY(!layeredImageProject->hasUnsavedChanges());
 
     // Close.
@@ -6420,7 +6410,7 @@ void tst_App::autoExport()
 
     // Save the project so that the auto-export is triggered.
     const QString savedProjectPath = tempProjectDir->path() + "/autoExport-project.slp";
-    layeredImageProject->saveAs(QUrl::fromLocalFile(savedProjectPath));
+    QVERIFY(layeredImageProject->saveAs(QUrl::fromLocalFile(savedProjectPath)));
 
     // The image file should exist now.
     const QString autoExportFilePath = LayeredImageProject::autoExportFilePath(layeredImageProject->url());
@@ -6442,7 +6432,7 @@ void tst_App::autoExport()
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     // Save again.
-    layeredImageProject->saveAs(QUrl::fromLocalFile(savedProjectPath));
+    QVERIFY(layeredImageProject->saveAs(QUrl::fromLocalFile(savedProjectPath)));
 
     // No export should have happened and so the exported image shouldn't have changed.
     exportedImage = QImage(autoExportFilePath);
@@ -6493,8 +6483,7 @@ void tst_App::exportFileNamedLayers()
 
     // Save the project so that auto export is triggered and the images saved.
     const QString savedProjectPath = tempProjectDir->path() + "/exportFileNameLayers-project.slp";
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
 
     // Check that the "main" image (combined from regular layers) is saved.
     const QString exportedImagePath = tempProjectDir->path() + "/exportFileNameLayers-project.png";
@@ -6519,8 +6508,7 @@ void tst_App::exportFileNamedLayers()
     QVERIFY2(changeLayerVisiblity("[test] Layer 3", false), failureMessage);
 
     // Save to export.
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
     QVERIFY(QFile::exists(exportedTestLayerImagePath));
     exportedLayerImage = QImage(exportedTestLayerImagePath);
     QVERIFY(!exportedLayerImage.isNull());
@@ -6543,8 +6531,7 @@ void tst_App::exportFileNamedLayers()
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     // Export again. Both layers should have been exported to the same image.
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
     QVERIFY(QFile::exists(exportedTestLayerImagePath));
     exportedLayerImage = QImage(exportedTestLayerImagePath);
     QVERIFY(!exportedLayerImage.isNull());
@@ -6576,8 +6563,7 @@ void tst_App::exportFileNamedLayers()
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     // Export it.
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
     const QString exportedBlahLayerImagePath = tempProjectDir->path() + "/exportFileNameLayers-project-blah.png";
     QVERIFY(QFile::exists(exportedBlahLayerImagePath));
     exportedLayerImage = QImage(exportedBlahLayerImagePath);
@@ -6600,8 +6586,7 @@ void tst_App::exportFileNamedLayers()
     QVERIFY(!QFile::exists(exportedImagePath));
 
     // Now it shouldn't be exported.
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
     QVERIFY(!QFile::exists(exportedImagePath));
 }
 
