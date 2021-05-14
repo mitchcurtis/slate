@@ -45,12 +45,8 @@ QString ApplicationSettings::language() const
 
 void ApplicationSettings::setLanguage(const QString &language)
 {
-    const QVariant existingValue = value("language");
-    QString existingStringValue = defaultLanguage();
-    if (contains("language"))
-        existingStringValue = existingValue.toString();
-
-    if (language == existingStringValue)
+    const QString existingValue = value("language", defaultLanguage()).toString();
+    if (language == existingValue)
         return;
 
     setValue("language", language);
@@ -64,15 +60,8 @@ bool ApplicationSettings::loadLastOnStartup() const
 
 void ApplicationSettings::setLoadLastOnStartup(bool loadLastOnStartup)
 {
-    // TODO: replace all this duplicated code with the getter
-    // e.g. if (this->loadLastOnStartup() == loadLastOnStartup) return;
-    QVariant existingValue = value("loadLastOnStartup");
-    bool existingBoolValue = defaultLoadLastOnStartup();
-    if (contains("loadLastOnStartup")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (loadLastOnStartup == existingBoolValue)
+    const bool existingValue = value("loadLastOnStartup", loadLastOnStartup).toBool();
+    if (loadLastOnStartup == existingValue)
         return;
 
     setValue("loadLastOnStartup", loadLastOnStartup);
@@ -157,13 +146,8 @@ bool ApplicationSettings::scrollZoom() const
 
 void ApplicationSettings::setScrollZoom(bool scrollZoom)
 {
-    QVariant existingValue = value("scrollZoom");
-    bool existingBoolValue = defaultScrollZoom();
-    if (contains("scrollZoom")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (scrollZoom == existingBoolValue)
+    const bool existingValue = value("scrollZoom", defaultScrollZoom()).toBool();
+    if (scrollZoom == existingValue)
         return;
 
     setValue("scrollZoom", scrollZoom);
@@ -182,13 +166,8 @@ bool ApplicationSettings::isFpsVisible() const
 
 void ApplicationSettings::setFpsVisible(bool fpsVisible)
 {
-    QVariant existingValue = value("fpsVisible");
-    bool existingBoolValue = defaultFpsVisible();
-    if (contains("fpsVisible")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (fpsVisible == existingBoolValue)
+    const bool existingValue = value("fpsVisible", defaultFpsVisible()).toBool();
+    if (fpsVisible == existingValue)
         return;
 
     setValue("fpsVisible", fpsVisible);
@@ -233,13 +212,8 @@ bool ApplicationSettings::areGesturesEnabled() const
 
 void ApplicationSettings::setGesturesEnabled(bool gesturesEnabled)
 {
-    const QVariant existingValue = value("gesturesEnabled");
-    bool existingBoolValue = defaultGesturesEnabled();
-    if (contains("gesturesEnabled")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (gesturesEnabled == existingBoolValue)
+    const bool existingValue = value("gesturesEnabled", defaultGesturesEnabled()).toBool();
+    if (gesturesEnabled == existingValue)
         return;
 
     setValue("gesturesEnabled", gesturesEnabled);
@@ -258,13 +232,8 @@ bool ApplicationSettings::isAutoSwatchEnabled() const
 
 void ApplicationSettings::setAutoSwatchEnabled(bool autoSwatchEnabled)
 {
-    const QVariant existingValue = value("autoSwatchEnabled");
-    bool existingBoolValue = defaultAutoSwatchEnabled();
-    if (contains("autoSwatchEnabled")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (autoSwatchEnabled == existingBoolValue)
+    const bool existingValue = value("autoSwatchEnabled", defaultAutoSwatchEnabled()).toBool();
+    if (autoSwatchEnabled == existingValue)
         return;
 
     setValue("autoSwatchEnabled", autoSwatchEnabled);
@@ -283,13 +252,8 @@ bool ApplicationSettings::isAlwaysShowCrosshair() const
 
 void ApplicationSettings::setAlwaysShowCrosshair(bool alwaysShowCrosshair)
 {
-    const QVariant existingValue = value("alwaysShowCrosshair");
-    bool existingBoolValue = defaultAlwaysShowCrosshair();
-    if (contains("alwaysShowCrosshair")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (alwaysShowCrosshair == existingBoolValue)
+    const bool existingValue = value("alwaysShowCrosshair", defaultAlwaysShowCrosshair()).toBool();
+    if (alwaysShowCrosshair == existingValue)
         return;
 
     setValue("alwaysShowCrosshair", alwaysShowCrosshair);
