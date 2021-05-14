@@ -5289,8 +5289,7 @@ void tst_App::animationPlayback()
     QCOMPARE(isUsingAnimation(), false);
 
     // Load the saved file and check that our custom settings were remembered.
-    layeredImageProject->load(saveUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY2(loadProject(saveUrl), failureMessage);
     currentAnimationPlayback = TestHelper::animationPlayback();
     currentAnimation = currentAnimationPlayback->animation();
     QCOMPARE(isUsingAnimation(), true);
@@ -5311,8 +5310,7 @@ void tst_App::playNonLoopingAnimationTwice()
     QVERIFY2(copyFileFromResourcesToTempProjectDir("simple-colour-animation.slp"), failureMessage);
 
     const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/simple-colour-animation.slp"));
-    layeredImageProject->load(projectUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY2(loadProject(projectUrl), failureMessage);
 
     auto *animationSystem = getAnimationSystem();
     QVERIFY(animationSystem);
@@ -5350,8 +5348,7 @@ void tst_App::animationGifExport()
     QVERIFY2(copyFileFromResourcesToTempProjectDir("animation.slp"), failureMessage);
 
     const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animation.slp"));
-    layeredImageProject->load(projectUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY2(loadProject(projectUrl), failureMessage);
     QCOMPARE(isUsingAnimation(), true);
 
     // Export the GIF. Can't interact with native dialogs here, so we just do it directly.
@@ -5507,7 +5504,7 @@ void tst_App::saveAnimations()
     QCOMPARE(isUsingAnimation(), false);
 
     // Load the saved file and check that our custom settings were remembered.
-    layeredImageProject->load(saveUrl);
+    QVERIFY2(loadProject(saveUrl), failureMessage);
     QVERIFY_NO_CREATION_ERRORS_OCCURRED();
     QCOMPARE(animationSystem->animationCount(), 2);
     QCOMPARE(animationSystem->animationAt(1)->fps(), expectedFps);

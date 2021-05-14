@@ -43,11 +43,13 @@
 class ProjectManager;
 
 #define QVERIFY_NO_CREATION_ERRORS_OCCURRED() \
+QVERIFY2(projectCreationFailedSpy, ""); \
 QVERIFY2(projectCreationFailedSpy->isEmpty(), \
     qPrintable(QString::fromLatin1("Unexpected error occurred: ") + \
     (!projectCreationFailedSpy->isEmpty() ? projectCreationFailedSpy->first().first().toString() : "")));
 
 #define VERIFY_NO_CREATION_ERRORS_OCCURRED() \
+VERIFY(projectCreationFailedSpy); \
 VERIFY2(projectCreationFailedSpy->isEmpty(), \
     qPrintable(QString::fromLatin1("Unexpected error occurred: ") + \
     (!projectCreationFailedSpy->isEmpty() ? projectCreationFailedSpy->first().first().toString() : "")));
