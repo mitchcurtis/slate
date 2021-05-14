@@ -1850,6 +1850,8 @@ void ImageCanvas::reset()
     // don't really need to be reset each time:
     // - tool
     // - toolSize
+    // TODO: ^ why?
+    mToolsForbiddenReason.clear();
 
     requestContentPaint();
 }
@@ -2284,6 +2286,7 @@ ImageCanvas::Tool ImageCanvas::penRightClickTool() const
 
 void ImageCanvas::applyCurrentTool()
 {
+    updateToolsForbidden();
     if (areToolsForbidden())
         return;
 
@@ -2599,6 +2602,8 @@ void ImageCanvas::updateWindowCursorShape()
     if (areGuidesVisible() && !areGuidesLocked() && !overRuler && !overNote)
         overGuide = guideIndexAtCursorPos() != -1;
 
+    updateToolsForbidden();
+
     // Hide the window's cursor when we're in the spotlight; otherwise, use the non-custom arrow cursor.
     const bool nothingOverUs = mProject->hasLoaded() && hasActiveFocus() /*&& !mModalPopupsOpen*/ && mContainsMouse;
     const bool splitterHovered = mSplitter.isEnabled() && mSplitter.isHovered();
@@ -2784,7 +2789,31 @@ void ImageCanvas::restoreToolBeforeAltPressed()
 
 bool ImageCanvas::areToolsForbidden() const
 {
-    return false;
+    return !mToolsForbiddenReason.isEmpty();
+}
+
+QString ImageCanvas::toolsForbiddenReason() const
+{
+    return mToolsForbiddenReason;
+}
+
+void ImageCanvas::updateToolsForbidden()
+{
+    // See: https://github.com/mitchcurtis/slate/issues/2.
+    // QPainter doesn't support drawing into an QImage whose format is QImage::Format_Indexed8.
+    static const QString index8Reason =
+        tr("Image cannot be edited because its format is indexed 8-bit, which does not support modification.");
+    const bool is8Bit = currentProjectImage()->format() == QImage::Format_Indexed8;
+    setToolsForbiddenReason(is8Bit ? index8Reason : QString());
+}
+
+void ImageCanvas::setToolsForbiddenReason(const QString &reason)
+{
+    if (reason == mToolsForbiddenReason)
+        return;
+
+    mToolsForbiddenReason = reason;
+    emit toolsForbiddenChanged();
 }
 
 bool ImageCanvas::event(QEvent *event)

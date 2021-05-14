@@ -135,6 +135,7 @@ private Q_SLOTS:
     void penToolRightClickBehaviour_data();
     void penToolRightClickBehaviour();
     void splitScreenRendering();
+    void formatNotWritable();
 
     // Rulers, guides, notes, etc.
     void rulersAndGuides_data();
@@ -3270,6 +3271,18 @@ void tst_App::splitScreenRendering()
     const QImage canvasGrab = imageGrabber.takeImage();
     QCOMPARE(canvasGrab.pixelColor(layeredImageCanvas->width() * 0.25, layeredImageCanvas->height() / 2), QColor(Qt::white));
     QCOMPARE(canvasGrab.pixelColor(layeredImageCanvas->width() * 0.75, layeredImageCanvas->height() / 2), QColor(Qt::white));
+}
+
+// Distinct from a read-only file, this test checks that the UI prevents images with formats like Format_Indexed8
+// from being modified, as QPainter doesn't support it.
+void tst_App::formatNotWritable()
+{
+    QVERIFY2(setupTempProjectDir(), failureMessage);
+    QVERIFY2(copyFileFromResourcesToTempProjectDir("indexed-8-format.png"), failureMessage);
+
+    // Load the image.
+    const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/indexed-8-format.png"));
+    QVERIFY2(loadProject(projectUrl), failureMessage);
 }
 
 void tst_App::rulersAndGuides_data()

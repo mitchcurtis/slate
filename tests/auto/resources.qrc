@@ -39,5 +39,6 @@
         <file>resources/version-check-v0.9.0.slp</file>
         <file>resources/animationFrameWidthTooLarge.slp</file>
         <file>resources/simple-colour-animation.slp</file>
+        <file>resources/indexed-8-format.png</file>
     </qresource>
 </RCC>

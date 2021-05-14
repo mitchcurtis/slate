@@ -85,6 +85,8 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(Tool lastFillToolUsed READ lastFillToolUsed NOTIFY lastFillToolUsedChanged)
     Q_PROPERTY(int toolSize READ toolSize WRITE setToolSize NOTIFY toolSizeChanged)
     Q_PROPERTY(int maxToolSize READ maxToolSize CONSTANT)
+    Q_PROPERTY(bool toolsForbidden READ areToolsForbidden NOTIFY toolsForbiddenChanged FINAL)
+    Q_PROPERTY(QString toolsForbiddenReason READ toolsForbiddenReason NOTIFY toolsForbiddenChanged FINAL)
     Q_PROPERTY(ToolShape toolShape READ toolShape WRITE setToolShape NOTIFY toolShapeChanged)
     Q_PROPERTY(QColor penForegroundColour READ penForegroundColour WRITE setPenForegroundColour NOTIFY penForegroundColourChanged)
     Q_PROPERTY(QColor penBackgroundColour READ penBackgroundColour WRITE setPenBackgroundColour NOTIFY penBackgroundColourChanged)
@@ -231,6 +233,9 @@ public:
     void setToolSize(int toolSize);
     int maxToolSize() const;
 
+    bool areToolsForbidden() const;
+    QString toolsForbiddenReason() const;
+
     QColor penForegroundColour() const;
     void setPenForegroundColour(const QColor &penForegroundColour);
 
@@ -349,6 +354,7 @@ signals:
     void toolShapeChanged();
     void lastFillToolUsedChanged();
     void toolSizeChanged();
+    void toolsForbiddenChanged();
     void penForegroundColourChanged();
     void penBackgroundColourChanged();
     void hasBlankCursorChanged();
@@ -475,7 +481,8 @@ protected:
     void setPenColourThroughEyedropper(const QColor &colour);
     void setHasBlankCursor(bool hasBlankCursor);
     void restoreToolBeforeAltPressed();
-    virtual bool areToolsForbidden() const;
+    virtual void updateToolsForbidden();
+    void setToolsForbiddenReason(const QString &reason);
     void setCursorPixelColour(const QColor &cursorPixelColour);
     bool isWithinImage(const QPoint &scenePos) const;
     QPoint clampToImageBounds(const QPoint &scenePos, bool inclusive = true) const;
@@ -643,6 +650,7 @@ protected:
     Tool mLastFillToolUsed;
     int mToolSize;
     int mMaxToolSize;
+    QString mToolsForbiddenReason;
     QColor mPenForegroundColour;
     QColor mPenBackgroundColour;
 

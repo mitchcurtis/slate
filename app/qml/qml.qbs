@@ -60,6 +60,7 @@ Group {
             "ui/NoteDialog.qml",
             "ui/OpacityDialog.qml",
             "ui/OptionsDialog.qml",
+            "ui/OptionalToolSeparator.qml",
             "ui/Panel.qml",
             "ui/ProjectTemplateButton.qml",
             "ui/RenameSwatchColourDialog.qml",
