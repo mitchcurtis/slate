@@ -264,6 +264,8 @@ Pane {
         ZoomIndicator {
             objectName: "firstPaneZoomIndicator"
             pane: canvas ? canvas.firstPane : null
+
+            Layout.rightMargin: 4
         }
     }
 
