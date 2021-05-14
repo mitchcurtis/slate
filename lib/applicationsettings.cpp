@@ -131,7 +131,7 @@ void ApplicationSettings::removeInvalidRecentFiles()
 
 QString ApplicationSettings::displayableFilePath(const QString &filePath) const
 {
-    return QUrl(filePath).path();
+    return QUrl(filePath).toLocalFile();
 }
 
 bool ApplicationSettings::defaultScrollZoom() const
