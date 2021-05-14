@@ -2803,7 +2803,7 @@ void ImageCanvas::updateToolsForbidden()
     // QPainter doesn't support drawing into an QImage whose format is QImage::Format_Indexed8.
     static const QString index8Reason =
         tr("Image cannot be edited because its format is indexed 8-bit, which does not support modification.");
-    const bool is8Bit = currentProjectImage()->format() == QImage::Format_Indexed8;
+    const bool is8Bit = mImageProject && mImageProject->image()->format() == QImage::Format_Indexed8;
     setToolsForbiddenReason(is8Bit ? index8Reason : QString());
 }
 

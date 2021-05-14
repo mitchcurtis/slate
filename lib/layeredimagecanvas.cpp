@@ -190,6 +190,6 @@ void LayeredImageCanvas::updateToolsForbidden()
     // For layered image projects, tools cannot be used on the current layer
     // while it is hidden.
     static const QString layerHiddenReason = tr("This layer cannot be edited because it is hidden.");
-    ImageLayer *currentLayer = mLayeredImageProject->currentLayer();
+    ImageLayer *currentLayer = mLayeredImageProject ? mLayeredImageProject->currentLayer() : nullptr;
     setToolsForbiddenReason(currentLayer && !currentLayer->isVisible() ? layerHiddenReason : QString());
 }
