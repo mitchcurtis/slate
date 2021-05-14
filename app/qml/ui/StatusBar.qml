@@ -254,8 +254,7 @@ Pane {
             text: canvas ? canvas.toolsForbiddenReason : ""
             visible: canvas && canvas.toolsForbidden
 
-            Layout.minimumWidth: lineAngleMaxTextMetrics.width
-            Layout.maximumWidth: lineAngleMaxTextMetrics.width
+            Layout.leftMargin: 5
         }
 
         Item {
