@@ -231,6 +231,30 @@ Pane {
             }
         }
 
+        ToolSeparator {
+            padding: 0
+            visible: currentLayerNameLabel.visible
+                && (fpsCounter.visible || lineLengthLabel.visible || selectionSizeLabel.visible)
+
+            Layout.fillHeight: true
+            Layout.maximumHeight: 24
+        }
+
+        Image {
+            source: "qrc:/images/current-layer.png"
+            visible: currentLayerNameLabel.visible
+        }
+        Label {
+            id: currentLayerNameLabel
+            objectName: "currentLayerNameLabel"
+            text: visible ? project.currentLayer.name : ""
+            visible: settings.showCurrentLayerInStatusBar
+                && project && project.type === Project.LayeredImageType && project.currentLayer
+
+            Layout.minimumWidth: lineAngleMaxTextMetrics.width
+            Layout.maximumWidth: lineAngleMaxTextMetrics.width
+        }
+
         Item {
             Layout.fillWidth: true
         }

@@ -11,6 +11,7 @@ ColumnLayout {
         settings.checkerColour2 = checkerColour2TextField.colour
         settings.alwaysShowCrosshair = alwaysShowCrosshairCheckBox.checked
         settings.fpsVisible = showFpsCheckBox.checked
+        settings.showCurrentLayerInStatusBar = showCurrentLayerInStatusBarCheckBox.checked
         settings.windowOpacity = windowOpacitySlider.value
     }
 
@@ -19,6 +20,7 @@ ColumnLayout {
         checkerColour1TextField.text = settings.checkerColour1
         checkerColour2TextField.text = settings.checkerColour2
         showFpsCheckBox.checked = settings.fpsVisible
+        showCurrentLayerInStatusBarCheckBox.checked = settings.showCurrentLayerInStatusBar
         alwaysShowCrosshairCheckBox.checked = settings.alwaysShowCrosshair
         windowOpacitySlider.value = settings.windowOpacity
     }
@@ -178,6 +180,15 @@ ColumnLayout {
                 id: showFpsCheckBox
                 leftPadding: 0
                 checked: settings.fpsVisible
+            }
+
+            Label {
+                text: qsTr("Show current layer in status bar")
+            }
+            CheckBox {
+                id: showCurrentLayerInStatusBarCheckBox
+                leftPadding: 0
+                checked: settings.showCurrentLayerInStatusBar
             }
 
             Label {

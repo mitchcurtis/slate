@@ -40,6 +40,8 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QStringList recentFiles READ recentFiles NOTIFY recentFilesChanged)
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
     Q_PROPERTY(bool fpsVisible READ isFpsVisible WRITE setFpsVisible NOTIFY fpsVisibleChanged)
+    Q_PROPERTY(bool showCurrentLayerInStatusBar READ showCurrentLayerInStatusBar
+        WRITE setShowCurrentLayerInStatusBar NOTIFY showCurrentLayerInStatusBarChanged)
     Q_PROPERTY(bool gesturesEnabled READ areGesturesEnabled WRITE setGesturesEnabled NOTIFY gesturesEnabledChanged)
     Q_PROPERTY(bool autoSwatchEnabled READ isAutoSwatchEnabled WRITE setAutoSwatchEnabled NOTIFY autoSwatchEnabledChanged)
     Q_PROPERTY(bool alwaysShowCrosshair READ isAlwaysShowCrosshair WRITE setAlwaysShowCrosshair NOTIFY alwaysShowCrosshairChanged)
@@ -114,6 +116,10 @@ public:
     bool defaultFpsVisible() const;
     bool isFpsVisible() const;
     void setFpsVisible(bool fpsVisible);
+
+    bool defaultShowCurrentLayerInStatusBar() const;
+    bool showCurrentLayerInStatusBar() const;
+    void setShowCurrentLayerInStatusBar(bool show);
 
     bool defaultGesturesEnabled() const;
     bool areGesturesEnabled() const;
@@ -307,6 +313,7 @@ signals:
     void recentFilesChanged();
     void scrollZoomChanged();
     void fpsVisibleChanged();
+    void showCurrentLayerInStatusBarChanged();
     void gesturesEnabledChanged();
     void autoSwatchEnabledChanged();
     void alwaysShowCrosshairChanged();

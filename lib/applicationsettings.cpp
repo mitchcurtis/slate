@@ -195,6 +195,28 @@ void ApplicationSettings::setFpsVisible(bool fpsVisible)
     emit fpsVisibleChanged();
 }
 
+bool ApplicationSettings::defaultShowCurrentLayerInStatusBar() const
+{
+    return true;
+}
+
+bool ApplicationSettings::showCurrentLayerInStatusBar() const
+{
+    return contains("showCurrentLayerInStatusBar")
+        ? value("showCurrentLayerInStatusBar").toBool() : defaultShowCurrentLayerInStatusBar();
+}
+
+void ApplicationSettings::setShowCurrentLayerInStatusBar(bool show)
+{
+    const bool existingValue = value("showCurrentLayerInStatusBar",
+        QVariant(defaultShowCurrentLayerInStatusBar())).toBool();
+    if (show == existingValue)
+        return;
+
+    setValue("showCurrentLayerInStatusBar", show);
+    emit showCurrentLayerInStatusBarChanged();
+}
+
 bool ApplicationSettings::defaultGesturesEnabled() const
 {
 #ifdef Q_OS_MACOS

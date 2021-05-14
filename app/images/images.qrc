@@ -21,6 +21,10 @@
         <file>crop-to-selection@2x.png</file>
         <file>crop-to-selection@3x.png</file>
         <file>crop-to-selection@4x.png</file>
+        <file>current-layer.png</file>
+        <file>current-layer@2x.png</file>
+        <file>current-layer@3x.png</file>
+        <file>current-layer@4x.png</file>
         <file>fill.png</file>
         <file>fill@2x.png</file>
         <file>fill@3X.png</file>
