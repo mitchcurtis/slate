@@ -212,6 +212,7 @@ public:
     Q_INVOKABLE CanvasPane *paneAt(int index);
     int paneWidth(int index) const;
     QPoint centredPaneOffset(int paneIndex) const;
+    void applyZoom(qreal newZoomLevel, const QPoint &origin);
 
     QColor rulerForegroundColour() const;
     void setRulerForegroundColour(const QColor &foregroundColour) const;
@@ -550,8 +551,6 @@ protected:
     void setAltPressed(bool altPressed);
 
     void setShiftPressed(bool shiftPressed);
-
-    void applyZoom(qreal zoom, const QPoint &origin);
 
     virtual void connectSignals();
     virtual void disconnectSignals();

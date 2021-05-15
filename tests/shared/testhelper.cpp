@@ -1637,7 +1637,8 @@ void TestHelper::setCursorPosInScenePixels(const QPoint &posInScenePixels, bool 
         // As with mouseEventOnCentre(), we don't want this to be a e.g. VERIFY2, because then we'd have to
         // verify its return value everywhere we use it, and we use it a lot, so just assert instead.
         Q_ASSERT_X(cursorWindowPos.x() >= 0 && cursorWindowPos.y() >= 0, Q_FUNC_INFO,
-            qPrintable(QString::fromLatin1("x %1 y %2").arg(cursorWindowPos.x()).arg(cursorWindowPos.y())));
+            qPrintable(QString::fromLatin1("scene pos %1 results in invalid cursor position %2")
+                .arg(Utils::toString(posInScenePixels)).arg(Utils::toString(cursorWindowPos))));
     }
 }
 
@@ -3086,11 +3087,15 @@ bool TestHelper::zoomTo(int zoomLevel)
 
 bool TestHelper::zoomTo(int zoomLevel, const QPoint &pos)
 {
+    static const int maxLoops = 1000;
     CanvasPane *currentPane = canvas->currentPane();
-    for (int i = 0; currentPane->zoomLevel() < zoomLevel; ++i) {
-        wheelEvent(canvas, pos, 1);
-        if (i > 1000)
-            FAIL("Exceeed maximum loops to reach zoom (1000)");
+    const bool zoomIn = currentPane->zoomLevel() < zoomLevel;
+    for (int i = 0; zoomIn ? currentPane->zoomLevel() < zoomLevel : currentPane->zoomLevel() > zoomLevel; ++i) {
+        wheelEvent(canvas, pos, zoomIn ? 1 : -1);
+        if (i > maxLoops) {
+            FAIL(qPrintable(QString::fromLatin1("Exceeed maximum loops (%1) to reach zoom (%2) - current pane zoom: %3")
+                .arg(maxLoops).arg(zoomLevel).arg(currentPane->zoomLevel())));
+        }
     }
     VERIFY(currentPane->integerZoomLevel() == zoomLevel);
     return true;

@@ -2847,11 +2847,11 @@ bool ImageCanvas::event(QEvent *event)
     return QQuickItem::event(event);
 }
 
-void ImageCanvas::applyZoom(qreal zoom, const QPoint &origin)
+void ImageCanvas::applyZoom(qreal newZoomLevel, const QPoint &origin)
 {
     const qreal oldZoomLevel = qreal(mCurrentPane->integerZoomLevel());
 
-    mCurrentPane->setZoomLevel(zoom);
+    mCurrentPane->setZoomLevel(newZoomLevel);
 
     // From: http://stackoverflow.com/a/38302057/904422
     const QPoint relativeEventPos = eventPosRelativeToCurrentPane(origin);

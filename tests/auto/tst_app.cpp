@@ -135,7 +135,7 @@ private Q_SLOTS:
     void penToolRightClickBehaviour_data();
     void penToolRightClickBehaviour();
     void splitScreenRendering();
-    void formatNotWritable();
+    void formatNotModifiable();
 
     // Rulers, guides, notes, etc.
     void rulersAndGuides_data();
@@ -3275,7 +3275,7 @@ void tst_App::splitScreenRendering()
 
 // Distinct from a read-only file, this test checks that the UI prevents images with formats like Format_Indexed8
 // from being modified, as QPainter doesn't support it.
-void tst_App::formatNotWritable()
+void tst_App::formatNotModifiable()
 {
     QVERIFY2(setupTempProjectDir(), failureMessage);
     QVERIFY2(copyFileFromResourcesToTempProjectDir("indexed-8-format.png"), failureMessage);
@@ -3283,6 +3283,12 @@ void tst_App::formatNotWritable()
     // Load the image.
     const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/indexed-8-format.png"));
     QVERIFY2(loadProject(projectUrl), failureMessage);
+
+    auto toolsForbiddenReasonLabel = window->findChild<QQuickItem*>("toolsForbiddenReasonLabel");
+    QVERIFY(toolsForbiddenReasonLabel);
+    QVERIFY(toolsForbiddenReasonLabel->isVisible());
+    QCOMPARE(toolsForbiddenReasonLabel->property("text").toString(),
+        "Image cannot be edited because its format is indexed 8-bit, which does not support modification.");
 }
 
 void tst_App::rulersAndGuides_data()
@@ -3938,10 +3944,14 @@ struct SelectionData
 {
     SelectionData(const QPoint &pressScenePos = QPoint(),
             const QPoint &releaseScenePos = QPoint(),
-            const QRect &expectedSelectionArea = QRect()) :
+            const QRect &expectedSelectionArea = QRect(),
+            const QPoint &paneZoomCentre = QPoint(-1, -1),
+            const int paneZoomLevel = 0) :
         pressScenePos(pressScenePos),
         releaseScenePos(releaseScenePos),
-        expectedSelectionArea(expectedSelectionArea)
+        expectedSelectionArea(expectedSelectionArea),
+        paneZoomCentre(paneZoomCentre),
+        paneZoomLevel(paneZoomLevel)
     {
     }
 
@@ -3950,37 +3960,24 @@ struct SelectionData
     QPoint pressScenePos;
     QPoint releaseScenePos;
     QRect expectedSelectionArea;
+    QPoint paneZoomCentre;
+    int paneZoomLevel;
 };
 
 QDebug operator<<(QDebug debug, const SelectionData &data)
 {
-    debug << "press:" << data.pressScenePos
-          << "release:" << data.releaseScenePos
-          << "expected area:" << data.expectedSelectionArea;
+    debug << "press=" << data.pressScenePos
+          << " release=" << data.releaseScenePos
+          << " expected area=" << data.expectedSelectionArea
+          << " pane zoom centre=" << data.paneZoomCentre
+          << " pane zoom level=" << data.paneZoomLevel;
     return debug;
-}
-
-QString selectionDataToString(const SelectionData &data)
-{
-    QString string;
-    QDebug stringBuilder(&string);
-    stringBuilder << data;
-    return string;
-}
-
-// Can't call this toString(); interferes with testlib code
-QString rectToString(const QRect &rect)
-{
-    QString string;
-    QDebug stringBuilder(&string);
-    stringBuilder << rect;
-    return string;
 }
 
 QByteArray selectionAreaFailureMessage(ImageCanvas *canvas, const SelectionData &selectionData, const QRect &expectedArea)
 {
     return qPrintable(QString::fromLatin1("Data: %1 \n      Actual area: %2\n    Expected area: %3")
-        .arg(selectionDataToString(selectionData), rectToString(canvas->selectionArea()), rectToString(expectedArea)));
+        .arg(Utils::toString(selectionData), Utils::toString(canvas->selectionArea()), Utils::toString(expectedArea)));
 }
 
 void tst_App::selectionToolImageCanvas()
@@ -3991,29 +3988,72 @@ void tst_App::selectionToolImageCanvas()
 
     // We don't want to use a _data() function for this, because we don't need
     // to create a new project every time.
+    // The arguments are:            press             release         expected            zoom centre      zoom
     QVector<SelectionData> selectionData;
     selectionData << SelectionData(QPoint(-10, -10), QPoint(10, 10), QRect(0, 0, 10, 10));
     selectionData << SelectionData(QPoint(-10, 0), QPoint(10, 10), QRect(0, 0, 10, 10));
     selectionData << SelectionData(QPoint(0, -10), QPoint(10, 10), QRect(0, 0, 10, 10));
     selectionData << SelectionData(QPoint(0, 0), QPoint(256, 256), QRect(0, 0, 256, 256));
     // TODO - these fail:
-//    selectionData << SelectionData(QPoint(30, 30), QPoint(0, 0), QRect(0, 0, 30, 30));
+//    selectionData << SelectionData(QPoint(30, 30), QPoint(0, 0), QRect(0, 0, 30, 30), QPoint(15, 15), 4);
 //    selectionData << SelectionData(QPoint(256, 256), QPoint(246, 246), QRect(246, 246, 10, 10));
 
-    foreach (const SelectionData &data, selectionData) {
+    // For debugging.
+    const bool debug = false;
+    const int eventDelay = debug ? 1000 : 0;
+
+    const QPoint defaultPaneZoomCentre = QPoint(project->size().width() / 2, project->size().height() / 2);
+    const int defaultPaneZoom = canvas->firstPane()->integerZoomLevel();
+
+    const auto firstPaneDefaultZoom = canvas->firstPane()->zoomLevel();
+    const auto firstPaneDefaultOffset = canvas->firstPane()->offset();
+    const auto secondPaneDefaultZoom = canvas->secondPane()->zoomLevel();
+    const auto secondPaneDefaultOffset = canvas->secondPane()->offset();
+
+    for (const SelectionData &data : qAsConst(selectionData)) {
+        const bool customPaneZoomLevel = data.paneZoomLevel != 0;
+        if (customPaneZoomLevel) {
+            setCursorPosInScenePixels(customPaneZoomLevel ? data.paneZoomCentre : defaultPaneZoomCentre);
+            QTest::mouseMove(window, cursorWindowPos, eventDelay);
+            if (debug)
+                QTest::qWait(eventDelay);
+
+            QVERIFY2(zoomTo(customPaneZoomLevel ? data.paneZoomLevel : defaultPaneZoom), failureMessage);
+
+            if (debug)
+                QTest::qWait(eventDelay);
+        } else {
+            canvas->firstPane()->setOffset(firstPaneDefaultOffset);
+            canvas->firstPane()->setZoomLevel(firstPaneDefaultZoom);
+            canvas->secondPane()->setOffset(secondPaneDefaultOffset);
+            canvas->secondPane()->setZoomLevel(secondPaneDefaultZoom);
+        }
+
         // Pressing outside the canvas should make the selection start at {0, 0}.
         setCursorPosInScenePixels(data.pressScenePos);
-        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, eventDelay);
         const QPoint boundExpectedPressPos = QPoint(qBound(0, data.pressScenePos.x(), project->widthInPixels()),
             qBound(0, data.pressScenePos.y(), project->heightInPixels()));
         const QRect expectedPressArea = QRect(boundExpectedPressPos, QSize(0, 0));
+        if (debug && canvas->selectionArea() != expectedPressArea) {
+            const auto imageGrabPath = QDir().absolutePath() + "/selectionToolImageCanvas-press-"
+                + Utils::toString(data.expectedSelectionArea) + "-window-grab.png";
+            qDebug() << "Saving window's image grab to:\n" << imageGrabPath;
+            QVERIFY(window->grabWindow().save(imageGrabPath));
+        }
         QVERIFY2(canvas->selectionArea() == expectedPressArea, selectionAreaFailureMessage(canvas, data, expectedPressArea));
 
         setCursorPosInScenePixels(data.releaseScenePos);
-        QTest::mouseMove(window, cursorWindowPos);
+        QTest::mouseMove(window, cursorWindowPos, eventDelay);
+        if (debug && canvas->selectionArea() != data.expectedSelectionArea) {
+            const auto imageGrabPath = QDir().absolutePath() + "/selectionToolImageCanvas-move-"
+                + Utils::toString(data.expectedSelectionArea) + "-window-grab.png";
+            qDebug() << "Saving window's image grab to:\n" << imageGrabPath;
+            QVERIFY(window->grabWindow().save(imageGrabPath));
+        }
         QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
 
-        QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, eventDelay);
         QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
 
         // Cancel the selection so that we can do the next one.
