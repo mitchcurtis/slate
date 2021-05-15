@@ -1462,6 +1462,7 @@ void ImageCanvas::updateSelectionArea()
 
     newSelectionArea = clampSelectionArea(newSelectionArea.normalized());
 
+    qCDebug(lcImageCanvasSelection) << "updating selection area to" << newSelectionArea;
     setSelectionArea(newSelectionArea);
 }
 
@@ -1490,7 +1491,7 @@ void ImageCanvas::updateSelectionPreviewImage(SelectionModification reason)
 
 void ImageCanvas::moveSelectionArea()
 {
-//    qCDebug(lcImageCanvasSelection) << "moving selection area... mIsSelectionFromPaste =" << mIsSelectionFromPaste;
+    qCDebug(lcImageCanvasSelection) << "moving selection area... mIsSelectionFromPaste =" << mIsSelectionFromPaste;
 
     QRect newSelectionArea = mSelectionAreaBeforeLastMove;
     const QPoint distanceMoved(mCursorSceneX - mPressScenePosition.x(), mCursorSceneY - mPressScenePosition.y());
@@ -2970,6 +2971,8 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
         }
 
         if (!cursorOverSelection()) {
+            qCDebug(lcImageCanvasSelection).nospace() << "mouse pressed at scene pos "
+                << mPressScenePosition << "; potentially selecting";
             mPotentiallySelecting = true;
             updateSelectionArea();
         } else {
