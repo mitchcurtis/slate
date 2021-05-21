@@ -74,7 +74,7 @@ Item {
         visible: canvas && canvas.hasBlankCursor && canvas.useIconCursor
         text: visible && checkedToolButton ? checkedToolButton.text : ""
         font.family: "FontAwesome"
-        color: "#ccc"
+        color: canvas ? canvas.invertedCursorPixelColour : crosshairCursor.defaultColour
     }
 
     StatusBar {
