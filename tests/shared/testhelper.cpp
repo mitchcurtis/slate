@@ -1323,7 +1323,8 @@ bool TestHelper::grabFramesOfCurrentAnimation(QVector<QImage> &frames)
     VERIFY2(currentPlayback->currentFrameIndex() == 0, qPrintable(QString::fromLatin1(
         "Expected currentFrameIndex to be 0 when this function is called, but it's %1").arg(currentPlayback->currentFrameIndex())));
 
-    mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+    if (!clickButton(animationPlayPauseButton))
+        return false;
     VERIFY(currentPlayback->isPlaying() == true);
 
     VERIFY2(currentPlayback->currentFrameIndex() == 0, qPrintable(QString::fromLatin1(

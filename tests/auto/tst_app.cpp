@@ -5356,6 +5356,7 @@ void tst_App::playNonLoopingAnimationTwice()
 
     const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/simple-colour-animation.slp"));
     QVERIFY2(loadProject(projectUrl), failureMessage);
+    QVERIFY2(togglePanel("animationPanel", true), failureMessage);
 
     auto *animationSystem = getAnimationSystem();
     QVERIFY(animationSystem);
