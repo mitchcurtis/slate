@@ -52,10 +52,14 @@ Product {
     }
 
     files: [
+        // Just for reading GIFs; see animationGifExport().
         "3rdparty/bitmap/bmp.h",
         "3rdparty/bitmap/bmp.c",
         "3rdparty/bitmap/misc/gif.h",
         "3rdparty/bitmap/misc/gif.c",
+        // For exporting GIFs.
+        "3rdparty/gif-h/qt-cpp/gifwriter.cpp",
+        "3rdparty/gif-h/qt-cpp/gifwriter.h",
         "addanimationcommand.cpp",
         "addanimationcommand.h",
         "addguidecommand.cpp",

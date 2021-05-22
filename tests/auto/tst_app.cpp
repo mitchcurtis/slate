@@ -5404,7 +5404,13 @@ void tst_App::animationGifExport()
     QVERIFY(errorSpy.isEmpty());
     QVERIFY(QFile::exists(exportedGifUrl.toLocalFile()));
 
-    // Now read the GIF and verify that each frame is correct.
+    /*
+        Now read the GIF and verify that each frame is correct. I tried keeping
+        the expected GIF in Git and comparing the hash of it against the
+        generated GIF using QCryptographicHash, but the comparison failed for a
+        GIF that should have been equal... so for now we use the old bitmap
+        library (which also results in a more useful failure message).
+    */
     GIF *gif = gif_load(exportedGifUrl.toLocalFile().toLatin1().constData());
     QVERIFY(gif);
     const int previewScale = 4;
@@ -5423,7 +5429,7 @@ void tst_App::animationGifExport()
 
     for (int frameIndex = 0; frameIndex < gif->n; ++frameIndex) {
         GIF_FRAME loadedGifFrame = gif->frames[frameIndex];
-        QCOMPARE(loadedGifFrame.delay, qFloor(1000.0 / currentAnimationPlayback->animation()->fps()) / 10);
+        QCOMPARE(loadedGifFrame.delay, qFloor(100.0 / currentAnimationPlayback->animation()->fps()));
 
         Bitmap *gifBitmap = loadedGifFrame.image;
         QCOMPARE(gifBitmap->w, frameWidth * previewScale);

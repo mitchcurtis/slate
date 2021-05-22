@@ -1,3 +1,3 @@
-[submodule "3rdparty/qt-undo"]
-	path = 3rdparty/qt-undo
-	url = https://github.com/mitchcurtis/qt-undo.git
+[submodule "lib/3rdparty/gif-h"]
+	path = lib/3rdparty/gif-h
+	url = git@github.com:mitchcurtis/gif-h.git
