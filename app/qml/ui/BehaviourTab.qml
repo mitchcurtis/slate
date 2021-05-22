@@ -314,6 +314,14 @@ ColumnLayout {
                         shortcutName: "fullScreenToggleShortcut"
                         shortcutDisplayName: qsTr("Toggle fullscreen")
                     }
+                    ShortcutRow {
+                        shortcutName: "selectNextLayerUpShortcut"
+                        shortcutDisplayName: qsTr("Select Next Layer Up")
+                    }
+                    ShortcutRow {
+                        shortcutName: "selectNextLayerDownShortcut"
+                        shortcutDisplayName: qsTr("Select Next Layer Down")
+                    }
                 }
             }
         }

@@ -224,6 +224,7 @@ private Q_SLOTS:
     void disableToolsWhenLayerHidden();
     void undoMoveContents();
     void undoMoveContentsOfVisibleLayers();
+    void selectNextLayer();
 };
 
 typedef QVector<Project::Type> ProjectTypeVector;
@@ -6763,6 +6764,48 @@ void tst_App::undoMoveContentsOfVisibleLayers()
     QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::red));
     QCOMPARE(layer1->image()->pixelColor(0, 1), QColor(Qt::white));
     QCOMPARE(layer2->image()->pixelColor(1, 0), QColor(Qt::blue));
+}
+
+void tst_App::selectNextLayer()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
+    QVERIFY2(addNewLayer("Layer 2", 0), failureMessage);
+    QVERIFY2(addNewLayer("Layer 3", 1), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 2);
+
+    // Already at the bottom; should do nothing.
+    QVERIFY2(!triggerSelectNextLayerDown(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 2);
+
+    QVERIFY2(triggerSelectNextLayerUp(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+
+    QVERIFY2(triggerSelectNextLayerUp(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+
+    // Already at the top; should do nothing.
+    QVERIFY2(!triggerSelectNextLayerUp(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+
+    // Test that you can't use the shortcut while doing stuff with the mouse,
+    // or while a selection is active.
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
+
+    setCursorPosInScenePixels(QPoint(0, 0));
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY2(!triggerSelectNextLayerDown(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+
+    setCursorPosInScenePixels(QPoint(5, 5));
+    QTest::mouseMove(window, cursorWindowPos);
+    QVERIFY2(!triggerSelectNextLayerDown(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 5, 5));
+    QVERIFY2(!triggerSelectNextLayerDown(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
 }
 
 int main(int argc, char *argv[])

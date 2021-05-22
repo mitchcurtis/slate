@@ -739,6 +739,20 @@ void ImageCanvas::setContainsMouse(bool containsMouse)
     emit containsMouseChanged();
 }
 
+Qt::MouseButton ImageCanvas::mouseButtonPressed() const
+{
+    return mMouseButtonPressed;
+}
+
+void ImageCanvas::setMouseButtonPressed(Qt::MouseButton mouseButton)
+{
+    if (mouseButton == mMouseButtonPressed)
+        return;
+
+    mMouseButtonPressed = mouseButton;
+    emit mouseButtonPressedChanged();
+}
+
 QRect ImageCanvas::firstPaneVisibleSceneArea() const
 {
     return mFirstPaneVisibleSceneArea;
@@ -1821,7 +1835,7 @@ void ImageCanvas::reset()
     mCursorSceneX = 0;
     mCursorSceneY = 0;
     mContainsMouse = false;
-    mMouseButtonPressed = Qt::NoButton;
+    setMouseButtonPressed(Qt::NoButton);
     mLastMouseButtonPressed = Qt::NoButton;
     mPressPosition = QPoint(0, 0);
     mPressScenePosition = QPoint(0, 0);
@@ -2714,7 +2728,7 @@ void ImageCanvas::error(const QString &message)
     emit errorOccurred(message);
 }
 
-Qt::MouseButton ImageCanvas::pressedMouseButton() const
+Qt::MouseButton ImageCanvas::effectivePressedMouseButton() const
 {
     // For some tools, like the line tool, the mouse button won't be pressed at times,
     // so we take the last mouse button that was pressed.
@@ -2725,12 +2739,12 @@ QColor ImageCanvas::penColour() const
 {
     // When using the right button we want to use the background colour.
     // For every other mouse button, use the foreground. This affects e.g. the line preview too.
-    return pressedMouseButton() == Qt::RightButton ? mPenBackgroundColour : mPenForegroundColour;
+    return effectivePressedMouseButton() == Qt::RightButton ? mPenBackgroundColour : mPenForegroundColour;
 }
 
 void ImageCanvas::setPenColourThroughEyedropper(const QColor &colour)
 {
-    const Qt::MouseButton pressedButton = pressedMouseButton();
+    const Qt::MouseButton pressedButton = effectivePressedMouseButton();
     const bool setForeground = pressedButton == Qt::LeftButton ||
         (pressedButton == Qt::RightButton && mRightClickBehaviour == PenToolRightClickAppliesEyeDropper);
     if (setForeground)
@@ -2917,7 +2931,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
 
     event->accept();
 
-    mMouseButtonPressed = event->button();
+    setMouseButtonPressed(event->button());
     mLastMouseButtonPressed = mMouseButtonPressed;
     mPressPosition = event->pos();
     mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
@@ -3043,7 +3057,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
     if (!mProject->hasLoaded())
         return;
 
-    mMouseButtonPressed = Qt::NoButton;
+    setMouseButtonPressed(Qt::NoButton);
 
     // Make sure we do this after the mouse button has been cleared
     // (as setSelectionArea() relies on this to accurately set mHasSelection),

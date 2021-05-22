@@ -81,6 +81,7 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(QColor cursorPixelColour READ cursorPixelColour NOTIFY cursorPixelColourChanged)
     Q_PROPERTY(QColor invertedCursorPixelColour READ invertedCursorPixelColour NOTIFY cursorPixelColourChanged)
     Q_PROPERTY(bool containsMouse READ containsMouse NOTIFY containsMouseChanged)
+    Q_PROPERTY(Qt::MouseButton mouseButtonPressed READ mouseButtonPressed NOTIFY mouseButtonPressedChanged)
     Q_PROPERTY(Tool tool READ tool WRITE setTool NOTIFY toolChanged)
     Q_PROPERTY(Tool lastFillToolUsed READ lastFillToolUsed NOTIFY lastFillToolUsedChanged)
     Q_PROPERTY(int toolSize READ toolSize WRITE setToolSize NOTIFY toolSizeChanged)
@@ -152,6 +153,7 @@ public:
 
     bool containsMouse() const;
     void setContainsMouse(bool containsMouse);
+    Qt::MouseButton mouseButtonPressed() const;
 
     QRect firstPaneVisibleSceneArea() const;
     QRect secondPaneVisibleSceneArea() const;
@@ -335,6 +337,7 @@ signals:
     void cursorSceneYChanged();
     void cursorPixelColourChanged();
     void containsMouseChanged();
+    void mouseButtonPressedChanged();
     void backgroundColourChanged();
     void gridColourChanged();
     void checkerColour1Changed();
@@ -477,7 +480,8 @@ protected:
     void updateVisibleSceneArea();
     void error(const QString &message);
 
-    Qt::MouseButton pressedMouseButton() const;
+    Qt::MouseButton effectivePressedMouseButton() const;
+    void setMouseButtonPressed(Qt::MouseButton mouseButton);
     QColor penColour() const;
     void setPenColourThroughEyedropper(const QColor &colour);
     void setHasBlankCursor(bool hasBlankCursor);

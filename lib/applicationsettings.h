@@ -90,6 +90,10 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QString swatchUpShortcut READ swatchUpShortcut WRITE setSwatchUpShortcut NOTIFY swatchUpShortcutChanged)
     Q_PROPERTY(QString swatchDownShortcut READ swatchDownShortcut WRITE setSwatchDownShortcut NOTIFY swatchDownShortcutChanged)
     Q_PROPERTY(QString fullScreenToggleShortcut READ fullScreenToggleShortcut WRITE setFullScreenToggleShortcut NOTIFY fullScreenToggleShortcutChanged)
+    Q_PROPERTY(QString selectNextLayerUpShortcut READ selectNextLayerUpShortcut
+        WRITE setSelectNextLayerUpShortcut NOTIFY selectNextLayerUpShortcutChanged)
+    Q_PROPERTY(QString selectNextLayerDownShortcut READ selectNextLayerDownShortcut
+        WRITE setSelectNextLayerDownShortcut NOTIFY selectNextLayerDownShortcutChanged)
 
 public:
     explicit ApplicationSettings(QObject *parent = nullptr);
@@ -307,6 +311,14 @@ public:
     QString fullScreenToggleShortcut() const;
     void setFullScreenToggleShortcut(const QString &shortcut);
 
+    QString defaultSelectNextLayerUpShortcut() const;
+    QString selectNextLayerUpShortcut() const;
+    void setSelectNextLayerUpShortcut(const QString &shortcut);
+
+    QString defaultSelectNextLayerDownShortcut() const;
+    QString selectNextLayerDownShortcut() const;
+    void setSelectNextLayerDownShortcut(const QString &shortcut);
+
 signals:
     void languageChanged();
     void loadLastOnStartupChanged();
@@ -361,6 +373,8 @@ signals:
     void swatchUpShortcutChanged();
     void swatchDownShortcutChanged();
     void fullScreenToggleShortcutChanged();
+    void selectNextLayerUpShortcutChanged();
+    void selectNextLayerDownShortcutChanged();
 };
 
 #endif // APPLICATIONSETTINGS_H

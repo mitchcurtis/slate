@@ -189,6 +189,9 @@ protected:
 
     Q_REQUIRED_RESULT bool triggerOptions();
 
+    Q_REQUIRED_RESULT bool triggerSelectNextLayerUp();
+    Q_REQUIRED_RESULT bool triggerSelectNextLayerDown();
+
     // Layer helpers.
     Q_REQUIRED_RESULT bool selectLayer(const QString &layerName, int layerIndex);
     // Finds \a layerName in the layer list view, verifies that it exists and that its name is \a layerName,

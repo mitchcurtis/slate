@@ -1872,6 +1872,16 @@ bool TestHelper::triggerOptions()
     return triggerShortcut("optionsShortcut", app.settings()->optionsShortcut());
 }
 
+bool TestHelper::triggerSelectNextLayerUp()
+{
+    return triggerShortcut("selectNextLayerUpShortcut", app.settings()->selectNextLayerUpShortcut());
+}
+
+bool TestHelper::triggerSelectNextLayerDown()
+{
+    return triggerShortcut("selectNextLayerDownShortcut", app.settings()->selectNextLayerDownShortcut());
+}
+
 bool TestHelper::selectLayer(const QString &layerName, int layerIndex)
 {
     TRY_VERIFY(findListViewChild("layerListView", layerName));

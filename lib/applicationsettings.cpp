@@ -1000,3 +1000,33 @@ void ApplicationSettings::setFullScreenToggleShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("fullScreenToggleShortcut", defaultFullScreenToggleShortcut, fullScreenToggleShortcutChanged)
 }
+
+QString ApplicationSettings::defaultSelectNextLayerUpShortcut() const
+{
+    return QKeySequence(Qt::Key_Up).toString();
+}
+
+QString ApplicationSettings::selectNextLayerUpShortcut() const
+{
+    GET_SHORTCUT("selectNextLayerUpShortcut", defaultSelectNextLayerUpShortcut)
+}
+
+void ApplicationSettings::setSelectNextLayerUpShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("selectNextLayerUpShortcut", defaultSelectNextLayerUpShortcut, selectNextLayerUpShortcutChanged)
+}
+
+QString ApplicationSettings::defaultSelectNextLayerDownShortcut() const
+{
+    return QKeySequence(Qt::Key_Down).toString();
+}
+
+QString ApplicationSettings::selectNextLayerDownShortcut() const
+{
+    GET_SHORTCUT("selectNextLayerDownShortcut", defaultSelectNextLayerDownShortcut)
+}
+
+void ApplicationSettings::setSelectNextLayerDownShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("selectNextLayerDownShortcut", defaultSelectNextLayerDownShortcut, selectNextLayerDownShortcutChanged)
+}
