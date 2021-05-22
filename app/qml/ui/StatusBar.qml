@@ -114,6 +114,7 @@ Pane {
 
             Layout.minimumWidth: selectionAreaMaxTextMetrics.width
             Layout.maximumWidth: selectionAreaMaxTextMetrics.width
+            Layout.leftMargin: 5
 
             TextMetrics {
                 id: selectionAreaMaxTextMetrics
