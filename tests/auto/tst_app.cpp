@@ -5514,45 +5514,56 @@ void tst_App::saveAnimations()
     QCOMPARE(isUsingAnimation(), false);
 
     QVERIFY2(setAnimationPlayback(true), failureMessage);
-    auto *animationSystem = getAnimationSystem();
-    QVERIFY(animationSystem);
-    // Enabling animations automatically creates the first animation for us.
-    QCOMPARE(animationSystem->animationCount(), 1);
-    QVERIFY(animationSystem->currentAnimation());
-    QCOMPARE(animationSystem->currentAnimationIndex(), 0);
 
-    QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy", 1), failureMessage);
-    QVERIFY2(makeCurrentAnimation("Animation 1 Copy", 1), failureMessage);
-    QObject *animationSettingsPopup = nullptr;
-    QVERIFY2(openAnimationSettingsPopupForCurrentAnimation(&animationSettingsPopup), failureMessage);
+    int expectedFps = 0;
+    QUrl saveUrl;
 
-    const int oldFps = animationSystem->currentAnimation()->fps();
-    const int expectedFps = oldFps + 1;
+    // Use a scope to emphasise that animationSystem is only valid until the project is closed.
+    {
+        auto *animationSystem = getAnimationSystem();
+        QVERIFY(animationSystem);
+        // Enabling animations automatically creates the first animation for us.
+        QCOMPARE(animationSystem->animationCount(), 1);
+        QVERIFY(animationSystem->currentAnimation());
+        QCOMPARE(animationSystem->currentAnimationIndex(), 0);
 
-    // Change the FPS.
-    QVERIFY2(incrementSpinBox("animationFpsSpinBox", oldFps), failureMessage);
-    // The changes shouldn't be made to the actual animation until the save button is clicked.
-    QCOMPARE(animationSystem->currentAnimation()->fps(), oldFps);
-    QCOMPARE(animationSystem->editAnimation()->fps(), expectedFps);
+        QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy", 1), failureMessage);
+        QVERIFY2(makeCurrentAnimation("Animation 1 Copy", 1), failureMessage);
+        QObject *animationSettingsPopup = nullptr;
+        QVERIFY2(openAnimationSettingsPopupForCurrentAnimation(&animationSettingsPopup), failureMessage);
 
-    // Accept and close the animation settings popup.
-    QVERIFY2(clickDialogFooterButton(animationSettingsPopup, "OK"), failureMessage);
+        const int oldFps = animationSystem->currentAnimation()->fps();
+        expectedFps = oldFps + 1;
 
-    // Save.
-    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/saveAnimations.slp"));
-    QVERIFY(layeredImageProject->saveAs(saveUrl));
-    QVERIFY(!layeredImageProject->hasUnsavedChanges());
+        // Change the FPS.
+        QVERIFY2(incrementSpinBox("animationFpsSpinBox", oldFps), failureMessage);
+        // The changes shouldn't be made to the actual animation until the save button is clicked.
+        QCOMPARE(animationSystem->currentAnimation()->fps(), oldFps);
+        QCOMPARE(animationSystem->editAnimation()->fps(), expectedFps);
 
-    // Close.
-    QVERIFY2(triggerCloseProject(), failureMessage);
-    QVERIFY(!layeredImageProject->hasLoaded());
-    QCOMPARE(isUsingAnimation(), false);
+        // Accept and close the animation settings popup.
+        QVERIFY2(clickDialogFooterButton(animationSettingsPopup, "OK"), failureMessage);
 
-    // Load the saved file and check that our custom settings were remembered.
-    QVERIFY2(loadProject(saveUrl), failureMessage);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
-    QCOMPARE(animationSystem->animationCount(), 2);
-    QCOMPARE(animationSystem->animationAt(1)->fps(), expectedFps);
+        // Save.
+        saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/saveAnimations.slp"));
+        QVERIFY(layeredImageProject->saveAs(saveUrl));
+        QVERIFY(!layeredImageProject->hasUnsavedChanges());
+
+        // Close.
+        QVERIFY2(triggerCloseProject(), failureMessage);
+        QVERIFY(!layeredImageProject->hasLoaded());
+        QCOMPARE(isUsingAnimation(), false);
+    }
+
+    {
+        // Load the saved file and check that our custom settings were remembered.
+        QVERIFY2(loadProject(saveUrl), failureMessage);
+        QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+        auto *animationSystem = getAnimationSystem();
+        QVERIFY(animationSystem);
+        QCOMPARE(animationSystem->animationCount(), 2);
+        QCOMPARE(animationSystem->animationAt(1)->fps(), expectedFps);
+    }
 }
 
 void tst_App::clickOnCurrentAnimation()
