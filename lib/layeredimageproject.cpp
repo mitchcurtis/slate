@@ -71,10 +71,10 @@ int LayeredImageProject::currentLayerIndex() const
     return mCurrentLayerIndex;
 }
 
-void LayeredImageProject::setCurrentLayerIndex(int index)
+void LayeredImageProject::setCurrentLayerIndex(int index, bool force)
 {
     const int adjustedIndex = qBound(0, index, mLayers.size() - 1);
-    if (adjustedIndex == mCurrentLayerIndex)
+    if (!force && adjustedIndex == mCurrentLayerIndex)
         return;
 
     emit preCurrentLayerChanged();
@@ -992,7 +992,8 @@ ImageLayer *LayeredImageProject::takeLayer(int index)
     emit layerCountChanged();
 
     // Keep the same index to select the layer that was above us.
-    setCurrentLayerIndex(index);
+    // Force the change otherwise the current layer won't be updated.
+    setCurrentLayerIndex(index, true);
 
     layer->setParent(nullptr);
 

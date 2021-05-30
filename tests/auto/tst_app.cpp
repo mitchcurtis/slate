@@ -6002,10 +6002,10 @@ void tst_App::mergeLayerUpAndDown()
     layeredImageCanvas->setPenForegroundColour(Qt::red);
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
-    // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 2);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+    // Add a new layer. The order should then be:
+    // - Layer 2
+    // - Layer 1 (current)
+    QVERIFY2(addNewLayer("Layer 2", 0), failureMessage);
     // It should be possible to merge the lowest layer up but not down.
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), false);
     QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), true);
@@ -6022,10 +6022,11 @@ void tst_App::mergeLayerUpAndDown()
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
     QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), false);
 
-    // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 3);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+    // Add a new layer. The order should then be:
+    // - Layer 3
+    // - Layer 2
+    // - Layer 1 (current)
+    QVERIFY2(addNewLayer("Layer 3", 0), failureMessage);
     // It should be possible to merge the middle layer both up and down.
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
     QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), true);
@@ -6042,10 +6043,15 @@ void tst_App::mergeLayerUpAndDown()
     QVERIFY2(selectLayer("Layer 2", 1), failureMessage);
 
     // Merge the current layer down. Don't have a shortcut for merging, and we don't really need one.
+    // After merging, the layers should be:
+    // - Layer 3
+    // - Layer 1 (current)
+    QTest::qWait(1000);
     layeredImageProject->mergeCurrentLayerDown();
+    QTest::qWait(2000);
     QCOMPARE(layeredImageProject->layerCount(), 2);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
     // Photoshop uses the lower layer's name, so we'll do that too.
+    QVERIFY2(verifyCurrentLayer("Layer 1", 1), failureMessage);
     QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), false);
     QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), true);

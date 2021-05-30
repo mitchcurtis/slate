@@ -194,6 +194,7 @@ protected:
 
     // Layer helpers.
     Q_REQUIRED_RESULT bool selectLayer(const QString &layerName, int layerIndex);
+    Q_REQUIRED_RESULT bool verifyCurrentLayer(const QString &layerName, int layerIndex);
     // Finds \a layerName in the layer list view, verifies that it exists and that its name is \a layerName,
     // and sets layerDelegate to it.
     Q_REQUIRED_RESULT bool verifyLayerName(const QString &layerName, QQuickItem **layerDelegate = nullptr);

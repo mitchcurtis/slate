@@ -1890,9 +1890,26 @@ bool TestHelper::selectLayer(const QString &layerName, int layerIndex)
     VERIFY(layerDelegate);
     mouseEventOnCentre(layerDelegate, MouseClick);
     VERIFY(layerDelegate->property("checked").toBool());
+    if (!verifyCurrentLayer(layerName, layerIndex))
+        return false;
+    return true;
+}
+
+bool TestHelper::verifyCurrentLayer(const QString &layerName, int layerIndex)
+{
     VERIFY2(layeredImageProject->currentLayerIndex() == layerIndex,
-        qPrintable(QString::fromLatin1("Expected currentLayerIndex to be %1 after selecting it, but it's %2")
+        qPrintable(QString::fromLatin1("Expected currentLayerIndex to be %1, but it's %2")
             .arg(layerIndex).arg(layeredImageProject->currentLayerIndex())));
+
+    QQuickItem *layerDelegateItem = nullptr;
+    if (!verifyLayerName(layerName, &layerDelegateItem))
+        return false;
+    VERIFY(layerDelegateItem->property("checked").toBool());
+
+    // Verify that the status bar shows the correct current layer name.
+    auto currentLayerNameLabel = window->findChild<QQuickItem*>("currentLayerNameLabel");
+    VERIFY(currentLayerNameLabel);
+    COMPARE_NON_FLOAT(currentLayerNameLabel->property("text").toString(), layerName);
     return true;
 }
 
