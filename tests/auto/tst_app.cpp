@@ -6045,7 +6045,7 @@ void tst_App::mergeLayerUpAndDown()
     // - Layer 1                  (red)
     QVERIFY2(selectLayer("Layer 2", 1), failureMessage);
 
-    // Merge the current layer down. Don't have a shortcut for merging, and we don't really need one.
+    // Merge the current layer down. We don't have a shortcut for merging, and we don't really need one.
     // After merging, the layers should be:
     // - Layer 3
     // - Layer 1 (current)

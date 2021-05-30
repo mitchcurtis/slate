@@ -980,10 +980,29 @@ void LayeredImageProject::mergeLayers(int sourceIndex, int targetIndex)
     // Remove the source layer as it has been merged into the target layer.
     takeLayer(sourceIndex);
 
-    // takeLayer() does set the currentLayerIndex, but it's not always
-    // what we want, which is why we set it ourselves here.
-    // Force the change to avoid the current layer not being updated in some cases.
-    setCurrentLayerIndex(targetIndex, true);
+    /*
+        takeLayer() does set the currentLayerIndex, but it's not always
+        what we want, which is why we set it ourselves here.
+
+        Merging down with the following layers results in Layer 3 (sourceIndex = 0)
+        being merged into Layer 2 (targetIndex = 1), so the currentIndex should be 0.
+
+        - Layer 3 (current)
+        - Layer 2
+        - Layer 1
+
+        Merging up with the following layers results in Layer 2 (sourceIndex = 1)
+        being merged into Layer 3 (targetIndex = 0), so the currentIndex should be 0.
+
+        - Layer 3
+        - Layer 2 (current)
+        - Layer 1
+
+        That's why we always use the smaller of the two indices.
+
+        Force the change to avoid the current layer not being updated in some cases.
+    */
+    setCurrentLayerIndex(qMin(sourceIndex, targetIndex), true);
 }
 
 ImageLayer *LayeredImageProject::takeLayer(int index)
