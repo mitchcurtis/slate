@@ -979,6 +979,11 @@ void LayeredImageProject::mergeLayers(int sourceIndex, int targetIndex)
 
     // Remove the source layer as it has been merged into the target layer.
     takeLayer(sourceIndex);
+
+    // takeLayer() does set the currentLayerIndex, but it's not always
+    // what we want, which is why we set it ourselves here.
+    // Force the change to avoid the current layer not being updated in some cases.
+    setCurrentLayerIndex(targetIndex, true);
 }
 
 ImageLayer *LayeredImageProject::takeLayer(int index)
@@ -992,8 +997,7 @@ ImageLayer *LayeredImageProject::takeLayer(int index)
     emit layerCountChanged();
 
     // Keep the same index to select the layer that was above us.
-    // Force the change otherwise the current layer won't be updated.
-    setCurrentLayerIndex(index, true);
+    setCurrentLayerIndex(index);
 
     layer->setParent(nullptr);
 

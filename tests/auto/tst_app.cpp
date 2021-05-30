@@ -6039,16 +6039,17 @@ void tst_App::mergeLayerUpAndDown()
     layeredImageCanvas->setPenForegroundColour(Qt::blue);
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
-    // Make Layer 2 the current layer.
+    // Make Layer 2 the current layer:
+    // - Layer 3                  (blue)
+    // - Layer 2 (current)        (green)
+    // - Layer 1                  (red)
     QVERIFY2(selectLayer("Layer 2", 1), failureMessage);
 
     // Merge the current layer down. Don't have a shortcut for merging, and we don't really need one.
     // After merging, the layers should be:
     // - Layer 3
     // - Layer 1 (current)
-    QTest::qWait(1000);
     layeredImageProject->mergeCurrentLayerDown();
-    QTest::qWait(2000);
     QCOMPARE(layeredImageProject->layerCount(), 2);
     // Photoshop uses the lower layer's name, so we'll do that too.
     QVERIFY2(verifyCurrentLayer("Layer 1", 1), failureMessage);
@@ -6059,36 +6060,45 @@ void tst_App::mergeLayerUpAndDown()
     QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(1, 0), QColor(Qt::green));
     QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(2, 0), QColor(Qt::blue));
 
-    // Merge the current layer up. That leaves us with one layer containing everything.
-    layeredImageProject->mergeCurrentLayerUp();
-    QCOMPARE(layeredImageProject->layerCount(), 1);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
-    // Photoshop uses the lower layer's name, so we'll do that too.
-    QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 3"));
-    QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), false);
-    QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), false);
-    QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(0, 0), QColor(Qt::red));
-    QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(1, 0), QColor(Qt::green));
-    QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(2, 0), QColor(Qt::blue));
-
-    // Undo the last merge so that we're back at having two layers.
+    // Undo the merge so that we have all three layers again:
+    // - Layer 3
+    // - Layer 2 (current)
+    // - Layer 1
     mouseEventOnCentre(undoToolButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 2);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+    QCOMPARE(layeredImageProject->layerCount(), 3);
+    QVERIFY2(verifyCurrentLayer("Layer 2", 1), failureMessage);
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
-    QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), false);
-    QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
+    QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), true);
+    QCOMPARE(layeredImageProject->layerAt(2)->name(), QLatin1String("Layer 1"));
+    QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 2"));
     QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 3"));
-    QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(0, 0), QColor(Qt::red));
+    QCOMPARE(layeredImageProject->layerAt(2)->image()->pixelColor(0, 0), QColor(Qt::red));
     QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(1, 0), QColor(Qt::green));
     QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(2, 0), QColor(Qt::blue));
 
-    // Undo the first merge so that we have all three layers again.
-    mouseEventOnCentre(undoToolButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 3);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+    // Merge the current layer up.
+    // After merging, the layers should be:
+    // - Layer 3 (current)
+    // - Layer 1
+    layeredImageProject->mergeCurrentLayerUp();
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+    QVERIFY2(verifyCurrentLayer("Layer 3", 0), failureMessage);
+    QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 3"));
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
     QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), false);
+    QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(0, 0), QColor(Qt::red));
+    QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(1, 0), QColor(Qt::green));
+    QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(2, 0), QColor(Qt::blue));
+
+    // Undo the merge so that we have all three layers again:
+    // - Layer 3
+    // - Layer 2 (current)
+    // - Layer 1
+    mouseEventOnCentre(undoToolButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 3);
+    QVERIFY2(verifyCurrentLayer("Layer 2", 1), failureMessage);
+    QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
+    QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), true);
     QCOMPARE(layeredImageProject->layerAt(2)->name(), QLatin1String("Layer 1"));
     QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 2"));
     QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 3"));
