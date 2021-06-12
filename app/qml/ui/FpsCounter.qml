@@ -39,6 +39,7 @@ Label {
             to: 360
             duration: 500
             loops: Animation.Infinite
+            running: root.visible
         }
 
         onRotationChanged: ++timesUpdated
