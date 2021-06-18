@@ -1080,10 +1080,8 @@ void ImageCanvas::geometryChange(const QRectF &newGeometry, const QRectF &oldGeo
     resizeRulers();
     resizeChildren();
 
-    if (mProject) {
-        qDebug() << "===" << Q_FUNC_INFO << newGeometry << oldGeometry;
+    if (mProject)
         updateCursorPos(QPoint(mCursorX, mCursorY));
-    }
 }
 
 void ImageCanvas::resizeChildren()
@@ -1782,7 +1780,6 @@ void ImageCanvas::panWithSelectionIfAtEdge(ImageCanvas::SelectionPanReason reaso
 
         // The pane offset changing causes the cursor scene position to change, which
         // in turn affects the selection area.
-        qDebug() << "===" << Q_FUNC_INFO;
         updateCursorPos(QPoint(mCursorX, mCursorY));
         updateOrMoveSelectionArea();
 
@@ -2518,8 +2515,6 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     }
 
     // We need the position as floating point numbers so that pen sizes > 1 work properly.
-    // TODO: mCurrentPane->integerOffset().x() goes from 111 to 194...
-    qDebug() << "___" << inFirstPane << mCursorPaneX << mCurrentPane->integerOffset().x() << mCurrentPane->integerZoomLevel();
     mCursorSceneFX = qreal(mCursorPaneX - mCurrentPane->integerOffset().x()) / mCurrentPane->integerZoomLevel();
     mCursorSceneFY = qreal(mCursorPaneY - mCurrentPane->integerOffset().y()) / mCurrentPane->integerZoomLevel();
 
@@ -2938,7 +2933,6 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
     QQuickItem::mousePressEvent(event);
 
     // Is it possible to get a press without a hover enter? If so, we need this line.
-    qDebug() << "===" << Q_FUNC_INFO;
     updateCursorPos(event->pos());
 
     if (!mProject->hasLoaded()) {
@@ -3020,7 +3014,6 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
     QQuickItem::mouseMoveEvent(event);
 
     const QPointF oldCursorScenePosition = QPointF(mCursorSceneFX, mCursorSceneFY);
-    qDebug() << "===" << Q_FUNC_INFO;
     updateCursorPos(event->pos());
 
     if (!mProject->hasLoaded())
@@ -3070,7 +3063,6 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
          << "mCursorSceneX:" << mCursorSceneX << "mCursorSceneY:" << mCursorSceneY;
     QQuickItem::mouseReleaseEvent(event);
 
-    qDebug() << "===" << Q_FUNC_INFO;
     updateCursorPos(event->pos());
 
     if (!mProject->hasLoaded())
@@ -3199,7 +3191,6 @@ void ImageCanvas::hoverEnterEvent(QHoverEvent *event)
     qCDebug(lcImageCanvasHoverEvents) << "hoverEnterEvent:" << event;
     QQuickItem::hoverEnterEvent(event);
 
-    qDebug() << "===" << Q_FUNC_INFO;
     updateCursorPos(event->position().toPoint());
 
     setContainsMouse(true);
@@ -3213,7 +3204,6 @@ void ImageCanvas::hoverMoveEvent(QHoverEvent *event)
     qCDebug(lcImageCanvasHoverEvents) << "hoverMoveEvent:" << event->position();
     QQuickItem::hoverMoveEvent(event);
 
-    qDebug() << "===" << Q_FUNC_INFO;
     updateCursorPos(event->position().toPoint());
 
     setContainsMouse(true);
