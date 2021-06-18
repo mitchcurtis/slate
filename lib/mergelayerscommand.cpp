@@ -45,6 +45,9 @@ void MergeLayersCommand::undo()
     qCDebug(lcMergeLayersCommand) << "undoing" << this;
     // Restore the source layer..
     mProject->addLayer(mSourceLayerGuard.take(), mSourceIndex);
+    // The source layer is the layer that was current before the merge,
+    // so restore the current layer index too.
+    mProject->setCurrentLayerIndex(mSourceIndex, true);
     // .. and then restore the target layer.
     mProject->setLayerImage(mTargetIndex, mPreviousTargetLayerImage);
 }

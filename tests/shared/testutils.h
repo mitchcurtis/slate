@@ -4,8 +4,6 @@
 // https://bugreports.qt.io/browse/QTBUG-66320
 // Taken from qtestcase.h and modified to return bool and store a failureMessage
 // so that they can be used in helper functions (non-test functions).
-// We don't have COMPARE, because it would require us to get the failure message
-// into a string, the logic for which is hidden in testlib.
 #define VERIFY(statement) \
 do { \
     if (!static_cast<bool>(statement)) { \
@@ -28,14 +26,14 @@ do { \
 
 #define FAIL(message) \
 do { \
-    failureMessage = message; \
+    failureMessage = ("\n    " + QString::fromLatin1(Q_FUNC_INFO) + ":" + QString::number(__LINE__) + ": " + message).toLatin1(); \
     return false; \
 } while (false)
 
 #define VERIFY2(statement, description) \
 do { \
     if (!static_cast<bool>(statement)) { \
-        failureMessage = description; \
+        failureMessage = ("\n    " + QString::fromLatin1(Q_FUNC_INFO) + ":" + QString::number(__LINE__) + ": " + description).toLatin1(); \
         return false; \
     } \
 } while (false)

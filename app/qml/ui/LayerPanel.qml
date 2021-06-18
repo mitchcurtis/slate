@@ -108,7 +108,10 @@ Panel {
 
             ToolTip.text: qsTr("Add a new layer")
 
-            onClicked: project.addNewLayer()
+            onClicked: {
+                project.addNewLayer()
+                layerListView.positionViewAtIndex(layerListView.currentIndex, ListView.Contain)
+            }
         }
 
         RowActionButton {

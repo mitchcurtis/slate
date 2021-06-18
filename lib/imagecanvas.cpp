@@ -209,7 +209,8 @@ Project *ImageCanvas::project() const
 
 void ImageCanvas::restoreState()
 {
-    qCDebug(lcImageCanvasUiState) << "restoring UI state...";
+    SerialisableState *uiState = mProject->uiState();
+    qCDebug(lcImageCanvasUiState) << "restoring UI state:\n" << uiState->map();
 
     // Read the canvas data that was stored in the project, if there is any.
     // New projects or projects that don't have their own Slate extension
@@ -217,8 +218,6 @@ void ImageCanvas::restoreState()
     // We also don't write anything if properties are equal to their default values.
 
     bool readPanes = false;
-
-    SerialisableState *uiState = mProject->uiState();
 
     if (uiState->contains("lastFillToolUsed")) {
         mLastFillToolUsed = static_cast<Tool>(QMetaEnum::fromType<Tool>().keyToValue(
@@ -273,20 +272,14 @@ void ImageCanvas::saveState()
     mSecondPane.write(secondPaneJson);
     mProject->uiState()->setValue("secondPane", secondPaneJson.toVariantMap());
 
-    if (!areRulersVisible())
-        mProject->uiState()->setValue("rulersVisible", false);
-    if (!mGuidesVisible)
-        mProject->uiState()->setValue("guidesVisible", false);
-    if (mGuidesLocked)
-        mProject->uiState()->setValue("guidesLocked", true);
-    if (!mNotesVisible)
-        mProject->uiState()->setValue("notesVisible", false);
-    if (mSplitScreen)
-        mProject->uiState()->setValue("splitScreen", true);
-    if (mSplitter.isEnabled())
-        mProject->uiState()->setValue("splitterLocked", true);
+    mProject->uiState()->setValue("rulersVisible", areRulersVisible());
+    mProject->uiState()->setValue("guidesVisible", mGuidesVisible);
+    mProject->uiState()->setValue("guidesLocked", mGuidesLocked);
+    mProject->uiState()->setValue("notesVisible", mNotesVisible);
+    mProject->uiState()->setValue("splitScreen", mSplitScreen);
+    mProject->uiState()->setValue("splitterLocked", mSplitter.isEnabled());
 
-    qCDebug(lcImageCanvasUiState) << "... saved UI state.";
+    qCDebug(lcImageCanvasUiState) << "... saved UI state:\n" << mProject->uiState()->map();
 }
 
 void ImageCanvas::setProject(Project *project)
@@ -745,6 +738,20 @@ void ImageCanvas::setContainsMouse(bool containsMouse)
     updateSelectionCursorGuideVisibility();
 
     emit containsMouseChanged();
+}
+
+Qt::MouseButton ImageCanvas::mouseButtonPressed() const
+{
+    return mMouseButtonPressed;
+}
+
+void ImageCanvas::setMouseButtonPressed(Qt::MouseButton mouseButton)
+{
+    if (mouseButton == mMouseButtonPressed)
+        return;
+
+    mMouseButtonPressed = mouseButton;
+    emit mouseButtonPressedChanged();
 }
 
 QRect ImageCanvas::firstPaneVisibleSceneArea() const
@@ -1834,7 +1841,7 @@ void ImageCanvas::reset()
     mCursorSceneX = 0;
     mCursorSceneY = 0;
     mContainsMouse = false;
-    mMouseButtonPressed = Qt::NoButton;
+    setMouseButtonPressed(Qt::NoButton);
     mLastMouseButtonPressed = Qt::NoButton;
     mPressPosition = QPoint(0, 0);
     mPressScenePosition = QPoint(0, 0);
@@ -1863,6 +1870,8 @@ void ImageCanvas::reset()
     // don't really need to be reset each time:
     // - tool
     // - toolSize
+    // TODO: ^ why?
+    mToolsForbiddenReason.clear();
 
     requestContentPaint();
 }
@@ -2297,6 +2306,7 @@ ImageCanvas::Tool ImageCanvas::penRightClickTool() const
 
 void ImageCanvas::applyCurrentTool()
 {
+    updateToolsForbidden();
     if (areToolsForbidden())
         return;
 
@@ -2622,6 +2632,8 @@ void ImageCanvas::updateWindowCursorShape()
     if (areGuidesVisible() && !areGuidesLocked() && !overRuler && !overNote)
         overGuide = guideIndexAtCursorPos() != -1;
 
+    updateToolsForbidden();
+
     // Hide the window's cursor when we're in the spotlight; otherwise, use the non-custom arrow cursor.
     const bool nothingOverUs = mProject->hasLoaded() && hasActiveFocus() /*&& !mModalPopupsOpen*/ && mContainsMouse;
     const bool splitterHovered = mSplitter.isEnabled() && mSplitter.isHovered();
@@ -2664,7 +2676,7 @@ void ImageCanvas::updateWindowCursorShape()
             << " !overRuler=" << !overRuler
             << " !overGuide=" << !overGuide
             << " !toolsForbidden=" << !toolsForbidden << ")"
-            << "\n............ cursor shape " << Utils::enumToString(cursorShape);
+            << "\n............ cursor shape " << QDebug::toString(cursorShape);
     }
 
     if (window()) {
@@ -2732,7 +2744,7 @@ void ImageCanvas::error(const QString &message)
     emit errorOccurred(message);
 }
 
-Qt::MouseButton ImageCanvas::pressedMouseButton() const
+Qt::MouseButton ImageCanvas::effectivePressedMouseButton() const
 {
     // For some tools, like the line tool, the mouse button won't be pressed at times,
     // so we take the last mouse button that was pressed.
@@ -2741,12 +2753,14 @@ Qt::MouseButton ImageCanvas::pressedMouseButton() const
 
 QColor ImageCanvas::penColour() const
 {
-    return pressedMouseButton() == Qt::LeftButton ? mPenForegroundColour : mPenBackgroundColour;
+    // When using the right button we want to use the background colour.
+    // For every other mouse button, use the foreground. This affects e.g. the line preview too.
+    return effectivePressedMouseButton() == Qt::RightButton ? mPenBackgroundColour : mPenForegroundColour;
 }
 
 void ImageCanvas::setPenColourThroughEyedropper(const QColor &colour)
 {
-    const Qt::MouseButton pressedButton = pressedMouseButton();
+    const Qt::MouseButton pressedButton = effectivePressedMouseButton();
     const bool setForeground = pressedButton == Qt::LeftButton ||
         (pressedButton == Qt::RightButton && mRightClickBehaviour == PenToolRightClickAppliesEyeDropper);
     if (setForeground)
@@ -2805,7 +2819,31 @@ void ImageCanvas::restoreToolBeforeAltPressed()
 
 bool ImageCanvas::areToolsForbidden() const
 {
-    return false;
+    return !mToolsForbiddenReason.isEmpty();
+}
+
+QString ImageCanvas::toolsForbiddenReason() const
+{
+    return mToolsForbiddenReason;
+}
+
+void ImageCanvas::updateToolsForbidden()
+{
+    // See: https://github.com/mitchcurtis/slate/issues/2.
+    // QPainter doesn't support drawing into an QImage whose format is QImage::Format_Indexed8.
+    static const QString index8Reason =
+        tr("Image cannot be edited because its format is indexed 8-bit, which does not support modification.");
+    const bool is8Bit = mImageProject && mImageProject->image()->format() == QImage::Format_Indexed8;
+    setToolsForbiddenReason(is8Bit ? index8Reason : QString());
+}
+
+void ImageCanvas::setToolsForbiddenReason(const QString &reason)
+{
+    if (reason == mToolsForbiddenReason)
+        return;
+
+    mToolsForbiddenReason = reason;
+    emit toolsForbiddenChanged();
 }
 
 bool ImageCanvas::event(QEvent *event)
@@ -2839,11 +2877,11 @@ bool ImageCanvas::event(QEvent *event)
     return QQuickItem::event(event);
 }
 
-void ImageCanvas::applyZoom(qreal zoom, const QPoint &origin)
+void ImageCanvas::applyZoom(qreal newZoomLevel, const QPoint &origin)
 {
     const qreal oldZoomLevel = qreal(mCurrentPane->integerZoomLevel());
 
-    mCurrentPane->setZoomLevel(zoom);
+    mCurrentPane->setZoomLevel(newZoomLevel);
 
     // From: http://stackoverflow.com/a/38302057/904422
     const QPoint relativeEventPos = eventPosRelativeToCurrentPane(origin);
@@ -2910,7 +2948,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
 
     event->accept();
 
-    mMouseButtonPressed = event->button();
+    setMouseButtonPressed(event->button());
     mLastMouseButtonPressed = mMouseButtonPressed;
     mPressPosition = event->pos();
     mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
@@ -3038,7 +3076,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
     if (!mProject->hasLoaded())
         return;
 
-    mMouseButtonPressed = Qt::NoButton;
+    setMouseButtonPressed(Qt::NoButton);
 
     // Make sure we do this after the mouse button has been cleared
     // (as setSelectionArea() relies on this to accurately set mHasSelection),

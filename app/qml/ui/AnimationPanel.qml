@@ -225,7 +225,11 @@ Panel {
 
             ToolTip.text: qsTr("Add a new animation")
 
-            onClicked: project.addAnimation()
+            onClicked: {
+                project.addAnimation()
+                animationListView.currentIndex = animationListView.count - 1
+                animationSystem.currentAnimationIndex = animationListView.currentIndex
+            }
         }
 
         RowActionButton {

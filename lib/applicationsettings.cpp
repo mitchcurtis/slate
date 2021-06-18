@@ -45,12 +45,8 @@ QString ApplicationSettings::language() const
 
 void ApplicationSettings::setLanguage(const QString &language)
 {
-    const QVariant existingValue = value("language");
-    QString existingStringValue = defaultLanguage();
-    if (contains("language"))
-        existingStringValue = existingValue.toString();
-
-    if (language == existingStringValue)
+    const QString existingValue = value("language", defaultLanguage()).toString();
+    if (language == existingValue)
         return;
 
     setValue("language", language);
@@ -64,15 +60,8 @@ bool ApplicationSettings::loadLastOnStartup() const
 
 void ApplicationSettings::setLoadLastOnStartup(bool loadLastOnStartup)
 {
-    // TODO: replace all this duplicated code with the getter
-    // e.g. if (this->loadLastOnStartup() == loadLastOnStartup) return;
-    QVariant existingValue = value("loadLastOnStartup");
-    bool existingBoolValue = defaultLoadLastOnStartup();
-    if (contains("loadLastOnStartup")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (loadLastOnStartup == existingBoolValue)
+    const bool existingValue = value("loadLastOnStartup", loadLastOnStartup).toBool();
+    if (loadLastOnStartup == existingValue)
         return;
 
     setValue("loadLastOnStartup", loadLastOnStartup);
@@ -142,7 +131,7 @@ void ApplicationSettings::removeInvalidRecentFiles()
 
 QString ApplicationSettings::displayableFilePath(const QString &filePath) const
 {
-    return QUrl(filePath).path();
+    return QUrl(filePath).toLocalFile();
 }
 
 bool ApplicationSettings::defaultScrollZoom() const
@@ -157,13 +146,8 @@ bool ApplicationSettings::scrollZoom() const
 
 void ApplicationSettings::setScrollZoom(bool scrollZoom)
 {
-    QVariant existingValue = value("scrollZoom");
-    bool existingBoolValue = defaultScrollZoom();
-    if (contains("scrollZoom")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (scrollZoom == existingBoolValue)
+    const bool existingValue = value("scrollZoom", defaultScrollZoom()).toBool();
+    if (scrollZoom == existingValue)
         return;
 
     setValue("scrollZoom", scrollZoom);
@@ -182,17 +166,34 @@ bool ApplicationSettings::isFpsVisible() const
 
 void ApplicationSettings::setFpsVisible(bool fpsVisible)
 {
-    QVariant existingValue = value("fpsVisible");
-    bool existingBoolValue = defaultFpsVisible();
-    if (contains("fpsVisible")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (fpsVisible == existingBoolValue)
+    const bool existingValue = value("fpsVisible", defaultFpsVisible()).toBool();
+    if (fpsVisible == existingValue)
         return;
 
     setValue("fpsVisible", fpsVisible);
     emit fpsVisibleChanged();
+}
+
+bool ApplicationSettings::defaultShowCurrentLayerInStatusBar() const
+{
+    return true;
+}
+
+bool ApplicationSettings::showCurrentLayerInStatusBar() const
+{
+    return contains("showCurrentLayerInStatusBar")
+        ? value("showCurrentLayerInStatusBar").toBool() : defaultShowCurrentLayerInStatusBar();
+}
+
+void ApplicationSettings::setShowCurrentLayerInStatusBar(bool show)
+{
+    const bool existingValue = value("showCurrentLayerInStatusBar",
+        QVariant(defaultShowCurrentLayerInStatusBar())).toBool();
+    if (show == existingValue)
+        return;
+
+    setValue("showCurrentLayerInStatusBar", show);
+    emit showCurrentLayerInStatusBarChanged();
 }
 
 bool ApplicationSettings::defaultGesturesEnabled() const
@@ -211,13 +212,8 @@ bool ApplicationSettings::areGesturesEnabled() const
 
 void ApplicationSettings::setGesturesEnabled(bool gesturesEnabled)
 {
-    const QVariant existingValue = value("gesturesEnabled");
-    bool existingBoolValue = defaultGesturesEnabled();
-    if (contains("gesturesEnabled")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (gesturesEnabled == existingBoolValue)
+    const bool existingValue = value("gesturesEnabled", defaultGesturesEnabled()).toBool();
+    if (gesturesEnabled == existingValue)
         return;
 
     setValue("gesturesEnabled", gesturesEnabled);
@@ -236,13 +232,8 @@ bool ApplicationSettings::isAutoSwatchEnabled() const
 
 void ApplicationSettings::setAutoSwatchEnabled(bool autoSwatchEnabled)
 {
-    const QVariant existingValue = value("autoSwatchEnabled");
-    bool existingBoolValue = defaultAutoSwatchEnabled();
-    if (contains("autoSwatchEnabled")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (autoSwatchEnabled == existingBoolValue)
+    const bool existingValue = value("autoSwatchEnabled", defaultAutoSwatchEnabled()).toBool();
+    if (autoSwatchEnabled == existingValue)
         return;
 
     setValue("autoSwatchEnabled", autoSwatchEnabled);
@@ -261,13 +252,8 @@ bool ApplicationSettings::isAlwaysShowCrosshair() const
 
 void ApplicationSettings::setAlwaysShowCrosshair(bool alwaysShowCrosshair)
 {
-    const QVariant existingValue = value("alwaysShowCrosshair");
-    bool existingBoolValue = defaultAlwaysShowCrosshair();
-    if (contains("alwaysShowCrosshair")) {
-        existingBoolValue = existingValue.toBool();
-    }
-
-    if (alwaysShowCrosshair == existingBoolValue)
+    const bool existingValue = value("alwaysShowCrosshair", defaultAlwaysShowCrosshair()).toBool();
+    if (alwaysShowCrosshair == existingValue)
         return;
 
     setValue("alwaysShowCrosshair", alwaysShowCrosshair);
@@ -415,20 +401,6 @@ void ApplicationSettings::resetShortcutsToDefaults()
     setValue(shortcutName, shortcut); \
     emit notifySignal();
 
-QString ApplicationSettings::defaultQuitShortcut() const
-{
-    return QKeySequence(QKeySequence::Quit).toString();
-}
-
-QString ApplicationSettings::quitShortcut() const
-{
-    GET_SHORTCUT("quitShortcut", defaultQuitShortcut)
-}
-void ApplicationSettings::setQuitShortcut(const QString &shortcut)
-{
-    SET_SHORTCUT("quitShortcut", defaultQuitShortcut, quitShortcutChanged)
-}
-
 QString ApplicationSettings::defaultNewShortcut() const
 {
     return QKeySequence(QKeySequence::New).toString();
@@ -537,6 +509,20 @@ QString ApplicationSettings::revertShortcut() const
 void ApplicationSettings::setRevertShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("revertShortcut", defaultRevertShortcut, revertShortcutChanged)
+}
+
+QString ApplicationSettings::defaultQuitShortcut() const
+{
+    return QKeySequence(QKeySequence::Quit).toString();
+}
+
+QString ApplicationSettings::quitShortcut() const
+{
+    GET_SHORTCUT("quitShortcut", defaultQuitShortcut)
+}
+void ApplicationSettings::setQuitShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("quitShortcut", defaultQuitShortcut, quitShortcutChanged)
 }
 
 QString ApplicationSettings::defaultUndoShortcut() const
@@ -1013,4 +999,34 @@ QString ApplicationSettings::fullScreenToggleShortcut() const
 void ApplicationSettings::setFullScreenToggleShortcut(const QString &shortcut)
 {
     SET_SHORTCUT("fullScreenToggleShortcut", defaultFullScreenToggleShortcut, fullScreenToggleShortcutChanged)
+}
+
+QString ApplicationSettings::defaultSelectNextLayerUpShortcut() const
+{
+    return QKeySequence(Qt::Key_Up).toString();
+}
+
+QString ApplicationSettings::selectNextLayerUpShortcut() const
+{
+    GET_SHORTCUT("selectNextLayerUpShortcut", defaultSelectNextLayerUpShortcut)
+}
+
+void ApplicationSettings::setSelectNextLayerUpShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("selectNextLayerUpShortcut", defaultSelectNextLayerUpShortcut, selectNextLayerUpShortcutChanged)
+}
+
+QString ApplicationSettings::defaultSelectNextLayerDownShortcut() const
+{
+    return QKeySequence(Qt::Key_Down).toString();
+}
+
+QString ApplicationSettings::selectNextLayerDownShortcut() const
+{
+    GET_SHORTCUT("selectNextLayerDownShortcut", defaultSelectNextLayerDownShortcut)
+}
+
+void ApplicationSettings::setSelectNextLayerDownShortcut(const QString &shortcut)
+{
+    SET_SHORTCUT("selectNextLayerDownShortcut", defaultSelectNextLayerDownShortcut, selectNextLayerDownShortcutChanged)
 }

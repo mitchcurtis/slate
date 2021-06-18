@@ -43,11 +43,13 @@
 class ProjectManager;
 
 #define QVERIFY_NO_CREATION_ERRORS_OCCURRED() \
+QVERIFY2(projectCreationFailedSpy, ""); \
 QVERIFY2(projectCreationFailedSpy->isEmpty(), \
     qPrintable(QString::fromLatin1("Unexpected error occurred: ") + \
     (!projectCreationFailedSpy->isEmpty() ? projectCreationFailedSpy->first().first().toString() : "")));
 
 #define VERIFY_NO_CREATION_ERRORS_OCCURRED() \
+VERIFY(projectCreationFailedSpy); \
 VERIFY2(projectCreationFailedSpy->isEmpty(), \
     qPrintable(QString::fromLatin1("Unexpected error occurred: ") + \
     (!projectCreationFailedSpy->isEmpty() ? projectCreationFailedSpy->first().first().toString() : "")));
@@ -124,6 +126,9 @@ protected:
     QQuickItem* findSplitViewHandle(const QString &splitViewObjectName, int handleIndex) const;
     // Useful for cases where an item is a QQuickItem child but not a QObject child, as is the case with e.g. Repeater.
     static QQuickItem *findChildItem(QQuickItem *parentItem, const QString &objectName);
+    Q_REQUIRED_RESULT bool clickButton(QQuickItem *button, Qt::MouseButton mouseButton = Qt::LeftButton);
+    Q_REQUIRED_RESULT bool ensureScrollViewChildVisible(const QString &scrollViewObjectName, const QString &childObjectName);
+    Q_REQUIRED_RESULT bool ensureFlickableChildVisible(QQuickItem *flickable, QQuickItem *child);
 
     // Returns the position of the cursor in a tile's local coordinates.
     QPoint mapToTile(const QPoint &cursorPos) const;
@@ -184,8 +189,12 @@ protected:
 
     Q_REQUIRED_RESULT bool triggerOptions();
 
+    Q_REQUIRED_RESULT bool triggerSelectNextLayerUp();
+    Q_REQUIRED_RESULT bool triggerSelectNextLayerDown();
+
     // Layer helpers.
     Q_REQUIRED_RESULT bool selectLayer(const QString &layerName, int layerIndex);
+    Q_REQUIRED_RESULT bool verifyCurrentLayer(const QString &layerName, int layerIndex);
     // Finds \a layerName in the layer list view, verifies that it exists and that its name is \a layerName,
     // and sets layerDelegate to it.
     Q_REQUIRED_RESULT bool verifyLayerName(const QString &layerName, QQuickItem **layerDelegate = nullptr);
@@ -208,7 +217,7 @@ protected:
     Q_REQUIRED_RESULT bool loadProject(const QUrl &url,
         const QRegularExpression &expectedFailureMessage = QRegularExpression());
     Q_REQUIRED_RESULT bool updateVariables(bool isNewProject, Project::Type newProjectType);
-    Q_REQUIRED_RESULT bool saveChanges();
+    Q_REQUIRED_RESULT bool saveChanges(const QString &expectedErrorMessage = QString());
     Q_REQUIRED_RESULT bool discardChanges();
     Q_REQUIRED_RESULT bool verifyErrorAndDismiss(const QString &expectedErrorMessage);
     Q_REQUIRED_RESULT bool verifyNoErrorOrDismiss();
@@ -219,11 +228,14 @@ protected:
     Q_REQUIRED_RESULT bool setupTempProjectDir(const QStringList &resourceFilesToCopy = QStringList(),
         QStringList *filesCopied = nullptr);
 
+    Q_REQUIRED_RESULT bool openOptionsTab(const QString &tabButtonObjectName, QObject **optionsDialog = nullptr);
+
     Q_REQUIRED_RESULT bool collapseAllPanels();
     Q_REQUIRED_RESULT bool isPanelExpanded(const QString &panelObjectName);
     Q_REQUIRED_RESULT bool togglePanel(const QString &panelObjectName, bool expanded);
     Q_REQUIRED_RESULT bool togglePanels(const QStringList &panelObjectNames, bool expanded);
     Q_REQUIRED_RESULT bool expandAndResizePanel(const QString &panelObjectName);
+    Q_REQUIRED_RESULT bool ensurePanelPolished(QQuickItem *panel);
 
     Q_REQUIRED_RESULT bool dragSplitViewHandle(const QString &splitViewObjectName, int index,
         const QPoint &newHandleCentreRelativeToSplitView, QPoint *oldHandleCentreRelativeToSplitView = nullptr);

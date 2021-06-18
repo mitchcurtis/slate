@@ -65,7 +65,12 @@ Item {
                     delegate: Platform.MenuItem {
                         objectName: text + "MenuItem"
                         text: settings.displayableFilePath(modelData)
-                        onTriggered: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { loadProject(modelData) }, true)
+                        // We get "Object destroyed while one of its QML signal handlers is in progress"
+                        // if we don't delay this call; presumably the delegate is destroyed as a result
+                        // of the model changing. This is similar to the non-native MenuBar workaround.
+                        onTriggered: Qt.callLater(function() {
+                            saveChangesDialog.doIfChangesSavedOrDiscarded(function() { loadProject(modelData) }, true)
+                        })
                     }
 
                     onObjectAdded: recentFilesSubMenu.insertItem(index, object)

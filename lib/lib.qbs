@@ -20,7 +20,7 @@ Product {
         "."
     ]
     // https://bugreports.qt.io/browse/QBS-1434
-    cpp.minimumMacosVersion: "10.7"
+    cpp.minimumMacosVersion: "10.13"
     cpp.visibility: "minimal"
     cpp.defines: [
         "SLATE_LIBRARY"
@@ -56,10 +56,14 @@ Product {
     }
 
     files: [
+        // Just for reading GIFs; see animationGifExport().
         "3rdparty/bitmap/bmp.h",
         "3rdparty/bitmap/bmp.c",
         "3rdparty/bitmap/misc/gif.h",
         "3rdparty/bitmap/misc/gif.c",
+        // For exporting GIFs.
+        "3rdparty/gif-h/qt-cpp/gifwriter.cpp",
+        "3rdparty/gif-h/qt-cpp/gifwriter.h",
         "addanimationcommand.cpp",
         "addanimationcommand.h",
         "addguidecommand.cpp",

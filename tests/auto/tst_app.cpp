@@ -131,9 +131,11 @@ private Q_SLOTS:
     void pixelLineToolImageCanvas();
     void pixelLineToolTransparent_data();
     void pixelLineToolTransparent();
+    void lineMiddleMouseButton();
     void penToolRightClickBehaviour_data();
     void penToolRightClickBehaviour();
     void splitScreenRendering();
+    void formatNotModifiable();
 
     // Rulers, guides, notes, etc.
     void rulersAndGuides_data();
@@ -222,6 +224,7 @@ private Q_SLOTS:
     void disableToolsWhenLayerHidden();
     void undoMoveContents();
     void undoMoveContentsOfVisibleLayers();
+    void selectNextLayer();
 };
 
 typedef QVector<Project::Type> ProjectTypeVector;
@@ -260,8 +263,7 @@ void tst_App::newProjectWithNewTileset()
 
     // Save the project.
     const QUrl saveFileName = QUrl::fromLocalFile(tempProjectDir->path() + "/mytileset.stp");
-    tilesetProject->saveAs(saveFileName);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(tilesetProject->saveAs(saveFileName));
     // Should save the image at the same location as the project.
     const QString tilesetPath = tempProjectDir->path() + "/mytileset.png";
     QCOMPARE(tilesetProject->tilesetUrl(), QUrl::fromLocalFile(tilesetPath));
@@ -359,8 +361,7 @@ void tst_App::saveTilesetProject()
 
     // Save our drawing.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/project.stp");
-    tilesetProject->saveAs(saveUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(tilesetProject->saveAs(saveUrl));
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -379,8 +380,7 @@ void tst_App::saveAsAndLoadTilesetProject()
 
     // Save the untouched project.
     const QString originalProjectPath = tempProjectDir->path() + "/project.stp";
-    tilesetProject->saveAs(QUrl::fromLocalFile(originalProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(tilesetProject->saveAs(QUrl::fromLocalFile(originalProjectPath)));
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(!window->title().contains("*"));
     QCOMPARE(tilesetProject->url().toLocalFile(), originalProjectPath);
@@ -400,8 +400,7 @@ void tst_App::saveAsAndLoadTilesetProject()
 
     // Save the project to a new file.
     const QString savedProjectPath = tempProjectDir->path() + "/project2.stp";
-    tilesetProject->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(tilesetProject->saveAs(QUrl::fromLocalFile(savedProjectPath)));
     QCOMPARE(tilesetProject->url().toLocalFile(), savedProjectPath);
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -420,8 +419,7 @@ void tst_App::saveAsAndLoadTilesetProject()
     QVERIFY(window->title().contains("*"));
 
     // Save our project.
-    tilesetProject->save();
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(tilesetProject->save());
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(imageGrabber.requestImage(tileCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -568,8 +566,7 @@ void tst_App::saveAsAndLoad()
 
     // Save the project.
     const QString savedProjectPath = tempProjectDir->path() + "/saveAsAndLoad-project." + projectExtension;
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
     QCOMPARE(project->url().toLocalFile(), savedProjectPath);
     QCOMPARE(project->modificationVersion().toString(), qApp->applicationVersion());
 
@@ -763,8 +760,7 @@ void tst_App::recentFiles()
     QCOMPARE(recentFilesInstantiator->property("count").toInt(), 0);
 
     // Save.
-    project->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/recentFiles.png"));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/recentFiles.png")));
     QCOMPARE(recentFilesInstantiator->property("count").toInt(), 1);
 
     // Get the recent file menu item from the instantiator and ensure its text is correct.
@@ -879,7 +875,7 @@ void tst_App::splitViewStateAcrossProjects()
     // Save the project with the new split size.
     QVERIFY(layeredImageProject->canSave());
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/splitViewStateAcrossProjects.slp"));
-    layeredImageProject->saveAs(saveUrl);
+    QVERIFY(layeredImageProject->saveAs(saveUrl));
     QVERIFY(!layeredImageProject->hasUnsavedChanges());
 
     // Create a new project. It should have the default panel split item size.
@@ -895,7 +891,7 @@ void tst_App::saveOnPrompt()
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/saveOnPrompt.slp"));
-    layeredImageProject->saveAs(saveUrl);
+    QVERIFY(layeredImageProject->saveAs(saveUrl));
     QVERIFY(!layeredImageProject->hasUnsavedChanges());
 
     setCursorPosInScenePixels(1, 1);
@@ -940,22 +936,18 @@ void tst_App::keyboardShortcuts()
     QTest::keyRelease(window, Qt::Key_3);
     QCOMPARE(tileCanvas->tool(), TileCanvas::EraserTool);
 
-    // Open options dialog.
-    QVERIFY2(triggerOptions(), failureMessage);
-    const QObject *optionsDialog = findPopupFromTypeName("OptionsDialog");
-    QVERIFY(optionsDialog);
-    QVERIFY(optionsDialog->property("visible").toBool());
+    // Open the behaviour tab of the options dialog.
+    QObject *optionsDialog = nullptr;
+    QVERIFY2(openOptionsTab("behaviourTabButton", &optionsDialog), failureMessage);
 
-    // Open the shortcuts tab.
-    QQuickItem *shortcutsTabButton = optionsDialog->findChild<QQuickItem*>("shortcutsTabButton");
-    QVERIFY(shortcutsTabButton);
-    mouseEventOnCentre(shortcutsTabButton, MouseClick);
+    // Bring the "New Project" shortcut row into view.
+    QVERIFY2(ensureScrollViewChildVisible("behaviourScrollView", "newShortcutRow"), failureMessage);
 
     // Give "New Project" shortcut editor focus.
     QQuickItem *newShortcutButton = optionsDialog->findChild<QQuickItem*>("newShortcutButton");
     QVERIFY(newShortcutButton);
     QCOMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
-    mouseEventOnCentre(newShortcutButton, MouseClick);
+    QVERIFY2(clickButton(newShortcutButton), failureMessage);
 
     QQuickItem *newShortcutEditor = optionsDialog->findChild<QQuickItem*>("newShortcutEditor");
     QVERIFY(newShortcutEditor);
@@ -1009,16 +1001,9 @@ void tst_App::optionsShortcutCancelled()
     // Ensure that cancelling the options dialog after changing a shortcut cancels the shortcut change.
     QVERIFY2(createNewTilesetProject(), failureMessage);
 
-    // Open options dialog.
-    QVERIFY2(triggerOptions(), failureMessage);
-    const QObject *optionsDialog = findPopupFromTypeName("OptionsDialog");
-    QVERIFY(optionsDialog);
-    QVERIFY(optionsDialog->property("visible").toBool());
-
-    // Open the shortcuts tab.
-    QQuickItem *shortcutsTabButton = optionsDialog->findChild<QQuickItem*>("shortcutsTabButton");
-    QVERIFY(shortcutsTabButton);
-    mouseEventOnCentre(shortcutsTabButton, MouseClick);
+    // Open the behaviour tab of the options dialog.
+    QObject *optionsDialog = nullptr;
+    QVERIFY2(openOptionsTab("behaviourTabButton", &optionsDialog), failureMessage);
 
     // Give "New Project" shortcut editor focus.
     QQuickItem *newShortcutButton = optionsDialog->findChild<QQuickItem*>("newShortcutButton");
@@ -1060,16 +1045,9 @@ void tst_App::optionsTransparencyCancelled()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
-    // Open options dialog.
-    QVERIFY2(triggerOptions(), failureMessage);
-    const QObject *optionsDialog = findPopupFromTypeName("OptionsDialog");
-    QVERIFY(optionsDialog);
-    QVERIFY(optionsDialog->property("visible").toBool());
-
-    // Open the general tab.
-    QQuickItem *generalTabButton = optionsDialog->findChild<QQuickItem*>("generalTabButton");
-    QVERIFY(generalTabButton);
-    mouseEventOnCentre(generalTabButton, MouseClick);
+    // Open the appearance tab of the options dialog.
+    QObject *optionsDialog = nullptr;
+    QVERIFY2(openOptionsTab("appearanceTabButton", &optionsDialog), failureMessage);
 
     // Give "checkerColour1TextField" focus.
     QQuickItem *checkerColour1TextField = optionsDialog->findChild<QQuickItem*>("checkerColour1TextField");
@@ -1148,8 +1126,7 @@ void tst_App::undoPixels()
     QVERIFY(!window->title().contains("*"));
 
     // Save the project so that we can test hasUnsavedChanges.
-    tilesetProject->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/project.stp"));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(tilesetProject->saveAs(QUrl::fromLocalFile(tempProjectDir->path() + "/project.stp")));
     QVERIFY(!tilesetProject->canSave());
     QVERIFY(!tilesetProject->hasUnsavedChanges());
     QVERIFY(!window->title().contains("*"));
@@ -3155,7 +3132,32 @@ void tst_App::pixelLineToolTransparent()
     mouseEventOnCentre(redoToolButton, MouseClick);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), translucentRed);
-    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);\
+    QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);
+}
+
+void tst_App::lineMiddleMouseButton()
+{
+    QVERIFY2(createNewProject(Project::LayeredImageType), failureMessage);
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
+    QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);
+
+    // Draw a black pixel.
+    setCursorPosInScenePixels(10, 10);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+
+    // Middle-click once.
+    QTest::mouseClick(window, Qt::MiddleButton, Qt::NoModifier, cursorWindowPos);
+
+    // Change foreground colour to red so we can tell that the line preview is rendered.
+    canvas->setPenForegroundColour(Qt::red);
+    // Hold shift; the line preview should be black, not white.
+    QTest::keyPress(window, Qt::Key_Shift);
+    // If the test fails before we can release, we don't want to affect future tests.
+    auto releaseShift = qScopeGuard([=](){ QTest::keyRelease(window, Qt::Key_Shift); });
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage grabWithRedPixel = imageGrabber.takeImage();
+    QCOMPARE(grabWithRedPixel.pixelColor(10, 10), QColor(Qt::red));
 }
 
 void tst_App::penToolRightClickBehaviour_data()
@@ -3188,22 +3190,18 @@ void tst_App::penToolRightClickBehaviour()
     canvas->setSplitScreen(false);
     canvas->currentPane()->setZoomLevel(48);
 
-    // Open options dialog.
-    QVERIFY2(triggerOptions(), failureMessage);
-    QObject *optionsDialog = findPopupFromTypeName("OptionsDialog");
-    QVERIFY(optionsDialog);
-    QTRY_VERIFY(optionsDialog->property("opened").toBool());
+    // Open the behaviour tab of the options dialog.
+    QObject *optionsDialog = nullptr;
+    QVERIFY2(openOptionsTab("behaviourTabButton", &optionsDialog), failureMessage);
 
-    // Open the general tab.
-    QQuickItem *generalTabButton = optionsDialog->findChild<QQuickItem*>("generalTabButton");
-    QVERIFY(generalTabButton);
-    mouseEventOnCentre(generalTabButton, MouseClick);
+    // Ensure that penToolRightClickBehaviourComboBox is visible in the options dialog.
+    QVERIFY2(ensureScrollViewChildVisible("behaviourScrollView", "penToolRightClickBehaviourComboBox"), failureMessage);
 
     // Open penToolRightClickBehaviourComboBox's popup.
     QQuickItem *penToolRightClickBehaviourComboBox = optionsDialog->findChild<QQuickItem*>("penToolRightClickBehaviourComboBox");
     QVERIFY(penToolRightClickBehaviourComboBox);
     mouseEventOnCentre(penToolRightClickBehaviourComboBox, MouseClick);
-    QVERIFY(penToolRightClickBehaviourComboBox->hasActiveFocus());
+    QVERIFY2(penToolRightClickBehaviourComboBox->hasActiveFocus(), qPrintable(QDebug::toString(window->activeFocusItem())));
     QObject *penToolRightClickBehaviourComboBoxPopup = penToolRightClickBehaviourComboBox->property("popup").value<QObject*>();
     QVERIFY(penToolRightClickBehaviourComboBoxPopup);
     QTRY_COMPARE(penToolRightClickBehaviourComboBoxPopup->property("opened").toBool(), true);
@@ -3277,6 +3275,24 @@ void tst_App::splitScreenRendering()
     const QImage canvasGrab = imageGrabber.takeImage();
     QCOMPARE(canvasGrab.pixelColor(layeredImageCanvas->width() * 0.25, layeredImageCanvas->height() / 2), QColor(Qt::white));
     QCOMPARE(canvasGrab.pixelColor(layeredImageCanvas->width() * 0.75, layeredImageCanvas->height() / 2), QColor(Qt::white));
+}
+
+// Distinct from a read-only file, this test checks that the UI prevents images with formats like Format_Indexed8
+// from being modified, as QPainter doesn't support it.
+void tst_App::formatNotModifiable()
+{
+    QVERIFY2(setupTempProjectDir(), failureMessage);
+    QVERIFY2(copyFileFromResourcesToTempProjectDir("indexed-8-format.png"), failureMessage);
+
+    // Load the image.
+    const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/indexed-8-format.png"));
+    QVERIFY2(loadProject(projectUrl), failureMessage);
+
+    auto toolsForbiddenReasonLabel = window->findChild<QQuickItem*>("toolsForbiddenReasonLabel");
+    QVERIFY(toolsForbiddenReasonLabel);
+    QVERIFY(toolsForbiddenReasonLabel->isVisible());
+    QCOMPARE(toolsForbiddenReasonLabel->property("text").toString(),
+        "Image cannot be edited because its format is indexed 8-bit, which does not support modification.");
 }
 
 void tst_App::rulersAndGuides_data()
@@ -3634,6 +3650,7 @@ void tst_App::saveAndLoadNotes()
     // saved and loaded in the project's UI state.
     mouseEventOnCentre(showNotesToolButton, MouseClick);
     QVERIFY(!canvas->areNotesVisible());
+    QVERIFY(!showNotesToolButton->property("checked").toBool());
 
     // Check that the notes are no longer rendered.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
@@ -3642,8 +3659,7 @@ void tst_App::saveAndLoadNotes()
 
     // Save the project.
     const QString savedProjectPath = tempProjectDir->path() + "/saveAndLoadNotes-project.slp";
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
 
     // Close the project.
     QVERIFY2(triggerCloseProject(), failureMessage);
@@ -3655,6 +3671,7 @@ void tst_App::saveAndLoadNotes()
     QCOMPARE(project->notes().at(1).position(), QPoint(100, 100));
     QCOMPARE(project->notes().at(2).position(), QPoint(200, 200));
     QVERIFY(!canvas->areNotesVisible());
+    QVERIFY(!showNotesToolButton->property("checked").toBool());
 
     // Check that the notes are still not rendered.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
@@ -3664,11 +3681,31 @@ void tst_App::saveAndLoadNotes()
     // Show notes.
     mouseEventOnCentre(showNotesToolButton, MouseClick);
     QVERIFY(canvas->areNotesVisible());
+    QVERIFY(showNotesToolButton->property("checked").toBool());
 
     // Check that the notes are rendered.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     QVERIFY2(imageGrabber.takeImage() == canvasGrab, "Notes were not rendered as expected after showing them");
+
+    // Save it again, but this time with notes visible.
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
+
+    // Hide notes.
+    mouseEventOnCentre(showNotesToolButton, MouseClick);
+    QVERIFY(!canvas->areNotesVisible());
+    QVERIFY(!showNotesToolButton->property("checked").toBool());
+
+    // Load it again.
+    QVERIFY2(loadProject(QUrl::fromLocalFile(savedProjectPath)), failureMessage);
+    QCOMPARE(project->notes().at(0).position(), QPoint(0, 0));
+    QCOMPARE(project->notes().at(1).position(), QPoint(100, 100));
+    QCOMPARE(project->notes().at(2).position(), QPoint(200, 200));
+    QVERIFY(canvas->areNotesVisible());
+    QVERIFY(showNotesToolButton->property("checked").toBool());
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QVERIFY2(imageGrabber.takeImage() == canvasGrab, "Notes were not rendered as expected after loading");
 }
 
 void tst_App::autoSwatch_data()
@@ -3911,10 +3948,14 @@ struct SelectionData
 {
     SelectionData(const QPoint &pressScenePos = QPoint(),
             const QPoint &releaseScenePos = QPoint(),
-            const QRect &expectedSelectionArea = QRect()) :
+            const QRect &expectedSelectionArea = QRect(),
+            const QPoint &paneZoomCentre = QPoint(-1, -1),
+            const int paneZoomLevel = 0) :
         pressScenePos(pressScenePos),
         releaseScenePos(releaseScenePos),
-        expectedSelectionArea(expectedSelectionArea)
+        expectedSelectionArea(expectedSelectionArea),
+        paneZoomCentre(paneZoomCentre),
+        paneZoomLevel(paneZoomLevel)
     {
     }
 
@@ -3923,37 +3964,24 @@ struct SelectionData
     QPoint pressScenePos;
     QPoint releaseScenePos;
     QRect expectedSelectionArea;
+    QPoint paneZoomCentre;
+    int paneZoomLevel;
 };
 
 QDebug operator<<(QDebug debug, const SelectionData &data)
 {
-    debug << "press:" << data.pressScenePos
-          << "release:" << data.releaseScenePos
-          << "expected area:" << data.expectedSelectionArea;
+    debug << "press=" << data.pressScenePos
+          << " release=" << data.releaseScenePos
+          << " expected area=" << data.expectedSelectionArea
+          << " pane zoom centre=" << data.paneZoomCentre
+          << " pane zoom level=" << data.paneZoomLevel;
     return debug;
-}
-
-QString selectionDataToString(const SelectionData &data)
-{
-    QString string;
-    QDebug stringBuilder(&string);
-    stringBuilder << data;
-    return string;
-}
-
-// Can't call this toString(); interferes with testlib code
-QString rectToString(const QRect &rect)
-{
-    QString string;
-    QDebug stringBuilder(&string);
-    stringBuilder << rect;
-    return string;
 }
 
 QByteArray selectionAreaFailureMessage(ImageCanvas *canvas, const SelectionData &selectionData, const QRect &expectedArea)
 {
     return qPrintable(QString::fromLatin1("Data: %1 \n      Actual area: %2\n    Expected area: %3")
-        .arg(selectionDataToString(selectionData), rectToString(canvas->selectionArea()), rectToString(expectedArea)));
+        .arg(QDebug::toString(selectionData), QDebug::toString(canvas->selectionArea()), QDebug::toString(expectedArea)));
 }
 
 void tst_App::selectionToolImageCanvas()
@@ -3964,29 +3992,72 @@ void tst_App::selectionToolImageCanvas()
 
     // We don't want to use a _data() function for this, because we don't need
     // to create a new project every time.
+    // The arguments are:            press             release         expected            zoom centre      zoom
     QVector<SelectionData> selectionData;
     selectionData << SelectionData(QPoint(-10, -10), QPoint(10, 10), QRect(0, 0, 10, 10));
     selectionData << SelectionData(QPoint(-10, 0), QPoint(10, 10), QRect(0, 0, 10, 10));
     selectionData << SelectionData(QPoint(0, -10), QPoint(10, 10), QRect(0, 0, 10, 10));
     selectionData << SelectionData(QPoint(0, 0), QPoint(256, 256), QRect(0, 0, 256, 256));
     // TODO - these fail:
-//    selectionData << SelectionData(QPoint(30, 30), QPoint(0, 0), QRect(0, 0, 30, 30));
+//    selectionData << SelectionData(QPoint(30, 30), QPoint(0, 0), QRect(0, 0, 30, 30), QPoint(15, 15), 4);
 //    selectionData << SelectionData(QPoint(256, 256), QPoint(246, 246), QRect(246, 246, 10, 10));
 
-    foreach (const SelectionData &data, selectionData) {
+    // For debugging.
+    const bool debug = false;
+    const int eventDelay = debug ? 1000 : 0;
+
+    const QPoint defaultPaneZoomCentre = QPoint(project->size().width() / 2, project->size().height() / 2);
+    const int defaultPaneZoom = canvas->firstPane()->integerZoomLevel();
+
+    const auto firstPaneDefaultZoom = canvas->firstPane()->zoomLevel();
+    const auto firstPaneDefaultOffset = canvas->firstPane()->offset();
+    const auto secondPaneDefaultZoom = canvas->secondPane()->zoomLevel();
+    const auto secondPaneDefaultOffset = canvas->secondPane()->offset();
+
+    for (const SelectionData &data : qAsConst(selectionData)) {
+        const bool customPaneZoomLevel = data.paneZoomLevel != 0;
+        if (customPaneZoomLevel) {
+            setCursorPosInScenePixels(customPaneZoomLevel ? data.paneZoomCentre : defaultPaneZoomCentre);
+            QTest::mouseMove(window, cursorWindowPos, eventDelay);
+            if (debug)
+                QTest::qWait(eventDelay);
+
+            QVERIFY2(zoomTo(customPaneZoomLevel ? data.paneZoomLevel : defaultPaneZoom), failureMessage);
+
+            if (debug)
+                QTest::qWait(eventDelay);
+        } else {
+            canvas->firstPane()->setOffset(firstPaneDefaultOffset);
+            canvas->firstPane()->setZoomLevel(firstPaneDefaultZoom);
+            canvas->secondPane()->setOffset(secondPaneDefaultOffset);
+            canvas->secondPane()->setZoomLevel(secondPaneDefaultZoom);
+        }
+
         // Pressing outside the canvas should make the selection start at {0, 0}.
         setCursorPosInScenePixels(data.pressScenePos);
-        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, eventDelay);
         const QPoint boundExpectedPressPos = QPoint(qBound(0, data.pressScenePos.x(), project->widthInPixels()),
             qBound(0, data.pressScenePos.y(), project->heightInPixels()));
         const QRect expectedPressArea = QRect(boundExpectedPressPos, QSize(0, 0));
+        if (debug && canvas->selectionArea() != expectedPressArea) {
+            const auto imageGrabPath = QDir().absolutePath() + "/selectionToolImageCanvas-press-"
+                + QDebug::toString(data.expectedSelectionArea) + "-window-grab.png";
+            qDebug() << "Saving window's image grab to:\n" << imageGrabPath;
+            QVERIFY(window->grabWindow().save(imageGrabPath));
+        }
         QVERIFY2(canvas->selectionArea() == expectedPressArea, selectionAreaFailureMessage(canvas, data, expectedPressArea));
 
         setCursorPosInScenePixels(data.releaseScenePos);
-        QTest::mouseMove(window, cursorWindowPos);
+        QTest::mouseMove(window, cursorWindowPos, eventDelay);
+        if (debug && canvas->selectionArea() != data.expectedSelectionArea) {
+            const auto imageGrabPath = QDir().absolutePath() + "/selectionToolImageCanvas-move-"
+                + QDebug::toString(data.expectedSelectionArea) + "-window-grab.png";
+            qDebug() << "Saving window's image grab to:\n" << imageGrabPath;
+            QVERIFY(window->grabWindow().save(imageGrabPath));
+        }
         QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
 
-        QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+        QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, eventDelay);
         QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
 
         // Cancel the selection so that we can do the next one.
@@ -4690,8 +4761,7 @@ void tst_App::rotateSelection()
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path()
         + "/" + Project::typeToString(projectType)
         + "." + app.projectManager()->projectExtensionForType(projectType));
-    project->saveAs(saveUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(saveUrl));
     QVERIFY2(loadProject(saveUrl), failureMessage);
     QCOMPARE(project->hasUnsavedChanges(), false);
     QCOMPARE(canvas->hasModifiedSelection(), false);
@@ -5258,7 +5328,7 @@ void tst_App::animationPlayback()
 
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animationStuffSaved.slp"));
-    layeredImageProject->saveAs(saveUrl);
+    QVERIFY(layeredImageProject->saveAs(saveUrl));
     QVERIFY(!layeredImageProject->hasUnsavedChanges());
 
     // Close.
@@ -5267,8 +5337,7 @@ void tst_App::animationPlayback()
     QCOMPARE(isUsingAnimation(), false);
 
     // Load the saved file and check that our custom settings were remembered.
-    layeredImageProject->load(saveUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY2(loadProject(saveUrl), failureMessage);
     currentAnimationPlayback = TestHelper::animationPlayback();
     currentAnimation = currentAnimationPlayback->animation();
     QCOMPARE(isUsingAnimation(), true);
@@ -5289,8 +5358,8 @@ void tst_App::playNonLoopingAnimationTwice()
     QVERIFY2(copyFileFromResourcesToTempProjectDir("simple-colour-animation.slp"), failureMessage);
 
     const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/simple-colour-animation.slp"));
-    layeredImageProject->load(projectUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY2(loadProject(projectUrl), failureMessage);
+    QVERIFY2(togglePanel("animationPanel", true), failureMessage);
 
     auto *animationSystem = getAnimationSystem();
     QVERIFY(animationSystem);
@@ -5332,8 +5401,7 @@ void tst_App::animationGifExport()
     QVERIFY2(copyFileFromResourcesToTempProjectDir("animation.slp"), failureMessage);
 
     const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/animation.slp"));
-    layeredImageProject->load(projectUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY2(loadProject(projectUrl), failureMessage);
     QCOMPARE(isUsingAnimation(), true);
 
     // Export the GIF. Can't interact with native dialogs here, so we just do it directly.
@@ -5344,7 +5412,13 @@ void tst_App::animationGifExport()
     QVERIFY(errorSpy.isEmpty());
     QVERIFY(QFile::exists(exportedGifUrl.toLocalFile()));
 
-    // Now read the GIF and verify that each frame is correct.
+    /*
+        Now read the GIF and verify that each frame is correct. I tried keeping
+        the expected GIF in Git and comparing the hash of it against the
+        generated GIF using QCryptographicHash, but the comparison failed for a
+        GIF that should have been equal... so for now we use the old bitmap
+        library (which also results in a more useful failure message).
+    */
     GIF *gif = gif_load(exportedGifUrl.toLocalFile().toLatin1().constData());
     QVERIFY(gif);
     const int previewScale = 4;
@@ -5363,7 +5437,7 @@ void tst_App::animationGifExport()
 
     for (int frameIndex = 0; frameIndex < gif->n; ++frameIndex) {
         GIF_FRAME loadedGifFrame = gif->frames[frameIndex];
-        QCOMPARE(loadedGifFrame.delay, qFloor(1000.0 / currentAnimationPlayback->animation()->fps()) / 10);
+        QCOMPARE(loadedGifFrame.delay, qFloor(100.0 / currentAnimationPlayback->animation()->fps()));
 
         Bitmap *gifBitmap = loadedGifFrame.image;
         QCOMPARE(gifBitmap->w, frameWidth * previewScale);
@@ -5454,45 +5528,56 @@ void tst_App::saveAnimations()
     QCOMPARE(isUsingAnimation(), false);
 
     QVERIFY2(setAnimationPlayback(true), failureMessage);
-    auto *animationSystem = getAnimationSystem();
-    QVERIFY(animationSystem);
-    // Enabling animations automatically creates the first animation for us.
-    QCOMPARE(animationSystem->animationCount(), 1);
-    QVERIFY(animationSystem->currentAnimation());
-    QCOMPARE(animationSystem->currentAnimationIndex(), 0);
 
-    QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy", 1), failureMessage);
-    QVERIFY2(makeCurrentAnimation("Animation 1 Copy", 1), failureMessage);
-    QObject *animationSettingsPopup = nullptr;
-    QVERIFY2(openAnimationSettingsPopupForCurrentAnimation(&animationSettingsPopup), failureMessage);
+    int expectedFps = 0;
+    QUrl saveUrl;
 
-    const int oldFps = animationSystem->currentAnimation()->fps();
-    const int expectedFps = oldFps + 1;
+    // Use a scope to emphasise that animationSystem is only valid until the project is closed.
+    {
+        auto *animationSystem = getAnimationSystem();
+        QVERIFY(animationSystem);
+        // Enabling animations automatically creates the first animation for us.
+        QCOMPARE(animationSystem->animationCount(), 1);
+        QVERIFY(animationSystem->currentAnimation());
+        QCOMPARE(animationSystem->currentAnimationIndex(), 0);
 
-    // Change the FPS.
-    QVERIFY2(incrementSpinBox("animationFpsSpinBox", oldFps), failureMessage);
-    // The changes shouldn't be made to the actual animation until the save button is clicked.
-    QCOMPARE(animationSystem->currentAnimation()->fps(), oldFps);
-    QCOMPARE(animationSystem->editAnimation()->fps(), expectedFps);
+        QVERIFY2(duplicateCurrentAnimation("Animation 1 Copy", 1), failureMessage);
+        QVERIFY2(makeCurrentAnimation("Animation 1 Copy", 1), failureMessage);
+        QObject *animationSettingsPopup = nullptr;
+        QVERIFY2(openAnimationSettingsPopupForCurrentAnimation(&animationSettingsPopup), failureMessage);
 
-    // Accept and close the animation settings popup.
-    QVERIFY2(clickDialogFooterButton(animationSettingsPopup, "OK"), failureMessage);
+        const int oldFps = animationSystem->currentAnimation()->fps();
+        expectedFps = oldFps + 1;
 
-    // Save.
-    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/saveAnimations.slp"));
-    layeredImageProject->saveAs(saveUrl);
-    QVERIFY(!layeredImageProject->hasUnsavedChanges());
+        // Change the FPS.
+        QVERIFY2(incrementSpinBox("animationFpsSpinBox", oldFps), failureMessage);
+        // The changes shouldn't be made to the actual animation until the save button is clicked.
+        QCOMPARE(animationSystem->currentAnimation()->fps(), oldFps);
+        QCOMPARE(animationSystem->editAnimation()->fps(), expectedFps);
 
-    // Close.
-    QVERIFY2(triggerCloseProject(), failureMessage);
-    QVERIFY(!layeredImageProject->hasLoaded());
-    QCOMPARE(isUsingAnimation(), false);
+        // Accept and close the animation settings popup.
+        QVERIFY2(clickDialogFooterButton(animationSettingsPopup, "OK"), failureMessage);
 
-    // Load the saved file and check that our custom settings were remembered.
-    layeredImageProject->load(saveUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
-    QCOMPARE(animationSystem->animationCount(), 2);
-    QCOMPARE(animationSystem->animationAt(1)->fps(), expectedFps);
+        // Save.
+        saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/saveAnimations.slp"));
+        QVERIFY(layeredImageProject->saveAs(saveUrl));
+        QVERIFY(!layeredImageProject->hasUnsavedChanges());
+
+        // Close.
+        QVERIFY2(triggerCloseProject(), failureMessage);
+        QVERIFY(!layeredImageProject->hasLoaded());
+        QCOMPARE(isUsingAnimation(), false);
+    }
+
+    {
+        // Load the saved file and check that our custom settings were remembered.
+        QVERIFY2(loadProject(saveUrl), failureMessage);
+        QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+        auto *animationSystem = getAnimationSystem();
+        QVERIFY(animationSystem);
+        QCOMPARE(animationSystem->animationCount(), 2);
+        QCOMPARE(animationSystem->animationAt(1)->fps(), expectedFps);
+    }
 }
 
 void tst_App::clickOnCurrentAnimation()
@@ -5924,10 +6009,10 @@ void tst_App::mergeLayerUpAndDown()
     layeredImageCanvas->setPenForegroundColour(Qt::red);
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
-    // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 2);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+    // Add a new layer. The order should then be:
+    // - Layer 2
+    // - Layer 1 (current)
+    QVERIFY2(addNewLayer("Layer 2", 0), failureMessage);
     // It should be possible to merge the lowest layer up but not down.
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), false);
     QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), true);
@@ -5944,10 +6029,11 @@ void tst_App::mergeLayerUpAndDown()
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
     QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), false);
 
-    // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 3);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+    // Add a new layer. The order should then be:
+    // - Layer 3
+    // - Layer 2
+    // - Layer 1 (current)
+    QVERIFY2(addNewLayer("Layer 3", 0), failureMessage);
     // It should be possible to merge the middle layer both up and down.
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
     QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), true);
@@ -5960,14 +6046,20 @@ void tst_App::mergeLayerUpAndDown()
     layeredImageCanvas->setPenForegroundColour(Qt::blue);
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
-    // Make Layer 2 the current layer.
+    // Make Layer 2 the current layer:
+    // - Layer 3                  (blue)
+    // - Layer 2 (current)        (green)
+    // - Layer 1                  (red)
     QVERIFY2(selectLayer("Layer 2", 1), failureMessage);
 
-    // Merge the current layer down. Don't have a shortcut for merging, and we don't really need one.
+    // Merge the current layer down. We don't have a shortcut for merging, and we don't really need one.
+    // After merging, the layers should be:
+    // - Layer 3
+    // - Layer 1 (current)
     layeredImageProject->mergeCurrentLayerDown();
     QCOMPARE(layeredImageProject->layerCount(), 2);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
     // Photoshop uses the lower layer's name, so we'll do that too.
+    QVERIFY2(verifyCurrentLayer("Layer 1", 1), failureMessage);
     QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), false);
     QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), true);
@@ -5975,36 +6067,45 @@ void tst_App::mergeLayerUpAndDown()
     QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(1, 0), QColor(Qt::green));
     QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(2, 0), QColor(Qt::blue));
 
-    // Merge the current layer up. That leaves us with one layer containing everything.
-    layeredImageProject->mergeCurrentLayerUp();
-    QCOMPARE(layeredImageProject->layerCount(), 1);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
-    // Photoshop uses the lower layer's name, so we'll do that too.
-    QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 3"));
-    QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), false);
-    QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), false);
-    QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(0, 0), QColor(Qt::red));
-    QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(1, 0), QColor(Qt::green));
-    QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(2, 0), QColor(Qt::blue));
-
-    // Undo the last merge so that we're back at having two layers.
+    // Undo the merge so that we have all three layers again:
+    // - Layer 3
+    // - Layer 2 (current)
+    // - Layer 1
     mouseEventOnCentre(undoToolButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 2);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+    QCOMPARE(layeredImageProject->layerCount(), 3);
+    QVERIFY2(verifyCurrentLayer("Layer 2", 1), failureMessage);
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
-    QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), false);
-    QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
+    QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), true);
+    QCOMPARE(layeredImageProject->layerAt(2)->name(), QLatin1String("Layer 1"));
+    QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 2"));
     QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 3"));
-    QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(0, 0), QColor(Qt::red));
+    QCOMPARE(layeredImageProject->layerAt(2)->image()->pixelColor(0, 0), QColor(Qt::red));
     QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(1, 0), QColor(Qt::green));
     QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(2, 0), QColor(Qt::blue));
 
-    // Undo the first merge so that we have all three layers again.
-    mouseEventOnCentre(undoToolButton, MouseClick);
-    QCOMPARE(layeredImageProject->layerCount(), 3);
-    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+    // Merge the current layer up.
+    // After merging, the layers should be:
+    // - Layer 3 (current)
+    // - Layer 1
+    layeredImageProject->mergeCurrentLayerUp();
+    QCOMPARE(layeredImageProject->layerCount(), 2);
+    QVERIFY2(verifyCurrentLayer("Layer 3", 0), failureMessage);
+    QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 3"));
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
     QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), false);
+    QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(0, 0), QColor(Qt::red));
+    QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(1, 0), QColor(Qt::green));
+    QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(2, 0), QColor(Qt::blue));
+
+    // Undo the merge so that we have all three layers again:
+    // - Layer 3
+    // - Layer 2 (current)
+    // - Layer 1
+    mouseEventOnCentre(undoToolButton, MouseClick);
+    QCOMPARE(layeredImageProject->layerCount(), 3);
+    QVERIFY2(verifyCurrentLayer("Layer 2", 1), failureMessage);
+    QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
+    QCOMPARE(mergeLayerUpMenuItem->property("enabled").toBool(), true);
     QCOMPARE(layeredImageProject->layerAt(2)->name(), QLatin1String("Layer 1"));
     QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 2"));
     QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 3"));
@@ -6135,8 +6236,7 @@ void tst_App::saveAndLoadLayeredImageProject()
 
     // Save.
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + "/layeredimageproject.slp");
-    layeredImageProject->saveAs(saveUrl);
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(layeredImageProject->saveAs(saveUrl));
     QVERIFY(!layeredImageProject->hasUnsavedChanges());
 
     // Close.
@@ -6405,7 +6505,7 @@ void tst_App::autoExport()
 
     // Save the project so that the auto-export is triggered.
     const QString savedProjectPath = tempProjectDir->path() + "/autoExport-project.slp";
-    layeredImageProject->saveAs(QUrl::fromLocalFile(savedProjectPath));
+    QVERIFY(layeredImageProject->saveAs(QUrl::fromLocalFile(savedProjectPath)));
 
     // The image file should exist now.
     const QString autoExportFilePath = LayeredImageProject::autoExportFilePath(layeredImageProject->url());
@@ -6427,7 +6527,7 @@ void tst_App::autoExport()
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     // Save again.
-    layeredImageProject->saveAs(QUrl::fromLocalFile(savedProjectPath));
+    QVERIFY(layeredImageProject->saveAs(QUrl::fromLocalFile(savedProjectPath)));
 
     // No export should have happened and so the exported image shouldn't have changed.
     exportedImage = QImage(autoExportFilePath);
@@ -6478,8 +6578,7 @@ void tst_App::exportFileNamedLayers()
 
     // Save the project so that auto export is triggered and the images saved.
     const QString savedProjectPath = tempProjectDir->path() + "/exportFileNameLayers-project.slp";
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
 
     // Check that the "main" image (combined from regular layers) is saved.
     const QString exportedImagePath = tempProjectDir->path() + "/exportFileNameLayers-project.png";
@@ -6504,8 +6603,7 @@ void tst_App::exportFileNamedLayers()
     QVERIFY2(changeLayerVisiblity("[test] Layer 3", false), failureMessage);
 
     // Save to export.
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
     QVERIFY(QFile::exists(exportedTestLayerImagePath));
     exportedLayerImage = QImage(exportedTestLayerImagePath);
     QVERIFY(!exportedLayerImage.isNull());
@@ -6528,8 +6626,7 @@ void tst_App::exportFileNamedLayers()
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     // Export again. Both layers should have been exported to the same image.
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
     QVERIFY(QFile::exists(exportedTestLayerImagePath));
     exportedLayerImage = QImage(exportedTestLayerImagePath);
     QVERIFY(!exportedLayerImage.isNull());
@@ -6561,8 +6658,7 @@ void tst_App::exportFileNamedLayers()
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     // Export it.
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
     const QString exportedBlahLayerImagePath = tempProjectDir->path() + "/exportFileNameLayers-project-blah.png";
     QVERIFY(QFile::exists(exportedBlahLayerImagePath));
     exportedLayerImage = QImage(exportedBlahLayerImagePath);
@@ -6585,8 +6681,7 @@ void tst_App::exportFileNamedLayers()
     QVERIFY(!QFile::exists(exportedImagePath));
 
     // Now it shouldn't be exported.
-    project->saveAs(QUrl::fromLocalFile(savedProjectPath));
-    QVERIFY_NO_CREATION_ERRORS_OCCURRED();
+    QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
     QVERIFY(!QFile::exists(exportedImagePath));
 }
 
@@ -6613,7 +6708,7 @@ void tst_App::disableToolsWhenLayerHidden()
         // The cursor should be disabled for each tool.
         QVERIFY2(window->cursor().shape() == Qt::ArrowCursor,
             qPrintable(QString::fromLatin1("Expected Qt::ArrowCursor for tool %1, but got %2")
-                .arg(Utils::enumToString(tool)).arg(Utils::enumToString(window->cursor().shape()))));
+                .arg(QDebug::toString(tool)).arg(QDebug::toString(window->cursor().shape()))));
 
         // Switch tool.
         QVERIFY2(switchTool(tool), failureMessage);
@@ -6624,7 +6719,7 @@ void tst_App::disableToolsWhenLayerHidden()
         // TODO: ForbiddenCursor
         QVERIFY2(window->cursor().shape() == Qt::ForbiddenCursor,
             qPrintable(QString::fromLatin1("Expected Qt::ForbiddenCursor for tool %1, but got %2")
-                .arg(Utils::enumToString(tool)).arg(Utils::enumToString(window->cursor().shape()))));
+                .arg(QDebug::toString(tool)).arg(QDebug::toString(window->cursor().shape()))));
 
         // Make the layer visible again.
         mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
@@ -6710,6 +6805,48 @@ void tst_App::undoMoveContentsOfVisibleLayers()
     QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::red));
     QCOMPARE(layer1->image()->pixelColor(0, 1), QColor(Qt::white));
     QCOMPARE(layer2->image()->pixelColor(1, 0), QColor(Qt::blue));
+}
+
+void tst_App::selectNextLayer()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+    QVERIFY2(togglePanel("layerPanel", true), failureMessage);
+    QVERIFY2(addNewLayer("Layer 2", 0), failureMessage);
+    QVERIFY2(addNewLayer("Layer 3", 1), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 2);
+
+    // Already at the bottom; should do nothing.
+    QVERIFY2(!triggerSelectNextLayerDown(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 2);
+
+    QVERIFY2(triggerSelectNextLayerUp(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
+
+    QVERIFY2(triggerSelectNextLayerUp(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+
+    // Already at the top; should do nothing.
+    QVERIFY2(!triggerSelectNextLayerUp(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+
+    // Test that you can't use the shortcut while doing stuff with the mouse,
+    // or while a selection is active.
+    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
+
+    setCursorPosInScenePixels(QPoint(0, 0));
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QVERIFY2(!triggerSelectNextLayerDown(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+
+    setCursorPosInScenePixels(QPoint(5, 5));
+    QTest::mouseMove(window, cursorWindowPos);
+    QVERIFY2(!triggerSelectNextLayerDown(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
+
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, 5, 5));
+    QVERIFY2(!triggerSelectNextLayerDown(), failureMessage);
+    QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
 }
 
 int main(int argc, char *argv[])

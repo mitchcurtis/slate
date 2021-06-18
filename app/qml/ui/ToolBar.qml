@@ -222,6 +222,7 @@ ToolBar {
                 icon.source: regularFill ? "qrc:/images/fill.png" : "qrc:/images/textured-fill.png"
 
                 ToolTip.text: isTilesetProject ? qsTr("Fill a contiguous area with pixels or tiles") : imageProjectToolTipText
+                ToolTip.visible: hovered && !fillMenu.visible
 
                 onClicked: canvas.tool = canvas.lastFillToolUsed
                 onPressAndHold: if (!isTilesetProject) fillMenu.open()

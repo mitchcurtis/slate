@@ -40,6 +40,8 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QStringList recentFiles READ recentFiles NOTIFY recentFilesChanged)
     Q_PROPERTY(bool scrollZoom READ scrollZoom WRITE setScrollZoom NOTIFY scrollZoomChanged)
     Q_PROPERTY(bool fpsVisible READ isFpsVisible WRITE setFpsVisible NOTIFY fpsVisibleChanged)
+    Q_PROPERTY(bool showCurrentLayerInStatusBar READ showCurrentLayerInStatusBar
+        WRITE setShowCurrentLayerInStatusBar NOTIFY showCurrentLayerInStatusBarChanged)
     Q_PROPERTY(bool gesturesEnabled READ areGesturesEnabled WRITE setGesturesEnabled NOTIFY gesturesEnabledChanged)
     Q_PROPERTY(bool autoSwatchEnabled READ isAutoSwatchEnabled WRITE setAutoSwatchEnabled NOTIFY autoSwatchEnabledChanged)
     Q_PROPERTY(bool alwaysShowCrosshair READ isAlwaysShowCrosshair WRITE setAlwaysShowCrosshair NOTIFY alwaysShowCrosshairChanged)
@@ -49,7 +51,6 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(int penToolRightClickBehaviour READ penToolRightClickBehaviour WRITE setPenToolRightClickBehaviour NOTIFY penToolRightClickBehaviourChanged)
     Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
 
-    Q_PROPERTY(QString quitShortcut READ quitShortcut WRITE setQuitShortcut NOTIFY quitShortcutChanged)
     Q_PROPERTY(QString newShortcut READ newShortcut WRITE setNewShortcut NOTIFY newShortcutChanged)
     Q_PROPERTY(QString openShortcut READ openShortcut WRITE setOpenShortcut NOTIFY openShortcutChanged)
     Q_PROPERTY(QString saveShortcut READ saveShortcut WRITE setSaveShortcut NOTIFY saveShortcutChanged)
@@ -57,6 +58,7 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QString exportShortcut READ exportShortcut WRITE setExportShortcut NOTIFY exportShortcutChanged)
     Q_PROPERTY(QString closeShortcut READ closeShortcut WRITE setCloseShortcut NOTIFY closeShortcutChanged)
     Q_PROPERTY(QString revertShortcut READ revertShortcut WRITE setRevertShortcut NOTIFY revertShortcutChanged)
+    Q_PROPERTY(QString quitShortcut READ quitShortcut WRITE setQuitShortcut NOTIFY quitShortcutChanged)
     Q_PROPERTY(QString undoShortcut READ undoShortcut WRITE setUndoShortcut NOTIFY undoShortcutChanged)
     Q_PROPERTY(QString redoShortcut READ redoShortcut WRITE setRedoShortcut NOTIFY redoShortcutChanged)
     Q_PROPERTY(QString flipHorizontallyShortcut READ flipHorizontallyShortcut WRITE setFlipHorizontallyShortcut NOTIFY flipHorizontallyShortcutChanged)
@@ -88,6 +90,10 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QString swatchUpShortcut READ swatchUpShortcut WRITE setSwatchUpShortcut NOTIFY swatchUpShortcutChanged)
     Q_PROPERTY(QString swatchDownShortcut READ swatchDownShortcut WRITE setSwatchDownShortcut NOTIFY swatchDownShortcutChanged)
     Q_PROPERTY(QString fullScreenToggleShortcut READ fullScreenToggleShortcut WRITE setFullScreenToggleShortcut NOTIFY fullScreenToggleShortcutChanged)
+    Q_PROPERTY(QString selectNextLayerUpShortcut READ selectNextLayerUpShortcut
+        WRITE setSelectNextLayerUpShortcut NOTIFY selectNextLayerUpShortcutChanged)
+    Q_PROPERTY(QString selectNextLayerDownShortcut READ selectNextLayerDownShortcut
+        WRITE setSelectNextLayerDownShortcut NOTIFY selectNextLayerDownShortcutChanged)
 
 public:
     explicit ApplicationSettings(QObject *parent = nullptr);
@@ -114,6 +120,10 @@ public:
     bool defaultFpsVisible() const;
     bool isFpsVisible() const;
     void setFpsVisible(bool fpsVisible);
+
+    bool defaultShowCurrentLayerInStatusBar() const;
+    bool showCurrentLayerInStatusBar() const;
+    void setShowCurrentLayerInStatusBar(bool show);
 
     bool defaultGesturesEnabled() const;
     bool areGesturesEnabled() const;
@@ -145,10 +155,6 @@ public:
 
     Q_INVOKABLE void resetShortcutsToDefaults();
 
-    QString defaultQuitShortcut() const;
-    QString quitShortcut() const;
-    void setQuitShortcut(const QString &shortcut);
-
     QString defaultNewShortcut() const;
     QString newShortcut() const;
     void setNewShortcut(const QString &shortcut);
@@ -176,6 +182,10 @@ public:
     QString defaultRevertShortcut() const;
     QString revertShortcut() const;
     void setRevertShortcut(const QString &shortcut);
+
+    QString defaultQuitShortcut() const;
+    QString quitShortcut() const;
+    void setQuitShortcut(const QString &shortcut);
 
     QString defaultUndoShortcut() const;
     QString undoShortcut() const;
@@ -301,12 +311,21 @@ public:
     QString fullScreenToggleShortcut() const;
     void setFullScreenToggleShortcut(const QString &shortcut);
 
+    QString defaultSelectNextLayerUpShortcut() const;
+    QString selectNextLayerUpShortcut() const;
+    void setSelectNextLayerUpShortcut(const QString &shortcut);
+
+    QString defaultSelectNextLayerDownShortcut() const;
+    QString selectNextLayerDownShortcut() const;
+    void setSelectNextLayerDownShortcut(const QString &shortcut);
+
 signals:
     void languageChanged();
     void loadLastOnStartupChanged();
     void recentFilesChanged();
     void scrollZoomChanged();
     void fpsVisibleChanged();
+    void showCurrentLayerInStatusBarChanged();
     void gesturesEnabledChanged();
     void autoSwatchEnabledChanged();
     void alwaysShowCrosshairChanged();
@@ -354,6 +373,8 @@ signals:
     void swatchUpShortcutChanged();
     void swatchDownShortcutChanged();
     void fullScreenToggleShortcutChanged();
+    void selectNextLayerUpShortcutChanged();
+    void selectNextLayerDownShortcutChanged();
 };
 
 #endif // APPLICATIONSETTINGS_H

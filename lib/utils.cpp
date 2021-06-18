@@ -20,6 +20,7 @@
 #include "utils.h"
 
 #include <QDebug>
+#include <QFile>
 #include <QLoggingCategory>
 #include <QPainter>
 #include <QPainterPath>
@@ -32,6 +33,8 @@ extern "C" {
 #include "bitmap/bmp.h"
 #include "bitmap/misc/gif.h"
 }
+
+#include "gif-h/qt-cpp/gifwriter.h"
 
 #include "animation.h"
 #include "animationplayback.h"
@@ -233,70 +236,39 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
     const Animation *animation = playback.animation();
     const int width = animation->frameWidth() * playback.scale();
     const int height = animation->frameHeight() * playback.scale();
-    GIF *gif = gif_create(width, height);
-    auto cleanup = qScopeGuard([=]{ gif_free(gif); });
+
+    // The GIF format expects centiseconds (hundredths of a second):
+    // http://giflib.sourceforge.net/gifstandard/GIF89a.html
+    const int frameDelayInCentiseconds = 100.0 / animation->fps();
+    static const bool dither = true;
+
     qCDebug(lcUtils) << "original width:" << animation->frameWidth()
         << "original height:" << animation->frameHeight()
-        << "width:" << width << "height:" << height << "scale:" << playback.scale();
-
-    gif->repetitions = playback.shouldLoop() ? 0 : 1;
-
-    QVarLengthArray<unsigned int> argbPalette = findMax256UniqueArgbColours(gifSourceImage);
-    gif_set_palette(gif, argbPalette.data(), argbPalette.size());
-    if (lcUtils().isDebugEnabled()) {
-        QVector<QString> colours;
-        colours.reserve(argbPalette.size());
-        for (const auto colour : qAsConst(argbPalette)) {
-            const int r = (colour >> 16) & 0xFF;
-            const int g = (colour >> 8) & 0xFF;
-            const int b = (colour >> 0) & 0xFF;
-            colours.append(QColor(r, g, b).name(QColor::HexArgb));
-        }
-        qCDebug(lcUtils) << "palette has" << argbPalette.size() << "colours:" << colours;
-    }
+        << "width:" << width << "height:" << height << "scale:" << playback.scale()
+        << "frames per second:" << animation->fps()
+        << "frame delay in centiseconds:" << frameDelayInCentiseconds
+        << "dither:" << dither;
 
     // Convert it to an 8 bit image so that the byte order is as we expect.
     const QImage eightBitImage = gifSourceImage.convertToFormat(QImage::Format_RGBA8888);
 
+    std::vector<QImage> frameImages;
+
     const int frameStartIndex = playback.animation()->startIndex(gifSourceImage.width());
     for (int frameIndex = frameStartIndex; frameIndex < frameStartIndex + animation->frameCount(); ++frameIndex) {
-        GIF_FRAME *frame = gif_new_frame(gif);
-        // Divide 1000.0 by the FPS to get the delay in MS, and then convert
-        // that to 100ths of a second, because that's what the bitmap library expects.
-        frame->delay = (1000.0 / animation->fps()) / 10;
-        Bitmap *bitmap = frame->image;
-
         const QImage frameSourceImage = imageForAnimationFrame(eightBitImage, playback, frameIndex - frameStartIndex);
         const QImage scaledFrameSourceImage = frameSourceImage.scaled(frameSourceImage.size() * playback.scale());
-        const uchar *imageBits = scaledFrameSourceImage.bits();
-
-        for (int byteIndex = 0; byteIndex < width * height; ++byteIndex) {
-            /*
-                Since the bitmap library allocates the bitmap for us,
-                we have to copy our data into its array.
-
-                Note the documentation for Bitmap's data member:
-
-                 * The internal format is `0xAARRGGBB` little endian.
-                 * Meaning that `p[0]` contains B, `p[1]` contains G,
-                 * `p[2]` contains R and `p[3]` contains A
-                 * and the data buffer is an array of bytes BGRABGRABGRABGRABGRA...
-
-                Qt uses a different order (QImage::Format_RGBA8888):
-
-                "The order of the colors is the same on any architecture if read as bytes 0xRR,0xGG,0xBB,0xAA."
-            */
-            bitmap->data[byteIndex * 4] = imageBits[byteIndex * 4 + 2];     // blue
-            bitmap->data[byteIndex * 4 + 1] = imageBits[byteIndex * 4 + 1]; // green
-            bitmap->data[byteIndex * 4 + 2] = imageBits[byteIndex * 4];     // red
-            bitmap->data[byteIndex * 4 + 3] = imageBits[byteIndex * 4 + 3]; // alpha
-        }
+        frameImages.push_back(scaledFrameSourceImage);
     }
 
-    if (gif_save(gif, path.toUtf8().constData()) == 0) {
-        errorMessage = QObject::tr("Failed to export GIF: %1").arg(bm_get_error());
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly)) {
+        errorMessage = QObject::tr("Failed to export GIF: can't open %1").arg(path);
         return false;
     }
+
+    const auto data = GifH::GifWriter::encode(frameImages, frameDelayInCentiseconds, dither);
+    file.write(data);
 
     qCDebug(lcUtils) << "... successfully exported gif";
 

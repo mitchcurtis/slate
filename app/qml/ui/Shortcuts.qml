@@ -327,4 +327,25 @@ Item {
         sequence: settings.fullScreenToggleShortcut
         onActivated: toggleFullScreen()
     }
+
+    Shortcut {
+        objectName: "selectNextLayerUpShortcut"
+        sequence: settings.selectNextLayerUpShortcut
+        // Check the pressed mouse button as well, as selecting the current layer
+        // with the mouse leaves no potential for doing stuff that might interfere
+        // with changing layers, but when using the keyboard shortcuts we don't have that protection.
+        enabled: project && project.loaded && projectType === Project.LayeredImageType
+            && project.currentLayerIndex > 0 && canvas && !canvas.hasSelection
+            && canvas.mouseButtonPressed === Qt.NoButton
+        onActivated: project.currentLayerIndex -= 1
+    }
+
+    Shortcut {
+        objectName: "selectNextLayerDownShortcut"
+        sequence: settings.selectNextLayerDownShortcut
+        enabled: project && project.loaded && projectType === Project.LayeredImageType
+            && project.currentLayerIndex < project.layerCount - 1 && canvas && !canvas.hasSelection
+            && canvas.mouseButtonPressed === Qt.NoButton
+        onActivated: project.currentLayerIndex += 1
+    }
 }

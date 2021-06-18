@@ -56,6 +56,11 @@ TestHelper::~TestHelper()
 
 void TestHelper::initTestCase()
 {
+    QVERIFY(window);
+    QVERIFY(QTest::qWaitForWindowExposed(window));
+    const QPoint screenCentre = window->screen()->availableGeometry().center();
+    window->setPosition(screenCentre.x() - window->size().width() / 2, screenCentre.y() - window->size().height() / 2);
+
     // This should not be enabled for tests.
     QVERIFY(!app.settings()->loadLastOnStartup());
 
@@ -1164,8 +1169,6 @@ bool TestHelper::addNewAnimation(const QString &expectedGeneratedAnimationName, 
 
     auto *animationSystem = getAnimationSystem();
 
-    const int oldCurrentAnimationIndex = animationSystem->currentAnimationIndex();
-    const Animation *oldCurrentAnimation = animationSystem->currentAnimation();
     const int oldAnimationCount = animationSystem->animationCount();
 
     // Add the animation.
@@ -1175,16 +1178,9 @@ bool TestHelper::addNewAnimation(const QString &expectedGeneratedAnimationName, 
     VERIFY(animationCount == oldAnimationCount + 1);
     Animation *newAnimation = animationSystem->animationAt(oldAnimationCount);
     VERIFY(newAnimation);
-    if (expectedIndex == 0) {
-        // If the new animation is the only animation, it's now the current.
-        VERIFY(animationSystem->currentAnimation() == newAnimation);
-        VERIFY(animationSystem->currentAnimationIndex() == 0);
-    } else {
-        // New animations are appended to the end of the list, so the currentIndex
-        // should never change if there were any animations before we added this one.
-        VERIFY(animationSystem->currentAnimation() == oldCurrentAnimation);
-        VERIFY(animationSystem->currentAnimationIndex() == oldCurrentAnimationIndex);
-    }
+    // New animations are appended to the end of the list and made current.
+    VERIFY(animationSystem->currentAnimation() == newAnimation);
+    VERIFY(animationSystem->currentAnimationIndex() == expectedIndex);
     const QString actualAnimationName = animationSystem->animationAt(expectedIndex)->name();
     if (actualAnimationName != expectedGeneratedAnimationName) {
         QString message;
@@ -1329,7 +1325,8 @@ bool TestHelper::grabFramesOfCurrentAnimation(QVector<QImage> &frames)
     VERIFY2(currentPlayback->currentFrameIndex() == 0, qPrintable(QString::fromLatin1(
         "Expected currentFrameIndex to be 0 when this function is called, but it's %1").arg(currentPlayback->currentFrameIndex())));
 
-    mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+    if (!clickButton(animationPlayPauseButton))
+        return false;
     VERIFY(currentPlayback->isPlaying() == true);
 
     VERIFY2(currentPlayback->currentFrameIndex() == 0, qPrintable(QString::fromLatin1(
@@ -1525,6 +1522,59 @@ QQuickItem *TestHelper::findChildItem(QQuickItem *parentItem, const QString &obj
     return nullptr;
 }
 
+bool TestHelper::clickButton(QQuickItem *button, Qt::MouseButton mouseButton)
+{
+    VERIFY(button);
+    VERIFY2(button->property("visible").toBool(),
+        QString::fromLatin1("Expected visible property of \"%1\" to be true").arg(button->objectName()));
+    VERIFY2(button->property("enabled").toBool(),
+        QString::fromLatin1("Expected enabled property of \"%1\" to be true").arg(button->objectName()));
+    VERIFY2(button->width() > 0.0,
+        QString::fromLatin1("Expected width property of \"%1\" to be greater than zero").arg(button->objectName()));
+    VERIFY2(button->height() > 0.0,
+        QString::fromLatin1("Expected height property of \"%1\" to be greater than zero").arg(button->objectName()));
+
+    QSignalSpy buttonClickedSpy(button, SIGNAL(clicked()));
+    VERIFY(buttonClickedSpy.isValid());
+
+    mouseEventOnCentre(button, MouseClick, mouseButton);
+    if (buttonClickedSpy.count() < 1) {
+        // In case there is e.g. a popup transitioning out and blocking it.
+        const auto imageGrabPath = QDir().absolutePath() + "/window-grab.png";
+        qDebug() << "Saving window's image grab to " << imageGrabPath;
+        VERIFY(window->grabWindow().save(imageGrabPath));
+    }
+    VERIFY2(buttonClickedSpy.count() == 1, qPrintable(QString::fromLatin1(
+        "Expected clicked signal of \"%1\" to be emitted once, but it was emitted %2 time(s)")
+            .arg(button->objectName()).arg(buttonClickedSpy.count())));
+    return true;
+}
+
+bool TestHelper::ensureScrollViewChildVisible(const QString &scrollViewObjectName, const QString &childObjectName)
+{
+    auto scrollView = window->findChild<QQuickItem*>(scrollViewObjectName);
+    VERIFY(scrollView);
+    auto flickable = scrollView->property("contentItem").value<QQuickItem*>();
+    VERIFY(flickable);
+    auto child = window->findChild<QQuickItem*>(childObjectName);
+    VERIFY(child);
+    return ensureFlickableChildVisible(flickable, child);
+}
+
+bool TestHelper::ensureFlickableChildVisible(QQuickItem *flickable, QQuickItem *child)
+{
+    VERIFY(flickable);
+    VERIFY(child);
+    VERIFY(flickable->isAncestorOf(child));
+
+    auto flickableContentItem = flickable->property("contentItem").value<QQuickItem*>();
+    VERIFY(flickableContentItem);
+
+    const int newContentY = child->mapToItem(flickableContentItem, QPoint(0, 0)).y();
+    VERIFY(flickable->setProperty("contentY", QVariant(newContentY)));
+    return true;
+}
+
 QPoint TestHelper::mapToTile(const QPoint &cursorPos) const
 {
     return cursorPos - tileCanvas->mapToScene(QPointF(0, 0)).toPoint();
@@ -1590,7 +1640,8 @@ void TestHelper::setCursorPosInScenePixels(const QPoint &posInScenePixels, bool 
         // As with mouseEventOnCentre(), we don't want this to be a e.g. VERIFY2, because then we'd have to
         // verify its return value everywhere we use it, and we use it a lot, so just assert instead.
         Q_ASSERT_X(cursorWindowPos.x() >= 0 && cursorWindowPos.y() >= 0, Q_FUNC_INFO,
-            qPrintable(QString::fromLatin1("x %1 y %2").arg(cursorWindowPos.x()).arg(cursorWindowPos.y())));
+            qPrintable(QString::fromLatin1("scene pos %1 results in invalid cursor position %2")
+                .arg(QDebug::toString(posInScenePixels)).arg(QDebug::toString(cursorWindowPos))));
     }
 }
 
@@ -1824,6 +1875,16 @@ bool TestHelper::triggerOptions()
     return triggerShortcut("optionsShortcut", app.settings()->optionsShortcut());
 }
 
+bool TestHelper::triggerSelectNextLayerUp()
+{
+    return triggerShortcut("selectNextLayerUpShortcut", app.settings()->selectNextLayerUpShortcut());
+}
+
+bool TestHelper::triggerSelectNextLayerDown()
+{
+    return triggerShortcut("selectNextLayerDownShortcut", app.settings()->selectNextLayerDownShortcut());
+}
+
 bool TestHelper::selectLayer(const QString &layerName, int layerIndex)
 {
     TRY_VERIFY(findListViewChild("layerListView", layerName));
@@ -1831,9 +1892,26 @@ bool TestHelper::selectLayer(const QString &layerName, int layerIndex)
     VERIFY(layerDelegate);
     mouseEventOnCentre(layerDelegate, MouseClick);
     VERIFY(layerDelegate->property("checked").toBool());
+    if (!verifyCurrentLayer(layerName, layerIndex))
+        return false;
+    return true;
+}
+
+bool TestHelper::verifyCurrentLayer(const QString &layerName, int layerIndex)
+{
     VERIFY2(layeredImageProject->currentLayerIndex() == layerIndex,
-        qPrintable(QString::fromLatin1("Expected currentLayerIndex to be %1 after selecting it, but it's %2")
+        qPrintable(QString::fromLatin1("Expected currentLayerIndex to be %1, but it's %2")
             .arg(layerIndex).arg(layeredImageProject->currentLayerIndex())));
+
+    QQuickItem *layerDelegateItem = nullptr;
+    if (!verifyLayerName(layerName, &layerDelegateItem))
+        return false;
+    VERIFY(layerDelegateItem->property("checked").toBool());
+
+    // Verify that the status bar shows the correct current layer name.
+    auto currentLayerNameLabel = window->findChild<QQuickItem*>("currentLayerNameLabel");
+    VERIFY(currentLayerNameLabel);
+    COMPARE_NON_FLOAT(currentLayerNameLabel->property("text").toString(), layerName);
     return true;
 }
 
@@ -2505,7 +2583,7 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
     return true;
 }
 
-bool TestHelper::saveChanges()
+bool TestHelper::saveChanges(const QString &expectedErrorMessage)
 {
     if (project->isNewProject()) {
         FAIL("Cannot save changes because the project is new, " \
@@ -2523,6 +2601,14 @@ bool TestHelper::saveChanges()
     VERIFY(saveChangesButton);
     mouseEventOnCentre(saveChangesButton, MouseClick);
     TRY_VERIFY(!saveChangesDialog->property("visible").toBool());
+
+    if (!expectedErrorMessage.isEmpty()) {
+        // The save should fail.
+        if (!verifyErrorAndDismiss(expectedErrorMessage))
+            return false;
+        return true;
+    }
+
     VERIFY(!project->hasUnsavedChanges());
     return true;
 }
@@ -2643,6 +2729,26 @@ bool TestHelper::setupTempProjectDir(const QStringList &resourceFilesToCopy, QSt
     return true;
 }
 
+bool TestHelper::openOptionsTab(const QString &tabButtonObjectName, QObject **optionsDialog)
+{
+    // Open options dialog.
+    if (!triggerOptions())
+        return false;
+    QObject *theOptionsDialog = findPopupFromTypeName("OptionsDialog");
+    VERIFY(theOptionsDialog);
+    TRY_VERIFY(theOptionsDialog->property("opened").toBool());
+
+    // Open the relevant tab.
+    QQuickItem *tabButton = theOptionsDialog->findChild<QQuickItem*>(tabButtonObjectName);
+    VERIFY(tabButton);
+    if (!clickButton(tabButton))
+        return false;
+
+    if (optionsDialog)
+        *optionsDialog = theOptionsDialog;
+    return true;
+}
+
 bool TestHelper::isPanelExpanded(const QString &panelObjectName)
 {
     QQuickItem *panel = window->findChild<QQuickItem*>(panelObjectName);
@@ -2687,9 +2793,18 @@ bool TestHelper::togglePanel(const QString &panelObjectName, bool expanded)
     if (panel->property("expanded").toBool() == expanded)
         return true;
 
+    // Not sure why, but it's necessary to wait before expanding too.
+    if (!ensurePanelPolished(panel))
+        return false;
+
     const qreal originalHeight = panel->height();
     VERIFY(panel->setProperty("expanded", QVariant(expanded)));
     VERIFY(panel->property("expanded").toBool() == expanded);
+
+    // This is a layout, so we need to ensure that its polish has completed before testing sizes of items.
+    if (!ensurePanelPolished(panel))
+        return false;
+
     if (expanded) {
         // Ensure that it has time to grow, otherwise stuff like input events will not work.
         TRY_VERIFY2(panel->height() > originalHeight, qPrintable(QString::fromLatin1(
@@ -2793,6 +2908,18 @@ bool TestHelper::expandAndResizePanel(const QString &panelObjectName)
     VERIFY(panelSplitView);
     return dragSplitViewHandle("panelSplitView", std::distance(reasonablePanelSizes.begin(), panelIt),
         QPoint(panelSplitView->width() / 2, panelIt->second));
+}
+
+bool TestHelper::ensurePanelPolished(QQuickItem *panel)
+{
+    VERIFY(panel);
+
+    auto panelContentItem = panel->property("contentItem").value<QQuickItem*>();
+    VERIFY(panelContentItem);
+    if (QQuickTest::qIsPolishScheduled(panelContentItem))
+        VERIFY(QQuickTest::qWaitForItemPolished(panelContentItem));
+
+    return true;
 }
 
 bool TestHelper::switchMode(TileCanvas::Mode mode)
@@ -2993,11 +3120,15 @@ bool TestHelper::zoomTo(int zoomLevel)
 
 bool TestHelper::zoomTo(int zoomLevel, const QPoint &pos)
 {
+    static const int maxLoops = 1000;
     CanvasPane *currentPane = canvas->currentPane();
-    for (int i = 0; currentPane->zoomLevel() < zoomLevel; ++i) {
-        wheelEvent(canvas, pos, 1);
-        if (i > 1000)
-            FAIL("Exceeed maximum loops to reach zoom (1000)");
+    const bool zoomIn = currentPane->zoomLevel() < zoomLevel;
+    for (int i = 0; zoomIn ? currentPane->zoomLevel() < zoomLevel : currentPane->zoomLevel() > zoomLevel; ++i) {
+        wheelEvent(canvas, pos, zoomIn ? 1 : -1);
+        if (i > maxLoops) {
+            FAIL(qPrintable(QString::fromLatin1("Exceeed maximum loops (%1) to reach zoom (%2) - current pane zoom: %3")
+                .arg(maxLoops).arg(zoomLevel).arg(currentPane->zoomLevel())));
+        }
     }
     VERIFY(currentPane->integerZoomLevel() == zoomLevel);
     return true;

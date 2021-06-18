@@ -12,15 +12,17 @@
         <file>change-tool-size@4x.png</file>
         <file>checker.png</file>
         <file>circle-tool-shape.png</file>
-        <file>circle-tool-shape.svg</file>
         <file>circle-tool-shape@2x.png</file>
         <file>circle-tool-shape@3x.png</file>
         <file>circle-tool-shape@4x.png</file>
         <file>crop-to-selection.png</file>
-        <file>crop-to-selection.svg</file>
         <file>crop-to-selection@2x.png</file>
         <file>crop-to-selection@3x.png</file>
         <file>crop-to-selection@4x.png</file>
+        <file>current-layer.png</file>
+        <file>current-layer@2x.png</file>
+        <file>current-layer@3x.png</file>
+        <file>current-layer@4x.png</file>
         <file>fill.png</file>
         <file>fill@2x.png</file>
         <file>fill@3X.png</file>

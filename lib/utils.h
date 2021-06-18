@@ -61,15 +61,6 @@ namespace Utils {
     bool exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &playback, QString &errorMessage);
 
     template<typename T>
-    QString enumToString(T enumValue)
-    {
-        QString string;
-        QDebug debug(&string);
-        debug << enumValue;
-        return string;
-    }
-
-    template<typename T>
     inline T divFloor(const T dividend, const T divisor) {
         T quotient = dividend / divisor;
         const T remainder = dividend % divisor;

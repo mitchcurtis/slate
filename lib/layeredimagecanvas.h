@@ -61,7 +61,7 @@ protected:
 
     void replaceImage(int layerIndex, const QImage &replacementImage) override;
 
-    bool areToolsForbidden() const override;
+    void updateToolsForbidden() override;
 
 private:
     LayeredImageProject *mLayeredImageProject;

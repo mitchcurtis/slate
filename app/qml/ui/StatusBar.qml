@@ -54,6 +54,10 @@ Pane {
         width: canvas ? canvas.firstPane.size * canvas.width - statusBarPane.padding * 2 : parent.width
         visible: project && canvas && project.loaded
         anchors.verticalCenter: parent.verticalCenter
+        // Ideally we would set spacing here to avoid having to set margins in individual items,
+        // but since we use the zero-width trick to ensure the height of the status bar doesn't jump around,
+        // we run into https://bugreports.qt.io/browse/QTBUG-93765.
+        spacing: 0
 
         Label {
             id: pointerIconLabel
@@ -64,7 +68,6 @@ Pane {
 
             Layout.preferredWidth: Math.max(26, implicitWidth)
         }
-
         Label {
             id: cursorPixelPosLabel
             objectName: "cursorPixelPosLabel"
@@ -90,27 +93,14 @@ Pane {
             }
         }
 
-        ToolSeparator {
-            padding: 0
-            // Use opacity rather than visible, as it's an easy way of ensuring that the RowLayout
-            // always has a minimum height equal to the tallest item (assuming that that's us)
-            // and hence doesn't jump around when we become hidden.
-            // There's always at least one label and icon visible at all times (cursor pos),
-            // so we don't have to worry about those.
-            opacity: (fpsCounter.visible || lineLengthLabel.visible || selectionSizeLabel.visible) ? 1 : 0
-
-            Layout.fillHeight: true
-            Layout.maximumHeight: 24
+        OptionalToolSeparator {
+            shown: selectionIcon.visible
         }
-
         Image {
             id: selectionIcon
             source: "qrc:/images/selection.png"
             visible: canvas && canvas.tool === ImageCanvas.SelectionTool
-
-            Layout.rightMargin: 6
         }
-
         Label {
             id: selectionSizeLabel
             objectName: "selectionSizeLabel"
@@ -124,6 +114,7 @@ Pane {
 
             Layout.minimumWidth: selectionAreaMaxTextMetrics.width
             Layout.maximumWidth: selectionAreaMaxTextMetrics.width
+            Layout.leftMargin: 5
 
             TextMetrics {
                 id: selectionAreaMaxTextMetrics
@@ -132,7 +123,11 @@ Pane {
             }
         }
 
+        OptionalToolSeparator {
+            shown: lineLengthLabel.visible
+        }
         Rectangle {
+            objectName: "lineLengthIcon"
             implicitWidth: 16
             implicitHeight: 1
             visible: canvas && canvas.lineVisible
@@ -150,7 +145,6 @@ Pane {
                 anchors.right: parent.right
             }
         }
-
         Label {
             id: lineLengthLabel
             objectName: "lineLengthLabel"
@@ -159,6 +153,7 @@ Pane {
 
             Layout.minimumWidth: lineLengthMaxTextMetrics.width
             Layout.maximumWidth: lineLengthMaxTextMetrics.width
+            Layout.leftMargin: 5
 
             TextMetrics {
                 id: lineLengthMaxTextMetrics
@@ -167,6 +162,9 @@ Pane {
             }
         }
 
+        OptionalToolSeparator {
+            shown: lineAngleLabel.visible
+        }
         Canvas {
             implicitWidth: 16
             implicitHeight: 16
@@ -192,7 +190,6 @@ Pane {
                 ctx.closePath();
             }
         }
-
         Label {
             id: lineAngleLabel
             objectName: "lineAngleLabel"
@@ -201,6 +198,7 @@ Pane {
 
             Layout.minimumWidth: lineAngleMaxTextMetrics.width
             Layout.maximumWidth: lineAngleMaxTextMetrics.width
+            Layout.leftMargin: 5
 
             TextMetrics {
                 id: lineAngleMaxTextMetrics
@@ -209,14 +207,9 @@ Pane {
             }
         }
 
-        ToolSeparator {
-            padding: 0
-            visible: fpsCounter.visible && (lineLengthLabel.visible || selectionSizeLabel.visible)
-
-            Layout.fillHeight: true
-            Layout.maximumHeight: 24
+        OptionalToolSeparator {
+            shown: fpsCounter.visible
         }
-
         FpsCounter {
             id: fpsCounter
             visible: settings.fpsVisible
@@ -231,6 +224,40 @@ Pane {
             }
         }
 
+        OptionalToolSeparator {
+            shown: currentLayerNameLabel.visible
+        }
+        Image {
+            source: "qrc:/images/current-layer.png"
+            visible: currentLayerNameLabel.visible
+        }
+        Label {
+            id: currentLayerNameLabel
+            objectName: "currentLayerNameLabel"
+            text: visible ? project.currentLayer.name : ""
+            visible: settings.showCurrentLayerInStatusBar
+                && project && project.type === Project.LayeredImageType && project.currentLayer
+
+            Layout.leftMargin: 3
+        }
+
+        OptionalToolSeparator {
+            shown: toolsForbiddenReasonLabel.visible
+        }
+        Label {
+            text: "\uf06a"
+            font.family: "FontAwesome"
+            visible: toolsForbiddenReasonLabel.visible
+        }
+        Label {
+            id: toolsForbiddenReasonLabel
+            objectName: "toolsForbiddenReasonLabel"
+            text: canvas ? canvas.toolsForbiddenReason : ""
+            visible: canvas && canvas.toolsForbidden
+
+            Layout.leftMargin: 5
+        }
+
         Item {
             Layout.fillWidth: true
         }
@@ -238,6 +265,8 @@ Pane {
         ZoomIndicator {
             objectName: "firstPaneZoomIndicator"
             pane: canvas ? canvas.firstPane : null
+
+            Layout.rightMargin: 4
         }
     }
 

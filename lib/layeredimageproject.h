@@ -50,7 +50,7 @@ public:
 
     ImageLayer *currentLayer();
     int currentLayerIndex() const override;
-    void setCurrentLayerIndex(int index);
+    void setCurrentLayerIndex(int index, bool force = false);
     ImageLayer *layerAt(int index);
     const ImageLayer *layerAt(int index) const;
     const ImageLayer *layerAt(const QString &name) const;

@@ -5,7 +5,9 @@ import QtQuick.Layouts
 import App
 
 RowLayout {
-    width: parent ? parent.width : 0
+    objectName: shortcutName + "Row"
+
+    Layout.columnSpan: 2
 
     property string shortcutName
     property string shortcutDisplayName
