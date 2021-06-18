@@ -98,8 +98,8 @@ Controls.MenuBar {
                     }, true)
                 }
 
-                onObjectAdded: recentFilesSubMenu.insertItem(index, object)
-                onObjectRemoved: recentFilesSubMenu.removeItem(object)
+                onObjectAdded: (index, object) => recentFilesSubMenu.insertItem(index, object)
+                onObjectRemoved: (index, object) => recentFilesSubMenu.removeItem(object)
             }
 
             MenuSeparator {}

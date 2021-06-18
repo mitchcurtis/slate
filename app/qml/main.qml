@@ -54,8 +54,8 @@ ApplicationWindow {
     property alias moveContentsDialog: moveContentsDialog
     property int oldWindowVisibility: Window.Windowed
 
-    onClosing: {
-        close.accepted = false
+    onClosing: (closeEvent) => {
+        closeEvent.accepted = false
         saveChangesDialog.doIfChangesSavedOrDiscarded(function() { Qt.quit() })
     }
 
