@@ -575,7 +575,7 @@ void TileCanvas::hoverLeaveEvent(QHoverEvent *event)
 {
     ImageCanvas::hoverLeaveEvent(event);
 
-    if (!mTilesetProject->hasLoaded())
+    if (!mTilesetProject || !mTilesetProject->hasLoaded())
         return;
 
     // Don't reset the cursor position here, because it looks jarring.

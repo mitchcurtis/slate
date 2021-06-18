@@ -3225,9 +3225,6 @@ void ImageCanvas::hoverLeaveEvent(QHoverEvent *event)
     QQuickItem::hoverLeaveEvent(event);
 
     setContainsMouse(false);
-
-    if (!mProject->hasLoaded())
-        return;
 }
 
 void ImageCanvas::keyPressEvent(QKeyEvent *event)
