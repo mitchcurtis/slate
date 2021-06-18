@@ -6851,7 +6851,7 @@ void tst_App::selectNextLayer()
 
 int main(int argc, char *argv[])
 {
-    qputenv("QT_QUICK_CONTROLS_STYLE_PATH", qPrintable(QDir().absolutePath()));
+    qputenv("QT_QUICK_CONTROLS_STYLE", "Basic");
     tst_App test(argc, argv);
     return QTest::qExec(&test, argc, argv);
 }
