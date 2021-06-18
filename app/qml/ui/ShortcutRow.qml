@@ -41,7 +41,7 @@ RowLayout {
         // I've tried implementing it in C++ with event() and converting the event
         // to a QKeyEvent when the type is ShortcutOverride, but it didn't work.
         // TODO: how did it not work? document it here
-        Keys.onShortcutOverride: event.accepted = (event.key === Qt.Key_Escape)
+        Keys.onShortcutOverride: (event) => event.accepted = (event.key === Qt.Key_Escape)
 
         FontMetrics {
             id: fontMetrics

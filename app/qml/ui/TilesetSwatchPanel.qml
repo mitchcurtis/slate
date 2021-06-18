@@ -118,8 +118,8 @@ Panel {
             // We use hoveredTile.sourceRect instead of just using cursorPosInImage because we want grid-aligned positions.
             property point hoveredTilePos: hoveredTile ? mapFromItem(tilesetImage, hoveredTile.sourceRect.x, hoveredTile.sourceRect.y) : Qt.point(0, 0)
 
-            onReleased: {
-                if (mouse.button === Qt.RightButton) {
+            onReleased: (mouseEvent) => {
+                if (mouseEvent.button === Qt.RightButton) {
                     if (!contextMenu.rightClickedTile) {
                         contextMenu.rightClickedTile = project.tilesetTileAt(cursorPosInImage.x, cursorPosInImage.y);
                         contextMenu.open();

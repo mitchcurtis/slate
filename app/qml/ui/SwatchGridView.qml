@@ -91,10 +91,10 @@ GridView {
             anchors.fill: parent
 //            drag.target: parent
 
-            onClicked: {
-                if (mouse.button === Qt.LeftButton) {
+            onClicked: (mouseEvent) => {
+                if (mouseEvent.button === Qt.LeftButton) {
                     canvas.penForegroundColour = model.colour
-                } else if (mouse.button === Qt.RightButton) {
+                } else if (mouseEvent.button === Qt.RightButton) {
                     swatchContextMenu.rightClickedColourIndex = index
                     swatchContextMenu.rightClickedColourName = model.name
                     swatchContextMenu.x = colourDelegate.x

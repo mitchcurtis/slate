@@ -198,7 +198,7 @@ Panel {
                 editing: animationSettingsPopup.animationIndex === index
 
                 onRenamed: root.canvas.forceActiveFocus()
-                onSettingsRequested: {
+                onSettingsRequested: (animationIndex, animation) => {
                     animationSettingsPopup.animationIndex = animationIndex
                     animationSettingsPopup.animation = animation
                     animationSettingsPopup.open()
