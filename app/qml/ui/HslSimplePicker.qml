@@ -8,6 +8,7 @@ import "." as Ui
 
 GridLayout {
     id: root
+    objectName: "hslSimplePickerGridLayout"
     columns: 2
     rowSpacing: 0
 
