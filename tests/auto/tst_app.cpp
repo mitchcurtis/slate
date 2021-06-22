@@ -2042,35 +2042,29 @@ void tst_App::colours()
     // For now, we work around it.
     mouseEvent(hueSlider, QPointF(hueSlider->width() / 2, hueSlider->height() / 2), MouseClick);
 
-    // Ensure that the buttons are visible in the panel.
+    // Ensure that the buttons in the panel are visible.
     QQuickItem *colourPanelFlickable = window->findChild<QQuickItem*>("colourPanelFlickable");
     QVERIFY(colourPanelFlickable);
-    auto desaturateButton = window->findChild<QQuickItem*>("desaturateButton");
-    QVERIFY(desaturateButton);
-    const QRectF colourPanelFlickableBounds(colourPanelFlickable->mapToScene(QPointF(0, 0)),
-        QSizeF(colourPanelFlickable->width(), colourPanelFlickable->height()));
-    const QRectF desaturateButtonBounds(desaturateButton->mapToScene(QPointF(0, 0)),
-        QSizeF(desaturateButton->width(), desaturateButton->height()));
-    QVERIFY(colourPanelFlickableBounds.contains(desaturateButtonBounds));
+    QVERIFY2(ensureFlickableChildVisible(colourPanelFlickable, lighterButton), failureMessage);
 
     // Test that the "Lighter" button works.
     QColor oldColour = canvas->penForegroundColour();
-    mouseEventOnCentre(lighterButton, MouseClick);
+    QVERIFY2(clickButton(lighterButton), failureMessage);
     QVERIFY(canvas->penForegroundColour().lightnessF() > oldColour.lightnessF());
 
     // Test that the "Darker" button works.
     oldColour = canvas->penForegroundColour();
-    mouseEventOnCentre(darkerButton, MouseClick);
+    QVERIFY2(clickButton(darkerButton), failureMessage);
     QVERIFY(canvas->penForegroundColour().lightnessF() < oldColour.lightnessF());
 
     // Test that the "Saturate" button works.
     oldColour = canvas->penForegroundColour();
-    mouseEventOnCentre(saturateButton, MouseClick);
+    QVERIFY2(clickButton(saturateButton), failureMessage);
     QVERIFY(canvas->penForegroundColour().saturationF() > oldColour.saturationF());
 
     // Test that the "Desaturate" button works.
     oldColour = canvas->penForegroundColour();
-    mouseEventOnCentre(desaturateButton, MouseClick);
+    QVERIFY2(clickButton(desaturateButton), failureMessage);
     QVERIFY(canvas->penForegroundColour().saturationF() < oldColour.saturationF());
 }
 

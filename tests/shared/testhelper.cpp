@@ -1572,6 +1572,10 @@ bool TestHelper::ensureFlickableChildVisible(QQuickItem *flickable, QQuickItem *
 
     const int newContentY = child->mapToItem(flickableContentItem, QPoint(0, 0)).y();
     VERIFY(flickable->setProperty("contentY", QVariant(newContentY)));
+    // Setting the contentY may have put us outside of the bounds of the flickable, so return within them.
+    VERIFY(QMetaObject::invokeMethod(flickable, "returnToBounds"));
+    // Wait for the contentY to "animate".
+    TRY_VERIFY(qFuzzyIsNull(flickable->property("verticalOvershoot").toReal()));
     return true;
 }
 
