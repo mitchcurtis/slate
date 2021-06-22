@@ -91,14 +91,14 @@ Item {
 
     Shortcut {
         objectName: "copyShortcut"
-        sequence: StandardKey.Copy
+        sequences: [ StandardKey.Copy ]
         enabled: isImageProjectType && canvasHasActiveFocus && canvas.hasSelection
         onActivated: canvas.copySelection()
     }
 
     Shortcut {
         objectName: "pasteShortcut"
-        sequence: StandardKey.Paste
+        sequences: [ StandardKey.Paste ]
         enabled: isImageProjectType && canvasHasActiveFocus
         onActivated: canvas.paste()
     }
@@ -106,7 +106,7 @@ Item {
     Shortcut {
         id: primaryDeleteShortcut
         objectName: "deleteShortcut"
-        sequence: StandardKey.Delete
+        sequences: [ StandardKey.Delete ]
         enabled: isImageProjectType && canvasHasActiveFocus
         onActivated: canvas.deleteSelectionOrContents()
     }
