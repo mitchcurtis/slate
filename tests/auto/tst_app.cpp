@@ -769,7 +769,7 @@ void tst_App::recentFiles()
         QVERIFY(QMetaObject::invokeMethod(recentFilesInstantiator, "objectAt", Qt::DirectConnection,
             Q_RETURN_ARG(QObject*, recentFileMenuItem), Q_ARG(int, 0)));
         QVERIFY(recentFileMenuItem);
-        QCOMPARE(recentFileMenuItem->property("text").toString(), project->url().path());
+        QCOMPARE(recentFileMenuItem->property("text").toString(), project->url().toLocalFile());
     }
 
     // Can't click platform types from tests, so clear the recent items manually.
