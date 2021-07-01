@@ -70,6 +70,8 @@ ApplicationWindow {
         } else {
             createNewProject(Project.LayeredImageType)
         }
+
+        panelSplitView.updatePosition()
     }
 
     function saveOrSaveAs() {
@@ -213,6 +215,34 @@ ApplicationWindow {
             }
 
             readonly property int defaultPreferredWidth: 240
+
+            Connections {
+                target: settings
+                function onPanelPositionChanged() {
+                    panelSplitView.updatePosition()
+                }
+            }
+
+            function indexInParentsContentChildren() {
+                let oldIndex = -1
+                for (let i = 0; i < mainSplitView.contentChildren.length && oldIndex === -1; ++i) {
+                    if (mainSplitView.contentChildren[i] === panelSplitView)
+                        oldIndex = i
+                }
+                if (oldIndex === -1)
+                    console.warn("Couldn't find panelSplitView in mainSplitView")
+                return oldIndex
+            }
+
+            function updatePosition() {
+                // When QTBUG-58831 is fixed, we can just use:
+                // const oldIndex = mainSplitView.contentChildren.indexOf(panelSplitView)
+                // const newIndex = settings.panelPosition === Qt.RightEdge ? 1 : 0
+                const oldIndex = indexInParentsContentChildren()
+                const newIndex = settings.panelPosition === Qt.RightEdge ? 1 : 0
+                if (newIndex !== oldIndex)
+                    mainSplitView.moveItem(oldIndex, newIndex)
+            }
 
             SplitView.minimumWidth: 200
             SplitView.preferredWidth: defaultPreferredWidth
