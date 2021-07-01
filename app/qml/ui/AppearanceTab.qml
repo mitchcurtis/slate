@@ -13,6 +13,7 @@ ColumnLayout {
         settings.fpsVisible = showFpsCheckBox.checked
         settings.showCurrentLayerInStatusBar = showCurrentLayerInStatusBarCheckBox.checked
         settings.windowOpacity = windowOpacitySlider.value
+        settings.panelPosition = panelPositionComboBox.currentValue
     }
 
     function revertToOldSettings() {
@@ -23,6 +24,7 @@ ColumnLayout {
         showCurrentLayerInStatusBarCheckBox.checked = settings.showCurrentLayerInStatusBar
         alwaysShowCrosshairCheckBox.checked = settings.alwaysShowCrosshair
         windowOpacitySlider.value = settings.windowOpacity
+        panelPositionComboBox.currentIndex = panelPositionComboBox.indexOfValue(settings.panelPosition)
     }
 
     Item {
@@ -30,6 +32,7 @@ ColumnLayout {
     }
 
     ScrollView {
+        objectName: "appearanceScrollView"
         clip: true
 
         ScrollBar.horizontal.policy: ScrollBar.AsNeeded
@@ -107,6 +110,30 @@ ColumnLayout {
                     visible: windowOpacitySlider.pressed
                     text: windowOpacitySlider.value.toFixed(1)
                 }
+            }
+
+            Label {
+                text: qsTr("Panel position")
+            }
+            ComboBox {
+                id: panelPositionComboBox
+                objectName: "panelPositionComboBox"
+                leftPadding: 0
+                textRole: "display"
+                valueRole: "value"
+
+                Component.onCompleted: currentIndex = indexOfValue(settings.panelPosition)
+
+                model: [
+                    {
+                        value: Qt.LeftEdge,
+                        display: qsTr("Left side")
+                    },
+                    {
+                        value: Qt.RightEdge,
+                        display: qsTr("Right side")
+                    }
+                ]
             }
 
             Label {

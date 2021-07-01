@@ -279,6 +279,25 @@ void ApplicationSettings::setWindowOpacity(qreal opacity)
     emit windowOpacityChanged();
 }
 
+Qt::Edge ApplicationSettings::defaultPanelPosition() const
+{
+    return Qt::RightEdge;
+}
+
+Qt::Edge ApplicationSettings::panelPosition() const
+{
+    return contains("panelPosition") ? value("panelPosition").value<Qt::Edge>() : defaultPanelPosition();
+}
+
+void ApplicationSettings::setPanelPosition(Qt::Edge position)
+{
+    if (position == panelPosition())
+        return;
+
+    setValue("panelPosition", position);
+    emit panelPositionChanged();
+}
+
 QColor ApplicationSettings::defaultCheckerColour1() const
 {
     return QColor::fromRgb(0x444444);
