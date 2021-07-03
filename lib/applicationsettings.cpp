@@ -60,7 +60,7 @@ bool ApplicationSettings::loadLastOnStartup() const
 
 void ApplicationSettings::setLoadLastOnStartup(bool loadLastOnStartup)
 {
-    const bool existingValue = value("loadLastOnStartup", loadLastOnStartup).toBool();
+    const bool existingValue = value("loadLastOnStartup", defaultLoadLastOnStartup()).toBool();
     if (loadLastOnStartup == existingValue)
         return;
 
