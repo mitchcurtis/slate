@@ -1022,7 +1022,7 @@ void ApplicationSettings::setFullScreenToggleShortcut(const QString &shortcut)
 
 QString ApplicationSettings::defaultSelectNextLayerUpShortcut() const
 {
-    return QKeySequence(Qt::Key_Up).toString();
+    return QLatin1String("Ctrl+Up");
 }
 
 QString ApplicationSettings::selectNextLayerUpShortcut() const
@@ -1037,7 +1037,7 @@ void ApplicationSettings::setSelectNextLayerUpShortcut(const QString &shortcut)
 
 QString ApplicationSettings::defaultSelectNextLayerDownShortcut() const
 {
-    return QKeySequence(Qt::Key_Down).toString();
+    return QLatin1String("Ctrl+Down");
 }
 
 QString ApplicationSettings::selectNextLayerDownShortcut() const
