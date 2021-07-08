@@ -4618,14 +4618,14 @@ void tst_App::selectionEdgePan_data()
     const int largeDistance = qMax(window->width(), window->height());
 
     // "reverse" selections end up with slightly different coordinates.
-    QTest::newRow("top-left") << startPos << QPoint(-largeDistance, -largeDistance) << QPoint(-1, -1) << QRect(0, 0, 101, 101);
-    QTest::newRow("top") << startPos << QPoint(0, -largeDistance) << QPoint(0, -1) << QRect(0, 0, 101, 101);
-    QTest::newRow("top-right") << startPos << QPoint(largeDistance, -largeDistance) << QPoint(1, -1) << QRect(100, 0, 256 - 100, 101);
-    QTest::newRow("right") << startPos << QPoint(largeDistance, 0) << QPoint(1, 0) << QRect(100, 0, 256 - 100, 101);
+    QTest::newRow("top-left") << startPos << QPoint(-largeDistance, -largeDistance) << QPoint(-1, -1) << QRect(0, 0, 100, 100);
+    QTest::newRow("top") << startPos << QPoint(0, -largeDistance) << QPoint(0, -1) << QRect(0, 0, 100, 100);
+    QTest::newRow("top-right") << startPos << QPoint(largeDistance, -largeDistance) << QPoint(1, -1) << QRect(100, 0, 256 - 100, 100);
+    QTest::newRow("right") << startPos << QPoint(largeDistance, 0) << QPoint(1, 0) << QRect(100, 0, 256 - 100, 100);
     QTest::newRow("bottom-right") << startPos << QPoint(largeDistance, largeDistance) << QPoint(1, 1) << QRect(100, 100, 256 - 100, 256 - 100);
     QTest::newRow("bottom") << startPos << QPoint(256, largeDistance) << QPoint(0, 1) << QRect(100, 100, 256 - 100, 256 - 100);
-    QTest::newRow("bottom-left") << startPos << QPoint(-largeDistance, largeDistance) << QPoint(-1, 1) << QRect(0, 100, 101, 256 - 100);
-    QTest::newRow("left") << startPos << QPoint(-largeDistance, 0) << QPoint(-1, 0) << QRect(0, 0, 101, 101);
+    QTest::newRow("bottom-left") << startPos << QPoint(-largeDistance, largeDistance) << QPoint(-1, 1) << QRect(0, 100, 100, 256 - 100);
+    QTest::newRow("left") << startPos << QPoint(-largeDistance, 0) << QPoint(-1, 0) << QRect(0, 0, 100, 100);
 }
 
 void tst_App::selectionEdgePan()
