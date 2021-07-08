@@ -136,6 +136,7 @@ private Q_SLOTS:
     void penToolRightClickBehaviour();
     void splitScreenRendering();
     void formatNotModifiable();
+    void panelPosition();
 
     // Rulers, guides, notes, etc.
     void rulersAndGuides_data();
@@ -769,7 +770,7 @@ void tst_App::recentFiles()
         QVERIFY(QMetaObject::invokeMethod(recentFilesInstantiator, "objectAt", Qt::DirectConnection,
             Q_RETURN_ARG(QObject*, recentFileMenuItem), Q_ARG(int, 0)));
         QVERIFY(recentFileMenuItem);
-        QCOMPARE(recentFileMenuItem->property("text").toString(), project->url().path());
+        QCOMPARE(recentFileMenuItem->property("text").toString(), project->url().toLocalFile());
     }
 
     // Can't click platform types from tests, so clear the recent items manually.
@@ -3286,7 +3287,38 @@ void tst_App::formatNotModifiable()
     QVERIFY(toolsForbiddenReasonLabel);
     QVERIFY(toolsForbiddenReasonLabel->isVisible());
     QCOMPARE(toolsForbiddenReasonLabel->property("text").toString(),
-        "Image cannot be edited because its format is indexed 8-bit, which does not support modification.");
+             "Image cannot be edited because its format is indexed 8-bit, which does not support modification.");
+}
+
+void tst_App::panelPosition()
+{
+    QVERIFY2(createNewImageProject(), failureMessage);
+    QCOMPARE(app.settings()->panelPosition(), Qt::RightEdge);
+
+    // Open the appearance tab of the options dialog and set the panel positon to the left side.
+    QObject *optionsDialog = nullptr;
+    QVERIFY2(openOptionsTab("appearanceTabButton", &optionsDialog), failureMessage);
+    // Ensure that panelPositionComboBox is visible in the options dialog.
+    QVERIFY2(ensureScrollViewChildVisible("appearanceScrollView", "panelPositionComboBox"), failureMessage);
+    // Open panelPositionComboBox's popup.
+    QVERIFY2(selectComboBoxItem("panelPositionComboBox", 0 /* Qt::LeftEdge */), failureMessage);
+
+    // Accept the dialog to save the changes.
+    QVERIFY(QMetaObject::invokeMethod(optionsDialog, "accept"));
+    QTRY_VERIFY(!optionsDialog->property("visible").toBool());
+    QCOMPARE(app.settings()->panelPosition(), Qt::LeftEdge);
+    QQuickItem *panelSplitView = window->findChild<QQuickItem*>("panelSplitView");
+    QVERIFY(panelSplitView);
+    QCOMPARE(panelSplitView->x(), 0.0);
+
+    // Open the appearance tab in the options dialog again, and set the panel position back to the right side.
+    QVERIFY2(openOptionsTab("appearanceTabButton", &optionsDialog), failureMessage);
+    QVERIFY2(ensureScrollViewChildVisible("appearanceScrollView", "panelPositionComboBox"), failureMessage);
+    QVERIFY2(selectComboBoxItem("panelPositionComboBox", 1 /* Qt::RightEdge */), failureMessage);
+    QVERIFY(QMetaObject::invokeMethod(optionsDialog, "accept"));
+    QTRY_VERIFY(!optionsDialog->property("visible").toBool());
+    QCOMPARE(app.settings()->panelPosition(), Qt::RightEdge);
+    QCOMPARE(panelSplitView->x(), panelSplitView->parentItem()->width() - panelSplitView->width());
 }
 
 void tst_App::rulersAndGuides_data()
@@ -3986,15 +4018,14 @@ void tst_App::selectionToolImageCanvas()
 
     // We don't want to use a _data() function for this, because we don't need
     // to create a new project every time.
-    // The arguments are:            press             release         expected            zoom centre      zoom
+    // The arguments are:          press             release         expected            zoom centre      zoom
     QVector<SelectionData> selectionData;
     selectionData << SelectionData(QPoint(-10, -10), QPoint(10, 10), QRect(0, 0, 10, 10));
     selectionData << SelectionData(QPoint(-10, 0), QPoint(10, 10), QRect(0, 0, 10, 10));
     selectionData << SelectionData(QPoint(0, -10), QPoint(10, 10), QRect(0, 0, 10, 10));
     selectionData << SelectionData(QPoint(0, 0), QPoint(256, 256), QRect(0, 0, 256, 256));
-    // TODO - these fail:
-//    selectionData << SelectionData(QPoint(30, 30), QPoint(0, 0), QRect(0, 0, 30, 30), QPoint(15, 15), 4);
-//    selectionData << SelectionData(QPoint(256, 256), QPoint(246, 246), QRect(246, 246, 10, 10));
+    selectionData << SelectionData(QPoint(30, 30), QPoint(0, 0), QRect(0, 0, 30, 30), QPoint(15, 15), 4);
+    selectionData << SelectionData(QPoint(256, 256), QPoint(246, 246), QRect(246, 246, 10, 10));
 
     // For debugging.
     const bool debug = false;
@@ -4040,6 +4071,9 @@ void tst_App::selectionToolImageCanvas()
             QVERIFY(window->grabWindow().save(imageGrabPath));
         }
         QVERIFY2(canvas->selectionArea() == expectedPressArea, selectionAreaFailureMessage(canvas, data, expectedPressArea));
+        // The cursor should remain Qt::BlankCursor until the mouse is released,
+        // so that the crosshair is visible.
+        QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
 
         setCursorPosInScenePixels(data.releaseScenePos);
         QTest::mouseMove(window, cursorWindowPos, eventDelay);
@@ -4050,6 +4084,7 @@ void tst_App::selectionToolImageCanvas()
             QVERIFY(window->grabWindow().save(imageGrabPath));
         }
         QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
+        QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
 
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, eventDelay);
         QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));

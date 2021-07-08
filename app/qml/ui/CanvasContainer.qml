@@ -81,6 +81,8 @@ Item {
         id: statusBar
         parent: ApplicationWindow.window.contentItem
         width: canvasContainer.width
+        anchors.left: settings.panelPosition === Qt.RightEdge ? parent.left : undefined
+        anchors.right: settings.panelPosition === Qt.RightEdge ? undefined : parent.right
         anchors.bottom: parent.bottom
         project: canvasContainer.project
         canvas: canvasContainer.canvas

@@ -93,6 +93,10 @@ You can also say thank you by donating via [PayPal](https://www.paypal.com/cgi-b
 
 `master` is the branch where development is done, and `release` is the stable branch where releases are made from. I also [tag](https://github.com/mitchcurtis/slate/tags) releases.
 
+Initialise the submodules after cloning:
+
+    git submodule update --init
+
 ### Building ###
 
 Slate uses Qbs as the primary build system, with experimental CMake support added by the community. The sections below document the process of building Slate with Qbs.

@@ -666,6 +666,8 @@ QRect ImageCanvas::selectionArea() const
 
 void ImageCanvas::setSelectionArea(const QRect &selectionArea)
 {
+    qCDebug(lcImageCanvasSelection) << "setSelectionArea called with" << selectionArea;
+
     QRect adjustedSelectionArea = selectionArea;
     if (!mMouseButtonPressed && selectionArea.size().isEmpty())
         adjustedSelectionArea = QRect();
@@ -1472,10 +1474,18 @@ void ImageCanvas::updateSelectionArea()
         return;
     }
 
-    QRect newSelectionArea(mPressScenePosition.x(), mPressScenePosition.y(),
-        mCursorSceneX - mPressScenePosition.x(), mCursorSceneY - mPressScenePosition.y());
+    QRectF newSelectionAreaF(mPressScenePositionF.x(), mPressScenePositionF.y(),
+        mCursorSceneFX - mPressScenePositionF.x(), mCursorSceneFY - mPressScenePositionF.y());
+    qCDebug(lcImageCanvasSelection) << "raw selection area:" << newSelectionAreaF;
 
-    newSelectionArea = clampSelectionArea(newSelectionArea.normalized());
+    newSelectionAreaF = newSelectionAreaF.normalized();
+    qCDebug(lcImageCanvasSelection) << "normalized selection area:" << newSelectionAreaF;
+
+    QRect newSelectionArea = newSelectionAreaF.toRect();
+    qCDebug(lcImageCanvasSelection) << "integer selection area:" << newSelectionArea;
+
+    newSelectionArea = clampSelectionArea(newSelectionArea);
+    qCDebug(lcImageCanvasSelection) << "final (clamped) selection area:" << newSelectionArea;
 
     setSelectionArea(newSelectionArea);
 }
@@ -2634,7 +2644,8 @@ void ImageCanvas::updateWindowCursorShape()
     const bool splitterHovered = mSplitter.isEnabled() && mSplitter.isHovered();
     const bool overSelection = cursorOverSelection();
     const bool toolsForbidden = areToolsForbidden();
-    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && !overSelection && !overNote && !overRuler && !overGuide && !toolsForbidden);
+    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && (!overSelection || (overSelection && mPotentiallySelecting))
+        && !overNote && !overRuler && !overGuide && !toolsForbidden);
 
     Qt::CursorShape cursorShape = Qt::BlankCursor;
     if (!mHasBlankCursor) {
@@ -2936,7 +2947,8 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
     updateCursorPos(event->pos());
 
     if (!mProject->hasLoaded()) {
-        qCDebug(lcImageCanvasEvents) << "mousePressEvent -" << event;
+        qCDebug(lcImageCanvasEvents) << "mousePressEvent -" << event
+            << "mCursorSceneFX:" << mCursorSceneFX << "mCursorSceneFY:" << mCursorSceneFY;
         return;
     }
 
@@ -2951,8 +2963,9 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
     setContainsMouse(true);
 
     qCDebug(lcImageCanvasEvents) << "mousePressEvent -" << event
-        << "mousePressEvent - mPressPosition:" << mPressPosition
-        << "mPressScenePosition:" << mPressScenePosition;
+        << "mPressPosition:" << mPressPosition
+        << "mPressScenePosition:" << mPressScenePosition
+        << "mCursorSceneFX:" << mCursorSceneFX << "mCursorSceneFY:" << mCursorSceneFY;
 
     if (!isPanning()) {
         if (mSplitter.isEnabled() && mouseOverSplitterHandle(event->pos())) {
@@ -3060,7 +3073,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
 {
     qCDebug(lcImageCanvasEvents) << "mouseReleaseEvent -" << event
          << "mCursorX:" << mCursorX << "mCursorY:" << mCursorY
-         << "mCursorSceneX:" << mCursorSceneX << "mCursorSceneY:" << mCursorSceneY;
+         << "mCursorSceneFX:" << mCursorSceneFX << "mCursorSceneFY:" << mCursorSceneFY;
     QQuickItem::mouseReleaseEvent(event);
 
     updateCursorPos(event->pos());
@@ -3158,7 +3171,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
         if (event->button() == Qt::LeftButton) {
             // A note was dragged (regardless of whether it actually changed position).
             qCDebug(lcImageCanvasNotes) << "the note at index" << mPressedNoteIndex << "was dragged -"
-                << "mCursorSceneX:" << mCursorSceneX << "mCursorSceneY:" << mCursorSceneY
+                << "mCursorSceneFX:" << mCursorSceneFX << "mCursorSceneFY:" << mCursorSceneFY
                 << "mNotePositionBeforePress:" << mNotePositionBeforePress
                 << "mPressPosition:" << mPressPosition << "mPressScenePosition:" << mPressScenePosition
                 << "mNotePressOffset:" << mNotePressOffset;
