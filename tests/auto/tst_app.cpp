@@ -4071,6 +4071,9 @@ void tst_App::selectionToolImageCanvas()
             QVERIFY(window->grabWindow().save(imageGrabPath));
         }
         QVERIFY2(canvas->selectionArea() == expectedPressArea, selectionAreaFailureMessage(canvas, data, expectedPressArea));
+        // The cursor should remain Qt::BlankCursor until the mouse is released,
+        // so that the crosshair is visible.
+        QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
 
         setCursorPosInScenePixels(data.releaseScenePos);
         QTest::mouseMove(window, cursorWindowPos, eventDelay);
@@ -4081,6 +4084,7 @@ void tst_App::selectionToolImageCanvas()
             QVERIFY(window->grabWindow().save(imageGrabPath));
         }
         QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
+        QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
 
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, eventDelay);
         QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));

@@ -2633,7 +2633,8 @@ void ImageCanvas::updateWindowCursorShape()
     const bool splitterHovered = mSplitter.isEnabled() && mSplitter.isHovered();
     const bool overSelection = cursorOverSelection();
     const bool toolsForbidden = areToolsForbidden();
-    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && !overSelection && !overNote && !overRuler && !overGuide && !toolsForbidden);
+    setHasBlankCursor(nothingOverUs && !isPanning() && !splitterHovered && (!overSelection || (overSelection && mPotentiallySelecting))
+        && !overNote && !overRuler && !overGuide && !toolsForbidden);
 
     Qt::CursorShape cursorShape = Qt::BlankCursor;
     if (!mHasBlankCursor) {
