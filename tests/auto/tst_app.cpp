@@ -136,7 +136,6 @@ private Q_SLOTS:
     void penToolRightClickBehaviour();
     void splitScreenRendering();
     void formatNotModifiable();
-    void panelPosition();
 
     // Rulers, guides, notes, etc.
     void rulersAndGuides_data();
@@ -3287,38 +3286,7 @@ void tst_App::formatNotModifiable()
     QVERIFY(toolsForbiddenReasonLabel);
     QVERIFY(toolsForbiddenReasonLabel->isVisible());
     QCOMPARE(toolsForbiddenReasonLabel->property("text").toString(),
-             "Image cannot be edited because its format is indexed 8-bit, which does not support modification.");
-}
-
-void tst_App::panelPosition()
-{
-    QVERIFY2(createNewImageProject(), failureMessage);
-    QCOMPARE(app.settings()->panelPosition(), Qt::RightEdge);
-
-    // Open the appearance tab of the options dialog and set the panel positon to the left side.
-    QObject *optionsDialog = nullptr;
-    QVERIFY2(openOptionsTab("appearanceTabButton", &optionsDialog), failureMessage);
-    // Ensure that panelPositionComboBox is visible in the options dialog.
-    QVERIFY2(ensureScrollViewChildVisible("appearanceScrollView", "panelPositionComboBox"), failureMessage);
-    // Open panelPositionComboBox's popup.
-    QVERIFY2(selectComboBoxItem("panelPositionComboBox", 0 /* Qt::LeftEdge */), failureMessage);
-
-    // Accept the dialog to save the changes.
-    QVERIFY(QMetaObject::invokeMethod(optionsDialog, "accept"));
-    QTRY_VERIFY(!optionsDialog->property("visible").toBool());
-    QCOMPARE(app.settings()->panelPosition(), Qt::LeftEdge);
-    QQuickItem *panelSplitView = window->findChild<QQuickItem*>("panelSplitView");
-    QVERIFY(panelSplitView);
-    QCOMPARE(panelSplitView->x(), 0.0);
-
-    // Open the appearance tab in the options dialog again, and set the panel position back to the right side.
-    QVERIFY2(openOptionsTab("appearanceTabButton", &optionsDialog), failureMessage);
-    QVERIFY2(ensureScrollViewChildVisible("appearanceScrollView", "panelPositionComboBox"), failureMessage);
-    QVERIFY2(selectComboBoxItem("panelPositionComboBox", 1 /* Qt::RightEdge */), failureMessage);
-    QVERIFY(QMetaObject::invokeMethod(optionsDialog, "accept"));
-    QTRY_VERIFY(!optionsDialog->property("visible").toBool());
-    QCOMPARE(app.settings()->panelPosition(), Qt::RightEdge);
-    QCOMPARE(panelSplitView->x(), panelSplitView->parentItem()->width() - panelSplitView->width());
+        "Image cannot be edited because its format is indexed 8-bit, which does not support modification.");
 }
 
 void tst_App::rulersAndGuides_data()

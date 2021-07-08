@@ -302,12 +302,10 @@ bool TestHelper::selectComboBoxItem(const QString &comboBoxObjectName, int index
     QQuickItem *delegate = nullptr;
     VERIFY(QMetaObject::invokeMethod(listView, "itemAtIndex", Qt::DirectConnection,
         Q_RETURN_ARG(QQuickItem*, delegate), Q_ARG(int, index)));
-    VERIFY(delegate);
     mouseEventOnCentre(delegate, MouseClick);
     VERIFY2(comboBox->property("currentIndex").toInt() == index,
         qPrintable(QString::fromLatin1("Expected currentIndex of %1 to be %2, but it's %3")
             .arg(comboBoxObjectName).arg(index).arg(comboBox->property("currentIndex").toInt())));
-    TRY_VERIFY(!comboBoxPopup->property("visible").toBool());
     return true;
 }
 
@@ -2496,7 +2494,6 @@ bool TestHelper::updateVariables(bool isNewProject, Project::Type projectType)
 
     app.settings()->setAutoSwatchEnabled(false);
     app.settings()->setPenToolRightClickBehaviour(app.settings()->defaultPenToolRightClickBehaviour());
-    app.settings()->setPanelPosition(app.settings()->defaultPanelPosition());
 
     if (projectType == Project::TilesetType) {
         tilesetProject = qobject_cast<TilesetProject*>(project);

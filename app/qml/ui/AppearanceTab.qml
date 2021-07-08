@@ -6,25 +6,23 @@ import QtQml 2.15
 
 ColumnLayout {
     function applyChangesToSettings() {
-        settings.language = languageComboBox.currentValue
+        settings.language = languageComboBox.model[languageComboBox.currentIndex].value
         settings.checkerColour1 = checkerColour1TextField.colour
         settings.checkerColour2 = checkerColour2TextField.colour
         settings.alwaysShowCrosshair = alwaysShowCrosshairCheckBox.checked
         settings.fpsVisible = showFpsCheckBox.checked
         settings.showCurrentLayerInStatusBar = showCurrentLayerInStatusBarCheckBox.checked
         settings.windowOpacity = windowOpacitySlider.value
-        settings.panelPosition = panelPositionComboBox.currentValue
     }
 
     function revertToOldSettings() {
-        languageComboBox.currentIndex = languageComboBox.indexOfValue(settings.language)
+        languageComboBox.currentIndex = languageComboBox.indexForValue(settings.language)
         checkerColour1TextField.text = settings.checkerColour1
         checkerColour2TextField.text = settings.checkerColour2
         showFpsCheckBox.checked = settings.fpsVisible
         showCurrentLayerInStatusBarCheckBox.checked = settings.showCurrentLayerInStatusBar
         alwaysShowCrosshairCheckBox.checked = settings.alwaysShowCrosshair
         windowOpacitySlider.value = settings.windowOpacity
-        panelPositionComboBox.currentIndex = panelPositionComboBox.indexOfValue(settings.panelPosition)
     }
 
     Item {
@@ -32,7 +30,6 @@ ColumnLayout {
     }
 
     ScrollView {
-        objectName: "appearanceScrollView"
         clip: true
 
         ScrollBar.horizontal.policy: ScrollBar.AsNeeded
@@ -53,11 +50,17 @@ ColumnLayout {
                 objectName: "languageComboBox"
                 leftPadding: 0
                 textRole: "display"
-                valueRole: "value"
+                currentIndex: indexForValue(settings.language)
 
                 Layout.fillWidth: true
 
-                Component.onCompleted: currentIndex = indexOfValue(settings.language)
+                function indexForValue(value) {
+                    for (var i = 0; i < model.length; ++i) {
+                        if (model[i].value === value)
+                            return i;
+                    }
+                    return -1;
+                }
 
                 model: [
                     {
@@ -110,30 +113,6 @@ ColumnLayout {
                     visible: windowOpacitySlider.pressed
                     text: windowOpacitySlider.value.toFixed(1)
                 }
-            }
-
-            Label {
-                text: qsTr("Panel position")
-            }
-            ComboBox {
-                id: panelPositionComboBox
-                objectName: "panelPositionComboBox"
-                leftPadding: 0
-                textRole: "display"
-                valueRole: "value"
-
-                Component.onCompleted: currentIndex = indexOfValue(settings.panelPosition)
-
-                model: [
-                    {
-                        value: Qt.LeftEdge,
-                        display: qsTr("Left side")
-                    },
-                    {
-                        value: Qt.RightEdge,
-                        display: qsTr("Right side")
-                    }
-                ]
             }
 
             Label {

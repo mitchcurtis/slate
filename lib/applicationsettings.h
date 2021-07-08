@@ -50,7 +50,6 @@ class SLATE_EXPORT ApplicationSettings : public QSettings
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
     Q_PROPERTY(int penToolRightClickBehaviour READ penToolRightClickBehaviour WRITE setPenToolRightClickBehaviour NOTIFY penToolRightClickBehaviourChanged)
     Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
-    Q_PROPERTY(Qt::Edge panelPosition READ panelPosition WRITE setPanelPosition NOTIFY panelPositionChanged)
 
     Q_PROPERTY(QString newShortcut READ newShortcut WRITE setNewShortcut NOTIFY newShortcutChanged)
     Q_PROPERTY(QString openShortcut READ openShortcut WRITE setOpenShortcut NOTIFY openShortcutChanged)
@@ -141,10 +140,6 @@ public:
     qreal defaultWindowOpacity() const;
     qreal windowOpacity() const;
     void setWindowOpacity(qreal opacity);
-
-    Qt::Edge defaultPanelPosition() const;
-    Qt::Edge panelPosition() const;
-    void setPanelPosition(Qt::Edge position);
 
     QColor defaultCheckerColour1() const;
     QColor checkerColour1() const;
@@ -335,7 +330,6 @@ signals:
     void autoSwatchEnabledChanged();
     void alwaysShowCrosshairChanged();
     void windowOpacityChanged();
-    void panelPositionChanged();
     void checkerColour1Changed();
     void checkerColour2Changed();
     void penToolRightClickBehaviourChanged();
