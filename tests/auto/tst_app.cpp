@@ -1272,8 +1272,7 @@ void tst_App::undoTiles()
     // (with splitscreen as the default) too, but it's not a huge deal...
     QTest::mouseMove(window, QPoint(window->width() * 0.66, window->height() * 0.5));
     // Wait for the pane centering update to be painted.
-    QSignalSpy frameSwappedSpy(window, SIGNAL(frameSwapped()));
-    QVERIFY(frameSwappedSpy.wait());
+    QTest::qWait(100);
 
     // Move the cursor away so we have an image we can compare against other grabbed images later on.
     setCursorPosInTiles(0, 2);
@@ -5775,10 +5774,6 @@ void tst_App::animationPreviewUpdated()
 
 void tst_App::seekAnimation()
 {
-    // TODO: test usual stuff, but also that 1) click to seek, 2) play doesn't result in it jumping back
-
-
-
     // Ensure that we have a temporary directory.
     QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
 
@@ -5795,18 +5790,9 @@ void tst_App::seekAnimation()
     QVERIFY2(togglePanel("animationPanel", true), failureMessage);
     QVERIFY(isUsingAnimation());
 
-    // Ensure that the preview image shows the first frame.
-//    auto previewSpriteImage = window->findChild<QQuickItem*>("animationPreviewContainerSpriteImage");
-//    QVERIFY(previewSpriteImage);
-//    QVERIFY(imageGrabber.requestImage(previewSpriteImage));
-//    QTRY_VERIFY(imageGrabber.isReady());
-//    const QImage oldPreviewGrab = imageGrabber.takeImage();
-//    QCOMPARE(oldPreviewGrab.pixelColor(17, 10), QColor::fromRgb(QRgb(0x7eb0cc)));
-
     // Seek to the second frame.
     auto animationSeekSlider = window->findChild<QQuickItem*>("animationSeekSlider");
     QVERIFY(animationSeekSlider);
-    qDebug() << "about to click slider";
     QVERIFY2(moveSliderHandle(animationSeekSlider, 1), failureMessage);
     QCOMPARE(sliderValue(animationSeekSlider), 1);
     auto *animationSystem = getAnimationSystem();
@@ -5817,11 +5803,6 @@ void tst_App::seekAnimation()
     QVERIFY2(clickButton(animationPlayPauseButton), failureMessage);
     QCOMPARE(animationSystem->currentAnimationPlayback()->isPlaying(), true);
     QCOMPARE(animationSystem->currentAnimationPlayback()->currentFrameIndex(), 1);
-//    QVERIFY(imageGrabber.requestImage(previewSpriteImage));
-//    QTRY_VERIFY(imageGrabber.isReady());
-//    const QImage newPreviewGrab = imageGrabber.takeImage();
-//    QCOMPARE(oldPreviewGrab.pixelColor(53, 10), QColor::fromRgb(QRgb(0xffffff)));
-//    QCOMPARE(oldPreviewGrab.pixelColor(53, 11), QColor::fromRgb(QRgb(0x7eb0cc)));
 }
 
 void tst_App::addAndRemoveLayers()
