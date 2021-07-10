@@ -116,9 +116,12 @@ protected:
     Q_REQUIRED_RESULT bool setCheckBoxChecked(const QString &checkBoxObjectName, bool checked);
     Q_REQUIRED_RESULT bool clickDialogFooterButton(const QObject *dialog, const QString &buttonText);
 
-    QObject *findPopupFromTypeName(const QString &typeName) const;
+    Q_REQUIRED_RESULT bool findAndOpenClosedPopupFromObjectName(const QString &objectName, QObject **dialog = nullptr);
+    QObject *findOpenPopupFromTypeName(const QString &typeName) const;
     QQuickItem *findDialogButtonFromText(const QObject *dialog, const QString &text);
     QQuickItem *findDialogButtonFromObjectName(const QObject *dialog, const QString &objectName);
+    Q_REQUIRED_RESULT bool acceptDialog(QObject *dialog, const QString &acceptButtonObjectName);
+    Q_REQUIRED_RESULT bool rejectDialog(QObject *dialog, const QString &rejectButtonObjectName);
     QQuickItem *findListViewChild(QQuickItem *listView, const QString &childObjectName) const;
     QQuickItem *findListViewChild(const QString &listViewObjectName, const QString &childObjectName) const;
     static QQuickItem *findChildWithText(QQuickItem *item, const QString &text);

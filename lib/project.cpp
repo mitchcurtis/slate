@@ -521,14 +521,18 @@ QVector<Guide> Project::guides() const
     return mGuides;
 }
 
-void Project::addGuide(const Guide &guide)
+void Project::addGuides(const QVector<Guide> &guides)
 {
-    if (mGuides.contains(guide))
-        return;
+    bool addedGuides = false;
+    for (const auto guide : guides) {
+        if (!mGuides.contains(guide)) {
+            mGuides.append(guides);
+            addedGuides = true;
+        }
+    }
 
-    mGuides.append(guide);
-
-    emit guidesChanged();
+    if (addedGuides)
+        emit guidesChanged();
 }
 
 void Project::moveGuide(const Guide &guide, int to)
@@ -542,9 +546,14 @@ void Project::moveGuide(const Guide &guide, int to)
     emit guidesChanged();
 }
 
-void Project::removeGuide(const Guide &guide)
+void Project::removeGuides(const QVector<Guide> &guides)
 {
-    if (mGuides.removeOne(guide))
+    bool removedGuides = false;
+    for (const auto guide : guides) {
+        removedGuides = mGuides.removeOne(guide);
+    }
+
+    if (removedGuides)
         emit guidesChanged();
 }
 

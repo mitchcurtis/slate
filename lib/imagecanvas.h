@@ -513,8 +513,14 @@ protected:
     Ruler *rulerAtCursorPos();
 
     void addNewGuide();
+    Q_INVOKABLE void addNewGuides(int horizontalSpacing, int verticalSpacing);
     void moveGuide();
     void removeGuide();
+    // Public for testing.
+public:
+    Q_INVOKABLE void removeAllGuides();
+protected:
+
     void updatePressedGuide();
     int guideIndexAtCursorPos();
 

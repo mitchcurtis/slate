@@ -173,6 +173,7 @@ ApplicationWindow {
         texturedFillSettingsDialog: texturedFillSettingsDialog
         aboutDialog: aboutDialog
         saveChangesDialog: saveChangesDialog
+        addGuidesDialog: addGuidesDialog
     }
 
     header: Ui.ToolBar {
@@ -456,6 +457,12 @@ ApplicationWindow {
 
     Ui.NoteContextMenu {
         id: noteContextMenu
+        canvas: window.canvas
+    }
+
+    Ui.AddGuidesDialog {
+        id: addGuidesDialog
+        project: projectManager.project
         canvas: window.canvas
     }
 

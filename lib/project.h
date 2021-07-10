@@ -99,9 +99,9 @@ public:
     virtual QRect bounds() const;
 
     QVector<Guide> guides() const;
-    void addGuide(const Guide &guide);
+    void addGuides(const QVector<Guide> &guides);
     void moveGuide(const Guide &guide, int to);
-    void removeGuide(const Guide &guide);
+    void removeGuides(const QVector<Guide> &guides);
 
     bool hasNotes() const;
     QVector<Note> notes() const;

@@ -55,3 +55,12 @@ bool operator==(const Guide &a, const Guide &b)
 {
     return a.position() == b.position() && a.orientation() == b.orientation();
 }
+
+QDebug operator<<(QDebug debug, const Guide &guide)
+{
+    QDebugStateSaver saver(debug);
+    debug.nospace() << "(Guide position=" << guide.position()
+        << " orientation=" << guide.orientation()
+        << ")";
+    return debug;
+}

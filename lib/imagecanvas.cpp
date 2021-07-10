@@ -29,7 +29,7 @@
 #include <QQuickWindow>
 #include <QtMath>
 
-#include "addguidecommand.h"
+#include "addguidescommand.h"
 #include "addnotecommand.h"
 #include "applicationsettings.h"
 #include "applygreedypixelfillcommand.h"
@@ -38,7 +38,7 @@
 #include "applypixellinecommand.h"
 #include "applypixelpencommand.h"
 #include "changenotecommand.h"
-#include "deleteguidecommand.h"
+#include "deleteguidescommand.h"
 #include "deletenotecommand.h"
 #include "deleteimagecanvasselectioncommand.h"
 #include "fillalgorithms.h"
@@ -1290,12 +1290,28 @@ Ruler *ImageCanvas::rulerAtCursorPos()
 void ImageCanvas::addNewGuide()
 {
     mProject->beginMacro(QLatin1String("AddGuide"));
-    mProject->addChange(new AddGuideCommand(mProject, Guide(
-        mPressedRuler->orientation() == Qt::Horizontal ? mCursorSceneY : mCursorSceneX,
-        mPressedRuler->orientation())));
+    QVector<Guide> guides = {
+        Guide(mPressedRuler->orientation() == Qt::Horizontal ? mCursorSceneY : mCursorSceneX, mPressedRuler->orientation())
+    };
+    mProject->addChange(new AddGuidesCommand(mProject, guides));
     mProject->endMacro();
 
     // The update for these guide commands happens in onGuidesChanged.
+}
+
+void ImageCanvas::addNewGuides(int horizontalSpacing, int verticalSpacing)
+{
+    QVector<Guide> guides;
+    for (int y = verticalSpacing; y < mProject->heightInPixels(); y += verticalSpacing) {
+        for (int x = horizontalSpacing; x < mProject->widthInPixels(); x += horizontalSpacing) {
+            guides.append(Guide(x, Qt::Vertical));
+        }
+        guides.append(Guide(y, Qt::Horizontal));
+    }
+
+    mProject->beginMacro(QLatin1String("AddGuideS"));
+    mProject->addChange(new AddGuidesCommand(mProject, guides));
+    mProject->endMacro();
 }
 
 void ImageCanvas::moveGuide()
@@ -1313,7 +1329,14 @@ void ImageCanvas::removeGuide()
     const Guide guide = mProject->guides().at(mPressedGuideIndex);
 
     mProject->beginMacro(QLatin1String("DeleteGuide"));
-    mProject->addChange(new DeleteGuideCommand(mProject, guide));
+    mProject->addChange(new DeleteGuidesCommand(mProject, { guide }));
+    mProject->endMacro();
+}
+
+void ImageCanvas::removeAllGuides()
+{
+    mProject->beginMacro(QLatin1String("DeleteGuide"));
+    mProject->addChange(new DeleteGuidesCommand(mProject, mProject->guides()));
     mProject->endMacro();
 }
 

@@ -372,7 +372,7 @@ bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDi
     // Open the canvas size popup.
     if (!clickButton(canvasSizeToolButton))
         return false;
-    const QObject *canvasSizePopup = findPopupFromTypeName("CanvasSizePopup");
+    const QObject *canvasSizePopup = findOpenPopupFromTypeName("CanvasSizePopup");
     VERIFY(canvasSizePopup);
     TRY_VERIFY2(canvasSizePopup->property("opened").toBool(), "Failed to open CanvasSizePopup");
 
@@ -439,7 +439,7 @@ bool TestHelper::changeImageSize(int width, int height)
     // Open the image size popup.
     if (!clickButton(imageSizeToolButton))
         return false;
-    const QObject *imageSizePopup = findPopupFromTypeName("ImageSizePopup");
+    const QObject *imageSizePopup = findOpenPopupFromTypeName("ImageSizePopup");
     VERIFY(imageSizePopup);
     VERIFY(imageSizePopup->property("visible").toBool());
 
@@ -499,7 +499,7 @@ bool TestHelper::changeToolSize(int size)
 {
     if (!clickButton(toolSizeButton))
         return false;
-    const QObject *toolSizePopup = findPopupFromTypeName("ToolSizePopup");
+    const QObject *toolSizePopup = findOpenPopupFromTypeName("ToolSizePopup");
     VERIFY(toolSizePopup);
     VERIFY(toolSizePopup->property("visible").toBool() == true);
 
@@ -582,7 +582,7 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
 
     // Open the move contents dialog.
     VERIFY2(triggerShortcut("moveContentsShortcut", app.settings()->moveContentsShortcut()), failureMessage);
-    const QObject *moveContentsDialog = findPopupFromTypeName("MoveContentsDialog");
+    const QObject *moveContentsDialog = findOpenPopupFromTypeName("MoveContentsDialog");
     VERIFY(moveContentsDialog);
     TRY_VERIFY(moveContentsDialog->property("opened").toBool());
 
@@ -1021,7 +1021,7 @@ bool TestHelper::renameSwatchColour(int index, const QString &name)
     QQuickItem *delegate = findSwatchViewDelegateAtIndex(index);
     VERIFY(delegate);
     mouseEventOnCentre(delegate, MouseClick, Qt::RightButton);
-    QObject *swatchContextMenu = findPopupFromTypeName("SwatchContextMenu");
+    QObject *swatchContextMenu = findOpenPopupFromTypeName("SwatchContextMenu");
     VERIFY(swatchContextMenu);
     TRY_VERIFY(swatchContextMenu->property("opened").toBool());
 
@@ -1037,7 +1037,7 @@ bool TestHelper::renameSwatchColour(int index, const QString &name)
         return false;
     TRY_VERIFY(!swatchContextMenu->property("visible").toBool());
 
-    QObject *renameSwatchColourDialog = findPopupFromTypeName("RenameSwatchColourDialog");
+    QObject *renameSwatchColourDialog = findOpenPopupFromTypeName("RenameSwatchColourDialog");
     VERIFY(renameSwatchColourDialog);
     TRY_VERIFY(renameSwatchColourDialog->property("opened").toBool());
 
@@ -1057,7 +1057,7 @@ bool TestHelper::deleteSwatchColour(int index)
     VERIFY(delegate);
     mouseEventOnCentre(delegate, MouseClick, Qt::RightButton);
 
-    QObject *swatchContextMenu = findPopupFromTypeName("SwatchContextMenu");
+    QObject *swatchContextMenu = findOpenPopupFromTypeName("SwatchContextMenu");
     VERIFY(swatchContextMenu);
     TRY_VERIFY(swatchContextMenu->property("opened").toBool());
 
@@ -1158,7 +1158,7 @@ bool TestHelper::addNewNoteAtCursorPos(const QString &text)
 
     // Open the note dialog. It shouldn't have the text that was previously entered.
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    const QObject *noteDialog = findPopupFromTypeName("NoteDialog");
+    const QObject *noteDialog = findOpenPopupFromTypeName("NoteDialog");
     VERIFY(noteDialog);
     TRY_VERIFY(noteDialog->property("opened").toBool());
 
@@ -1379,7 +1379,7 @@ bool TestHelper::openAnimationSettingsPopupForCurrentAnimation(QObject **popup)
 
     if (!clickButton(configureAnimationToolButton))
         return false;
-    QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
+    QObject *animationSettingsPopup = findOpenPopupFromTypeName("AnimationSettingsPopup");
     VERIFY(animationSettingsPopup);
     if (popup)
         *popup = animationSettingsPopup;
@@ -1431,7 +1431,19 @@ bool TestHelper::grabFramesOfCurrentAnimation(QVector<QImage> &frames)
     return true;
 }
 
-QObject *TestHelper::findPopupFromTypeName(const QString &typeName) const
+// Necessary for dialogs that can only be opened by (native) menus.
+bool TestHelper::findAndOpenClosedPopupFromObjectName(const QString &objectName, QObject **dialog)
+{
+    QObject *theDialog = window->findChild<QObject*>(objectName);
+    VERIFY(theDialog);
+    VERIFY(QMetaObject::invokeMethod(theDialog, "open"));
+    TRY_VERIFY(theDialog->property("opened").toBool());
+    if (dialog)
+        *dialog = theDialog;
+    return true;
+}
+
+QObject *TestHelper::findOpenPopupFromTypeName(const QString &typeName) const
 {
     QObject *popup = nullptr;
     qCDebug(lcFindPopupFromTypeName) << "looking through" << overlay->childItems().size()
@@ -1477,6 +1489,34 @@ QQuickItem *TestHelper::findDialogButtonFromObjectName(const QObject *dialog, co
         return nullptr;
 
     return footer->findChild<QQuickItem*>(objectName);
+}
+
+bool TestHelper::acceptDialog(QObject *dialog, const QString &acceptButtonObjectName)
+{
+    QSignalSpy acceptedSpy(dialog, SIGNAL(accepted()));
+    VERIFY(acceptedSpy.isValid());
+
+    QQuickItem *acceptButton = findDialogButtonFromObjectName(dialog, acceptButtonObjectName);
+    VERIFY(acceptButton);
+    if (!clickButton(acceptButton))
+        return false;
+    TRY_VERIFY(!dialog->property("visible").toBool());
+    COMPARE_NON_FLOAT(acceptedSpy.count(), 1);
+    return true;
+}
+
+bool TestHelper::rejectDialog(QObject *dialog, const QString &rejectButtonObjectName)
+{
+    QSignalSpy rejectedSpy(dialog, SIGNAL(rejected()));
+    VERIFY(rejectedSpy.isValid());
+
+    QQuickItem *rejectButton = findDialogButtonFromObjectName(dialog, rejectButtonObjectName);
+    VERIFY(rejectButton);
+    if (!clickButton(rejectButton))
+        return false;
+    TRY_VERIFY(!dialog->property("visible").toBool());
+    COMPARE_NON_FLOAT(rejectedSpy.count(), 1);
+    return true;
 }
 
 QQuickItem *TestHelper::findListViewChild(QQuickItem *listView, const QString &childObjectName) const
@@ -2166,7 +2206,7 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
     }
 
     // Ensure that the new project popup is visible.
-    const QObject *newProjectPopup = findPopupFromTypeName("NewProjectPopup");
+    const QObject *newProjectPopup = findOpenPopupFromTypeName("NewProjectPopup");
     VERIFY(newProjectPopup);
     VERIFY(newProjectPopup->property("visible").toBool());
     // TODO: remove this when https://bugreports.qt.io/browse/QTBUG-53420 is fixed
@@ -2198,8 +2238,8 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
             return false;
 
         // Now the New Tileset Project popup should be visible.
-        TRY_VERIFY(findPopupFromTypeName("NewTilesetProjectPopup"));
-        const QObject *newTilesetProjectPopup = findPopupFromTypeName("NewTilesetProjectPopup");
+        TRY_VERIFY(findOpenPopupFromTypeName("NewTilesetProjectPopup"));
+        const QObject *newTilesetProjectPopup = findOpenPopupFromTypeName("NewTilesetProjectPopup");
         TRY_VERIFY2(newTilesetProjectPopup->property("opened").toBool(),
             "NewTilesetProjectPopup should be visible after clicking the new project button");
 
@@ -2452,8 +2492,8 @@ bool TestHelper::ensureNewImageProjectPopupVisible(Project::Type projectType, QO
     // but their file names are different so we have to account for that here.
     const QString newProjectPopupTypeName = projectType == Project::ImageType
             ? "NewImageProjectPopup" : "NewLayeredImageProjectPopup";
-    TRY_VERIFY(findPopupFromTypeName(newProjectPopupTypeName));
-    QObject *newImageProjectPopup = findPopupFromTypeName(newProjectPopupTypeName);
+    TRY_VERIFY(findOpenPopupFromTypeName(newProjectPopupTypeName));
+    QObject *newImageProjectPopup = findOpenPopupFromTypeName(newProjectPopupTypeName);
     VERIFY(newImageProjectPopup);
     TRY_VERIFY(newImageProjectPopup->property("opened").toBool());
     if (popup)
@@ -2483,7 +2523,7 @@ bool TestHelper::loadProject(const QUrl &url, const QRegularExpression &expected
         qPrintable(QString::fromLatin1("Expected failure to load project %1 with the following error message:\n%2\nBut got:\n%3")
             .arg(url.path()).arg(expectedFailureMessage.pattern()).arg(projectCreationFailedSpy->first().first().toString())));
 
-    const QObject *errorPopup = findPopupFromTypeName("ErrorPopup");
+    const QObject *errorPopup = findOpenPopupFromTypeName("ErrorPopup");
     VERIFY(errorPopup);
     VERIFY(errorPopup->property("visible").toBool());
     VERIFY(expectedFailureMessage.match(errorPopup->property("text").toString()).hasMatch());
@@ -2678,7 +2718,7 @@ bool TestHelper::saveChanges(const QString &expectedErrorMessage)
     if (!project->hasUnsavedChanges())
         FAIL("Cannot save changes because there are none");
 
-    const QObject *saveChangesDialog = findPopupFromTypeName("SaveChangesDialog");
+    const QObject *saveChangesDialog = findOpenPopupFromTypeName("SaveChangesDialog");
     VERIFY(saveChangesDialog);
     TRY_VERIFY(saveChangesDialog->property("opened").toBool());
 
@@ -2704,7 +2744,7 @@ bool TestHelper::discardChanges()
     if (!project->hasUnsavedChanges())
         FAIL("Cannot discard changes because there are none");
 
-    const QObject *saveChangesDialog = findPopupFromTypeName("SaveChangesDialog");
+    const QObject *saveChangesDialog = findOpenPopupFromTypeName("SaveChangesDialog");
     VERIFY(saveChangesDialog);
     TRY_VERIFY(saveChangesDialog->property("opened").toBool());
 
@@ -2718,7 +2758,7 @@ bool TestHelper::discardChanges()
 
 bool TestHelper::verifyErrorAndDismiss(const QString &expectedErrorMessage)
 {
-    QObject *errorDialog = findPopupFromTypeName("ErrorPopup");
+    QObject *errorDialog = findOpenPopupFromTypeName("ErrorPopup");
     VERIFY(errorDialog);
     TRY_VERIFY(errorDialog->property("opened").toBool());
 
@@ -2738,7 +2778,7 @@ bool TestHelper::verifyErrorAndDismiss(const QString &expectedErrorMessage)
 
 bool TestHelper::verifyNoErrorOrDismiss()
 {
-    QObject *errorDialog = findPopupFromTypeName("ErrorPopup");
+    QObject *errorDialog = findOpenPopupFromTypeName("ErrorPopup");
     if (!errorDialog)
         return true;
 
@@ -2821,7 +2861,7 @@ bool TestHelper::openOptionsTab(const QString &tabButtonObjectName, QObject **op
     // Open options dialog.
     if (!triggerOptions())
         return false;
-    QObject *theOptionsDialog = findPopupFromTypeName("OptionsDialog");
+    QObject *theOptionsDialog = findOpenPopupFromTypeName("OptionsDialog");
     VERIFY(theOptionsDialog);
     TRY_VERIFY(theOptionsDialog->property("opened").toBool());
 
@@ -3063,8 +3103,8 @@ bool TestHelper::switchTool(ImageCanvas::Tool tool, InputType inputType)
 
             // Open the menu.
             mouseEventOnCentre(fillToolButton, MousePress);
-            TRY_VERIFY(findPopupFromTypeName("FillToolMenu"));
-            QObject *fillToolMenu = findPopupFromTypeName("FillToolMenu");
+            TRY_VERIFY(findOpenPopupFromTypeName("FillToolMenu"));
+            QObject *fillToolMenu = findOpenPopupFromTypeName("FillToolMenu");
             VERIFY(fillToolMenu);
             TRY_VERIFY2(fillToolMenu->property("opened").toBool(), "Fill tool menu didn't open");
             mouseEventOnCentre(fillToolButton, MouseRelease);

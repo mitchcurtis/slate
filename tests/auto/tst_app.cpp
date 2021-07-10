@@ -141,6 +141,7 @@ private Q_SLOTS:
     void rulersAndGuides_data();
     void rulersAndGuides();
     void rulersSplitScreen();
+    void addAndDeleteMultipleGuides();
     void notes_data();
     void notes();
     void dragNoteWithoutMoving();
@@ -812,7 +813,7 @@ void tst_App::newProjectSizeFromClipboard()
     // Don't want to use createNewLayeredImageProject() here, because we need to test the new project popup.
     QVERIFY2(triggerNewProject(), failureMessage);
 
-    const QObject *newProjectPopup = findPopupFromTypeName("NewProjectPopup");
+    const QObject *newProjectPopup = findOpenPopupFromTypeName("NewProjectPopup");
     QVERIFY(newProjectPopup);
     QTRY_VERIFY(newProjectPopup->property("opened").toBool());
     QVERIFY2(newProjectPopup->property("activeFocus").toBool(),
@@ -3433,6 +3434,37 @@ void tst_App::rulersSplitScreen()
     QVERIFY(!secondVerticalRuler->isVisible());
 }
 
+void tst_App::addAndDeleteMultipleGuides()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    QVERIFY2(triggerRulersVisible(), failureMessage);
+    QCOMPARE(canvas->areRulersVisible(), true);
+
+    // Open the dialog manually cause native menus.
+    QObject *addGuidesDialog;
+    QVERIFY2(findAndOpenClosedPopupFromObjectName("addGuidesDialog", &addGuidesDialog), failureMessage);
+    QVERIFY2(incrementSpinBox("addGuidesHorizontalSpacingSpinBox", 32), failureMessage);
+    QVERIFY2(incrementSpinBox("addGuidesVerticalSpacingSpinBox", 32), failureMessage);
+    QVERIFY2(incrementSpinBox("addGuidesVerticalSpacingSpinBox", 33), failureMessage);
+    QVERIFY2(acceptDialog(addGuidesDialog, "addGuidesDialogOkButton"), failureMessage);
+    QVector<Guide> expectedGuides;
+    const int horizontalSpacing = 33;
+    const int verticalSpacing = 34;
+    for (int y = verticalSpacing; y < project->heightInPixels(); y += verticalSpacing) {
+        for (int x = horizontalSpacing; x < project->widthInPixels(); x += horizontalSpacing) {
+            expectedGuides.append(Guide(x, Qt::Vertical));
+        }
+        expectedGuides.append(Guide(y, Qt::Horizontal));
+    }
+    // Get a decent failure message instead of just "Compared values are not the same".
+    QCOMPARE(Utils::toString(project->guides()), Utils::toString(expectedGuides));
+
+    expectedGuides.clear();
+    canvas->removeAllGuides();
+    QCOMPARE(Utils::toString(project->guides()), Utils::toString(expectedGuides));
+}
+
 void tst_App::notes_data()
 {
     addImageProjectTypes();
@@ -3449,8 +3481,8 @@ void tst_App::notes()
     // Begin creating a new note.
     setCursorPosInScenePixels(11, 12);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QTRY_VERIFY(findPopupFromTypeName("NoteDialog"));
-    const QObject *noteDialog = findPopupFromTypeName("NoteDialog");
+    QTRY_VERIFY(findOpenPopupFromTypeName("NoteDialog"));
+    const QObject *noteDialog = findOpenPopupFromTypeName("NoteDialog");
     QTRY_VERIFY(noteDialog->property("opened").toBool());
 
     // Type in some stuff.
@@ -3517,8 +3549,8 @@ void tst_App::notes()
 
     // Edit the note via the dialog. First, open the context menu.
     QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, cursorWindowPos);
-    QTRY_VERIFY(findPopupFromTypeName("NoteContextMenu"));
-    const QObject *noteContextMenu = findPopupFromTypeName("NoteContextMenu");
+    QTRY_VERIFY(findOpenPopupFromTypeName("NoteContextMenu"));
+    const QObject *noteContextMenu = findOpenPopupFromTypeName("NoteContextMenu");
     QTRY_VERIFY(noteContextMenu->property("opened").toBool());
 
     QQuickItem *editMenuItem = noteContextMenu->findChild<QQuickItem*>("noteContextMenuEditMenuItem");
@@ -4980,10 +5012,8 @@ void tst_App::hueSaturation()
     QTest::keySequence(window, QKeySequence::SelectAll);
 
     // Open the dialog manually cause native menus.
-    QObject *hueSaturationDialog = window->findChild<QObject*>("hueSaturationDialog");
-    QVERIFY(hueSaturationDialog);
-    QVERIFY(QMetaObject::invokeMethod(hueSaturationDialog, "open"));
-    QTRY_COMPARE(hueSaturationDialog->property("opened").toBool(), true);
+    QObject *hueSaturationDialog;
+    QVERIFY2(findAndOpenClosedPopupFromObjectName("hueSaturationDialog", &hueSaturationDialog), failureMessage);
 
     // Increase/decrease the value.
     QQuickItem *hueSaturationDialogHueTextField
@@ -5101,10 +5131,8 @@ void tst_App::opacityDialog()
     QTest::keySequence(window, QKeySequence::SelectAll);
 
     // Open the dialog manually cause native menus.
-    QObject *opacityDialog = window->findChild<QObject*>("opacityDialog");
-    QVERIFY(opacityDialog);
-    QVERIFY(QMetaObject::invokeMethod(opacityDialog, "open"));
-    QTRY_COMPARE(opacityDialog->property("opened").toBool(), true);
+    QObject *opacityDialog;
+    QVERIFY2(findAndOpenClosedPopupFromObjectName("opacityDialog", &opacityDialog), failureMessage);
 
     // Increase/decrease the value.
     QQuickItem *opacityDialogOpacityTextField
@@ -5242,7 +5270,7 @@ void tst_App::animationPlayback()
     QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
     QVERIFY(animationPanelSettingsToolButton);
     QVERIFY2(clickButton(animationPanelSettingsToolButton), failureMessage);
-    QObject *animationPreviewSettingsPopup = findPopupFromTypeName("AnimationPreviewSettingsPopup");
+    QObject *animationPreviewSettingsPopup = findOpenPopupFromTypeName("AnimationPreviewSettingsPopup");
     QVERIFY(animationPreviewSettingsPopup);
     QTRY_COMPARE(animationPreviewSettingsPopup->property("opened").toBool(), true);
 
@@ -5267,7 +5295,7 @@ void tst_App::animationPlayback()
     QQuickItem *configureAnimationToolButton = animation1Delegate->findChild<QQuickItem*>("Animation 1_DelegateAnimationSettingsToolButton");
     QVERIFY(configureAnimationToolButton);
     QVERIFY2(clickButton(configureAnimationToolButton), failureMessage);
-    QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
+    QObject *animationSettingsPopup = findOpenPopupFromTypeName("AnimationSettingsPopup");
     QVERIFY(animationSettingsPopup);
     QTRY_COMPARE(animationSettingsPopup->property("opened").toBool(), true);
 

@@ -17,10 +17,11 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ADDGUIDECOMMAND_H
-#define ADDGUIDECOMMAND_H
+#ifndef ADDGUIDESCOMMAND_H
+#define ADDGUIDESCOMMAND_H
 
 #include <QDebug>
+#include <QVector>
 
 #include "guide.h"
 #include "slate-global.h"
@@ -28,10 +29,10 @@
 
 class Project;
 
-class SLATE_EXPORT AddGuideCommand : public UndoCommand
+class SLATE_EXPORT AddGuidesCommand : public UndoCommand
 {
 public:
-    AddGuideCommand(Project *project, const Guide &guide, UndoCommand *parent = nullptr);
+    AddGuidesCommand(Project *project, const QVector<Guide> &guides, UndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
@@ -39,10 +40,10 @@ public:
     int id() const override;
 
 private:
-    friend QDebug operator<<(QDebug debug, const AddGuideCommand *command);
+    friend QDebug operator<<(QDebug debug, const AddGuidesCommand *command);
 
     Project *mProject;
-    Guide mGuide;
+    QVector<Guide> mGuides;
 };
 
-#endif // ADDGUIDECOMMAND_H
+#endif // ADDGUIDESCOMMAND_H
