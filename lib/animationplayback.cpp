@@ -132,11 +132,7 @@ void AnimationPlayback::setPlaying(bool playing)
     if (mPlaying) {
         qCDebug(lcAnimationPlayback) << "starting timer on" << objectName();
 
-        if (mPauseIndex == -1) {
-            // Force the start index to be calculated based on whether the animation is reversed or not.
-            qCDebug(lcAnimationPlayback) << "starting animation on" << objectName() << "from first frame";
-            setCurrentIndexToStart();
-        } else {
+        if (mPauseIndex != -1) {
             // The animation hasn't changed since we stopped playing, so resume from where it was stopped.
             qCDebug(lcAnimationPlayback) << "resuming animation on" << objectName() << "from" << mPauseIndex;
             setCurrentFrameIndex(mPauseIndex);

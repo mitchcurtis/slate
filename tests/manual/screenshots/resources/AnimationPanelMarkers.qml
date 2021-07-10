@@ -54,7 +54,7 @@ Item {
     }
 
     Screenshot.Marker {
-        parent: findChildHelper.findAnyChild(root.parent, "animationProgressBar")
+        parent: findChildHelper.findAnyChild(root.parent, "animationSeekSlider")
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.top
         anchors.bottomMargin: 12

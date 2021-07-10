@@ -204,6 +204,7 @@ private Q_SLOTS:
     void reverseAnimation();
     void animationFrameWidthTooLarge();
     void animationPreviewUpdated();
+    void seekAnimation();
 
     // Layers.
     void addAndRemoveLayers();
@@ -5585,6 +5586,8 @@ void tst_App::clickOnCurrentAnimation()
     QVERIFY(animationSystem);
 
     // Play the current animation.
+    // TODO: find out why this pause is necessary on macOS when running with: saveAnimations clickOnCurrentAnimation
+    QTest::qWait(100);
     QVERIFY2(clickButton(animationPlayPauseButton), failureMessage);
     AnimationPlayback *currentAnimationPlayback = TestHelper::animationPlayback();
     QCOMPARE(currentAnimationPlayback->isPlaying(), true);
@@ -5768,6 +5771,57 @@ void tst_App::animationPreviewUpdated()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage newPreviewGrab = imageGrabber.takeImage();
     QCOMPARE(newPreviewGrab.pixelColor(10, 10), QColor(Qt::red));
+}
+
+void tst_App::seekAnimation()
+{
+    // TODO: test usual stuff, but also that 1) click to seek, 2) play doesn't result in it jumping back
+
+
+
+    // Ensure that we have a temporary directory.
+    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+
+    // Copy the project file from resources into our temporary directory.
+    const QString projectFileName = QLatin1String("animation.slp");
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+
+    // Load the project.
+    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
+    const QUrl projectUrl = QUrl::fromLocalFile(absolutePath);
+    QVERIFY2(loadProject(projectUrl), failureMessage);
+
+    // Open the animation panel.
+    QVERIFY2(togglePanel("animationPanel", true), failureMessage);
+    QVERIFY(isUsingAnimation());
+
+    // Ensure that the preview image shows the first frame.
+//    auto previewSpriteImage = window->findChild<QQuickItem*>("animationPreviewContainerSpriteImage");
+//    QVERIFY(previewSpriteImage);
+//    QVERIFY(imageGrabber.requestImage(previewSpriteImage));
+//    QTRY_VERIFY(imageGrabber.isReady());
+//    const QImage oldPreviewGrab = imageGrabber.takeImage();
+//    QCOMPARE(oldPreviewGrab.pixelColor(17, 10), QColor::fromRgb(QRgb(0x7eb0cc)));
+
+    // Seek to the second frame.
+    auto animationSeekSlider = window->findChild<QQuickItem*>("animationSeekSlider");
+    QVERIFY(animationSeekSlider);
+    qDebug() << "about to click slider";
+    QVERIFY2(moveSliderHandle(animationSeekSlider, 1), failureMessage);
+    QCOMPARE(sliderValue(animationSeekSlider), 1);
+    auto *animationSystem = getAnimationSystem();
+    QVERIFY(animationSystem);
+    QCOMPARE(animationSystem->currentAnimationPlayback()->currentFrameIndex(), 1);
+
+    // Click play; the animation should start from the second frame.
+    QVERIFY2(clickButton(animationPlayPauseButton), failureMessage);
+    QCOMPARE(animationSystem->currentAnimationPlayback()->isPlaying(), true);
+    QCOMPARE(animationSystem->currentAnimationPlayback()->currentFrameIndex(), 1);
+//    QVERIFY(imageGrabber.requestImage(previewSpriteImage));
+//    QTRY_VERIFY(imageGrabber.isReady());
+//    const QImage newPreviewGrab = imageGrabber.takeImage();
+//    QCOMPARE(oldPreviewGrab.pixelColor(53, 10), QColor::fromRgb(QRgb(0xffffff)));
+//    QCOMPARE(oldPreviewGrab.pixelColor(53, 11), QColor::fromRgb(QRgb(0x7eb0cc)));
 }
 
 void tst_App::addAndRemoveLayers()

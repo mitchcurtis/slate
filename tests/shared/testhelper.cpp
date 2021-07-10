@@ -641,6 +641,53 @@ int TestHelper::sliderValue(QQuickItem *slider) const
     return qFloor(value);
 }
 
+bool TestHelper::moveSliderHandle(QQuickItem *slider, qreal expectedValue)
+{
+    VERIFY(slider);
+
+    QQuickItem *sliderHandle = slider->property("handle").value<QQuickItem*>();
+    VERIFY(sliderHandle);
+
+    const QPoint pressPos = sliderHandle->mapToScene(
+        QPointF(sliderHandle->width() / 2, slider->height() / 2)).toPoint();
+    QTest::mousePress(slider->window(), Qt::LeftButton, Qt::NoModifier, pressPos);
+    VERIFY(slider->property("pressed").toBool() == true);
+    VERIFY(window->mouseGrabberItem() == slider);
+
+    const qreal startingValue = sliderValue(slider);
+    const qreal fromValue = slider->property("from").toReal();
+    const qreal toValue = slider->property("to").toReal();
+    if (qFuzzyCompare(startingValue, expectedValue))
+        return true;
+
+    const int dragDirection = startingValue < expectedValue ? 1 : -1;
+
+    // Move the slider's handle until we find the value we want.
+    QPoint movePos = pressPos;
+    for (; ; movePos.rx() += dragDirection) {
+        QTest::mouseMove(slider->window(), movePos, 5);
+
+        const qreal value = sliderValue(slider);
+        if (qFuzzyCompare(value, expectedValue)) {
+            QTest::mouseRelease(slider->window(), Qt::LeftButton, Qt::NoModifier, movePos);
+            VERIFY(slider->property("pressed").toBool() == false);
+            return true;
+        }
+
+        if (dragDirection > 0) {
+            if (qFuzzyCompare(value, toValue))
+                break;
+        } else {
+            // going backwards
+            if (qFuzzyCompare(value, fromValue))
+                break;
+        }
+    }
+    QTest::mouseRelease(slider->window(), Qt::LeftButton, Qt::NoModifier, movePos);
+    VERIFY(slider->property("pressed").toBool() == false);
+    return false;
+}
+
 bool TestHelper::selectColourAtCursorPos()
 {
     if (tilesetProject) {

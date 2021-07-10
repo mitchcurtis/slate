@@ -253,6 +253,7 @@ protected:
     Q_REQUIRED_RESULT bool changeToolShape(ImageCanvas::ToolShape toolShape);
     Q_REQUIRED_RESULT bool moveContents(int x, int y, bool onlyVisibleLayers);
     int sliderValue(QQuickItem *slider) const;
+    Q_REQUIRED_RESULT bool moveSliderHandle(QQuickItem *slider, qreal expectedValue);
     Q_REQUIRED_RESULT bool selectColourAtCursorPos();
     Q_REQUIRED_RESULT bool drawPixelAtCursorPos();
     Q_REQUIRED_RESULT bool drawTileAtCursorPos();
