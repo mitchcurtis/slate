@@ -3458,11 +3458,11 @@ void tst_App::addAndDeleteMultipleGuides()
         expectedGuides.append(Guide(y, Qt::Horizontal));
     }
     // Get a decent failure message instead of just "Compared values are not the same".
-    QCOMPARE(Utils::toString(project->guides()), Utils::toString(expectedGuides));
+    QCOMPARE(QDebug::toString(project->guides()), QDebug::toString(expectedGuides));
 
     expectedGuides.clear();
     canvas->removeAllGuides();
-    QCOMPARE(Utils::toString(project->guides()), Utils::toString(expectedGuides));
+    QCOMPARE(QDebug::toString(project->guides()), QDebug::toString(expectedGuides));
 }
 
 void tst_App::notes_data()
