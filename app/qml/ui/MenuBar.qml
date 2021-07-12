@@ -41,6 +41,7 @@ Controls.MenuBar {
     property var texturedFillSettingsDialog
     property var aboutDialog
     property SaveChangesDialog saveChangesDialog
+    property AddGuidesDialog addGuidesDialog
 
     Menu {
         id: fileMenu
@@ -477,6 +478,22 @@ Controls.MenuBar {
             checkable: true
             checked: canvas && canvas.guidesLocked
             onTriggered: canvas.guidesLocked = checked
+        }
+
+        MenuItem {
+            objectName: "addGuidesMenuItem"
+            //: Opens a dialog that allows adding multiple guides at once.
+            text: qsTr("Add Guides...")
+            enabled: canvas
+            onTriggered: addGuidesDialog.open()
+        }
+
+        MenuItem {
+            objectName: "deleteAllGuidesMenuItem"
+            //: Deletes all guides.
+            text: qsTr("Delete All Guides")
+            enabled: canvas
+            onTriggered: canvas.removeAllGuides()
         }
 
         MenuSeparator {}
