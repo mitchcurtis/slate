@@ -17,47 +17,46 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "addguidecommand.h"
+#include "addguidescommand.h"
 
 #include <QLoggingCategory>
 
 #include "project.h"
 
-Q_LOGGING_CATEGORY(lcAddGuideCommand, "app.undo.addGuideCommand")
+Q_LOGGING_CATEGORY(lcAddGuidesCommand, "app.undo.addGuidesCommand")
 
-AddGuideCommand::AddGuideCommand(Project *project, const Guide &guide, UndoCommand *parent) :
+AddGuidesCommand::AddGuidesCommand(Project *project, const QVector<Guide> &guides, UndoCommand *parent) :
     UndoCommand(parent),
     mProject(project),
-    mGuide(guide)
+    mGuides(guides)
 {
-    qCDebug(lcAddGuideCommand) << "constructed" << this;
+    qCDebug(lcAddGuidesCommand) << "constructed" << this;
 }
 
-void AddGuideCommand::undo()
+void AddGuidesCommand::undo()
 {
-    qCDebug(lcAddGuideCommand) << "undoing" << this;
-    mProject->removeGuide(mGuide);
+    qCDebug(lcAddGuidesCommand) << "undoing" << this;
+    mProject->removeGuides(mGuides);
 }
 
-void AddGuideCommand::redo()
+void AddGuidesCommand::redo()
 {
-    qCDebug(lcAddGuideCommand) << "redoing" << this;
-    mProject->addGuide(mGuide);
+    qCDebug(lcAddGuidesCommand) << "redoing" << this;
+    mProject->addGuides(mGuides);
 }
 
-int AddGuideCommand::id() const
+int AddGuidesCommand::id() const
 {
     return -1;
 }
 
-QDebug operator<<(QDebug debug, const AddGuideCommand *command)
+QDebug operator<<(QDebug debug, const AddGuidesCommand *command)
 {
     QDebugStateSaver saver(debug);
     if (!command)
-        return debug << "AddGuideCommand(0x0)";
+        return debug << "AddGuidesCommand(0x0)";
 
-    debug.nospace() << "(AddGuideCommand guide.position=" << command->mGuide.position()
-        << " guide.orientation=" << command->mGuide.orientation()
+    debug.nospace() << "(AddGuidesCommand guides=" << command->mGuides
         << ")";
     return debug;
 }

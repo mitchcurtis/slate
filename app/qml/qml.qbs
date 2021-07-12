@@ -16,6 +16,7 @@ Group {
         files: [
             "ui/qmldir",
             "ui/AboutDialog.qml",
+            "ui/AddGuidesDialog.qml",
             "ui/AnimationDelegate.qml",
             "ui/AnimationPanel.qml",
             "ui/AnimationPreviewSettingsPopup.qml",

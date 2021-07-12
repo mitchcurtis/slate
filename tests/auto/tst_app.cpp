@@ -136,12 +136,12 @@ private Q_SLOTS:
     void penToolRightClickBehaviour();
     void splitScreenRendering();
     void formatNotModifiable();
-    void panelPosition();
 
     // Rulers, guides, notes, etc.
     void rulersAndGuides_data();
     void rulersAndGuides();
     void rulersSplitScreen();
+    void addAndDeleteMultipleGuides();
     void notes_data();
     void notes();
     void dragNoteWithoutMoving();
@@ -205,6 +205,7 @@ private Q_SLOTS:
     void reverseAnimation();
     void animationFrameWidthTooLarge();
     void animationPreviewUpdated();
+    void seekAnimation();
 
     // Layers.
     void addAndRemoveLayers();
@@ -553,7 +554,7 @@ void tst_App::saveAsAndLoad()
     QCOMPARE(canvas->areGuidesVisible(), false);
     QVERIFY2(triggerRulersVisible(), failureMessage);
     QCOMPARE(canvas->areRulersVisible(), false);
-    mouseEventOnCentre(lockGuidesToolButton, MouseClick);
+    QVERIFY2(clickButton(lockGuidesToolButton), failureMessage);
     QCOMPARE(canvas->areGuidesLocked(), true);
 
     // Store the expected pane offsets, etc.
@@ -576,7 +577,9 @@ void tst_App::saveAsAndLoad()
     // as the view won't be destroyed between saving and loading,
     // so it will keep its values if we don't do this.
     QVERIFY2(dragSplitViewHandle("mainSplitView", 0, mainSplitViewHandleCentre), failureMessage);
-    QCOMPARE(panelSplitView->width(), defaultPanelSplitViewWidth);
+    // We were getting some failures where the actual was 240.333333333 where the expected was 240.
+    // Such small differences don't matter.
+    QCOMPARE(int(panelSplitView->width()), int(defaultPanelSplitViewWidth));
 
     // Close the project.
     QVERIFY2(triggerCloseProject(), failureMessage);
@@ -810,7 +813,7 @@ void tst_App::newProjectSizeFromClipboard()
     // Don't want to use createNewLayeredImageProject() here, because we need to test the new project popup.
     QVERIFY2(triggerNewProject(), failureMessage);
 
-    const QObject *newProjectPopup = findPopupFromTypeName("NewProjectPopup");
+    const QObject *newProjectPopup = findOpenPopupFromTypeName("NewProjectPopup");
     QVERIFY(newProjectPopup);
     QTRY_VERIFY(newProjectPopup->property("opened").toBool());
     QVERIFY2(newProjectPopup->property("activeFocus").toBool(),
@@ -827,7 +830,7 @@ void tst_App::newProjectSizeFromClipboard()
     QQuickItem *tilesetProjectButton = newProjectPopup->findChild<QQuickItem*>(newProjectButtonObjectName);
     QVERIFY(tilesetProjectButton);
 
-    mouseEventOnCentre(tilesetProjectButton, MouseClick);
+    QVERIFY2(clickButton(tilesetProjectButton), failureMessage);
     QCOMPARE(tilesetProjectButton->property("checked").toBool(), true);
 
     QTRY_COMPARE(newProjectPopup->property("visible").toBool(), false);
@@ -969,7 +972,7 @@ void tst_App::keyboardShortcuts()
     QCOMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
 
     // Give "New Project" shortcut editor focus again.
-    mouseEventOnCentre(newShortcutButton, MouseClick);
+    QVERIFY2(clickButton(newShortcutButton), failureMessage);
     QVERIFY(newShortcutEditor->hasActiveFocus());
 
     // Input another shortcut.
@@ -984,7 +987,7 @@ void tst_App::keyboardShortcuts()
     // There was an issue where entering the original shortcut (e.g. Ctrl+N) after
     // having changed it to a new one (e.g. Ctrl+U) would result in the now not-so-new one (Ctrl+U)
     // still being shown instead of the latest one (Ctrl+N).
-    mouseEventOnCentre(newShortcutButton, MouseClick);
+    QVERIFY2(clickButton(newShortcutButton), failureMessage);
     QVERIFY(newShortcutEditor->hasActiveFocus());
 
     QTest::keyClick(window, Qt::Key_N, Qt::ControlModifier);
@@ -1010,7 +1013,7 @@ void tst_App::optionsShortcutCancelled()
     QQuickItem *newShortcutButton = optionsDialog->findChild<QQuickItem*>("newShortcutButton");
     QVERIFY(newShortcutButton);
     QCOMPARE(newShortcutButton->property("text").toString(), app.settings()->defaultNewShortcut());
-    mouseEventOnCentre(newShortcutButton, MouseClick);
+    QVERIFY2(clickButton(newShortcutButton), failureMessage);
 
     QQuickItem *newShortcutEditor = optionsDialog->findChild<QQuickItem*>("newShortcutEditor");
     QVERIFY(newShortcutEditor);
@@ -1181,7 +1184,7 @@ void tst_App::undoPixels()
     QVERIFY(window->title().contains("*"));
 
     // Undo the changes.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(*tilesetProject->tileAt(cursorPos)->tileset()->image(), originalImage);
     // Still have the tile pen changes.
     QVERIFY(tilesetProject->hasUnsavedChanges());
@@ -1254,7 +1257,7 @@ void tst_App::undoLargePixelPen()
     QCOMPARE(tilesetProject->tileAt(sceneBottomRight)->pixelColor(halfToolSize - 1, halfToolSize - 1), QColor(Qt::black));
 
     // Undo the change and check that it worked.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
 
     QCOMPARE(*tilesetProject->tileset()->image(), originalTilesetImage);
 }
@@ -1270,8 +1273,7 @@ void tst_App::undoTiles()
     // (with splitscreen as the default) too, but it's not a huge deal...
     QTest::mouseMove(window, QPoint(window->width() * 0.66, window->height() * 0.5));
     // Wait for the pane centering update to be painted.
-    QSignalSpy frameSwappedSpy(window, SIGNAL(frameSwapped()));
-    QVERIFY(frameSwappedSpy.wait());
+    QTest::qWait(100);
 
     // Move the cursor away so we have an image we can compare against other grabbed images later on.
     setCursorPosInTiles(0, 2);
@@ -1314,7 +1316,7 @@ void tst_App::undoTiles()
     QVERIFY(window->title().contains("*"));
 
     // Test the undo button.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QVERIFY(!tilesetProject->tileAt(cursorPos));
     QVERIFY(!tilesetProject->tileAt(cursorPos - QPoint(0, tilesetProject->tileHeight())));
     QVERIFY(!tilesetProject->hasUnsavedChanges());
@@ -1391,7 +1393,7 @@ void tst_App::undoWithDuplicates()
     QVERIFY(tilesetProject->hasUnsavedChanges());
     QVERIFY(window->title().contains("*"));
 
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(*tilesetProject->tileAt(cursorPos)->tileset()->image(), originalImage);
     // Still have the tile change.
     QVERIFY(tilesetProject->hasUnsavedChanges());
@@ -1425,7 +1427,7 @@ void tst_App::undoWithDuplicates()
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     QCOMPARE(tilesetProject->tileAt(cursorPos)->pixelColor(cursorPos - QPoint(tilesetProject->tileWidth(), 0)), tileCanvas->penForegroundColour());
 
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(*tilesetProject->tileAt(cursorPos)->tileset()->image(), originalImage);
     // Still have the tile change.
     QVERIFY(tilesetProject->hasUnsavedChanges());
@@ -1463,18 +1465,18 @@ void tst_App::undoTilesetCanvasSizeChange()
     QTRY_VERIFY(imageGrabber.isReady());
     QVERIFY(imageGrabber.takeImage() != preSizeChangeCanvasSnapshot);
 
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(tilesetProject->tiles(), originalTiles);
     QCOMPARE(tilesetProject->tiles().size(), 10 * 10);
 
     // Check that neither of the following assert.
     QVERIFY2(changeCanvasSize(10, 9), failureMessage);
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(tilesetProject->tiles(), originalTiles);
     QCOMPARE(tilesetProject->tiles().size(), 10 * 10);
 
     QVERIFY2(changeCanvasSize(9, 10), failureMessage);
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(tilesetProject->tiles(), originalTiles);
     QCOMPARE(tilesetProject->tiles().size(), 10 * 10);
 
@@ -1507,7 +1509,7 @@ void tst_App::undoImageCanvasSizeChange()
     QVERIFY(imageGrabber.takeImage() != preSizeChangeCanvasSnapshot);
 
     // Undo it.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(imageProject->image()->size(), QSize(256, 256));
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -1548,7 +1550,7 @@ void tst_App::undoImageSizeChange()
     QVERIFY(preUndoSnapshot != preSizeChangeCanvasSnapshot);
 
     // Undo the size change.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
 
     QCOMPARE(imageProject->image()->size(), QSize(12, 12));
     QCOMPARE(imageProject->image()->pixelColor(QPoint(0, 0)), imageCanvas->penForegroundColour());
@@ -1574,7 +1576,7 @@ void tst_App::undoLayeredImageSizeChange()
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(3, 3), QColor(Qt::black));
 
     // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
+    QVERIFY2(clickButton(newLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 2);
     ImageLayer *layer1 = layeredImageProject->layerAt(1);
     ImageLayer *layer2 = layeredImageProject->layerAt(0);
@@ -1615,7 +1617,7 @@ void tst_App::undoLayeredImageSizeChange()
     QVERIFY(preUndoSnapshot != preSizeChangeCanvasSnapshot);
 
     // Undo the size change.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
 
     QCOMPARE(layer1->image()->size(), QSize(12, 12));
     QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::black));
@@ -1688,7 +1690,7 @@ void tst_App::undoPixelFill()
     QCOMPARE(targetTile->pixelColor(0, 1), red);
 
     // Undo it.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(targetTile->pixelColor(0, 0), black);
     QCOMPARE(targetTile->pixelColor(1, 0), black);
     QCOMPARE(targetTile->pixelColor(1, 1), black);
@@ -1727,7 +1729,7 @@ void tst_App::undoTileFill()
     QCOMPARE(tilesetProject->tileAtTilePos(QPoint(1, 0)), replacementTile);
 
     // Undo it.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(tilesetProject->tileAtTilePos(QPoint(0, 0)), targetTile);
     QCOMPARE(tilesetProject->tileAtTilePos(QPoint(1, 0)), targetTile);
 }
@@ -1747,7 +1749,7 @@ void tst_App::undoThickSquarePen()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 1), QColor(Qt::black));
 
     // Undo it.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 0), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
@@ -1767,7 +1769,7 @@ void tst_App::undoThickSquarePen()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 2), QColor(Qt::black));
 
     // Undo it.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 0), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 2), QColor(Qt::white));
@@ -1793,7 +1795,7 @@ void tst_App::undoThickRoundPen()
     QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 4, 4)), expectedClickImage);
 
     // Undo it.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 4, 4)), undoneImage);
 
     QImage expectedDragImage(":/resources/undoThickRoundPen-2.png");
@@ -1811,7 +1813,7 @@ void tst_App::undoThickRoundPen()
     QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 5, 5)), expectedDragImage);
 
     // Undo it.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->copy(QRect(0, 0, 5, 5)), undoneImage);
 }
 
@@ -2036,7 +2038,7 @@ void tst_App::colours()
     QCOMPARE(hexTextField->property("text").toString().prepend("#"), canvas->penBackgroundColour().name());
 
     // Hex field should represent foreground colour when selected.
-    mouseEventOnCentre(penForegroundColourButton, MouseClick);
+    QVERIFY2(clickButton(penForegroundColourButton), failureMessage);
     QCOMPARE(hexTextField->property("text").toString().prepend("#"), canvas->penForegroundColour().name());
 
     // TODO: fix issue where hue slider handle is missing
@@ -2426,7 +2428,7 @@ void tst_App::tilesetSwatchContextMenu()
 //    QVERIFY(tilesetContextMenu->property("visible").toBool());
 
 //    // Click the "duplicate" menu item.
-//    mouseEventOnCentre(duplicateTileMenuItem, MouseClick);
+//    QVERIFY2(clickButton(duplicateTileMenuItem), failureMessage);
 //    QCOMPARE(tileCanvas->penTile(), originallySelectedTile);
 //    QVERIFY(!tilesetContextMenu->property("visible").toBool());
 
@@ -2455,7 +2457,7 @@ void tst_App::tilesetSwatchContextMenu()
 
 //    // Click the "rotate left" menu item.
 //    const QImage originalTileImage = tileCanvas->penTile()->image();
-//    mouseEventOnCentre(rotateTileLeftMenuItem, MouseClick);
+//    QVERIFY2(clickButton(rotateTileLeftMenuItem), failureMessage);
 //    QVERIFY(!tilesetContextMenu->property("visible").toBool());
 //    QCOMPARE(Utils::rotate(tileCanvas->penTile()->image(), 90), originalTileImage);
 
@@ -2472,7 +2474,7 @@ void tst_App::tilesetSwatchContextMenu()
 //    QVERIFY(tilesetContextMenu->property("visible").toBool());
 
 //    // Click the "rotate right" menu item.
-//    mouseEventOnCentre(rotateTileRightMenuItem, MouseClick);
+//    QVERIFY2(clickButton(rotateTileRightMenuItem), failureMessage);
 //    QVERIFY(!tilesetContextMenu->property("visible").toBool());
 //    QCOMPARE(tileCanvas->penTile()->image(), originalTileImage);
 
@@ -2546,7 +2548,7 @@ void tst_App::cursorShapeAfterClickingLighter()
 
 //    QQuickItem *lighterButton = window->findChild<QQuickItem*>("lighterButton");
 //    QVERIFY(lighterButton);
-//    mouseEventOnCentre(lighterButton, MouseClick);
+//    QVERIFY2(clickButton(lighterButton), failureMessage);
 
 //    setCursorPosInTiles(0, 0);
     //    QTRY_COMPARE(window->cursor().shape(), Qt::BlankCursor);
@@ -2666,7 +2668,7 @@ void tst_App::splitterSettingsMouse()
     QCOMPARE(lockSplitterToolButton->property("checked").toBool(), true);
 
     // Turn split screen off.
-    mouseEventOnCentre(splitScreenToolButton, MouseClick);
+    QVERIFY2(clickButton(splitScreenToolButton), failureMessage);
     QCOMPARE(canvas->isSplitScreen(), false);
     QCOMPARE(canvas->firstPane()->size(), 1.0);
     QCOMPARE(canvas->secondPane()->size(), 0.0);
@@ -2678,7 +2680,7 @@ void tst_App::splitterSettingsMouse()
     QCOMPARE(lockSplitterToolButton->property("checked").toBool(), true);
 
     // Turn split screen back on.
-    mouseEventOnCentre(splitScreenToolButton, MouseClick);
+    QVERIFY2(clickButton(splitScreenToolButton), failureMessage);
     QCOMPARE(canvas->isSplitScreen(), true);
     QCOMPARE(canvas->firstPane()->size(), 0.5);
     QCOMPARE(canvas->secondPane()->size(), 0.5);
@@ -2689,7 +2691,7 @@ void tst_App::splitterSettingsMouse()
     QCOMPARE(lockSplitterToolButton->property("checked").toBool(), true);
 
     // Enable the splitter.
-    mouseEventOnCentre(lockSplitterToolButton, MouseClick);
+    QVERIFY2(clickButton(lockSplitterToolButton), failureMessage);
     QCOMPARE(canvas->isSplitScreen(), true);
     QCOMPARE(canvas->firstPane()->size(), 0.5);
     QCOMPARE(canvas->secondPane()->size(), 0.5);
@@ -2730,7 +2732,7 @@ void tst_App::fillLayeredImageCanvas()
     QVERIFY2(togglePanel("layerPanel", true), failureMessage);
 
     // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
+    QVERIFY2(clickButton(newLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 2);
     QVERIFY(layeredImageProject->currentLayerIndex() == 1);
     ImageLayer *layer1 = layeredImageProject->layerAt(1);
@@ -2751,7 +2753,7 @@ void tst_App::fillLayeredImageCanvas()
     QVERIFY2(selectLayer("Layer 2", 0), failureMessage);
 
     // Undo. It should affect layer 1.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(layer1->image()->pixelColor(255, 255), QColor(Qt::white));
     QCOMPARE(layer2->image()->pixelColor(0, 0), QColor(Qt::transparent));
@@ -2797,7 +2799,7 @@ void tst_App::greedyPixelFillImageCanvas()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 35), QColor(Qt::blue));
 
     // Undo it.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(4, 4), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 4), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(35, 35), QColor(Qt::black));
@@ -2847,7 +2849,7 @@ void tst_App::texturedFillVariance()
 
     // Cancel the dialog..
     QQuickItem *texturedFillSettingsCancelButton = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsCancelButton");
-    mouseEventOnCentre(texturedFillSettingsCancelButton, MouseClick);
+    QVERIFY2(clickButton(texturedFillSettingsCancelButton), failureMessage);
     QTRY_VERIFY(!settingsDialog->property("visible").toBool());
 
     // .. and then open it again.
@@ -2868,7 +2870,7 @@ void tst_App::texturedFillVariance()
     // Confirm the changes.
     QQuickItem *texturedFillSettingsDialogOkButton = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsDialogOkButton");
     QVERIFY(texturedFillSettingsDialogOkButton);
-    mouseEventOnCentre(texturedFillSettingsDialogOkButton, MouseClick);
+    QVERIFY2(clickButton(texturedFillSettingsDialogOkButton), failureMessage);
     QTRY_VERIFY(!settingsDialog->property("visible").toBool());
 
     // Fill the canvas with the default settings.
@@ -2942,7 +2944,7 @@ void tst_App::texturedFillSwatch()
     // Confirm the changes.
     QQuickItem *texturedFillSettingsDialogOkButton = settingsDialog->findChild<QQuickItem*>("texturedFillSettingsDialogOkButton");
     QVERIFY(texturedFillSettingsDialogOkButton);
-    mouseEventOnCentre(texturedFillSettingsDialogOkButton, MouseClick);
+    QVERIFY2(clickButton(texturedFillSettingsDialogOkButton), failureMessage);
     QTRY_VERIFY(!settingsDialog->property("visible").toBool());
 
     // Switch back from the selection tool to the textured fill tool and clear the selection.
@@ -2978,7 +2980,7 @@ void tst_App::texturedFillSwatch()
     // Add the same colours again; they shouldn't be added because they're duplicates.
     QVERIFY2(selectArea(QRect(89, 88, 1, 2)), failureMessage);
     QVERIFY2(addSelectedColoursToTexturedFillSwatch(), failureMessage);
-    mouseEventOnCentre(texturedFillSettingsDialogOkButton, MouseClick);
+    QVERIFY2(clickButton(texturedFillSettingsDialogOkButton), failureMessage);
     QTRY_VERIFY(!settingsDialog->property("visible").toBool());
     QCOMPARE(canvas->texturedFillParameters()->swatch()->colours().size(), 2);
     QCOMPARE(canvas->texturedFillParameters()->swatch()->probabilities().size(), 2);
@@ -3037,14 +3039,14 @@ void tst_App::pixelLineToolImageCanvas()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
 
     // Undo the line.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     // The initial press has to still be there.
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
 
     // Redo the line.
-    mouseEventOnCentre(redoToolButton, MouseClick);
+    QVERIFY2(clickButton(redoToolButton), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
@@ -3062,7 +3064,7 @@ void tst_App::pixelLineToolImageCanvas()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 4), QColor(Qt::black));
 
     // Undo the second line.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::black));
@@ -3070,14 +3072,14 @@ void tst_App::pixelLineToolImageCanvas()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 4), QColor(Qt::white));
 
     // Undo the first line.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     // The initial press has to still be there.
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
 
     // Undo the inital press.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::white));
     QCOMPARE(project->hasUnsavedChanges(), false);
 }
@@ -3117,14 +3119,14 @@ void tst_App::pixelLineToolTransparent()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);
 
     // Undo the line.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     // The initial press has to still be there.
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::white));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), QColor(Qt::white));
 
     // Redo the line.
-    mouseEventOnCentre(redoToolButton, MouseClick);
+    QVERIFY2(clickButton(redoToolButton), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), translucentRed);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), translucentRed);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(2, 2), translucentRed);
@@ -3287,38 +3289,7 @@ void tst_App::formatNotModifiable()
     QVERIFY(toolsForbiddenReasonLabel);
     QVERIFY(toolsForbiddenReasonLabel->isVisible());
     QCOMPARE(toolsForbiddenReasonLabel->property("text").toString(),
-             "Image cannot be edited because its format is indexed 8-bit, which does not support modification.");
-}
-
-void tst_App::panelPosition()
-{
-    QVERIFY2(createNewImageProject(), failureMessage);
-    QCOMPARE(app.settings()->panelPosition(), Qt::RightEdge);
-
-    // Open the appearance tab of the options dialog and set the panel positon to the left side.
-    QObject *optionsDialog = nullptr;
-    QVERIFY2(openOptionsTab("appearanceTabButton", &optionsDialog), failureMessage);
-    // Ensure that panelPositionComboBox is visible in the options dialog.
-    QVERIFY2(ensureScrollViewChildVisible("appearanceScrollView", "panelPositionComboBox"), failureMessage);
-    // Open panelPositionComboBox's popup.
-    QVERIFY2(selectComboBoxItem("panelPositionComboBox", 0 /* Qt::LeftEdge */), failureMessage);
-
-    // Accept the dialog to save the changes.
-    QVERIFY(QMetaObject::invokeMethod(optionsDialog, "accept"));
-    QTRY_VERIFY(!optionsDialog->property("visible").toBool());
-    QCOMPARE(app.settings()->panelPosition(), Qt::LeftEdge);
-    QQuickItem *panelSplitView = window->findChild<QQuickItem*>("panelSplitView");
-    QVERIFY(panelSplitView);
-    QCOMPARE(panelSplitView->x(), 0.0);
-
-    // Open the appearance tab in the options dialog again, and set the panel position back to the right side.
-    QVERIFY2(openOptionsTab("appearanceTabButton", &optionsDialog), failureMessage);
-    QVERIFY2(ensureScrollViewChildVisible("appearanceScrollView", "panelPositionComboBox"), failureMessage);
-    QVERIFY2(selectComboBoxItem("panelPositionComboBox", 1 /* Qt::RightEdge */), failureMessage);
-    QVERIFY(QMetaObject::invokeMethod(optionsDialog, "accept"));
-    QTRY_VERIFY(!optionsDialog->property("visible").toBool());
-    QCOMPARE(app.settings()->panelPosition(), Qt::RightEdge);
-    QCOMPARE(panelSplitView->x(), panelSplitView->parentItem()->width() - panelSplitView->width());
+        "Image cannot be edited because its format is indexed 8-bit, which does not support modification.");
 }
 
 void tst_App::rulersAndGuides_data()
@@ -3361,12 +3332,12 @@ void tst_App::rulersAndGuides()
     QVERIFY2(addNewGuide(Qt::Horizontal, 10), failureMessage);
 
     // Undo.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(project->guides().size(), 0);
     QCOMPARE(project->undoStack()->canUndo(), false);
 
     // Redo.
-    mouseEventOnCentre(redoToolButton, MouseClick);
+    QVERIFY2(clickButton(redoToolButton), failureMessage);
     QCOMPARE(project->guides().size(), 1);
     QCOMPARE(project->guides().first().position(), 10);
     QCOMPARE(project->undoStack()->canUndo(), true);
@@ -3390,7 +3361,7 @@ void tst_App::rulersAndGuides()
     QCOMPARE(window->cursor().shape(), Qt::OpenHandCursor);
 
     // Undo.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(project->guides().size(), 1);
     QCOMPARE(project->guides().first().position(), 10);
     QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
@@ -3398,7 +3369,7 @@ void tst_App::rulersAndGuides()
     QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
 
     // Redo.
-    mouseEventOnCentre(redoToolButton, MouseClick);
+    QVERIFY2(clickButton(redoToolButton), failureMessage);
     QCOMPARE(project->guides().size(), 1);
     QCOMPARE(project->guides().first().position(), 20);
     QTest::mouseMove(window, cursorWindowPos + QPoint(1, 0));
@@ -3463,6 +3434,37 @@ void tst_App::rulersSplitScreen()
     QVERIFY(!secondVerticalRuler->isVisible());
 }
 
+void tst_App::addAndDeleteMultipleGuides()
+{
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
+
+    QVERIFY2(triggerRulersVisible(), failureMessage);
+    QCOMPARE(canvas->areRulersVisible(), true);
+
+    // Open the dialog manually cause native menus.
+    QObject *addGuidesDialog;
+    QVERIFY2(findAndOpenClosedPopupFromObjectName("addGuidesDialog", &addGuidesDialog), failureMessage);
+    QVERIFY2(incrementSpinBox("addGuidesHorizontalSpacingSpinBox", 32), failureMessage);
+    QVERIFY2(incrementSpinBox("addGuidesVerticalSpacingSpinBox", 32), failureMessage);
+    QVERIFY2(incrementSpinBox("addGuidesVerticalSpacingSpinBox", 33), failureMessage);
+    QVERIFY2(acceptDialog(addGuidesDialog, "addGuidesDialogOkButton"), failureMessage);
+    QVector<Guide> expectedGuides;
+    const int horizontalSpacing = 33;
+    const int verticalSpacing = 34;
+    for (int y = verticalSpacing; y < project->heightInPixels(); y += verticalSpacing) {
+        for (int x = horizontalSpacing; x < project->widthInPixels(); x += horizontalSpacing) {
+            expectedGuides.append(Guide(x, Qt::Vertical));
+        }
+        expectedGuides.append(Guide(y, Qt::Horizontal));
+    }
+    // Get a decent failure message instead of just "Compared values are not the same".
+    QCOMPARE(Utils::toString(project->guides()), Utils::toString(expectedGuides));
+
+    expectedGuides.clear();
+    canvas->removeAllGuides();
+    QCOMPARE(Utils::toString(project->guides()), Utils::toString(expectedGuides));
+}
+
 void tst_App::notes_data()
 {
     addImageProjectTypes();
@@ -3479,8 +3481,8 @@ void tst_App::notes()
     // Begin creating a new note.
     setCursorPosInScenePixels(11, 12);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QTRY_VERIFY(findPopupFromTypeName("NoteDialog"));
-    const QObject *noteDialog = findPopupFromTypeName("NoteDialog");
+    QTRY_VERIFY(findOpenPopupFromTypeName("NoteDialog"));
+    const QObject *noteDialog = findOpenPopupFromTypeName("NoteDialog");
     QTRY_VERIFY(noteDialog->property("opened").toBool());
 
     // Type in some stuff.
@@ -3515,11 +3517,11 @@ void tst_App::notes()
     QVERIFY2(addNewNoteAtCursorPos("test"), failureMessage);
 
     // Undo the creation of the note.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(project->notes().size(), 0);
 
     // Redo it.
-    mouseEventOnCentre(redoToolButton, MouseClick);
+    QVERIFY2(clickButton(redoToolButton), failureMessage);
     QCOMPARE(project->notes().size(), 1);
     QCOMPARE(project->notes().at(0).position(), QPoint(13, 14));
     QCOMPARE(project->notes().at(0).text(), QLatin1String("test"));
@@ -3547,13 +3549,13 @@ void tst_App::notes()
 
     // Edit the note via the dialog. First, open the context menu.
     QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, cursorWindowPos);
-    QTRY_VERIFY(findPopupFromTypeName("NoteContextMenu"));
-    const QObject *noteContextMenu = findPopupFromTypeName("NoteContextMenu");
+    QTRY_VERIFY(findOpenPopupFromTypeName("NoteContextMenu"));
+    const QObject *noteContextMenu = findOpenPopupFromTypeName("NoteContextMenu");
     QTRY_VERIFY(noteContextMenu->property("opened").toBool());
 
     QQuickItem *editMenuItem = noteContextMenu->findChild<QQuickItem*>("noteContextMenuEditMenuItem");
     QVERIFY(editMenuItem);
-    mouseEventOnCentre(editMenuItem, MouseClick);
+    QVERIFY2(clickButton(editMenuItem), failureMessage);
     QTRY_VERIFY(noteDialog->property("opened").toBool());
     QVERIFY(noteDialogTextField->hasActiveFocus());
     QTest::keyClick(window, Qt::Key_1);
@@ -3577,7 +3579,7 @@ void tst_App::notes()
     // but the position of the note that we're editing.
     QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, cursorWindowPos);
     QTRY_VERIFY(noteContextMenu->property("opened").toBool());
-    mouseEventOnCentre(editMenuItem, MouseClick);
+    QVERIFY2(clickButton(editMenuItem), failureMessage);
     QTRY_VERIFY(noteDialog->property("opened").toBool());
     QCOMPARE(noteDialogTextField->property("text").toString(), QLatin1String("test"));
     QCOMPARE(noteDialogXTextField->property("text").toString(), QString::number(draggedNotePosition.x()));
@@ -3674,7 +3676,7 @@ void tst_App::saveAndLoadNotes()
 
     // Change the value of notesVisible so that we can test that it's
     // saved and loaded in the project's UI state.
-    mouseEventOnCentre(showNotesToolButton, MouseClick);
+    QVERIFY2(clickButton(showNotesToolButton), failureMessage);
     QVERIFY(!canvas->areNotesVisible());
     QVERIFY(!showNotesToolButton->property("checked").toBool());
 
@@ -3705,7 +3707,7 @@ void tst_App::saveAndLoadNotes()
     QVERIFY2(imageGrabber.takeImage() != canvasGrab, "Notes were not rendered as expected after loading");
 
     // Show notes.
-    mouseEventOnCentre(showNotesToolButton, MouseClick);
+    QVERIFY2(clickButton(showNotesToolButton), failureMessage);
     QVERIFY(canvas->areNotesVisible());
     QVERIFY(showNotesToolButton->property("checked").toBool());
 
@@ -3718,7 +3720,7 @@ void tst_App::saveAndLoadNotes()
     QVERIFY(project->saveAs(QUrl::fromLocalFile(savedProjectPath)));
 
     // Hide notes.
-    mouseEventOnCentre(showNotesToolButton, MouseClick);
+    QVERIFY2(clickButton(showNotesToolButton), failureMessage);
     QVERIFY(!canvas->areNotesVisible());
     QVERIFY(!showNotesToolButton->property("checked").toBool());
 
@@ -4345,7 +4347,7 @@ void tst_App::deleteSelectionImageCanvas()
     QVERIFY2(everyPixelIs(deletedPortion, Qt::transparent), failureMessage);
 
     // Undo the deletion.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     const QImage undeletedPortion = canvas->currentProjectImage()->copy(0, 0, 10, 10);
     QVERIFY2(everyPixelIs(undeletedPortion, Qt::white), failureMessage);
 
@@ -4460,7 +4462,7 @@ void tst_App::undoCopyPasteWithTransparency()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::black));
 
     // Undo the paste. It should disappear.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 10), QColor(Qt::black));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(1, 1), QColor(Qt::transparent));
 }
@@ -4539,7 +4541,7 @@ void tst_App::undoAfterMovedPaste()
     QVERIFY(!canvas->hasSelection());
 
     // Undo. There should be nothing there but transparency.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::transparent));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 1), QColor(Qt::transparent));
 }
@@ -4618,14 +4620,14 @@ void tst_App::selectionEdgePan_data()
     const int largeDistance = qMax(window->width(), window->height());
 
     // "reverse" selections end up with slightly different coordinates.
-    QTest::newRow("top-left") << startPos << QPoint(-largeDistance, -largeDistance) << QPoint(-1, -1) << QRect(0, 0, 101, 101);
-    QTest::newRow("top") << startPos << QPoint(0, -largeDistance) << QPoint(0, -1) << QRect(0, 0, 101, 101);
-    QTest::newRow("top-right") << startPos << QPoint(largeDistance, -largeDistance) << QPoint(1, -1) << QRect(100, 0, 256 - 100, 101);
-    QTest::newRow("right") << startPos << QPoint(largeDistance, 0) << QPoint(1, 0) << QRect(100, 0, 256 - 100, 101);
+    QTest::newRow("top-left") << startPos << QPoint(-largeDistance, -largeDistance) << QPoint(-1, -1) << QRect(0, 0, 100, 100);
+    QTest::newRow("top") << startPos << QPoint(0, -largeDistance) << QPoint(0, -1) << QRect(0, 0, 100, 100);
+    QTest::newRow("top-right") << startPos << QPoint(largeDistance, -largeDistance) << QPoint(1, -1) << QRect(100, 0, 256 - 100, 100);
+    QTest::newRow("right") << startPos << QPoint(largeDistance, 0) << QPoint(1, 0) << QRect(100, 0, 256 - 100, 100);
     QTest::newRow("bottom-right") << startPos << QPoint(largeDistance, largeDistance) << QPoint(1, 1) << QRect(100, 100, 256 - 100, 256 - 100);
     QTest::newRow("bottom") << startPos << QPoint(256, largeDistance) << QPoint(0, 1) << QRect(100, 100, 256 - 100, 256 - 100);
-    QTest::newRow("bottom-left") << startPos << QPoint(-largeDistance, largeDistance) << QPoint(-1, 1) << QRect(0, 100, 101, 256 - 100);
-    QTest::newRow("left") << startPos << QPoint(-largeDistance, 0) << QPoint(-1, 0) << QRect(0, 0, 101, 101);
+    QTest::newRow("bottom-left") << startPos << QPoint(-largeDistance, largeDistance) << QPoint(-1, 1) << QRect(0, 100, 100, 256 - 100);
+    QTest::newRow("left") << startPos << QPoint(-largeDistance, 0) << QPoint(-1, 0) << QRect(0, 0, 100, 100);
 }
 
 void tst_App::selectionEdgePan()
@@ -4832,12 +4834,12 @@ void tst_App::rotateSelection()
     QCOMPARE(actualImage, expected90ImageModified);
 
     // Undo the drawing.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
     QCOMPARE(actualImage, expected90Image);
 
     // Undo the first rotation.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
     QCOMPARE(actualImage, originalImage);
 
@@ -4864,7 +4866,7 @@ void tst_App::rotateSelection()
 
     // Undoing selection modifications causes the original selection image contents
     // to be restored, regardless of how many modifications have been made since.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     // mspaint gets rid of the selection upon undoing.
     QCOMPARE(canvas->hasSelection(), false);
     actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
@@ -4903,7 +4905,7 @@ void tst_App::rotateSelectionAtEdge()
     QCOMPARE(actualImage, expected90Image);
 
     // Undo the rotation.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
     QCOMPARE(actualImage, originalImage);
 }
@@ -5010,10 +5012,8 @@ void tst_App::hueSaturation()
     QTest::keySequence(window, QKeySequence::SelectAll);
 
     // Open the dialog manually cause native menus.
-    QObject *hueSaturationDialog = window->findChild<QObject*>("hueSaturationDialog");
-    QVERIFY(hueSaturationDialog);
-    QVERIFY(QMetaObject::invokeMethod(hueSaturationDialog, "open"));
-    QTRY_COMPARE(hueSaturationDialog->property("opened").toBool(), true);
+    QObject *hueSaturationDialog;
+    QVERIFY2(findAndOpenClosedPopupFromObjectName("hueSaturationDialog", &hueSaturationDialog), failureMessage);
 
     // Increase/decrease the value.
     QQuickItem *hueSaturationDialogHueTextField
@@ -5042,7 +5042,7 @@ void tst_App::hueSaturation()
     QQuickItem *hueSaturationDialogCancelButton
         = window->findChild<QQuickItem*>("hueSaturationDialogCancelButton");
     QVERIFY(hueSaturationDialogCancelButton);
-    mouseEventOnCentre(hueSaturationDialogCancelButton, MouseClick);
+    QVERIFY2(clickButton(hueSaturationDialogCancelButton), failureMessage);
     QTRY_COMPARE(hueSaturationDialog->property("visible").toBool(), false);
     QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), originalImage);
     QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
@@ -5071,7 +5071,7 @@ void tst_App::hueSaturation()
     QQuickItem *hueSaturationDialogOkButton
         = window->findChild<QQuickItem*>("hueSaturationDialogOkButton");
     QVERIFY(hueSaturationDialogOkButton);
-    mouseEventOnCentre(hueSaturationDialogOkButton, MouseClick);
+    QVERIFY2(clickButton(hueSaturationDialogOkButton), failureMessage);
     QTRY_COMPARE(hueSaturationDialog->property("visible").toBool(), false);
     // Confirm the selection to make the changes to the project's image.
     QTest::keyClick(window, Qt::Key_Escape);
@@ -5131,10 +5131,8 @@ void tst_App::opacityDialog()
     QTest::keySequence(window, QKeySequence::SelectAll);
 
     // Open the dialog manually cause native menus.
-    QObject *opacityDialog = window->findChild<QObject*>("opacityDialog");
-    QVERIFY(opacityDialog);
-    QVERIFY(QMetaObject::invokeMethod(opacityDialog, "open"));
-    QTRY_COMPARE(opacityDialog->property("opened").toBool(), true);
+    QObject *opacityDialog;
+    QVERIFY2(findAndOpenClosedPopupFromObjectName("opacityDialog", &opacityDialog), failureMessage);
 
     // Increase/decrease the value.
     QQuickItem *opacityDialogOpacityTextField
@@ -5166,7 +5164,7 @@ void tst_App::opacityDialog()
     QQuickItem *opacityDialogCancelButton
         = window->findChild<QQuickItem*>("opacityDialogCancelButton");
     QVERIFY(opacityDialogCancelButton);
-    mouseEventOnCentre(opacityDialogCancelButton, MouseClick);
+    QVERIFY2(clickButton(opacityDialogCancelButton), failureMessage);
     QTRY_COMPARE(opacityDialog->property("visible").toBool(), false);
     QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), originalImage);
     QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
@@ -5197,7 +5195,7 @@ void tst_App::opacityDialog()
     QQuickItem *opacityDialogOkButton
         = window->findChild<QQuickItem*>("opacityDialogOkButton");
     QVERIFY(opacityDialogOkButton);
-    mouseEventOnCentre(opacityDialogOkButton, MouseClick);
+    QVERIFY2(clickButton(opacityDialogOkButton), failureMessage);
     QTRY_COMPARE(opacityDialog->property("visible").toBool(), false);
     // Confirm the selection to make the changes to the project's image.
     QTest::keyClick(window, Qt::Key_Escape);
@@ -5235,7 +5233,7 @@ void tst_App::cropToSelection()
     QVERIFY(cropToSelectionToolButton->isEnabled());
 
     // Do the cropping.
-    mouseEventOnCentre(cropToSelectionToolButton, MouseClick);
+    QVERIFY2(clickButton(cropToSelectionToolButton), failureMessage);
     QVERIFY(!cropToSelectionToolButton->isEnabled());
 
     // Ensure the crop worked correctly.
@@ -5271,8 +5269,8 @@ void tst_App::animationPlayback()
     QVERIFY(animationPanel);
     QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
     QVERIFY(animationPanelSettingsToolButton);
-    mouseEventOnCentre(animationPanelSettingsToolButton, MouseClick);
-    QObject *animationPreviewSettingsPopup = findPopupFromTypeName("AnimationPreviewSettingsPopup");
+    QVERIFY2(clickButton(animationPanelSettingsToolButton), failureMessage);
+    QObject *animationPreviewSettingsPopup = findOpenPopupFromTypeName("AnimationPreviewSettingsPopup");
     QVERIFY(animationPreviewSettingsPopup);
     QTRY_COMPARE(animationPreviewSettingsPopup->property("opened").toBool(), true);
 
@@ -5288,7 +5286,7 @@ void tst_App::animationPlayback()
     // Accept and close the preview settings popup.
     QQuickItem *previewSettingsSaveButton = findDialogButtonFromText(animationPreviewSettingsPopup, "OK");
     QVERIFY(previewSettingsSaveButton);
-    mouseEventOnCentre(previewSettingsSaveButton, MouseClick);
+    QVERIFY2(clickButton(previewSettingsSaveButton), failureMessage);
     QTRY_COMPARE(animationPreviewSettingsPopup->property("visible").toBool(), false);
 
     // Open the animation settings popup for the current animation.
@@ -5296,8 +5294,8 @@ void tst_App::animationPlayback()
     QVERIFY(animation1Delegate);
     QQuickItem *configureAnimationToolButton = animation1Delegate->findChild<QQuickItem*>("Animation 1_DelegateAnimationSettingsToolButton");
     QVERIFY(configureAnimationToolButton);
-    mouseEventOnCentre(configureAnimationToolButton, MouseClick);
-    QObject *animationSettingsPopup = findPopupFromTypeName("AnimationSettingsPopup");
+    QVERIFY2(clickButton(configureAnimationToolButton), failureMessage);
+    QObject *animationSettingsPopup = findOpenPopupFromTypeName("AnimationSettingsPopup");
     QVERIFY(animationSettingsPopup);
     QTRY_COMPARE(animationSettingsPopup->property("opened").toBool(), true);
 
@@ -5340,11 +5338,11 @@ void tst_App::animationPlayback()
     // Accept and close the animation settings popup.
     QQuickItem *animationSettingsSaveButton = findDialogButtonFromText(animationSettingsPopup, "OK");
     QVERIFY(animationSettingsSaveButton);
-    mouseEventOnCentre(animationSettingsSaveButton, MouseClick);
+    QVERIFY2(clickButton(animationSettingsSaveButton), failureMessage);
     QTRY_COMPARE(animationSettingsSaveButton->property("visible").toBool(), false);
 
     // Play the animation.
-    mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+    QVERIFY2(clickButton(animationPlayPauseButton), failureMessage);
     QCOMPARE(currentAnimationPlayback->isPlaying(), true);
     // It's reversed, so it should start at the end.
     QCOMPARE(currentAnimationPlayback->currentFrameIndex(), 4);
@@ -5619,7 +5617,9 @@ void tst_App::clickOnCurrentAnimation()
     QVERIFY(animationSystem);
 
     // Play the current animation.
-    mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+    // TODO: find out why this pause is necessary on macOS when running with: saveAnimations clickOnCurrentAnimation
+    QTest::qWait(100);
+    QVERIFY2(clickButton(animationPlayPauseButton), failureMessage);
     AnimationPlayback *currentAnimationPlayback = TestHelper::animationPlayback();
     QCOMPARE(currentAnimationPlayback->isPlaying(), true);
     QCOMPARE(currentAnimationPlayback->currentFrameIndex(), 0);
@@ -5634,7 +5634,7 @@ void tst_App::clickOnCurrentAnimation()
         // Shouldn't crash when clicking on an already-current animation.
         QQuickItem *animationDelegate = nullptr;
         QVERIFY2(verifyAnimationName("Animation 1 Copy", &animationDelegate), failureMessage);
-        mouseEventOnCentre(animationDelegate, MouseClick);
+        QVERIFY2(clickButton(animationDelegate), failureMessage);
     }
 }
 
@@ -5685,7 +5685,7 @@ void tst_App::reverseAnimation()
     QVERIFY(animationSystem);
 
     // Play the current animation.
-    mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+    QVERIFY2(clickButton(animationPlayPauseButton), failureMessage);
     AnimationPlayback *currentAnimationPlayback = TestHelper::animationPlayback();
     QCOMPARE(currentAnimationPlayback->isPlaying(), true);
     QCOMPARE(currentAnimationPlayback->currentFrameIndex(), 0);
@@ -5701,7 +5701,7 @@ void tst_App::reverseAnimation()
         QTRY_COMPARE_WITH_TIMEOUT(currentPlayback->currentFrameIndex(), frameIndex, 1000);
 
         // Pause the animation so we can grab the SpriteImage without making the test flaky.
-        mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+        QVERIFY2(clickButton(animationPlayPauseButton), failureMessage);
         QCOMPARE(currentAnimationPlayback->isPlaying(), false);
 
         QVERIFY(imageGrabber.requestImage(previewSpriteImage));
@@ -5713,7 +5713,7 @@ void tst_App::reverseAnimation()
             // the animations are time-based and so is the image grab.
             // Note that it's important that we do this before the QTRY_VERIFY(imageGrabber.isReady()) below,
             // as it is where the actual image grabbing happens.
-            mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+            QVERIFY2(clickButton(animationPlayPauseButton), failureMessage);
             QCOMPARE(currentAnimationPlayback->isPlaying(), true);
         }
 
@@ -5735,14 +5735,14 @@ void tst_App::reverseAnimation()
         // The animation is paused on the start of the first loop.
         if (currentAnimationPlayback->isPlaying()) {
             // Pause the animation so we can grab the SpriteImage without making the test flaky.
-            mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+            QVERIFY2(clickButton(animationPlayPauseButton), failureMessage);
         }
         QCOMPARE(currentAnimationPlayback->isPlaying(), false);
 
         QVERIFY(imageGrabber.requestImage(previewSpriteImage));
 
         // Resume.
-        mouseEventOnCentre(animationPlayPauseButton, MouseClick);
+        QVERIFY2(clickButton(animationPlayPauseButton), failureMessage);
         QCOMPARE(currentAnimationPlayback->isPlaying(), true);
 
         QTRY_VERIFY(imageGrabber.isReady());
@@ -5802,6 +5802,39 @@ void tst_App::animationPreviewUpdated()
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage newPreviewGrab = imageGrabber.takeImage();
     QCOMPARE(newPreviewGrab.pixelColor(10, 10), QColor(Qt::red));
+}
+
+void tst_App::seekAnimation()
+{
+    // Ensure that we have a temporary directory.
+    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+
+    // Copy the project file from resources into our temporary directory.
+    const QString projectFileName = QLatin1String("animation.slp");
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectFileName), failureMessage);
+
+    // Load the project.
+    const QString absolutePath = QDir(tempProjectDir->path()).absoluteFilePath(projectFileName);
+    const QUrl projectUrl = QUrl::fromLocalFile(absolutePath);
+    QVERIFY2(loadProject(projectUrl), failureMessage);
+
+    // Open the animation panel.
+    QVERIFY2(togglePanel("animationPanel", true), failureMessage);
+    QVERIFY(isUsingAnimation());
+
+    // Seek to the second frame.
+    auto animationSeekSlider = window->findChild<QQuickItem*>("animationSeekSlider");
+    QVERIFY(animationSeekSlider);
+    QVERIFY2(moveSliderHandle(animationSeekSlider, 1), failureMessage);
+    QCOMPARE(sliderValue(animationSeekSlider), 1);
+    auto *animationSystem = getAnimationSystem();
+    QVERIFY(animationSystem);
+    QCOMPARE(animationSystem->currentAnimationPlayback()->currentFrameIndex(), 1);
+
+    // Click play; the animation should start from the second frame.
+    QVERIFY2(clickButton(animationPlayPauseButton), failureMessage);
+    QCOMPARE(animationSystem->currentAnimationPlayback()->isPlaying(), true);
+    QCOMPARE(animationSystem->currentAnimationPlayback()->currentFrameIndex(), 1);
 }
 
 void tst_App::addAndRemoveLayers()
@@ -5864,7 +5897,7 @@ void tst_App::addAndRemoveLayers()
 
     QQuickItem *deleteLayerButton = window->findChild<QQuickItem*>("deleteLayerButton");
     QVERIFY(deleteLayerButton);
-    mouseEventOnCentre(deleteLayerButton, MouseClick);
+    QVERIFY2(clickButton(deleteLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 1);
     QCOMPARE(layeredImageProject->currentLayer(), expectedCurrentLayer);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
@@ -5880,7 +5913,7 @@ void tst_App::addAndRemoveLayers()
     QCOMPARE(grabWithRedDot.pixelColor(20, 20), QColor(Qt::red));
 
     // Undo the deletion.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
     QVERIFY2(verifyLayerName(QLatin1String("Layer 1")), failureMessage);
@@ -5932,7 +5965,7 @@ void tst_App::layerVisibility()
     QCOMPARE(grabWithBlueDot.pixelColor(10, 10), QColor(Qt::blue));
 
     // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
+    QVERIFY2(clickButton(newLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 2);
 
     // Make it the current layer.
@@ -5953,7 +5986,7 @@ void tst_App::layerVisibility()
     QVERIFY2(verifyLayerName("Layer 2", &layer2Delegate), failureMessage);
     QQuickItem *layer2VisibilityCheckBox = layer2Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
     QVERIFY(layer2VisibilityCheckBox);
-    mouseEventOnCentre(layer2VisibilityCheckBox, MouseClick);
+    QVERIFY2(clickButton(layer2VisibilityCheckBox), failureMessage);
     QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
 
     // Ensure that the layer has been hidden.
@@ -5963,7 +5996,7 @@ void tst_App::layerVisibility()
     QCOMPARE(grabWithRedDotHidden.pixelColor(10, 10), QColor(Qt::blue));
 
     // Undo the visibility change.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(layeredImageProject->currentLayer()->isVisible(), true);
     // The canvas should look as it did before it was hidden.
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
@@ -5980,7 +6013,7 @@ void tst_App::moveLayerUpAndDown()
     QCOMPARE(moveLayerUpButton->isEnabled(), false);
 
     // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
+    QVERIFY2(clickButton(newLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 2);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
     // It should be possible to move the lowest layer up but not down.
@@ -5995,7 +6028,7 @@ void tst_App::moveLayerUpAndDown()
     QCOMPARE(moveLayerUpButton->isEnabled(), false);
 
     // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
+    QVERIFY2(clickButton(newLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 3);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
     // It should be possible to move the middle layer both up and down.
@@ -6003,14 +6036,14 @@ void tst_App::moveLayerUpAndDown()
     QCOMPARE(moveLayerUpButton->isEnabled(), true);
 
     // Move the current layer up.
-    mouseEventOnCentre(moveLayerUpButton, MouseClick);
+    QVERIFY2(clickButton(moveLayerUpButton), failureMessage);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
     QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 2"));
     QCOMPARE(moveLayerDownButton->isEnabled(), true);
     QCOMPARE(moveLayerUpButton->isEnabled(), false);
 
     // Move the current layer down.
-    mouseEventOnCentre(moveLayerDownButton, MouseClick);
+    QVERIFY2(clickButton(moveLayerDownButton), failureMessage);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
     QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 2"));
     QCOMPARE(moveLayerDownButton->isEnabled(), true);
@@ -6100,7 +6133,7 @@ void tst_App::mergeLayerUpAndDown()
     // - Layer 3
     // - Layer 2 (current)
     // - Layer 1
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 3);
     QVERIFY2(verifyCurrentLayer("Layer 2", 1), failureMessage);
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
@@ -6130,7 +6163,7 @@ void tst_App::mergeLayerUpAndDown()
     // - Layer 3
     // - Layer 2 (current)
     // - Layer 1
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 3);
     QVERIFY2(verifyCurrentLayer("Layer 2", 1), failureMessage);
     QCOMPARE(mergeLayerDownMenuItem->property("enabled").toBool(), true);
@@ -6185,7 +6218,7 @@ void tst_App::renameLayers()
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 12"));
 
     // Undo the name change.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
 }
 
@@ -6198,7 +6231,7 @@ void tst_App::duplicateLayers()
     QVERIFY(duplicateLayerButton);
 
     // Duplicate Layer 1 (all white). It should go above the current layer and be selected.
-    mouseEventOnCentre(duplicateLayerButton, MouseClick);
+    QVERIFY2(clickButton(duplicateLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 2);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 0);
     QCOMPARE(layeredImageProject->layerAt(0)->name(), QLatin1String("Layer 1 copy"));
@@ -6207,7 +6240,7 @@ void tst_App::duplicateLayers()
     QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(0, 0), QColor(Qt::white));
 
     // Undo it.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 1);
     QCOMPARE(layeredImageProject->currentLayer()->name(), QLatin1String("Layer 1"));
 }
@@ -6226,7 +6259,7 @@ void tst_App::saveAndLoadLayeredImageProject()
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
+    QVERIFY2(clickButton(newLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 2);
 
     // Make it the current layer.
@@ -6248,7 +6281,7 @@ void tst_App::saveAndLoadLayeredImageProject()
     QQuickItem *layerListView = window->findChild<QQuickItem*>("layerListView");
     QVERIFY(layerListView);
     while (layerListView->property("contentHeight").toReal() < layerListView->height() * 3) {
-        mouseEventOnCentre(newLayerButton, MouseClick);
+        QVERIFY2(clickButton(newLayerButton), failureMessage);
     }
     const int finalLayerCount = layeredImageProject->layerCount();
 
@@ -6311,7 +6344,7 @@ void tst_App::layerVisibilityAfterMoving()
     QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
     // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
+    QVERIFY2(clickButton(newLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 2);
 
     // Make it the current layer.
@@ -6330,7 +6363,7 @@ void tst_App::layerVisibilityAfterMoving()
     QCOMPARE(grabBeforeSaving.pixelColor(20, 20), QColor(Qt::red));
 
     // Move it below Layer 1.
-    mouseEventOnCentre(moveLayerDownButton, MouseClick);
+    QVERIFY2(clickButton(moveLayerDownButton), failureMessage);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
     QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 2"));
 
@@ -6339,7 +6372,7 @@ void tst_App::layerVisibilityAfterMoving()
     QVERIFY2(verifyLayerName("Layer 1", &layer1Delegate), failureMessage);
     QQuickItem *layer1VisibilityCheckBox = layer1Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
     QVERIFY(layer1VisibilityCheckBox);
-    mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
+    QVERIFY2(clickButton(layer1VisibilityCheckBox), failureMessage);
     QCOMPARE(layeredImageProject->layerAt(0)->isVisible(), false);
 
     // Ensure that the layer has been hidden.
@@ -6349,7 +6382,7 @@ void tst_App::layerVisibilityAfterMoving()
     QCOMPARE(grabWithLayer1Hidden.pixelColor(20, 20), QColor(Qt::red));
 
     // Show Layer 1. It should show only white.
-    mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
+    QVERIFY2(clickButton(layer1VisibilityCheckBox), failureMessage);
     QCOMPARE(layeredImageProject->currentLayer()->isVisible(), true);
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -6361,7 +6394,7 @@ void tst_App::layerVisibilityAfterMoving()
     QVERIFY2(selectLayer("Layer 1", 0), failureMessage);
 
     // Move Layer 1 back down. The red square should be visible on a white background.
-    mouseEventOnCentre(moveLayerDownButton, MouseClick);
+    QVERIFY2(clickButton(moveLayerDownButton), failureMessage);
     QCOMPARE(layeredImageProject->currentLayerIndex(), 1);
     QCOMPARE(layeredImageProject->layerAt(1)->name(), QLatin1String("Layer 1"));
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
@@ -6376,7 +6409,7 @@ void tst_App::layerVisibilityAfterMoving()
 //    QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
 //    // Add a new layer.
-//    mouseEventOnCentre(newLayerButton, MouseClick);
+//    QVERIFY2(clickButton(newLayerButton), failureMessage);
 //    QCOMPARE(layeredImageProject->layerCount(), 2);
 //    QCOMPARE(layeredImageProject->hasUnsavedChanges(), true);
 //    QCOMPARE(undoToolButton->isEnabled(), true);
@@ -6399,7 +6432,7 @@ void tst_App::selectionConfirmedWhenSwitchingLayers()
     QVERIFY2(panTopLeftTo(0, 0), failureMessage);
 
     // Create a new layer and make it the active layer
-    mouseEventOnCentre(newLayerButton, MouseClick);
+    QVERIFY2(clickButton(newLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 2);
     QCOMPARE(layeredImageProject->hasUnsavedChanges(), true);
     QCOMPARE(undoToolButton->isEnabled(), true);
@@ -6441,7 +6474,7 @@ void tst_App::newLayerAfterMovingSelection()
     QVERIFY2(dragSelection(QPoint(18, 18)), failureMessage);
 
     // Add a new layer; it should confirm the move, delesect it, and, most importantly: not crash.
-    mouseEventOnCentre(newLayerButton, MouseClick);
+    QVERIFY2(clickButton(newLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 2);
     QVERIFY(!canvas->hasSelection());
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::transparent));
@@ -6501,8 +6534,8 @@ void tst_App::undoAfterMovingTwoSelections()
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(10, 24), red);
 
     // Undo both moves; the grey shouldn't be duplicated.
-    mouseEventOnCentre(undoToolButton, MouseClick);
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(10, 10), semiTransparentGrey);
     QCOMPARE(layeredImageProject->layerAt(0)->image()->pixelColor(10, 14), QColor(Qt::transparent));
     QCOMPARE(layeredImageProject->layerAt(1)->image()->pixelColor(10, 20), red);
@@ -6731,7 +6764,7 @@ void tst_App::disableToolsWhenLayerHidden()
 
     foreach (ImageCanvas::Tool tool, mTools) {
         // Hide the layer.
-        mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
+        QVERIFY2(clickButton(layer1VisibilityCheckBox), failureMessage);
         QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
         // Qt::ForbiddenCursor shouldn't be displayed yet.
         // The cursor should be disabled for each tool.
@@ -6751,7 +6784,7 @@ void tst_App::disableToolsWhenLayerHidden()
                 .arg(QDebug::toString(tool)).arg(QDebug::toString(window->cursor().shape()))));
 
         // Make the layer visible again.
-        mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
+        QVERIFY2(clickButton(layer1VisibilityCheckBox), failureMessage);
         QCOMPARE(layeredImageProject->currentLayer()->isVisible(), true);
 
         // The cursor should not be ForbiddenCursor now.
@@ -6759,7 +6792,7 @@ void tst_App::disableToolsWhenLayerHidden()
     }
 
     // Hide the layer.
-    mouseEventOnCentre(layer1VisibilityCheckBox, MouseClick);
+    QVERIFY2(clickButton(layer1VisibilityCheckBox), failureMessage);
     QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
 
     // Ensure that we can't actually do anything when the cursor is disabled.
@@ -6787,7 +6820,7 @@ void tst_App::undoMoveContents()
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(1, 3), QColor(Qt::red));
 
     // Undo.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(layeredImageProject->currentLayer()->image()->pixelColor(0, 0), QColor(Qt::red));
 }
 
@@ -6802,7 +6835,7 @@ void tst_App::undoMoveContentsOfVisibleLayers()
     QVERIFY2(drawPixelAtCursorPos(), failureMessage);
 
     // Add a new layer.
-    mouseEventOnCentre(newLayerButton, MouseClick);
+    QVERIFY2(clickButton(newLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 2);
     ImageLayer *layer1 = layeredImageProject->layerAt(1);
     ImageLayer *layer2 = layeredImageProject->layerAt(0);
@@ -6820,7 +6853,7 @@ void tst_App::undoMoveContentsOfVisibleLayers()
     QVERIFY2(verifyLayerName("Layer 2", &layer2Delegate), failureMessage);
     QQuickItem *layer2VisibilityCheckBox = layer2Delegate->findChild<QQuickItem*>("layerVisibilityCheckBox");
     QVERIFY(layer2VisibilityCheckBox);
-    mouseEventOnCentre(layer2VisibilityCheckBox, MouseClick);
+    QVERIFY2(clickButton(layer2VisibilityCheckBox), failureMessage);
     QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
 
     // Move the contents down. Only layer 1 should have been moved.
@@ -6830,7 +6863,7 @@ void tst_App::undoMoveContentsOfVisibleLayers()
     QCOMPARE(layer2->image()->pixelColor(1, 0), QColor(Qt::blue));
 
     // Undo.
-    mouseEventOnCentre(undoToolButton, MouseClick);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::red));
     QCOMPARE(layer1->image()->pixelColor(0, 1), QColor(Qt::white));
     QCOMPARE(layer2->image()->pixelColor(1, 0), QColor(Qt::blue));

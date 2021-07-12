@@ -35,7 +35,7 @@ class SLATE_EXPORT AnimationPlayback : public QObject
 {
     Q_OBJECT
     // Serialised.
-    Q_PROPERTY(int currentFrameIndex READ currentFrameIndex NOTIFY currentFrameIndexChanged FINAL)
+    Q_PROPERTY(int currentFrameIndex READ currentFrameIndex WRITE setCurrentFrameIndex NOTIFY currentFrameIndexChanged FINAL)
     Q_PROPERTY(qreal scale READ scale WRITE setScale NOTIFY scaleChanged FINAL)
     Q_PROPERTY(bool loop READ shouldLoop WRITE setLoop NOTIFY loopChanged)
     // Not serialised.
@@ -52,6 +52,7 @@ public:
     void setAnimation(Animation *animation);
 
     int currentFrameIndex() const;
+    void setCurrentFrameIndex(int currentFrameIndex);
     qreal progress() const;
 
     qreal scale() const;
@@ -83,8 +84,6 @@ private slots:
 
 private:
     int startFrameIndex() const;
-
-    void setCurrentFrameIndex(int currentFrameIndex);
 
     void timerEvent(QTimerEvent *event) override;
 

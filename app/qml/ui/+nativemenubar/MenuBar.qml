@@ -37,6 +37,7 @@ Item {
     property var texturedFillSettingsDialog
     property var aboutDialog
     property SaveChangesDialog saveChangesDialog
+    property AddGuidesDialog addGuidesDialog
 
     Platform.MenuBar {
         Platform.Menu {
@@ -443,6 +444,22 @@ Item {
                 checkable: true
                 checked: canvas && canvas.guidesLocked
                 onTriggered: canvas.guidesLocked = checked
+            }
+
+            Platform.MenuItem {
+                objectName: "addGuidesMenuItem"
+                //: Opens a dialog that allows adding multiple guides at once.
+                text: qsTr("Add Guides...")
+                enabled: canvas
+                onTriggered: addGuidesDialog.open()
+            }
+
+            Platform.MenuItem {
+                objectName: "deleteAllGuidesMenuItem"
+                //: Deletes all guides.
+                text: qsTr("Delete All Guides")
+                enabled: canvas
+                onTriggered: canvas.removeAllGuides()
             }
 
             Platform.MenuSeparator {}

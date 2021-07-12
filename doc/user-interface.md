@@ -89,7 +89,7 @@
 2. Toggles the visibility of the panel.
 3. Displays a preview of the animation. The scale of the preview can be changed in the settings.
 4. Plays/pauses the animation preview playback.
-5. Displays the progress of the animation preview playback.
+5. Displays the progress of the animation preview and allows seeking a specific frame.
 6. Toggles between playing once and looping.
 7. Exports the animation as a GIF.
 8. Displays animations. Each animation can be previewed by clicking on it, renamed by double-clicking on it, and configured by clicking the configure button.

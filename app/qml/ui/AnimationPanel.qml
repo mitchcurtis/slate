@@ -132,11 +132,23 @@ Panel {
                 onClicked: animationPlayback.playing = !animationPlayback.playing
             }
 
-            ProgressBar {
-                objectName: "animationProgressBar"
-                value: animationPlayback && currentAnimation ? animationPlayback.progress : 0
+            Slider {
+                id: animationSeekSlider
+                objectName: "animationSeekSlider"
+                value: animationPlayback && currentAnimation ? animationPlayback.currentFrameIndex : 0
+                to: animationPlayback && currentAnimation ? currentAnimation.frameCount - 1 : 1
+                stepSize: 1
+                focusPolicy: Qt.NoFocus
+                onMoved: animationPlayback.currentFrameIndex = value
 
                 Layout.fillWidth: true
+
+                ToolTip {
+                    parent: animationSeekSlider.handle
+                    text: qsTr("Frame %1").arg(animationSeekSlider.value + 1)
+                    visible: animationPlayback && currentAnimation
+                        && (animationSeekSlider.hovered || animationSeekSlider.pressed)
+                }
             }
 
             ToolButton {

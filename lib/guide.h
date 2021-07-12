@@ -20,7 +20,7 @@
 #ifndef GUIDE_H
 #define GUIDE_H
 
-#include <Qt>
+#include <QDebug>
 
 #include "slate-global.h"
 
@@ -37,10 +37,12 @@ public:
     void setOrientation(const Qt::Orientation &orientation);
 
 private:
+    SLATE_EXPORT friend QDebug operator<<(QDebug debug, const Guide &guide);
+
     int mPosition;
     Qt::Orientation mOrientation;
 };
 
-bool operator==(const Guide &a, const Guide &b);
+SLATE_EXPORT bool operator==(const Guide &a, const Guide &b);
 
 #endif // GUIDE_H

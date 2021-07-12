@@ -17,47 +17,46 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "deleteguidecommand.h"
+#include "deleteguidescommand.h"
 
 #include <QLoggingCategory>
 
 #include "project.h"
 
-Q_LOGGING_CATEGORY(lcDeleteGuideCommand, "app.undo.deleteGuideCommand")
+Q_LOGGING_CATEGORY(lcDeleteGuidesCommand, "app.undo.deleteGuidesCommand")
 
-DeleteGuideCommand::DeleteGuideCommand(Project *project, const Guide &guide, UndoCommand *parent) :
+DeleteGuidesCommand::DeleteGuidesCommand(Project *project, const QVector<Guide> &guides, UndoCommand *parent) :
     UndoCommand(parent),
     mProject(project),
-    mGuide(guide)
+    mGuides(guides)
 {
-    qCDebug(lcDeleteGuideCommand) << "constructed" << this;
+    qCDebug(lcDeleteGuidesCommand) << "constructed" << this;
 }
 
-void DeleteGuideCommand::undo()
+void DeleteGuidesCommand::undo()
 {
-    qCDebug(lcDeleteGuideCommand) << "undoing" << this;
-    mProject->addGuide(mGuide);
+    qCDebug(lcDeleteGuidesCommand) << "undoing" << this;
+    mProject->addGuides(mGuides);
 }
 
-void DeleteGuideCommand::redo()
+void DeleteGuidesCommand::redo()
 {
-    qCDebug(lcDeleteGuideCommand) << "redoing" << this;
-    mProject->removeGuide(mGuide);
+    qCDebug(lcDeleteGuidesCommand) << "redoing" << this;
+    mProject->removeGuides(mGuides);
 }
 
-int DeleteGuideCommand::id() const
+int DeleteGuidesCommand::id() const
 {
     return -1;
 }
 
-QDebug operator<<(QDebug debug, const DeleteGuideCommand *command)
+QDebug operator<<(QDebug debug, const DeleteGuidesCommand *command)
 {
     QDebugStateSaver saver(debug);
     if (!command)
-        return debug << "DeleteGuideCommand(0x0)";
+        return debug << "DeleteGuidesCommand(0x0)";
 
-    debug.nospace() << "(DeleteGuideCommand guide.position=" << command->mGuide.position()
-        << " guide.orientation=" << command->mGuide.orientation()
+    debug.nospace() << "(DeleteGuidesCommand guides=" << command->mGuides
         << ")";
     return debug;
 }

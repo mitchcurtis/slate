@@ -317,7 +317,7 @@ void tst_Screenshots::animation()
     QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));
     // Close it.
     QTest::keyClick(window, Qt::Key_Escape, Qt::NoModifier, 100);
-    const QObject *canvasSizePopup = findPopupFromTypeName("CanvasSizePopup");
+    const QObject *canvasSizePopup = findOpenPopupFromTypeName("CanvasSizePopup");
     QVERIFY(canvasSizePopup);
     QTRY_VERIFY2(!canvasSizePopup->property("visible").toBool(), "Failed to cancel CanvasSizePopup");
 
@@ -395,7 +395,7 @@ void tst_Screenshots::animation()
     QQuickItem *animationPanelSettingsToolButton = window->findChild<QQuickItem*>("animationPanelSettingsToolButton");
     QVERIFY(animationPanelSettingsToolButton);
     mouseEventOnCentre(animationPanelSettingsToolButton, MouseClick);
-    QObject *animationPreviewSettingsPopup = findPopupFromTypeName("AnimationPreviewSettingsPopup");
+    QObject *animationPreviewSettingsPopup = findOpenPopupFromTypeName("AnimationPreviewSettingsPopup");
     QVERIFY(animationPreviewSettingsPopup);
     QTRY_COMPARE(animationPreviewSettingsPopup->property("opened").toBool(), true);
 
