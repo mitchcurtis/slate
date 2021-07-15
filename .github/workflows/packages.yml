@@ -67,6 +67,7 @@ jobs:
         qbs --version
         qbs setup-toolchains --detect
         qbs config defaultProfile x86_64-linux-gnu-gcc-9
+        echo "qbs profiles:"
         qbs config --list profiles
 
     - name: Build Slate
