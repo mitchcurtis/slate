@@ -62,15 +62,32 @@ Repeater {
         canvas: root.canvas
         pane: canvas.paneAt(index)
         paneIndex: index
-        anchors.fill: parent
-        visible: index === 0 || canvas.splitScreen
+        x: paneIndex === 0 ? 0 : Math.floor(parent.width - width)
+        width: Math.floor(paneItem.pane.size * parent.width)
+        height: parent.height
+        visible: paneIndex === 0 || canvas.splitScreen
 
         Rectangle {
-            x: index === 0 ? 0 : Math.floor(parent.width - width)
             width: Math.floor(paneItem.pane.size * parent.width)
             height: parent.height
             color: Theme.canvasBackgroundColour
             z: -1
+        }
+
+        GuidesItem {
+            id: guidesItem
+            anchors.fill: parent
+            canvas: root.canvas
+            pane: paneItem.pane
+            paneIndex: paneItem.paneIndex
+            visible: root.canvas.guidesVisible
+        }
+
+        Rectangle {
+            anchors.fill: guidesItem
+            color: "transparent"
+            border.color: "darkorange"
+            z: 1000
         }
 
         // Can remove this intermediary item once CanvasPaneItem no longer takes up the whole canvas.
@@ -80,7 +97,8 @@ Repeater {
             x: paneItem.paneIndex == 1 ? paneItem.pane.size * paneItem.width : 0
             width: paneItem.pane.size * parent.width
             height: parent.height
-            visible: animationFrameTextRepeater.showMarkers
+//            visible: animationFrameTextRepeater.showMarkers
+            visible: false
             clip: true
 
             Repeater {

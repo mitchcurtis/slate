@@ -348,6 +348,11 @@ signals:
     void checkerColour1Changed();
     void checkerColour2Changed();
     void rulersVisibleChanged();
+    // Emitted whenever guides need to be rendered. Covers events like dragging
+    // guides, which Project's guidesChanged signal doesn't account for, and
+    // and is also connected to Project's guidesChanged signal for convenience
+    // so that GuidesItem doesn't need to connect to it.
+    void guidesChanged();
     void guidesVisibleChanged();
     void guidesLockedChanged();
     void notesVisibleChanged();
@@ -432,7 +437,6 @@ protected slots:
     void onPaneIntegerOffsetChanged();
     void onPaneSizeChanged();
     void onSplitterPositionChanged();
-    void onGuidesChanged();
     void onNotesChanged();
     void onAboutToBeginMacro(const QString &macroText);
     void recreateCheckerImage();
@@ -626,7 +630,7 @@ protected:
     bool mDraggingNote;
     int mPressedGuideIndex;
     int mPressedNoteIndex;
-    GuidesItem *mGuidesItem;
+//    GuidesItem *mGuidesItem;
     NotesItem *mNotesItem;
     SelectionItem *mSelectionItem;
 

@@ -105,7 +105,7 @@ ImageCanvas::ImageCanvas() :
     mGuidePositionBeforePress(0),
     mPressedGuideIndex(-1),
     mPressedNoteIndex(-1),
-    mGuidesItem(nullptr),
+//    mGuidesItem(nullptr),
     mNotesItem(nullptr),
     mCursorX(0),
     mCursorY(0),
@@ -156,9 +156,10 @@ ImageCanvas::ImageCanvas() :
     // We create child items in the body rather than the initialiser list
     // in order to ensure the correct drawing order.
     // See CanvasPaneRepeater.qml for an illustration of that order.
-    mGuidesItem = new GuidesItem(this);
+//    mGuidesItem = new GuidesItem(this);
     qreal itemZ = 3;
-    mGuidesItem->setZ(itemZ++);
+//    mGuidesItem->setZ(itemZ++);
+    itemZ++;
 
     mNotesItem = new NotesItem(this);
     mNotesItem->setZ(itemZ++);
@@ -375,11 +376,6 @@ void ImageCanvas::setGuidesVisible(bool guidesVisible)
         return;
 
     mGuidesVisible = guidesVisible;
-
-    mGuidesItem->setVisible(mGuidesVisible);
-    if (mGuidesVisible)
-        mGuidesItem->update();
-
     emit guidesVisibleChanged();
 }
 
@@ -1038,7 +1034,6 @@ void ImageCanvas::connectSignals()
     connect(mProject, SIGNAL(projectCreated()), this, SLOT(requestContentPaint()));
     connect(mProject, SIGNAL(projectClosed()), this, SLOT(reset()));
     connect(mProject, SIGNAL(sizeChanged()), this, SLOT(requestContentPaint()));
-    connect(mProject, SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
     connect(mProject, SIGNAL(notesChanged()), this, SLOT(onNotesChanged()));
     connect(mProject, SIGNAL(preProjectSaved()), this, SLOT(saveState()));
     connect(mProject, SIGNAL(aboutToBeginMacro(QString)),
@@ -1055,7 +1050,6 @@ void ImageCanvas::disconnectSignals()
     mProject->disconnect(SIGNAL(projectCreated()), this, SLOT(requestContentPaint()));
     mProject->disconnect(SIGNAL(projectClosed()), this, SLOT(reset()));
     mProject->disconnect(SIGNAL(sizeChanged()), this, SLOT(requestContentPaint()));
-    mProject->disconnect(SIGNAL(guidesChanged()), this, SLOT(onGuidesChanged()));
     mProject->disconnect(SIGNAL(notesChanged()), this, SLOT(onNotesChanged()));
     mProject->disconnect(SIGNAL(preProjectSaved()), this, SLOT(saveState()));
     mProject->disconnect(SIGNAL(aboutToBeginMacro(QString)),
@@ -1094,7 +1088,7 @@ void ImageCanvas::componentComplete()
     resizeRulers();
 
     updateSelectionCursorGuideVisibility();
-    mGuidesItem->setVisible(mGuidesVisible);
+//    mGuidesItem->setVisible(mGuidesVisible);
     mNotesItem->setVisible(mNotesVisible);
 
     resizeChildren();
@@ -1120,8 +1114,8 @@ void ImageCanvas::resizeChildren()
     mSelectionCursorGuide->setWidth(width());
     mSelectionCursorGuide->setHeight(height());
 
-    mGuidesItem->setWidth(qFloor(width()));
-    mGuidesItem->setHeight(height());
+//    mGuidesItem->setWidth(qFloor(width()));
+//    mGuidesItem->setHeight(height());
 
     mNotesItem->setWidth(qFloor(width()));
     mNotesItem->setHeight(height());
@@ -1326,7 +1320,7 @@ void ImageCanvas::addNewGuide()
     mProject->addChange(new AddGuidesCommand(mProject, guides));
     mProject->endMacro();
 
-    // The update for these guide commands happens in onGuidesChanged.
+    // The update for these guide commands happens via Project's guidesChanged signal.
 }
 
 void ImageCanvas::addNewGuides(int horizontalSpacing, int verticalSpacing)
@@ -1425,11 +1419,6 @@ int ImageCanvas::noteIndexAtCursorPos() const
     }
 
     return -1;
-}
-
-void ImageCanvas::onGuidesChanged()
-{
-    mGuidesItem->update();
 }
 
 void ImageCanvas::onNotesChanged()
@@ -2744,7 +2733,7 @@ void ImageCanvas::onZoomLevelChanged()
     requestContentPaint();
 
     if (mGuidesVisible)
-        mGuidesItem->update();
+        emit guidesChanged();
 
     if (mNotesVisible)
         mNotesItem->update();
@@ -2763,7 +2752,7 @@ void ImageCanvas::onPaneIntegerOffsetChanged()
     mSecondVerticalRuler->setFrom(mSecondPane.integerOffset().y());
 
     if (mGuidesVisible)
-        mGuidesItem->update();
+        emit guidesChanged();
 
     if (mNotesVisible)
         mNotesItem->update();
@@ -2778,7 +2767,7 @@ void ImageCanvas::onPaneSizeChanged()
     resizeRulers();
 
     if (mGuidesVisible)
-        mGuidesItem->update();
+        emit guidesChanged();
 
     if (mNotesVisible)
         mNotesItem->update();
@@ -3082,9 +3071,9 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
         } else if (mPressedRuler) {
             requestContentPaint();
             // Ensure that the guide being created is drawn.
-            mGuidesItem->update();
+            emit guidesChanged();
         } else if (mPressedGuideIndex != -1) {
-            mGuidesItem->update();
+            emit guidesChanged();
         } else if (mPressedNoteIndex != -1) {
             mNotesItem->update();
         } else {

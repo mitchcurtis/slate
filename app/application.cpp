@@ -32,6 +32,7 @@
 #include "canvaspaneitem.h"
 #include "clipboard.h"
 #include "filevalidator.h"
+#include "guidesitem.h"
 #include "imagecanvas.h"
 #include "imagelayer.h"
 #include "imageproject.h"
@@ -165,6 +166,7 @@ void Application::registerQmlTypes()
     qmlRegisterType<AnimationPlayback>("App", 1, 0, "AnimationPlayback");
     qmlRegisterType<AutoSwatchModel>("App", 1, 0, "AutoSwatchModel");
     qmlRegisterType<FileValidator>("App", 1, 0, "FileValidator");
+    qmlRegisterType<GuidesItem>("App", 1, 0, "GuidesItem");
     qmlRegisterType<ImageCanvas>();
     qmlRegisterType<ImageCanvas>("App", 1, 0, "ImageCanvas");
     qmlRegisterType<CanvasPaneItem>("App", 1, 0, "CanvasPaneItem");
