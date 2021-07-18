@@ -31,6 +31,16 @@
 /*
     This class is a purely visual respresentation of a canvas pane;
     ImageCanvas contains all of the state that will be painted, and this class paints it.
+
+    For reasons I forget it takes up the entire canvas container, but only renders in its section:
+
+    +--------------------------+
+    |            |             |
+    |            |             |
+    | First pane | Second pane |
+    |            |             |
+    |            |             |
+    +--------------------------+
 */
 
 CanvasPaneItem::CanvasPaneItem(QQuickItem *parent) :
@@ -91,6 +101,15 @@ void CanvasPaneItem::setPaneIndex(int paneIndex)
 
     mPaneIndex = paneIndex;
     emit paneIndexChanged();
+}
+
+bool CanvasPaneItem::isRectVisible(const QRect &sceneRect) const
+{
+    const int firstPaneWidth = mCanvas->size().width() * mCanvas->firstPane()->size();
+    const QRect ourViewport(mPaneIndex == 0 ? QPoint(0, 0) : QPoint(firstPaneWidth, 0),
+        QSize(firstPaneWidth, mCanvas->height()));
+//    qDebug() << "ourViewport" << ourViewport << "sceneRect" << sceneRect << ourViewport.intersects(sceneRect);
+    return ourViewport.intersects(sceneRect);
 }
 
 void CanvasPaneItem::itemChange(QQuickItem::ItemChange change, const QQuickItem::ItemChangeData &value)

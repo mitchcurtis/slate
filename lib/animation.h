@@ -72,7 +72,7 @@ public:
 
     int startColumn() const;
     int startRow() const;
-    int startIndex(int sourceImageWidth) const;
+    Q_INVOKABLE int startIndex(int sourceImageWidth) const;
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;

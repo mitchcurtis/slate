@@ -491,6 +491,17 @@ Item {
                 checked: settings.scrollZoom
                 onTriggered: settings.scrollZoom = checked
             }
+
+            Platform.MenuSeparator {}
+
+            Platform.MenuItem {
+                objectName: "showAnimationFrameMarkersMenuItem"
+                text: qsTr("Show Animation Frame Markers")
+                enabled: isImageProjectType && canvas && project.usingAnimation
+                checkable: true
+                checked: enabled && canvas.animationMarkersVisible
+                onTriggered: canvas.animationMarkersVisible = checked
+            }
         }
 
         Platform.Menu {

@@ -60,6 +60,8 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool guidesVisible READ areGuidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
     Q_PROPERTY(bool guidesLocked READ areGuidesLocked WRITE setGuidesLocked NOTIFY guidesLockedChanged)
     Q_PROPERTY(bool notesVisible READ areNotesVisible WRITE setNotesVisible NOTIFY notesVisibleChanged)
+    Q_PROPERTY(bool animationMarkersVisible READ areAnimationMarkersVisible WRITE setAnimationMarkersVisible
+        NOTIFY animationMarkersVisibleChanged)
     Q_PROPERTY(QColor splitColour READ splitColour WRITE setSplitColour NOTIFY splitColourChanged)
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
@@ -173,6 +175,9 @@ public:
 
     bool areNotesVisible() const;
     void setNotesVisible(bool areNotesVisible);
+
+    bool areAnimationMarkersVisible() const;
+    void setAnimationMarkersVisible(bool animationMarkersVisible);
 
     QColor splitColour() const;
     void setSplitColour(const QColor &splitColour);
@@ -370,6 +375,7 @@ signals:
     void lineVisibleChanged();
     void lineChanged();
     void pasteSelectionConfirmed();
+    void animationMarkersVisibleChanged();
 
     void noteCreationRequested();
     void noteModificationRequested(int noteIndex);
@@ -612,6 +618,7 @@ protected:
     bool mGuidesVisible;
     bool mGuidesLocked;
     bool mNotesVisible;
+    bool mAnimationMarkersVisible;
     int mGuidePositionBeforePress;
     QPoint mNotePositionBeforePress;
     // The position of the mouse cursor within the note.

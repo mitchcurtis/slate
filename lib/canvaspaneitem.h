@@ -51,6 +51,8 @@ public:
     int paneIndex() const;
     void setPaneIndex(int paneIndex);
 
+    Q_INVOKABLE bool isRectVisible(const QRect &sceneRect) const;
+
 signals:
     void canvasChanged();
     void paneChanged();

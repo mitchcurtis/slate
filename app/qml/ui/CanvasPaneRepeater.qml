@@ -1,4 +1,6 @@
 import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Layouts 1.12
 
 import App 1.0
 
@@ -11,6 +13,7 @@ Repeater {
     model: 2
 
     property ImageCanvas canvas
+    readonly property Project project: canvas.project
 
     /*
         The stacking order for child items of ImageCanvas is as follows:
@@ -68,6 +71,90 @@ Repeater {
             height: parent.height
             color: Theme.canvasBackgroundColour
             z: -1
+        }
+
+        // Can remove this intermediary item once CanvasPaneItem no longer takes up the whole canvas.
+        // It's just here to clip the markers.
+        Item {
+            id: animationContainer
+            x: paneItem.paneIndex == 1 ? paneItem.pane.size * paneItem.width : 0
+            width: paneItem.pane.size * parent.width
+            height: parent.height
+            visible: animationFrameTextRepeater.showMarkers
+            clip: true
+
+            Repeater {
+                id: animationFrameTextRepeater
+
+                readonly property bool animationAvailable:
+                    root.project && !!root.project.usingAnimation && root.project.animationSystem.currentAnimation
+                readonly property Animation currentAnimation: root.project ? root.project.animationSystem.currentAnimation : null
+                readonly property bool showMarkers: currentAnimation && canvas.animationMarkersVisible
+
+                readonly property int rows: currentAnimation ? project.size.height / currentAnimation.frameHeight : 0
+                readonly property int columns: currentAnimation ? project.size.width / currentAnimation.frameWidth : 0
+                readonly property int frameWidth: currentAnimation ? currentAnimation.frameWidth : 0
+                readonly property int frameHeight: currentAnimation ? currentAnimation.frameHeight : 0
+
+                // At smaller zoom levels we're short on space, so use a smaller padding.
+                readonly property int labelLeftPadding: 2 + Math.min(paneItem.pane.integerZoomLevel, 8)
+                readonly property int labelTopPadding: Math.min(paneItem.pane.integerZoomLevel, 8)
+                // Same goes for font size. Go from the default font size to max 50% larger.
+                // At a zoom level of 1, multiply by 0; at 2, multiply by 1.1; etc.
+                readonly property int labelFontSize: Qt.application.font.pixelSize * (1.0 + Math.min((paneItem.pane.integerZoomLevel - 1) * 0.1, 0.5))
+
+                model: showMarkers ? currentAnimation.frameCount : 0
+                delegate: Label {
+                    id: label
+                    x: paneItem.pane.integerOffset.x + relativeX
+                    y: paneItem.pane.integerOffset.y + relativeY
+                    z: 1000
+                    width: animationFrameTextRepeater.frameWidth
+                    height: animationFrameTextRepeater.frameHeight
+                    text: modelData + 1
+                    font.pixelSize: animationFrameTextRepeater.labelFontSize
+                    color: "white"
+                    leftPadding: animationFrameTextRepeater.labelLeftPadding
+                    topPadding: animationFrameTextRepeater.labelTopPadding
+                    opacity: !hoverHandler.hovered ? 1 : 0
+                    visible: opacity > 0 && visibleInPane
+
+                    // By using a Repeater instead of GridLayout, we can completely hide
+                    // items that are not visible, instead of just setting their opacity to 0
+                    // (which we did in order to avoid the item after the one that was hidden shuffling around).
+                    // It just means we have to have these extra position bindings.
+                    readonly property int relativeX: column * (animationFrameTextRepeater.frameWidth * paneItem.pane.integerZoomLevel)
+                    readonly property int relativeY: row * (animationFrameTextRepeater.frameHeight * paneItem.pane.integerZoomLevel)
+                    readonly property int frameIndex: animationFrameTextRepeater.currentAnimation
+                        ? animationFrameTextRepeater.currentAnimation.startIndex(root.project.size.width) + index : -1
+                    readonly property int row: frameIndex / animationFrameTextRepeater.columns
+                    readonly property int column: frameIndex % animationFrameTextRepeater.columns
+                    readonly property bool visibleInPane: {
+                        paneItem.width; paneItem.height; // TODO: fix bug where it's not rendered at startup.
+                        paneItem.isRectVisible(Qt.rect(x + animationContainer.x, y, shadeRect.width, shadeRect.height))
+                    }
+
+                    Behavior on opacity {
+                        NumberAnimation {
+                            duration: 140
+                            easing.type: Easing.InOutQuad
+                        }
+                    }
+
+                    Rectangle {
+                        id: shadeRect
+                        color: "#aa444444"
+                        width: label.implicitWidth + label.leftPadding
+                        height: label.implicitHeight + label.topPadding
+                        z: -1
+
+                        // TODO: verify that the bug where clicking on the handler keeps it hovered is fixed in dev
+                        HoverHandler {
+                            id: hoverHandler
+                        }
+                    }
+                }
+            }
         }
     }
 }

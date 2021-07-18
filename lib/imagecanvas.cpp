@@ -70,6 +70,17 @@ Q_LOGGING_CATEGORY(lcImageCanvasSelectionPreviewImage, "app.canvas.selection.pre
 Q_LOGGING_CATEGORY(lcImageCanvasUiState, "app.canvas.uistate")
 Q_LOGGING_CATEGORY(lcImageCanvasUndo, "app.canvas.undo")
 
+/*
+    ImageCanvas doesn't do any rendering itself; CanvasPaneItem does that.
+    ImageCanvas just handles events in order to draw onto an image, which is
+    then rendered by CanvasPaneItem. It also draws things like the selection
+    marquee and selection contents.
+
+    See CanvasPaneRepeater.qml for an illustration of stacking order.
+
+    CanvasPaneItem
+*/
+
 ImageCanvas::ImageCanvas() :
     mProject(nullptr),
     mImageProject(nullptr),
@@ -90,6 +101,7 @@ ImageCanvas::ImageCanvas() :
     mGuidesVisible(true),
     mGuidesLocked(false),
     mNotesVisible(true),
+    mAnimationMarkersVisible(true),
     mGuidePositionBeforePress(0),
     mPressedGuideIndex(-1),
     mPressedNoteIndex(-1),
@@ -143,6 +155,7 @@ ImageCanvas::ImageCanvas() :
 
     // We create child items in the body rather than the initialiser list
     // in order to ensure the correct drawing order.
+    // See CanvasPaneRepeater.qml for an illustration of that order.
     mGuidesItem = new GuidesItem(this);
     qreal itemZ = 3;
     mGuidesItem->setZ(itemZ++);
@@ -230,10 +243,12 @@ void ImageCanvas::restoreState()
         mSecondPane.read(QJsonObject::fromVariantMap(uiState->value("secondPane").toMap()));
         readPanes = true;
     }
+    // TODO: make default* constants for these which we can use here and in the constructor's initialiser list.
     setRulersVisible(uiState->value("rulersVisible", true).toBool());
     setGuidesVisible(uiState->value("guidesVisible", true).toBool());
     setGuidesLocked(uiState->value("guidesLocked", false).toBool());
     setNotesVisible(uiState->value("notesVisible", true).toBool());
+    setAnimationMarkersVisible(uiState->value("animationMarkersVisible", true).toBool());
     doSetSplitScreen(uiState->value("splitScreen", false).toBool(), DontResetPaneSizes);
     mSplitter.setEnabled(uiState->value("splitterLocked", false).toBool());
 
@@ -275,6 +290,7 @@ void ImageCanvas::saveState()
     mProject->uiState()->setValue("guidesVisible", mGuidesVisible);
     mProject->uiState()->setValue("guidesLocked", mGuidesLocked);
     mProject->uiState()->setValue("notesVisible", mNotesVisible);
+    mProject->uiState()->setValue("animationMarkersVisible", mAnimationMarkersVisible);
     mProject->uiState()->setValue("splitScreen", mSplitScreen);
     mProject->uiState()->setValue("splitterLocked", mSplitter.isEnabled());
 
@@ -399,6 +415,20 @@ void ImageCanvas::setNotesVisible(bool notesVisible)
         mNotesItem->update();
 
     emit notesVisibleChanged();
+}
+
+bool ImageCanvas::areAnimationMarkersVisible() const
+{
+    return mAnimationMarkersVisible;
+}
+
+void ImageCanvas::setAnimationMarkersVisible(bool animationMarkersVisible)
+{
+    if (animationMarkersVisible == mAnimationMarkersVisible)
+        return;
+
+    mAnimationMarkersVisible = animationMarkersVisible;
+    emit animationMarkersVisibleChanged();
 }
 
 QColor ImageCanvas::splitColour() const
