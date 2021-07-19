@@ -1083,8 +1083,7 @@ bool TestHelper::addNewGuide(Qt::Orientation orientation, int position)
     const QPoint originalOffset = canvas->currentPane()->integerOffset();
     const qreal originalZoomLevel = canvas->currentPane()->zoomLevel();
 
-    QQuickItem *ruler = canvas->findChild<QQuickItem*>(horizontal
-        ? "firstHorizontalRuler" : "firstVerticalRuler");
+    QQuickItem *ruler = findChildItem(canvas, horizontal ? "firstHorizontalRuler" : "firstVerticalRuler");
     VERIFY(ruler);
     const qreal rulerThickness = horizontal ? ruler->height() : ruler->width();
 

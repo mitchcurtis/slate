@@ -21,19 +21,17 @@ Repeater {
          +--------------------------+
          | ImageCanvas (parent)     |
          |   +--------------------------+
-         |   | Second Pane              |----------|  Checkered transparency pixmap,
-         |   |   +--------------------------+      |  canvas image content, selection.
-         |   |   | First Pane               |------|
+         |   | CanvasPaneItem N         |----------|  Checkered transparency pixmap, canvas image content, selection.
+         |   |   +--------------------------+
+         |   |   | Guides                   |
          |   |   |   +--------------------------+
-         |   |   |   | Guides                   |
+         |   |   |   | Selection Item           |
          |   |   |   |   +--------------------------+
-         |   |   |   |   | Selection Item           |
-         |   |   |   |   |   +--------------------------+
-         +---|   |   |   |   | Selection Cursor Guide   |
-             |   |   |   |   |   +--------------------------+
-             | 1 |   |   |   |   | First Horizontal Ruler   |
-             +---|   |   |   |   |   +--------------------------+
-                 | 2 |   |   |   |   | First Vertical Ruler     |
+         +---|   |   |   | Selection Cursor Guide   |
+             |   |   |   |   +--------------------------+
+             | 1 |   |   |   | First Horizontal Ruler   |
+             +---|   |   |   |   +--------------------------+
+                 | 2 |   |   |   | First Vertical Ruler     |
                  +---|   |   |   |   |   +--------------------------+
                      | 3 |   |   |   |   | Second Horizontal Ruler  |
                      +---|   |   |   |   |   +--------------------------+
@@ -91,6 +89,14 @@ Repeater {
             visible: root.canvas.guidesVisible
         }
 
+        NotesItem {
+            anchors.fill: parent
+            canvas: root.canvas
+            pane: paneItem.pane
+            paneIndex: paneItem.paneIndex
+            visible: root.canvas.notesVisible
+        }
+
         SelectionItem {
             anchors.fill: parent
             canvas: root.canvas
@@ -129,13 +135,6 @@ Repeater {
             foregroundColour: Theme.rulerForegroundColour
             backgroundColour: Theme.rulerBackgroundColour
             visible: root.canvas.rulersVisible && (isFirstPane || root.canvas.splitScreen)
-        }
-
-        Rectangle {
-            anchors.fill: guidesItem
-            color: "transparent"
-            border.color: "darkorange"
-            z: 1000
         }
 
         Repeater {

@@ -41,9 +41,7 @@ Q_DECLARE_LOGGING_CATEGORY(lcImageCanvas)
 Q_DECLARE_LOGGING_CATEGORY(lcImageCanvasLifecycle)
 
 class Guide;
-class GuidesItem;
 class ImageProject;
-class NotesItem;
 class Project;
 class Tile;
 class Tileset;
@@ -347,6 +345,7 @@ signals:
     void guidesVisibleChanged();
     void guidesLockedChanged();
     void notesVisibleChanged();
+    void notesChanged();
     void splitColourChanged();
     void splitScreenChanged();
     void scrollZoomChanged();
@@ -435,7 +434,6 @@ protected:
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
     virtual void restoreState();
-    void resizeChildren();
 
     friend class ApplyGreedyPixelFillCommand;
     friend class ApplyPixelEraserCommand;
@@ -615,7 +613,6 @@ protected:
     bool mDraggingNote;
     int mPressedGuideIndex;
     int mPressedNoteIndex;
-    NotesItem *mNotesItem;
 
     // Used for setCursorPixelColour().
     QImage mCachedContentImage;

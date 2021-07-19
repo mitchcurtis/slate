@@ -41,6 +41,7 @@
 #include "layermodel.h"
 #include "layeredimageproject.h"
 #include "newprojectvalidator.h"
+#include "notesitem.h"
 #include "probabilityswatchmodel.h"
 #include "project.h"
 #include "projectimageprovider.h"
@@ -178,6 +179,7 @@ void Application::registerQmlTypes()
     qmlRegisterType<LayeredImageCanvas>("App", 1, 0, "LayeredImageCanvas");
     qmlRegisterType<LayerModel>("App", 1, 0, "LayerModel");
     qmlRegisterType<NewProjectValidator>("App", 1, 0, "NewProjectValidator");
+    qmlRegisterType<NotesItem>("App", 1, 0, "NotesItem");
     qmlRegisterType<ProbabilitySwatch>();
     qmlRegisterType<ProbabilitySwatchModel>("App", 1, 0, "ProbabilitySwatchModel");
     qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");

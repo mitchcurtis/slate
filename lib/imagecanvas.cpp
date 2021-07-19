@@ -43,12 +43,10 @@
 #include "deleteimagecanvasselectioncommand.h"
 #include "fillalgorithms.h"
 #include "flipimagecanvasselectioncommand.h"
-#include "guidesitem.h"
 #include "imageproject.h"
 #include "modifyimagecanvasselectioncommand.h"
 #include "moveguidecommand.h"
 #include "note.h"
-#include "notesitem.h"
 #include "panedrawinghelper.h"
 #include "pasteimagecanvascommand.h"
 #include "project.h"
@@ -99,8 +97,6 @@ ImageCanvas::ImageCanvas() :
     mGuidePositionBeforePress(0),
     mPressedGuideIndex(-1),
     mPressedNoteIndex(-1),
-//    mGuidesItem(nullptr),
-    mNotesItem(nullptr),
     mCursorX(0),
     mCursorY(0),
     mCursorPaneX(0),
@@ -145,44 +141,6 @@ ImageCanvas::ImageCanvas() :
     mSecondPane.setObjectName("secondPane");
     QQmlEngine::setObjectOwnership(&mSecondPane, QQmlEngine::CppOwnership);
     mSplitter.setPosition(mFirstPane.size());
-
-    // We create child items in the body rather than the initialiser list
-    // in order to ensure the correct drawing order.
-    // See CanvasPaneRepeater.qml for an illustration of that order.
-//    mGuidesItem = new GuidesItem(this);
-    qreal itemZ = 3;
-//    mGuidesItem->setZ(itemZ++);
-    itemZ++;
-
-    mNotesItem = new NotesItem(this);
-    mNotesItem->setZ(itemZ++);
-
-//    mSelectionItem = new SelectionItem(this);
-//    mSelectionItem->setZ(itemZ++);
-    itemZ++;
-
-//    mSelectionCursorGuide = new SelectionCursorGuide(this);
-//    mSelectionCursorGuide->setZ(itemZ++);
-    itemZ++;
-
-//    mFirstHorizontalRuler = new Ruler(Qt::Horizontal, this);
-//    mFirstHorizontalRuler->setObjectName("firstHorizontalRuler");
-//    mFirstHorizontalRuler->setZ(itemZ++);
-
-//    mFirstVerticalRuler = new Ruler(Qt::Vertical, this);
-//    mFirstVerticalRuler->setObjectName("firstVerticalRuler");
-//    mFirstVerticalRuler->setDrawCorner(true);
-//    mFirstVerticalRuler->setZ(itemZ++);
-
-//    mSecondHorizontalRuler = new Ruler(Qt::Horizontal, this);
-//    mSecondHorizontalRuler->setObjectName("secondHorizontalRuler");
-//    mSecondHorizontalRuler->setZ(itemZ++);
-
-//    mSecondVerticalRuler = new Ruler(Qt::Vertical, this);
-//    mSecondVerticalRuler->setObjectName("secondVerticalRuler");
-//    mSecondVerticalRuler->setDrawCorner(true);
-//    mSecondVerticalRuler->setZ(itemZ++);
-    itemZ += 4;
 
     // Give some defaults so that the range slider handles aren't stuck together.
     mTexturedFillParameters.hue()->setVarianceLowerBound(-0.2);
@@ -398,11 +356,6 @@ void ImageCanvas::setNotesVisible(bool notesVisible)
         return;
 
     mNotesVisible = notesVisible;
-
-    mNotesItem->setVisible(mNotesVisible);
-    if (mNotesVisible)
-        mNotesItem->update();
-
     emit notesVisibleChanged();
 }
 
@@ -1059,10 +1012,6 @@ void ImageCanvas::componentComplete()
 
     findRulers();
 
-    mNotesItem->setVisible(mNotesVisible);
-
-    resizeChildren();
-
     requestContentPaint();
 }
 
@@ -1072,16 +1021,9 @@ void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGe
 
     centrePanes();
     updateVisibleSceneArea();
-    resizeChildren();
 
     if (mProject)
         updateCursorPos(QPoint(mCursorX, mCursorY));
-}
-
-void ImageCanvas::resizeChildren()
-{
-    mNotesItem->setWidth(qFloor(width()));
-    mNotesItem->setHeight(height());
 }
 
 QImage *ImageCanvas::currentProjectImage()
@@ -1372,8 +1314,7 @@ void ImageCanvas::onNotesChanged()
 {
     qCDebug(lcImageCanvasNotes) << "onNotesChanged";
     updateNotesVisible();
-    if (mNotesVisible)
-        mNotesItem->update();
+    emit notesChanged();
 }
 
 void ImageCanvas::onAboutToBeginMacro(const QString &macroText)
@@ -2638,9 +2579,6 @@ void ImageCanvas::onZoomLevelChanged()
 
     if (mGuidesVisible)
         emit guidesChanged();
-
-    if (mNotesVisible)
-        mNotesItem->update();
 }
 
 void ImageCanvas::onPaneIntegerOffsetChanged()
@@ -2649,9 +2587,6 @@ void ImageCanvas::onPaneIntegerOffsetChanged()
 
     if (mGuidesVisible)
         emit guidesChanged();
-
-    if (mNotesVisible)
-        mNotesItem->update();
 }
 
 void ImageCanvas::onPaneSizeChanged()
@@ -2660,9 +2595,6 @@ void ImageCanvas::onPaneSizeChanged()
 
     if (mGuidesVisible)
         emit guidesChanged();
-
-    if (mNotesVisible)
-        mNotesItem->update();
 }
 
 void ImageCanvas::error(const QString &message)
@@ -2965,7 +2897,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
         } else if (mPressedGuideIndex != -1) {
             emit guidesChanged();
         } else if (mPressedNoteIndex != -1) {
-            mNotesItem->update();
+            emit notesChanged();
         } else {
             if (!isPanning()) {
                 if (mTool != SelectionTool) {
