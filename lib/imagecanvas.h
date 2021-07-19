@@ -45,7 +45,6 @@ class GuidesItem;
 class ImageProject;
 class NotesItem;
 class Project;
-class SelectionCursorGuide;
 class Tile;
 class Tileset;
 
@@ -145,6 +144,7 @@ public:
 
     int cursorSceneY() const;
     void setCursorSceneY(int y);
+    void setCursorScenePos(const QPoint &pos);
 
     QColor cursorPixelColour() const;
     QColor invertedCursorPixelColour() const;
@@ -330,6 +330,7 @@ signals:
     void cursorYChanged();
     void cursorSceneXChanged();
     void cursorSceneYChanged();
+    void cursorScenePosChanged();
     void cursorPixelColourChanged();
     void containsMouseChanged();
     void mouseButtonPressedChanged();
@@ -548,7 +549,6 @@ protected:
     bool cursorOverSelection() const;
     bool shouldDrawSelectionPreviewImage() const;
     bool shouldDrawSelectionCursorGuide() const;
-    void updateSelectionCursorGuideVisibility();
     void confirmPasteSelection();
     void setSelectionFromPaste(bool isSelectionFromPaste);
     void panWithSelectionIfAtEdge(SelectionPanReason reason);
@@ -691,7 +691,6 @@ protected:
     QImage mLastCopiedSelectionContents;
     SelectionModification mLastSelectionModificationBeforeImageAdjustment;
     QBasicTimer mSelectionEdgePanTimer;
-    SelectionCursorGuide *mSelectionCursorGuide;
     // The type of the last modification that was done to the selection.
     SelectionModification mLastSelectionModification;
     // True if the selection was moved, flipped, rotated, etc.

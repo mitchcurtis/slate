@@ -99,6 +99,14 @@ Repeater {
             visible: root.canvas.hasSelection
         }
 
+        SelectionCursorGuide {
+            anchors.fill: parent
+            canvas: root.canvas
+            pane: paneItem.pane
+            paneIndex: paneItem.paneIndex
+            visible: root.canvas.tool === ImageCanvas.SelectionTool && !root.canvas.hasSelection && root.canvas.containsMouse
+        }
+
         Ruler {
             objectName: paneItem.indexAsWord + "HorizontalRuler"
             width: parent.width

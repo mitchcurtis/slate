@@ -52,7 +52,6 @@
 #include "panedrawinghelper.h"
 #include "pasteimagecanvascommand.h"
 #include "project.h"
-#include "selectioncursorguide.h"
 #include "tileset.h"
 #include "utils.h"
 
@@ -65,7 +64,6 @@ Q_LOGGING_CATEGORY(lcImageCanvasLifecycle, "app.canvas.lifecycle")
 Q_LOGGING_CATEGORY(lcImageCanvasGuides, "app.canvas.guides")
 Q_LOGGING_CATEGORY(lcImageCanvasNotes, "app.canvas.notes")
 Q_LOGGING_CATEGORY(lcImageCanvasSelection, "app.canvas.selection")
-Q_LOGGING_CATEGORY(lcImageCanvasSelectionCursorGuideVisibility, "app.canvas.selection.cursorguidevisibility")
 Q_LOGGING_CATEGORY(lcImageCanvasSelectionPreviewImage, "app.canvas.selection.previewimage")
 Q_LOGGING_CATEGORY(lcImageCanvasUiState, "app.canvas.uistate")
 Q_LOGGING_CATEGORY(lcImageCanvasUndo, "app.canvas.undo")
@@ -131,7 +129,6 @@ ImageCanvas::ImageCanvas() :
     mIsSelectionFromPaste(false),
     mConfirmingSelectionModification(false),
     mLastSelectionModificationBeforeImageAdjustment(NoSelectionModification),
-    mSelectionCursorGuide(nullptr),
     mLastSelectionModification(NoSelectionModification),
     mHasModifiedSelection(false),
     mAltPressed(false),
@@ -164,8 +161,9 @@ ImageCanvas::ImageCanvas() :
 //    mSelectionItem->setZ(itemZ++);
     itemZ++;
 
-    mSelectionCursorGuide = new SelectionCursorGuide(this);
-    mSelectionCursorGuide->setZ(itemZ++);
+//    mSelectionCursorGuide = new SelectionCursorGuide(this);
+//    mSelectionCursorGuide->setZ(itemZ++);
+    itemZ++;
 
 //    mFirstHorizontalRuler = new Ruler(Qt::Horizontal, this);
 //    mFirstHorizontalRuler->setObjectName("firstHorizontalRuler");
@@ -524,6 +522,7 @@ void ImageCanvas::setCursorSceneX(int x)
     if (isLineVisible())
         emit lineChanged();
     emit cursorSceneXChanged();
+    emit cursorScenePosChanged();
 }
 
 int ImageCanvas::cursorSceneY() const
@@ -540,6 +539,19 @@ void ImageCanvas::setCursorSceneY(int y)
     if (isLineVisible())
         emit lineChanged();
     emit cursorSceneYChanged();
+    emit cursorScenePosChanged();
+}
+
+void ImageCanvas::setCursorScenePos(const QPoint &pos)
+{
+    const int oldCursorSceneX = mCursorSceneX;
+    const int oldCursorSceneY = mCursorSceneY;
+
+    setCursorSceneX(pos.x());
+    setCursorSceneY(pos.y());
+
+    if (oldCursorSceneX != mCursorSceneX || oldCursorSceneY != mCursorSceneY)
+        emit cursorScenePosChanged();
 }
 
 ImageCanvas::Tool ImageCanvas::tool() const
@@ -565,8 +577,6 @@ void ImageCanvas::setTool(const Tool &tool)
 
     if (mTool == FillTool || mTool == TexturedFillTool)
         setLastFillToolUsed(mTool);
-
-    updateSelectionCursorGuideVisibility();
 
     toolChange();
 
@@ -754,9 +764,6 @@ void ImageCanvas::setContainsMouse(bool containsMouse)
 
     mContainsMouse = containsMouse;
     updateWindowCursorShape();
-    // Ensure that the selection cursor guide isn't still drawn when the mouse
-    // is outside of us (e.g. over a panel).
-    updateSelectionCursorGuideVisibility();
 
     emit containsMouseChanged();
 }
@@ -1052,7 +1059,6 @@ void ImageCanvas::componentComplete()
 
     findRulers();
 
-    updateSelectionCursorGuideVisibility();
     mNotesItem->setVisible(mNotesVisible);
 
     resizeChildren();
@@ -1074,9 +1080,6 @@ void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGe
 
 void ImageCanvas::resizeChildren()
 {
-    mSelectionCursorGuide->setWidth(width());
-    mSelectionCursorGuide->setHeight(height());
-
     mNotesItem->setWidth(qFloor(width()));
     mNotesItem->setHeight(height());
 }
@@ -1639,7 +1642,6 @@ void ImageCanvas::setHasSelection(bool hasSelection)
 
     mHasSelection = hasSelection;
     updateWindowCursorShape();
-    updateSelectionCursorGuideVisibility();
     emit hasSelectionChanged();
 }
 
@@ -1662,22 +1664,6 @@ bool ImageCanvas::shouldDrawSelectionPreviewImage() const
 bool ImageCanvas::shouldDrawSelectionCursorGuide() const
 {
     return mTool == SelectionTool && !mHasSelection && mContainsMouse;
-}
-
-void ImageCanvas::updateSelectionCursorGuideVisibility()
-{
-    qCDebug(lcImageCanvasSelectionCursorGuideVisibility)
-        << "mTool == SelectionTool:" << (mTool == SelectionTool)
-        << "!mHasSelection:" << !mHasSelection
-        << "mContainsMouse:" << mContainsMouse;
-
-    const bool wasVisible = mSelectionCursorGuide->isVisible();
-
-    mSelectionCursorGuide->setVisible(shouldDrawSelectionCursorGuide());
-
-    // It seems to be necessary to request an update after making the guide visible.
-    if (mSelectionCursorGuide->isVisible() && !wasVisible)
-        mSelectionCursorGuide->update();
 }
 
 void ImageCanvas::confirmPasteSelection()
@@ -2497,8 +2483,7 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     if (!mProject->hasLoaded()) {
         mCursorSceneFX = -1;
         mCursorSceneFY = -1;
-        setCursorSceneX(-1);
-        setCursorSceneY(-1);
+        setCursorScenePos(QPoint(-1, -1));
         // We could do this once at the beginning of the function, but we
         // try to avoid unnecessary property changes.
         setCursorPixelColour(QColor(Qt::black));
@@ -2511,8 +2496,7 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
 
     const int oldCursorSceneX = mCursorSceneX;
     const int oldCursorSceneY = mCursorSceneY;
-    setCursorSceneX(mCursorSceneFX);
-    setCursorSceneY(mCursorSceneFY);
+    setCursorScenePos(QPoint(mCursorSceneFX, mCursorSceneFY));
 
     if (!isCursorWithinProjectBounds()
         // The cached contents can be null for some reason during tests; probably because
@@ -2523,10 +2507,6 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
         const QPoint cursorScenePos = QPoint(mCursorSceneX, mCursorSceneY);
         setCursorPixelColour(mCachedContentImage.pixelColor(cursorScenePos));
     }
-
-    const bool cursorScenePosChanged = mCursorSceneX != oldCursorSceneX || mCursorSceneY != oldCursorSceneY;
-    if (cursorScenePosChanged && mSelectionCursorGuide->isVisible())
-        mSelectionCursorGuide->update();
 }
 
 bool ImageCanvas::isCursorWithinProjectBounds() const

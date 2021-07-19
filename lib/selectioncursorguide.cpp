@@ -28,9 +28,8 @@
 // TODO: see if we can turn this into two thin items rather than one big one.
 // could even just try having the two items as a child of this one
 
-SelectionCursorGuide::SelectionCursorGuide(ImageCanvas *canvas) :
-    QQuickPaintedItem(canvas),
-    mCanvas(canvas)
+SelectionCursorGuide::SelectionCursorGuide(QQuickItem *parent) :
+    QQuickPaintedItem(parent)
 {
     setObjectName("selectionCursorGuide");
 }
@@ -39,18 +38,66 @@ SelectionCursorGuide::~SelectionCursorGuide()
 {
 }
 
-void SelectionCursorGuide::paint(QPainter *painter)
+ImageCanvas *SelectionCursorGuide::canvas() const
 {
-    if (mCanvas->isSplitScreen()) {
-        drawPane(painter, mCanvas->secondPane(), 1);
-    }
-
-    drawPane(painter, mCanvas->firstPane(), 0);
+    return mCanvas;
 }
 
-void SelectionCursorGuide::drawPane(QPainter *painter, const CanvasPane *pane, int paneIndex)
+void SelectionCursorGuide::setCanvas(ImageCanvas *newCanvas)
 {
-    PaneDrawingHelper paneDrawingHelper(mCanvas, painter, pane, paneIndex);
+    if (mCanvas == newCanvas)
+        return;
+
+    if (mCanvas)
+        mCanvas->disconnect(this);
+
+    mCanvas = newCanvas;
+
+    if (mCanvas) {
+        connect(mCanvas, &ImageCanvas::cursorScenePosChanged, this, [=]() {
+            // TODO: disconnect when hidden instead of always being called
+            if (isVisible())
+                update();
+        });
+        // Apparently setVisible isn't enough to ensure that we're rendered after
+        // a selection is cleared, so we have do it ourselves here.
+        connect(mCanvas, &ImageCanvas::hasSelectionChanged, this, [=]() { update(); });
+    }
+
+    emit canvasChanged();
+}
+
+CanvasPane *SelectionCursorGuide::pane() const
+{
+    return mPane;
+}
+
+void SelectionCursorGuide::setPane(CanvasPane *newPane)
+{
+    if (mPane == newPane)
+        return;
+
+    mPane = newPane;
+    emit paneChanged();
+}
+
+int SelectionCursorGuide::paneIndex() const
+{
+    return mPaneIndex;
+}
+
+void SelectionCursorGuide::setPaneIndex(int paneIndex)
+{
+    if (mPaneIndex == paneIndex)
+        return;
+
+    mPaneIndex = paneIndex;
+    emit paneIndexChanged();
+}
+
+void SelectionCursorGuide::paint(QPainter *painter)
+{
+    PaneDrawingHelper paneDrawingHelper(mCanvas, painter, mPane, mPaneIndex);
 
     painter->save();
 
@@ -63,17 +110,17 @@ void SelectionCursorGuide::drawPane(QPainter *painter, const CanvasPane *pane, i
     painter->save();
 
     int guidePosition = mCanvas->cursorSceneX();
-    qreal zoomedGuidePosition = (guidePosition * pane->integerZoomLevel()) + (painter->pen().widthF() / 2.0);
-    painter->translate(0, -pane->integerOffset().y());
+    qreal zoomedGuidePosition = (guidePosition * mPane->integerZoomLevel()) + (painter->pen().widthF() / 2.0);
+    painter->translate(0, -mPane->integerOffset().y());
     painter->drawLine(QLineF(zoomedGuidePosition, 0, zoomedGuidePosition, height()));
 
     painter->restore();
 
     // Draw the horizontal cursor selection guide.
     guidePosition = mCanvas->cursorSceneY();
-    zoomedGuidePosition = (guidePosition * pane->integerZoomLevel()) + (painter->pen().widthF() / 2.0);
-    painter->translate(-pane->integerOffset().x(), 0);
-    painter->drawLine(QLineF(0, zoomedGuidePosition, mCanvas->paneWidth(paneIndex), zoomedGuidePosition));
+    zoomedGuidePosition = (guidePosition * mPane->integerZoomLevel()) + (painter->pen().widthF() / 2.0);
+    painter->translate(-mPane->integerOffset().x(), 0);
+    painter->drawLine(QLineF(0, zoomedGuidePosition, mCanvas->paneWidth(mPaneIndex), zoomedGuidePosition));
 
     painter->restore();
 }

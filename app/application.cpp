@@ -48,6 +48,7 @@
 #include "rectangularcursor.h"
 #include "ruler.h"
 #include "saturationlightnesspicker.h"
+#include "selectioncursorguide.h"
 #include "selectionitem.h"
 #include "serialisablestate.h"
 #include "splitter.h"
@@ -183,6 +184,7 @@ void Application::registerQmlTypes()
     qmlRegisterType<RectangularCursor>("App", 1, 0, "RectangularCursor");
     qmlRegisterType<Ruler>("App", 1, 0, "Ruler");
     qmlRegisterType<SaturationLightnessPicker>("App", 1, 0, "SaturationLightnessPickerTemplate");
+    qmlRegisterType<SelectionCursorGuide>("App", 1, 0, "SelectionCursorGuide");
     qmlRegisterType<SelectionItem>("App", 1, 0, "SelectionItem");
     qmlRegisterType<SerialisableState>();
     qmlRegisterType<SpriteImage>("App", 1, 0, "SpriteImage");
