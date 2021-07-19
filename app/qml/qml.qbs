@@ -19,6 +19,7 @@ Group {
             "ui/AboutDialog.qml",
             "ui/AddGuidesDialog.qml",
             "ui/AnimationDelegate.qml",
+            "ui/AnimationFrameMarkerRepeater.qml",
             "ui/AnimationPanel.qml",
             "ui/AnimationPreviewSettingsPopup.qml",
             "ui/AnimationSettingsPopup.qml",
