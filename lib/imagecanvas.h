@@ -33,7 +33,6 @@
 
 #include "canvaspane.h"
 #include "ruler.h"
-#include "selectionitem.h"
 #include "slate-global.h"
 #include "splitter.h"
 #include "texturedfillparameters.h"
@@ -74,8 +73,6 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(CanvasPane *firstPane READ firstPane CONSTANT)
     Q_PROPERTY(CanvasPane *secondPane READ secondPane CONSTANT)
     Q_PROPERTY(CanvasPane *currentPane READ currentPane NOTIFY currentPaneChanged)
-    Q_PROPERTY(QColor rulerForegroundColour READ rulerForegroundColour WRITE setRulerForegroundColour)
-    Q_PROPERTY(QColor rulerBackgroundColour READ rulerBackgroundColour WRITE setRulerBackgroundColour)
     Q_PROPERTY(int cursorX READ cursorX NOTIFY cursorXChanged)
     Q_PROPERTY(int cursorY READ cursorY NOTIFY cursorYChanged)
     Q_PROPERTY(int cursorSceneX READ cursorSceneX NOTIFY cursorSceneXChanged)
@@ -221,12 +218,6 @@ public:
     QPoint centredPaneOffset(int paneIndex) const;
     void applyZoom(qreal newZoomLevel, const QPoint &origin);
 
-    QColor rulerForegroundColour() const;
-    void setRulerForegroundColour(const QColor &foregroundColour) const;
-
-    QColor rulerBackgroundColour() const;
-    void setRulerBackgroundColour(const QColor &backgroundColour) const;
-
     QColor mapBackgroundColour() const;
 
     Tool tool() const;
@@ -335,7 +326,6 @@ public:
 
 signals:
     void projectChanged();
-    void zoomLevelChanged();
     void cursorXChanged();
     void cursorYChanged();
     void cursorSceneXChanged();
@@ -362,8 +352,6 @@ signals:
     void gesturesEnabledChanged();
     void penToolRightClickBehaviourChanged();
     void currentPaneChanged();
-//    void rulerForegroundColourChanged();
-//    void rulerBackgroundColourChanged();
     void toolChanged();
     void toolShapeChanged();
     void lastFillToolUsedChanged();
@@ -517,8 +505,7 @@ protected:
     void setDefaultPaneSizes();
     bool mouseOverSplitterHandle(const QPoint &mousePos);
 
-    void updateRulerVisibility();
-    void resizeRulers();
+    void findRulers();
     void updatePressedRuler();
     Ruler *rulerAtCursorPos();
 
@@ -614,11 +601,9 @@ protected:
     CanvasPane mSecondPane;
     CanvasPane *mCurrentPane;
     int mCurrentPaneIndex;
-    Ruler *mFirstHorizontalRuler;
-    Ruler *mFirstVerticalRuler;
-    Ruler *mSecondHorizontalRuler;
-    Ruler *mSecondVerticalRuler;
     Ruler *mPressedRuler;
+    QVector<QPointer<Ruler>> mRulers;
+    bool mRulersVisible;
     bool mGuidesVisible;
     bool mGuidesLocked;
     bool mNotesVisible;
@@ -630,9 +615,7 @@ protected:
     bool mDraggingNote;
     int mPressedGuideIndex;
     int mPressedNoteIndex;
-//    GuidesItem *mGuidesItem;
     NotesItem *mNotesItem;
-    SelectionItem *mSelectionItem;
 
     // Used for setCursorPixelColour().
     QImage mCachedContentImage;

@@ -498,7 +498,7 @@ void tst_App::saveAsAndLoad()
         QCOMPARE(canvas->areRulersVisible(), true);
     }
 
-    QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
+    QQuickItem *firstHorizontalRuler = findChildItem(canvas, "firstHorizontalRuler");
     QVERIFY(firstHorizontalRuler);
     const qreal rulerThickness = firstHorizontalRuler->height();
 
@@ -3306,7 +3306,7 @@ void tst_App::rulersAndGuides()
     QVERIFY2(triggerRulersVisible(), failureMessage);
     QCOMPARE(canvas->areRulersVisible(), true);
 
-    QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
+    QQuickItem *firstHorizontalRuler = findChildItem(canvas, "firstHorizontalRuler");
     QVERIFY(firstHorizontalRuler);
     const qreal rulerThickness = firstHorizontalRuler->height();
 

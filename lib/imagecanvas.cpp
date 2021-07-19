@@ -93,10 +93,6 @@ ImageCanvas::ImageCanvas() :
     mSplitter(this),
     mCurrentPane(&mFirstPane),
     mCurrentPaneIndex(0),
-    mFirstHorizontalRuler(nullptr),
-    mFirstVerticalRuler(nullptr),
-    mSecondHorizontalRuler(nullptr),
-    mSecondVerticalRuler(nullptr),
     mPressedRuler(nullptr),
     mGuidesVisible(true),
     mGuidesLocked(false),
@@ -164,29 +160,31 @@ ImageCanvas::ImageCanvas() :
     mNotesItem = new NotesItem(this);
     mNotesItem->setZ(itemZ++);
 
-    mSelectionItem = new SelectionItem(this);
-    mSelectionItem->setZ(itemZ++);
+//    mSelectionItem = new SelectionItem(this);
+//    mSelectionItem->setZ(itemZ++);
+    itemZ++;
 
     mSelectionCursorGuide = new SelectionCursorGuide(this);
     mSelectionCursorGuide->setZ(itemZ++);
 
-    mFirstHorizontalRuler = new Ruler(Qt::Horizontal, this);
-    mFirstHorizontalRuler->setObjectName("firstHorizontalRuler");
-    mFirstHorizontalRuler->setZ(itemZ++);
+//    mFirstHorizontalRuler = new Ruler(Qt::Horizontal, this);
+//    mFirstHorizontalRuler->setObjectName("firstHorizontalRuler");
+//    mFirstHorizontalRuler->setZ(itemZ++);
 
-    mFirstVerticalRuler = new Ruler(Qt::Vertical, this);
-    mFirstVerticalRuler->setObjectName("firstVerticalRuler");
-    mFirstVerticalRuler->setDrawCorner(true);
-    mFirstVerticalRuler->setZ(itemZ++);
+//    mFirstVerticalRuler = new Ruler(Qt::Vertical, this);
+//    mFirstVerticalRuler->setObjectName("firstVerticalRuler");
+//    mFirstVerticalRuler->setDrawCorner(true);
+//    mFirstVerticalRuler->setZ(itemZ++);
 
-    mSecondHorizontalRuler = new Ruler(Qt::Horizontal, this);
-    mSecondHorizontalRuler->setObjectName("secondHorizontalRuler");
-    mSecondHorizontalRuler->setZ(itemZ++);
+//    mSecondHorizontalRuler = new Ruler(Qt::Horizontal, this);
+//    mSecondHorizontalRuler->setObjectName("secondHorizontalRuler");
+//    mSecondHorizontalRuler->setZ(itemZ++);
 
-    mSecondVerticalRuler = new Ruler(Qt::Vertical, this);
-    mSecondVerticalRuler->setObjectName("secondVerticalRuler");
-    mSecondVerticalRuler->setDrawCorner(true);
-    mSecondVerticalRuler->setZ(itemZ++);
+//    mSecondVerticalRuler = new Ruler(Qt::Vertical, this);
+//    mSecondVerticalRuler->setObjectName("secondVerticalRuler");
+//    mSecondVerticalRuler->setDrawCorner(true);
+//    mSecondVerticalRuler->setZ(itemZ++);
+    itemZ += 4;
 
     // Give some defaults so that the range slider handles aren't stuck together.
     mTexturedFillParameters.hue()->setVarianceLowerBound(-0.2);
@@ -349,18 +347,15 @@ void ImageCanvas::setGridColour(const QColor &gridColour)
 
 bool ImageCanvas::areRulersVisible() const
 {
-    return mFirstHorizontalRuler->isVisible();
+    return mRulersVisible;
 }
 
 void ImageCanvas::setRulersVisible(bool rulersVisible)
 {
-    if (rulersVisible == mFirstHorizontalRuler->isVisible())
+    if (rulersVisible == mRulersVisible)
         return;
 
-    mFirstHorizontalRuler->setVisible(rulersVisible);
-    mFirstVerticalRuler->setVisible(rulersVisible);
-    mSecondHorizontalRuler->setVisible(rulersVisible && mSplitScreen);
-    mSecondVerticalRuler->setVisible(rulersVisible && mSplitScreen);
+    mRulersVisible = rulersVisible;
     emit rulersVisibleChanged();
 }
 
@@ -702,7 +697,6 @@ void ImageCanvas::setSelectionArea(const QRect &selectionArea)
 
     mSelectionArea = adjustedSelectionArea;
     setHasSelection(!mSelectionArea.isEmpty());
-    mSelectionItem->update();
     emit selectionAreaChanged();
 }
 
@@ -916,32 +910,6 @@ QPoint ImageCanvas::centredPaneOffset(int paneIndex) const
     return QPoint(paneXCentre - imageXCentre, paneYCentre - imageYCentre);
 }
 
-QColor ImageCanvas::rulerForegroundColour() const
-{
-    return mFirstHorizontalRuler->foregroundColour();
-}
-
-void ImageCanvas::setRulerForegroundColour(const QColor &foregroundColour) const
-{
-    mFirstHorizontalRuler->setForegroundColour(foregroundColour);
-    mFirstVerticalRuler->setForegroundColour(foregroundColour);
-    mSecondHorizontalRuler->setForegroundColour(foregroundColour);
-    mSecondVerticalRuler->setForegroundColour(foregroundColour);
-}
-
-QColor ImageCanvas::rulerBackgroundColour() const
-{
-    return mFirstHorizontalRuler->backgroundColour();
-}
-
-void ImageCanvas::setRulerBackgroundColour(const QColor &backgroundColour) const
-{
-    mFirstHorizontalRuler->setBackgroundColour(backgroundColour);
-    mFirstVerticalRuler->setBackgroundColour(backgroundColour);
-    mSecondHorizontalRuler->setBackgroundColour(backgroundColour);
-    mSecondVerticalRuler->setBackgroundColour(backgroundColour);
-}
-
 Splitter *ImageCanvas::splitter()
 {
     return &mSplitter;
@@ -1082,13 +1050,9 @@ void ImageCanvas::componentComplete()
 
     updateVisibleSceneArea();
 
-    // For some reason, we need to force this stuff to update when creating a
-    // tileset project after a layered image project.
-    updateRulerVisibility();
-    resizeRulers();
+    findRulers();
 
     updateSelectionCursorGuideVisibility();
-//    mGuidesItem->setVisible(mGuidesVisible);
     mNotesItem->setVisible(mNotesVisible);
 
     resizeChildren();
@@ -1102,7 +1066,6 @@ void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGe
 
     centrePanes();
     updateVisibleSceneArea();
-    resizeRulers();
     resizeChildren();
 
     if (mProject)
@@ -1114,14 +1077,8 @@ void ImageCanvas::resizeChildren()
     mSelectionCursorGuide->setWidth(width());
     mSelectionCursorGuide->setHeight(height());
 
-//    mGuidesItem->setWidth(qFloor(width()));
-//    mGuidesItem->setHeight(height());
-
     mNotesItem->setWidth(qFloor(width()));
     mNotesItem->setHeight(height());
-
-    mSelectionItem->setWidth(width());
-    mSelectionItem->setHeight(height());
 }
 
 QImage *ImageCanvas::currentProjectImage()
@@ -1242,8 +1199,6 @@ void ImageCanvas::doSetSplitScreen(bool splitScreen, ImageCanvas::ResetPaneSizeP
     }
 
     updateVisibleSceneArea();
-    updateRulerVisibility();
-    resizeRulers();
 
     requestContentPaint();
 
@@ -1262,28 +1217,19 @@ bool ImageCanvas::mouseOverSplitterHandle(const QPoint &mousePos)
     return splitterRegion.contains(mousePos);
 }
 
-void ImageCanvas::updateRulerVisibility()
+void ImageCanvas::findRulers()
 {
-    // The first pane's rulers are already taken care of, so don't need to account for them here.
-    mSecondHorizontalRuler->setVisible(areRulersVisible() && mSplitScreen);
-    mSecondVerticalRuler->setVisible(areRulersVisible() && mSplitScreen);
-}
-
-void ImageCanvas::resizeRulers()
-{
-    const bool splitScreen = isSplitScreen();
-    const int firstPaneWidth = paneWidth(0);
-
-    mFirstHorizontalRuler->setSize(QSizeF(splitScreen ? firstPaneWidth : width(), 20));
-    mFirstVerticalRuler->setSize(QSizeF(20, height()));
-
-    if (splitScreen) {
-        const int secondPaneWidth = paneWidth(1);
-        mSecondHorizontalRuler->setX(firstPaneWidth);
-        mSecondHorizontalRuler->setSize(QSizeF(secondPaneWidth, 20));
-        mSecondVerticalRuler->setX(firstPaneWidth);
-        mSecondVerticalRuler->setSize(QSizeF(20, height()));
+    if (!mRulers.isEmpty()) {
+        qWarning() << "findRulers can only be called once";
+        return;
     }
+
+    const QList<Ruler*> rulers = Utils::findChildItems<Ruler*>(this);
+    for (auto ruler : rulers)
+        mRulers.append(QPointer<Ruler>(ruler));
+
+    if (mRulers.isEmpty())
+        qWarning() << "Failed to find rulers!";
 }
 
 void ImageCanvas::updatePressedRuler()
@@ -1293,22 +1239,20 @@ void ImageCanvas::updatePressedRuler()
 
 Ruler *ImageCanvas::rulerAtCursorPos()
 {
-    QPointF cursorPos = QPointF(mCursorX, mCursorY);
-    Ruler *ruler = nullptr;
+    if (!mRulersVisible)
+        return nullptr;
 
-    if (mFirstHorizontalRuler->contains(mapToItem(mFirstHorizontalRuler, cursorPos))) {
-        ruler = mFirstHorizontalRuler;
-    } else if (mFirstVerticalRuler->contains(mapToItem(mFirstVerticalRuler, cursorPos))) {
-        ruler = mFirstVerticalRuler;
-    } else if (mSecondHorizontalRuler->isVisible()
-        && mSecondHorizontalRuler->contains(mapToItem(mSecondHorizontalRuler, cursorPos))) {
-        ruler = mSecondHorizontalRuler;
-    } else if (mSecondVerticalRuler->isVisible()
-        && mSecondVerticalRuler->contains(mapToItem(mSecondVerticalRuler, cursorPos))) {
-        ruler = mSecondVerticalRuler;
+    QPointF cursorPos = QPointF(mCursorX, mCursorY);
+    Ruler *rulerAtCursor = nullptr;
+
+    for (const auto ruler : qAsConst(mRulers)) {
+        if (ruler->contains(mapToItem(ruler, cursorPos))) {
+            rulerAtCursor = ruler;
+            break;
+        }
     }
 
-    return ruler;
+    return rulerAtCursor;
 }
 
 void ImageCanvas::addNewGuide()
@@ -2642,22 +2586,7 @@ void ImageCanvas::updateWindowCursorShape()
     if (!mProject)
         return;
 
-    bool overRuler = false;
-    if (areRulersVisible()) {
-        // TODO: use rulerAtCursorPos()?
-        const QPointF cursorPos(mCursorX, mCursorY);
-        overRuler = mFirstHorizontalRuler->contains(cursorPos) || mFirstVerticalRuler->contains(cursorPos);
-
-        if (isSplitScreen() && !overRuler) {
-            QPointF mappedCursorPos = mSecondHorizontalRuler->mapFromItem(this, cursorPos);
-            overRuler = mSecondHorizontalRuler->contains(mappedCursorPos);
-
-            if (!overRuler) {
-                mappedCursorPos = mSecondVerticalRuler->mapFromItem(this, cursorPos);
-                overRuler = mSecondVerticalRuler->contains(mappedCursorPos);
-            }
-        }
-    }
+    const bool overRuler = rulerAtCursorPos() != nullptr;
 
     // Do this check first since notes should go above guides.
     bool overNote = false;
@@ -2725,11 +2654,6 @@ void ImageCanvas::onZoomLevelChanged()
 {
     updateVisibleSceneArea();
 
-    mFirstHorizontalRuler->setZoomLevel(mFirstPane.integerZoomLevel());
-    mFirstVerticalRuler->setZoomLevel(mFirstPane.integerZoomLevel());
-    mSecondHorizontalRuler->setZoomLevel(mSecondPane.integerZoomLevel());
-    mSecondVerticalRuler->setZoomLevel(mSecondPane.integerZoomLevel());
-
     requestContentPaint();
 
     if (mGuidesVisible)
@@ -2737,42 +2661,28 @@ void ImageCanvas::onZoomLevelChanged()
 
     if (mNotesVisible)
         mNotesItem->update();
-
-    mSelectionItem->update();
 }
 
 void ImageCanvas::onPaneIntegerOffsetChanged()
 {
     updateVisibleSceneArea();
 
-    mFirstHorizontalRuler->setFrom(mFirstPane.integerOffset().x());
-    mFirstVerticalRuler->setFrom(mFirstPane.integerOffset().y());
-
-    mSecondHorizontalRuler->setFrom(mSecondPane.integerOffset().x());
-    mSecondVerticalRuler->setFrom(mSecondPane.integerOffset().y());
-
     if (mGuidesVisible)
         emit guidesChanged();
 
     if (mNotesVisible)
         mNotesItem->update();
-
-    mSelectionItem->update();
 }
 
 void ImageCanvas::onPaneSizeChanged()
 {
     updateVisibleSceneArea();
 
-    resizeRulers();
-
     if (mGuidesVisible)
         emit guidesChanged();
 
     if (mNotesVisible)
         mNotesItem->update();
-
-    mSelectionItem->update();
 }
 
 void ImageCanvas::error(const QString &message)

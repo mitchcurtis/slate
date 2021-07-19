@@ -46,7 +46,9 @@
 #include "projectimageprovider.h"
 #include "projectmanager.h"
 #include "rectangularcursor.h"
+#include "ruler.h"
 #include "saturationlightnesspicker.h"
+#include "selectionitem.h"
 #include "serialisablestate.h"
 #include "splitter.h"
 #include "spriteimage.h"
@@ -179,7 +181,9 @@ void Application::registerQmlTypes()
     qmlRegisterType<ProbabilitySwatchModel>("App", 1, 0, "ProbabilitySwatchModel");
     qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");
     qmlRegisterType<RectangularCursor>("App", 1, 0, "RectangularCursor");
+    qmlRegisterType<Ruler>("App", 1, 0, "Ruler");
     qmlRegisterType<SaturationLightnessPicker>("App", 1, 0, "SaturationLightnessPickerTemplate");
+    qmlRegisterType<SelectionItem>("App", 1, 0, "SelectionItem");
     qmlRegisterType<SerialisableState>();
     qmlRegisterType<SpriteImage>("App", 1, 0, "SpriteImage");
     qmlRegisterType<Splitter>();
