@@ -35,7 +35,7 @@ Repeater {
         z: 1000
         width: root.frameWidth
         height: root.frameHeight
-        text: modelData + 1
+        text: index + 1
         font.pixelSize: root.labelFontSize
         color: "white"
         leftPadding: root.labelLeftPadding
@@ -50,8 +50,9 @@ Repeater {
         readonly property int paneX: paneItem.paneIndex == 1 ? paneItem.pane.size * paneItem.width : 0
         readonly property int relativeX: column * (root.frameWidth * paneItem.pane.integerZoomLevel)
         readonly property int relativeY: row * (root.frameHeight * paneItem.pane.integerZoomLevel)
-        readonly property int frameIndex: root.currentAnimation
-                                          ? root.currentAnimation.startIndex(root.project.size.width) + index : -1
+        required property int index
+        readonly property int startIndex: root.currentAnimation ? root.currentAnimation.startIndex(root.project.size.width) : 0
+        readonly property int frameIndex: root.currentAnimation ? startIndex + index : -1
         readonly property int row: frameIndex / root.columns
         readonly property int column: frameIndex % root.columns
         readonly property bool visibleInPane: {
@@ -68,10 +69,17 @@ Repeater {
 
         Rectangle {
             id: shadeRect
-            color: "#aa444444"
+            color: root.canvas.highlightedAnimationFrameIndex === label.index ? Theme.focusColour : "#aa444444"
             width: label.implicitWidth + label.leftPadding
             height: label.implicitHeight + label.topPadding
             z: -1
+
+            Behavior on color {
+                ColorAnimation {
+                    duration: 140
+                    easing.type: Easing.InOutQuad
+                }
+            }
 
             // TODO: verify that the bug where clicking on the handler keeps it hovered is fixed in dev
             HoverHandler {

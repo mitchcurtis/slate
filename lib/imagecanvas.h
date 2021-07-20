@@ -58,6 +58,8 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool notesVisible READ areNotesVisible WRITE setNotesVisible NOTIFY notesVisibleChanged)
     Q_PROPERTY(bool animationMarkersVisible READ areAnimationMarkersVisible WRITE setAnimationMarkersVisible
         NOTIFY animationMarkersVisibleChanged)
+    Q_PROPERTY(int highlightedAnimationFrameIndex READ highlightedAnimationFrameIndex
+        WRITE setHighlightedAnimationFrameIndex NOTIFY highlightedAnimationFrameIndexChanged)
     Q_PROPERTY(QColor splitColour READ splitColour WRITE setSplitColour NOTIFY splitColourChanged)
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
@@ -173,6 +175,9 @@ public:
 
     bool areAnimationMarkersVisible() const;
     void setAnimationMarkersVisible(bool animationMarkersVisible);
+
+    int highlightedAnimationFrameIndex() const;
+    void setHighlightedAnimationFrameIndex(int newIndex);
 
     QColor splitColour() const;
     void setSplitColour(const QColor &splitColour);
@@ -369,6 +374,7 @@ signals:
     void lineChanged();
     void pasteSelectionConfirmed();
     void animationMarkersVisibleChanged();
+    void highlightedAnimationFrameIndexChanged();
 
     void noteCreationRequested();
     void noteModificationRequested(int noteIndex);
@@ -515,6 +521,7 @@ protected:
     // Public for testing.
 public:
     Q_INVOKABLE void removeAllGuides();
+
 protected:
 
     void updatePressedGuide();
@@ -606,6 +613,8 @@ protected:
     bool mGuidesLocked;
     bool mNotesVisible;
     bool mAnimationMarkersVisible;
+    // The index of the frame of the current animation that should be highlighted.
+    int mHighlightedAnimationFrameIndex;
     int mGuidePositionBeforePress;
     QPoint mNotePositionBeforePress;
     // The position of the mouse cursor within the note.

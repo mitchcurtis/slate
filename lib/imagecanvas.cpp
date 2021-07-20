@@ -94,6 +94,7 @@ ImageCanvas::ImageCanvas() :
     mGuidesLocked(false),
     mNotesVisible(true),
     mAnimationMarkersVisible(true),
+    mHighlightedAnimationFrameIndex(-1),
     mGuidePositionBeforePress(0),
     mPressedGuideIndex(-1),
     mPressedNoteIndex(-1),
@@ -371,6 +372,20 @@ void ImageCanvas::setAnimationMarkersVisible(bool animationMarkersVisible)
 
     mAnimationMarkersVisible = animationMarkersVisible;
     emit animationMarkersVisibleChanged();
+}
+
+int ImageCanvas::highlightedAnimationFrameIndex() const
+{
+    return mHighlightedAnimationFrameIndex;
+}
+
+void ImageCanvas::setHighlightedAnimationFrameIndex(int newIndex)
+{
+    if (mHighlightedAnimationFrameIndex == newIndex)
+        return;
+
+    mHighlightedAnimationFrameIndex = newIndex;
+    emit highlightedAnimationFrameIndexChanged();
 }
 
 QColor ImageCanvas::splitColour() const
