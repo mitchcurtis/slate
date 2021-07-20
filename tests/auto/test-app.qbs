@@ -59,6 +59,7 @@ QtGuiApplication {
         "../../lib/3rdparty/bitmap/bmp.c",
         "../../lib/3rdparty/bitmap/misc/gif.h",
         "../../lib/3rdparty/bitmap/misc/gif.c",
+        "BLACKLIST",
         "resources.qrc",
         "tst_app.cpp",
         "../shared/testhelper.h",
