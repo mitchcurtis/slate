@@ -892,6 +892,9 @@ void tst_App::splitViewStateAcrossProjects()
 // as we can't interact with a native save dialog.
 void tst_App::saveOnPrompt()
 {
+    if (offscreenPlatform)
+        QSKIP("Doesn't work with offscreen platform");
+
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
     const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/saveOnPrompt.slp"));

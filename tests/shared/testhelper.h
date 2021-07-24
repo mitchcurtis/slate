@@ -302,6 +302,7 @@ protected:
     Application app;
     QQuickWindow *window = nullptr;
     QQuickItem *overlay = nullptr;
+    bool offscreenPlatform = false;
     QPointer<ProjectManager> projectManager;
     QPointer<Project> project;
     QPointer<ImageProject> imageProject;

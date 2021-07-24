@@ -35,6 +35,7 @@ Q_LOGGING_CATEGORY(lcFindPopupFromTypeName, "tests.testHelper.findPopupFromTypeN
 TestHelper::TestHelper(int &argc, char **argv) :
     app(argc, argv, QStringLiteral("Slate Test Suite")),
     window(qobject_cast<QQuickWindow*>(app.qmlEngine()->rootObjects().first())),
+    offscreenPlatform(QGuiApplication::platformName() == QStringLiteral("offscreen")),
     tilesetBasename("test-tileset.png")
 {
     mTools.append(ImageCanvas::PenTool);
@@ -1838,7 +1839,11 @@ bool TestHelper::triggerNewProject()
 
 bool TestHelper::triggerCloseProject()
 {
-    return triggerShortcut("closeShortcut", app.settings()->closeShortcut());
+    if (offscreenPlatform)
+        return triggerShortcut("closeShortcut", app.settings()->closeShortcut());
+
+    project->close();
+    return true;
 }
 
 bool TestHelper::triggerSaveProject()
