@@ -81,7 +81,7 @@ jobs:
 
     - name: Test Slate
       run: |
-        qbs run -p test-app config:release
+        DISPLAY=:1 qbs run -p test-app config:release -- -platform offscreen
 
     - name: Deploy Slate
       run: |
