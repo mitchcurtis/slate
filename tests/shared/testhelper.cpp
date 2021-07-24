@@ -1839,7 +1839,7 @@ bool TestHelper::triggerNewProject()
 
 bool TestHelper::triggerCloseProject()
 {
-    if (offscreenPlatform)
+    if (!offscreenPlatform)
         return triggerShortcut("closeShortcut", app.settings()->closeShortcut());
 
     project->close();
