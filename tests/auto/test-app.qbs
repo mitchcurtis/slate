@@ -3,6 +3,7 @@ import "../../app/qml/qml.qbs" as AppQmlFiles
 
 QtGuiApplication {
     name: "test-app"
+    type: base.concat("autotest")
 
     Depends { name: "Qt.core" }
     Depends { name: "Qt.qmltest" }

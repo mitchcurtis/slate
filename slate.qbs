@@ -12,4 +12,3 @@ Project {
         "translations/translations.qbs"
     ]
 }
-

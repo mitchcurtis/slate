@@ -79,6 +79,10 @@ jobs:
       run: |
         qbs install --install-root Slate config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
 
+    - name: Test Slate
+      run: |
+        qbs run -p test-app config:release
+
     - name: Deploy Slate
       run: |
         set -o pipefail
