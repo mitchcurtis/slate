@@ -12,7 +12,7 @@ Repeater {
 
     readonly property bool animationAvailable:
         root.project && !!root.project.usingAnimation && root.project.animationSystem.currentAnimation
-    readonly property Animation currentAnimation: root.project ? root.project.animationSystem.currentAnimation : null
+    readonly property Animation currentAnimation: animationAvailable ? root.project.animationSystem.currentAnimation : null
     readonly property bool showMarkers: currentAnimation && canvas.animationMarkersVisible
 
     readonly property int rows: currentAnimation ? project.size.height / currentAnimation.frameHeight : 0
