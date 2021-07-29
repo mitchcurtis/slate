@@ -93,6 +93,13 @@ void CanvasPaneItem::setPaneIndex(int paneIndex)
     emit paneIndexChanged();
 }
 
+bool CanvasPaneItem::isRectVisible(const QRect &sceneRect) const
+{
+    const QRect ourViewport(QPoint(0, 0), QSize(mCanvas->size().width() * mPane->size(), mCanvas->height()));
+//    qDebug() << "ourViewport" << ourViewport << "sceneRect" << sceneRect << ourViewport.intersects(sceneRect);
+    return ourViewport.intersects(sceneRect);
+}
+
 void CanvasPaneItem::itemChange(QQuickItem::ItemChange change, const QQuickItem::ItemChangeData &value)
 {
     if (change == ItemVisibleHasChanged) {

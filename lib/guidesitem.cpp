@@ -39,21 +39,61 @@ GuidesItem::~GuidesItem()
 {
 }
 
-void GuidesItem::paint(QPainter *painter)
+ImageCanvas *GuidesItem::canvas() const
 {
-    if (mCanvas->isSplitScreen()) {
-        drawPane(painter, mCanvas->secondPane(), 1);
-    }
-
-    drawPane(painter, mCanvas->firstPane(), 0);
+    return mCanvas;
 }
 
-void GuidesItem::drawPane(QPainter *painter, const CanvasPane *pane, int paneIndex)
+void GuidesItem::setCanvas(ImageCanvas *newCanvas)
+{
+    if (mCanvas == newCanvas)
+        return;
+
+    if (mCanvas)
+        mCanvas->disconnect(this);
+
+    mCanvas = newCanvas;
+
+    if (mCanvas)
+        connect(mCanvas, &ImageCanvas::guidesChanged, this, [=](){ update(); });
+
+    emit canvasChanged();
+}
+
+CanvasPane *GuidesItem::pane() const
+{
+    return mPane;
+}
+
+void GuidesItem::setPane(CanvasPane *newPane)
+{
+    if (mPane == newPane)
+        return;
+
+    mPane = newPane;
+    emit paneChanged();
+}
+
+int GuidesItem::paneIndex() const
+{
+    return mPaneIndex;
+}
+
+void GuidesItem::setPaneIndex(int paneIndex)
+{
+    if (mPaneIndex == paneIndex)
+        return;
+
+    mPaneIndex = paneIndex;
+    emit paneIndexChanged();
+}
+
+void GuidesItem::paint(QPainter *painter)
 {
     if (!mCanvas->project()->hasLoaded())
         return;
 
-    PaneDrawingHelper paneDrawingHelper(mCanvas, painter, pane, paneIndex);
+    PaneDrawingHelper paneDrawingHelper(mCanvas, painter, mPane, mPaneIndex);
 
     QPen pen;
     pen.setColor(Qt::gray);

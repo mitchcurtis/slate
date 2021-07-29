@@ -8,7 +8,9 @@ QtGuiApplication {
     Depends { name: "Qt.qmltest" }
     Depends { name: "Qt.quick" }
     Depends { name: "Qt.test" }
-    Depends { name: "Qt.widgets" }
+    Depends {         files: [
+            "../../../app/qml/ui/AnimationFrameMarkerRepeater.qml",
+        ]; name: "Qt.widgets" }
     Depends { name: "lib" }
     // Workaround for static builds until https://bugreports.qt.io/browse/QBS-1409 is fixed
     Depends {

@@ -32,18 +32,36 @@ class PaneDrawingHelper;
 class SLATE_EXPORT GuidesItem : public QQuickPaintedItem
 {
     Q_OBJECT
+    Q_PROPERTY(ImageCanvas *canvas READ canvas WRITE setCanvas NOTIFY canvasChanged)
+    Q_PROPERTY(CanvasPane *pane READ pane WRITE setPane NOTIFY paneChanged)
+    Q_PROPERTY(int paneIndex READ paneIndex WRITE setPaneIndex NOTIFY paneIndexChanged)
 
 public:
-    explicit GuidesItem(ImageCanvas *canvas);
+    explicit GuidesItem(ImageCanvas *canvas = nullptr);
     ~GuidesItem() override;
 
     void paint(QPainter *painter) override;
 
+    ImageCanvas *canvas() const;
+    void setCanvas(ImageCanvas *newCanvas);
+
+    CanvasPane *pane() const;
+    void setPane(CanvasPane *newPane);
+
+    int paneIndex() const;
+    void setPaneIndex(int paneIndex);
+
+signals:
+    void canvasChanged();
+    void paneChanged();
+    void paneIndexChanged();
+
 private:
-    void drawPane(QPainter *painter, const CanvasPane *pane, int paneIndex);
     void drawGuide(PaneDrawingHelper *paneDrawingHelper, const Guide *guide, int guideIndex);
 
-    ImageCanvas *mCanvas;
+    ImageCanvas *mCanvas = nullptr;
+    CanvasPane *mPane = nullptr;
+    int mPaneIndex = -1;
 };
 
 #endif

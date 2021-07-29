@@ -525,6 +525,17 @@ Controls.MenuBar {
             checked: settings.scrollZoom
             onTriggered: settings.scrollZoom = checked
         }
+
+        MenuSeparator {}
+
+        MenuItem {
+            objectName: "showAnimationFrameMarkersMenuItem"
+            text: qsTr("Show Animation Frame Markers")
+            enabled: isImageProjectType && canvas && project.usingAnimation
+            checkable: true
+            checked: enabled && canvas.animationMarkersVisible
+            onTriggered: canvas.animationMarkersVisible = checked
+        }
     }
 
     Menu {

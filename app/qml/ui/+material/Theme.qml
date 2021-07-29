@@ -30,7 +30,7 @@ QtObject {
 
     // The light theme's background colour is too white for the crosshair cursor.
     property color canvasBackgroundColour: Material.theme === Material.Dark ? Material.background : "#ccc"
-    property color splitColour: "#444"
+    property color splitColour: Qt.lighter(rulerBackgroundColour, 1.2)
     property color rulerForegroundColour: Qt.darker(Material.foreground, 1.4)
     property color rulerBackgroundColour: panelColour
 

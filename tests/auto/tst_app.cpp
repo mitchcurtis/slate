@@ -502,7 +502,7 @@ void tst_App::saveAsAndLoad()
         QCOMPARE(canvas->areRulersVisible(), true);
     }
 
-    QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
+    QQuickItem *firstHorizontalRuler = findChildItem(canvas, "firstHorizontalRuler");
     QVERIFY(firstHorizontalRuler);
     const qreal rulerThickness = firstHorizontalRuler->height();
 
@@ -3317,7 +3317,7 @@ void tst_App::rulersAndGuides()
     QVERIFY2(triggerRulersVisible(), failureMessage);
     QCOMPARE(canvas->areRulersVisible(), true);
 
-    QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
+    QQuickItem *firstHorizontalRuler = findChildItem(canvas, "firstHorizontalRuler");
     QVERIFY(firstHorizontalRuler);
     const qreal rulerThickness = firstHorizontalRuler->height();
 
@@ -3428,19 +3428,19 @@ void tst_App::rulersSplitScreen()
     QVERIFY(!canvas->areRulersVisible());
 
     // Rulers are not visible by default, so they shouldn't be visible when enabling split-screen.
-    const QQuickItem *firstHorizontalRuler = canvas->findChild<QQuickItem*>("firstHorizontalRuler");
+    const QQuickItem *firstHorizontalRuler = findChildItem(canvas, "firstHorizontalRuler");
     QVERIFY(firstHorizontalRuler);
     QVERIFY(!firstHorizontalRuler->isVisible());
 
-    const QQuickItem *firstVerticalRuler = canvas->findChild<QQuickItem*>("firstVerticalRuler");
+    const QQuickItem *firstVerticalRuler = findChildItem(canvas, "firstVerticalRuler");
     QVERIFY(firstVerticalRuler);
     QVERIFY(!firstVerticalRuler->isVisible());
 
-    const QQuickItem *secondHorizontalRuler = canvas->findChild<QQuickItem*>("secondHorizontalRuler");
+    const QQuickItem *secondHorizontalRuler = findChildItem(canvas, "secondHorizontalRuler");
     QVERIFY(secondHorizontalRuler);
     QVERIFY(!secondHorizontalRuler->isVisible());
 
-    const QQuickItem *secondVerticalRuler = canvas->findChild<QQuickItem*>("secondVerticalRuler");
+    const QQuickItem *secondVerticalRuler = findChildItem(canvas, "secondVerticalRuler");
     QVERIFY(secondVerticalRuler);
     QVERIFY(!secondVerticalRuler->isVisible());
 }
@@ -4741,7 +4741,7 @@ void tst_App::panThenMoveSelection()
 void tst_App::selectionCursorGuide()
 {
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
-    QQuickItem *selectionCursorGuideItem = layeredImageCanvas->findChild<QQuickItem*>("selectionCursorGuide");
+    QQuickItem *selectionCursorGuideItem = findChildItem(layeredImageCanvas, "selectionCursorGuide");
     QVERIFY(selectionCursorGuideItem);
     QVERIFY(!selectionCursorGuideItem->isVisible());
 

@@ -33,7 +33,6 @@
 
 #include "canvaspane.h"
 #include "ruler.h"
-#include "selectionitem.h"
 #include "slate-global.h"
 #include "splitter.h"
 #include "texturedfillparameters.h"
@@ -42,11 +41,8 @@ Q_DECLARE_LOGGING_CATEGORY(lcImageCanvas)
 Q_DECLARE_LOGGING_CATEGORY(lcImageCanvasLifecycle)
 
 class Guide;
-class GuidesItem;
 class ImageProject;
-class NotesItem;
 class Project;
-class SelectionCursorGuide;
 class Tile;
 class Tileset;
 
@@ -60,6 +56,10 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool guidesVisible READ areGuidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
     Q_PROPERTY(bool guidesLocked READ areGuidesLocked WRITE setGuidesLocked NOTIFY guidesLockedChanged)
     Q_PROPERTY(bool notesVisible READ areNotesVisible WRITE setNotesVisible NOTIFY notesVisibleChanged)
+    Q_PROPERTY(bool animationMarkersVisible READ areAnimationMarkersVisible WRITE setAnimationMarkersVisible
+        NOTIFY animationMarkersVisibleChanged)
+    Q_PROPERTY(int highlightedAnimationFrameIndex READ highlightedAnimationFrameIndex
+        WRITE setHighlightedAnimationFrameIndex NOTIFY highlightedAnimationFrameIndexChanged)
     Q_PROPERTY(QColor splitColour READ splitColour WRITE setSplitColour NOTIFY splitColourChanged)
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
@@ -72,8 +72,6 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(CanvasPane *firstPane READ firstPane CONSTANT)
     Q_PROPERTY(CanvasPane *secondPane READ secondPane CONSTANT)
     Q_PROPERTY(CanvasPane *currentPane READ currentPane NOTIFY currentPaneChanged)
-    Q_PROPERTY(QColor rulerForegroundColour READ rulerForegroundColour WRITE setRulerForegroundColour)
-    Q_PROPERTY(QColor rulerBackgroundColour READ rulerBackgroundColour WRITE setRulerBackgroundColour)
     Q_PROPERTY(int cursorX READ cursorX NOTIFY cursorXChanged)
     Q_PROPERTY(int cursorY READ cursorY NOTIFY cursorYChanged)
     Q_PROPERTY(int cursorSceneX READ cursorSceneX NOTIFY cursorSceneXChanged)
@@ -146,6 +144,7 @@ public:
 
     int cursorSceneY() const;
     void setCursorSceneY(int y);
+    void setCursorScenePos(const QPoint &pos);
 
     QColor cursorPixelColour() const;
     QColor invertedCursorPixelColour() const;
@@ -173,6 +172,12 @@ public:
 
     bool areNotesVisible() const;
     void setNotesVisible(bool areNotesVisible);
+
+    bool areAnimationMarkersVisible() const;
+    void setAnimationMarkersVisible(bool animationMarkersVisible);
+
+    int highlightedAnimationFrameIndex() const;
+    void setHighlightedAnimationFrameIndex(int newIndex);
 
     QColor splitColour() const;
     void setSplitColour(const QColor &splitColour);
@@ -215,12 +220,6 @@ public:
     int paneWidth(int index) const;
     QPoint centredPaneOffset(int paneIndex) const;
     void applyZoom(qreal newZoomLevel, const QPoint &origin);
-
-    QColor rulerForegroundColour() const;
-    void setRulerForegroundColour(const QColor &foregroundColour) const;
-
-    QColor rulerBackgroundColour() const;
-    void setRulerBackgroundColour(const QColor &backgroundColour) const;
 
     QColor mapBackgroundColour() const;
 
@@ -330,11 +329,11 @@ public:
 
 signals:
     void projectChanged();
-    void zoomLevelChanged();
     void cursorXChanged();
     void cursorYChanged();
     void cursorSceneXChanged();
     void cursorSceneYChanged();
+    void cursorScenePosChanged();
     void cursorPixelColourChanged();
     void containsMouseChanged();
     void mouseButtonPressedChanged();
@@ -343,17 +342,21 @@ signals:
     void checkerColour1Changed();
     void checkerColour2Changed();
     void rulersVisibleChanged();
+    // Emitted whenever guides need to be rendered. Covers events like dragging
+    // guides, which Project's guidesChanged signal doesn't account for, and
+    // and is also connected to Project's guidesChanged signal for convenience
+    // so that GuidesItem doesn't need to connect to it.
+    void guidesChanged();
     void guidesVisibleChanged();
     void guidesLockedChanged();
     void notesVisibleChanged();
+    void notesChanged();
     void splitColourChanged();
     void splitScreenChanged();
     void scrollZoomChanged();
     void gesturesEnabledChanged();
     void penToolRightClickBehaviourChanged();
     void currentPaneChanged();
-//    void rulerForegroundColourChanged();
-//    void rulerBackgroundColourChanged();
     void toolChanged();
     void toolShapeChanged();
     void lastFillToolUsedChanged();
@@ -370,6 +373,8 @@ signals:
     void lineVisibleChanged();
     void lineChanged();
     void pasteSelectionConfirmed();
+    void animationMarkersVisibleChanged();
+    void highlightedAnimationFrameIndexChanged();
 
     void noteCreationRequested();
     void noteModificationRequested(int noteIndex);
@@ -426,7 +431,6 @@ protected slots:
     void onPaneIntegerOffsetChanged();
     void onPaneSizeChanged();
     void onSplitterPositionChanged();
-    void onGuidesChanged();
     void onNotesChanged();
     void onAboutToBeginMacro(const QString &macroText);
     void recreateCheckerImage();
@@ -436,7 +440,6 @@ protected:
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
     virtual void restoreState();
-    void resizeChildren();
 
     friend class ApplyGreedyPixelFillCommand;
     friend class ApplyPixelEraserCommand;
@@ -507,8 +510,7 @@ protected:
     void setDefaultPaneSizes();
     bool mouseOverSplitterHandle(const QPoint &mousePos);
 
-    void updateRulerVisibility();
-    void resizeRulers();
+    void findRulers();
     void updatePressedRuler();
     Ruler *rulerAtCursorPos();
 
@@ -519,6 +521,7 @@ protected:
     // Public for testing.
 public:
     Q_INVOKABLE void removeAllGuides();
+
 protected:
 
     void updatePressedGuide();
@@ -551,7 +554,6 @@ protected:
     bool cursorOverSelection() const;
     bool shouldDrawSelectionPreviewImage() const;
     bool shouldDrawSelectionCursorGuide() const;
-    void updateSelectionCursorGuideVisibility();
     void confirmPasteSelection();
     void setSelectionFromPaste(bool isSelectionFromPaste);
     void panWithSelectionIfAtEdge(SelectionPanReason reason);
@@ -604,14 +606,15 @@ protected:
     CanvasPane mSecondPane;
     CanvasPane *mCurrentPane;
     int mCurrentPaneIndex;
-    Ruler *mFirstHorizontalRuler;
-    Ruler *mFirstVerticalRuler;
-    Ruler *mSecondHorizontalRuler;
-    Ruler *mSecondVerticalRuler;
     Ruler *mPressedRuler;
+    QVector<QPointer<Ruler>> mRulers;
+    bool mRulersVisible;
     bool mGuidesVisible;
     bool mGuidesLocked;
     bool mNotesVisible;
+    bool mAnimationMarkersVisible;
+    // The index of the frame of the current animation that should be highlighted.
+    int mHighlightedAnimationFrameIndex;
     int mGuidePositionBeforePress;
     QPoint mNotePositionBeforePress;
     // The position of the mouse cursor within the note.
@@ -619,9 +622,6 @@ protected:
     bool mDraggingNote;
     int mPressedGuideIndex;
     int mPressedNoteIndex;
-    GuidesItem *mGuidesItem;
-    NotesItem *mNotesItem;
-    SelectionItem *mSelectionItem;
 
     // Used for setCursorPixelColour().
     QImage mCachedContentImage;
@@ -697,7 +697,6 @@ protected:
     QImage mLastCopiedSelectionContents;
     SelectionModification mLastSelectionModificationBeforeImageAdjustment;
     QBasicTimer mSelectionEdgePanTimer;
-    SelectionCursorGuide *mSelectionCursorGuide;
     // The type of the last modification that was done to the selection.
     SelectionModification mLastSelectionModification;
     // True if the selection was moved, flipped, rotated, etc.

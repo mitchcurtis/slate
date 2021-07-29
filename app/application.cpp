@@ -32,6 +32,7 @@
 #include "canvaspaneitem.h"
 #include "clipboard.h"
 #include "filevalidator.h"
+#include "guidesitem.h"
 #include "imagecanvas.h"
 #include "imagelayer.h"
 #include "imageproject.h"
@@ -40,12 +41,16 @@
 #include "layermodel.h"
 #include "layeredimageproject.h"
 #include "newprojectvalidator.h"
+#include "notesitem.h"
 #include "probabilityswatchmodel.h"
 #include "project.h"
 #include "projectimageprovider.h"
 #include "projectmanager.h"
 #include "rectangularcursor.h"
+#include "ruler.h"
 #include "saturationlightnesspicker.h"
+#include "selectioncursorguide.h"
+#include "selectionitem.h"
 #include "serialisablestate.h"
 #include "splitter.h"
 #include "spriteimage.h"
@@ -165,6 +170,7 @@ void Application::registerQmlTypes()
     qmlRegisterType<AnimationPlayback>("App", 1, 0, "AnimationPlayback");
     qmlRegisterType<AutoSwatchModel>("App", 1, 0, "AutoSwatchModel");
     qmlRegisterType<FileValidator>("App", 1, 0, "FileValidator");
+    qmlRegisterType<GuidesItem>("App", 1, 0, "GuidesItem");
     qmlRegisterType<ImageCanvas>();
     qmlRegisterType<ImageCanvas>("App", 1, 0, "ImageCanvas");
     qmlRegisterType<CanvasPaneItem>("App", 1, 0, "CanvasPaneItem");
@@ -173,11 +179,15 @@ void Application::registerQmlTypes()
     qmlRegisterType<LayeredImageCanvas>("App", 1, 0, "LayeredImageCanvas");
     qmlRegisterType<LayerModel>("App", 1, 0, "LayerModel");
     qmlRegisterType<NewProjectValidator>("App", 1, 0, "NewProjectValidator");
+    qmlRegisterType<NotesItem>("App", 1, 0, "NotesItem");
     qmlRegisterType<ProbabilitySwatch>();
     qmlRegisterType<ProbabilitySwatchModel>("App", 1, 0, "ProbabilitySwatchModel");
     qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");
     qmlRegisterType<RectangularCursor>("App", 1, 0, "RectangularCursor");
+    qmlRegisterType<Ruler>("App", 1, 0, "Ruler");
     qmlRegisterType<SaturationLightnessPicker>("App", 1, 0, "SaturationLightnessPickerTemplate");
+    qmlRegisterType<SelectionCursorGuide>("App", 1, 0, "SelectionCursorGuide");
+    qmlRegisterType<SelectionItem>("App", 1, 0, "SelectionItem");
     qmlRegisterType<SerialisableState>();
     qmlRegisterType<SpriteImage>("App", 1, 0, "SpriteImage");
     qmlRegisterType<Splitter>();
