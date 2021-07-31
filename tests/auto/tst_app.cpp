@@ -5886,10 +5886,14 @@ void tst_App::animationFrameMarkers()
     lerpMouseMove(originalMousePosInScene, targetMousePosInScene);
     QTRY_VERIFY2_WITH_TIMEOUT(ensureRepeaterChildrenVisible(markerRepeater, 6), failureMessage, 500);
 
+    // Undo changes so we don't get the save prompt when we close.
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
+    QVERIFY(!project->hasUnsavedChanges());
+
     // Close the project; the animation markers should no longer be visible.
     QVERIFY2(triggerCloseProject(), failureMessage);
     QVERIFY(markerRepeater);
-    QVERIFY2(ensureRepeaterChildrenVisible(markerRepeater, 0), failureMessage);
+    QTRY_VERIFY2(ensureRepeaterChildrenVisible(markerRepeater, 0), failureMessage);
 }
 
 void tst_App::addAndRemoveLayers()

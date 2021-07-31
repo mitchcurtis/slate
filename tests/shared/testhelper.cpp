@@ -278,7 +278,6 @@ void TestHelper::lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScene
     const int xDistance = toScenePos.x() - fromScenePos.x();
     const int yDistance = toScenePos.y() - fromScenePos.y();
     if (steps == -1) {
-        qDebug() << QLineF(fromScenePos, toScenePos).length() << (QLineF(fromScenePos, toScenePos).length() / 10);
         static int const defaultSteps = 10;
         steps = QLineF(fromScenePos, toScenePos).length() / defaultSteps;
     }
