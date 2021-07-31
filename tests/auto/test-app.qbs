@@ -28,6 +28,8 @@ QtGuiApplication {
     cpp.rpaths: darwin ? ["@loader_path/../Frameworks"] : ["$ORIGIN"]
 
     cpp.cxxLanguageVersion: "c++17"
+    // https://bugreports.qt.io/browse/QBS-1655
+    cpp.driverFlags: ["/Zc:__cplusplus"]
     // https://bugreports.qt.io/browse/QBS-1434
     cpp.minimumMacosVersion: "10.13"
 

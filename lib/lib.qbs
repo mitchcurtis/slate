@@ -15,6 +15,8 @@ Product {
     Depends { name: "bundle" }
 
     cpp.cxxLanguageVersion: "c++17"
+    // https://bugreports.qt.io/browse/QBS-1655
+    cpp.driverFlags: ["/Zc:__cplusplus"]
     cpp.includePaths: [
         product.sourceDirectory + "/3rdparty",
         "."
