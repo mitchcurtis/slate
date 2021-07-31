@@ -277,8 +277,9 @@ protected:
     Q_REQUIRED_RESULT bool drawTileAtCursorPos();
     Q_REQUIRED_RESULT bool selectArea(const QRect &area);
     Q_REQUIRED_RESULT bool dragSelection(const QPoint &newTopLeft);
-    Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz = 1);
-    Q_REQUIRED_RESULT bool fuzzyImageCompare(const QImage &image1, const QImage &image2);
+    Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &actualColour, const QColor &expectedColour, int fuzz = 1);
+    Q_REQUIRED_RESULT bool fuzzyImageCompare(const QImage &actualImage, const QImage &expectedImage, int fuzz = 1);
+    Q_REQUIRED_RESULT bool compareImages(const QImage &actualImage, const QImage &expectedImage);
     Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
 
     Q_REQUIRED_RESULT bool compareSwatches(const Swatch &actualSwatch, const Swatch &expectedSwatch);

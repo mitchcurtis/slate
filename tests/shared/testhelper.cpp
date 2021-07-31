@@ -877,42 +877,55 @@ bool TestHelper::dragSelection(const QPoint &newTopLeft)
     return true;
 }
 
-static QString fuzzyColourCompareFailMsg(const QColor &colour1, const QColor &colour2,
-    const QChar &componentName, int difference, int fuzz)
+static QString fuzzyColourCompareFailMsg(const QColor &actualColour, const QColor &expectedColour,
+    const QString &componentName, int difference, int fuzz)
 {
-    return QString::fromLatin1("colour1 %1 is not equal to colour2 %2; %3 difference of %4 is larger than fuzz of %5")
-            .arg(colour1.name()).arg(colour2.name()).arg(componentName).arg(difference).arg(fuzz);
+    QString message = QString::fromLatin1("Actual colour %1 is not equal to expected colour %2")
+        .arg(actualColour.name(QColor::HexArgb)).arg(expectedColour.name(QColor::HexArgb));
+
+    message += QString::fromLatin1("; difference in %3 of %4 is larger than fuzz of %5").arg(componentName).arg(difference).arg(fuzz);
+
+    return message;
 }
 
-bool TestHelper::fuzzyColourCompare(const QColor &colour1, const QColor &colour2, int fuzz)
+bool TestHelper::fuzzyColourCompare(const QColor &actualColour, const QColor &expectedColour, int fuzz)
 {
-    const int rDiff = qAbs(colour2.red() - colour1.red());
-    VERIFY2(rDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(colour1, colour2, QLatin1Char('r'), rDiff, fuzz)));
+    const int rDiff = qAbs(expectedColour.red() - actualColour.red());
+    VERIFY2(rDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(actualColour, expectedColour, QLatin1String("red"), rDiff, fuzz)));
 
-    const int gDiff = qAbs(colour2.green() - colour1.green());
-    VERIFY2(gDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(colour1, colour2, QLatin1Char('g'), gDiff, fuzz)));
+    const int gDiff = qAbs(expectedColour.green() - actualColour.green());
+    VERIFY2(gDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(actualColour, expectedColour, QLatin1String("green"), gDiff, fuzz)));
 
-    const int bDiff = qAbs(colour2.blue() - colour1.blue());
-    VERIFY2(bDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(colour1, colour2, QLatin1Char('b'), bDiff, fuzz)));
+    const int bDiff = qAbs(expectedColour.blue() - actualColour.blue());
+    VERIFY2(bDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(actualColour, expectedColour, QLatin1String("blue"), bDiff, fuzz)));
 
-    const int aDiff = qAbs(colour2.alpha() - colour1.alpha());
-    VERIFY2(aDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(colour1, colour2, QLatin1Char('a'), aDiff, fuzz)));
+    const int aDiff = qAbs(expectedColour.alpha() - actualColour.alpha());
+    VERIFY2(aDiff <= fuzz, qPrintable(fuzzyColourCompareFailMsg(actualColour, expectedColour, QLatin1String("alpha"), aDiff, fuzz)));
 
     return true;
 }
 
-bool TestHelper::fuzzyImageCompare(const QImage &image1, const QImage &image2)
+bool TestHelper::fuzzyImageCompare(const QImage &actualImage, const QImage &expectedImage, int fuzz)
 {
-    VERIFY(image1.size() == image2.size());
+    VERIFY(actualImage.size() == expectedImage.size());
 
-    for (int y = 0; y < image1.height(); ++y) {
-        for (int x = 0; x < image1.width(); ++x) {
-            if (!fuzzyColourCompare(image1.pixelColor(x, y), image2.pixelColor(x, y)))
+    for (int y = 0; y < actualImage.height(); ++y) {
+        for (int x = 0; x < actualImage.width(); ++x) {
+            if (!fuzzyColourCompare(actualImage.pixelColor(x, y), expectedImage.pixelColor(x, y), fuzz)) {
+                // TODO: remove fromLatin1 call for third arg in Qt 6; only added it to workaround ambiguous argument warning
+                failureMessage = QString::fromLatin1("Failure comparing pixels at (%1, %2):%3")
+                    .arg(x).arg(y).arg(QString::fromLatin1(failureMessage)).toLatin1();
                 return false;
+            }
         }
     }
 
     return true;
+}
+
+bool TestHelper::compareImages(const QImage &actualImage, const QImage &expectedImage)
+{
+    return fuzzyImageCompare(actualImage, expectedImage, 0);
 }
 
 bool TestHelper::everyPixelIs(const QImage &image, const QColor &colour)

@@ -5168,9 +5168,9 @@ void tst_App::opacityDialog()
     QVERIFY2(!expectedImage.isNull(), qPrintable(QString::fromLatin1(
         "Expected image at %1 could not be loaded").arg(expectedImagePath)));
     // The changes should be rendered...
-    QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage);
+    QVERIFY2(compareImages(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage), failureMessage);
     // ... but not committed yet.
-    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
+    QVERIFY2(compareImages(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage), failureMessage);
 
     // Cancel the dialog; the changes should not be applied.
     QQuickItem *opacityDialogCancelButton
@@ -5199,9 +5199,9 @@ void tst_App::opacityDialog()
     QVERIFY(QMetaObject::invokeMethod(opacityDialog, "modifySelectionHsl"));
 
     // The changes should be rendered...
-    QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage);
+    QVERIFY2(compareImages(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage), failureMessage);
     // ... but not committed yet.
-    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
+    QVERIFY2(compareImages(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage), failureMessage);
 
     // Accept the dialog; the changes should be applied.
     QQuickItem *opacityDialogOkButton
