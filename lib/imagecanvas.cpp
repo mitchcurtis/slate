@@ -57,7 +57,6 @@
 #include "utils.h"
 
 Q_LOGGING_CATEGORY(lcImageCanvas, "app.canvas")
-Q_LOGGING_CATEGORY(lcImageCanvasCursorPos, "app.canvas.cursorpos")
 Q_LOGGING_CATEGORY(lcImageCanvasCursorShape, "app.canvas.cursorshape")
 Q_LOGGING_CATEGORY(lcImageCanvasEvents, "app.canvas.events")
 Q_LOGGING_CATEGORY(lcImageCanvasHoverEvents, "app.canvas.events.hover")
@@ -1735,8 +1734,6 @@ void ImageCanvas::setSelectionFromPaste(bool isSelectionFromPaste)
 
 void ImageCanvas::panWithSelectionIfAtEdge(ImageCanvas::SelectionPanReason reason)
 {
-    qCDebug(lcImageCanvasSelection) << "panning with selection - reason:" << reason;
-
     // Only pan if there's a selection being moved or created.
     // Also, don't pan from mouse events, as the timer takes care of that
     // (prevents jumpiness when moving the mouse)
@@ -2521,8 +2518,6 @@ QRect ImageCanvas::normalisedLineRect(const QPointF &point1, const QPointF &poin
 
 void ImageCanvas::updateCursorPos(const QPoint &eventPos)
 {
-    qCDebug(lcImageCanvasCursorPos).nospace() << "updating cursor pos to " << eventPos << "...";
-
     setCursorX(eventPos.x());
     setCursorY(eventPos.y());
     // Don't change current panes if panning, as the mouse position should
@@ -2569,12 +2564,6 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     const bool cursorScenePosChanged = mCursorSceneX != oldCursorSceneX || mCursorSceneY != oldCursorSceneY;
     if (cursorScenePosChanged && mSelectionCursorGuide->isVisible())
         mSelectionCursorGuide->update();
-
-    qCDebug(lcImageCanvasCursorPos).nospace() << "... updated cursor pos -"
-        << " mCursorX=" << mCursorX << " mCursorY=" << mCursorY
-        << " mCursorPaneX=" << mCursorPaneX << " mCursorPaneY=" << mCursorPaneY
-        << " mCursorSceneX=" << mCursorSceneX << " mCursorSceneY=" << mCursorSceneY
-        << " mCursorSceneFX=" << mCursorSceneFX << " mCursorSceneFY=" << mCursorSceneFY;
 }
 
 bool ImageCanvas::isCursorWithinProjectBounds() const

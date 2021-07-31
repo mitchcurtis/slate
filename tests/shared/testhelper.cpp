@@ -827,11 +827,11 @@ bool TestHelper::selectArea(const QRect &area)
     // that we've selected all 5x5 pixels.
     const QPoint releasePos = area.bottomRight() + QPoint(1, 1);
     setCursorPosInScenePixels(releasePos);
-    QTest::mouseMove(window, cursorWindowPos, 0);
-    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
     VERIFY2(canvas->hasSelection(), qPrintable(QString::fromLatin1("Mouse drag from {%1, %2} to {%3, %4} did not result in a selection")
         .arg(pressPos.x()).arg(pressPos.y()).arg(releasePos.x()).arg(releasePos.y())));
-    COMPARE_NON_FLOAT(canvas->selectionArea(), area);
+    VERIFY(canvas->selectionArea() == area);
     return true;
 }
 
@@ -2958,8 +2958,6 @@ bool TestHelper::dragSplitViewHandle(const QString &splitViewObjectName, int ind
 {
     QPointer<QQuickItem> splitView = window->findChild<QQuickItem*>(splitViewObjectName);
     VERIFY(splitView);
-    if (QQuickTest::qIsPolishScheduled(splitView.data()))
-        VERIFY(QQuickTest::qWaitForItemPolished(splitView.data()));
 
     QPointer<QQuickItem> handleItem = findSplitViewHandle(splitViewObjectName, index);
     VERIFY(handleItem);
@@ -2981,9 +2979,8 @@ bool TestHelper::dragSplitViewHandle(const QString &splitViewObjectName, int ind
     QTest::mouseMove(window, handleCentre);
     QQmlProperty handleHoveredProperty(handleItem.data(), "SplitHandle.hovered", qmlContext(handleItem.data()));
     VERIFY(handleHoveredProperty.isValid());
-    // Not sure why it's necessary to wait for this...
-    TRY_VERIFY2(handleHoveredProperty.read().toBool() == true, qPrintable(QString::fromLatin1(
-        "Expected SplitView handle of %1 to be hovered after moving the mouse onto it").arg(splitViewObjectName)));
+    VERIFY2(handleHoveredProperty.read().toBool() == true,
+        "Expected SplitView handle to be hovered after moving the mouse onto it");
     QQmlProperty handlePressedProperty(handleItem.data(), "SplitHandle.pressed", qmlContext(handleItem.data()));
     VERIFY(handlePressedProperty.isValid());
     VERIFY(handlePressedProperty.read().toBool() == false);
