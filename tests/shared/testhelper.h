@@ -109,6 +109,7 @@ protected:
         Qt::MouseButton button = Qt::LeftButton, Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(), int delay = -1);
     void wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees);
     void keyClicks(const QString &text);
+    void lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs = 1, int steps = -1);
     Q_REQUIRED_RESULT bool clearAndEnterText(QQuickItem *textField, const QString &text);
     Q_REQUIRED_RESULT bool selectComboBoxItem(const QString &comboBoxObjectName, int index);
     Q_REQUIRED_RESULT bool incrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
@@ -129,9 +130,23 @@ protected:
     QQuickItem* findSplitViewHandle(const QString &splitViewObjectName, int handleIndex) const;
     // Useful for cases where an item is a QQuickItem child but not a QObject child, as is the case with e.g. Repeater.
     static QQuickItem *findChildItem(QQuickItem *parentItem, const QString &objectName);
+
+    enum EnsureVisibleFlag {
+        CheckVisible = 0x00,
+        CheckEnabled = 0x01,
+        CheckWidth = 0x02,
+        CheckHeight = 0x04,
+        CheckOpacity = 0x08,
+        CheckAllVisibleProperties = CheckVisible | CheckEnabled | CheckWidth | CheckHeight | CheckOpacity
+    };
+    Q_DECLARE_FLAGS(EnsureVisibleFlags, EnsureVisibleFlag)
+
     Q_REQUIRED_RESULT bool clickButton(QQuickItem *button, Qt::MouseButton mouseButton = Qt::LeftButton);
+    Q_REQUIRED_RESULT bool ensureItemVisible(QQuickItem *item,
+        EnsureVisibleFlags flags = EnsureVisibleFlags(CheckVisible | CheckEnabled | CheckWidth | CheckHeight));
     Q_REQUIRED_RESULT bool ensureScrollViewChildVisible(const QString &scrollViewObjectName, const QString &childObjectName);
     Q_REQUIRED_RESULT bool ensureFlickableChildVisible(QQuickItem *flickable, QQuickItem *child);
+    Q_REQUIRED_RESULT bool ensureRepeaterChildrenVisible(QQuickItem *repeater, int expectedCount);
 
     // Returns the position of the cursor in a tile's local coordinates.
     QPoint mapToTile(const QPoint &cursorPos) const;

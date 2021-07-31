@@ -5,13 +5,14 @@ import App 1.0
 
 Repeater {
     id: root
+    objectName: paneItem.objectName + "AnimationFrameMarkerRepeater"
 
     property ImageCanvas canvas
     property CanvasPaneItem paneItem
     readonly property Project project: canvas.project
 
     readonly property bool animationAvailable:
-        root.project && !!root.project.usingAnimation && root.project.animationSystem.currentAnimation
+        root.project && root.project.loaded && !!root.project.usingAnimation && root.project.animationSystem.currentAnimation
     readonly property Animation currentAnimation: animationAvailable ? root.project.animationSystem.currentAnimation : null
     readonly property bool showMarkers: currentAnimation && canvas.animationMarkersVisible
 
@@ -30,6 +31,7 @@ Repeater {
     model: showMarkers ? currentAnimation.frameCount : 0
     delegate: Label {
         id: label
+        objectName: paneItem.objectName + "AnimationFrameMarker" + index
         x: paneItem.pane.integerOffset.x + relativeX
         y: paneItem.pane.integerOffset.y + relativeY
         z: 1000
