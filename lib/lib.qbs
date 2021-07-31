@@ -8,7 +8,7 @@ Product {
     Depends {
         name: "Qt"
         submodules: ["core", "gui", "quick", "widgets"]
-        versionAtLeast: "5.15"
+        versionAtLeast: "5.15.2"
     }
     // For version info.
     Depends { name: "vcs" }

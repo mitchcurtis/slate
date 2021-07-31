@@ -6,9 +6,9 @@ Project {
 
     references: [
         "app/app.qbs",
+        "dist/dist.qbs",
         "lib/lib.qbs",
         "tests/tests.qbs",
         "translations/translations.qbs"
     ]
 }
-

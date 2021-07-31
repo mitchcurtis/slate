@@ -22,14 +22,8 @@
 #include <QPainter>
 #include <QtMath>
 
-Ruler::Ruler(Qt::Orientation orientation, QQuickItem *parentItem) :
-    QQuickPaintedItem(parentItem),
-    mOrientation(orientation),
-    mZoomLevel(1),
-    mFrom(0),
-    mForegroundColour(QColor(170, 170, 170, 255)),
-    mBackgroundColour(QColor(70, 70, 70, 255)),
-    mDrawCorner(false)
+Ruler::Ruler(QQuickItem *parentItem) :
+    QQuickPaintedItem(parentItem)
 {
     // I'm not sure if it makes a visible difference, but I decided
     // not to call setRenderTarget(FramebufferObject) here in case it affects the
@@ -39,6 +33,15 @@ Ruler::Ruler(Qt::Orientation orientation, QQuickItem *parentItem) :
 Qt::Orientation Ruler::orientation() const
 {
     return mOrientation;
+}
+
+void Ruler::setOrientation(Qt::Orientation orientation)
+{
+    if (orientation == mOrientation)
+        return;
+
+    mOrientation = orientation;
+    emit orientationChanged();
 }
 
 int Ruler::zoomLevel() const
@@ -53,7 +56,7 @@ void Ruler::setZoomLevel(int zoomLevel)
 
     mZoomLevel = zoomLevel;
     update();
-    //    emit zoomLevelChanged();
+    emit zoomLevelChanged();
 }
 
 int Ruler::from() const
@@ -72,7 +75,7 @@ void Ruler::setFrom(int from)
         // commenting out this check results in the second horizontal being drawn...
         update();
     }
-//    emit fromChanged();
+    emit fromChanged();
 }
 
 QColor Ruler::foregroundColour() const

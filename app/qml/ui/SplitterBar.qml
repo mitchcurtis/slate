@@ -6,7 +6,7 @@ import "."
 
 Rectangle {
     objectName: "splitterBar"
-    x: Math.max(0, Math.floor(canvas.firstPane.size * parent.width) - 1)
+    x: Math.floor(canvas.firstPane.size * parent.width)
     width: 1
     height: parent.height
     color: Theme.splitColour

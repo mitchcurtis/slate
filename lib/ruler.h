@@ -27,15 +27,18 @@
 class SLATE_EXPORT Ruler : public QQuickPaintedItem
 {
     Q_OBJECT
-//    Q_PROPERTY(int zoomLevel READ zoomLevel WRITE setZoomLevel NOTIFY zoomLevelChanged)
+    Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation NOTIFY orientationChanged)
+    Q_PROPERTY(int zoomLevel READ zoomLevel WRITE setZoomLevel NOTIFY zoomLevelChanged)
+    Q_PROPERTY(int from READ from WRITE setFrom NOTIFY fromChanged)
     Q_PROPERTY(QColor foregroundColour READ foregroundColour WRITE setForegroundColour NOTIFY foregroundColourChanged)
     Q_PROPERTY(QColor backgroundColour READ backgroundColour WRITE setBackgroundColour NOTIFY backgroundColourChanged)
     Q_PROPERTY(bool drawCorner READ drawCorner WRITE setDrawCorner NOTIFY drawCornerChanged)
 
 public:
-    Ruler(Qt::Orientation orientation, QQuickItem *parentItem);
+    Ruler(QQuickItem *parentItem = nullptr);
 
     Qt::Orientation orientation() const;
+    void setOrientation(Qt::Orientation orientation);
 
     int zoomLevel() const;
     void setZoomLevel(int zoomLevel);
@@ -55,18 +58,20 @@ public:
     void setDrawCorner(bool drawCorner);
 
 signals:
-    //    void zoomLevelChanged();
+    void orientationChanged();
+    void zoomLevelChanged();
+    void fromChanged();
     void foregroundColourChanged();
     void backgroundColourChanged();
     void drawCornerChanged();
 
 private:
-    Qt::Orientation mOrientation;
-    int mZoomLevel;
-    int mFrom;
-    QColor mForegroundColour;
-    QColor mBackgroundColour;
-    bool mDrawCorner;
+    Qt::Orientation mOrientation = Qt::Horizontal;
+    int mZoomLevel = 1;
+    int mFrom = 0;
+    QColor mForegroundColour = QColor(170, 170, 170, 255);
+    QColor mBackgroundColour = QColor(70, 70, 70, 255);
+    bool mDrawCorner = false;
 };
 
 #endif // RULER_H

@@ -82,6 +82,44 @@ namespace Utils {
         return modFloor(dividend + (divisor - 1), divisor);
     }
 
+    // TODO: use logging category
+//#define FIND_CHILD_ITEMS_DEBUG
+
+    template<typename T>
+    void doFindChildItems(QQuickItem *item, const QString &objectName, QList<T> &childItemsFound, int nestLevel = 0)
+    {
+        const auto childItems = item->childItems();
+
+        ++nestLevel;
+
+        for (QQuickItem *child : childItems) {
+            auto childAsT = qobject_cast<T>(child);
+            bool found = false;
+            if (childAsT && (objectName.isEmpty() || child->objectName() == objectName)) {
+                found = true;
+                childItemsFound.append(childAsT);
+            }
+
+#ifdef FIND_CHILD_ITEMS_DEBUG
+            const QString indentation(nestLevel, QLatin1Char('.'));
+            qDebug().noquote() << indentation << (found ? 'Y' : 'N') << child << "visible:" << child->isVisible();
+#endif
+
+            doFindChildItems(child, objectName, childItemsFound, nestLevel);
+        }
+    }
+
+    template<typename T>
+    QList<T> findChildItems(QQuickItem *item, const QString &objectName = QString())
+    {
+#ifdef FIND_CHILD_ITEMS_DEBUG
+        qDebug().nospace() << "Looking for child items of " << item << " with optional objectName" << objectName << ":";
+#endif
+        QList<T> childItems;
+        doFindChildItems(item, objectName, childItems);
+        return childItems;
+    }
+
     // Based on https://stackoverflow.com/a/28413370/904422.
     class ScopeGuard {
     public:

@@ -36,6 +36,7 @@ Q_LOGGING_CATEGORY(lcFindPopupFromTypeName, "tests.testHelper.findPopupFromTypeN
 TestHelper::TestHelper(int &argc, char **argv) :
     app(argc, argv, QStringLiteral("Slate Test Suite")),
     window(qobject_cast<QQuickWindow*>(app.qmlEngine()->rootObjects().first())),
+    offscreenPlatform(QGuiApplication::platformName() == QStringLiteral("offscreen")),
     tilesetBasename("test-tileset.png")
 {
     mTools.append(ImageCanvas::PenTool);
@@ -270,6 +271,27 @@ void TestHelper::keyClicks(const QString &text)
 {
     for (const auto ch : qAsConst(text))
         QTest::keySequence(window, QKeySequence(ch));
+}
+
+void TestHelper::lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs, int steps)
+{
+    const int xDistance = toScenePos.x() - fromScenePos.x();
+    const int yDistance = toScenePos.y() - fromScenePos.y();
+    if (steps == -1) {
+        qDebug() << QLineF(fromScenePos, toScenePos).length() << (QLineF(fromScenePos, toScenePos).length() / 10);
+        static int const defaultSteps = 10;
+        steps = QLineF(fromScenePos, toScenePos).length() / defaultSteps;
+    }
+
+    QEasingCurve mouseLerp;
+    for (int i = 0; i < steps; ++i) {
+        const qreal lerpValue = mouseLerp.valueForProgress(i / steps);
+
+        const int mouseX = fromScenePos.x() + (xDistance * lerpValue);
+        const int mouseY = fromScenePos.y() + (yDistance * lerpValue);
+        setCursorPosInScenePixels(mouseX, mouseY, false);
+        QTest::mouseMove(window, cursorWindowPos, delayInMs);
+    }
 }
 
 bool TestHelper::clearAndEnterText(QQuickItem *textField, const QString &text)
@@ -1085,8 +1107,7 @@ bool TestHelper::addNewGuide(Qt::Orientation orientation, int position)
     const QPoint originalOffset = canvas->currentPane()->integerOffset();
     const qreal originalZoomLevel = canvas->currentPane()->zoomLevel();
 
-    QQuickItem *ruler = canvas->findChild<QQuickItem*>(horizontal
-        ? "firstHorizontalRuler" : "firstVerticalRuler");
+    QQuickItem *ruler = findChildItem(canvas, horizontal ? "firstHorizontalRuler" : "firstVerticalRuler");
     VERIFY(ruler);
     const qreal rulerThickness = horizontal ? ruler->height() : ruler->width();
 
@@ -1637,15 +1658,8 @@ QQuickItem *TestHelper::findChildItem(QQuickItem *parentItem, const QString &obj
 
 bool TestHelper::clickButton(QQuickItem *button, Qt::MouseButton mouseButton)
 {
-    VERIFY(button);
-    VERIFY2(button->property("visible").toBool(),
-        QString::fromLatin1("Expected visible property of \"%1\" to be true").arg(button->objectName()));
-    VERIFY2(button->property("enabled").toBool(),
-        QString::fromLatin1("Expected enabled property of \"%1\" to be true").arg(button->objectName()));
-    VERIFY2(button->width() > 0.0,
-        QString::fromLatin1("Expected width property of \"%1\" to be greater than zero").arg(button->objectName()));
-    VERIFY2(button->height() > 0.0,
-        QString::fromLatin1("Expected height property of \"%1\" to be greater than zero").arg(button->objectName()));
+    if (!ensureItemVisible(button))
+        return false;
 
     QSignalSpy buttonClickedSpy(button, SIGNAL(clicked()));
     VERIFY(buttonClickedSpy.isValid());
@@ -1660,6 +1674,32 @@ bool TestHelper::clickButton(QQuickItem *button, Qt::MouseButton mouseButton)
     VERIFY2(buttonClickedSpy.count() == 1, qPrintable(QString::fromLatin1(
         "Expected clicked signal of \"%1\" to be emitted once, but it was emitted %2 time(s)")
             .arg(button->objectName()).arg(buttonClickedSpy.count())));
+    return true;
+}
+
+bool TestHelper::ensureItemVisible(QQuickItem *item, EnsureVisibleFlags flags)
+{
+    VERIFY(item);
+    if (flags.testFlag(CheckVisible)) {
+        VERIFY2(item->property("visible").toBool(),
+            QString::fromLatin1("Expected visible property of \"%1\" to be true").arg(item->objectName()));
+    }
+    if (flags.testFlag(CheckEnabled)) {
+        VERIFY2(item->property("enabled").toBool(),
+            QString::fromLatin1("Expected enabled property of \"%1\" to be true").arg(item->objectName()));
+    }
+    if (flags.testFlag(CheckWidth)) {
+        VERIFY2(item->width() > 0.0,
+            QString::fromLatin1("Expected width property of \"%1\" to be greater than zero").arg(item->objectName()));
+    }
+    if (flags.testFlag(CheckHeight)) {
+        VERIFY2(item->height() > 0.0,
+            QString::fromLatin1("Expected height property of \"%1\" to be greater than zero").arg(item->objectName()));
+    }
+    if (flags.testFlag(CheckOpacity)) {
+        VERIFY2(item->opacity() > 0.0,
+            QString::fromLatin1("Expected opacity property of \"%1\" to be greater than zero").arg(item->objectName()));
+    }
     return true;
 }
 
@@ -1689,6 +1729,23 @@ bool TestHelper::ensureFlickableChildVisible(QQuickItem *flickable, QQuickItem *
     VERIFY(QMetaObject::invokeMethod(flickable, "returnToBounds"));
     // Wait for the contentY to "animate".
     TRY_VERIFY(qFuzzyIsNull(flickable->property("verticalOvershoot").toReal()));
+    return true;
+}
+
+bool TestHelper::ensureRepeaterChildrenVisible(QQuickItem *repeater, int expectedCount)
+{
+    VERIFY(repeater);
+    COMPARE_NON_FLOAT(repeater->property("count").toInt(), expectedCount);
+    if (expectedCount > 0) {
+        for (int delegateIndex = 0; delegateIndex < expectedCount; ++delegateIndex) {
+            QQuickItem *delegateItem = nullptr;
+            VERIFY(QMetaObject::invokeMethod(repeater, "itemAt", Qt::DirectConnection,
+                Q_RETURN_ARG(QQuickItem*, delegateItem), Q_ARG(int, delegateIndex)));
+            VERIFY(delegateItem);
+            if (!ensureItemVisible(delegateItem, CheckAllVisibleProperties))
+                return false;
+        }
+    }
     return true;
 }
 
@@ -1840,7 +1897,11 @@ bool TestHelper::triggerNewProject()
 
 bool TestHelper::triggerCloseProject()
 {
-    return triggerShortcut("closeShortcut", app.settings()->closeShortcut());
+    if (!offscreenPlatform)
+        return triggerShortcut("closeShortcut", app.settings()->closeShortcut());
+
+    project->close();
+    return true;
 }
 
 bool TestHelper::triggerSaveProject()

@@ -29,9 +29,8 @@
 #include <QFont>
 #include <QPainter>
 
-NotesItem::NotesItem(ImageCanvas *canvas) :
-    QQuickPaintedItem(canvas),
-    mCanvas(canvas)
+NotesItem::NotesItem(QQuickItem *parent) :
+    QQuickPaintedItem(parent)
 {
     setObjectName("NotesItem");
     setRenderTarget(FramebufferObject);
@@ -41,22 +40,73 @@ NotesItem::~NotesItem()
 {
 }
 
-void NotesItem::paint(QPainter *painter)
+ImageCanvas *NotesItem::canvas() const
 {
-    if (mCanvas->isSplitScreen())
-        drawPane(painter, mCanvas->secondPane(), 1);
-
-    drawPane(painter, mCanvas->firstPane(), 0);
+    return mCanvas;
 }
 
-void NotesItem::drawPane(QPainter *painter, const CanvasPane *pane, int paneIndex)
+void NotesItem::setCanvas(ImageCanvas *newCanvas)
+{
+    if (mCanvas == newCanvas)
+        return;
+
+    if (mCanvas)
+        mCanvas->disconnect(this);
+
+    mCanvas = newCanvas;
+
+    if (mCanvas) {
+        connect(mCanvas, &ImageCanvas::notesChanged, this, [=]() { update(); });
+    }
+
+    emit canvasChanged();
+}
+
+CanvasPane *NotesItem::pane() const
+{
+    return mPane;
+}
+
+void NotesItem::setPane(CanvasPane *newPane)
+{
+    if (mPane == newPane)
+        return;
+
+    if (mPane)
+        mPane->disconnect(this);
+
+    mPane = newPane;
+
+    if (mPane) {
+        connect(mPane, &CanvasPane::zoomLevelChanged, this, [=]() { update(); });
+        connect(mPane, &CanvasPane::integerOffsetChanged, this, [=]() { update(); });
+        connect(mPane, &CanvasPane::sizeChanged, this, [=]() { update(); });
+    }
+
+    emit paneChanged();
+}
+
+int NotesItem::paneIndex() const
+{
+    return mPaneIndex;
+}
+
+void NotesItem::setPaneIndex(int paneIndex)
+{
+    if (mPaneIndex == paneIndex)
+        return;
+
+    mPaneIndex = paneIndex;
+    emit paneIndexChanged();
+}
+
+void NotesItem::paint(QPainter *painter)
 {
     if (!mCanvas->project()->hasLoaded())
         return;
 
-    PaneDrawingHelper paneDrawingHelper(mCanvas, painter, pane, paneIndex);
+    PaneDrawingHelper paneDrawingHelper(mCanvas, painter, mPane, mPaneIndex);
 
-    // Draw the guides.
     QVector<Note> notes = mCanvas->project()->notes();
     for (int i = 0; i < notes.size(); ++i) {
         const Note note = notes.at(i);

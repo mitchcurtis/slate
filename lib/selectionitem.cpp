@@ -26,32 +26,81 @@
 
 #include <QPainter>
 
-SelectionItem::SelectionItem(ImageCanvas *canvas) :
-    QQuickPaintedItem(canvas),
-    mCanvas(canvas)
+SelectionItem::SelectionItem(QQuickItem *parent) :
+    QQuickPaintedItem(parent)
 {
     setObjectName("SelectionItem");
     setVisible(false);
+}
 
-    connect(canvas, &ImageCanvas::hasSelectionChanged, [=]() { setVisible(mCanvas->hasSelection()); });
+ImageCanvas *SelectionItem::canvas() const
+{
+    return mCanvas;
+}
+
+void SelectionItem::setCanvas(ImageCanvas *newCanvas)
+{
+    if (mCanvas == newCanvas)
+        return;
+
+    if (mCanvas)
+        mCanvas->disconnect(this);
+
+    mCanvas = newCanvas;
+
+    if (mCanvas) {
+        connect(mCanvas, &ImageCanvas::hasSelectionChanged, this, [=]() { setVisible(mCanvas->hasSelection()); });
+        connect(mCanvas, &ImageCanvas::selectionAreaChanged, this, [=]() { update(); });
+    }
+
+    emit canvasChanged();
+}
+
+CanvasPane *SelectionItem::pane() const
+{
+    return mPane;
+}
+
+void SelectionItem::setPane(CanvasPane *newPane)
+{
+    if (mPane == newPane)
+        return;
+
+    if (mPane)
+        mPane->disconnect(this);
+
+    mPane = newPane;
+
+    if (mPane) {
+        connect(mPane, &CanvasPane::zoomLevelChanged, this, [=]() { update(); });
+        connect(mPane, &CanvasPane::integerOffsetChanged, this, [=]() { update(); });
+        connect(mPane, &CanvasPane::sizeChanged, this, [=]() { update(); });
+    }
+
+    emit paneChanged();
+}
+
+int SelectionItem::paneIndex() const
+{
+    return mPaneIndex;
+}
+
+void SelectionItem::setPaneIndex(int paneIndex)
+{
+    if (mPaneIndex == paneIndex)
+        return;
+
+    mPaneIndex = paneIndex;
+    emit paneIndexChanged();
 }
 
 void SelectionItem::paint(QPainter *painter)
 {
-    if (mCanvas->isSplitScreen()) {
-        drawPane(painter, mCanvas->secondPane(), 1);
-    }
-
-    drawPane(painter, mCanvas->firstPane(), 0);
-}
-
-void SelectionItem::drawPane(QPainter *painter, const CanvasPane *pane, int paneIndex)
-{
     if (!mCanvas->hasSelection())
         return;
 
-    PaneDrawingHelper paneDrawingHelper(mCanvas, painter, pane, paneIndex);
-    const QRect zoomedSelectionArea(mCanvas->selectionArea().topLeft() * pane->integerZoomLevel(),
-        pane->zoomedSize(mCanvas->selectionArea().size()));
+    PaneDrawingHelper paneDrawingHelper(mCanvas, painter, mPane, mPaneIndex);
+    const QRect zoomedSelectionArea(mCanvas->selectionArea().topLeft() * mPane->integerZoomLevel(),
+        mPane->zoomedSize(mCanvas->selectionArea().size()));
     Utils::strokeRectWithDashes(painter, zoomedSelectionArea);
 }

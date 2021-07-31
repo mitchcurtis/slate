@@ -16,8 +16,6 @@ TileCanvas {
     gridColour: "#55000000"
     splitColour: Theme.splitColour
     splitter.width: 32
-    rulerForegroundColour: Theme.rulerForegroundColour
-    rulerBackgroundColour: Theme.rulerBackgroundColour
     scrollZoom: settings.scrollZoom
     gesturesEnabled: settings.gesturesEnabled
     penToolRightClickBehaviour: settings.penToolRightClickBehaviour
@@ -46,12 +44,48 @@ TileCanvas {
             anchors.fill: parent
             visible: index === 0 || canvas.splitScreen
 
+            readonly property bool isFirstPane: paneIndex === 0
+            readonly property string indexAsWord: isFirstPane ? "first" : "second"
+
             Rectangle {
                 x: index === 0 ? 0 : Math.floor(parent.width - width)
                 width: Math.floor(paneItem.pane.size * parent.width)
                 height: parent.height
                 color: Theme.canvasBackgroundColour
                 z: -1
+            }
+
+            GuidesItem {
+                id: guidesItem
+                anchors.fill: parent
+                canvas: tileCanvas
+                pane: paneItem.pane
+                paneIndex: paneItem.paneIndex
+                visible: tileCanvas.guidesVisible
+            }
+
+            Ruler {
+                objectName: paneItem.indexAsWord + "HorizontalRuler"
+                width: parent.width
+                height: 20
+                orientation: Qt.Horizontal
+                from: paneItem.pane.integerOffset.x
+                zoomLevel: paneItem.pane.integerZoomLevel
+                foregroundColour: Theme.rulerForegroundColour
+                backgroundColour: Theme.rulerBackgroundColour
+                visible: tileCanvas.rulersVisible && (paneItem.isFirstPane || tileCanvas.splitScreen)
+            }
+
+            Ruler {
+                objectName: paneItem.indexAsWord + "VerticalRuler"
+                width: 20
+                height: parent.height
+                orientation: Qt.Vertical
+                from: paneItem.pane.integerOffset.y
+                zoomLevel: paneItem.pane.integerZoomLevel
+                foregroundColour: Theme.rulerForegroundColour
+                backgroundColour: Theme.rulerBackgroundColour
+                visible: tileCanvas.rulersVisible && (paneItem.isFirstPane || tileCanvas.splitScreen)
             }
         }
     }

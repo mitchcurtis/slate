@@ -143,6 +143,12 @@ Panel {
 
                 Layout.fillWidth: true
 
+                Binding {
+                    target: root.canvas
+                    property: "highlightedAnimationFrameIndex"
+                    value: animationSeekSlider.pressed ? animationSeekSlider.value : -1
+                }
+
                 ToolTip {
                     parent: animationSeekSlider.handle
                     text: qsTr("Frame %1").arg(animationSeekSlider.value + 1)

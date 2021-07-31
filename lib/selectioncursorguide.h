@@ -30,17 +30,36 @@ class CanvasPane;
 class SLATE_EXPORT SelectionCursorGuide : public QQuickPaintedItem
 {
     Q_OBJECT
+    Q_PROPERTY(ImageCanvas *canvas READ canvas WRITE setCanvas NOTIFY canvasChanged)
+    Q_PROPERTY(CanvasPane *pane READ pane WRITE setPane NOTIFY paneChanged)
+    Q_PROPERTY(int paneIndex READ paneIndex WRITE setPaneIndex NOTIFY paneIndexChanged)
+    Q_MOC_INCLUDE("canvaspane.h")
+    Q_MOC_INCLUDE("imagecanvas.h")
 
 public:
-    explicit SelectionCursorGuide(ImageCanvas *canvas);
+    explicit SelectionCursorGuide(QQuickItem *parent = nullptr);
     ~SelectionCursorGuide() override;
+
+    ImageCanvas *canvas() const;
+    void setCanvas(ImageCanvas *newCanvas);
+
+    CanvasPane *pane() const;
+    void setPane(CanvasPane *newPane);
+
+    int paneIndex() const;
+    void setPaneIndex(int paneIndex);
 
     void paint(QPainter *painter) override;
 
-private:
-    void drawPane(QPainter *painter, const CanvasPane *pane, int paneIndex);
+signals:
+    void canvasChanged();
+    void paneChanged();
+    void paneIndexChanged();
 
-    ImageCanvas *mCanvas;
+private:
+    ImageCanvas *mCanvas = nullptr;
+    CanvasPane *mPane = nullptr;
+    int mPaneIndex = -1;
 };
 
 #endif
