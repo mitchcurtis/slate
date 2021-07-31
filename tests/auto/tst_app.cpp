@@ -5884,7 +5884,6 @@ void tst_App::animationFrameMarkers()
     QTRY_COMPARE(hoveredMarker->opacity(), 0);
     const QPoint targetMousePosInScene(project->size().width() - 1, project->size().height() - 1);
     lerpMouseMove(originalMousePosInScene, targetMousePosInScene);
-    QEXPECT_FAIL("", "HoverHandler bug (?) fixed in Qt 6", Abort);
     QTRY_VERIFY2_WITH_TIMEOUT(ensureRepeaterChildrenVisible(markerRepeater, 6), failureMessage, 500);
 
     // Close the project; the animation markers should no longer be visible.

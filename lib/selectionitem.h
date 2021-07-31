@@ -33,6 +33,7 @@ class SLATE_EXPORT SelectionItem : public QQuickPaintedItem
     Q_PROPERTY(ImageCanvas *canvas READ canvas WRITE setCanvas NOTIFY canvasChanged)
     Q_PROPERTY(CanvasPane *pane READ pane WRITE setPane NOTIFY paneChanged)
     Q_PROPERTY(int paneIndex READ paneIndex WRITE setPaneIndex NOTIFY paneIndexChanged)
+    QML_ELEMENT
     Q_MOC_INCLUDE("canvaspane.h")
     Q_MOC_INCLUDE("imagecanvas.h")
 
