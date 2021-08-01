@@ -607,6 +607,11 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     VERIFY(moveContentsDialog);
     TRY_VERIFY(moveContentsDialog->property("opened").toBool());
 
+    // Grab the canvas to compare against it later on.
+    VERIFY(imageGrabber.requestImage(canvas));
+    TRY_VERIFY(imageGrabber.isReady());
+    const QImage originalCanvasGrab = imageGrabber.takeImage();
+
     // Change the values and then cancel.
     // TODO: use actual input events...
     QQuickItem *moveContentsXSpinBox = moveContentsDialog->findChild<QQuickItem*>("moveContentsXSpinBox");
@@ -622,6 +627,13 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     VERIFY(moveContentsYSpinBox);
     VERIFY(moveContentsYSpinBox->setProperty("value", originalYSpinBoxValue - 1));
     VERIFY(moveContentsYSpinBox->property("value").toInt() == originalYSpinBoxValue - 1);
+
+    // Check that the live preview has changed.
+    VERIFY(imageGrabber.requestImage(canvas));
+    TRY_VERIFY(imageGrabber.isReady());
+    QImage canvasGrab = imageGrabber.takeImage();
+    if (!compareImages(canvasGrab, originalCanvasGrab))
+        return false;
 
     QQuickItem *cancelButton = moveContentsDialog->findChild<QQuickItem*>("moveContentsDialogCancelButton");
     VERIFY(cancelButton);
@@ -642,6 +654,13 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     VERIFY(moveContentsXSpinBox->property("value").toInt() == x);
     VERIFY(moveContentsYSpinBox->setProperty("value", y));
     VERIFY(moveContentsYSpinBox->property("value").toInt() == y);
+
+    // Check that the preview has changed.
+    VERIFY(imageGrabber.requestImage(canvas));
+    TRY_VERIFY(imageGrabber.isReady());
+    canvasGrab = imageGrabber.takeImage();
+    if (!compareImages(canvasGrab, originalCanvasGrab))
+        return false;
 
     if (onlyVisibleLayers) {
         QQuickItem *onlyMoveVisibleLayersCheckBox = moveContentsDialog->findChild<QQuickItem*>("onlyMoveVisibleLayersCheckBox");
@@ -665,7 +684,8 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     if (!clickButton(okButton))
         return false;
     TRY_VERIFY(!moveContentsDialog->property("visible").toBool());
-    VERIFY(project->exportedImage() == movedContents);
+    if (!compareImages(project->exportedImage(), movedContents))
+        return false;
     VERIFY(moveContentsXSpinBox->property("value").toInt() == x);
     VERIFY(moveContentsYSpinBox->property("value").toInt() == y);
 
@@ -913,6 +933,13 @@ bool TestHelper::fuzzyImageCompare(const QImage &actualImage, const QImage &expe
                 // TODO: remove fromLatin1 call for third arg in Qt 6; only added it to workaround ambiguous argument warning
                 failureMessage = QString::fromLatin1("Failure comparing pixels at (%1, %2):%3")
                     .arg(x).arg(y).arg(QString::fromLatin1(failureMessage)).toLatin1();
+
+                const QString actualImageFilePath = QDir().absolutePath() + '/' + QTest::currentTestFunction() + QLatin1String("-actual.png");
+                const QString expectedImageFilePath = QDir().absolutePath() + '/' + QTest::currentTestFunction() + QLatin1String("-expected.png");
+                qInfo() << "Saving actual and expected images to" << actualImageFilePath << "and" << expectedImageFilePath;
+                actualImage.save(actualImageFilePath);
+                expectedImage.save(expectedImageFilePath);
+
                 return false;
             }
         }

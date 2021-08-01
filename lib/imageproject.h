@@ -87,6 +87,7 @@ private:
 
     QUrl mImageUrl;
     QImage mImage;
+
     bool mUsingAnimation = false;
     bool mHasUsedAnimation = false;
     AnimationSystem mAnimationSystem;
