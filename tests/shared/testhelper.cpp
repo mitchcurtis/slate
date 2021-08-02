@@ -689,7 +689,6 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     QQuickItem *moveContentsXSpinBoxTextInput = moveContentsXSpinBox->property("contentItem").value<QQuickItem*>();
     VERIFY(moveContentsXSpinBoxTextInput);
     const EnterTextFlags enterTextFlags = EnterTextFlag::ClearTextFirst | EnterTextFlag::CompareAsIntegers;
-    qDebug() << "#1";
     if (!enterText(moveContentsXSpinBoxTextInput, QString::number(originalXSpinBoxValue + 1), enterTextFlags))
         return false;
 
@@ -698,7 +697,6 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     const int originalYSpinBoxValue = moveContentsYSpinBox->property("value").toInt();
     QQuickItem *moveContentsYSpinBoxTextInput = moveContentsYSpinBox->property("contentItem").value<QQuickItem*>();
     VERIFY(moveContentsYSpinBoxTextInput);
-    qDebug() << "#2";
     QTest::keyClick(window, Qt::Key_Tab);
     if (!enterText(moveContentsYSpinBoxTextInput, QString::number(originalYSpinBoxValue - 1), enterTextFlags))
         return false;
@@ -706,7 +704,7 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     QTest::keyClick(window, Qt::Key_Tab);
 
     // Check that the live preview has changed.
-    QImage movedContents = Utils::moveContents(originalContents, x, y);
+    QImage movedContents = Utils::moveContents(originalContents, 1, -1);
     if (!compareImages(project->exportedImage(), movedContents, "live preview should show moved contents (before cancelling)"))
         return false;
 
@@ -726,10 +724,8 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     VERIFY(moveContentsYSpinBox->property("value").toInt() == originalYSpinBoxValue);
 
     // Change the values and then press OK.
-    qDebug() << "#3";
     if (!enterText(moveContentsXSpinBoxTextInput, QString::number(x), enterTextFlags))
         return false;
-    qDebug() << "#4";
     QTest::keyClick(window, Qt::Key_Tab);
     if (!enterText(moveContentsYSpinBoxTextInput, QString::number(y), enterTextFlags))
         return false;
@@ -737,6 +733,7 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     QTest::keyClick(window, Qt::Key_Tab);
 
     // Check that the preview has changed.
+    movedContents = Utils::moveContents(originalContents, x, y);
     if (!compareImages(project->exportedImage(), movedContents, "live preview should show moved contents (before accepting)"))
         return false;
 
@@ -750,7 +747,6 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
         }
     }
 
-    movedContents = Utils::moveContents(originalContents, x, y);
     QQuickItem *okButton = moveContentsDialog->findChild<QQuickItem*>("moveContentsDialogOkButton");
     VERIFY(okButton);
     if (!clickButton(okButton))
