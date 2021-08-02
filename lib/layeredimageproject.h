@@ -112,8 +112,6 @@ signals:
     // Happens through undo.
     void contentsMoved();
 
-    void livePreviewChanged();
-
 public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
 

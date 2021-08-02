@@ -90,6 +90,13 @@ public:
     TestHelper(int &argc, char **argv);
     ~TestHelper();
 
+    enum class EnterTextFlag {
+        OnlyEnterText = 0x0,
+        ClearTextFirst = 0x1,
+        CompareAsIntegers = 0x2
+    };
+    Q_DECLARE_FLAGS(EnterTextFlags, EnterTextFlag)
+
 private Q_SLOTS:
     void initTestCase();
     void cleanup();
@@ -110,12 +117,17 @@ protected:
     void wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees);
     void keyClicks(const QString &text);
     void lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs = 1, int steps = -1);
-    Q_REQUIRED_RESULT bool clearAndEnterText(QQuickItem *textField, const QString &text);
+
+    Q_REQUIRED_RESULT QByteArray activeFocusFailureMessage(QQuickItem *item);
+    Q_REQUIRED_RESULT bool enterText(QQuickItem *textField, const QString &text,
+        EnterTextFlags flags = EnterTextFlag::ClearTextFirst);
     Q_REQUIRED_RESULT bool selectComboBoxItem(const QString &comboBoxObjectName, int index);
     Q_REQUIRED_RESULT bool incrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
     Q_REQUIRED_RESULT bool decrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
     Q_REQUIRED_RESULT bool setCheckBoxChecked(const QString &checkBoxObjectName, bool checked);
     Q_REQUIRED_RESULT bool clickDialogFooterButton(const QObject *dialog, const QString &buttonText);
+
+    static QString detailedObjectName(QObject *object);
 
     Q_REQUIRED_RESULT bool findAndOpenClosedPopupFromObjectName(const QString &objectName, QObject **dialog = nullptr);
     QObject *findOpenPopupFromTypeName(const QString &typeName) const;
@@ -390,5 +402,7 @@ protected:
 
     QImage mCheckerImage;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(TestHelper::EnterTextFlags)
 
 #endif // TESTHELPER_H

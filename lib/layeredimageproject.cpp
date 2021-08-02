@@ -519,12 +519,13 @@ void LayeredImageProject::endLivePreview(LivePreviewModificatonAction modificati
             ImageLayer *layer = mLayers.at(i);
             *layer->image() = mLayerImagesBeforeLivePreview.at(i);
         }
+
+        // The canvas needs to repaint if the dialog was cancelled, since
+        // we're modifying the contents directly.
+        emit contentsModified();
     }
 
     cleanup();
-
-    // The contents were modified in some way.
-    emit livePreviewChanged();
 }
 
 #define CONTAINS_KEY_OR_ERROR(jsonObject, key, filePath) \
@@ -1002,7 +1003,8 @@ void LayeredImageProject::makeLivePreviewModification(LivePreviewModification mo
         *layer->image() = newImage;
     }
 
-    emit livePreviewChanged();
+    // Let the canvas know that it should repaint.
+    emit contentsModified();
 }
 
 Project::Type LayeredImageProject::type() const

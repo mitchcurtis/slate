@@ -291,21 +291,44 @@ void TestHelper::lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScene
     }
 }
 
-bool TestHelper::clearAndEnterText(QQuickItem *textField, const QString &text)
+// Could make this hasActiveFocus(), but the line number in the failure message is
+// better if the calling code does the verification.
+QByteArray TestHelper::activeFocusFailureMessage(QQuickItem *item)
+{
+    return QString::fromLatin1("Expected text input %1 to have focus, but %2 has it instead")
+        .arg(detailedObjectName(item)).arg(detailedObjectName(window->activeFocusItem())).toLatin1();
+}
+
+bool TestHelper::enterText(QQuickItem *textField, const QString &text, EnterTextFlags flags)
 {
     VERIFY(textField->property("text").isValid());
-    VERIFY(textField->hasActiveFocus());
+    VERIFY2(textField->hasActiveFocus(), activeFocusFailureMessage(textField));
 
-    if (!textField->property("text").toString().isEmpty()) {
+    if (flags.testFlag(EnterTextFlag::ClearTextFirst) && !textField->property("text").toString().isEmpty()) {
         QTest::keySequence(window, QKeySequence::SelectAll);
         VERIFY(!textField->property("selectedText").toString().isEmpty());
 
+        // I dunno why, but the Backspace key sequence doesn't work on Windows with Qt 5.15.2.
+#ifdef Q_OS_WIN32
+        QTest::keySequence(window, Qt::Key_Backspace);
+#else
         QTest::keySequence(window, QKeySequence::Backspace);
+#endif
         VERIFY(textField->property("text").toString().isEmpty());
     }
 
     keyClicks(text);
-    VERIFY(textField->property("text").toString() == text);
+    const QString textFieldText = textField->property("text").toString();
+    if (flags.testFlag(EnterTextFlag::CompareAsIntegers)) {
+        bool convertedTextToIntSuccessfully = false;
+        const int actualTextAsInt = textFieldText.toInt(&convertedTextToIntSuccessfully);
+        VERIFY(convertedTextToIntSuccessfully);
+        const int expectedTextAsInt = text.toInt(&convertedTextToIntSuccessfully);
+        VERIFY(convertedTextToIntSuccessfully);
+        COMPARE_NON_FLOAT(actualTextAsInt, expectedTextAsInt);
+    } else {
+        COMPARE_NON_FLOAT(textFieldText, text);
+    }
     return true;
 }
 
@@ -386,6 +409,54 @@ bool TestHelper::clickDialogFooterButton(const QObject *dialog, const QString &b
         return false;
     TRY_VERIFY(dialog->property("visible").toBool() == false);
     return true;
+}
+
+QString TestHelper::detailedObjectName(QObject *object)
+{
+    if (!object)
+        return QLatin1String("null");
+
+    static int detailedObjectNameDepth = -1;
+    if (detailedObjectNameDepth == -1) {
+        const QByteArray envVar = qgetenv("DETAILED_OBJECT_NAME_DEPTH");
+        if (!envVar.isEmpty()) {
+            bool converted = false;
+            const int depth = envVar.toInt(&converted);
+            if (converted)
+                detailedObjectNameDepth = depth;
+        }
+        if (detailedObjectNameDepth == -1)
+            detailedObjectNameDepth = 4;
+    }
+
+    QString name = object->objectName();
+    // If the object doesn't have a name, use its QDebug operator<<.
+    if (name.isEmpty())
+        name = Utils::toString(object);
+
+    // If the parent is null, try the QQuickItem parent instead.
+    QObject *parent = object->parent();
+    if (!parent) {
+        auto asItem = qobject_cast<QQuickItem*>(object);
+        if (asItem)
+            parent = asItem->parentItem();
+    }
+
+    int depth = 0;
+    while (parent && depth++ <= detailedObjectNameDepth) {
+        QString parentObjectName = parent->objectName();
+        if (parentObjectName.isEmpty())
+            parentObjectName = Utils::toString(parent);
+        name.prepend(parentObjectName + " => ");
+
+        parent = parent->parent();
+        if (!parent) {
+            auto parentAsItem = qobject_cast<QQuickItem*>(parent);
+            if (parentAsItem)
+                parent = parentAsItem->parentItem();
+        }
+    }
+    return name;
 }
 
 bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDialog)
@@ -613,20 +684,27 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     const QImage originalCanvasGrab = imageGrabber.takeImage();
 
     // Change the values and then cancel.
-    // TODO: use actual input events...
     QQuickItem *moveContentsXSpinBox = moveContentsDialog->findChild<QQuickItem*>("moveContentsXSpinBox");
     VERIFY(moveContentsXSpinBox);
     // We want it to be easy to change the values with the keyboard..
     VERIFY(moveContentsXSpinBox->hasActiveFocus());
     const int originalXSpinBoxValue = moveContentsXSpinBox->property("value").toInt();
-    VERIFY(moveContentsXSpinBox->setProperty("value", originalXSpinBoxValue + 1));
-    VERIFY(moveContentsXSpinBox->property("value").toInt() == originalXSpinBoxValue + 1);
+    QQuickItem *moveContentsXSpinBoxTextInput = moveContentsXSpinBox->property("contentItem").value<QQuickItem*>();
+    VERIFY(moveContentsXSpinBoxTextInput);
+    const EnterTextFlags enterTextFlags = EnterTextFlag::ClearTextFirst | EnterTextFlag::CompareAsIntegers;
+    qDebug() << "#1";
+    if (!enterText(moveContentsXSpinBoxTextInput, QString::number(originalXSpinBoxValue + 1), enterTextFlags))
+        return false;
 
     QQuickItem *moveContentsYSpinBox = moveContentsDialog->findChild<QQuickItem*>("moveContentsYSpinBox");
-    const int originalYSpinBoxValue = moveContentsYSpinBox->property("value").toInt();
     VERIFY(moveContentsYSpinBox);
-    VERIFY(moveContentsYSpinBox->setProperty("value", originalYSpinBoxValue - 1));
-    VERIFY(moveContentsYSpinBox->property("value").toInt() == originalYSpinBoxValue - 1);
+    const int originalYSpinBoxValue = moveContentsYSpinBox->property("value").toInt();
+    QQuickItem *moveContentsYSpinBoxTextInput = moveContentsYSpinBox->property("contentItem").value<QQuickItem*>();
+    VERIFY(moveContentsYSpinBoxTextInput);
+    qDebug() << "#2";
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterText(moveContentsYSpinBoxTextInput, QString::number(originalYSpinBoxValue - 1), enterTextFlags))
+        return false;
 
     // Check that the live preview has changed.
     VERIFY(imageGrabber.requestImage(canvas));
@@ -650,10 +728,13 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     VERIFY(moveContentsYSpinBox->property("value").toInt() == originalYSpinBoxValue);
 
     // Change the values and then press OK.
-    VERIFY(moveContentsXSpinBox->setProperty("value", x));
-    VERIFY(moveContentsXSpinBox->property("value").toInt() == x);
-    VERIFY(moveContentsYSpinBox->setProperty("value", y));
-    VERIFY(moveContentsYSpinBox->property("value").toInt() == y);
+    qDebug() << "#3";
+    if (!enterText(moveContentsXSpinBoxTextInput, QString::number(x), enterTextFlags))
+        return false;
+    qDebug() << "#4";
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterText(moveContentsYSpinBoxTextInput, QString::number(y), enterTextFlags))
+        return false;
 
     // Check that the preview has changed.
     VERIFY(imageGrabber.requestImage(canvas));
@@ -1105,7 +1186,7 @@ bool TestHelper::renameSwatchColour(int index, const QString &name)
     // Do the renaming.
     QQuickItem *swatchNameTextField = window->findChild<QQuickItem*>("swatchNameTextField");
     VERIFY(swatchNameTextField);
-    VERIFY2(clearAndEnterText(swatchNameTextField, name), failureMessage);
+    VERIFY2(enterText(swatchNameTextField, name), failureMessage);
     QTest::keyClick(window, Qt::Key_Return);
     TRY_VERIFY(!renameSwatchColourDialog->property("visible").toBool());
     return true;
@@ -1234,7 +1315,7 @@ bool TestHelper::addNewNoteAtCursorPos(const QString &text)
     VERIFY(noteDialogYTextField);
     VERIFY(noteDialogYTextField->property("text").toString() == QString::number(cursorPos.y()));
 
-    VERIFY2(clearAndEnterText(noteDialogTextField, text), failureMessage);
+    VERIFY2(enterText(noteDialogTextField, text), failureMessage);
 
     // Accept the dialog.
     QTest::keyClick(window, Qt::Key_Return);

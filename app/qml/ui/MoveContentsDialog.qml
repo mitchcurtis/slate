@@ -30,10 +30,9 @@ Dialog {
     modal: true
     dim: false
     focus: true
-    enabled: isLayeredImageProject
+    enabled: project
 
     property LayeredImageProject project
-    property bool isLayeredImageProject: project && project.type === Project.LayeredImageType
 
     function updateLivePreview() {
         project.moveContents(xDistanceSpinBox.value, yDistanceSpinBox.value, onlyMoveVisibleLayersCheckBox.checked)

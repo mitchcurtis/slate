@@ -159,8 +159,17 @@ signals:
     void guidesChanged();
     void notesChanged();
     void aboutToBeginMacro(const QString &text);
-    // Emitted whenever the image contents are modified
-    // (e.g. pixels drawn, layers added, etc.)
+    /*
+        Emitted whenever the image contents are modified
+        through a command (e.g. pixels drawn, layers added, etc.)
+        This is used by e.g. SpriteImage to know that it should update.
+
+        It is also emitted whenever the contents are modified directly
+        for live preview, so that the canvas knows to repaint.
+
+        It is distinct from ImageCanvas' contentPaintRequested() signal in that
+        it is not emitted when e.g. the selection marquee changes.
+    */
     void contentsModified();
 
 public slots:
