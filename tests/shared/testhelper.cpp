@@ -308,13 +308,10 @@ bool TestHelper::enterText(QQuickItem *textField, const QString &text, EnterText
         QTest::keySequence(window, QKeySequence::SelectAll);
         VERIFY(!textField->property("selectedText").toString().isEmpty());
 
-        // I dunno why, but the Backspace key sequence doesn't work on Windows with Qt 5.15.2.
-#ifdef Q_OS_WIN32
         QTest::keySequence(window, Qt::Key_Backspace);
-#else
-        QTest::keySequence(window, QKeySequence::Backspace);
-#endif
-        VERIFY(textField->property("text").toString().isEmpty());
+        VERIFY2(textField->property("text").toString().isEmpty(),
+            QString::fromLatin1("Expected the text of %1 to be empty, but it's %2")
+                .arg(detailedObjectName(textField)).arg(textField->property("text").toString()));
     }
 
     keyClicks(text);
@@ -705,12 +702,12 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     QTest::keyClick(window, Qt::Key_Tab);
     if (!enterText(moveContentsYSpinBoxTextInput, QString::number(originalYSpinBoxValue - 1), enterTextFlags))
         return false;
+    // Tab again because we want the focus to leave the text input so that valueModified is emitted.
+    QTest::keyClick(window, Qt::Key_Tab);
 
     // Check that the live preview has changed.
-    VERIFY(imageGrabber.requestImage(canvas));
-    TRY_VERIFY(imageGrabber.isReady());
-    QImage canvasGrab = imageGrabber.takeImage();
-    if (!compareImages(canvasGrab, originalCanvasGrab))
+    QImage movedContents = Utils::moveContents(originalContents, x, y);
+    if (!compareImages(project->exportedImage(), movedContents, "live preview should show moved contents (before cancelling)"))
         return false;
 
     QQuickItem *cancelButton = moveContentsDialog->findChild<QQuickItem*>("moveContentsDialogCancelButton");
@@ -718,7 +715,8 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     if (!clickButton(cancelButton))
         return false;
     TRY_VERIFY(!moveContentsDialog->property("visible").toBool());
-    VERIFY(project->exportedImage() == originalContents);
+    if (!compareImages(project->exportedImage(), originalContents, "live preview should show unmoved contents (after cancelling)"))
+        return false;
 
     // Open the dialog again.
     VERIFY(triggerShortcut("moveContentsShortcut", app.settings()->moveContentsShortcut()));
@@ -735,12 +733,11 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     QTest::keyClick(window, Qt::Key_Tab);
     if (!enterText(moveContentsYSpinBoxTextInput, QString::number(y), enterTextFlags))
         return false;
+    // Tab again because we want the focus to leave the text input so that valueModified is emitted.
+    QTest::keyClick(window, Qt::Key_Tab);
 
     // Check that the preview has changed.
-    VERIFY(imageGrabber.requestImage(canvas));
-    TRY_VERIFY(imageGrabber.isReady());
-    canvasGrab = imageGrabber.takeImage();
-    if (!compareImages(canvasGrab, originalCanvasGrab))
+    if (!compareImages(project->exportedImage(), movedContents, "live preview should show moved contents (before accepting)"))
         return false;
 
     if (onlyVisibleLayers) {
@@ -753,19 +750,13 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
         }
     }
 
-    QImage movedContents(originalContents.size(), QImage::Format_ARGB32_Premultiplied);
-    movedContents.fill(Qt::transparent);
-
-    QPainter painter(&movedContents);
-    painter.drawImage(x, y, originalContents);
-    painter.end();
-
+    movedContents = Utils::moveContents(originalContents, x, y);
     QQuickItem *okButton = moveContentsDialog->findChild<QQuickItem*>("moveContentsDialogOkButton");
     VERIFY(okButton);
     if (!clickButton(okButton))
         return false;
     TRY_VERIFY(!moveContentsDialog->property("visible").toBool());
-    if (!compareImages(project->exportedImage(), movedContents))
+    if (!compareImages(project->exportedImage(), movedContents, "live preview should show moved contents (after accepting)"))
         return false;
     VERIFY(moveContentsXSpinBox->property("value").toInt() == x);
     VERIFY(moveContentsYSpinBox->property("value").toInt() == y);
@@ -1004,16 +995,17 @@ bool TestHelper::fuzzyColourCompare(const QColor &actualColour, const QColor &ex
     return true;
 }
 
-bool TestHelper::fuzzyImageCompare(const QImage &actualImage, const QImage &expectedImage, int fuzz)
+bool TestHelper::fuzzyImageCompare(const QImage &actualImage, const QImage &expectedImage, int fuzz, const QString &context)
 {
-    VERIFY(actualImage.size() == expectedImage.size());
+    COMPARE_NON_FLOAT(actualImage.size(), expectedImage.size());
 
     for (int y = 0; y < actualImage.height(); ++y) {
         for (int x = 0; x < actualImage.width(); ++x) {
             if (!fuzzyColourCompare(actualImage.pixelColor(x, y), expectedImage.pixelColor(x, y), fuzz)) {
                 // TODO: remove fromLatin1 call for third arg in Qt 6; only added it to workaround ambiguous argument warning
-                failureMessage = QString::fromLatin1("Failure comparing pixels at (%1, %2):%3")
-                    .arg(x).arg(y).arg(QString::fromLatin1(failureMessage)).toLatin1();
+                const QString contextStr = context.isEmpty() ? context : " (" + context + ')';
+                failureMessage = QString::fromLatin1("Failure comparing pixels%1 at (%2, %3):%4")
+                    .arg(contextStr).arg(x).arg(y).arg(QString::fromLatin1(failureMessage)).toLatin1();
 
                 const QString actualImageFilePath = QDir().absolutePath() + '/' + QTest::currentTestFunction() + QLatin1String("-actual.png");
                 const QString expectedImageFilePath = QDir().absolutePath() + '/' + QTest::currentTestFunction() + QLatin1String("-expected.png");
@@ -1029,9 +1021,9 @@ bool TestHelper::fuzzyImageCompare(const QImage &actualImage, const QImage &expe
     return true;
 }
 
-bool TestHelper::compareImages(const QImage &actualImage, const QImage &expectedImage)
+bool TestHelper::compareImages(const QImage &actualImage, const QImage &expectedImage, const QString &context)
 {
-    return fuzzyImageCompare(actualImage, expectedImage, 0);
+    return fuzzyImageCompare(actualImage, expectedImage, 0, context);
 }
 
 bool TestHelper::everyPixelIs(const QImage &image, const QColor &colour)

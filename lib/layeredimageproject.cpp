@@ -44,6 +44,9 @@
 #include "movelayeredimagecontentscommand.h"
 #include "utils.h"
 
+Q_LOGGING_CATEGORY(lcLivePreview, "app.layeredimageproject.livepreview")
+Q_LOGGING_CATEGORY(lcMoveContents, "app.layeredimageproject.movecontents")
+
 LayeredImageProject::LayeredImageProject() :
     mCurrentLayerIndex(0),
     mLayersCreated(0),
@@ -441,6 +444,8 @@ void LayeredImageProject::createNew(int imageWidth, int imageHeight, bool transp
 
 void LayeredImageProject::beginLivePreview()
 {
+    qCDebug(lcLivePreview) << "beginLivePreview called";
+
     if (mLivePreviewActive) {
         qWarning() << "Live preview already active";
         return;
@@ -464,6 +469,8 @@ void LayeredImageProject::beginLivePreview()
 
 void LayeredImageProject::endLivePreview(LivePreviewModificatonAction modificationAction)
 {
+    qCDebug(lcLivePreview) << "endLivePreview called with modificationAction" << modificationAction;
+
     if (!mLivePreviewActive) {
         qWarning() << "Can't end live preview as it isn't active";
         return;
@@ -789,6 +796,9 @@ void LayeredImageProject::crop(const QRect &rect)
 
 void LayeredImageProject::moveContents(int xDistance, int yDistance, bool onlyVisibleContents)
 {
+    qCDebug(lcMoveContents) << "moveContents called with xDistance" << xDistance
+        << "yDistance" << yDistance << "onlyVisibleContents" << onlyVisibleContents;
+
     if (warnIfLivePreviewNotActive(QLatin1String("move contents")))
         return;
 
@@ -804,14 +814,7 @@ void LayeredImageProject::moveContents(int xDistance, int yDistance, bool onlyVi
             // but it avoids adding more code paths elsewhere.
             newImages.append(oldImage);
         } else {
-            QImage translated(size(), QImage::Format_ARGB32_Premultiplied);
-            translated.fill(Qt::transparent);
-
-            QPainter painter(&translated);
-            painter.drawImage(xDistance, yDistance, oldImage);
-            painter.end();
-
-            newImages.append(translated);
+            newImages.append(Utils::moveContents(oldImage, xDistance, yDistance));
         }
     }
 
@@ -981,6 +984,8 @@ bool LayeredImageProject::warnIfLivePreviewNotActive(const QString &actionName) 
 
 void LayeredImageProject::makeLivePreviewModification(LivePreviewModification modification, const QVector<QImage> &newImages)
 {
+    qCDebug(lcLivePreview) << "makeLivePreviewModification called with modification" << modification;
+
     if (warnIfLivePreviewNotActive(QLatin1String("make live preview modification")))
         return;
 

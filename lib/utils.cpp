@@ -126,6 +126,18 @@ QImage Utils::rotateAreaWithinImage(const QImage &image, const QRect &area, int 
     return rotatedImagePortion;
 }
 
+QImage Utils::moveContents(const QImage &image, int xDistance, int yDistance)
+{
+    QImage translated(image.size(), QImage::Format_ARGB32_Premultiplied);
+    translated.fill(Qt::transparent);
+
+    QPainter painter(&translated);
+    painter.drawImage(xDistance, yDistance, image);
+    painter.end();
+
+    return translated;
+}
+
 void Utils::strokeRectWithDashes(QPainter *painter, const QRect &rect)
 {
     static const QColor greyColour(0, 0, 0, 180);
