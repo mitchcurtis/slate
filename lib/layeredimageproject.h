@@ -94,15 +94,19 @@ signals:
     void postLayerMoved(int fromIndex, int toIndex);
     void postLayerImageChanged();
 
+    // Happens through undo.
     void contentsMoved();
 
 public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
 
+    void beginLivePreview() override;
+    void endLivePreview(LivePreviewModificationAction modificationAction) override;
+
     bool exportImage(const QUrl &url);
     void resize(int width, int height);
     void crop(const QRect &rect);
-    void moveContents(int x, int y, bool onlyVisibleContents);
+    void moveContents(int xDistance, int yDistance, bool onlyVisibleContents);
 
     void addNewLayer();
     void deleteCurrentLayer();
@@ -151,9 +155,11 @@ private:
 
     bool isValidIndex(int index) const;
 
+    // This should be called by slots each time a change is made in the relevant dialog.
+    void makeLivePreviewModification(LivePreviewModification modification, const QVector<QImage> &newImages);
+
     void doSetCanvasSize(const QVector<QImage> &newImages);
     void doSetImageSize(const QVector<QImage> &newImages);
-
     void doMoveContents(const QVector<QImage> &newImages);
 
     void addNewLayer(int imageWidth, int imageHeight, bool transparent, bool undoable = true);
@@ -173,7 +179,15 @@ private:
     int mCurrentLayerIndex;
     // Give each layer a unique name based on the layers created so far.
     int mLayersCreated;
+
+    // Used to enable previewing changes directly on the canvas.
+    // Only modifications that require dialogs are supported.
+    // Modifications that affect anything besides the layer's image (like opacity)
+    // are not supported; that would require us to store layers instead.
+    QVector<QImage> mLayerImagesBeforeLivePreview;
+
     bool mAutoExportEnabled;
+
     bool mUsingAnimation;
     bool mHasUsedAnimation;
     AnimationSystem mAnimationSystem;

@@ -30,26 +30,27 @@ Dialog {
     modal: true
     dim: false
     focus: true
-    enabled: isLayeredImageProject
+    enabled: project
 
-    property Project project
-    property bool isLayeredImageProject: project && project.type === Project.LayeredImageType
+    property LayeredImageProject project
+
+    function updateLivePreview() {
+        project.moveContents(xDistanceSpinBox.value, yDistanceSpinBox.value, onlyMoveVisibleLayersCheckBox.checked)
+    }
 
     onAboutToShow: {
-        if (project) {
-            xDistanceSpinBox.value = 0
-            yDistanceSpinBox.value = 0
-            xDistanceSpinBox.contentItem.forceActiveFocus()
-            imagePreview.source = "image://project"
-        }
+        if (!project)
+            return
+
+        xDistanceSpinBox.value = 0
+        yDistanceSpinBox.value = 0
+        xDistanceSpinBox.contentItem.forceActiveFocus()
+
+        project.beginLivePreview()
     }
 
-    onAboutToHide: {
-        // Ensure that an up-to-date image is assign when we open by clearing it when we close.
-        imagePreview.source = ""
-    }
-
-    onAccepted: project.moveContents(xDistanceSpinBox.value, yDistanceSpinBox.value, onlyMoveVisibleLayersCheckBox.checked)
+    onAccepted: project.endLivePreview(LayeredImageProject.CommitModificaton)
+    onRejected: project.endLivePreview(LayeredImageProject.RollbackModification)
 
     contentItem: ColumnLayout {
         GridLayout {
@@ -75,6 +76,8 @@ Dialog {
                 ToolTip.delay: UiConstants.toolTipDelay
                 ToolTip.timeout: UiConstants.toolTipTimeout
 
+                onValueModified: root.updateLivePreview()
+
                 Keys.onReturnPressed: root.accept()
             }
 
@@ -98,6 +101,8 @@ Dialog {
                 ToolTip.delay: UiConstants.toolTipDelay
                 ToolTip.timeout: UiConstants.toolTipTimeout
 
+                onValueModified: root.updateLivePreview()
+
                 Keys.onReturnPressed: root.accept()
             }
 
@@ -116,55 +121,9 @@ Dialog {
                 ToolTip.delay: UiConstants.toolTipDelay
                 ToolTip.timeout: UiConstants.toolTipTimeout
 
+                onToggled: root.updateLivePreview()
+
                 Keys.onReturnPressed: root.accept()
-            }
-
-            Rectangle {
-                id: imagePreviewBackground
-                objectName: "imagePreviewBackground"
-                color: "black"
-                clip: true
-
-                Layout.columnSpan: 2
-                Layout.preferredWidth: 400
-                Layout.preferredHeight: 400
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-
-                Image {
-                    objectName: "imagePreviewOldBounds"
-                    // QQuickImage uses ceil.
-                    x: Math.ceil((parent.width - imagePreview.paintedWidth) / 2)
-                    y: Math.ceil((parent.height - imagePreview.paintedHeight) / 2)
-                    width: imagePreview.paintedWidth
-                    height: imagePreview.paintedHeight
-                    source: "qrc:/images/checker.png"
-                    fillMode: Image.Tile
-                    smooth: false
-                    clip: true
-
-                    // We want the project's image to be clipped by its old bounds,
-                    // as that's what it will actually look like after moving.
-                    // That's why it's a child of the old bounds image.
-                    Image {
-                        id: imagePreview
-                        // Our parent has to be positioned correctly based on our painted size,
-                        // which means we must deduct their position to get ours.
-                        x: Math.ceil((xDistanceSpinBox.value * widthScale) - parent.x)
-                        y: Math.ceil((yDistanceSpinBox.value * heightScale) - parent.y)
-                        width: imagePreviewBackground.width
-                        height: imagePreviewBackground.height
-                        fillMode: Image.PreserveAspectFit
-                        smooth: false
-                        // Ensure that we get up-to-date images from the provider.
-                        cache: false
-
-                        // The image is scaled to fit the viewport (imagePreviewBackground),
-                        // so our x and y position must be scaled to account for that.
-                        readonly property int widthScale: paintedWidth / implicitWidth
-                        readonly property int heightScale: paintedHeight / implicitHeight
-                    }
-                }
             }
         }
     }

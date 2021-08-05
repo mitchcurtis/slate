@@ -38,6 +38,9 @@ namespace Utils {
     QImage rotate(const QImage &image, int angle);
     QImage rotateAreaWithinImage(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea);
 
+    SLATE_EXPORT QImage moveContents(const QImage &image, int xDistance, int yDistance);
+    SLATE_EXPORT QImage resizeContents(const QImage &image, int newWidth, int newHeight);
+
     void modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness, qreal alpha,
         ImageCanvas::AlphaAdjustmentFlags alphaAdjustmentFlags);
 

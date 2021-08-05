@@ -141,6 +141,20 @@ public:
 
     Q_ENUM(SwatchImportFormat)
 
+    enum LivePreviewModificationAction {
+        RollbackModification,
+        CommitModificaton
+    };
+    Q_ENUM(LivePreviewModificationAction);
+
+    enum class LivePreviewModification {
+        None,
+        Resize,
+        MoveContents
+    };
+    // We need Q_ENUM in order to print the enum, and Q_ENUM needs to be public.
+    Q_ENUM(LivePreviewModification);
+
 signals:
     void projectCreated();
     void projectLoaded();
@@ -159,8 +173,17 @@ signals:
     void guidesChanged();
     void notesChanged();
     void aboutToBeginMacro(const QString &text);
-    // Emitted whenever the image contents are modified
-    // (e.g. pixels drawn, layers added, etc.)
+    /*
+        Emitted whenever the image contents are modified
+        through a command (e.g. pixels drawn, layers added, etc.)
+        This is used by e.g. SpriteImage to know that it should update.
+
+        It is also emitted whenever the contents are modified directly
+        for live preview, so that the canvas knows to repaint.
+
+        It is distinct from ImageCanvas' contentPaintRequested() signal in that
+        it is not emitted when e.g. the selection marquee changes.
+    */
     void contentsModified();
 
 public slots:
@@ -173,12 +196,17 @@ public slots:
     void importSwatch(SwatchImportFormat format, const QUrl &swatchUrl);
     void exportSwatch(const QUrl &swatchUrl);
 
+    virtual void beginLivePreview();
+    virtual void endLivePreview(LivePreviewModificationAction modificationAction);
+
 protected:
     void error(const QString &message);
 
     virtual void doLoad(const QUrl &url);
     virtual void doClose();
     virtual bool doSaveAs(const QUrl &url);
+
+    bool warnIfLivePreviewNotActive(const QString &actionName) const;
 
     void setComposingMacro(bool composingMacro, const QString &macroText = QString());
 
@@ -212,6 +240,9 @@ protected:
     QUrl mUrl;
     QTemporaryDir mTempDir;
     bool mUsingTempImage;
+
+    bool mLivePreviewActive;
+    LivePreviewModification mCurrentLivePreviewModification;
 
     QUndoStack mUndoStack;
     bool mComposingMacro;
