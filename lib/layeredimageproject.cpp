@@ -139,12 +139,9 @@ void LayeredImageProject::doSetImageSize(const QVector<QImage> &newImages)
 {
     Q_ASSERT(newImages.size() == mLayers.size());
 
-    const QSize previousSize = size();
-
     for (int i = 0; i < newImages.size(); ++i) {
         const QImage newImage = newImages.at(i);
         Q_ASSERT(!newImage.isNull());
-        Q_ASSERT(newImage.size() != previousSize);
 
         ImageLayer *layer = mLayers.at(i);
         *layer->image() = newImage;
@@ -467,7 +464,7 @@ void LayeredImageProject::beginLivePreview()
     // when the first modification is made.
 }
 
-void LayeredImageProject::endLivePreview(LivePreviewModificatonAction modificationAction)
+void LayeredImageProject::endLivePreview(LivePreviewModificationAction modificationAction)
 {
     qCDebug(lcLivePreview) << "endLivePreview called with modificationAction" << modificationAction;
 
@@ -504,11 +501,6 @@ void LayeredImageProject::endLivePreview(LivePreviewModificatonAction modificati
         case LivePreviewModification::Resize:
             beginMacro(QLatin1String("ChangeLayeredImageSize"));
             addChange(new ChangeLayeredImageSizeCommand(this, mLayerImagesBeforeLivePreview, newImages));
-            endMacro();
-            break;
-        case LivePreviewModification::Crop:
-            beginMacro(QLatin1String("CropLayeredImageCanvas"));
-            addChange(new ChangeLayeredImageCanvasSizeCommand(this, mLayerImagesBeforeLivePreview, newImages));
             endMacro();
             break;
         case LivePreviewModification::MoveContents:
@@ -775,23 +767,26 @@ void LayeredImageProject::resize(int width, int height)
 
 void LayeredImageProject::crop(const QRect &rect)
 {
-    if (warnIfLivePreviewNotActive(QLatin1String("crop")))
-        return;
-
     if (rect.x() == 0 && rect.y() == 0 && rect.size() == size()) {
         // No change.
         return;
     }
 
+    QVector<QImage> previousImages;
+    previousImages.reserve(mLayers.size());
     QVector<QImage> newImages;
     newImages.reserve(mLayers.size());
 
-    for (const QImage &originalLayerImage : qAsConst(mLayerImagesBeforeLivePreview)) {
-        const QImage cropped = originalLayerImage.copy(rect);
+    for (const ImageLayer *layer : qAsConst(mLayers)) {
+        previousImages.append(*layer->image());
+
+        const QImage cropped = layer->image()->copy(rect);
         newImages.append(cropped);
     }
 
-    makeLivePreviewModification(LivePreviewModification::Crop, newImages);
+    beginMacro(QLatin1String("CropLayeredImageCanvas"));
+    addChange(new ChangeLayeredImageCanvasSizeCommand(this, previousImages, newImages));
+    endMacro();
 }
 
 void LayeredImageProject::moveContents(int xDistance, int yDistance, bool onlyVisibleContents)
@@ -971,15 +966,6 @@ void LayeredImageProject::removeAnimation(int index)
 bool LayeredImageProject::isValidIndex(int index) const
 {
     return index >= 0 && index < mLayers.size();
-}
-
-bool LayeredImageProject::warnIfLivePreviewNotActive(const QString &actionName) const
-{
-    if (!mLivePreviewActive) {
-        qWarning() << "Cannot" << actionName << "as live preview isn't active";
-        return true;
-    }
-    return false;
 }
 
 void LayeredImageProject::makeLivePreviewModification(LivePreviewModification modification, const QVector<QImage> &newImages)

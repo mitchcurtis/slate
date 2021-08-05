@@ -141,6 +141,20 @@ public:
 
     Q_ENUM(SwatchImportFormat)
 
+    enum LivePreviewModificationAction {
+        RollbackModification,
+        CommitModificaton
+    };
+    Q_ENUM(LivePreviewModificationAction);
+
+    enum class LivePreviewModification {
+        None,
+        Resize,
+        MoveContents
+    };
+    // We need Q_ENUM in order to print the enum, and Q_ENUM needs to be public.
+    Q_ENUM(LivePreviewModification);
+
 signals:
     void projectCreated();
     void projectLoaded();
@@ -182,12 +196,17 @@ public slots:
     void importSwatch(SwatchImportFormat format, const QUrl &swatchUrl);
     void exportSwatch(const QUrl &swatchUrl);
 
+    virtual void beginLivePreview();
+    virtual void endLivePreview(LivePreviewModificationAction modificationAction);
+
 protected:
     void error(const QString &message);
 
     virtual void doLoad(const QUrl &url);
     virtual void doClose();
     virtual bool doSaveAs(const QUrl &url);
+
+    bool warnIfLivePreviewNotActive(const QString &actionName) const;
 
     void setComposingMacro(bool composingMacro, const QString &macroText = QString());
 
@@ -221,6 +240,9 @@ protected:
     QUrl mUrl;
     QTemporaryDir mTempDir;
     bool mUsingTempImage;
+
+    bool mLivePreviewActive;
+    LivePreviewModification mCurrentLivePreviewModification;
 
     QUndoStack mUndoStack;
     bool mComposingMacro;

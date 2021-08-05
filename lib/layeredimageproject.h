@@ -76,21 +76,6 @@ public:
 
     Q_INVOKABLE void exportGif(const QUrl &url);
 
-    enum LivePreviewModificatonAction {
-        RollbackModification,
-        CommitModificaton
-    };
-    Q_ENUM(LivePreviewModificatonAction);
-
-    enum class LivePreviewModification {
-        None,
-        Resize,
-        Crop,
-        MoveContents
-    };
-    // We need Q_ENUM in order to print the enum, and Q_ENUM needs to be public.
-    Q_ENUM(LivePreviewModification);
-
 signals:
     void currentLayerIndexChanged();
     void preCurrentLayerChanged();
@@ -115,8 +100,8 @@ signals:
 public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
 
-    void beginLivePreview();
-    void endLivePreview(LivePreviewModificatonAction modificationAction);
+    void beginLivePreview() override;
+    void endLivePreview(LivePreviewModificationAction modificationAction) override;
 
     bool exportImage(const QUrl &url);
     void resize(int width, int height);
@@ -170,7 +155,6 @@ private:
 
     bool isValidIndex(int index) const;
 
-    bool warnIfLivePreviewNotActive(const QString &actionName) const;
     // This should be called by slots each time a change is made in the relevant dialog.
     void makeLivePreviewModification(LivePreviewModification modification, const QVector<QImage> &newImages);
 
@@ -200,9 +184,7 @@ private:
     // Only modifications that require dialogs are supported.
     // Modifications that affect anything besides the layer's image (like opacity)
     // are not supported; that would require us to store layers instead.
-    bool mLivePreviewActive = false;
     QVector<QImage> mLayerImagesBeforeLivePreview;
-    LivePreviewModification mCurrentLivePreviewModification = LivePreviewModification::None;
 
     bool mAutoExportEnabled;
 

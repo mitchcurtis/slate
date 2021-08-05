@@ -138,6 +138,11 @@ QImage Utils::moveContents(const QImage &image, int xDistance, int yDistance)
     return translated;
 }
 
+QImage Utils::resizeContents(const QImage &image, int newWidth, int newHeight)
+{
+    return image.scaled(QSize(newWidth, newHeight), Qt::IgnoreAspectRatio, Qt::FastTransformation);
+}
+
 void Utils::strokeRectWithDashes(QPainter *painter, const QRect &rect)
 {
     static const QColor greyColour(0, 0, 0, 180);

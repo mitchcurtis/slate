@@ -39,13 +39,14 @@ Dialog {
     }
 
     onAboutToShow: {
-        if (project) {
-            xDistanceSpinBox.value = 0
-            yDistanceSpinBox.value = 0
-            xDistanceSpinBox.contentItem.forceActiveFocus()
+        if (!project)
+            return
 
-            project.beginLivePreview()
-        }
+        xDistanceSpinBox.value = 0
+        yDistanceSpinBox.value = 0
+        xDistanceSpinBox.contentItem.forceActiveFocus()
+
+        project.beginLivePreview()
     }
 
     onAccepted: project.endLivePreview(LayeredImageProject.CommitModificaton)

@@ -278,7 +278,7 @@ protected:
     Q_REQUIRED_RESULT bool zoomTo(int zoomLevel);
     Q_REQUIRED_RESULT bool zoomTo(int zoomLevel, const QPoint &pos);
     Q_REQUIRED_RESULT bool changeCanvasSize(int width, int height, CloseDialogFlag closeDialog = CloseDialog);
-    Q_REQUIRED_RESULT bool changeImageSize(int width, int height);
+    Q_REQUIRED_RESULT bool changeImageSize(int width, int height, bool preserveAspectRatio = false);
     Q_REQUIRED_RESULT bool changeToolSize(int size);
     Q_REQUIRED_RESULT bool changeToolShape(ImageCanvas::ToolShape toolShape);
     Q_REQUIRED_RESULT bool moveContents(int x, int y, bool onlyVisibleLayers);

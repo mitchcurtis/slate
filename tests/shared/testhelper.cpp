@@ -523,8 +523,10 @@ bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDi
     return true;
 }
 
-bool TestHelper::changeImageSize(int width, int height)
+bool TestHelper::changeImageSize(int width, int height, bool preserveAspectRatio)
 {
+    const QImage originalContents = project->exportedImage();
+
     // Open the image size popup.
     if (!clickButton(imageSizeToolButton))
         return false;
@@ -532,21 +534,42 @@ bool TestHelper::changeImageSize(int width, int height)
     VERIFY(imageSizePopup);
     VERIFY(imageSizePopup->property("visible").toBool());
 
+    // Check/uncheck the preserve aspect ratio button if necessary.
+    QQuickItem *preserveAspectRatioButton = imageSizePopup->findChild<QQuickItem*>("preserveAspectRatioButton");
+    VERIFY(preserveAspectRatioButton);
+    if (preserveAspectRatioButton->property("checked").toBool() != preserveAspectRatio) {
+        if (!clickButton(preserveAspectRatioButton))
+            return false;
+        VERIFY(preserveAspectRatioButton->property("checked").toBool() == preserveAspectRatio);
+    }
+
     // Change the values and then cancel.
-    // TODO: use actual input events...
     QQuickItem *widthSpinBox = imageSizePopup->findChild<QQuickItem*>("changeImageWidthSpinBox");
     VERIFY(widthSpinBox);
     // We want it to be easy to change the values with the keyboard..
     VERIFY(widthSpinBox->hasActiveFocus());
     const int originalWidthSpinBoxValue = widthSpinBox->property("value").toInt();
-    VERIFY(widthSpinBox->setProperty("value", originalWidthSpinBoxValue + 1));
-    VERIFY(widthSpinBox->property("value").toInt() == originalWidthSpinBoxValue + 1);
+    QQuickItem *widthSpinBoxTextInput = widthSpinBox->property("contentItem").value<QQuickItem*>();
+    VERIFY(widthSpinBoxTextInput);
+    const EnterTextFlags enterTextFlags = EnterTextFlag::ClearTextFirst | EnterTextFlag::CompareAsIntegers;
+    if (!enterText(widthSpinBoxTextInput, QString::number(originalWidthSpinBoxValue + 1), enterTextFlags))
+        return false;
 
     QQuickItem *heightSpinBox = imageSizePopup->findChild<QQuickItem*>("changeImageHeightSpinBox");
     const int originalHeightSpinBoxValue = heightSpinBox->property("value").toInt();
     VERIFY(heightSpinBox);
-    VERIFY(heightSpinBox->setProperty("value", originalHeightSpinBoxValue - 1));
-    VERIFY(heightSpinBox->property("value").toInt() == originalHeightSpinBoxValue - 1);
+    QQuickItem *heightSpinBoxTextInput = heightSpinBox->property("contentItem").value<QQuickItem*>();
+    VERIFY(heightSpinBoxTextInput);
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterText(heightSpinBoxTextInput, QString::number(originalHeightSpinBoxValue - 1), enterTextFlags))
+        return false;
+    // Tab again because we want the focus to leave the text input so that valueModified is emitted.
+    QTest::keyClick(window, Qt::Key_Tab);
+
+    // Check that the live preview has changed.
+    QImage resizedContents = Utils::resizeContents(originalContents, originalWidthSpinBoxValue + 1, originalWidthSpinBoxValue - 1);
+    if (!compareImages(project->exportedImage(), resizedContents, "live preview should show resized contents (before cancelling)"))
+        return false;
 
     QQuickItem *cancelButton = imageSizePopup->findChild<QQuickItem*>("imageSizePopupCancelButton");
     VERIFY(cancelButton);
@@ -555,6 +578,8 @@ bool TestHelper::changeImageSize(int width, int height)
     TRY_VERIFY(!imageSizePopup->property("visible").toBool());
     VERIFY(project->size().width() == originalWidthSpinBoxValue);
     VERIFY(project->size().height() == originalHeightSpinBoxValue);
+    if (!compareImages(project->exportedImage(), originalContents, "live preview should show original contents (after cancelling)"))
+        return false;
 
     // Open the popup again.
     if (!clickButton(imageSizeToolButton))
@@ -565,11 +590,26 @@ bool TestHelper::changeImageSize(int width, int height)
     VERIFY(widthSpinBox->property("value").toInt() == originalWidthSpinBoxValue);
     VERIFY(heightSpinBox->property("value").toInt() == originalHeightSpinBoxValue);
 
+    // Check/uncheck the preserve aspect ratio button if necessary.
+    if (preserveAspectRatioButton->property("checked").toBool() != preserveAspectRatio) {
+        if (!clickButton(preserveAspectRatioButton))
+            return false;
+        VERIFY(preserveAspectRatioButton->property("checked").toBool() == preserveAspectRatio);
+    }
+
     // Change the values and then press OK.
-    VERIFY(widthSpinBox->setProperty("value", width));
-    VERIFY(widthSpinBox->property("value").toInt() == width);
-    VERIFY(heightSpinBox->setProperty("value", height));
-    VERIFY(heightSpinBox->property("value").toInt() == height);
+    if (!enterText(widthSpinBoxTextInput, QString::number(width), enterTextFlags))
+        return false;
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterText(heightSpinBoxTextInput, QString::number(height), enterTextFlags))
+        return false;
+    // Tab again because we want the focus to leave the text input so that valueModified is emitted.
+    QTest::keyClick(window, Qt::Key_Tab);
+
+    // Check that the preview has changed.
+    resizedContents = Utils::resizeContents(originalContents, width, height);
+    if (!compareImages(project->exportedImage(), resizedContents, "live preview should show resized contents (before accepting)"))
+        return false;
 
     QQuickItem *okButton = imageSizePopup->findChild<QQuickItem*>("imageSizePopupOkButton");
     VERIFY(okButton);
@@ -580,6 +620,8 @@ bool TestHelper::changeImageSize(int width, int height)
     VERIFY(project->size().height() == height);
     VERIFY(widthSpinBox->property("value").toInt() == width);
     VERIFY(heightSpinBox->property("value").toInt() == height);
+    if (!compareImages(project->exportedImage(), resizedContents, "image contents should be resized (after accepting)"))
+        return false;
 
     return true;
 }
@@ -675,11 +717,6 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     VERIFY(moveContentsDialog);
     TRY_VERIFY(moveContentsDialog->property("opened").toBool());
 
-    // Grab the canvas to compare against it later on.
-    VERIFY(imageGrabber.requestImage(canvas));
-    TRY_VERIFY(imageGrabber.isReady());
-    const QImage originalCanvasGrab = imageGrabber.takeImage();
-
     // Change the values and then cancel.
     QQuickItem *moveContentsXSpinBox = moveContentsDialog->findChild<QQuickItem*>("moveContentsXSpinBox");
     VERIFY(moveContentsXSpinBox);
@@ -752,7 +789,7 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     if (!clickButton(okButton))
         return false;
     TRY_VERIFY(!moveContentsDialog->property("visible").toBool());
-    if (!compareImages(project->exportedImage(), movedContents, "live preview should show moved contents (after accepting)"))
+    if (!compareImages(project->exportedImage(), movedContents, "image contents should be moved (after accepting)"))
         return false;
     VERIFY(moveContentsXSpinBox->property("value").toInt() == x);
     VERIFY(moveContentsYSpinBox->property("value").toInt() == y);
@@ -993,7 +1030,25 @@ bool TestHelper::fuzzyColourCompare(const QColor &actualColour, const QColor &ex
 
 bool TestHelper::fuzzyImageCompare(const QImage &actualImage, const QImage &expectedImage, int fuzz, const QString &context)
 {
-    COMPARE_NON_FLOAT(actualImage.size(), expectedImage.size());
+    auto saveImagesToPwd = [=](){
+        const QString actualImageFilePath = QDir().absolutePath() + '/' + QTest::currentTestFunction() + QLatin1String("-actual.png");
+        const QString expectedImageFilePath = QDir().absolutePath() + '/' + QTest::currentTestFunction() + QLatin1String("-expected.png");
+        qInfo() << "Saving actual and expected images to" << actualImageFilePath << "and" << expectedImageFilePath;
+        actualImage.save(actualImageFilePath);
+        expectedImage.save(expectedImageFilePath);
+    };
+
+    if (actualImage.size() != expectedImage.size()) {
+        if (!context.isEmpty())
+            failureMessage = QString::fromLatin1("Failure comparing images (%1):").arg(context).toLatin1();
+
+        failureMessage += QString::fromLatin1(" actual size %1 is not the same as expected size %2")
+            .arg(Utils::toString(actualImage.size())).arg(Utils::toString(expectedImage.size())).toLatin1();
+
+        saveImagesToPwd();
+
+        return false;
+    }
 
     for (int y = 0; y < actualImage.height(); ++y) {
         for (int x = 0; x < actualImage.width(); ++x) {
@@ -1003,11 +1058,7 @@ bool TestHelper::fuzzyImageCompare(const QImage &actualImage, const QImage &expe
                 failureMessage = QString::fromLatin1("Failure comparing pixels%1 at (%2, %3):%4")
                     .arg(contextStr).arg(x).arg(y).arg(QString::fromLatin1(failureMessage)).toLatin1();
 
-                const QString actualImageFilePath = QDir().absolutePath() + '/' + QTest::currentTestFunction() + QLatin1String("-actual.png");
-                const QString expectedImageFilePath = QDir().absolutePath() + '/' + QTest::currentTestFunction() + QLatin1String("-expected.png");
-                qInfo() << "Saving actual and expected images to" << actualImageFilePath << "and" << expectedImageFilePath;
-                actualImage.save(actualImageFilePath);
-                expectedImage.save(expectedImageFilePath);
+                saveImagesToPwd();
 
                 return false;
             }

@@ -33,16 +33,24 @@ Dialog {
 
     property Project project
 
-    onVisibleChanged: {
-        if (visible && project) {
-            widthSpinBox.value = project.size.width;
-            heightSpinBox.value = project.size.height;
-            smoothCheckBox.checked = false;
-            widthSpinBox.contentItem.forceActiveFocus();
-        }
+    function updateLivePreview() {
+        project.resize(widthSpinBox.value, heightSpinBox.value, smoothCheckBox.checked)
     }
 
-    onAccepted: project.resize(widthSpinBox.value, heightSpinBox.value, smoothCheckBox.checked)
+    onAboutToShow: {
+        if (!project)
+            return
+
+        widthSpinBox.value = project.size.width
+        heightSpinBox.value = project.size.height
+        smoothCheckBox.checked = false
+        widthSpinBox.contentItem.forceActiveFocus()
+
+        project.beginLivePreview()
+    }
+
+    onAccepted: project.endLivePreview(LayeredImageProject.CommitModificaton)
+    onRejected: project.endLivePreview(LayeredImageProject.RollbackModification)
 
     contentItem: ColumnLayout {
         Item {
@@ -146,6 +154,7 @@ Dialog {
                         var aspectRatio = project.size.width / project.size.height
                         heightSpinBox.value = value / aspectRatio
                     }
+                    root.updateLivePreview()
                 }
             }
 
@@ -186,6 +195,7 @@ Dialog {
                         var aspectRatio = project.size.width / project.size.height
                         widthSpinBox.value = value * aspectRatio
                     }
+                    root.updateLivePreview()
                 }
             }
 
@@ -206,6 +216,8 @@ Dialog {
                 ToolTip.visible: hovered
                 ToolTip.delay: UiConstants.toolTipDelay
                 ToolTip.timeout: UiConstants.toolTipTimeout
+
+                onToggled: root.updateLivePreview()
             }
 
             Item {
