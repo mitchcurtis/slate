@@ -293,21 +293,41 @@ void TestHelper::lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScene
     }
 }
 
-bool TestHelper::clearAndEnterText(QQuickItem *textField, const QString &text)
+// Could make this hasActiveFocus(), but the line number in the failure message is
+// better if the calling code does the verification.
+QByteArray TestHelper::activeFocusFailureMessage(QQuickItem *item)
+{
+    return QString::fromLatin1("Expected text input %1 to have focus, but %2 has it instead")
+        .arg(detailedObjectName(item)).arg(detailedObjectName(window->activeFocusItem())).toLatin1();
+}
+
+bool TestHelper::enterText(QQuickItem *textField, const QString &text, EnterTextFlags flags)
 {
     VERIFY(textField->property("text").isValid());
-    VERIFY(textField->hasActiveFocus());
+    VERIFY2(textField->hasActiveFocus(), activeFocusFailureMessage(textField));
 
-    if (!textField->property("text").toString().isEmpty()) {
+    if (flags.testFlag(EnterTextFlag::ClearTextFirst) && !textField->property("text").toString().isEmpty()) {
         QTest::keySequence(window, QKeySequence::SelectAll);
         VERIFY(!textField->property("selectedText").toString().isEmpty());
 
-        QTest::keySequence(window, QKeySequence::Backspace);
-        VERIFY(textField->property("text").toString().isEmpty());
+        QTest::keySequence(window, Qt::Key_Backspace);
+        VERIFY2(textField->property("text").toString().isEmpty(),
+            QString::fromLatin1("Expected the text of %1 to be empty, but it's %2")
+                .arg(detailedObjectName(textField)).arg(textField->property("text").toString()));
     }
 
     keyClicks(text);
-    VERIFY(textField->property("text").toString() == text);
+    const QString textFieldText = textField->property("text").toString();
+    if (flags.testFlag(EnterTextFlag::CompareAsIntegers)) {
+        bool convertedTextToIntSuccessfully = false;
+        const int actualTextAsInt = textFieldText.toInt(&convertedTextToIntSuccessfully);
+        VERIFY(convertedTextToIntSuccessfully);
+        const int expectedTextAsInt = text.toInt(&convertedTextToIntSuccessfully);
+        VERIFY(convertedTextToIntSuccessfully);
+        COMPARE_NON_FLOAT(actualTextAsInt, expectedTextAsInt);
+    } else {
+        COMPARE_NON_FLOAT(textFieldText, text);
+    }
     return true;
 }
 
@@ -390,6 +410,54 @@ bool TestHelper::clickDialogFooterButton(const QObject *dialog, const QString &b
     return true;
 }
 
+QString TestHelper::detailedObjectName(QObject *object)
+{
+    if (!object)
+        return QLatin1String("null");
+
+    static int detailedObjectNameDepth = -1;
+    if (detailedObjectNameDepth == -1) {
+        const QByteArray envVar = qgetenv("DETAILED_OBJECT_NAME_DEPTH");
+        if (!envVar.isEmpty()) {
+            bool converted = false;
+            const int depth = envVar.toInt(&converted);
+            if (converted)
+                detailedObjectNameDepth = depth;
+        }
+        if (detailedObjectNameDepth == -1)
+            detailedObjectNameDepth = 4;
+    }
+
+    QString name = object->objectName();
+    // If the object doesn't have a name, use its QDebug operator<<.
+    if (name.isEmpty())
+        name = QDebug::toString(object);
+
+    // If the parent is null, try the QQuickItem parent instead.
+    QObject *parent = object->parent();
+    if (!parent) {
+        auto asItem = qobject_cast<QQuickItem*>(object);
+        if (asItem)
+            parent = asItem->parentItem();
+    }
+
+    int depth = 0;
+    while (parent && depth++ <= detailedObjectNameDepth) {
+        QString parentObjectName = parent->objectName();
+        if (parentObjectName.isEmpty())
+            parentObjectName = QDebug::toString(parent);
+        name.prepend(parentObjectName + " => ");
+
+        parent = parent->parent();
+        if (!parent) {
+            auto parentAsItem = qobject_cast<QQuickItem*>(parent);
+            if (parentAsItem)
+                parent = parentAsItem->parentItem();
+        }
+    }
+    return name;
+}
+
 bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDialog)
 {
     // Open the canvas size popup.
@@ -457,8 +525,10 @@ bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDi
     return true;
 }
 
-bool TestHelper::changeImageSize(int width, int height)
+bool TestHelper::changeImageSize(int width, int height, bool preserveAspectRatio)
 {
+    const QImage originalContents = project->exportedImage();
+
     // Open the image size popup.
     if (!clickButton(imageSizeToolButton))
         return false;
@@ -466,21 +536,44 @@ bool TestHelper::changeImageSize(int width, int height)
     VERIFY(imageSizePopup);
     VERIFY(imageSizePopup->property("visible").toBool());
 
+    // Check/uncheck the preserve aspect ratio button if necessary.
+    QQuickItem *preserveAspectRatioButton = imageSizePopup->findChild<QQuickItem*>("preserveAspectRatioButton");
+    VERIFY(preserveAspectRatioButton);
+    if (preserveAspectRatioButton->property("checked").toBool() != preserveAspectRatio) {
+        QTest::qWait(1000);
+        if (!clickButton(preserveAspectRatioButton))
+            return false;
+        QTest::qWait(1000);
+        COMPARE_NON_FLOAT(preserveAspectRatioButton->property("checked").toBool(), preserveAspectRatio);
+    }
+
     // Change the values and then cancel.
-    // TODO: use actual input events...
     QQuickItem *widthSpinBox = imageSizePopup->findChild<QQuickItem*>("changeImageWidthSpinBox");
     VERIFY(widthSpinBox);
     // We want it to be easy to change the values with the keyboard..
     VERIFY(widthSpinBox->hasActiveFocus());
     const int originalWidthSpinBoxValue = widthSpinBox->property("value").toInt();
-    VERIFY(widthSpinBox->setProperty("value", originalWidthSpinBoxValue + 1));
-    VERIFY(widthSpinBox->property("value").toInt() == originalWidthSpinBoxValue + 1);
+    QQuickItem *widthSpinBoxTextInput = widthSpinBox->property("contentItem").value<QQuickItem*>();
+    VERIFY(widthSpinBoxTextInput);
+    const EnterTextFlags enterTextFlags = EnterTextFlag::ClearTextFirst | EnterTextFlag::CompareAsIntegers;
+    if (!enterText(widthSpinBoxTextInput, QString::number(originalWidthSpinBoxValue + 1), enterTextFlags))
+        return false;
 
     QQuickItem *heightSpinBox = imageSizePopup->findChild<QQuickItem*>("changeImageHeightSpinBox");
     const int originalHeightSpinBoxValue = heightSpinBox->property("value").toInt();
     VERIFY(heightSpinBox);
-    VERIFY(heightSpinBox->setProperty("value", originalHeightSpinBoxValue - 1));
-    VERIFY(heightSpinBox->property("value").toInt() == originalHeightSpinBoxValue - 1);
+    QQuickItem *heightSpinBoxTextInput = heightSpinBox->property("contentItem").value<QQuickItem*>();
+    VERIFY(heightSpinBoxTextInput);
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterText(heightSpinBoxTextInput, QString::number(originalHeightSpinBoxValue - 1), enterTextFlags))
+        return false;
+    // Tab again because we want the focus to leave the text input so that valueModified is emitted.
+    QTest::keyClick(window, Qt::Key_Tab);
+
+    // Check that the live preview has changed.
+    QImage resizedContents = Utils::resizeContents(originalContents, originalWidthSpinBoxValue + 1, originalWidthSpinBoxValue - 1);
+    if (!compareImages(project->exportedImage(), resizedContents, "live preview should show resized contents (before cancelling)"))
+        return false;
 
     QQuickItem *cancelButton = imageSizePopup->findChild<QQuickItem*>("imageSizePopupCancelButton");
     VERIFY(cancelButton);
@@ -489,6 +582,8 @@ bool TestHelper::changeImageSize(int width, int height)
     TRY_VERIFY(!imageSizePopup->property("visible").toBool());
     VERIFY(project->size().width() == originalWidthSpinBoxValue);
     VERIFY(project->size().height() == originalHeightSpinBoxValue);
+    if (!compareImages(project->exportedImage(), originalContents, "live preview should show original contents (after cancelling)"))
+        return false;
 
     // Open the popup again.
     if (!clickButton(imageSizeToolButton))
@@ -499,11 +594,26 @@ bool TestHelper::changeImageSize(int width, int height)
     VERIFY(widthSpinBox->property("value").toInt() == originalWidthSpinBoxValue);
     VERIFY(heightSpinBox->property("value").toInt() == originalHeightSpinBoxValue);
 
+    // Check/uncheck the preserve aspect ratio button if necessary.
+    if (preserveAspectRatioButton->property("checked").toBool() != preserveAspectRatio) {
+        if (!clickButton(preserveAspectRatioButton))
+            return false;
+        VERIFY(preserveAspectRatioButton->property("checked").toBool() == preserveAspectRatio);
+    }
+
     // Change the values and then press OK.
-    VERIFY(widthSpinBox->setProperty("value", width));
-    VERIFY(widthSpinBox->property("value").toInt() == width);
-    VERIFY(heightSpinBox->setProperty("value", height));
-    VERIFY(heightSpinBox->property("value").toInt() == height);
+    if (!enterText(widthSpinBoxTextInput, QString::number(width), enterTextFlags))
+        return false;
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterText(heightSpinBoxTextInput, QString::number(height), enterTextFlags))
+        return false;
+    // Tab again because we want the focus to leave the text input so that valueModified is emitted.
+    QTest::keyClick(window, Qt::Key_Tab);
+
+    // Check that the preview has changed.
+    resizedContents = Utils::resizeContents(originalContents, width, height);
+    if (!compareImages(project->exportedImage(), resizedContents, "live preview should show resized contents (before accepting)"))
+        return false;
 
     QQuickItem *okButton = imageSizePopup->findChild<QQuickItem*>("imageSizePopupOkButton");
     VERIFY(okButton);
@@ -514,6 +624,8 @@ bool TestHelper::changeImageSize(int width, int height)
     VERIFY(project->size().height() == height);
     VERIFY(widthSpinBox->property("value").toInt() == width);
     VERIFY(heightSpinBox->property("value").toInt() == height);
+    if (!compareImages(project->exportedImage(), resizedContents, "image contents should be resized (after accepting)"))
+        return false;
 
     return true;
 }
@@ -610,27 +722,40 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     TRY_VERIFY(moveContentsDialog->property("opened").toBool());
 
     // Change the values and then cancel.
-    // TODO: use actual input events...
     QQuickItem *moveContentsXSpinBox = moveContentsDialog->findChild<QQuickItem*>("moveContentsXSpinBox");
     VERIFY(moveContentsXSpinBox);
     // We want it to be easy to change the values with the keyboard..
     VERIFY(moveContentsXSpinBox->hasActiveFocus());
     const int originalXSpinBoxValue = moveContentsXSpinBox->property("value").toInt();
-    VERIFY(moveContentsXSpinBox->setProperty("value", originalXSpinBoxValue + 1));
-    VERIFY(moveContentsXSpinBox->property("value").toInt() == originalXSpinBoxValue + 1);
+    QQuickItem *moveContentsXSpinBoxTextInput = moveContentsXSpinBox->property("contentItem").value<QQuickItem*>();
+    VERIFY(moveContentsXSpinBoxTextInput);
+    const EnterTextFlags enterTextFlags = EnterTextFlag::ClearTextFirst | EnterTextFlag::CompareAsIntegers;
+    if (!enterText(moveContentsXSpinBoxTextInput, QString::number(originalXSpinBoxValue + 1), enterTextFlags))
+        return false;
 
     QQuickItem *moveContentsYSpinBox = moveContentsDialog->findChild<QQuickItem*>("moveContentsYSpinBox");
-    const int originalYSpinBoxValue = moveContentsYSpinBox->property("value").toInt();
     VERIFY(moveContentsYSpinBox);
-    VERIFY(moveContentsYSpinBox->setProperty("value", originalYSpinBoxValue - 1));
-    VERIFY(moveContentsYSpinBox->property("value").toInt() == originalYSpinBoxValue - 1);
+    const int originalYSpinBoxValue = moveContentsYSpinBox->property("value").toInt();
+    QQuickItem *moveContentsYSpinBoxTextInput = moveContentsYSpinBox->property("contentItem").value<QQuickItem*>();
+    VERIFY(moveContentsYSpinBoxTextInput);
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterText(moveContentsYSpinBoxTextInput, QString::number(originalYSpinBoxValue - 1), enterTextFlags))
+        return false;
+    // Tab again because we want the focus to leave the text input so that valueModified is emitted.
+    QTest::keyClick(window, Qt::Key_Tab);
+
+    // Check that the live preview has changed.
+    QImage movedContents = Utils::moveContents(originalContents, 1, -1);
+    if (!compareImages(project->exportedImage(), movedContents, "live preview should show moved contents (before cancelling)"))
+        return false;
 
     QQuickItem *cancelButton = moveContentsDialog->findChild<QQuickItem*>("moveContentsDialogCancelButton");
     VERIFY(cancelButton);
     if (!clickButton(cancelButton))
         return false;
     TRY_VERIFY(!moveContentsDialog->property("visible").toBool());
-    VERIFY(project->exportedImage() == originalContents);
+    if (!compareImages(project->exportedImage(), originalContents, "live preview should show unmoved contents (after cancelling)"))
+        return false;
 
     // Open the dialog again.
     VERIFY(triggerShortcut("moveContentsShortcut", app.settings()->moveContentsShortcut()));
@@ -640,10 +765,18 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     VERIFY(moveContentsYSpinBox->property("value").toInt() == originalYSpinBoxValue);
 
     // Change the values and then press OK.
-    VERIFY(moveContentsXSpinBox->setProperty("value", x));
-    VERIFY(moveContentsXSpinBox->property("value").toInt() == x);
-    VERIFY(moveContentsYSpinBox->setProperty("value", y));
-    VERIFY(moveContentsYSpinBox->property("value").toInt() == y);
+    if (!enterText(moveContentsXSpinBoxTextInput, QString::number(x), enterTextFlags))
+        return false;
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterText(moveContentsYSpinBoxTextInput, QString::number(y), enterTextFlags))
+        return false;
+    // Tab again because we want the focus to leave the text input so that valueModified is emitted.
+    QTest::keyClick(window, Qt::Key_Tab);
+
+    // Check that the preview has changed.
+    movedContents = Utils::moveContents(originalContents, x, y);
+    if (!compareImages(project->exportedImage(), movedContents, "live preview should show moved contents (before accepting)"))
+        return false;
 
     if (onlyVisibleLayers) {
         QQuickItem *onlyMoveVisibleLayersCheckBox = moveContentsDialog->findChild<QQuickItem*>("onlyMoveVisibleLayersCheckBox");
@@ -655,19 +788,13 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
         }
     }
 
-    QImage movedContents(originalContents.size(), QImage::Format_ARGB32_Premultiplied);
-    movedContents.fill(Qt::transparent);
-
-    QPainter painter(&movedContents);
-    painter.drawImage(x, y, originalContents);
-    painter.end();
-
     QQuickItem *okButton = moveContentsDialog->findChild<QQuickItem*>("moveContentsDialogOkButton");
     VERIFY(okButton);
     if (!clickButton(okButton))
         return false;
     TRY_VERIFY(!moveContentsDialog->property("visible").toBool());
-    VERIFY(project->exportedImage() == movedContents);
+    if (!compareImages(project->exportedImage(), movedContents, "image contents should be moved (after accepting)"))
+        return false;
     VERIFY(moveContentsXSpinBox->property("value").toInt() == x);
     VERIFY(moveContentsYSpinBox->property("value").toInt() == y);
 
@@ -905,16 +1032,38 @@ bool TestHelper::fuzzyColourCompare(const QColor &actualColour, const QColor &ex
     return true;
 }
 
-bool TestHelper::fuzzyImageCompare(const QImage &actualImage, const QImage &expectedImage, int fuzz)
+bool TestHelper::fuzzyImageCompare(const QImage &actualImage, const QImage &expectedImage, int fuzz, const QString &context)
 {
-    VERIFY(actualImage.size() == expectedImage.size());
+    auto saveImagesToPwd = [=](){
+        const QString actualImageFilePath = QDir().absolutePath() + '/' + QTest::currentTestFunction() + QLatin1String("-actual.png");
+        const QString expectedImageFilePath = QDir().absolutePath() + '/' + QTest::currentTestFunction() + QLatin1String("-expected.png");
+        qInfo() << "Saving actual and expected images to" << actualImageFilePath << "and" << expectedImageFilePath;
+        actualImage.save(actualImageFilePath);
+        expectedImage.save(expectedImageFilePath);
+    };
+
+    if (actualImage.size() != expectedImage.size()) {
+        if (!context.isEmpty())
+            failureMessage = QString::fromLatin1("Failure comparing images (%1):").arg(context).toLatin1();
+
+        failureMessage += QString::fromLatin1(" actual size %1 is not the same as expected size %2")
+            .arg(QDebug::toString(actualImage.size())).arg(QDebug::toString(expectedImage.size())).toLatin1();
+
+        saveImagesToPwd();
+
+        return false;
+    }
 
     for (int y = 0; y < actualImage.height(); ++y) {
         for (int x = 0; x < actualImage.width(); ++x) {
             if (!fuzzyColourCompare(actualImage.pixelColor(x, y), expectedImage.pixelColor(x, y), fuzz)) {
                 // TODO: remove fromLatin1 call for third arg in Qt 6; only added it to workaround ambiguous argument warning
-                failureMessage = QString::fromLatin1("Failure comparing pixels at (%1, %2):%3")
-                    .arg(x).arg(y).arg(QString::fromLatin1(failureMessage)).toLatin1();
+                const QString contextStr = context.isEmpty() ? context : " (" + context + ')';
+                failureMessage = QString::fromLatin1("Failure comparing pixels%1 at (%2, %3):%4")
+                    .arg(contextStr).arg(x).arg(y).arg(QString::fromLatin1(failureMessage)).toLatin1();
+
+                saveImagesToPwd();
+
                 return false;
             }
         }
@@ -923,9 +1072,9 @@ bool TestHelper::fuzzyImageCompare(const QImage &actualImage, const QImage &expe
     return true;
 }
 
-bool TestHelper::compareImages(const QImage &actualImage, const QImage &expectedImage)
+bool TestHelper::compareImages(const QImage &actualImage, const QImage &expectedImage, const QString &context)
 {
-    return fuzzyImageCompare(actualImage, expectedImage, 0);
+    return fuzzyImageCompare(actualImage, expectedImage, 0, context);
 }
 
 bool TestHelper::everyPixelIs(const QImage &image, const QColor &colour)
@@ -1080,7 +1229,7 @@ bool TestHelper::renameSwatchColour(int index, const QString &name)
     // Do the renaming.
     QQuickItem *swatchNameTextField = window->findChild<QQuickItem*>("swatchNameTextField");
     VERIFY(swatchNameTextField);
-    VERIFY2(clearAndEnterText(swatchNameTextField, name), failureMessage);
+    VERIFY2(enterText(swatchNameTextField, name), failureMessage);
     QTest::keyClick(window, Qt::Key_Return);
     TRY_VERIFY(!renameSwatchColourDialog->property("visible").toBool());
     return true;
@@ -1209,7 +1358,7 @@ bool TestHelper::addNewNoteAtCursorPos(const QString &text)
     VERIFY(noteDialogYTextField);
     VERIFY(noteDialogYTextField->property("text").toString() == QString::number(cursorPos.y()));
 
-    VERIFY2(clearAndEnterText(noteDialogTextField, text), failureMessage);
+    VERIFY2(enterText(noteDialogTextField, text), failureMessage);
 
     // Accept the dialog.
     QTest::keyClick(window, Qt::Key_Return);

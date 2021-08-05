@@ -46,6 +46,7 @@ ApplicationWindow {
     property Project project: projectManager.project
     readonly property int projectType: project && projectManager.ready ? project.type : 0
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
+    readonly property bool isLayeredImageProjectType: projectType === Project.LayeredImageType
     property ImageCanvas canvas: canvasContainer.canvas
     property alias newProjectPopup: newProjectPopup
     property alias openProjectDialog: openProjectDialog
@@ -257,7 +258,7 @@ ApplicationWindow {
 
             Loader {
                 objectName: "layersLoader"
-                active: window.projectType === Project.LayeredImageType && window.canvas
+                active: window.isLayeredImageProjectType && window.canvas
                 visible: active
                 sourceComponent: Ui.LayerPanel {
                     layeredImageCanvas: window.canvas
@@ -436,7 +437,7 @@ ApplicationWindow {
         id: moveContentsDialog
         parent: Overlay.overlay
         anchors.centerIn: parent
-        project: projectManager.project
+        project: window.isLayeredImageProjectType ? projectManager.project : null
     }
 
     Ui.TexturedFillSettingsDialog {

@@ -41,6 +41,7 @@ Item {
         width: parent.width / 2
         height: width
         checked: true
+        checkable: true
 
         ToolTip.text: qsTr("Set the foreground colour")
         ToolTip.visible: hovered

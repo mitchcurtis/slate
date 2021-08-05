@@ -177,6 +177,7 @@ ToolBar {
                 objectName: "penToolButton"
                 text: "\uf040"
                 checked: true
+                checkable: true
                 enabled: projectLoaded
 
                 ToolTip.text: qsTr("Draw pixels%1 on the canvas").arg(isTilesetProject ? qsTr(" or tiles") : "")

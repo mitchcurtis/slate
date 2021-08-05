@@ -981,6 +981,7 @@ void ImageCanvas::connectSignals()
     connect(mProject, SIGNAL(preProjectSaved()), this, SLOT(saveState()));
     connect(mProject, SIGNAL(aboutToBeginMacro(QString)),
         this, SLOT(onAboutToBeginMacro(QString)));
+    connect(mProject, SIGNAL(contentsModified()), this, SLOT(requestContentPaint()));
 
     connect(window(), SIGNAL(activeFocusItemChanged()), this, SLOT(updateWindowCursorShape()));
 }
@@ -997,6 +998,7 @@ void ImageCanvas::disconnectSignals()
     mProject->disconnect(SIGNAL(preProjectSaved()), this, SLOT(saveState()));
     mProject->disconnect(SIGNAL(aboutToBeginMacro(QString)),
         this, SLOT(onAboutToBeginMacro(QString)));
+    mProject->disconnect(SIGNAL(contentsModified()), this, SLOT(requestContentPaint()));
 
     if (window()) {
         window()->disconnect(SIGNAL(activeFocusItemChanged()), this, SLOT(updateWindowCursorShape()));

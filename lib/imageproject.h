@@ -62,6 +62,9 @@ signals:
 public slots:
     void createNew(int imageWidth, int imageHeight, bool transparentBackground);
 
+    void beginLivePreview() override;
+    void endLivePreview(LivePreviewModificationAction modificationAction) override;
+
     void resize(int width, int height, bool smooth);
     void crop(const QRect &rect);
 
@@ -85,8 +88,13 @@ private:
     void doSetCanvasSize(const QImage &newImage);
     void doSetImageSize(const QImage &newImage);
 
+    void makeLivePreviewModification(LivePreviewModification modification, const QImage &newImage);
+
     QUrl mImageUrl;
     QImage mImage;
+
+    QImage mImageBeforeLivePreview;
+
     bool mUsingAnimation = false;
     bool mHasUsedAnimation = false;
     AnimationSystem mAnimationSystem;

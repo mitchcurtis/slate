@@ -38,6 +38,8 @@ Project::Project() :
     mSettings(nullptr),
     mFromNew(false),
     mUsingTempImage(false),
+    mLivePreviewActive(false),
+    mCurrentLivePreviewModification(LivePreviewModification::None),
     mComposingMacro(false),
     mHadUnsavedChangesBeforeMacroBegan(false)
 {
@@ -176,6 +178,7 @@ void Project::close()
 
     setNewProject(false);
     setUrl(QUrl());
+    mLivePreviewActive = false;
     mUndoStack.clear();
     mUiState.reset(QVariantMap());
 
@@ -274,6 +277,25 @@ void Project::exportSwatch(const QUrl &swatchUrl)
     const qint64 bytesWritten = jsonFile.write(jsonDoc.toJson());
     if (bytesWritten == -1)
         error(QString::fromLatin1("Failed to write to swatch file:\n\n%1").arg(jsonFile.errorString()));
+}
+
+void Project::beginLivePreview()
+{
+    qWarning() << "This project type doesn't support live preview!";
+}
+
+void Project::endLivePreview(LivePreviewModificationAction /*modificationAction*/)
+{
+    qWarning() << "This project type doesn't support live preview!";
+}
+
+bool Project::warnIfLivePreviewNotActive(const QString &actionName) const
+{
+    if (!mLivePreviewActive) {
+        qWarning() << "Cannot" << actionName << "as live preview isn't active";
+        return true;
+    }
+    return false;
 }
 
 void Project::error(const QString &message)

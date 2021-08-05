@@ -44,6 +44,9 @@
 #include "movelayeredimagecontentscommand.h"
 #include "utils.h"
 
+Q_LOGGING_CATEGORY(lcLivePreview, "app.layeredimageproject.livepreview")
+Q_LOGGING_CATEGORY(lcMoveContents, "app.layeredimageproject.movecontents")
+
 LayeredImageProject::LayeredImageProject() :
     mCurrentLayerIndex(0),
     mLayersCreated(0),
@@ -130,6 +133,26 @@ void LayeredImageProject::setSize(const QSize &newSize)
     beginMacro(QLatin1String("ChangeLayeredImageCanvasSize"));
     addChange(new ChangeLayeredImageCanvasSizeCommand(this, previousImages, newImages));
     endMacro();
+}
+
+void LayeredImageProject::doSetImageSize(const QVector<QImage> &newImages)
+{
+    Q_ASSERT(newImages.size() == mLayers.size());
+
+    for (int i = 0; i < newImages.size(); ++i) {
+        const QImage newImage = newImages.at(i);
+        Q_ASSERT(!newImage.isNull());
+
+        ImageLayer *layer = mLayers.at(i);
+        *layer->image() = newImage;
+    }
+
+    emit sizeChanged();
+}
+
+void LayeredImageProject::doSetCanvasSize(const QVector<QImage> &newImages)
+{
+    doSetImageSize(newImages);
 }
 
 int LayeredImageProject::widthInPixels() const
@@ -416,6 +439,94 @@ void LayeredImageProject::createNew(int imageWidth, int imageHeight, bool transp
     qCDebug(lcProject) << "finished creating new project";
 }
 
+void LayeredImageProject::beginLivePreview()
+{
+    qCDebug(lcLivePreview) << "beginLivePreview called";
+
+    if (mLivePreviewActive) {
+        qWarning() << "Live preview already active";
+        return;
+    }
+
+    // We could do this stuff lazily (when the first modification is made),
+    // but it's better to have any delay from copying happen when
+    // the dialog opens instead of as the sliders etc. are being interacted with.
+
+    mLayerImagesBeforeLivePreview.reserve(mLayers.size());
+
+    for (const ImageLayer *layer : qAsConst(mLayers)) {
+        mLayerImagesBeforeLivePreview.append(*layer->image());
+    }
+
+    mLivePreviewActive = true;
+
+    // Note that mCurrentLivePreviewModification isn't set yet; that happens
+    // when the first modification is made.
+}
+
+void LayeredImageProject::endLivePreview(LivePreviewModificationAction modificationAction)
+{
+    qCDebug(lcLivePreview) << "endLivePreview called with modificationAction" << modificationAction;
+
+    if (!mLivePreviewActive) {
+        qWarning() << "Can't end live preview as it isn't active";
+        return;
+    }
+
+    auto cleanup = [&](){
+        mLayerImagesBeforeLivePreview.clear();
+        mLivePreviewActive = false;
+    };
+
+    if (mCurrentLivePreviewModification == LivePreviewModification::None) {
+        // A dialog was opened but no changes were made.
+        cleanup();
+        return;
+    }
+
+    if (modificationAction == CommitModificaton) {
+        // The dialog was accepted.
+
+        // Live preview does modifications directly to the project's images,
+        // bypassing the undo framework until the changes are confirmed.
+        // The undo commands still need to know the old and new images, though,
+        // so we gather them here.
+        QVector<QImage> newImages;
+        newImages.reserve(mLayers.size());
+        for (const ImageLayer *layer : qAsConst(mLayers)) {
+            newImages.append(*layer->image());
+        }
+
+        switch (mCurrentLivePreviewModification) {
+        case LivePreviewModification::Resize:
+            beginMacro(QLatin1String("ChangeLayeredImageSize"));
+            addChange(new ChangeLayeredImageSizeCommand(this, mLayerImagesBeforeLivePreview, newImages));
+            endMacro();
+            break;
+        case LivePreviewModification::MoveContents:
+            beginMacro(QLatin1String("MoveLayeredImageContents"));
+            addChange(new MoveLayeredImageContentsCommand(this, mLayerImagesBeforeLivePreview, newImages));
+            endMacro();
+            break;
+        case LivePreviewModification::None:
+            qFatal("mCurrentLivePreviewModification is LivePreviewModification::None where it shouldn't be");
+            break;
+        }
+    } else {
+        // The dialog was cancelled.
+        for (int i = 0; i < mLayers.size(); ++i) {
+            ImageLayer *layer = mLayers.at(i);
+            *layer->image() = mLayerImagesBeforeLivePreview.at(i);
+        }
+
+        // The canvas needs to repaint if the dialog was cancelled, since
+        // we're modifying the contents directly.
+        emit contentsModified();
+    }
+
+    cleanup();
+}
+
 #define CONTAINS_KEY_OR_ERROR(jsonObject, key, filePath) \
     if (!(jsonObject).contains(key)) { \
         error(QString::fromLatin1("Layered image project file is missing a \"%1\" key:\n\n%2").arg(key, filePath)); \
@@ -636,26 +747,22 @@ bool LayeredImageProject::exportImage(const QUrl &url)
 
 void LayeredImageProject::resize(int width, int height, bool smooth)
 {
+    if (warnIfLivePreviewNotActive(QLatin1String("resize")))
+        return;
+
     const QSize newSize(width, height);
     if (newSize == size())
         return;
 
-    QVector<QImage> previousImages;
-    previousImages.reserve(mLayers.size());
     QVector<QImage> newImages;
     newImages.reserve(mLayers.size());
 
-    for (const ImageLayer *layer : qAsConst(mLayers)) {
-        previousImages.append(*layer->image());
-
-        const auto transformation = smooth ? Qt::SmoothTransformation : Qt::FastTransformation;
-        const QImage resized = layer->image()->scaled(newSize, Qt::IgnoreAspectRatio, transformation);
+    for (const QImage &originalLayerImage : qAsConst(mLayerImagesBeforeLivePreview)) {
+        const QImage resized = originalLayerImage.scaled(newSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
         newImages.append(resized);
     }
 
-    beginMacro(QLatin1String("ChangeLayeredImageSize"));
-    addChange(new ChangeLayeredImageSizeCommand(this, previousImages, newImages));
-    endMacro();
+    makeLivePreviewModification(LivePreviewModification::Resize, newImages);
 }
 
 void LayeredImageProject::crop(const QRect &rect)
@@ -682,36 +789,46 @@ void LayeredImageProject::crop(const QRect &rect)
     endMacro();
 }
 
-void LayeredImageProject::moveContents(int x, int y, bool onlyVisibleContents)
+void LayeredImageProject::moveContents(int xDistance, int yDistance, bool onlyVisibleContents)
 {
-    if (x == 0 && y == 0)
+    qCDebug(lcMoveContents) << "moveContents called with xDistance" << xDistance
+        << "yDistance" << yDistance << "onlyVisibleContents" << onlyVisibleContents;
+
+    if (warnIfLivePreviewNotActive(QLatin1String("move contents")))
         return;
 
-    QVector<QImage> previousImages;
-    QVector<QImage> newImages;
-    foreach (ImageLayer *layer, mLayers) {
-        const QImage oldImage = *layer->image();
-        previousImages.append(oldImage);
+    if (xDistance == 0 && yDistance == 0)
+        return;
 
-        if (onlyVisibleContents && !layer->isVisible()) {
+    QVector<QImage> newImages;
+    for (int layerIndex = 0; layerIndex < mLayers.size(); ++layerIndex) {
+        const bool layerVisible = mLayers.at(layerIndex)->isVisible();
+        const QImage oldImage = mLayerImagesBeforeLivePreview.at(layerIndex);
+        if (onlyVisibleContents && !layerVisible) {
             // This is lazy and inefficient (we could e.g. store a null QImage),
             // but it avoids adding more code paths elsewhere.
             newImages.append(oldImage);
         } else {
-            QImage translated(size(), QImage::Format_ARGB32_Premultiplied);
-            translated.fill(Qt::transparent);
-
-            QPainter painter(&translated);
-            painter.drawImage(x, y, oldImage);
-            painter.end();
-
-            newImages.append(translated);
+            newImages.append(Utils::moveContents(oldImage, xDistance, yDistance));
         }
     }
 
-    beginMacro(QLatin1String("MoveLayeredImageContents"));
-    addChange(new MoveLayeredImageContentsCommand(this, previousImages, newImages));
-    endMacro();
+    makeLivePreviewModification(LivePreviewModification::MoveContents, newImages);
+}
+
+void LayeredImageProject::doMoveContents(const QVector<QImage> &newImages)
+{
+    Q_ASSERT(newImages.size() == mLayers.size());
+
+    for (int i = 0; i < newImages.size(); ++i) {
+        const QImage newImage = newImages.at(i);
+        Q_ASSERT(!newImage.isNull());
+
+        ImageLayer *layer = mLayers.at(i);
+        *layer->image() = newImage;
+    }
+
+    emit contentsMoved();
 }
 
 void LayeredImageProject::addNewLayer()
@@ -851,47 +968,39 @@ bool LayeredImageProject::isValidIndex(int index) const
     return index >= 0 && index < mLayers.size();
 }
 
+void LayeredImageProject::makeLivePreviewModification(LivePreviewModification modification, const QVector<QImage> &newImages)
+{
+    qCDebug(lcLivePreview) << "makeLivePreviewModification called with modification" << modification;
+
+    if (warnIfLivePreviewNotActive(QLatin1String("make live preview modification")))
+        return;
+
+    if (mCurrentLivePreviewModification == LivePreviewModification::None)
+        mCurrentLivePreviewModification = modification;
+
+    if (modification != mCurrentLivePreviewModification) {
+        qWarning() << "Cannot make live preview modification" << modification << "as it is different"
+            << "to the current modification of" << mCurrentLivePreviewModification;
+        return;
+    }
+
+    Q_ASSERT(newImages.size() == mLayers.size());
+
+    for (int i = 0; i < newImages.size(); ++i) {
+        const QImage newImage = newImages.at(i);
+        Q_ASSERT(!newImage.isNull());
+
+        ImageLayer *layer = mLayers.at(i);
+        *layer->image() = newImage;
+    }
+
+    // Let the canvas know that it should repaint.
+    emit contentsModified();
+}
+
 Project::Type LayeredImageProject::type() const
 {
     return LayeredImageType;
-}
-
-void LayeredImageProject::doSetCanvasSize(const QVector<QImage> &newImages)
-{
-    doSetImageSize(newImages);
-}
-
-void LayeredImageProject::doSetImageSize(const QVector<QImage> &newImages)
-{
-    Q_ASSERT(newImages.size() == mLayers.size());
-
-    const QSize previousSize = size();
-
-    for (int i = 0; i < newImages.size(); ++i) {
-        const QImage newImage = newImages.at(i);
-        Q_ASSERT(!newImage.isNull());
-        Q_ASSERT(newImage.size() != previousSize);
-
-        ImageLayer *layer = mLayers.at(i);
-        *layer->image() = newImage;
-    }
-
-    emit sizeChanged();
-}
-
-void LayeredImageProject::doMoveContents(const QVector<QImage> &newImages)
-{
-    Q_ASSERT(newImages.size() == mLayers.size());
-
-    for (int i = 0; i < newImages.size(); ++i) {
-        const QImage newImage = newImages.at(i);
-        Q_ASSERT(!newImage.isNull());
-
-        ImageLayer *layer = mLayers.at(i);
-        *layer->image() = newImage;
-    }
-
-    emit contentsMoved();
 }
 
 void LayeredImageProject::addNewLayer(int imageWidth, int imageHeight, bool transparent, bool undoable)

@@ -23,6 +23,9 @@
 #include "changeimagesizecommand.h"
 #include "utils.h"
 
+Q_LOGGING_CATEGORY(lcImageProjectLivePreview, "app.imageproject.livepreview")
+Q_LOGGING_CATEGORY(lcResize, "app.imageproject.resize")
+
 ImageProject::ImageProject() :
     mAnimationHelper(this, &mAnimationSystem, &mUsingAnimation)
 {
@@ -97,6 +100,98 @@ void ImageProject::createNew(int imageWidth, int imageHeight, bool transparentBa
     qCDebug(lcProject) << "finished creating new project";
 }
 
+void ImageProject::beginLivePreview()
+{
+    qCDebug(lcImageProjectLivePreview) << "beginLivePreview called";
+
+    if (mLivePreviewActive) {
+        qWarning() << "Live preview already active";
+        return;
+    }
+
+    // We could do this stuff lazily (when the first modification is made),
+    // but it's better to have any delay from copying happen when
+    // the dialog opens instead of as the sliders etc. are being interacted with.
+
+    mImageBeforeLivePreview = mImage;
+
+    mLivePreviewActive = true;
+
+    // Note that mCurrentLivePreviewModification isn't set yet; that happens
+    // when the first modification is made.
+}
+
+void ImageProject::makeLivePreviewModification(LivePreviewModification modification, const QImage &newImage)
+{
+    qCDebug(lcImageProjectLivePreview) << "makeLivePreviewModification called with modification" << modification;
+
+    if (warnIfLivePreviewNotActive(QLatin1String("make live preview modification")))
+        return;
+
+    if (mCurrentLivePreviewModification == LivePreviewModification::None)
+        mCurrentLivePreviewModification = modification;
+
+    if (modification != mCurrentLivePreviewModification) {
+        qWarning() << "Cannot make live preview modification" << modification << "as it is different"
+            << "to the current modification of" << mCurrentLivePreviewModification;
+        return;
+    }
+
+    mImage = newImage;
+
+    // Let the canvas know that it should repaint.
+    emit contentsModified();
+}
+
+void ImageProject::endLivePreview(LivePreviewModificationAction modificationAction)
+{
+    qCDebug(lcImageProjectLivePreview) << "endLivePreview called with modificationAction" << modificationAction;
+
+    if (!mLivePreviewActive) {
+        qWarning() << "Can't end live preview as it isn't active";
+        return;
+    }
+
+    auto cleanup = [&](){
+        mImageBeforeLivePreview = QImage();
+        mLivePreviewActive = false;
+    };
+
+    if (mCurrentLivePreviewModification == LivePreviewModification::None) {
+        // A dialog was opened but no changes were made.
+        cleanup();
+        return;
+    }
+
+    if (modificationAction == CommitModificaton) {
+        // The dialog was accepted.
+        switch (mCurrentLivePreviewModification) {
+        case LivePreviewModification::Resize:
+            beginMacro(QLatin1String("ChangeImageSize"));
+            addChange(new ChangeImageSizeCommand(this, mImageBeforeLivePreview, mImage));
+            endMacro();
+            break;
+        // Image projects currently don't support moving contents.
+        case LivePreviewModification::MoveContents:
+            qFatal("mCurrentLivePreviewModification is %s, which isn't supported by ImageProject",
+                qPrintable(QDebug::toString(mCurrentLivePreviewModification)));
+            break;
+        case LivePreviewModification::None:
+            qFatal("mCurrentLivePreviewModification is LivePreviewModification::None where it shouldn't be");
+            break;
+        }
+    } else {
+        // The dialog was cancelled.
+        mImage = mImageBeforeLivePreview;
+
+        // The canvas needs to repaint if the dialog was cancelled, since
+        // we're modifying the contents directly.
+        emit contentsModified();
+    }
+
+    cleanup();
+}
+
 void ImageProject::doLoad(const QUrl &url)
 {
     mUsingTempImage = false;
@@ -158,15 +253,19 @@ bool ImageProject::doSaveAs(const QUrl &url)
 
 void ImageProject::resize(int width, int height, bool smooth)
 {
+    qCDebug(lcResize) << "resize called with width" << width
+        << "height" << height << "smooth" << smooth;
+
+    if (warnIfLivePreviewNotActive(QLatin1String("move contents")))
+        return;
+
     const QSize newSize(width, height);
     if (newSize == size())
         return;
 
-    beginMacro(QLatin1String("ChangeImageSize"));
-    const auto transformation = smooth ? Qt::SmoothTransformation : Qt::FastTransformation;
-    const QImage resized = mImage.scaled(newSize, Qt::IgnoreAspectRatio, transformation);
-    addChange(new ChangeImageSizeCommand(this, mImage, resized));
-    endMacro();
+    const QImage resizedImage = mImage.scaled(newSize, Qt::IgnoreAspectRatio,
+        smooth ? Qt::SmoothTransformation : Qt::FastTransformation);
+    makeLivePreviewModification(LivePreviewModification::Resize, resizedImage);
 }
 
 void ImageProject::crop(const QRect &rect)
@@ -205,7 +304,6 @@ void ImageProject::doSetImageSize(const QImage &newImage)
     }
 
     Q_ASSERT(!mImage.isNull());
-    Q_ASSERT(newImage.size() != size());
     mImage = newImage;
     emit sizeChanged();
 }
