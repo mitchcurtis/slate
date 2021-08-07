@@ -139,13 +139,7 @@ void LayeredImageProject::doSetImageSize(const QVector<QImage> &newImages)
 {
     Q_ASSERT(newImages.size() == mLayers.size());
 
-    for (int i = 0; i < newImages.size(); ++i) {
-        const QImage newImage = newImages.at(i);
-        Q_ASSERT(!newImage.isNull());
-
-        ImageLayer *layer = mLayers.at(i);
-        *layer->image() = newImage;
-    }
+    assignNewImagesToLayers(newImages);
 
     emit sizeChanged();
 }
@@ -820,13 +814,7 @@ void LayeredImageProject::doMoveContents(const QVector<QImage> &newImages)
 {
     Q_ASSERT(newImages.size() == mLayers.size());
 
-    for (int i = 0; i < newImages.size(); ++i) {
-        const QImage newImage = newImages.at(i);
-        Q_ASSERT(!newImage.isNull());
-
-        ImageLayer *layer = mLayers.at(i);
-        *layer->image() = newImage;
-    }
+    assignNewImagesToLayers(newImages);
 
     emit contentsMoved();
 }
@@ -986,6 +974,14 @@ void LayeredImageProject::makeLivePreviewModification(LivePreviewModification mo
 
     Q_ASSERT(newImages.size() == mLayers.size());
 
+    assignNewImagesToLayers(newImages);
+
+    // Let the canvas know that it should repaint.
+    emit contentsModified();
+}
+
+void LayeredImageProject::assignNewImagesToLayers(const QVector<QImage> &newImages)
+{
     for (int i = 0; i < newImages.size(); ++i) {
         const QImage newImage = newImages.at(i);
         Q_ASSERT(!newImage.isNull());
@@ -993,9 +989,6 @@ void LayeredImageProject::makeLivePreviewModification(LivePreviewModification mo
         ImageLayer *layer = mLayers.at(i);
         *layer->image() = newImage;
     }
-
-    // Let the canvas know that it should repaint.
-    emit contentsModified();
 }
 
 Project::Type LayeredImageProject::type() const

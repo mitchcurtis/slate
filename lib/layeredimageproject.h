@@ -158,6 +158,7 @@ private:
     // This should be called by slots each time a change is made in the relevant dialog.
     void makeLivePreviewModification(LivePreviewModification modification, const QVector<QImage> &newImages);
 
+    void assignNewImagesToLayers(const QVector<QImage> &newImages);
     void doSetCanvasSize(const QVector<QImage> &newImages);
     void doSetImageSize(const QVector<QImage> &newImages);
     void doMoveContents(const QVector<QImage> &newImages);
