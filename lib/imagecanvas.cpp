@@ -978,6 +978,10 @@ void ImageCanvas::connectSignals()
     connect(mProject, SIGNAL(projectClosed()), this, SLOT(reset()));
     connect(mProject, SIGNAL(sizeChanged()), this, SLOT(requestContentPaint()));
     connect(mProject, SIGNAL(notesChanged()), this, SLOT(onNotesChanged()));
+    // As a convenience for GuidesItem. Our guidesChanged signal is only emitted for changes in pane visibility,
+    // offset, etc., but doesn't account for guides being added or removed. So to ensure that GuidesItem only
+    // has to care about one object (us) and connect to one signal, forward the project's guidesChanged signal to ours.
+    connect(mProject, SIGNAL(guidesChanged()), this, SIGNAL(guidesChanged()));
     connect(mProject, SIGNAL(preProjectSaved()), this, SLOT(saveState()));
     connect(mProject, SIGNAL(aboutToBeginMacro(QString)),
         this, SLOT(onAboutToBeginMacro(QString)));
@@ -995,6 +999,7 @@ void ImageCanvas::disconnectSignals()
     mProject->disconnect(SIGNAL(projectClosed()), this, SLOT(reset()));
     mProject->disconnect(SIGNAL(sizeChanged()), this, SLOT(requestContentPaint()));
     mProject->disconnect(SIGNAL(notesChanged()), this, SLOT(onNotesChanged()));
+    mProject->disconnect(SIGNAL(guidesChanged()), this, SIGNAL(guidesChanged()));
     mProject->disconnect(SIGNAL(preProjectSaved()), this, SLOT(saveState()));
     mProject->disconnect(SIGNAL(aboutToBeginMacro(QString)),
         this, SLOT(onAboutToBeginMacro(QString)));

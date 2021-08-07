@@ -3453,6 +3453,11 @@ void tst_App::addAndDeleteMultipleGuides()
     QVERIFY2(triggerRulersVisible(), failureMessage);
     QCOMPARE(canvas->areRulersVisible(), true);
 
+    // Save a snapshot of the rendered notes to compare against later.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    const QImage originalCanvasGrab = imageGrabber.takeImage();
+
     // Open the dialog manually cause native menus.
     QObject *addGuidesDialog;
     QVERIFY2(findAndOpenClosedPopupFromObjectName("addGuidesDialog", &addGuidesDialog), failureMessage);
@@ -3472,6 +3477,12 @@ void tst_App::addAndDeleteMultipleGuides()
     // Get a decent failure message instead of just "Compared values are not the same".
     QCOMPARE(Utils::toString(project->guides()), Utils::toString(expectedGuides));
 
+    // The canvas should be redrawn after adding guides.
+    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
+    QTRY_VERIFY(imageGrabber.isReady());
+    QVERIFY2(imageGrabber.takeImage() != originalCanvasGrab, failureMessage);
+
+    // Remove all guides.
     expectedGuides.clear();
     canvas->removeAllGuides();
     QCOMPARE(Utils::toString(project->guides()), Utils::toString(expectedGuides));
