@@ -17,52 +17,14 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef QTUTILS_H
+#define QTUTILS_H
 
 #include <QDebug>
-#include <QImage>
-#include <QRect>
+#include <QList>
+#include <QQuickItem>
 
-#include "imagecanvas.h"
-
-class AnimationPlayback;
-
-namespace Utils {
-    QImage paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
-
-    QImage replacePortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
-
-    QImage erasePortionOfImage(const QImage &image, const QRect &portion);
-
-    QImage rotate(const QImage &image, int angle);
-    QImage rotateAreaWithinImage(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea);
-
-    SLATE_EXPORT QImage moveContents(const QImage &image, int xDistance, int yDistance);
-    SLATE_EXPORT QImage resizeContents(const QImage &image, int newWidth, int newHeight);
-
-    void modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness, qreal alpha,
-        ImageCanvas::AlphaAdjustmentFlags alphaAdjustmentFlags);
-
-    void strokeRectWithDashes(QPainter *painter, const QRect &rect);
-
-    SLATE_EXPORT QRect ensureWithinArea(const QRect &rect, const QSize &boundsSize);
-
-    enum FindUniqueColoursResult {
-        ThreadInterrupted,
-        MaximumUniqueColoursExceeded,
-        FindUniqueColoursSucceeded
-    };
-
-    FindUniqueColoursResult findUniqueColours(const QImage &image, int maximumUniqueColours, QVector<QColor> &uniqueColoursFound);
-    FindUniqueColoursResult findUniqueColoursAndProbabilities(const QImage &image, int maximumUniqueColours,
-        QVector<QColor> &uniqueColoursFound, QVector<qreal> &probabilities);
-    QVarLengthArray<unsigned int> findMax256UniqueArgbColours(const QImage &image);
-
-    // relativeFrameIndex is the index of the animation relative to animation.startIndex()
-    QImage imageForAnimationFrame(const QImage &sourceImage, const AnimationPlayback &playback, int relativeFrameIndex);
-    bool exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &playback, QString &errorMessage);
-
+namespace QtUtils {
     template<typename T>
     QString enumToString(T enumValue)
     {
@@ -159,4 +121,4 @@ namespace Utils {
     };
 }
 
-#endif // UTILS_H
+#endif // QTUTILS_H

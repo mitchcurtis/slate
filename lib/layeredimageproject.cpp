@@ -38,11 +38,11 @@
 #include "duplicateanimationcommand.h"
 #include "duplicatelayercommand.h"
 #include "imagelayer.h"
+#include "imageutils.h"
 #include "jsonutils.h"
 #include "mergelayerscommand.h"
 #include "modifyanimationcommand.h"
 #include "movelayeredimagecontentscommand.h"
-#include "utils.h"
 
 Q_LOGGING_CATEGORY(lcLivePreview, "app.layeredimageproject.livepreview")
 Q_LOGGING_CATEGORY(lcMoveContents, "app.layeredimageproject.movecontents")
@@ -407,7 +407,7 @@ void LayeredImageProject::exportGif(const QUrl &url)
     }
 
     QString errorMessage;
-    if (!Utils::exportGif(exportedImage(), url, *mAnimationSystem.currentAnimationPlayback(), errorMessage))
+    if (!ImageUtils::exportGif(exportedImage(), url, *mAnimationSystem.currentAnimationPlayback(), errorMessage))
         error(errorMessage);
 }
 
@@ -803,7 +803,7 @@ void LayeredImageProject::moveContents(int xDistance, int yDistance, bool onlyVi
             // but it avoids adding more code paths elsewhere.
             newImages.append(oldImage);
         } else {
-            newImages.append(Utils::moveContents(oldImage, xDistance, yDistance));
+            newImages.append(ImageUtils::moveContents(oldImage, xDistance, yDistance));
         }
     }
 

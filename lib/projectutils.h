@@ -1,5 +1,5 @@
 /*
-    Copyright 2020, Mitch Curtis
+    Copyright 2021, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,17 +17,19 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "rectangularcursor.h"
+#ifndef PROJECTUTILS_H
+#define PROJECTUTILS_H
 
-#include <QPainter>
+#include <QVector>
 
-#include "imageutils.h"
+#include "guide.h"
+#include "slate-global.h"
 
-RectangularCursor::RectangularCursor()
-{
+class Project;
+
+namespace ProjectUtils {
+    SLATE_EXPORT void addGuidesForSpacing(const Project *project, QVector<Guide> &guides, int horizontalSpacing, int verticalSpacing);
+    SLATE_EXPORT QVector<Guide> uniqueGuides(const Project *project, const QVector<Guide> &guidesToAdd);
 }
 
-void RectangularCursor::paint(QPainter *painter)
-{
-    ImageUtils::strokeRectWithDashes(painter, QRect(0, 0, width(), height()));
-}
+#endif // PROJECTUTILS_H

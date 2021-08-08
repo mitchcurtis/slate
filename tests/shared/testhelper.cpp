@@ -25,8 +25,9 @@
 #include <QtQuickTest>
 
 #include "imagelayer.h"
+#include "imageutils.h"
 #include "projectmanager.h"
-#include "utils.h"
+#include "qtutils.h"
 
 Q_LOGGING_CATEGORY(lcTestHelper, "tests.testHelper")
 Q_LOGGING_CATEGORY(lcFindListViewChild, "tests.testHelper.findListViewChild")
@@ -441,7 +442,7 @@ QString TestHelper::detailedObjectName(QObject *object)
     QString name = object->objectName();
     // If the object doesn't have a name, use its QDebug operator<<.
     if (name.isEmpty())
-        name = Utils::toString(object);
+        name = QtUtils::toString(object);
 
     // If the parent is null, try the QQuickItem parent instead.
     QObject *parent = object->parent();
@@ -455,7 +456,7 @@ QString TestHelper::detailedObjectName(QObject *object)
     while (parent && depth++ <= detailedObjectNameDepth) {
         QString parentObjectName = parent->objectName();
         if (parentObjectName.isEmpty())
-            parentObjectName = Utils::toString(parent);
+            parentObjectName = QtUtils::toString(parent);
         name.prepend(parentObjectName + " => ");
 
         parent = parent->parent();
@@ -572,7 +573,7 @@ bool TestHelper::changeImageSize(int width, int height, bool preserveAspectRatio
     QTest::keyClick(window, Qt::Key_Tab);
 
     // Check that the live preview has changed.
-    QImage resizedContents = Utils::resizeContents(originalContents, originalWidthSpinBoxValue + 1, originalWidthSpinBoxValue - 1);
+    QImage resizedContents = ImageUtils::resizeContents(originalContents, originalWidthSpinBoxValue + 1, originalWidthSpinBoxValue - 1);
     if (!compareImages(project->exportedImage(), resizedContents, "live preview should show resized contents (before cancelling)"))
         return false;
 
@@ -612,7 +613,7 @@ bool TestHelper::changeImageSize(int width, int height, bool preserveAspectRatio
     QTest::keyClick(window, Qt::Key_Tab);
 
     // Check that the preview has changed.
-    resizedContents = Utils::resizeContents(originalContents, width, height);
+    resizedContents = ImageUtils::resizeContents(originalContents, width, height);
     if (!compareImages(project->exportedImage(), resizedContents, "live preview should show resized contents (before accepting)"))
         return false;
 
@@ -739,7 +740,7 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     QTest::keyClick(window, Qt::Key_Tab);
 
     // Check that the live preview has changed.
-    QImage movedContents = Utils::moveContents(originalContents, 1, -1);
+    QImage movedContents = ImageUtils::moveContents(originalContents, 1, -1);
     if (!compareImages(project->exportedImage(), movedContents, "live preview should show moved contents (before cancelling)"))
         return false;
 
@@ -768,7 +769,7 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     QTest::keyClick(window, Qt::Key_Tab);
 
     // Check that the preview has changed.
-    movedContents = Utils::moveContents(originalContents, x, y);
+    movedContents = ImageUtils::moveContents(originalContents, x, y);
     if (!compareImages(project->exportedImage(), movedContents, "live preview should show moved contents (before accepting)"))
         return false;
 
@@ -1041,7 +1042,7 @@ bool TestHelper::fuzzyImageCompare(const QImage &actualImage, const QImage &expe
             failureMessage = QString::fromLatin1("Failure comparing images (%1):").arg(context).toLatin1();
 
         failureMessage += QString::fromLatin1(" actual size %1 is not the same as expected size %2")
-            .arg(Utils::toString(actualImage.size())).arg(Utils::toString(expectedImage.size())).toLatin1();
+            .arg(QtUtils::toString(actualImage.size())).arg(QtUtils::toString(expectedImage.size())).toLatin1();
 
         saveImagesToPwd();
 
@@ -1149,7 +1150,7 @@ bool TestHelper::addSwatchWithForegroundColour()
 {
     // Roll back to the previous value in case of test failure.
     const bool oldExpandedValue = swatchesPanel->property("expanded").toBool();
-    Utils::ScopeGuard swatchPanelExpandedGuard([=](){
+    QtUtils::ScopeGuard swatchPanelExpandedGuard([=](){
         swatchesPanel->setProperty("expanded", oldExpandedValue);
     });
 
@@ -1970,7 +1971,7 @@ void TestHelper::setCursorPosInScenePixels(const QPoint &posInScenePixels, bool 
         // verify its return value everywhere we use it, and we use it a lot, so just assert instead.
         Q_ASSERT_X(cursorWindowPos.x() >= 0 && cursorWindowPos.y() >= 0, Q_FUNC_INFO,
             qPrintable(QString::fromLatin1("scene pos %1 results in invalid cursor position %2")
-                .arg(Utils::toString(posInScenePixels)).arg(Utils::toString(cursorWindowPos))));
+                .arg(QtUtils::toString(posInScenePixels)).arg(QtUtils::toString(cursorWindowPos))));
     }
 }
 

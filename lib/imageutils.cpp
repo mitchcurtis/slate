@@ -17,13 +17,12 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "utils.h"
+#include "imageutils.h"
 
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QPainter>
 #include <QPainterPathStroker>
-#include <QScopeGuard>
 #include <QThread>
 
 // Need this otherwise we get linker errors.
@@ -39,7 +38,7 @@ extern "C" {
 
 Q_LOGGING_CATEGORY(lcUtils, "app.utils")
 
-QImage Utils::paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
+QImage ImageUtils::paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
 {
     QImage newImage = image;
     QPainter painter(&newImage);
@@ -47,7 +46,7 @@ QImage Utils::paintImageOntoPortionOfImage(const QImage &image, const QRect &por
     return newImage;
 }
 
-QImage Utils::replacePortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
+QImage ImageUtils::replacePortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
 {
     QImage newImage = image;
     QPainter painter(&newImage);
@@ -56,7 +55,7 @@ QImage Utils::replacePortionOfImage(const QImage &image, const QRect &portion, c
     return newImage;
 }
 
-QImage Utils::erasePortionOfImage(const QImage &image, const QRect &portion)
+QImage ImageUtils::erasePortionOfImage(const QImage &image, const QRect &portion)
 {
     QImage newImage = image;
     QPainter painter(&newImage);
@@ -65,7 +64,7 @@ QImage Utils::erasePortionOfImage(const QImage &image, const QRect &portion)
     return newImage;
 }
 
-QImage Utils::rotate(const QImage &image, int angle)
+QImage ImageUtils::rotate(const QImage &image, int angle)
 {
     const QPoint center = image.rect().center();
     QMatrix matrix;
@@ -83,7 +82,7 @@ QImage Utils::rotate(const QImage &image, int angle)
     6. Returns the final rotated image portion and sets \a inRotatedArea as the area
        representing the newly rotated \a area.
 */
-QImage Utils::rotateAreaWithinImage(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea)
+QImage ImageUtils::rotateAreaWithinImage(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea)
 {
     QImage result = image;
     const QPoint areaCentre = area.center();
@@ -126,7 +125,7 @@ QImage Utils::rotateAreaWithinImage(const QImage &image, const QRect &area, int 
     return rotatedImagePortion;
 }
 
-QImage Utils::moveContents(const QImage &image, int xDistance, int yDistance)
+QImage ImageUtils::moveContents(const QImage &image, int xDistance, int yDistance)
 {
     QImage translated(image.size(), QImage::Format_ARGB32_Premultiplied);
     translated.fill(Qt::transparent);
@@ -138,12 +137,12 @@ QImage Utils::moveContents(const QImage &image, int xDistance, int yDistance)
     return translated;
 }
 
-QImage Utils::resizeContents(const QImage &image, int newWidth, int newHeight)
+QImage ImageUtils::resizeContents(const QImage &image, int newWidth, int newHeight)
 {
     return image.scaled(QSize(newWidth, newHeight), Qt::IgnoreAspectRatio, Qt::FastTransformation);
 }
 
-void Utils::strokeRectWithDashes(QPainter *painter, const QRect &rect)
+void ImageUtils::strokeRectWithDashes(QPainter *painter, const QRect &rect)
 {
     static const QColor greyColour(0, 0, 0, 180);
     static const QColor whiteColour(255, 255, 255, 180);
@@ -176,7 +175,7 @@ void Utils::strokeRectWithDashes(QPainter *painter, const QRect &rect)
     painter->restore();
 }
 
-QRect Utils::ensureWithinArea(const QRect &rect, const QSize &boundsSize)
+QRect ImageUtils::ensureWithinArea(const QRect &rect, const QSize &boundsSize)
 {
     QRect newArea = rect;
 
@@ -193,7 +192,7 @@ QRect Utils::ensureWithinArea(const QRect &rect, const QSize &boundsSize)
     return newArea;
 }
 
-void Utils::modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness, qreal alpha,
+void ImageUtils::modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness, qreal alpha,
     ImageCanvas::AlphaAdjustmentFlags alphaAdjustmentFlags)
 {
     for (int y = 0; y < image.height(); ++y) {
@@ -233,7 +232,7 @@ void Utils::modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightnes
     }
 }
 
-bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &playback, QString &errorMessage)
+bool ImageUtils::exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &playback, QString &errorMessage)
 {
     const QString path = url.toLocalFile();
     if (!path.endsWith(QLatin1String(".gif"))) {
@@ -290,7 +289,7 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
     return true;
 }
 
-QImage Utils::imageForAnimationFrame(const QImage &sourceImage, const AnimationPlayback &playback, int relativeFrameIndex)
+QImage ImageUtils::imageForAnimationFrame(const QImage &sourceImage, const AnimationPlayback &playback, int relativeFrameIndex)
 {
     const Animation *animation = playback.animation();
     const int frameWidth = animation->frameWidth();
@@ -314,7 +313,7 @@ QImage Utils::imageForAnimationFrame(const QImage &sourceImage, const AnimationP
     return image;
 }
 
-Utils::FindUniqueColoursResult Utils::findUniqueColours(const QImage &image,
+ImageUtils::FindUniqueColoursResult ImageUtils::findUniqueColours(const QImage &image,
     int maximumUniqueColours, QVector<QColor> &uniqueColoursFound)
 {
     for (int y = 0; y < image.height(); ++y) {
@@ -338,7 +337,7 @@ Utils::FindUniqueColoursResult Utils::findUniqueColours(const QImage &image,
     return FindUniqueColoursSucceeded;
 }
 
-Utils::FindUniqueColoursResult Utils::findUniqueColoursAndProbabilities(const QImage &image,
+ImageUtils::FindUniqueColoursResult ImageUtils::findUniqueColoursAndProbabilities(const QImage &image,
     int maximumUniqueColours, QVector<QColor> &uniqueColoursFound, QVector<qreal> &probabilities)
 {
     const int imageWidth = image.width();
@@ -373,7 +372,7 @@ Utils::FindUniqueColoursResult Utils::findUniqueColoursAndProbabilities(const QI
     return FindUniqueColoursSucceeded;
 }
 
-QVarLengthArray<unsigned int> Utils::findMax256UniqueArgbColours(const QImage &image)
+QVarLengthArray<unsigned int> ImageUtils::findMax256UniqueArgbColours(const QImage &image)
 {
     QVarLengthArray<unsigned int> colours;
     for (int y = 0; y < image.height(); ++y) {

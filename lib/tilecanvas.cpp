@@ -34,9 +34,10 @@
 #include "applytilefillcommand.h"
 #include "applytilepencommand.h"
 #include "fillalgorithms.h"
+#include "imageutils.h"
+#include "qtutils.h"
 #include "tileset.h"
 #include "tilesetproject.h"
-#include "utils.h"
 
 TileCanvas::TileCanvas() :
     mTilesetProject(nullptr),
@@ -423,8 +424,8 @@ QPoint TileCanvas::scenePosToTilePixelPos(const QPoint &scenePos) const
 
 QRect TileCanvas::sceneRectToTileRect(const QRect &sceneRect) const
 {
-    return QRect(QPoint(Utils::divFloor(sceneRect.left(), mTilesetProject->tileWidth()), Utils::divFloor(sceneRect.top(), mTilesetProject->tileHeight())),
-                 QPoint(Utils::divFloor(sceneRect.right(), mTilesetProject->tileWidth()), Utils::divFloor(sceneRect.bottom(), mTilesetProject->tileHeight())));
+    return QRect(QPoint(QtUtils::divFloor(sceneRect.left(), mTilesetProject->tileWidth()), QtUtils::divFloor(sceneRect.top(), mTilesetProject->tileHeight())),
+                 QPoint(QtUtils::divFloor(sceneRect.right(), mTilesetProject->tileWidth()), QtUtils::divFloor(sceneRect.bottom(), mTilesetProject->tileHeight())));
 }
 
 QList<ImageCanvas::SubImage> TileCanvas::subImagesInBounds(const QRect &bounds) const

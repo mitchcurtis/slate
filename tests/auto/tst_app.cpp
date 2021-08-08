@@ -36,14 +36,15 @@ extern "C" {
 #include "application.h"
 #include "applypixelpencommand.h"
 #include "imagelayer.h"
+#include "imageutils.h"
 #include "tilecanvas.h"
 #include "probabilityswatch.h"
 #include "project.h"
 #include "projectmanager.h"
+#include "qtutils.h"
 #include "swatch.h"
 #include "testhelper.h"
 #include "tileset.h"
-#include "utils.h"
 
 class tst_App : public TestHelper
 {
@@ -2471,7 +2472,7 @@ void tst_App::tilesetSwatchContextMenu()
 //    const QImage originalTileImage = tileCanvas->penTile()->image();
 //    QVERIFY2(clickButton(rotateTileLeftMenuItem), failureMessage);
 //    QVERIFY(!tilesetContextMenu->property("visible").toBool());
-//    QCOMPARE(Utils::rotate(tileCanvas->penTile()->image(), 90), originalTileImage);
+//    QCOMPARE(ImageUtils::rotate(tileCanvas->penTile()->image(), 90), originalTileImage);
 
 //    QVERIFY(imageGrabber.requestImage(tileCanvas));
 //    QTRY_VERIFY(imageGrabber.isReady());
@@ -3210,7 +3211,7 @@ void tst_App::penToolRightClickBehaviour()
     QQuickItem *penToolRightClickBehaviourComboBox = optionsDialog->findChild<QQuickItem*>("penToolRightClickBehaviourComboBox");
     QVERIFY(penToolRightClickBehaviourComboBox);
     mouseEventOnCentre(penToolRightClickBehaviourComboBox, MouseClick);
-    QVERIFY2(penToolRightClickBehaviourComboBox->hasActiveFocus(), qPrintable(Utils::toString(window->activeFocusItem())));
+    QVERIFY2(penToolRightClickBehaviourComboBox->hasActiveFocus(), qPrintable(QtUtils::toString(window->activeFocusItem())));
     QObject *penToolRightClickBehaviourComboBoxPopup = penToolRightClickBehaviourComboBox->property("popup").value<QObject*>();
     QVERIFY(penToolRightClickBehaviourComboBoxPopup);
     QTRY_COMPARE(penToolRightClickBehaviourComboBoxPopup->property("opened").toBool(), true);
@@ -3485,7 +3486,7 @@ void tst_App::addAndDeleteMultipleGuides()
     // Remove all guides.
     expectedGuides.clear();
     canvas->removeAllGuides();
-    QCOMPARE(Utils::toString(project->guides()), Utils::toString(expectedGuides));
+    QCOMPARE(QtUtils::toString(project->guides()), QtUtils::toString(expectedGuides));
 }
 
 void tst_App::notes_data()
@@ -4032,7 +4033,7 @@ QDebug operator<<(QDebug debug, const SelectionData &data)
 QByteArray selectionAreaFailureMessage(ImageCanvas *canvas, const SelectionData &selectionData, const QRect &expectedArea)
 {
     return qPrintable(QString::fromLatin1("Data: %1 \n      Actual area: %2\n    Expected area: %3")
-        .arg(Utils::toString(selectionData), Utils::toString(canvas->selectionArea()), Utils::toString(expectedArea)));
+        .arg(QtUtils::toString(selectionData), QtUtils::toString(canvas->selectionArea()), QtUtils::toString(expectedArea)));
 }
 
 void tst_App::selectionToolImageCanvas()
@@ -4091,7 +4092,7 @@ void tst_App::selectionToolImageCanvas()
         const QRect expectedPressArea = QRect(boundExpectedPressPos, QSize(0, 0));
         if (debug && canvas->selectionArea() != expectedPressArea) {
             const auto imageGrabPath = QDir().absolutePath() + "/selectionToolImageCanvas-press-"
-                + Utils::toString(data.expectedSelectionArea) + "-window-grab.png";
+                + QtUtils::toString(data.expectedSelectionArea) + "-window-grab.png";
             qDebug() << "Saving window's image grab to:\n" << imageGrabPath;
             QVERIFY(window->grabWindow().save(imageGrabPath));
         }
@@ -4104,7 +4105,7 @@ void tst_App::selectionToolImageCanvas()
         QTest::mouseMove(window, cursorWindowPos, eventDelay);
         if (debug && canvas->selectionArea() != data.expectedSelectionArea) {
             const auto imageGrabPath = QDir().absolutePath() + "/selectionToolImageCanvas-move-"
-                + Utils::toString(data.expectedSelectionArea) + "-window-grab.png";
+                + QtUtils::toString(data.expectedSelectionArea) + "-window-grab.png";
             qDebug() << "Saving window's image grab to:\n" << imageGrabPath;
             QVERIFY(window->grabWindow().save(imageGrabPath));
         }
@@ -6837,7 +6838,7 @@ void tst_App::disableToolsWhenLayerHidden()
         // The cursor should be disabled for each tool.
         QVERIFY2(window->cursor().shape() == Qt::ArrowCursor,
             qPrintable(QString::fromLatin1("Expected Qt::ArrowCursor for tool %1, but got %2")
-                .arg(Utils::enumToString(tool)).arg(Utils::enumToString(window->cursor().shape()))));
+                .arg(QtUtils::enumToString(tool)).arg(QtUtils::enumToString(window->cursor().shape()))));
 
         // Switch tool.
         QVERIFY2(switchTool(tool), failureMessage);
@@ -6848,7 +6849,7 @@ void tst_App::disableToolsWhenLayerHidden()
         // TODO: ForbiddenCursor
         QVERIFY2(window->cursor().shape() == Qt::ForbiddenCursor,
             qPrintable(QString::fromLatin1("Expected Qt::ForbiddenCursor for tool %1, but got %2")
-                .arg(Utils::enumToString(tool)).arg(Utils::enumToString(window->cursor().shape()))));
+                .arg(QtUtils::enumToString(tool)).arg(QtUtils::enumToString(window->cursor().shape()))));
 
         // Make the layer visible again.
         QVERIFY2(clickButton(layer1VisibilityCheckBox), failureMessage);

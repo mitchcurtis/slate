@@ -159,6 +159,8 @@ Product {
         "imagelayer.h",
         "imageproject.cpp",
         "imageproject.h",
+        "imageutils.h",
+        "imageutils.cpp",
         "jsonutils.cpp",
         "jsonutils.h",
         "keysequenceeditor.cpp",
@@ -201,6 +203,9 @@ Product {
         "projectimageprovider.h",
         "projectmanager.cpp",
         "projectmanager.h",
+        "projectutils.cpp",
+        "projectutils.h",
+        "qtutils.h",
         "rectangularcursor.cpp",
         "rectangularcursor.h",
         "ruler.cpp",
@@ -245,8 +250,6 @@ Product {
         "tilesetswatchimage.cpp",
         "tilesetswatchimage.h",
         "undocommand.h",
-        "undocommand.cpp",
-        "utils.cpp",
-        "utils.h",
+        "undocommand.cpp"
     ]
 }

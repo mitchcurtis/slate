@@ -23,10 +23,11 @@
 #include <QQuickWindow>
 
 #include "application.h"
+#include "imageutils.h"
 #include "project.h"
+#include "qtutils.h"
 #include "swatch.h"
 #include "testhelper.h"
-#include "utils.h"
 
 class tst_Screenshots : public TestHelper
 {
@@ -126,7 +127,7 @@ void tst_Screenshots::panels()
 
     // Roll back to the previous value at the end of this test.
     const QSize originalWindowSize = window->size();
-    Utils::ScopeGuard windowSizeGuard([=](){
+    QtUtils::ScopeGuard windowSizeGuard([=](){
         window->resize(originalWindowSize);
     });
     // Set the optimal vertical size for the window for these screenshots.
@@ -178,7 +179,7 @@ void tst_Screenshots::toolBarFull()
 
     // Roll back to the previous value at the end of this test.
     const QSize originalWindowSize = window->size();
-    Utils::ScopeGuard windowSizeGuard([=](){
+    QtUtils::ScopeGuard windowSizeGuard([=](){
         window->resize(originalWindowSize);
     });
     // Set the optimal horizontal size for the window for these screenshots.
@@ -285,7 +286,7 @@ void tst_Screenshots::animation()
 
     // Roll back to the previous value at the end of this test.
     const QSize originalWindowSize = window->size();
-    Utils::ScopeGuard windowSizeGuard([=](){
+    QtUtils::ScopeGuard windowSizeGuard([=](){
         window->resize(originalWindowSize);
     });
     // This is the optimal size for the window for the tutorial.
@@ -427,7 +428,7 @@ void tst_Screenshots::texturedFill()
 
     // Roll back to the previous value at the end of this test.
     const QSize originalWindowSize = window->size();
-    Utils::ScopeGuard windowSizeGuard([=](){
+    QtUtils::ScopeGuard windowSizeGuard([=](){
         window->resize(originalWindowSize);
     });
     // This is the optimal size for the window for the tutorial.

@@ -44,14 +44,16 @@
 #include "fillalgorithms.h"
 #include "flipimagecanvasselectioncommand.h"
 #include "imageproject.h"
+#include "imageutils.h"
 #include "modifyimagecanvasselectioncommand.h"
 #include "moveguidecommand.h"
 #include "note.h"
 #include "panedrawinghelper.h"
 #include "pasteimagecanvascommand.h"
 #include "project.h"
+#include "projectutils.h"
+#include "qtutils.h"
 #include "tileset.h"
-#include "utils.h"
 
 Q_LOGGING_CATEGORY(lcImageCanvas, "app.canvas")
 Q_LOGGING_CATEGORY(lcImageCanvasCursorShape, "app.canvas.cursorshape")
@@ -70,7 +72,7 @@ Q_LOGGING_CATEGORY(lcImageCanvasUndo, "app.canvas.undo")
     ImageCanvas doesn't do any rendering itself; CanvasPaneItem does that.
     ImageCanvas just handles events in order to draw onto an image, which is
     then rendered by CanvasPaneItem. It also draws things like the selection
-    marquee and selection contents.
+    marquee and selection contents onto the image.
 
     See CanvasPaneRepeater.qml for an illustration of stacking order.
 
@@ -1191,7 +1193,7 @@ void ImageCanvas::findRulers()
         return;
     }
 
-    const QList<Ruler*> rulers = Utils::findChildItems<Ruler*>(this);
+    const QList<Ruler*> rulers = QtUtils::findChildItems<Ruler*>(this);
     for (auto ruler : rulers)
         mRulers.append(QPointer<Ruler>(ruler));
 
@@ -1224,11 +1226,17 @@ Ruler *ImageCanvas::rulerAtCursorPos()
 
 void ImageCanvas::addNewGuide()
 {
-    mProject->beginMacro(QLatin1String("AddGuide"));
-    QVector<Guide> guides = {
+    QVector<Guide> guidesToAdd = {
         Guide(mPressedRuler->orientation() == Qt::Horizontal ? mCursorSceneY : mCursorSceneX, mPressedRuler->orientation())
     };
-    mProject->addChange(new AddGuidesCommand(mProject, guides));
+    const QVector<Guide> uniqueGuides = ProjectUtils::uniqueGuides(mProject, guidesToAdd);
+    if (uniqueGuides.isEmpty()) {
+        // They were all duplicates.
+        return;
+    }
+
+    mProject->beginMacro(QLatin1String("AddGuide"));
+    mProject->addChange(new AddGuidesCommand(mProject, uniqueGuides));
     mProject->endMacro();
 
     // The update for these guide commands happens via Project's guidesChanged signal.
@@ -1237,14 +1245,13 @@ void ImageCanvas::addNewGuide()
 void ImageCanvas::addNewGuides(int horizontalSpacing, int verticalSpacing)
 {
     QVector<Guide> guides;
-    for (int y = verticalSpacing; y < mProject->heightInPixels(); y += verticalSpacing) {
-        for (int x = horizontalSpacing; x < mProject->widthInPixels(); x += horizontalSpacing) {
-            guides.append(Guide(x, Qt::Vertical));
-        }
-        guides.append(Guide(y, Qt::Horizontal));
+    ProjectUtils::addGuidesForSpacing(mProject, guides, horizontalSpacing, verticalSpacing);
+    if (guides.isEmpty()) {
+        // They were all duplicates.
+        return;
     }
 
-    mProject->beginMacro(QLatin1String("AddGuideS"));
+    mProject->beginMacro(QLatin1String("AddGuides"));
     mProject->addChange(new AddGuidesCommand(mProject, guides));
     mProject->endMacro();
 }
@@ -1447,7 +1454,7 @@ void ImageCanvas::updateSelectionPreviewImage(SelectionModification reason)
 
     if (!mIsSelectionFromPaste) {
         // Only if the selection wasn't pasted should we erase the area left behind.
-        mSelectionPreviewImage = Utils::erasePortionOfImage(*currentProjectImage(), mSelectionAreaBeforeFirstModification);
+        mSelectionPreviewImage = ImageUtils::erasePortionOfImage(*currentProjectImage(), mSelectionAreaBeforeFirstModification);
         qCDebug(lcImageCanvasSelectionPreviewImage) << "... selection is not from paste; erasing area left behind"
             << "- new selection preview image:" << mSelectionPreviewImage;
     } else {
@@ -1461,7 +1468,7 @@ void ImageCanvas::updateSelectionPreviewImage(SelectionModification reason)
     // and not the other way around.
     qCDebug(lcImageCanvasSelectionPreviewImage) << "painting selection contents" << mSelectionContents
        << "within selection area" << mSelectionArea << "over top of current project image" << mSelectionPreviewImage;
-    mSelectionPreviewImage = Utils::paintImageOntoPortionOfImage(mSelectionPreviewImage, mSelectionArea, mSelectionContents);
+    mSelectionPreviewImage = ImageUtils::paintImageOntoPortionOfImage(mSelectionPreviewImage, mSelectionArea, mSelectionContents);
 }
 
 void ImageCanvas::moveSelectionArea()
@@ -1567,7 +1574,7 @@ QRect ImageCanvas::clampSelectionArea(const QRect &selectionArea) const
 // This should be used when the selection area has already been created and is being dragged.
 QRect ImageCanvas::boundSelectionArea(const QRect &selectionArea) const
 {
-    return Utils::ensureWithinArea(selectionArea, mProject->size());
+    return ImageUtils::ensureWithinArea(selectionArea, mProject->size());
 }
 
 void ImageCanvas::clearSelection()
@@ -1968,13 +1975,13 @@ void ImageCanvas::rotateSelection(int angle)
     // and becoming part of the selection (rotateSelectionTransparentBackground() tests this).
     if (isFirstModification) {
         const QImage image = *imageForLayerAt(currentLayerIndex());
-        mSelectionContents = Utils::rotateAreaWithinImage(image, mSelectionArea, angle, rotatedArea);
+        mSelectionContents = ImageUtils::rotateAreaWithinImage(image, mSelectionArea, angle, rotatedArea);
     } else {
         QImage image(mProject->size(), QImage::Format_ARGB32_Premultiplied);
         image.fill(Qt::transparent);
         QPainter painter(&image);
         painter.drawImage(mSelectionArea, mSelectionContents);
-        mSelectionContents = Utils::rotateAreaWithinImage(image, mSelectionArea, angle, rotatedArea);
+        mSelectionContents = ImageUtils::rotateAreaWithinImage(image, mSelectionArea, angle, rotatedArea);
     }
 
     Q_ASSERT(mHasSelection);
@@ -2045,7 +2052,7 @@ void ImageCanvas::modifySelectionHsl(qreal hue, qreal saturation, qreal lightnes
     // Copy the original so we don't just modify the result of the last adjustment (if any).
     mSelectionContents = mSelectionContentsBeforeImageAdjustment;
 
-    Utils::modifyHsl(mSelectionContents, hue, saturation, lightness, alpha, alphaAdjustmentFlags);
+    ImageUtils::modifyHsl(mSelectionContents, hue, saturation, lightness, alpha, alphaAdjustmentFlags);
 
     // Set this so that the check in shouldDrawSelectionPreviewImage() evaluates to true.
     setLastSelectionModification(SelectionHsl);
@@ -2143,9 +2150,9 @@ void ImageCanvas::addSelectedColoursToTexturedFillSwatch()
     // then mSelectionContents will be invalid. I can't remember if that's by design or not,
     // so just get the contents manually here.
     const QImage selectionContents = currentProjectImage()->copy(mSelectionArea);
-    const Utils::FindUniqueColoursResult result = Utils::findUniqueColoursAndProbabilities(
+    const ImageUtils::FindUniqueColoursResult result = ImageUtils::findUniqueColoursAndProbabilities(
         selectionContents, maxUniqueColours, uniqueColours, probabilities);
-    if (result == Utils::MaximumUniqueColoursExceeded) {
+    if (result == ImageUtils::MaximumUniqueColoursExceeded) {
         emit errorOccurred(tr("Too many unique colours selected: the maximum is %1 colours.")
             .arg(maxUniqueColours));
         return;
@@ -2360,21 +2367,21 @@ void ImageCanvas::applyPixelLineTool(int layerIndex, const QImage &lineImage, co
 void ImageCanvas::paintImageOntoPortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage)
 {
     QImage *image = imageForLayerAt(layerIndex);
-    *image = Utils::paintImageOntoPortionOfImage(*image, portion, replacementImage);
+    *image = ImageUtils::paintImageOntoPortionOfImage(*image, portion, replacementImage);
     requestContentPaint();
 }
 
 void ImageCanvas::replacePortionOfImage(int layerIndex, const QRect &portion, const QImage &replacementImage)
 {
     QImage *image = imageForLayerAt(layerIndex);
-    *image = Utils::replacePortionOfImage(*image, portion, replacementImage);
+    *image = ImageUtils::replacePortionOfImage(*image, portion, replacementImage);
     requestContentPaint();
 }
 
 void ImageCanvas::erasePortionOfImage(int layerIndex, const QRect &portion)
 {
     QImage *image = imageForLayerAt(layerIndex);
-    *image = Utils::erasePortionOfImage(*image, portion);
+    *image = ImageUtils::erasePortionOfImage(*image, portion);
     requestContentPaint();
 }
 
@@ -2398,7 +2405,7 @@ QRect ImageCanvas::doRotateSelection(int layerIndex, const QRect &area, int angl
 {
     QImage *image = imageForLayerAt(layerIndex);
     QRect rotatedArea;
-    *image = Utils::rotateAreaWithinImage(*image, area, angle, rotatedArea);
+    *image = ImageUtils::rotateAreaWithinImage(*image, area, angle, rotatedArea);
     // Only update the selection area when the commands are being created for the first time,
     // not when they're being undone and redone.
     if (mHasSelection)
@@ -2585,7 +2592,7 @@ void ImageCanvas::updateWindowCursorShape()
             << " !overRuler=" << !overRuler
             << " !overGuide=" << !overGuide
             << " !toolsForbidden=" << !toolsForbidden << ")"
-            << "\n............ cursor shape " << Utils::enumToString(cursorShape);
+            << "\n............ cursor shape " << QtUtils::enumToString(cursorShape);
     }
 
     if (window()) {

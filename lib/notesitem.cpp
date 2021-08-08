@@ -21,10 +21,10 @@
 
 #include "canvaspane.h"
 #include "imagecanvas.h"
+#include "imageutils.h"
 #include "note.h"
 #include "panedrawinghelper.h"
 #include "project.h"
-#include "utils.h"
 
 #include <QFont>
 #include <QPainter>

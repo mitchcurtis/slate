@@ -21,7 +21,8 @@
 
 #include "changeimagecanvassizecommand.h"
 #include "changeimagesizecommand.h"
-#include "utils.h"
+#include "imageutils.h"
+#include "qtutils.h"
 
 Q_LOGGING_CATEGORY(lcImageProjectLivePreview, "app.imageproject.livepreview")
 Q_LOGGING_CATEGORY(lcResize, "app.imageproject.resize")
@@ -174,7 +175,7 @@ void ImageProject::endLivePreview(LivePreviewModificationAction modificationActi
         // Image projects currently don't support moving contents.
         case LivePreviewModification::MoveContents:
             qFatal("mCurrentLivePreviewModification is %s, which isn't supported by ImageProject",
-                qPrintable(Utils::toString(mCurrentLivePreviewModification)));
+                qPrintable(QtUtils::toString(mCurrentLivePreviewModification)));
             break;
         case LivePreviewModification::None:
             qFatal("mCurrentLivePreviewModification is LivePreviewModification::None where it shouldn't be");
@@ -362,7 +363,7 @@ void ImageProject::exportGif(const QUrl &url)
     }
 
     QString errorMessage;
-    if (!Utils::exportGif(exportedImage(), url, *mAnimationSystem.currentAnimationPlayback(), errorMessage))
+    if (!ImageUtils::exportGif(exportedImage(), url, *mAnimationSystem.currentAnimationPlayback(), errorMessage))
         error(errorMessage);
 }
 
