@@ -122,6 +122,7 @@ protected:
     Q_REQUIRED_RESULT bool enterText(QQuickItem *textField, const QString &text,
         EnterTextFlags flags = EnterTextFlag::ClearTextFirst);
     Q_REQUIRED_RESULT bool selectComboBoxItem(const QString &comboBoxObjectName, int index);
+    Q_REQUIRED_RESULT bool enterTextIntoEditableSpinBox(QQuickItem *spinBox, const QString &text);
     Q_REQUIRED_RESULT bool incrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
     Q_REQUIRED_RESULT bool decrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
     Q_REQUIRED_RESULT bool setCheckBoxChecked(const QString &checkBoxObjectName, bool checked);

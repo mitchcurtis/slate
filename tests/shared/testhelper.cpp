@@ -351,6 +351,18 @@ bool TestHelper::selectComboBoxItem(const QString &comboBoxObjectName, int index
     return true;
 }
 
+bool TestHelper::enterTextIntoEditableSpinBox(QQuickItem *spinBox, const QString &text)
+{
+    VERIFY(spinBox);
+    VERIFY2(spinBox->hasActiveFocus(), activeFocusFailureMessage(spinBox));
+    QQuickItem *spinBoxTextInput = spinBox->property("contentItem").value<QQuickItem*>();
+    VERIFY(spinBoxTextInput);
+    const EnterTextFlags enterTextFlags = EnterTextFlag::ClearTextFirst | EnterTextFlag::CompareAsIntegers;
+    if (!enterText(spinBoxTextInput, text, enterTextFlags))
+        return false;
+    return true;
+}
+
 bool TestHelper::incrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue)
 {
     QQuickItem *spinBox = window->findChild<QQuickItem*>(spinBoxObjectName);
@@ -546,22 +558,15 @@ bool TestHelper::changeImageSize(int width, int height, bool preserveAspectRatio
     // Change the values and then cancel.
     QQuickItem *widthSpinBox = imageSizePopup->findChild<QQuickItem*>("changeImageWidthSpinBox");
     VERIFY(widthSpinBox);
-    // We want it to be easy to change the values with the keyboard..
-    VERIFY(widthSpinBox->hasActiveFocus());
     const int originalWidthSpinBoxValue = widthSpinBox->property("value").toInt();
-    QQuickItem *widthSpinBoxTextInput = widthSpinBox->property("contentItem").value<QQuickItem*>();
-    VERIFY(widthSpinBoxTextInput);
-    const EnterTextFlags enterTextFlags = EnterTextFlag::ClearTextFirst | EnterTextFlag::CompareAsIntegers;
-    if (!enterText(widthSpinBoxTextInput, QString::number(originalWidthSpinBoxValue + 1), enterTextFlags))
+    if (!enterTextIntoEditableSpinBox(widthSpinBox, QString::number(originalWidthSpinBoxValue + 1)))
         return false;
 
     QQuickItem *heightSpinBox = imageSizePopup->findChild<QQuickItem*>("changeImageHeightSpinBox");
     const int originalHeightSpinBoxValue = heightSpinBox->property("value").toInt();
     VERIFY(heightSpinBox);
-    QQuickItem *heightSpinBoxTextInput = heightSpinBox->property("contentItem").value<QQuickItem*>();
-    VERIFY(heightSpinBoxTextInput);
     QTest::keyClick(window, Qt::Key_Tab);
-    if (!enterText(heightSpinBoxTextInput, QString::number(originalHeightSpinBoxValue - 1), enterTextFlags))
+    if (!enterTextIntoEditableSpinBox(heightSpinBox, QString::number(originalHeightSpinBoxValue - 1)))
         return false;
     // Tab again because we want the focus to leave the text input so that valueModified is emitted.
     QTest::keyClick(window, Qt::Key_Tab);
@@ -598,10 +603,10 @@ bool TestHelper::changeImageSize(int width, int height, bool preserveAspectRatio
     }
 
     // Change the values and then press OK.
-    if (!enterText(widthSpinBoxTextInput, QString::number(width), enterTextFlags))
+    if (!enterTextIntoEditableSpinBox(widthSpinBox, QString::number(width)))
         return false;
     QTest::keyClick(window, Qt::Key_Tab);
-    if (!enterText(heightSpinBoxTextInput, QString::number(height), enterTextFlags))
+    if (!enterTextIntoEditableSpinBox(heightSpinBox, QString::number(height)))
         return false;
     // Tab again because we want the focus to leave the text input so that valueModified is emitted.
     QTest::keyClick(window, Qt::Key_Tab);
@@ -720,22 +725,15 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     // Change the values and then cancel.
     QQuickItem *moveContentsXSpinBox = moveContentsDialog->findChild<QQuickItem*>("moveContentsXSpinBox");
     VERIFY(moveContentsXSpinBox);
-    // We want it to be easy to change the values with the keyboard..
-    VERIFY(moveContentsXSpinBox->hasActiveFocus());
     const int originalXSpinBoxValue = moveContentsXSpinBox->property("value").toInt();
-    QQuickItem *moveContentsXSpinBoxTextInput = moveContentsXSpinBox->property("contentItem").value<QQuickItem*>();
-    VERIFY(moveContentsXSpinBoxTextInput);
-    const EnterTextFlags enterTextFlags = EnterTextFlag::ClearTextFirst | EnterTextFlag::CompareAsIntegers;
-    if (!enterText(moveContentsXSpinBoxTextInput, QString::number(originalXSpinBoxValue + 1), enterTextFlags))
+    if (!enterTextIntoEditableSpinBox(moveContentsXSpinBox, QString::number(originalXSpinBoxValue + 1)))
         return false;
 
     QQuickItem *moveContentsYSpinBox = moveContentsDialog->findChild<QQuickItem*>("moveContentsYSpinBox");
     VERIFY(moveContentsYSpinBox);
     const int originalYSpinBoxValue = moveContentsYSpinBox->property("value").toInt();
-    QQuickItem *moveContentsYSpinBoxTextInput = moveContentsYSpinBox->property("contentItem").value<QQuickItem*>();
-    VERIFY(moveContentsYSpinBoxTextInput);
     QTest::keyClick(window, Qt::Key_Tab);
-    if (!enterText(moveContentsYSpinBoxTextInput, QString::number(originalYSpinBoxValue - 1), enterTextFlags))
+    if (!enterTextIntoEditableSpinBox(moveContentsYSpinBox, QString::number(originalYSpinBoxValue - 1)))
         return false;
     // Tab again because we want the focus to leave the text input so that valueModified is emitted.
     QTest::keyClick(window, Qt::Key_Tab);
@@ -761,10 +759,10 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     VERIFY(moveContentsYSpinBox->property("value").toInt() == originalYSpinBoxValue);
 
     // Change the values and then press OK.
-    if (!enterText(moveContentsXSpinBoxTextInput, QString::number(x), enterTextFlags))
+    if (!enterTextIntoEditableSpinBox(moveContentsXSpinBox, QString::number(x)))
         return false;
     QTest::keyClick(window, Qt::Key_Tab);
-    if (!enterText(moveContentsYSpinBoxTextInput, QString::number(y), enterTextFlags))
+    if (!enterTextIntoEditableSpinBox(moveContentsYSpinBox, QString::number(y)))
         return false;
     // Tab again because we want the focus to leave the text input so that valueModified is emitted.
     QTest::keyClick(window, Qt::Key_Tab);
