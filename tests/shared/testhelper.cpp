@@ -798,6 +798,126 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
     return true;
 }
 
+bool TestHelper::rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int columns, int rows)
+{
+    auto getImages = [&](){
+        QVector<QImage> images;
+        if (project->type() == Project::ImageType)
+            images.append(*imageProject->image());
+        else
+            images = layeredImageProject->layerImages();
+        return images;
+    };
+
+    const QVector<QImage> originalImages = getImages();
+
+    QVector<QImage> expectedImages = ImageUtils::rearrangeContentsIntoGrid(originalImages, cellWidth, cellHeight, columns, rows);
+
+    // Open the rearrange contents dialog.
+    QObject *rearrangeContentsDialog;
+    if (!findAndOpenClosedPopupFromObjectName("rearrangeContentsIntoGridDialog", &rearrangeContentsDialog))
+        return false;
+
+    // Change the values and then cancel.
+    QQuickItem *cellWidthSpinBox = rearrangeContentsDialog->findChild<QQuickItem*>("cellWidthSpinBox");
+    VERIFY(cellWidthSpinBox);
+    const int originalCellWidthSpinBoxValue = cellWidthSpinBox->property("value").toInt();
+    if (!enterTextIntoEditableSpinBox(cellWidthSpinBox, QString::number(originalCellWidthSpinBoxValue + 1)))
+        return false;
+
+    QQuickItem *cellHeightSpinBox = rearrangeContentsDialog->findChild<QQuickItem*>("cellHeightSpinBox");
+    VERIFY(cellHeightSpinBox);
+    const int originalCellHeightSpinBoxValue = cellHeightSpinBox->property("value").toInt();
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterTextIntoEditableSpinBox(cellHeightSpinBox, QString::number(originalCellHeightSpinBoxValue + 2)))
+        return false;
+
+    QQuickItem *columnsSpinBox = rearrangeContentsDialog->findChild<QQuickItem*>("columnsSpinBox");
+    VERIFY(columnsSpinBox);
+    const int originalColumnsSpinBoxValue = columnsSpinBox->property("value").toInt();
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterTextIntoEditableSpinBox(columnsSpinBox, QString::number(originalColumnsSpinBoxValue + 3)))
+        return false;
+
+    QQuickItem *rowsSpinBox = rearrangeContentsDialog->findChild<QQuickItem*>("rowsSpinBox");
+    VERIFY(rowsSpinBox);
+    const int originalRowsSpinBoxValue = rowsSpinBox->property("value").toInt();
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterTextIntoEditableSpinBox(rowsSpinBox, QString::number(originalRowsSpinBoxValue + 4)))
+        return false;
+    // Tab again because we want the focus to leave the text input so that valueModified is emitted.
+    QTest::keyClick(window, Qt::Key_Tab);
+
+    // Check that the live preview has changed.
+    QVector<QImage> rearrangedImages = ImageUtils::rearrangeContentsIntoGrid(originalImages,
+        originalCellWidthSpinBoxValue + 1, originalCellHeightSpinBoxValue + 2,
+        originalColumnsSpinBoxValue + 3, originalRowsSpinBoxValue + 4);
+    if (!compareImages(getImages(), rearrangedImages, "live preview should show rearranged contents (before cancelling)"))
+        return false;
+
+    QQuickItem *cancelButton = rearrangeContentsDialog->findChild<QQuickItem*>("rearrangeContentsIntoGridDialogCancelButton");
+    VERIFY(cancelButton);
+    if (!clickButton(cancelButton))
+        return false;
+    TRY_VERIFY(!rearrangeContentsDialog->property("visible").toBool());
+    if (!compareImages(getImages(), originalImages, "live preview should show non-rearranged contents (after cancelling)"))
+        return false;
+
+    // Open the dialog again.
+    if (!findAndOpenClosedPopupFromObjectName("rearrangeContentsIntoGridDialog"))
+        return false;
+    // The old values should be restored.
+    VERIFY(cellWidthSpinBox->property("value").toInt() == originalCellWidthSpinBoxValue);
+    VERIFY(cellHeightSpinBox->property("value").toInt() == originalCellHeightSpinBoxValue);
+    VERIFY(columnsSpinBox->property("value").toInt() == originalColumnsSpinBoxValue);
+    VERIFY(rowsSpinBox->property("value").toInt() == originalRowsSpinBoxValue);
+
+    // Change the values and then press OK.
+    if (!enterTextIntoEditableSpinBox(cellWidthSpinBox, QString::number(cellWidth)))
+        return false;
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterTextIntoEditableSpinBox(cellHeightSpinBox, QString::number(cellHeight)))
+        return false;
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterTextIntoEditableSpinBox(columnsSpinBox, QString::number(columns)))
+        return false;
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterTextIntoEditableSpinBox(rowsSpinBox, QString::number(rows)))
+        return false;
+    QTest::keyClick(window, Qt::Key_Tab);
+
+    // Check that the preview has changed.
+    rearrangedImages = ImageUtils::rearrangeContentsIntoGrid(originalImages, cellWidth, cellHeight, columns, rows);
+    if (!compareImages(getImages(), rearrangedImages, "live preview should show rearranged contents (before accepting)"))
+        return false;
+
+    QQuickItem *okButton = rearrangeContentsDialog->findChild<QQuickItem*>("rearrangeContentsIntoGridDialogOkButton");
+    VERIFY(okButton);
+    if (!clickButton(okButton))
+        return false;
+    TRY_VERIFY(!rearrangeContentsDialog->property("visible").toBool());
+    if (!compareImages(getImages(), rearrangedImages, "image contents should be rearranged (after accepting)"))
+        return false;
+
+    // As we accepted the dialog, the next time we open it (in this project) it should have the
+    // most recently accepted values. This makes it easier to e.g. add some rows or columns later on,
+    // since the values (especially cell width and height) are remembered.
+    if (!findAndOpenClosedPopupFromObjectName("rearrangeContentsIntoGridDialog"))
+        return false;
+
+    VERIFY(cellWidthSpinBox->property("value").toInt() == cellWidth);
+    VERIFY(cellHeightSpinBox->property("value").toInt() == cellHeight);
+    VERIFY(columnsSpinBox->property("value").toInt() == columns);
+    VERIFY(rowsSpinBox->property("value").toInt() == rows);
+
+    // Close it again.
+    if (!clickButton(cancelButton))
+        return false;
+    TRY_VERIFY(!rearrangeContentsDialog->property("visible").toBool());
+
+    return true;
+}
+
 int TestHelper::sliderValue(QQuickItem *slider) const
 {
     const qreal position = slider->property("position").toReal();
@@ -1034,17 +1154,15 @@ bool TestHelper::fuzzyImageCompare(const QImage &actualImage, const QImage &expe
     auto saveImagesToPwd = [=](){
         const QString actualImageFilePath = QDir().absolutePath() + '/' + QTest::currentTestFunction() + QLatin1String("-actual.png");
         const QString expectedImageFilePath = QDir().absolutePath() + '/' + QTest::currentTestFunction() + QLatin1String("-expected.png");
-        qInfo() << "Saving actual and expected images to" << actualImageFilePath << "and" << expectedImageFilePath;
+        qInfo() << "Saving actual and expected images to\n" << actualImageFilePath << "\nand\n" << expectedImageFilePath;
         actualImage.save(actualImageFilePath);
         expectedImage.save(expectedImageFilePath);
     };
 
     if (actualImage.size() != expectedImage.size()) {
-        if (!context.isEmpty())
-            failureMessage = QString::fromLatin1("Failure comparing images (%1):").arg(context).toLatin1();
-
-        failureMessage += QString::fromLatin1(" actual size %1 is not the same as expected size %2")
-            .arg(QtUtils::toString(actualImage.size())).arg(QtUtils::toString(expectedImage.size())).toLatin1();
+        const QString contextStr = context.isEmpty() ? context : " (" + context + ')';
+        failureMessage = QString::fromLatin1("Failure comparing images %1: actual size %2 is not the same as expected size %3)")
+            .arg(contextStr).arg(QtUtils::toString(actualImage.size())).arg(QtUtils::toString(expectedImage.size())).toLatin1();
 
         saveImagesToPwd();
 
@@ -1072,6 +1190,28 @@ bool TestHelper::fuzzyImageCompare(const QImage &actualImage, const QImage &expe
 bool TestHelper::compareImages(const QImage &actualImage, const QImage &expectedImage, const QString &context)
 {
     return fuzzyImageCompare(actualImage, expectedImage, 0, context);
+}
+
+bool TestHelper::compareImages(const QVector<QImage> &actualImages, const QVector<QImage> &expectedImages, const QString &context)
+{
+    if (actualImages.size() != expectedImages.size()) {
+        const QString contextStr = context.isEmpty() ? context : " (" + context + ')';
+        failureMessage = QString::fromLatin1("Failure comparing list of %1 images %2: actual image count %3 is not the same as expected image count %4)")
+            .arg(expectedImages.size()).arg(contextStr).arg(QtUtils::toString(actualImages.size()))
+                .arg(QtUtils::toString(expectedImages.size())).toLatin1();
+        return false;
+    }
+
+    for (int i = 0; i < expectedImages.size(); ++i) {
+        if (!compareImages(actualImages.at(i), expectedImages.at(i), context)) {
+            const QString contextStr = context.isEmpty() ? context : " (" + context + ')';
+            failureMessage = QString::fromLatin1("Failure comparing list of %1 images - images at index %2:\n")
+                .arg(expectedImages.size()).arg(i).toLatin1() + failureMessage;
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool TestHelper::everyPixelIs(const QImage &image, const QColor &colour)
@@ -3080,6 +3220,9 @@ bool TestHelper::verifyNoErrorOrDismiss()
 
 bool TestHelper::copyFileFromResourcesToTempProjectDir(const QString &baseName)
 {
+    VERIFY2(tempProjectDir, qPrintable(QString::fromLatin1(
+        "Can't copy %1 as tempProjectDir is null").arg(baseName)));
+
     QFile sourceFile(":/resources/" + baseName);
     VERIFY2(sourceFile.open(QIODevice::ReadOnly), qPrintable(QString::fromLatin1(
         "Failed to open %1 for copying to temp project dir: %2").arg(sourceFile.fileName()).arg(sourceFile.errorString())));

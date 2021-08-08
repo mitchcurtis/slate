@@ -29,6 +29,9 @@
 class AnimationPlayback;
 
 namespace ImageUtils {
+    SLATE_EXPORT QImage filledImage(uint width, uint height, const QColor &colour = Qt::transparent);
+    SLATE_EXPORT QImage filledImage(const QSize &size, const QColor &colour = Qt::transparent);
+
     QImage paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
 
     QImage replacePortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
@@ -39,7 +42,10 @@ namespace ImageUtils {
     QImage rotateAreaWithinImage(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea);
 
     SLATE_EXPORT QImage moveContents(const QImage &image, int xDistance, int yDistance);
-    SLATE_EXPORT QImage resizeContents(const QImage &image, int newWidth, int newHeight);
+    SLATE_EXPORT QImage resizeContents(const QImage &image, int newWidth, int newHeight, bool smooth = false);
+    SLATE_EXPORT QImage resizeContents(const QImage &image, const QSize &newSize, bool smooth = false);
+    SLATE_EXPORT QVector<QImage> rearrangeContentsIntoGrid(const QVector<QImage> &images, uint cellWidth, uint cellHeight,
+        uint columns, uint rows);
 
     void modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness, qreal alpha,
         ImageCanvas::AlphaAdjustmentFlags alphaAdjustmentFlags);

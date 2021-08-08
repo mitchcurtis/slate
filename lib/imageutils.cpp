@@ -19,7 +19,12 @@
 
 #include "imageutils.h"
 
+//#define DEBUG_REARRANGE_IMAGES
+
 #include <QDebug>
+#ifdef DEBUG_REARRANGE_IMAGES
+#include <QDir>
+#endif
 #include <QLoggingCategory>
 #include <QPainter>
 #include <QPainterPathStroker>
@@ -37,6 +42,21 @@ extern "C" {
 #include "animationplayback.h"
 
 Q_LOGGING_CATEGORY(lcUtils, "app.utils")
+Q_LOGGING_CATEGORY(lcUtilsRearrange, "app.utils.rearrangeContentsIntoGrid")
+
+QImage ImageUtils::filledImage(uint width, uint height, const QColor &colour)
+{
+    Q_ASSERT(width < std::numeric_limits<int>::max());
+    Q_ASSERT(height < std::numeric_limits<int>::max());
+    return filledImage(QSize(width, height), colour);
+}
+
+QImage ImageUtils::filledImage(const QSize &size, const QColor &colour)
+{
+    QImage image(size, QImage::Format_ARGB32_Premultiplied);
+    image.fill(colour);
+    return image;
+}
 
 QImage ImageUtils::paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
 {
@@ -127,8 +147,7 @@ QImage ImageUtils::rotateAreaWithinImage(const QImage &image, const QRect &area,
 
 QImage ImageUtils::moveContents(const QImage &image, int xDistance, int yDistance)
 {
-    QImage translated(image.size(), QImage::Format_ARGB32_Premultiplied);
-    translated.fill(Qt::transparent);
+    QImage translated = filledImage(image.size());
 
     QPainter painter(&translated);
     painter.drawImage(xDistance, yDistance, image);
@@ -137,9 +156,130 @@ QImage ImageUtils::moveContents(const QImage &image, int xDistance, int yDistanc
     return translated;
 }
 
-QImage ImageUtils::resizeContents(const QImage &image, int newWidth, int newHeight)
+QImage ImageUtils::resizeContents(const QImage &image, int newWidth, int newHeight, bool smooth)
 {
-    return image.scaled(QSize(newWidth, newHeight), Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    return resizeContents(image, QSize(newWidth, newHeight), smooth);
+}
+
+QImage ImageUtils::resizeContents(const QImage &image, const QSize &newSize, bool smooth)
+{
+    return image.scaled(newSize, Qt::IgnoreAspectRatio,
+        smooth ? Qt::SmoothTransformation : Qt::FastTransformation);
+}
+
+QVector<QImage> ImageUtils::rearrangeContentsIntoGrid(const QVector<QImage> &images, uint cellWidth, uint cellHeight,
+    uint columns, uint rows)
+{
+    if (images.isEmpty()) {
+        qWarning() << "rearrangeContentsIntoGrid called with no images";
+        return {};
+    }
+
+    if (cellWidth < 1 || cellHeight < 1 || columns < 1 || rows < 1) {
+        qWarning() << "rearrangeContentsIntoGrid called with invalid cellWidth/Height or columns/rows:"
+            << cellWidth << cellHeight << columns << rows;
+        return {};
+    }
+
+    /*
+        We're going to loop only as much as we need to (smallerCellCount). For
+        example, if we're increasing the number of rows and/or columns from 3x3
+        to 4x4, we only had 9 cells to start with, so we only need to loop 9
+        times, not 16:
+
+        +-------+-------+-------+      +-------+-------+-------+-------+
+        |       |       |       |      |       |       |       |       |
+        |   1   |   2   |   3   |      |   1   |   2   |   3   |   4   |
+        |       |       |       |      |       |       |       |       |
+        +-------+-------+-------+      +-------+-------+-------+-------+
+        |       |       |       |      |       |       |       |       |
+        |   4   |   5   |   6   |   => |   5   |   6   |   7   |   8   |
+        |       |       |       |      |       |       |       |       |
+        +-------+-------+-------+      +-------+-------+-------+-------+
+        |       |       |       |      |       |       |       |       |
+        |   7   |   8   |   9   |      |   9   | EMPTY | EMPTY | EMPTY |
+        |       |       |       |      |       |       |       |       |
+        +-------+-------+-------+      +-------+-------+-------+-------+
+                                       |       |       |       |       |
+                                       | EMPTY | EMPTY | EMPTY | EMPTY |
+                                       |       |       |       |       |
+                                       +-------+-------+-------+-------+
+
+        If we go from 4x4 to 3x3, we're cutting out cells we had:
+
+        +-------+-------+-------+-------+        +-------+-------+-------+
+        |       |       |       |       |        |       |       |       |
+        |   1   |   2   |   3   |   4   |        |   1   |   2   |   3   |
+        |       |       |       |       |        |       |       |       |
+        +-------+-------+-------+-------+        +-------+-------+-------+
+        |       |       |       |       |        |       |       |       |
+        |   5   |   6   |   7   |   8   |   =>   |   4   |   5   |   6   |
+        |       |       |       |       |        |       |       |       |
+        +-------+-------+-------+-------+        +-------+-------+-------+
+        |       |       |       |       |        |       |       |       |
+        |   9   |  CUT  |  CUT  |  CUT  |        |   7   |   8   |   9   |
+        |       |       |       |       |        |       |       |       |
+        +-------+-------+-------+-------+        +-------+-------+-------+
+        |       |       |       |       |
+        |  CUT  |  CUT  |  CUT  |  CUT  |
+        |       |       |       |       |
+        +-------+-------+-------+-------+
+    */
+    const QSize oldImageSize = images.first().size();
+    const int oldColumnCount = oldImageSize.width() / cellWidth;
+    const int oldRowCount = oldImageSize.height() / cellHeight;
+    const int oldCellCount = oldRowCount * oldColumnCount;
+    const int newCellCount = rows * columns;
+    const int smallerCellCount = qMin(oldCellCount, newCellCount);
+
+    const QSize newImageSize(cellWidth * columns, cellHeight * rows);
+
+    qCDebug(lcUtilsRearrange).nospace() << "rearranging " << images.size() << " layer images into "
+        << cellWidth << "px x " << cellHeight << "px cells:"
+        << " old column count " << oldColumnCount << " old row count " << oldRowCount
+        << " new column count " << columns << " new row count " << rows
+        << " rearranging " << smallerCellCount << " cells per layer";
+
+    QVector<QImage> newImages;
+
+    for (int layerIndex = 0; layerIndex < images.size(); ++layerIndex) {
+        const auto oldLayerImage = images.at(layerIndex);
+
+        QImage newLayerImage = ImageUtils::filledImage(newImageSize);
+
+        // Loop through each cell for this layer's image.
+        for (int cellIndex = 0; cellIndex < smallerCellCount; ++cellIndex) {
+            const int oldColumn = cellIndex % oldColumnCount;
+            const int oldRow = cellIndex / oldColumnCount;
+            const int oldImageCellX = oldColumn * cellWidth;
+            const int oldImageCellY = oldRow * cellHeight;
+            const QImage cellImage = oldLayerImage.copy(oldImageCellX, oldImageCellY, cellWidth, cellHeight);
+
+            const int newColumn = cellIndex % columns;
+            const int newRow = cellIndex / columns;
+            const int newImageCellX = newColumn * cellWidth;
+            const int newImageCellY = newRow * cellHeight;
+
+//            qDebug() << "- layer" << layerIndex << "oldColumn" << oldColumn << "oldRow" << oldRow
+//                    << "oldImageCellX" << oldImageCellX << "oldImageCellY" << oldImageCellX
+//                    << "newColumn" << newColumn << "newRow" << newRow
+//                    << "newImageCellX" << newImageCellX << "newImageCellY" << newImageCellY;
+
+#ifdef DEBUG_REARRANGE_IMAGES
+            const QString path = QDir().absolutePath() + QString::fromLatin1("/oldCellImage-layer-%1-%2-%3.png")
+                .arg(layerIndex).arg(oldImageCellX).arg(oldImageCellY);
+            cellImage.save(path);
+            qDebug() << "- layer" << layerIndex << "oldCellImage saved to" << path;
+#endif
+
+            // TODO: there's probably a more efficient way to do this
+            newLayerImage = ImageUtils::replacePortionOfImage(newLayerImage, QRect(newImageCellX, newImageCellY, cellWidth, cellHeight), cellImage);
+        }
+
+        newImages.append(newLayerImage);
+    }
+
+    return newImages;
 }
 
 void ImageUtils::strokeRectWithDashes(QPainter *painter, const QRect &rect)

@@ -150,7 +150,8 @@ public:
     enum class LivePreviewModification {
         None,
         Resize,
-        MoveContents
+        MoveContents,
+        RearrangeContentsIntoGrid
     };
     // We need Q_ENUM in order to print the enum, and Q_ENUM needs to be public.
     Q_ENUM(LivePreviewModification);

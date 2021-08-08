@@ -23,9 +23,11 @@
 #include "changeimagesizecommand.h"
 #include "imageutils.h"
 #include "qtutils.h"
+#include "rearrangeimagecontentsintogridcommand.h"
 
 Q_LOGGING_CATEGORY(lcImageProjectLivePreview, "app.imageproject.livepreview")
 Q_LOGGING_CATEGORY(lcResize, "app.imageproject.resize")
+Q_LOGGING_CATEGORY(lcImageProjectRearrangeContentsIntoGrid, "app.imageproject.rearrangecontentsintogrid")
 
 ImageProject::ImageProject() :
     mAnimationHelper(this, &mAnimationSystem, &mUsingAnimation)
@@ -172,6 +174,11 @@ void ImageProject::endLivePreview(LivePreviewModificationAction modificationActi
             addChange(new ChangeImageSizeCommand(this, mImageBeforeLivePreview, mImage));
             endMacro();
             break;
+        case LivePreviewModification::RearrangeContentsIntoGrid:
+            beginMacro(QLatin1String("RearrangeImageContentsIntoGrid"));
+            addChange(new RearrangeImageContentsIntoGridCommand(this, mImageBeforeLivePreview, mImage));
+            endMacro();
+            break;
         // Image projects currently don't support moving contents.
         case LivePreviewModification::MoveContents:
             qFatal("mCurrentLivePreviewModification is %s, which isn't supported by ImageProject",
@@ -264,8 +271,7 @@ void ImageProject::resize(int width, int height, bool smooth)
     if (newSize == size())
         return;
 
-    const QImage resizedImage = mImage.scaled(newSize, Qt::IgnoreAspectRatio,
-        smooth ? Qt::SmoothTransformation : Qt::FastTransformation);
+    const QImage resizedImage = ImageUtils::resizeContents(mImage, newSize, smooth);
     makeLivePreviewModification(LivePreviewModification::Resize, resizedImage);
 }
 
@@ -282,6 +288,19 @@ void ImageProject::crop(const QRect &rect)
     endMacro();
 }
 
+void ImageProject::rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int columns, int rows)
+{
+    qCDebug(lcImageProjectRearrangeContentsIntoGrid) << "rearrangeContentsIntoGrid called with cellWidth" << cellWidth
+        << "cellHeight" << cellHeight << "columns" << columns << "rows" << rows;
+
+    if (warnIfLivePreviewNotActive(QLatin1String("rearrange contents into grid")))
+        return;
+
+    const QVector<QImage> newImages = ImageUtils::rearrangeContentsIntoGrid(
+        { mImageBeforeLivePreview }, cellWidth, cellHeight, columns, rows);
+    makeLivePreviewModification(LivePreviewModification::RearrangeContentsIntoGrid, newImages.first());
+}
+
 QImage *ImageProject::image()
 {
     return &mImage;
@@ -292,12 +311,7 @@ Project::Type ImageProject::type() const
     return ImageType;
 }
 
-void ImageProject::doSetCanvasSize(const QImage &newImage)
-{
-    doSetImageSize(newImage);
-}
-
-void ImageProject::doSetImageSize(const QImage &newImage)
+void ImageProject::setImage(const QImage &newImage)
 {
     if (newImage.width() == 0 || newImage.height() == 0) {
         error(QLatin1String("Cannot set image's width or height to zero"));

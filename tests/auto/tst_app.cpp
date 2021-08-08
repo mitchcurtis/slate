@@ -90,6 +90,8 @@ private Q_SLOTS:
     void undoImageCanvasSizeChange();
     void undoImageSizeChange();
     void undoLayeredImageSizeChange();
+    void undoRearrangeContentsIntoGridChange_data();
+    void undoRearrangeContentsIntoGridChange();
     void undoPixelFill();
     void undoTileFill();
     void undoThickSquarePen();
@@ -248,8 +250,7 @@ void tst_App::newProjectWithNewTileset()
     const int expectedHeight = 32 * 5;
     QCOMPARE(tilesetProject->tileset()->image()->width(), expectedWidth);
     QCOMPARE(tilesetProject->tileset()->image()->height(), expectedHeight);
-    QImage expectedTilesetImage(expectedWidth, expectedHeight, tilesetProject->tileset()->image()->format());
-    expectedTilesetImage.fill(Qt::white);
+    QImage expectedTilesetImage(ImageUtils::filledImage(expectedWidth, expectedHeight, Qt::white));
     expectedTilesetImage.setPixelColor(10, 10, tileCanvas->penForegroundColour());
 
     // Draw a tile on.
@@ -263,7 +264,7 @@ void tst_App::newProjectWithNewTileset()
     QVERIFY2(switchMode(TileCanvas::PixelMode), failureMessage);
     setCursorPosInScenePixels(10, 10);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(*tilesetProject->tileset()->image(), expectedTilesetImage);
+    QVERIFY2(compareImages(*tilesetProject->tileset()->image(), expectedTilesetImage), failureMessage);
 
     // Save the project.
     const QUrl saveFileName = QUrl::fromLocalFile(tempProjectDir->path() + "/mytileset.stp");
@@ -272,7 +273,7 @@ void tst_App::newProjectWithNewTileset()
     const QString tilesetPath = tempProjectDir->path() + "/mytileset.png";
     QCOMPARE(tilesetProject->tilesetUrl(), QUrl::fromLocalFile(tilesetPath));
     QVERIFY(QFile::exists(tilesetPath));
-    QCOMPARE(*tilesetProject->tileset()->image(), expectedTilesetImage);
+    QVERIFY2(compareImages(*tilesetProject->tileset()->image(), expectedTilesetImage), failureMessage);
 }
 
 void tst_App::repeatedNewProject_data()
@@ -799,8 +800,7 @@ void tst_App::newProjectSizeFromClipboard_data()
     QTest::addColumn<Project::Type>("projectType");
     QTest::addColumn<QImage>("clipboardImage");
 
-    QImage clipboardImage(100, 200, QImage::Format_ARGB32_Premultiplied);
-    clipboardImage.fill(Qt::red);
+    const QImage clipboardImage = ImageUtils::filledImage(100, 200, Qt::red);
 
     QTest::newRow("ImageType, 100x200") << Project::ImageType << clipboardImage;
     QTest::newRow("ImageType, (none)") << Project::ImageType << QImage();
@@ -1539,6 +1539,8 @@ void tst_App::undoImageSizeChange()
     QCOMPARE(imageProject->image()->pixelColor(QPoint(0, 0)), imageCanvas->penForegroundColour());
     QCOMPARE(imageProject->image()->pixelColor(QPoint(3, 3)), imageCanvas->penForegroundColour());
 
+    const QImage originalContents = project->exportedImage();
+
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
@@ -1546,9 +1548,8 @@ void tst_App::undoImageSizeChange()
     QVERIFY2(changeImageSize(6, 6), failureMessage);
 
     // The contents should have been scaled down by 50%.
-    QCOMPARE(imageProject->image()->pixelColor(QPoint(0, 0)), imageCanvas->penForegroundColour());
-    QCOMPARE(imageProject->image()->pixelColor(QPoint(1, 1)), imageCanvas->penForegroundColour());
-    QCOMPARE(imageProject->image()->pixelColor(QPoint(2, 2)), QColor(Qt::white));
+    const QImage expectedResizedContents = ImageUtils::resizeContents(originalContents, 6, 6);
+    QVERIFY2(compareImages(project->exportedImage(), expectedResizedContents), failureMessage);
 
     // Move the mouse back so the image comparison works.
     setCursorPosInScenePixels(2, 2);
@@ -1562,10 +1563,7 @@ void tst_App::undoImageSizeChange()
 
     // Undo the size change.
     QVERIFY2(clickButton(undoToolButton), failureMessage);
-
-    QCOMPARE(imageProject->image()->size(), QSize(12, 12));
-    QCOMPARE(imageProject->image()->pixelColor(QPoint(0, 0)), imageCanvas->penForegroundColour());
-    QCOMPARE(imageProject->image()->pixelColor(QPoint(3, 3)), imageCanvas->penForegroundColour());
+    QVERIFY2(compareImages(project->exportedImage(), originalContents), failureMessage);
 
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -1602,6 +1600,8 @@ void tst_App::undoLayeredImageSizeChange()
     QCOMPARE(layer2->image()->pixelColor(4, 0), QColor(Qt::red));
     QCOMPARE(layer2->image()->pixelColor(7, 3), QColor(Qt::red));
 
+    const QImage originalContents = project->exportedImage();
+
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
@@ -1609,13 +1609,8 @@ void tst_App::undoLayeredImageSizeChange()
     QVERIFY2(changeImageSize(6, 6), failureMessage);
 
     // The contents of both layers should have been scaled down by 50%.
-    QCOMPARE(layer1->image()->pixelColor(QPoint(0, 0)), QColor(Qt::black));
-    QCOMPARE(layer1->image()->pixelColor(QPoint(1, 1)), QColor(Qt::black));
-    QCOMPARE(layer1->image()->pixelColor(QPoint(0, 2)), QColor(Qt::white));
-
-    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 0)), QColor(Qt::red));
-    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 1)), QColor(Qt::red));
-    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 2)), QColor(Qt::transparent));
+    const QImage expectedResizedContents = ImageUtils::resizeContents(originalContents, 6, 6);
+    QVERIFY2(compareImages(project->exportedImage(), expectedResizedContents), failureMessage);
 
     // Move the mouse back so the image comparison works.
     setCursorPosInScenePixels(2, 2);
@@ -1629,18 +1624,50 @@ void tst_App::undoLayeredImageSizeChange()
 
     // Undo the size change.
     QVERIFY2(clickButton(undoToolButton), failureMessage);
-
-    QCOMPARE(layer1->image()->size(), QSize(12, 12));
-    QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(layer1->image()->pixelColor(3, 3), QColor(Qt::black));
-
-    QCOMPARE(layer2->image()->pixelColor(4, 0), QColor(Qt::red));
-    QCOMPARE(layer2->image()->pixelColor(7, 3), QColor(Qt::red));
+    QVERIFY2(compareImages(project->exportedImage(), originalContents), failureMessage);
 
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage postUndoSnapshot = imageGrabber.takeImage();
     QCOMPARE(postUndoSnapshot, preSizeChangeCanvasSnapshot);
+}
+
+void tst_App::undoRearrangeContentsIntoGridChange_data()
+{
+    QTest::addColumn<QString>("projectPath");
+    QTest::addColumn<QString>("expectedExportedImagePath");
+    QTest::addColumn<int>("cellWidth");
+    QTest::addColumn<int>("cellHeight");
+    QTest::addColumn<int>("columns");
+    QTest::addColumn<int>("rows");
+
+    QTest::newRow("ImageType, grid-4x4 to 8x8")
+        << "grid-4x4.png" << ":/resources/grid-4x4-to-8x8.png" << 8 << 8 << 8 << 8;
+    QTest::newRow("LayeredImageType, grid-4x4 to 8x8")
+        << "grid-4x4.slp" << ":/resources/grid-4x4-to-8x8.png" << 8 << 8 << 8 << 8;
+}
+
+void tst_App::undoRearrangeContentsIntoGridChange()
+{
+    QFETCH(QString, projectPath);
+    QFETCH(QString, expectedExportedImagePath);
+    QFETCH(int, cellWidth);
+    QFETCH(int, cellHeight);
+    QFETCH(int, columns);
+    QFETCH(int, rows);
+
+    QVERIFY2(setupTempProjectDir(), failureMessage);
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectPath), failureMessage);
+
+    const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1Char('/') + projectPath);
+    QVERIFY2(loadProject(projectUrl), failureMessage);
+
+    QVERIFY2(rearrangeContentsIntoGrid(cellWidth, cellHeight, columns, rows), failureMessage);
+
+    const QImage expectedExportedImage(expectedExportedImagePath);
+    QVERIFY2(!expectedExportedImage.isNull(), qPrintable(QString::fromLatin1(
+        "Failed to open expectedExportedImage at %1").arg(expectedExportedImagePath)));
+    QVERIFY2(compareImages(project->exportedImage(), expectedExportedImage), failureMessage);
 }
 
 void tst_App::undoPixelFill()
@@ -4444,8 +4471,7 @@ void tst_App::undoCopyPasteWithTransparency()
     // top-left of the canvas. The test used to select {0,9 3x3} and copy it,
     // and then paste it. To ensure the integrity of the test, we manually
     // set the clipboard image so that it's still pasted at the top-left.
-    QImage image(3, 3, QImage::Format_ARGB32_Premultiplied);
-    image.fill(Qt::transparent);
+    QImage image = ImageUtils::filledImage(3, 3);
     image.setPixelColor(1, 1, Qt::black);
     qGuiApp->clipboard()->setImage(image);
 
@@ -4483,8 +4509,7 @@ void tst_App::pasteFromExternalSource()
 
     QCOMPARE(canvas->tool(), ImageCanvas::PenTool);
 
-    QImage image(32, 32, QImage::Format_ARGB32_Premultiplied);
-    image.fill(Qt::blue);
+    QImage image = ImageUtils::filledImage(32, 32, Qt::blue);
     qGuiApp->clipboard()->setImage(image);
 
     QTest::keySequence(window, QKeySequence::Paste);
@@ -4555,8 +4580,7 @@ void tst_App::flipPastedImage()
     QCOMPARE(flipHorizontallyToolButton->isEnabled(), false);
     QCOMPARE(flipVerticallyToolButton->isEnabled(), false);
 
-    QImage image(32, 32, QImage::Format_ARGB32_Premultiplied);
-    image.fill(Qt::blue);
+    QImage image = ImageUtils::filledImage(32, 32);
 
     QPainter painter(&image);
     painter.fillRect(0, 0, image.width() / 2, 10, QColor(Qt::red));
@@ -4589,8 +4613,7 @@ void tst_App::flipOnTransparentBackground()
     QVERIFY2(panTopLeftTo(10, 10), failureMessage);
 
     // Create the flipped image that we expect to see.
-    QImage image(project->widthInPixels(), project->heightInPixels(), QImage::Format_ARGB32_Premultiplied);
-    image.fill(Qt::transparent);
+    QImage image = ImageUtils::filledImage(project->widthInPixels(), project->heightInPixels());
     image.setPixelColor(0, project->heightInPixels() - 1, Qt::red);
 
     // Draw a red dot.
@@ -6465,8 +6488,7 @@ void tst_App::layerVisibilityAfterMoving()
 void tst_App::selectionConfirmedWhenSwitchingLayers()
 {
     // Copy an image onto the clipboard.
-    QImage clipboardContents(100, 200, QImage::Format_ARGB32_Premultiplied);
-    clipboardContents.fill(Qt::red);
+    const QImage clipboardContents = ImageUtils::filledImage(100, 200, Qt::red);
     qGuiApp->clipboard()->setImage(clipboardContents);
 
     // Create a new layered image project with the dimensions of the clipboard contents.
