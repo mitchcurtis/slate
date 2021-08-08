@@ -63,6 +63,7 @@ public:
     QImage flattenedImage(int fromIndex, int toIndex, const std::function<QImage(int)> &layerSubstituteFunction = nullptr) const;
     QHash<QString, QImage> flattenedImages() const;
     QImage exportedImage() const override;
+    QVector<QImage> layerImages() const;
 
     bool isAutoExportEnabled() const;
     void setAutoExportEnabled(bool autoExportEnabled);
@@ -107,6 +108,7 @@ public slots:
     void resize(int width, int height);
     void crop(const QRect &rect);
     void moveContents(int xDistance, int yDistance, bool onlyVisibleContents);
+    void rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int columns, int rows);
 
     void addNewLayer();
     void deleteCurrentLayer();
@@ -152,6 +154,7 @@ private:
     friend class MergeLayersCommand;
     friend class DuplicateLayerCommand;
     friend class MoveLayeredImageContentsCommand;
+    friend class RearrangeLayeredImageContentsIntoGridCommand;
 
     bool isValidIndex(int index) const;
 
@@ -162,6 +165,7 @@ private:
     void doSetCanvasSize(const QVector<QImage> &newImages);
     void doSetImageSize(const QVector<QImage> &newImages);
     void doMoveContents(const QVector<QImage> &newImages);
+    void doRearrangeContentsIntoGrid(const QVector<QImage> &newImages);
 
     void addNewLayer(int imageWidth, int imageHeight, bool transparent, bool undoable = true);
     void addLayerAboveAll(ImageLayer *imageLayer);

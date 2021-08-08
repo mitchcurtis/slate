@@ -1362,7 +1362,7 @@ void ImageCanvas::onAboutToBeginMacro(const QString &macroText)
 
 void ImageCanvas::recreateCheckerImage()
 {
-    mCheckerImage = QImage(32, 32, QImage::Format_ARGB32_Premultiplied);
+    mCheckerImage = ImageUtils::filledImage(32, 32);
 
     QPainter painter(&mCheckerImage);
     int i = 0;
@@ -1977,8 +1977,7 @@ void ImageCanvas::rotateSelection(int angle)
         const QImage image = *imageForLayerAt(currentLayerIndex());
         mSelectionContents = ImageUtils::rotateAreaWithinImage(image, mSelectionArea, angle, rotatedArea);
     } else {
-        QImage image(mProject->size(), QImage::Format_ARGB32_Premultiplied);
-        image.fill(Qt::transparent);
+        QImage image = ImageUtils::filledImage(mProject->size());
         QPainter painter(&image);
         painter.drawImage(mSelectionArea, mSelectionContents);
         mSelectionContents = ImageUtils::rotateAreaWithinImage(image, mSelectionArea, angle, rotatedArea);

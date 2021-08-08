@@ -29,6 +29,7 @@
 #include <QMetaEnum>
 
 #include "applicationsettings.h"
+#include "imageutils.h"
 
 Q_LOGGING_CATEGORY(lcProject, "app.project")
 Q_LOGGING_CATEGORY(lcProjectGuides, "app.project.guides")
@@ -341,8 +342,7 @@ QUrl Project::createTemporaryImage(int width, int height, const QColor &colour)
         return QUrl();
     }
 
-    QImage tempImage(width, height, QImage::Format_ARGB32_Premultiplied);
-    tempImage.fill(colour);
+    QImage tempImage = ImageUtils::filledImage(width, height, colour);
 
     const QString dateString = QDateTime::currentDateTime().toString(QLatin1String("hh-mm-ss-zzz"));
     const QString fileName = QString::fromLatin1("%1/tmp-image-%2.png").arg(mTempDir.path(), dateString);

@@ -283,6 +283,7 @@ protected:
     Q_REQUIRED_RESULT bool changeToolSize(int size);
     Q_REQUIRED_RESULT bool changeToolShape(ImageCanvas::ToolShape toolShape);
     Q_REQUIRED_RESULT bool moveContents(int x, int y, bool onlyVisibleLayers);
+    Q_REQUIRED_RESULT bool rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int columns, int rows);
     int sliderValue(QQuickItem *slider) const;
     Q_REQUIRED_RESULT bool moveSliderHandle(QQuickItem *slider, qreal expectedValue);
     Q_REQUIRED_RESULT bool selectColourAtCursorPos();
@@ -293,6 +294,8 @@ protected:
     Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &actualColour, const QColor &expectedColour, int fuzz = 1);
     Q_REQUIRED_RESULT bool fuzzyImageCompare(const QImage &actualImage, const QImage &expectedImage, int fuzz = 1, const QString &context = QString());
     Q_REQUIRED_RESULT bool compareImages(const QImage &actualImage, const QImage &expectedImage, const QString &context = QString());
+    Q_REQUIRED_RESULT bool compareImages(const QVector<QImage> &actualImages, const QVector<QImage> &expectedImages,
+        const QString &context = QString());
     Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
 
     Q_REQUIRED_RESULT bool compareSwatches(const Swatch &actualSwatch, const Swatch &expectedSwatch);

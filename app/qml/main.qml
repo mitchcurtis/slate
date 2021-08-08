@@ -171,6 +171,7 @@ ApplicationWindow {
         canvasSizePopup: canvasSizePopup
         imageSizePopup: imageSizePopup
         moveContentsDialog: moveContentsDialog
+        rearrangeContentsIntoGridDialog: rearrangeContentsIntoGridDialog
         texturedFillSettingsDialog: texturedFillSettingsDialog
         aboutDialog: aboutDialog
         saveChangesDialog: saveChangesDialog
@@ -438,6 +439,13 @@ ApplicationWindow {
         parent: Overlay.overlay
         anchors.centerIn: parent
         project: window.isLayeredImageProjectType ? projectManager.project : null
+    }
+
+    Ui.RearrangeContentsIntoGridDialog {
+        id: rearrangeContentsIntoGridDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        project: projectManager.project
     }
 
     Ui.TexturedFillSettingsDialog {

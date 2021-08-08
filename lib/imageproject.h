@@ -67,6 +67,7 @@ public slots:
 
     void resize(int width, int height, bool smooth);
     void crop(const QRect &rect);
+    void rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int columns, int rows);
 
     void addAnimation();
     void duplicateAnimation(int index);
@@ -84,9 +85,9 @@ protected:
 private:
     friend class ChangeImageCanvasSizeCommand;
     friend class ChangeImageSizeCommand;
+    friend class RearrangeImageContentsIntoGridCommand;
 
-    void doSetCanvasSize(const QImage &newImage);
-    void doSetImageSize(const QImage &newImage);
+    void setImage(const QImage &newImage);
 
     void makeLivePreviewModification(LivePreviewModification modification, const QImage &newImage);
 

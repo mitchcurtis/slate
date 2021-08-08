@@ -65,6 +65,7 @@ Group {
             "ui/OptionalToolSeparator.qml",
             "ui/Panel.qml",
             "ui/ProjectTemplateButton.qml",
+            "ui/RearrangeContentsIntoGridDialog.qml",
             "ui/RenameSwatchColourDialog.qml",
             "ui/RowActionButton.qml",
             "ui/SaturationLightnessPicker.qml",

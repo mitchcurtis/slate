@@ -42,6 +42,7 @@ Controls.MenuBar {
     property var aboutDialog
     property SaveChangesDialog saveChangesDialog
     property AddGuidesDialog addGuidesDialog
+    property RearrangeContentsIntoGridDialog rearrangeContentsIntoGridDialog
 
     Menu {
         id: fileMenu
@@ -348,6 +349,13 @@ Controls.MenuBar {
             text: qsTr("Move Contents...")
             enabled: canvas && projectType === Project.LayeredImageType
             onTriggered: moveContentsDialog.open()
+        }
+
+        MenuItem {
+            objectName: "rearrangeContentsIntoGridMenuItem"
+            text: qsTr("Rearrange Contents Into Grid...")
+            enabled: isImageProjectType && canvas
+            onTriggered: rearrangeContentsIntoGridDialog.open()
         }
     }
 

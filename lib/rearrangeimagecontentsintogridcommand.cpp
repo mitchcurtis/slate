@@ -1,5 +1,5 @@
 /*
-    Copyright 2020, Mitch Curtis
+    Copyright 2021, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,53 +17,53 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "changeimagecanvassizecommand.h"
+#include "rearrangeimagecontentsintogridcommand.h"
 
 #include <QLoggingCategory>
 
 #include "imageproject.h"
 
-Q_LOGGING_CATEGORY(lcChangeImageCanvasSizeCommand, "app.undo.changeImageCanvasSizeCommand")
+Q_LOGGING_CATEGORY(lcRearrangeImageContentsIntoGridCommand, "app.undo.rearrangeImageContentsIntoGridCommand")
 
-ChangeImageCanvasSizeCommand::ChangeImageCanvasSizeCommand(ImageProject *project, const QImage &previousImage,
+RearrangeImageContentsIntoGridCommand::RearrangeImageContentsIntoGridCommand(ImageProject *project, const QImage &previousImage,
     const QImage &newImage, UndoCommand *parent) :
     UndoCommand(parent),
     mProject(project),
     mPreviousImage(previousImage),
     mNewImage(newImage)
 {
-    qCDebug(lcChangeImageCanvasSizeCommand) << "constructed" << this;
+    qCDebug(lcRearrangeImageContentsIntoGridCommand) << "constructed" << this;
 }
 
-void ChangeImageCanvasSizeCommand::undo()
+void RearrangeImageContentsIntoGridCommand::undo()
 {
-    qCDebug(lcChangeImageCanvasSizeCommand) << "undoing" << this;
+    qCDebug(lcRearrangeImageContentsIntoGridCommand) << "undoing" << this;
     mProject->setImage(mPreviousImage);
 }
 
-void ChangeImageCanvasSizeCommand::redo()
+void RearrangeImageContentsIntoGridCommand::redo()
 {
-    qCDebug(lcChangeImageCanvasSizeCommand) << "redoing" << this;
+    qCDebug(lcRearrangeImageContentsIntoGridCommand) << "redoing" << this;
     mProject->setImage(mNewImage);
 }
 
-int ChangeImageCanvasSizeCommand::id() const
+int RearrangeImageContentsIntoGridCommand::id() const
 {
     return -1;
 }
 
-bool ChangeImageCanvasSizeCommand::modifiesContents() const
+bool RearrangeImageContentsIntoGridCommand::modifiesContents() const
 {
     return true;
 }
 
-QDebug operator<<(QDebug debug, const ChangeImageCanvasSizeCommand *command)
+QDebug operator<<(QDebug debug, const RearrangeImageContentsIntoGridCommand *command)
 {
     QDebugStateSaver saver(debug);
     if (!command)
-        return debug << "ChangeImageCanvasSizeCommand(0x0)";
+        return debug << "RearrangeImageContentsIntoGridCommand(0x0)";
 
-    debug.nospace() << "(ChangeImageCanvasSizeCommand new size=" << command->mNewImage.size()
+    debug.nospace() << "(RearrangeImageContentsIntoGridCommand new size=" << command->mNewImage.size()
         << "previous size=" << command->mPreviousImage.size()
         << ")";
     return debug;
