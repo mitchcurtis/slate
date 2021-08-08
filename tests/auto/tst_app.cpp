@@ -3454,39 +3454,15 @@ void tst_App::addAndDeleteMultipleGuides()
     QVERIFY2(triggerRulersVisible(), failureMessage);
     QCOMPARE(canvas->areRulersVisible(), true);
 
-    // Save a snapshot of the rendered notes to compare against later.
-    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
-    QTRY_VERIFY(imageGrabber.isReady());
-    const QImage originalCanvasGrab = imageGrabber.takeImage();
+    QVERIFY2(addNewGuides(63, 65), failureMessage);
 
-    // Open the dialog manually cause native menus.
-    QObject *addGuidesDialog;
-    QVERIFY2(findAndOpenClosedPopupFromObjectName("addGuidesDialog", &addGuidesDialog), failureMessage);
-    QVERIFY2(incrementSpinBox("addGuidesHorizontalSpacingSpinBox", 32), failureMessage);
-    QVERIFY2(incrementSpinBox("addGuidesVerticalSpacingSpinBox", 32), failureMessage);
-    QVERIFY2(incrementSpinBox("addGuidesVerticalSpacingSpinBox", 33), failureMessage);
-    QVERIFY2(acceptDialog(addGuidesDialog, "addGuidesDialogOkButton"), failureMessage);
-    QVector<Guide> expectedGuides;
-    const int horizontalSpacing = 33;
-    const int verticalSpacing = 34;
-    for (int y = verticalSpacing; y < project->heightInPixels(); y += verticalSpacing) {
-        for (int x = horizontalSpacing; x < project->widthInPixels(); x += horizontalSpacing) {
-            expectedGuides.append(Guide(x, Qt::Vertical));
-        }
-        expectedGuides.append(Guide(y, Qt::Horizontal));
-    }
-    // Get a decent failure message instead of just "Compared values are not the same".
-    QCOMPARE(Utils::toString(project->guides()), Utils::toString(expectedGuides));
-
-    // The canvas should be redrawn after adding guides.
-    QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
-    QTRY_VERIFY(imageGrabber.isReady());
-    QVERIFY2(imageGrabber.takeImage() != originalCanvasGrab, failureMessage);
+    // Try to add the same guides again; it shouldn't add any duplicates.
+    QVERIFY2(addNewGuides(63, 65, AddNewGuidesFlag::ExpectAllDuplicates), failureMessage);
 
     // Remove all guides.
-    expectedGuides.clear();
     canvas->removeAllGuides();
-    QCOMPARE(QtUtils::toString(project->guides()), QtUtils::toString(expectedGuides));
+    QVector<Guide> guides;
+    QCOMPARE(QtUtils::toString(project->guides()), QtUtils::toString(guides));
 }
 
 void tst_App::notes_data()

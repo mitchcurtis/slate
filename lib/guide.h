@@ -24,6 +24,13 @@
 
 #include "slate-global.h"
 
+template <typename T>
+class QVector;
+
+class Guide;
+
+SLATE_EXPORT uint qHash(const Guide &guide, uint seed = 0) noexcept;
+
 class SLATE_EXPORT Guide
 {
 public:
@@ -38,6 +45,8 @@ public:
 
 private:
     SLATE_EXPORT friend QDebug operator<<(QDebug debug, const Guide &guide);
+    SLATE_EXPORT friend QDebug operator<<(QDebug debug, const QVector<Guide> &guides);
+    SLATE_EXPORT friend uint qHash(const Guide &guide, uint seed) noexcept;
 
     int mPosition;
     Qt::Orientation mOrientation;

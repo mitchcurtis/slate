@@ -27,6 +27,7 @@
 #include "imagelayer.h"
 #include "imageutils.h"
 #include "projectmanager.h"
+#include "projectutils.h"
 #include "qtutils.h"
 
 Q_LOGGING_CATEGORY(lcTestHelper, "tests.testHelper")
@@ -294,10 +295,11 @@ void TestHelper::lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScene
 
 // Could make this hasActiveFocus(), but the line number in the failure message is
 // better if the calling code does the verification.
-QByteArray TestHelper::activeFocusFailureMessage(QQuickItem *item)
+QByteArray TestHelper::activeFocusFailureMessage(QQuickItem *item, const QString &when)
 {
-    return QString::fromLatin1("Expected text input %1 to have focus, but %2 has it instead")
-        .arg(detailedObjectName(item)).arg(detailedObjectName(window->activeFocusItem())).toLatin1();
+    const QString whenText = !when.isEmpty() ? ' ' + when : QString();
+    return QString::fromLatin1("Expected text input %1 to have focus%2, but %3 has it instead")
+        .arg(detailedObjectName(item)).arg(whenText).arg(detailedObjectName(window->activeFocusItem())).toLatin1();
 }
 
 bool TestHelper::enterText(QQuickItem *textField, const QString &text, EnterTextFlags flags)
@@ -1307,6 +1309,68 @@ bool TestHelper::addNewGuide(Qt::Orientation orientation, int position)
 
     canvas->currentPane()->setOffset(originalOffset);
     canvas->currentPane()->setZoomLevel(originalZoomLevel);
+    return true;
+}
+
+bool TestHelper::addNewGuides(int horizontalSpacing, int verticalSpacing, AddNewGuidesFlag flag)
+{
+    // First thing we do is sanity check that all existing guides are unique.
+    const QVector<Guide> originalGuides = project->guides();
+    // QSet changes ordering which makes the comparison fail, so get the unique values manually.
+    // Also, most approaches I've seen are unnecessarily complex: https://stackoverflow.com/questions/1041620.
+    QVector<Guide> uniqueOriginalGuides;
+    for (const auto guide : originalGuides) {
+        if (!uniqueOriginalGuides.contains(guide))
+            uniqueOriginalGuides.append(guide);
+    }
+    VERIFY2(uniqueOriginalGuides == originalGuides, "Expected existing guides to be unique");
+
+    // Then, gather up the expected (and duplicate) guides.
+    QVector<Guide> expectedAddedGuides;
+    ProjectUtils::addGuidesForSpacing(project, expectedAddedGuides, horizontalSpacing, verticalSpacing);
+    if (flag == AddNewGuidesFlag::ExpectAllUnique)
+        VERIFY2(!expectedAddedGuides.isEmpty(), "Failed to generate unique expected guides");
+    else
+        VERIFY2(expectedAddedGuides.isEmpty(), "Expected to generate no unique expected guides");
+
+    // Grab the canvas before we make any changes.
+    VERIFY(imageGrabber.requestImage(canvas));
+    TRY_VERIFY(imageGrabber.isReady());
+    const QImage originalCanvasGrab = imageGrabber.takeImage();
+
+    // Open the dialog manually cause native menus.
+    QObject *addGuidesDialog;
+    if (!findAndOpenClosedPopupFromObjectName("addGuidesDialog", &addGuidesDialog))
+        return false;
+
+    // Enter the spacing values into the spin boxes and accept the dialog.
+    auto horizontalSpinBox = addGuidesDialog->findChild<QQuickItem*>("addGuidesHorizontalSpacingSpinBox");
+    VERIFY(horizontalSpinBox);
+    VERIFY2(horizontalSpinBox->hasActiveFocus(), activeFocusFailureMessage(horizontalSpinBox, "when opening Add Guides dialog"));
+    auto verticalSpinBox = addGuidesDialog->findChild<QQuickItem*>("addGuidesVerticalSpacingSpinBox");
+    VERIFY(verticalSpinBox);
+    if (!enterTextIntoEditableSpinBox(horizontalSpinBox, QString::number(horizontalSpacing)))
+        return false;
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterTextIntoEditableSpinBox(verticalSpinBox, QString::number(verticalSpacing)))
+        return false;
+    if (!acceptDialog(addGuidesDialog, "addGuidesDialogOkButton"))
+        return false;
+    // Get a decent failure message instead of just "Compared values are not the same".
+    COMPARE_NON_FLOAT_WITH_MSG(QtUtils::toString(project->guides()), QtUtils::toString(originalGuides + expectedAddedGuides),
+        "Expected no duplicate guides after accepting Add Guides dialog");
+
+    // The canvas should be redrawn after adding guides.
+    VERIFY(imageGrabber.requestImage(canvas));
+    TRY_VERIFY(imageGrabber.isReady());
+    if (!expectedAddedGuides.isEmpty()) {
+        // Not all guides we added were duplicates, so expect the canvas to be redrawn.
+        VERIFY(imageGrabber.takeImage() != originalCanvasGrab);
+    } else {
+        // All of the guides we added were duplicates, so the canvas shouldn't be redrawn.
+        if (!compareImages(imageGrabber.takeImage(), originalCanvasGrab))
+            return false;
+    }
     return true;
 }
 

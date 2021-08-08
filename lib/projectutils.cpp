@@ -23,12 +23,13 @@
 
 void ProjectUtils::addGuidesForSpacing(const Project *project, QVector<Guide> &guides, int horizontalSpacing, int verticalSpacing)
 {
+    for (int x = horizontalSpacing; x < project->widthInPixels(); x += horizontalSpacing) {
+        const Guide guide(x, Qt::Vertical);
+        if (!project->guides().contains(guide))
+            guides.append(guide);
+    }
+
     for (int y = verticalSpacing; y < project->heightInPixels(); y += verticalSpacing) {
-        for (int x = horizontalSpacing; x < project->widthInPixels(); x += horizontalSpacing) {
-            const Guide guide(x, Qt::Vertical);
-            if (!project->guides().contains(guide))
-                guides.append(guide);
-        }
         const Guide guide(y, Qt::Horizontal);
         if (!project->guides().contains(guide))
             guides.append(guide);

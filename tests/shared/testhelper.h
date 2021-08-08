@@ -118,7 +118,7 @@ protected:
     void keyClicks(const QString &text);
     void lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs = 1, int steps = -1);
 
-    Q_REQUIRED_RESULT QByteArray activeFocusFailureMessage(QQuickItem *item);
+    Q_REQUIRED_RESULT QByteArray activeFocusFailureMessage(QQuickItem *item, const QString &when = QString());
     Q_REQUIRED_RESULT bool enterText(QQuickItem *textField, const QString &text,
         EnterTextFlags flags = EnterTextFlag::ClearTextFirst);
     Q_REQUIRED_RESULT bool selectComboBoxItem(const QString &comboBoxObjectName, int index);
@@ -302,7 +302,14 @@ protected:
     Q_REQUIRED_RESULT bool addSwatchWithForegroundColour();
     Q_REQUIRED_RESULT bool renameSwatchColour(int index, const QString &name);
     Q_REQUIRED_RESULT bool deleteSwatchColour(int index);
+
+    enum class AddNewGuidesFlag {
+        ExpectAllUnique,
+        ExpectAllDuplicates
+    };
+
     Q_REQUIRED_RESULT bool addNewGuide(Qt::Orientation orientation, int position);
+    Q_REQUIRED_RESULT bool addNewGuides(int horizontalSpacing, int verticalSpacing, AddNewGuidesFlag flag = AddNewGuidesFlag::ExpectAllUnique);
     Q_REQUIRED_RESULT bool addSelectedColoursToTexturedFillSwatch();
 
     Q_REQUIRED_RESULT bool addNewNoteAtCursorPos(const QString &text);

@@ -31,6 +31,7 @@
 #include "applicationsettings.h"
 
 Q_LOGGING_CATEGORY(lcProject, "app.project")
+Q_LOGGING_CATEGORY(lcProjectGuides, "app.project.guides")
 Q_LOGGING_CATEGORY(lcProjectNotes, "app.project.notes")
 Q_LOGGING_CATEGORY(lcProjectLifecycle, "app.project.lifecycle")
 
@@ -545,6 +546,9 @@ QVector<Guide> Project::guides() const
 
 void Project::addGuides(const QVector<Guide> &guides)
 {
+    qCDebug(lcProjectGuides) << "addGuides called with:\n" << guides
+        << "\nexisting guides:\n" << mGuides;
+
     bool addedGuides = false;
     for (const auto guide : guides) {
         if (!mGuides.contains(guide)) {
