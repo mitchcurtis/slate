@@ -463,6 +463,8 @@ ApplicationWindow {
 
     Ui.AddGuidesDialog {
         id: addGuidesDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
         project: projectManager.project
         canvas: window.canvas
     }
