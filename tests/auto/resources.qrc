@@ -44,5 +44,6 @@
         <file>resources/grid-4x4-to-8x8.slp</file>
         <file>resources/grid-4x4-to-8x8.png</file>
         <file>resources/grid-4x4.png</file>
+        <file>resources/duplicate-guides.slp</file>
     </qresource>
 </RCC>

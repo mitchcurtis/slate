@@ -380,14 +380,23 @@ void Project::readGuides(const QJsonObject &projectJson)
 {
     mGuides.clear();
 
+    bool foundDuplicateGuides = false;
+
     QJsonArray guidesArray = projectJson.value(QLatin1String("guides")).toArray();
     for (int i = 0; i < guidesArray.size(); ++i) {
         QJsonObject guideObject = guidesArray.at(i).toObject();
         const int position = guideObject.value(QLatin1String("position")).toInt();
         const Qt::Orientation orientation = static_cast<Qt::Orientation>(
             guideObject.value(QLatin1String("orientation")).toInt());
-        mGuides.append(Guide(position, orientation));
+        const Guide guide(position, orientation);
+        if (!mGuides.contains(guide))
+            mGuides.append(guide);
+        else
+            foundDuplicateGuides = true;
     }
+
+    if (foundDuplicateGuides)
+        qWarning() << "Project contains duplicate guides; they will be removed";
 }
 
 void Project::writeGuides(QJsonObject &projectJson) const

@@ -145,6 +145,7 @@ private Q_SLOTS:
     void rulersAndGuides();
     void rulersSplitScreen();
     void addAndDeleteMultipleGuides();
+    void loadDuplicateGuides();
     void notes_data();
     void notes();
     void dragNoteWithoutMoving();
@@ -3490,6 +3491,20 @@ void tst_App::addAndDeleteMultipleGuides()
     canvas->removeAllGuides();
     QVector<Guide> guides;
     QCOMPARE(QtUtils::toString(project->guides()), QtUtils::toString(guides));
+}
+
+void tst_App::loadDuplicateGuides()
+{
+    QVERIFY2(setupTempProjectDir(), failureMessage);
+    QVERIFY2(copyFileFromResourcesToTempProjectDir("duplicate-guides.slp"), failureMessage);
+
+    QTest::ignoreMessage(QtWarningMsg, "Project contains duplicate guides; they will be removed");
+
+    const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/duplicate-guides.slp"));
+    QVERIFY2(loadProject(projectUrl), failureMessage);
+    const QVector<Guide> actualGuides = project->guides();
+    const QVector<Guide> expectedUniqueGuides = QtUtils::uniqueValues(actualGuides);
+    QVERIFY2(actualGuides == expectedUniqueGuides, "Expected all loaded guides to be unique");
 }
 
 void tst_App::notes_data()

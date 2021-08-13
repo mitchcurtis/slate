@@ -119,6 +119,20 @@ namespace QtUtils {
     private:
         std::function<void()> restoreFunc;
     };
+
+    // This was originally added to find unique guides.
+    // QSet changes ordering which makes the comparison fail, so get the unique values manually.
+    // Also, most approaches I've seen are unnecessarily complex: https://stackoverflow.com/questions/1041620.
+    template<typename T>
+    QVector<T> uniqueValues(const QVector<T> &vector)
+    {
+        QVector<T> unique;
+        for (const auto t : vector) {
+            if (!unique.contains(t))
+                unique.append(t);
+        }
+        return unique;
+    }
 }
 
 #endif // QTUTILS_H

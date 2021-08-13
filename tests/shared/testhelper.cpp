@@ -1456,13 +1456,7 @@ bool TestHelper::addNewGuides(int horizontalSpacing, int verticalSpacing, AddNew
 {
     // First thing we do is sanity check that all existing guides are unique.
     const QVector<Guide> originalGuides = project->guides();
-    // QSet changes ordering which makes the comparison fail, so get the unique values manually.
-    // Also, most approaches I've seen are unnecessarily complex: https://stackoverflow.com/questions/1041620.
-    QVector<Guide> uniqueOriginalGuides;
-    for (const auto guide : originalGuides) {
-        if (!uniqueOriginalGuides.contains(guide))
-            uniqueOriginalGuides.append(guide);
-    }
+    const QVector<Guide> uniqueOriginalGuides = QtUtils::uniqueValues(originalGuides);
     VERIFY2(uniqueOriginalGuides == originalGuides, "Expected existing guides to be unique");
 
     // Then, gather up the expected (and duplicate) guides.
