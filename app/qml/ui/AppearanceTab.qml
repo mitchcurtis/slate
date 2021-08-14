@@ -6,7 +6,7 @@ import QtQml 2.15
 
 ColumnLayout {
     function applyChangesToSettings() {
-        settings.language = languageComboBox.model[languageComboBox.currentIndex].value
+        settings.language = languageComboBox.currentValue
         settings.checkerColour1 = checkerColour1TextField.colour
         settings.checkerColour2 = checkerColour2TextField.colour
         settings.alwaysShowCrosshair = alwaysShowCrosshairCheckBox.checked
@@ -16,7 +16,7 @@ ColumnLayout {
     }
 
     function revertToOldSettings() {
-        languageComboBox.currentIndex = languageComboBox.indexForValue(settings.language)
+        languageComboBox.currentIndex = languageComboBox.indexOfValue(settings.language)
         checkerColour1TextField.text = settings.checkerColour1
         checkerColour2TextField.text = settings.checkerColour2
         showFpsCheckBox.checked = settings.fpsVisible
@@ -50,17 +50,11 @@ ColumnLayout {
                 objectName: "languageComboBox"
                 leftPadding: 0
                 textRole: "display"
-                currentIndex: indexForValue(settings.language)
+                valueRole: "value"
 
                 Layout.fillWidth: true
 
-                function indexForValue(value) {
-                    for (var i = 0; i < model.length; ++i) {
-                        if (model[i].value === value)
-                            return i;
-                    }
-                    return -1;
-                }
+                Component.onCompleted: currentIndex = indexOfValue(settings.language)
 
                 model: [
                     {
