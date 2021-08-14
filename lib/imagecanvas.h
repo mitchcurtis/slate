@@ -252,6 +252,10 @@ public:
     QRect selectionArea() const;
     void setSelectionArea(const QRect &selectionArea);
 
+    // Returns true if there is a selection being dragged beyond the bounds of the pane
+    // and hence causing the canvas to pan.
+    bool isSelectionPanning() const;
+
     bool isAdjustingImage() const;
 
     bool hasBlankCursor() const;

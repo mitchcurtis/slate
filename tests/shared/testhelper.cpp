@@ -273,10 +273,22 @@ void TestHelper::keyClicks(const QString &text)
         QTest::keySequence(window, QKeySequence(ch));
 }
 
+//#define LERP_MOUSE_MOVE_DEBUG
+
 void TestHelper::lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs, int steps)
+{
+    lerpMouseMoveUntil(fromScenePos, toScenePos, delayInMs, steps, nullptr);
+}
+
+void TestHelper::lerpMouseMoveUntil(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs,
+    int steps, const std::function<bool ()> &untilFunc)
 {
     const int xDistance = toScenePos.x() - fromScenePos.x();
     const int yDistance = toScenePos.y() - fromScenePos.y();
+#ifdef LERP_MOUSE_MOVE_DEBUG
+    qDebug() << "fromScenePos" << fromScenePos << "toScenePos" << toScenePos << "xDistance" << xDistance << "yDistance" << yDistance;
+#endif
+
     if (steps == -1) {
         static int const defaultSteps = 10;
         steps = QLineF(fromScenePos, toScenePos).length() / defaultSteps;
@@ -284,11 +296,18 @@ void TestHelper::lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScene
 
     QEasingCurve mouseLerp;
     for (int i = 0; i < steps; ++i) {
-        const qreal lerpValue = mouseLerp.valueForProgress(i / steps);
+        if (untilFunc && untilFunc())
+            return;
+
+        const qreal progress = i / qreal(steps);
+        const qreal lerpValue = mouseLerp.valueForProgress(progress);
 
         const int mouseX = fromScenePos.x() + (xDistance * lerpValue);
         const int mouseY = fromScenePos.y() + (yDistance * lerpValue);
         setCursorPosInScenePixels(mouseX, mouseY, false);
+#ifdef LERP_MOUSE_MOVE_DEBUG
+        qDebug() << i << progress << "lerpValue" << lerpValue << "mouseX" << mouseX << "mouseY" << mouseY << cursorWindowPos;
+#endif
         QTest::mouseMove(window, cursorWindowPos, delayInMs);
     }
 }

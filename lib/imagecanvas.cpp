@@ -56,6 +56,7 @@
 #include "tileset.h"
 
 Q_LOGGING_CATEGORY(lcImageCanvas, "app.canvas")
+Q_LOGGING_CATEGORY(lcImageCanvasCursorPos, "app.canvas.cursorpos")
 Q_LOGGING_CATEGORY(lcImageCanvasCursorShape, "app.canvas.cursorshape")
 Q_LOGGING_CATEGORY(lcImageCanvasEvents, "app.canvas.events")
 Q_LOGGING_CATEGORY(lcImageCanvasHoverEvents, "app.canvas.events.hover")
@@ -678,6 +679,11 @@ void ImageCanvas::setSelectionArea(const QRect &selectionArea)
     mSelectionArea = adjustedSelectionArea;
     setHasSelection(!mSelectionArea.isEmpty());
     emit selectionAreaChanged();
+}
+
+bool ImageCanvas::isSelectionPanning() const
+{
+    return hasSelection() && (mCursorX < 0 || mCursorX > width() || mCursorY < 0 || mCursorY > height());
 }
 
 bool ImageCanvas::isAdjustingImage() const
@@ -1669,12 +1675,12 @@ void ImageCanvas::panWithSelectionIfAtEdge(ImageCanvas::SelectionPanReason reaso
     QPoint baseOffsetChange;
 
     // Check the left edge.
-    if (mCursorX < 0) {
+    if (mCursorX <= 0) {
         baseOffsetChange.rx() += qMin(qAbs(mCursorX), maxVelocity);
         panned = true;
     } else {
         // Check the right edge.
-        const int distancePastRight = mCursorX - width();
+        const int distancePastRight = mCursorX - width() - 1;
         if (distancePastRight > 0) {
             baseOffsetChange.rx() += qMax(-distancePastRight, -maxVelocity);
             panned = true;
@@ -1682,12 +1688,12 @@ void ImageCanvas::panWithSelectionIfAtEdge(ImageCanvas::SelectionPanReason reaso
     }
 
     // Check the top edge.
-    if (mCursorY < 0) {
+    if (mCursorY <= 0) {
         baseOffsetChange.ry() += qMin(qAbs(mCursorY), maxVelocity);
         panned = true;
     } else {
         // Check the bottom edge.
-        const int distancePastBottom = mCursorY - height();
+        const int distancePastBottom = mCursorY - height() - 1;
         if (distancePastBottom > 0) {
             baseOffsetChange.ry() += qMax(-distancePastBottom, -maxVelocity);
             panned = true;
@@ -2476,6 +2482,9 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
         const QPoint cursorScenePos = QPoint(mCursorSceneX, mCursorSceneY);
         setCursorPixelColour(mCachedContentImage.pixelColor(cursorScenePos));
     }
+
+    qCDebug(lcImageCanvasCursorPos) << "mCursorX" << mCursorX << "mCursorY" << mCursorY
+        << "mCursorSceneX" << mCursorSceneX << "mCursorSceneY" << mCursorSceneY;
 }
 
 bool ImageCanvas::isCursorWithinProjectBounds() const

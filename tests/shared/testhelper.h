@@ -104,6 +104,9 @@ private Q_SLOTS:
 protected:
     void resetCreationErrorSpy();
 
+    // For readability of calling code.
+    inline int ms(int milliseconds) { return milliseconds; }
+
     enum TestMouseEventType
     {
         MousePress,
@@ -116,7 +119,11 @@ protected:
         Qt::MouseButton button = Qt::LeftButton, Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(), int delay = -1);
     void wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees);
     void keyClicks(const QString &text);
+    inline int lerpSteps(int steps) { return steps; }
     void lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs = 1, int steps = -1);
+    // Same as lerpMouseMove but lets it finish early upon some condition.
+    void lerpMouseMoveUntil(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs = 1, int steps = -1,
+        const std::function<bool(void)> &untilFunc = nullptr);
 
     Q_REQUIRED_RESULT QByteArray activeFocusFailureMessage(QQuickItem *item, const QString &when = QString());
     Q_REQUIRED_RESULT bool enterText(QQuickItem *textField, const QString &text,
