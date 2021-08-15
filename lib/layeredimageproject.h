@@ -47,10 +47,12 @@ public:
     ImageLayer *currentLayer();
     int currentLayerIndex() const override;
     void setCurrentLayerIndex(int index, bool force = false);
+    QVector<ImageLayer*> layers();
     ImageLayer *layerAt(int index);
     const ImageLayer *layerAt(int index) const;
     const ImageLayer *layerAt(const QString &name) const;
     int layerCount() const;
+    QVector<QImage> layerImagesBeforeLivePreview() const;
 
     Type type() const override;
     QSize size() const override;
@@ -120,6 +122,8 @@ public slots:
     void setLayerName(int layerIndex, const QString &name);
     void setLayerVisible(int layerIndex, bool visible);
     void setLayerOpacity(int layerIndex, qreal opacity);
+    void copyAcrossLayers(const QRect &copyArea);
+    void pasteAcrossLayers(int pasteX, int pasteY, bool onlyPasteIntoVisibleLayers);
 
     void addAnimation();
     void duplicateAnimation(int index);
@@ -155,6 +159,7 @@ private:
     friend class DuplicateLayerCommand;
     friend class MoveLayeredImageContentsCommand;
     friend class RearrangeLayeredImageContentsIntoGridCommand;
+    friend class PasteAcrossLayersCommand;
 
     bool isValidIndex(int index) const;
 
@@ -166,6 +171,7 @@ private:
     void doSetImageSize(const QVector<QImage> &newImages);
     void doMoveContents(const QVector<QImage> &newImages);
     void doRearrangeContentsIntoGrid(const QVector<QImage> &newImages);
+    void doPasteAcrossLayers(const QVector<QImage> &newImages);
 
     void addNewLayer(int imageWidth, int imageHeight, bool transparent, bool undoable = true);
     void addLayerAboveAll(ImageLayer *imageLayer);

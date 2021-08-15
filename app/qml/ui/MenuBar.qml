@@ -33,6 +33,7 @@ Controls.MenuBar {
     property int projectType: project ? project.type : 0
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
+    property PasteAcrossLayersDialog pasteAcrossLayersDialog
     property var hueSaturationDialog
     property var opacityDialog
     property var canvasSizePopup
@@ -136,14 +137,14 @@ Controls.MenuBar {
             objectName: "saveMenuItem"
             text: qsTr("Save")
             enabled: project && project.canSave
-            onClicked: projectManager.saveOrSaveAs()
+            onTriggered: projectManager.saveOrSaveAs()
         }
 
         MenuItem {
             objectName: "saveAsMenuItem"
             text: qsTr("Save As")
             enabled: project && project.loaded
-            onClicked: saveAsDialog.open()
+            onTriggered: saveAsDialog.open()
         }
 
         MenuItem {
@@ -152,7 +153,7 @@ Controls.MenuBar {
             objectName: "exportMenuItem"
             text: qsTr("Export")
             enabled: project && project.loaded && projectType === Project.LayeredImageType
-            onClicked: exportDialog.open()
+            onTriggered: exportDialog.open()
         }
 
         MenuItem {
@@ -171,7 +172,7 @@ Controls.MenuBar {
             objectName: "closeMenuItem"
             text: qsTr("Close")
             enabled: project && project.loaded
-            onClicked: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { project.close() })
+            onTriggered: saveChangesDialog.doIfChangesSavedOrDiscarded(function() { project.close() })
         }
 
         MenuSeparator {}
@@ -181,7 +182,7 @@ Controls.MenuBar {
             //: Loads the last saved version of the project, losing any unsaved changes.
             text: qsTr("Revert")
             enabled: project && project.loaded && project.unsavedChanges
-            onClicked: project.revert()
+            onTriggered: project.revert()
         }
 
         MenuSeparator {}
@@ -205,14 +206,14 @@ Controls.MenuBar {
             text: qsTr("Undo")
             // See Shortcuts.qml for why we do it this way.
             enabled: project && canvas && (project.undoStack.canUndo || canvas.hasModifiedSelection)
-            onClicked: canvas.undo()
+            onTriggered: canvas.undo()
         }
 
         MenuItem {
             objectName: "redoMenuItem"
             text: qsTr("Redo")
             enabled: project && project.undoStack.canRedo
-            onClicked: project.undoStack.redo()
+            onTriggered: project.undoStack.redo()
         }
 
         MenuSeparator {}
@@ -220,15 +221,29 @@ Controls.MenuBar {
         MenuItem {
             objectName: "copyMenuItem"
             text: qsTr("Copy")
-            onClicked: canvas.copySelection()
             enabled: isImageProjectType && canvas && canvas.hasSelection
+            onTriggered: canvas.copySelection()
+        }
+
+        MenuItem {
+            objectName: "copyAcrossLayersMenuItem"
+            text: qsTr("Copy Across Layers")
+            enabled: projectType === Project.LayeredImageType && canvas && canvas.hasSelection
+            onTriggered: project.copyAcrossLayers(canvas.selectionArea)
         }
 
         MenuItem {
             objectName: "pasteMenuItem"
             text: qsTr("Paste")
-            onClicked: canvas.paste()
             enabled: isImageProjectType && canvas
+            onTriggered: canvas.paste()
+        }
+
+        MenuItem {
+            objectName: "pasteAcrossLayersMenuItem"
+            text: qsTr("Paste Across Layers...")
+            enabled: projectType === Project.LayeredImageType && canvas && Clipboard.copiedLayerCount > 0
+            onTriggered: pasteAcrossLayersDialog.openOrError()
         }
 
         MenuSeparator {}
@@ -236,8 +251,8 @@ Controls.MenuBar {
         MenuItem {
             objectName: "selectAllMenuItem"
             text: qsTr("Select All")
-            onTriggered: canvas.selectAll()
             enabled: isImageProjectType && canvas
+            onTriggered: canvas.selectAll()
         }
 
         MenuSeparator {}
@@ -245,20 +260,20 @@ Controls.MenuBar {
         MenuItem {
             objectName: "addSelectedColoursToTexturedFillSwatchMenuItem"
             text: qsTr("Add to Textured Fill Swatch...")
+            enabled: isImageProjectType && canvas && canvas.hasSelection
             onTriggered: {
                 canvas.addSelectedColoursToTexturedFillSwatch()
                 canvas.texturedFillParameters.type = TexturedFillParameters.SwatchFillType
                 texturedFillSettingsDialog.open()
             }
-            enabled: isImageProjectType && canvas && canvas.hasSelection
         }
 
         MenuItem {
             objectName: "texturedFillSettingsMenuItem"
             //: Opens a dialog that allows the user to change the settings for the Textured Fill tool.
             text: qsTr("Textured Fill Settings...")
-            onTriggered: texturedFillSettingsDialog.open()
             enabled: isImageProjectType && canvas
+            onTriggered: texturedFillSettingsDialog.open()
         }
 
         MenuSeparator {}
@@ -267,30 +282,30 @@ Controls.MenuBar {
             objectName: "rotateClockwiseMenuItem"
             //: Rotates the image 90 degrees to the right.
             text: qsTr("Rotate 90° Clockwise")
-            onClicked: canvas.rotateSelection(90)
             enabled: isImageProjectType && canvas && canvas.hasSelection
+            onTriggered: canvas.rotateSelection(90)
         }
 
         MenuItem {
             objectName: "rotateCounterClockwiseMenuItem"
             //: Rotates the image 90 degrees to the left.
             text: qsTr("Rotate 90° Counter Clockwise")
-            onClicked: canvas.rotateSelection(-90)
             enabled: isImageProjectType && canvas && canvas.hasSelection
+            onTriggered: canvas.rotateSelection(-90)
         }
 
         MenuItem {
             objectName: "flipHorizontallyMenuItem"
             text: qsTr("Flip Horizontally")
-            onClicked: canvas.flipSelection(Qt.Horizontal)
             enabled: isImageProjectType && canvas && canvas.hasSelection
+            onTriggered: canvas.flipSelection(Qt.Horizontal)
         }
 
         MenuItem {
             objectName: "flipVerticallyMenuItem"
             text: qsTr("Flip Vertically")
-            onClicked: canvas.flipSelection(Qt.Vertical)
             enabled: isImageProjectType && canvas && canvas.hasSelection
+            onTriggered: canvas.flipSelection(Qt.Vertical)
         }
     }
 
@@ -443,7 +458,7 @@ Controls.MenuBar {
             //: Positions the canvas in the centre of the canvas pane.
             text: qsTr("Centre")
             enabled: canvas
-            onClicked: canvas.centreView()
+            onTriggered: canvas.centreView()
         }
 
         MenuSeparator {}
@@ -555,7 +570,7 @@ Controls.MenuBar {
         MenuItem {
             objectName: "settingsMenuItem"
             text: qsTr("Options")
-            onClicked: optionsDialog.open()
+            onTriggered: optionsDialog.open()
         }
     }
 

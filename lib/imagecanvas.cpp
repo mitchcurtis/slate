@@ -539,12 +539,8 @@ void ImageCanvas::setTool(const Tool &tool)
 
     // The selection tool doesn't follow the undo rules, so we have to clear
     // the selected area if a different tool is chosen.
-    if (mTool != SelectionTool) {
-        if (mIsSelectionFromPaste)
-            confirmPasteSelection();
-        else
-            clearOrConfirmSelection();
-    }
+    if (mTool != SelectionTool)
+        finaliseSelection();
 
     if (mTool == FillTool || mTool == TexturedFillTool)
         setLastFillToolUsed(mTool);
@@ -1650,6 +1646,14 @@ void ImageCanvas::confirmPasteSelection()
     paintImageOntoPortionOfImage(currentLayerIndex(), mSelectionAreaBeforeFirstModification, mSelectionContents);
     emit pasteSelectionConfirmed();
     clearSelection();
+}
+
+void ImageCanvas::finaliseSelection()
+{
+    if (mIsSelectionFromPaste)
+        confirmPasteSelection();
+    else
+        clearOrConfirmSelection();
 }
 
 void ImageCanvas::setSelectionFromPaste(bool isSelectionFromPaste)

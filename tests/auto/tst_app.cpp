@@ -175,6 +175,8 @@ private Q_SLOTS:
     void pasteFromExternalSource_data();
     void pasteFromExternalSource();
     void undoAfterMovedPaste();
+    void undoPasteAcrossLayers_data();
+    void undoPasteAcrossLayers();
     void flipPastedImage();
     void flipOnTransparentBackground();
     void selectionEdgePan_data();
@@ -1588,7 +1590,6 @@ void tst_App::undoLayeredImageSizeChange()
     // Add a new layer.
     QVERIFY2(clickButton(newLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 2);
-    ImageLayer *layer1 = layeredImageProject->layerAt(1);
     ImageLayer *layer2 = layeredImageProject->layerAt(0);
 
     // Select the new layer.
@@ -4584,6 +4585,69 @@ void tst_App::undoAfterMovedPaste()
     QVERIFY2(clickButton(undoToolButton), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 0), QColor(Qt::transparent));
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 1), QColor(Qt::transparent));
+}
+
+void tst_App::undoPasteAcrossLayers_data()
+{
+    QTest::addColumn<QString>("originalProjectFileName");
+    QTest::addColumn<QString>("pastedProjectFileName");
+    QTest::addColumn<QRect>("copyArea");
+    QTest::addColumn<int>("pasteX");
+    QTest::addColumn<int>("pasteY");
+
+    QTest::newRow("undoPasteAcrossLayers-1-original.slp")
+        << QString::fromLatin1("undoPasteAcrossLayers-1-original.slp")
+        << QString::fromLatin1("undoPasteAcrossLayers-1-pasted.slp")
+        << QRect(0, 0, 32, 32) << 32 << 0;
+
+    // Same as the above except with one layer hidden.
+    QTest::newRow("undoPasteAcrossLayers-2-original.slp")
+        << QString::fromLatin1("undoPasteAcrossLayers-2-original.slp")
+        << QString::fromLatin1("undoPasteAcrossLayers-2-pasted.slp")
+        << QRect(0, 0, 32, 32) << 32 << 0;
+}
+
+void tst_App::undoPasteAcrossLayers()
+{
+    QFETCH(QString, originalProjectFileName);
+    QFETCH(QString, pastedProjectFileName);
+    QFETCH(QRect, copyArea);
+    QFETCH(int, pasteX);
+    QFETCH(int, pasteY);
+
+    // Copy the original project to our temp dir, load it, and store the original layer images to compare against later.
+    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(originalProjectFileName), failureMessage);
+    const QUrl originalProjectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1Char('/') + originalProjectFileName);
+    QVERIFY2(loadProject(originalProjectUrl), failureMessage);
+    const QVector<QImage> originalLayerImages = layeredImageProject->layerImages();
+
+    // Select the area to copy.
+    QVERIFY2(selectArea(copyArea), failureMessage);
+
+    // Copy it.
+    QVERIFY2(copyAcrossLayers(), failureMessage);
+
+    // Paste.
+    QVERIFY2(pasteAcrossLayers(pasteX, pasteY, true), failureMessage);
+    QVERIFY(!canvas->hasSelection());
+    const QVector<QImage> actualPastedLayerImages = layeredImageProject->layerImages();
+
+    // Undo.
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
+    const QVector<QImage> undoneLayerImages = layeredImageProject->layerImages();
+
+    // Close the original project and load the one that contains the expected pasted result.
+    QVERIFY2(triggerCloseProject(), failureMessage);
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(pastedProjectFileName), failureMessage);
+    const QUrl pastedProjectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1Char('/') + pastedProjectFileName);
+    QVERIFY2(loadProject(pastedProjectUrl), failureMessage);
+    const QVector<QImage> expectedPastedLayerImages = layeredImageProject->layerImages();
+    QVERIFY2(triggerCloseProject(), failureMessage);
+
+    // Now compare that the results are what we expected.
+    QVERIFY2(compareImages(actualPastedLayerImages, expectedPastedLayerImages), failureMessage);
+    QVERIFY2(compareImages(undoneLayerImages, originalLayerImages), failureMessage);
 }
 
 void tst_App::flipPastedImage()

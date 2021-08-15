@@ -409,6 +409,8 @@ public slots:
         AlphaAdjustmentFlags alphaAdjustmentFlags = DefaultAlphaAdjustment);
     void endModifyingSelectionHsl(AdjustmentAction adjustmentAction);
 
+    void finaliseSelection();
+
     void addNote(const QPoint &newPosition, const QString &newText);
     void modifyNote(int noteIndex, const QPoint &newPosition, const QString &newText);
     void removeNote(int noteIndex);

@@ -64,6 +64,7 @@ Group {
             "ui/OptionsDialog.qml",
             "ui/OptionalToolSeparator.qml",
             "ui/Panel.qml",
+            "ui/PasteAcrossLayersDialog.qml",
             "ui/ProjectTemplateButton.qml",
             "ui/RearrangeContentsIntoGridDialog.qml",
             "ui/RenameSwatchColourDialog.qml",

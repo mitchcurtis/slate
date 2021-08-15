@@ -40,6 +40,8 @@ extern "C" {
 
 #include "animation.h"
 #include "animationplayback.h"
+#include "clipboard.h"
+#include "imagelayer.h"
 
 Q_LOGGING_CATEGORY(lcUtils, "app.utils")
 Q_LOGGING_CATEGORY(lcUtilsRearrange, "app.utils.rearrangeContentsIntoGrid")
@@ -279,6 +281,35 @@ QVector<QImage> ImageUtils::rearrangeContentsIntoGrid(const QVector<QImage> &ima
         newImages.append(newLayerImage);
     }
 
+    return newImages;
+}
+
+QVector<QImage> ImageUtils::pasteAcrossLayers(const QVector<ImageLayer *> &layers, const QVector<QImage> &layerImagesBeforeLivePreview,
+    int pasteX, int pasteY, bool onlyPasteIntoVisibleLayers)
+{
+    QVector<QImage> newImages;
+    if (pasteX == 0 && pasteY == 0) {
+        // No change in position means no change in contents.
+        newImages.reserve(layers.size());
+        for (auto layer : layers)
+            newImages.append(*layer->image());
+        return newImages;
+    }
+
+    for (int layerIndex = 0; layerIndex < layers.size(); ++layerIndex) {
+        const auto layer = layers.at(layerIndex);
+        const bool layerVisible = layer->isVisible();
+        const QImage oldImage = layerImagesBeforeLivePreview.at(layerIndex);
+        if (onlyPasteIntoVisibleLayers && !layerVisible) {
+            // This is lazy and inefficient (we could e.g. store a null QImage),
+            // but it avoids adding more code paths elsewhere.
+            newImages.append(oldImage);
+        } else {
+            const auto pasteImage = Clipboard::instance()->copiedLayerImages().at(layerIndex);
+            const QRect pasteRect(pasteX, pasteY, pasteImage.width(), pasteImage.height());
+            newImages.append(ImageUtils::replacePortionOfImage(oldImage, pasteRect, pasteImage));
+        }
+    }
     return newImages;
 }
 

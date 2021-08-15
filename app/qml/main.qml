@@ -166,6 +166,7 @@ ApplicationWindow {
     menuBar: Ui.MenuBar {
         id: menuBar
         canvas: window.canvas
+        pasteAcrossLayersDialog: pasteAcrossLayersDialog
         hueSaturationDialog: hueSaturationDialog
         opacityDialog: opacityDialog
         canvasSizePopup: canvasSizePopup
@@ -401,6 +402,14 @@ ApplicationWindow {
         y: Math.round(parent.height - height) / 2
         project: projectManager.project
         saveAsDialog: window.saveAsDialog
+    }
+
+    Ui.PasteAcrossLayersDialog {
+        id: pasteAcrossLayersDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        project: window.isLayeredImageProjectType ? projectManager.project : null
+        canvas: window.canvas
     }
 
     Ui.HueSaturationDialog {
