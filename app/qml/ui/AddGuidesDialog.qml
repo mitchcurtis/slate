@@ -34,14 +34,41 @@ Dialog {
     property Project project
     property ImageCanvas canvas
 
+    // Whenever we open the dialog, get the last values used for the spin boxes if they were set.
+    // If they weren't set, just set a default value that at least results in a grid of guides.
+    function setLastOrDefaultValues() {
+        const lastAcceptedHorizontalSpacingValue = root.project.uiState.value("addGuidesDialogHorizontalSpacing")
+        if (lastAcceptedHorizontalSpacingValue !== undefined) {
+            horizontalSpacingSpinBox.value = lastAcceptedHorizontalSpacingValue
+            verticalSpacingSpinBox.value = root.project.uiState.value("addGuidesDialogVerticalSpacing")
+        } else {
+            horizontalSpacingSpinBox.value = 32
+            verticalSpacingSpinBox.value = 32
+        }
+    }
+
     onAboutToShow: {
-        if (project)
-            horizontalSpacingSpinBox.contentItem.forceActiveFocus()
+        if (!project)
+            return
+
+        setLastOrDefaultValues()
+        horizontalSpacingSpinBox.contentItem.forceActiveFocus()
     }
 
     onClosed: canvas.forceActiveFocus()
 
-    onAccepted: canvas.addNewGuides(horizontalSpacingSpinBox.value, verticalSpacingSpinBox.value)
+    onAccepted: {
+        canvas.addNewGuides(horizontalSpacingSpinBox.value, verticalSpacingSpinBox.value)
+
+        root.project.uiState.setValue("addGuidesDialogHorizontalSpacing", horizontalSpacingSpinBox.value)
+        root.project.uiState.setValue("addGuidesDialogVerticalSpacing", verticalSpacingSpinBox.value)
+    }
+
+    UiStateSerialisation {
+        project: root.project
+        onReadyToLoad: setLastOrDefaultValues()
+        // We don't use onReadyToSave, but instead store the values whenever the dialog is accepted.
+    }
 
     contentItem: ColumnLayout {
         Item {
@@ -59,7 +86,6 @@ Dialog {
                 id: horizontalSpacingSpinBox
                 objectName: "addGuidesHorizontalSpacingSpinBox"
                 from: 1
-                value: 32
                 to: 10000
                 editable: true
                 stepSize: 1
@@ -79,7 +105,6 @@ Dialog {
                 id: verticalSpacingSpinBox
                 objectName: "addGuidesVerticalSpacingSpinBox"
                 from: 1
-                value: 32
                 to: 10000
                 editable: true
                 stepSize: 1

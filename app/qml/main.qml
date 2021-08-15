@@ -446,6 +446,7 @@ ApplicationWindow {
         parent: Overlay.overlay
         anchors.centerIn: parent
         project: projectManager.project
+        canvas: window.canvas
     }
 
     Ui.TexturedFillSettingsDialog {

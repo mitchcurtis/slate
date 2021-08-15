@@ -34,6 +34,7 @@ Dialog {
     property bool firstTimeOpened: true
 
     property Project project
+    property ImageCanvas canvas
 
     function updateLivePreview() {
         project.rearrangeContentsIntoGrid(
@@ -78,12 +79,15 @@ Dialog {
         root.project.uiState.setValue("rearrangeContentsDialogColumns", columnsSpinBox.value)
         root.project.uiState.setValue("rearrangeContentsDialogRows", rowsSpinBox.value)
     }
+
     onRejected: project.endLivePreview(LayeredImageProject.RollbackModification)
+
+    onClosed: canvas.forceActiveFocus()
 
     UiStateSerialisation {
         project: root.project
         onReadyToLoad: setLastOrDefaultValues()
-        // We don't use onReadyToSave, but instead save the values whenever the dialog is accepted.
+        // We don't use onReadyToSave, but instead store the values whenever the dialog is accepted.
     }
 
     contentItem: ColumnLayout {
