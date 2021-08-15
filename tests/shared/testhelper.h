@@ -285,6 +285,11 @@ protected:
     Q_REQUIRED_RESULT bool panBy(int xDistance, int yDistance);
     Q_REQUIRED_RESULT bool zoomTo(int zoomLevel);
     Q_REQUIRED_RESULT bool zoomTo(int zoomLevel, const QPoint &pos);
+
+    // Helpers involving menus/dialogs.
+    Q_REQUIRED_RESULT QVector<QImage> getLayerImages() const;
+    Q_REQUIRED_RESULT bool copyAcrossLayers();
+    Q_REQUIRED_RESULT bool pasteAcrossLayers(int pasteX, int pasteY, bool onlyPasteIntoVisibleLayers);
     Q_REQUIRED_RESULT bool changeCanvasSize(int width, int height, CloseDialogFlag closeDialog = CloseDialog);
     Q_REQUIRED_RESULT bool changeImageSize(int width, int height, bool preserveAspectRatio = false);
     Q_REQUIRED_RESULT bool changeToolSize(int size);
@@ -292,6 +297,7 @@ protected:
     Q_REQUIRED_RESULT bool moveContents(int x, int y, bool onlyVisibleLayers);
     Q_REQUIRED_RESULT bool rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int columns, int rows);
     int sliderValue(QQuickItem *slider) const;
+
     Q_REQUIRED_RESULT bool moveSliderHandle(QQuickItem *slider, qreal expectedValue);
     Q_REQUIRED_RESULT bool selectColourAtCursorPos();
     Q_REQUIRED_RESULT bool drawPixelAtCursorPos();

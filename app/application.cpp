@@ -90,11 +90,6 @@ static QObject *buildInfoSingletonProvider(QQmlEngine *, QJSEngine *)
     return new BuildInfo;
 }
 
-QObject *clipboardSingletonTypeProvider(QQmlEngine *, QJSEngine *)
-{
-    return new Clipboard;
-}
-
 Application::Application(int &argc, char **argv, const QString &applicationName) :
     mApplication(createApplication(argc, argv, applicationName)),
     mSettings(new ApplicationSettings),
@@ -211,7 +206,7 @@ void Application::registerQmlTypes()
     qmlRegisterUncreatableType<TexturedFillParameters>("App", 1, 0, "TexturedFillParameters",
         QLatin1String("Cannot create objects of type TexturedFillParameters"));
     qmlRegisterSingletonType<BuildInfo>("App", 1, 0, "BuildInfo", buildInfoSingletonProvider);
-    qmlRegisterSingletonType<Clipboard>("App", 1, 0, "Clipboard", clipboardSingletonTypeProvider);
+    qmlRegisterSingletonType<Clipboard>("App", 1, 0, "Clipboard", &Clipboard::qmlInstance);
     qRegisterMetaType<ApplicationSettings*>();
     qRegisterMetaType<ImageLayer*>();
     qRegisterMetaType<Project::Type>();

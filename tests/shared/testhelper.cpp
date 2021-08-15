@@ -24,6 +24,7 @@
 #include <QLoggingCategory>
 #include <QtQuickTest>
 
+#include "clipboard.h"
 #include "imagelayer.h"
 #include "imageutils.h"
 #include "projectmanager.h"
@@ -490,6 +491,105 @@ QString TestHelper::detailedObjectName(QObject *object)
     return name;
 }
 
+QVector<QImage> TestHelper::getLayerImages() const
+{
+    QVector<QImage> images;
+    if (project->type() == Project::ImageType)
+        images.append(*imageProject->image());
+    else
+        images = layeredImageProject->layerImages();
+    return images;
+};
+
+Q_REQUIRED_RESULT bool TestHelper::copyAcrossLayers()
+{
+    VERIFY2(layeredImageProject, "Need LayeredImageProject in order to copy across layers");
+    VERIFY2(canvas->hasSelection(), "Need a selection in order to copy across layers");
+    layeredImageProject->copyAcrossLayers(canvas->selectionArea());
+    return Clipboard::instance()->copiedLayerCount() == layeredImageProject->layerCount();
+}
+
+Q_REQUIRED_RESULT bool TestHelper::pasteAcrossLayers(int pasteX, int pasteY, bool onlyPasteIntoVisibleLayers)
+{
+    const QVector<QImage> originalImages = getLayerImages();
+
+    // Open the paste across layers dialog.
+    QObject *pasteAcrossLayersDialog;
+    if (!findAndOpenClosedPopupFromObjectName("pasteAcrossLayersDialog", &pasteAcrossLayersDialog))
+        return false;
+
+    // Change the values and then cancel.
+    QQuickItem *pasteXSpinBox = pasteAcrossLayersDialog->findChild<QQuickItem*>("pasteXSpinBox");
+    VERIFY(pasteXSpinBox);
+    const int originalXSpinBoxValue = pasteXSpinBox->property("value").toInt();
+    if (!enterTextIntoEditableSpinBox(pasteXSpinBox, QString::number(originalXSpinBoxValue + 1)))
+        return false;
+
+    QQuickItem *pasteYSpinBox = pasteAcrossLayersDialog->findChild<QQuickItem*>("pasteYSpinBox");
+    VERIFY(pasteYSpinBox);
+    const int originalYSpinBoxValue = pasteYSpinBox->property("value").toInt();
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterTextIntoEditableSpinBox(pasteYSpinBox, QString::number(originalYSpinBoxValue - 1)))
+        return false;
+    // Tab again because we want the focus to leave the text input so that valueModified is emitted.
+    QTest::keyClick(window, Qt::Key_Tab);
+
+    // Paste into hidden layers just to try out a value different than the default.
+    if (!setCheckBoxChecked("onlyPasteIntoVisibleLayersCheckBox", false))
+        return false;
+
+    // Check that the live preview has changed.
+    QVector<QImage> pastedImages = ImageUtils::pasteAcrossLayers(layeredImageProject->layers(),
+        layeredImageProject->layerImagesBeforeLivePreview(), 1, -1, false);
+    if (!compareImages(getLayerImages(), pastedImages , "live preview should show pasted contents (before cancelling)"))
+        return false;
+
+    QQuickItem *cancelButton = pasteAcrossLayersDialog->findChild<QQuickItem*>("pasteAcrossLayersDialogCancelButton");
+    VERIFY(cancelButton);
+    if (!clickButton(cancelButton))
+        return false;
+    TRY_VERIFY(!pasteAcrossLayersDialog->property("visible").toBool());
+    if (!compareImages(getLayerImages(), originalImages, "live preview should show unpasted contents (after cancelling)"))
+        return false;
+
+    // Open the dialog again.
+    if (!findAndOpenClosedPopupFromObjectName("pasteAcrossLayersDialog"))
+        return false;
+    // The old values should be restored.
+    VERIFY(pasteXSpinBox->property("value").toInt() == originalXSpinBoxValue);
+    VERIFY(pasteYSpinBox->property("value").toInt() == originalYSpinBoxValue);
+
+    // Change the values and then press OK.
+    if (!enterTextIntoEditableSpinBox(pasteXSpinBox, QString::number(pasteX)))
+        return false;
+    QTest::keyClick(window, Qt::Key_Tab);
+    if (!enterTextIntoEditableSpinBox(pasteYSpinBox, QString::number(pasteY)))
+        return false;
+    // Tab again because we want the focus to leave the text input so that valueModified is emitted.
+    QTest::keyClick(window, Qt::Key_Tab);
+
+    // Check that the preview has changed.
+    pastedImages = ImageUtils::pasteAcrossLayers(layeredImageProject->layers(),
+        layeredImageProject->layerImagesBeforeLivePreview(), pasteX, pasteY, onlyPasteIntoVisibleLayers);
+    if (!compareImages(getLayerImages(), pastedImages , "live preview should show pasted contents (before accepting)"))
+        return false;
+
+    if (!setCheckBoxChecked("onlyPasteIntoVisibleLayersCheckBox", onlyPasteIntoVisibleLayers))
+        return false;
+
+    QQuickItem *okButton = pasteAcrossLayersDialog->findChild<QQuickItem*>("pasteAcrossLayersDialogOkButton");
+    VERIFY(okButton);
+    if (!clickButton(okButton))
+        return false;
+    TRY_VERIFY(!pasteAcrossLayersDialog->property("visible").toBool());
+    if (!compareImages(getLayerImages(), pastedImages , "image contents should be pasted (after accepting)"))
+        return false;
+    VERIFY(pasteXSpinBox->property("value").toInt() == pasteX);
+    VERIFY(pasteYSpinBox->property("value").toInt() == pasteY);
+
+    return true;
+}
+
 bool TestHelper::changeCanvasSize(int width, int height, CloseDialogFlag closeDialog)
 {
     // Open the canvas size popup.
@@ -819,16 +919,7 @@ bool TestHelper::moveContents(int x, int y, bool onlyVisibleLayers)
 
 bool TestHelper::rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int columns, int rows)
 {
-    auto getImages = [&](){
-        QVector<QImage> images;
-        if (project->type() == Project::ImageType)
-            images.append(*imageProject->image());
-        else
-            images = layeredImageProject->layerImages();
-        return images;
-    };
-
-    const QVector<QImage> originalImages = getImages();
+    const QVector<QImage> originalImages = getLayerImages();
 
     QVector<QImage> expectedImages = ImageUtils::rearrangeContentsIntoGrid(originalImages, cellWidth, cellHeight, columns, rows);
 
@@ -871,7 +962,7 @@ bool TestHelper::rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int co
     QVector<QImage> rearrangedImages = ImageUtils::rearrangeContentsIntoGrid(originalImages,
         originalCellWidthSpinBoxValue + 1, originalCellHeightSpinBoxValue + 2,
         originalColumnsSpinBoxValue + 3, originalRowsSpinBoxValue + 4);
-    if (!compareImages(getImages(), rearrangedImages, "live preview should show rearranged contents (before cancelling)"))
+    if (!compareImages(getLayerImages(), rearrangedImages, "live preview should show rearranged contents (before cancelling)"))
         return false;
 
     QQuickItem *cancelButton = rearrangeContentsDialog->findChild<QQuickItem*>("rearrangeContentsIntoGridDialogCancelButton");
@@ -879,7 +970,7 @@ bool TestHelper::rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int co
     if (!clickButton(cancelButton))
         return false;
     TRY_VERIFY(!rearrangeContentsDialog->property("visible").toBool());
-    if (!compareImages(getImages(), originalImages, "live preview should show non-rearranged contents (after cancelling)"))
+    if (!compareImages(getLayerImages(), originalImages, "live preview should show non-rearranged contents (after cancelling)"))
         return false;
 
     // Open the dialog again.
@@ -907,7 +998,7 @@ bool TestHelper::rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int co
 
     // Check that the preview has changed.
     rearrangedImages = ImageUtils::rearrangeContentsIntoGrid(originalImages, cellWidth, cellHeight, columns, rows);
-    if (!compareImages(getImages(), rearrangedImages, "live preview should show rearranged contents (before accepting)"))
+    if (!compareImages(getLayerImages(), rearrangedImages, "live preview should show rearranged contents (before accepting)"))
         return false;
 
     QQuickItem *okButton = rearrangeContentsDialog->findChild<QQuickItem*>("rearrangeContentsIntoGridDialogOkButton");
@@ -915,7 +1006,7 @@ bool TestHelper::rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int co
     if (!clickButton(okButton))
         return false;
     TRY_VERIFY(!rearrangeContentsDialog->property("visible").toBool());
-    if (!compareImages(getImages(), rearrangedImages, "image contents should be rearranged (after accepting)"))
+    if (!compareImages(getLayerImages(), rearrangedImages, "image contents should be rearranged (after accepting)"))
         return false;
 
     // As we accepted the dialog, the next time we open it (in this project) it should have the

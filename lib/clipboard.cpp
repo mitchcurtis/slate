@@ -22,6 +22,11 @@
 #include <QClipboard>
 #include <QGuiApplication>
 #include <QImage>
+#include <QQmlEngine>
+
+#include "imagelayer.h"
+
+Q_GLOBAL_STATIC(Clipboard, clipboardInstance)
 
 ClipboardImage::ClipboardImage(const QImage &image, QObject *parent) :
     QObject(parent),
@@ -48,7 +53,9 @@ Clipboard::Clipboard(QObject *parent) :
     QObject(parent),
     mClipboardImage(new ClipboardImage(qGuiApp->clipboard()->image(), this))
 {
-    QObject::connect(qGuiApp->clipboard(), &QClipboard::changed, [=]() {
+    QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
+
+    QObject::connect(qGuiApp->clipboard(), &QClipboard::changed, this, [=]() {
         mClipboardImage->setImage(qGuiApp->clipboard()->image());
     });
 }
@@ -56,4 +63,30 @@ Clipboard::Clipboard(QObject *parent) :
 ClipboardImage *Clipboard::image() const
 {
     return mClipboardImage;
+}
+
+QVector<QImage> Clipboard::copiedLayerImages() const
+{
+    return mCopiedLayers;
+}
+
+int Clipboard::copiedLayerCount() const
+{
+    return mCopiedLayers.size();
+}
+
+void Clipboard::setCopiedLayerImages(const QVector<QImage> &copiedLayers)
+{
+    mCopiedLayers = copiedLayers;
+    emit copiedLayersChanged();
+}
+
+Clipboard *Clipboard::instance()
+{
+    return clipboardInstance();
+}
+
+QObject *Clipboard::qmlInstance(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
+{
+    return Clipboard::instance();
 }

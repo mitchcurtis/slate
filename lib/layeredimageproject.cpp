@@ -33,6 +33,7 @@
 #include "changelayeropacitycommand.h"
 #include "changelayerordercommand.h"
 #include "changelayervisiblecommand.h"
+#include "clipboard.h"
 #include "deleteanimationcommand.h"
 #include "deletelayercommand.h"
 #include "duplicateanimationcommand.h"
@@ -43,10 +44,13 @@
 #include "mergelayerscommand.h"
 #include "modifyanimationcommand.h"
 #include "movelayeredimagecontentscommand.h"
+#include "pasteacrosslayerscommand.h"
+#include "rearrangelayeredimagecontentsintogridcommand.h"
 
 Q_LOGGING_CATEGORY(lcLivePreview, "app.layeredimageproject.livepreview")
 Q_LOGGING_CATEGORY(lcMoveContents, "app.layeredimageproject.movecontents")
 Q_LOGGING_CATEGORY(lcRearrangeContentsIntoGrid, "app.layeredimageproject.rearrangecontentsintogrid")
+Q_LOGGING_CATEGORY(lcPasteAcrossLayers, "app.layeredimageproject.pasteacrosslayers")
 
 LayeredImageProject::LayeredImageProject() :
     mCurrentLayerIndex(0),
@@ -86,6 +90,11 @@ void LayeredImageProject::setCurrentLayerIndex(int index, bool force)
     mCurrentLayerIndex = adjustedIndex;
     emit currentLayerIndexChanged();
     emit postCurrentLayerChanged();
+}
+
+QVector<ImageLayer *> LayeredImageProject::layers()
+{
+    return mLayers;
 }
 
 ImageLayer *LayeredImageProject::layerAt(int index)
@@ -348,6 +357,11 @@ QVector<QImage> LayeredImageProject::layerImages() const
     return images;
 }
 
+QVector<QImage> LayeredImageProject::layerImagesBeforeLivePreview() const
+{
+    return mLayerImagesBeforeLivePreview;
+}
+
 bool LayeredImageProject::isAutoExportEnabled() const
 {
     return mAutoExportEnabled;
@@ -500,6 +514,16 @@ void LayeredImageProject::endLivePreview(LivePreviewModificationAction modificat
         case LivePreviewModification::MoveContents:
             beginMacro(QLatin1String("MoveLayeredImageContents"));
             addChange(new MoveLayeredImageContentsCommand(this, mLayerImagesBeforeLivePreview, newImages));
+            endMacro();
+            break;
+        case LivePreviewModification::RearrangeContentsIntoGrid:
+            beginMacro(QLatin1String("RearrangeLayeredImageContentsIntoGrid"));
+            addChange(new RearrangeLayeredImageContentsIntoGridCommand(this, mLayerImagesBeforeLivePreview, newImages));
+            endMacro();
+            break;
+        case LivePreviewModification::PasteAcrossLayers:
+            beginMacro(QLatin1String("PasteAcrossLayers"));
+            addChange(new PasteAcrossLayersCommand(this, mLayerImagesBeforeLivePreview, newImages));
             endMacro();
             break;
         case LivePreviewModification::None:
@@ -837,6 +861,16 @@ void LayeredImageProject::doRearrangeContentsIntoGrid(const QVector<QImage> &new
     Q_ASSERT(newImages.size() == mLayers.size());
 
     assignNewImagesToLayers(newImages);
+
+    // This may be necessary for undos.
+    emit contentsModified();
+}
+
+void LayeredImageProject::doPasteAcrossLayers(const QVector<QImage> &newImages)
+{
+    assignNewImagesToLayers(newImages);
+
+    emit contentsModified();
 }
 
 void LayeredImageProject::addNewLayer()
@@ -934,6 +968,32 @@ void LayeredImageProject::setLayerOpacity(int layerIndex, qreal opacity)
     beginMacro(QLatin1String("ChangeLayerOpacityCommand"));
     addChange(new ChangeLayerOpacityCommand(this, layerIndex, layerAt(layerIndex)->opacity(), opacity));
     endMacro();
+}
+
+void LayeredImageProject::copyAcrossLayers(const QRect &copyArea)
+{
+    QVector<QImage> copiedImages;
+    const QVector<QImage> imagesToCopy = layerImages();
+    copiedImages.reserve(imagesToCopy.size());
+    for (auto layerImage : imagesToCopy)
+        copiedImages.append(layerImage.copy(copyArea));
+    Clipboard::instance()->setCopiedLayerImages(copiedImages);
+}
+
+void LayeredImageProject::pasteAcrossLayers(int pasteX, int pasteY, bool onlyPasteIntoVisibleLayers)
+{
+    qCDebug(lcPasteAcrossLayers) << "pasteAcrossLayers called with pasteX" << pasteX
+        << "pasteY" << pasteY << "onlyPasteIntoVisibleLayers" << onlyPasteIntoVisibleLayers;
+
+    if (warnIfLivePreviewNotActive(QLatin1String("move contents")))
+        return;
+
+    if (pasteX == 0 && pasteY == 0)
+        return;
+
+    const QVector<QImage> newImages = ImageUtils::pasteAcrossLayers(mLayers, mLayerImagesBeforeLivePreview,
+        pasteX, pasteY, onlyPasteIntoVisibleLayers);
+    makeLivePreviewModification(LivePreviewModification::PasteAcrossLayers, newImages);
 }
 
 void LayeredImageProject::addAnimation()

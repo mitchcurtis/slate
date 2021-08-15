@@ -27,6 +27,7 @@
 #include "imagecanvas.h"
 
 class AnimationPlayback;
+class ImageLayer;
 
 namespace ImageUtils {
     SLATE_EXPORT QImage filledImage(uint width, uint height, const QColor &colour = Qt::transparent);
@@ -44,8 +45,10 @@ namespace ImageUtils {
     SLATE_EXPORT QImage moveContents(const QImage &image, int xDistance, int yDistance);
     SLATE_EXPORT QImage resizeContents(const QImage &image, int newWidth, int newHeight, bool smooth = false);
     SLATE_EXPORT QImage resizeContents(const QImage &image, const QSize &newSize, bool smooth = false);
-    SLATE_EXPORT QVector<QImage> rearrangeContentsIntoGrid(const QVector<QImage> &images, uint cellWidth, uint cellHeight,
-        uint columns, uint rows);
+    SLATE_EXPORT QVector<QImage> rearrangeContentsIntoGrid(const QVector<QImage> &images,
+        uint cellWidth, uint cellHeight, uint columns, uint rows);
+    SLATE_EXPORT QVector<QImage> pasteAcrossLayers(const QVector<ImageLayer*> &layers,
+        const QVector<QImage> &layerImagesBeforeLivePreview, int pasteX, int pasteY, bool onlyPasteIntoVisibleLayers);
 
     void modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness, qreal alpha,
         ImageCanvas::AlphaAdjustmentFlags alphaAdjustmentFlags);

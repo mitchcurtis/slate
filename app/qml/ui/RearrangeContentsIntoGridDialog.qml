@@ -31,8 +31,6 @@ Dialog {
     dim: false
     focus: true
 
-    property bool firstTimeOpened: true
-
     property Project project
     property ImageCanvas canvas
 

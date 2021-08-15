@@ -181,6 +181,7 @@ void ImageProject::endLivePreview(LivePreviewModificationAction modificationActi
             break;
         // Image projects currently don't support moving contents.
         case LivePreviewModification::MoveContents:
+        case LivePreviewModification::PasteAcrossLayers:
             qFatal("mCurrentLivePreviewModification is %s, which isn't supported by ImageProject",
                 qPrintable(QtUtils::toString(mCurrentLivePreviewModification)));
             break;

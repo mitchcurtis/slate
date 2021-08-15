@@ -189,6 +189,8 @@ Product {
         "notesitem.cpp",
         "panedrawinghelper.cpp",
         "panedrawinghelper.h",
+        "pasteacrosslayerscommand.cpp",
+        "pasteacrosslayerscommand.h",
         "pasteimagecanvascommand.cpp",
         "pasteimagecanvascommand.h",
         "probabilityswatch.cpp",

@@ -151,7 +151,8 @@ public:
         None,
         Resize,
         MoveContents,
-        RearrangeContentsIntoGrid
+        RearrangeContentsIntoGrid,
+        PasteAcrossLayers
     };
     // We need Q_ENUM in order to print the enum, and Q_ENUM needs to be public.
     Q_ENUM(LivePreviewModification);
