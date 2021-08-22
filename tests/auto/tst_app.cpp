@@ -35,9 +35,6 @@ extern "C" {
 
 #include "application.h"
 #include "applypixelpencommand.h"
-#include "eventcapturer.h"
-#include "eventreplayer.h"
-#include "eventserialiser.h"
 #include "imagelayer.h"
 #include "imageutils.h"
 #include "tilecanvas.h"
@@ -4720,20 +4717,18 @@ void tst_App::selectionEdgePan_data()
     QTest::addColumn<QPoint>("panDirection");
     QTest::addColumn<QRect>("expectedSelectionArea");
 
-    const QPoint startPos(30, 30);
-    const int canvasSize = 60;
+    const QPoint startPos(100, 100);
+    const int canvasSize = 256;
 
-    QTest::newRow("top-left") << startPos << QPoint(0, 0) << QPoint(-1, -1) << QRect(0, 0, 30, 30);
-    QTest::newRow("top") << startPos << QPoint(40, 0) << QPoint(0, -1) << QRect(30, 0, 10, 30);
-    QTest::newRow("top-right") << startPos << QPoint(canvasSize, 0) << QPoint(1, -1) << QRect(30, 0, canvasSize - 30, 30);
-    QTest::newRow("right") << startPos << QPoint(canvasSize, 40) << QPoint(1, 0) << QRect(30, 30, canvasSize - 30, 10);
-    QTest::newRow("bottom-right") << startPos << QPoint(canvasSize, canvasSize) << QPoint(1, 1) << QRect(30, 30, canvasSize - 30, canvasSize - 30);
-    QTest::newRow("bottom") << startPos << QPoint(40, canvasSize) << QPoint(0, 1) << QRect(30, 30, 10, canvasSize - 30);
-    QTest::newRow("bottom-left") << startPos << QPoint(0, canvasSize) << QPoint(-1, 1) << QRect(0, 30, 30, canvasSize - 30);
-    QTest::newRow("left") << startPos << QPoint(0, 40) << QPoint(-1, 0) << QRect(0, 30, 30, 10);
+    QTest::newRow("top-left") << startPos << QPoint(0, 0) << QPoint(-1, -1) << QRect(0, 0, 100, 100);
+    QTest::newRow("top") << startPos << QPoint(110, 0) << QPoint(0, -1) << QRect(100, 0, 10, 100);
+    QTest::newRow("top-right") << startPos << QPoint(255, 0) << QPoint(1, -1) << QRect(100, 0, canvasSize - 100, 100);
+    QTest::newRow("right") << startPos << QPoint(255, 110) << QPoint(1, 0) << QRect(100, 100, canvasSize - 100, 10);
+    QTest::newRow("bottom-right") << startPos << QPoint(255, 255) << QPoint(1, 1) << QRect(100, 100, canvasSize - 100, canvasSize - 100);
+    QTest::newRow("bottom") << startPos << QPoint(110, 255) << QPoint(0, 1) << QRect(100, 100, 10, canvasSize - 100);
+    QTest::newRow("bottom-left") << startPos << QPoint(0, 255) << QPoint(-1, 1) << QRect(0, 100, 100, canvasSize - 100);
+    QTest::newRow("left") << startPos << QPoint(0, 110) << QPoint(-1, 0) << QRect(0, 100, 100, 10);
 }
-
-//#define CAPTURE_EVENTS
 
 // Test that the canvas is panned when the mouse goes past its edges when creating a selection.
 void tst_App::selectionEdgePan()
@@ -4745,7 +4740,11 @@ void tst_App::selectionEdgePan()
 
     // TODO: ignore "event occurs outside of target window" warnings when https://bugreports.qt.io/browse/QTBUG-67702 is fixed
 
-    QVERIFY2(createNewLayeredImageProject(60, 60), failureMessage);
+    // Check that the end pos is within the bounds of the project.
+    QCOMPARE(selectionEndPos.x(), qBound(0, selectionEndPos.x(), project->size().width() - 1));
+    QCOMPARE(selectionEndPos.y(), qBound(0, selectionEndPos.y(), project->size().height() - 1));
+
+    QVERIFY2(createNewLayeredImageProject(), failureMessage);
     // Helps visual debugging.
     QVERIFY2(triggerRulersVisible(), failureMessage);
     canvas->setSplitScreen(false);
@@ -4754,41 +4753,27 @@ void tst_App::selectionEdgePan()
     // ensure we start zooming from the origin we want.
     lerpMouseMove(QPoint(0, 0), selectionStartPos);
     // Zoom in enough to ensure that edges are not actually visible.
-    QVERIFY2(zoomTo(20), failureMessage);
+    QVERIFY2(zoomTo(5), failureMessage);
     QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
 
     const QPoint originalOffset = canvas->currentPane()->integerOffset();
 
-    /*
-        Simulating events ourselves was resulting in flaky tests, so replay actual user input instead.
-        Define CAPTURE_EVENTS and run the test to capture events; the captured events will be saved to
-        a JSON file in the test sources, overwriting the existing one. The JSON will require some cleanup;
-        the delay for the press and possibly the first move will need to be reduced.
+    setCursorPosInScenePixels(selectionStartPos.x(), selectionStartPos.y(), false);
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 
-        It's best to run only the specific data rows that are to be recorded,
-        to avoid accidentally overwriting the others.
-    */
-    const QString eventJsonFileName = QString::fromLatin1("%1-%2-events.json")
-        .arg(QTest::currentTestFunction()).arg(QTest::currentDataTag());
-#ifdef CAPTURE_EVENTS
-    EventCapturer eventCapturer;
-    eventCapturer.setMoveEventTrimFlags(EventCapturer::TrimLeading | EventCapturer::TrimTrailing);
-    eventCapturer.setEventSourceName("canvas");
-    eventCapturer.startCapturing(canvas, 10000);
-    QTest::qWait(10000);
-    const QString eventJsonPath = QDir(RESOURCES_DIR).absoluteFilePath(eventJsonFileName);
-    EventSerialiser::saveEventsToJson(eventJsonPath, eventCapturer.capturedEvents());
-    // Let the rest of the test finish to verify that our reference event data makes the test pass.
-#else
-    QVERIFY2(copyFileFromResourcesToTempProjectDir(eventJsonFileName), failureMessage);
-    const QString eventJsonPath = QDir(tempProjectDir->path()).absoluteFilePath(eventJsonFileName);
-    const QList<CapturedEvent> events = EventSerialiser::loadEventsFromJson(eventJsonPath);
-    QVERIFY(EventReplayer::replayEvents(canvas, events));
-#endif
+    // If the movement is too quick, it screws things up.
+    // We specify steps for the lerp because otherwise the larger distances take too much time.
+    // lerpMouseMove should probably scale the steps based on distance: the longer the distance,
+    // the less steps.
+    lerpMouseMoveUntil(cursorPos, selectionEndPos, ms(20), lerpSteps(40), [&](){
+        return canvas->selectionArea() == expectedSelectionArea;
+    });
 
     // The current pane shouldn't change at all during this test.
     QCOMPARE(canvas->currentPane(), canvas->firstPane());
     QCOMPARE(canvas->currentPane(), canvas->firstPane());
+    QVERIFY(canvas->hasSelection());
+    QVERIFY(canvas->isSelectionPanning());
     QCOMPARE(canvas->selectionArea(), expectedSelectionArea);
 
     // Check that the pane offset actually changed in the directions we expect it to.
@@ -4815,6 +4800,8 @@ void tst_App::selectionEdgePan()
             "Expected pane y offset (%1) to be larger than original y offset (%2)")
                 .arg(canvas->currentPane()->integerOffset().y()).arg(originalOffset.y())));
     }
+
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 }
 
 // https://github.com/mitchcurtis/slate/issues/50

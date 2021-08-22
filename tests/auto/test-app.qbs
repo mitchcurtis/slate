@@ -42,9 +42,7 @@ QtGuiApplication {
         // You can also make your code fail to compile if you use deprecated APIs.
         // In order to do so, uncomment the following line.
         // You can also select to disable deprecated APIs only up to a certain version of Qt.
-        //"QT_DISABLE_DEPRECATED_BEFORE=0x060000", // disables all the APIs deprecated before Qt 6.0.0
-
-        "RESOURCES_DIR=\"" + path + "/resources\""
+        //"QT_DISABLE_DEPRECATED_BEFORE=0x060000" // disables all the APIs deprecated before Qt 6.0.0
     ]
 
     cpp.includePaths: [
@@ -64,17 +62,9 @@ QtGuiApplication {
         "../../lib/3rdparty/bitmap/misc/gif.c",
         "resources.qrc",
         "tst_app.cpp",
-        "../shared/capturedevent.cpp",
-        "../shared/capturedevent.h",
-        "../shared/eventcapturer.cpp",
-        "../shared/eventcapturer.h",
-        "../shared/eventreplayer.cpp",
-        "../shared/eventreplayer.h",
-        "../shared/eventserialiser.cpp",
-        "../shared/eventserialiser.h",
         "../shared/testhelper.h",
         "../shared/testhelper.cpp",
-        "../shared/testutils.h"
+        "../shared/testutils.h",
     ]
 
     AppQmlFiles {}
