@@ -49,5 +49,13 @@
         <file>resources/undoPasteAcrossLayers-1-pasted.slp</file>
         <file>resources/undoPasteAcrossLayers-2-original.slp</file>
         <file>resources/undoPasteAcrossLayers-2-pasted.slp</file>
+        <file>resources/selectionEdgePan-top-left-events.json</file>
+        <file>resources/selectionEdgePan-top-events.json</file>
+        <file>resources/selectionEdgePan-bottom-events.json</file>
+        <file>resources/selectionEdgePan-bottom-left-events.json</file>
+        <file>resources/selectionEdgePan-bottom-right-events.json</file>
+        <file>resources/selectionEdgePan-left-events.json</file>
+        <file>resources/selectionEdgePan-right-events.json</file>
+        <file>resources/selectionEdgePan-top-right-events.json</file>
     </qresource>
 </RCC>
