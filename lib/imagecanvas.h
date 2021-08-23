@@ -444,6 +444,7 @@ protected slots:
 protected:
     void componentComplete() override;
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
+    void itemChange(ItemChange change, const ItemChangeData &value) override;
 
     virtual void restoreState();
 
@@ -501,6 +502,8 @@ protected:
     bool isWithinImage(const QPoint &scenePos) const;
     QPoint clampToImageBounds(const QPoint &scenePos, bool inclusive = true) const;
     void setLastFillToolUsed(Tool lastFillToolUsed);
+
+    void setInteractive(bool interactive);
 
     void setCurrentPane(CanvasPane *pane);
     CanvasPane *hoveredPane(const QPoint &pos);
@@ -606,6 +609,7 @@ protected:
     QColor mCheckerColour1;
     QColor mCheckerColour2;
 
+    bool mInteractive;
     bool mSplitScreen;
     Splitter mSplitter;
     CanvasPane mFirstPane;

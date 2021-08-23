@@ -45,10 +45,6 @@ Dialog {
             return
         }
 
-//        else if (size of project in clipboard doesn't match the current project size)
-//            error message
-//            return
-
         root.open()
     }
 

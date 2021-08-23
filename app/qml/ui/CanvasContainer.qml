@@ -17,9 +17,10 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.3
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.Window 2.15
 
 import App 1.0
 
@@ -28,11 +29,11 @@ Item {
     objectName: "canvasContainer"
 
     property Project project: projectManager.project
-    property ImageCanvas canvas: loader.item
+    property ImageCanvas canvas: canvasContainerLoader.item
     property var checkedToolButton
 
     Loader {
-        id: loader
+        id: canvasContainerLoader
         objectName: "canvasContainerLoader"
         source: project && project.typeString.length > 0 ? project.typeString + "Canvas.qml" : ""
         focus: true

@@ -61,6 +61,7 @@ Q_LOGGING_CATEGORY(lcImageCanvasCursorShape, "app.canvas.cursorshape")
 Q_LOGGING_CATEGORY(lcImageCanvasEvents, "app.canvas.events")
 Q_LOGGING_CATEGORY(lcImageCanvasHoverEvents, "app.canvas.events.hover")
 Q_LOGGING_CATEGORY(lcImageCanvasFocusEvents, "app.canvas.events.focus")
+Q_LOGGING_CATEGORY(lcImageCanvasInteractive, "app.canvas.interactive")
 Q_LOGGING_CATEGORY(lcImageCanvasLifecycle, "app.canvas.lifecycle")
 Q_LOGGING_CATEGORY(lcImageCanvasGuides, "app.canvas.guides")
 Q_LOGGING_CATEGORY(lcImageCanvasNotes, "app.canvas.notes")
@@ -88,6 +89,7 @@ ImageCanvas::ImageCanvas() :
     mSplitColour(Qt::black),
     mCheckerColour1(QColor::fromRgb(0x7e7e7e)),
     mCheckerColour2(Qt::white),
+    mInteractive(true),
     mSplitScreen(false),
     mSplitter(this),
     mCurrentPane(&mFirstPane),
@@ -581,6 +583,12 @@ void ImageCanvas::setLastFillToolUsed(Tool lastFillToolUsed)
     emit lastFillToolUsedChanged();
 }
 
+void ImageCanvas::setInteractive(bool interactive)
+{
+    qCDebug(lcImageCanvasInteractive) << "interactive set to" << interactive;
+    mInteractive = interactive;
+}
+
 int ImageCanvas::toolSize() const
 {
     return mToolSize;
@@ -1050,6 +1058,23 @@ void ImageCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGe
 
     if (mProject)
         updateCursorPos(QPoint(mCursorX, mCursorY));
+}
+#include <QTimer>
+void ImageCanvas::itemChange(ItemChange change, const ItemChangeData &value)
+{
+    if (change == QQuickItem::ItemSceneChange && value.window) {
+        // TODO: store connection so we can disconnect the earlier connection if the app gets moved to another window
+        qDebug() << "connecting";
+        connect(value.window, &QQuickWindow::activeChanged, this, [&](){
+            qDebug() << "window active" << window()->isActive();
+            // Disable interaction with canvas for the next frame (or short amount of time) if the window became active.
+            if (window()->isActive()) {
+                setInteractive(false);
+                QTimer::singleShot(100, [&](){ setInteractive(true); });
+            }
+        });
+    }
+    QQuickItem::itemChange(change, value);
 }
 
 QImage *ImageCanvas::currentProjectImage()
@@ -2848,13 +2873,24 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
 
     event->accept();
 
-    setMouseButtonPressed(event->button());
     mLastMouseButtonPressed = mMouseButtonPressed;
     mPressPosition = event->pos();
     mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
     mPressScenePositionF = QPointF(mCursorSceneFX, mCursorSceneFY);
     mCurrentPaneOffsetBeforePress = mCurrentPane->integerOffset();
     setContainsMouse(true);
+
+    // The window was inactive, and we don't want the click that makes it active
+    // to also e.g. draw something (#178).
+    if (!mInteractive) {
+        event->ignore();
+        qCDebug(lcImageCanvasInteractive) << "interactive is false; accepting (but ignoring) mouse press";
+        setInteractive(true);
+//        updateWindowCursorShape();
+        return;
+    }
+
+    setMouseButtonPressed(event->button());
 
     qCDebug(lcImageCanvasEvents) << "mousePressEvent -" << event
         << "mPressPosition:" << mPressPosition
