@@ -133,6 +133,30 @@ template<typename T>
         }
         return unique;
     }
+
+    template<typename Flags>
+    bool flagsFromString(const QString &string, Flags &flags) {
+        bool ok = false;
+        Flags theFlags = static_cast<Flags>(QMetaEnum::fromType<Flags>().keysToValue(qPrintable(string), &ok));
+        if (!ok)
+            return false;
+        flags = theFlags;
+        return true;
+    }
+
+    template<typename Flags>
+    bool flagsToString(const QMetaObject &staticMetaObject, const char *enumName, const Flags &flags, QString &string) {
+        const QMetaEnum metaEnum = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator(enumName));
+        if (!metaEnum.isValid())
+            return false;
+
+        const QString enumValues = QString::fromLatin1(metaEnum.valueToKeys(flags));
+        if (enumValues.isEmpty())
+            return false;
+
+        string = enumValues;
+        return true;
+    }
 }
 
 #endif // QTUTILS_H

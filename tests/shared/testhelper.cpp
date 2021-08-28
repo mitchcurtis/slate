@@ -1505,13 +1505,23 @@ bool TestHelper::deleteSwatchColour(int index)
     return true;
 }
 
-bool TestHelper::addNewGuide(Qt::Orientation orientation, int position)
+bool TestHelper::addNewGuide(int position, Qt::Orientation orientation)
 {
     if (!canvas->areRulersVisible()) {
         if (!triggerRulersVisible())
             return false;
         VERIFY(canvas->areRulersVisible());
     }
+    if (canvas->areGuidesLocked()) {
+        if (!clickButton(lockGuidesToolButton))
+            return false;
+        VERIFY(!canvas->areGuidesLocked());
+    }
+
+    // Use something that doesn't show the selection guide, as it will affect our grab comparisons.
+    const ImageCanvas::Tool originalTool = canvas->tool();
+    if (originalTool == ImageCanvas::SelectionTool && !switchTool(ImageCanvas::PenTool))
+        return false;
 
     const bool horizontal = orientation == Qt::Horizontal;
     const int originalGuideCount = project->guides().size();
@@ -1551,7 +1561,8 @@ bool TestHelper::addNewGuide(Qt::Orientation orientation, int position)
     VERIFY(imageGrabber.requestImage(canvas));
     TRY_VERIFY(imageGrabber.isReady());
     const QImage grabWithGuide = imageGrabber.takeImage();
-    VERIFY(grabWithGuide.pixelColor(releasePos.x(), releasePos.y()) == QColor(Qt::cyan));
+    COMPARE_NON_FLOAT(grabWithGuide.pixelColor(releasePos.x(), releasePos.y()).name(QColor::HexArgb),
+        QColor(Qt::cyan).name(QColor::HexArgb));
 
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 
@@ -1560,6 +1571,9 @@ bool TestHelper::addNewGuide(Qt::Orientation orientation, int position)
         "Expected %1 guide(s), but got %2").arg(originalGuideCount + 1).arg(project->guides().size())));
     VERIFY(project->guides().at(newGuideIndex).position() == position);
     VERIFY(project->undoStack()->canUndo());
+
+    if (canvas->tool() != originalTool && !switchTool(originalTool))
+        return false;
 
     canvas->currentPane()->setOffset(originalOffset);
     canvas->currentPane()->setZoomLevel(originalZoomLevel);
@@ -3770,8 +3784,11 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     if (!canvas->hasSelection()) {
         // Move the mouse away from any guides, etc.
         QTest::mouseMove(window, QPoint(0, 0));
-        VERIFY2(window->cursor().shape() == Qt::BlankCursor, qPrintable(QString::fromLatin1(
-            "Expected Qt::BlankCursor after Qt::Key_Space release, but got %1").arg(window->cursor().shape())));
+        const Qt::CursorShape expectedCursorShape =
+            canvas->guideIndexAtCursorPos() != -1 ? Qt::OpenHandCursor : Qt::BlankCursor;
+        VERIFY2(window->cursor().shape() == expectedCursorShape, qPrintable(QString::fromLatin1(
+            "Expected %1 after Qt::Key_Space release, but got %2").arg(
+                QtUtils::toString(expectedCursorShape), QtUtils::toString(window->cursor().shape()))));
         QTest::mouseMove(window, pressPos + QPoint(xDistance, yDistance));
     }
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);

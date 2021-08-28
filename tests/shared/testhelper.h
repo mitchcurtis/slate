@@ -324,7 +324,7 @@ protected:
         ExpectAllDuplicates
     };
 
-    Q_REQUIRED_RESULT bool addNewGuide(Qt::Orientation orientation, int position);
+    Q_REQUIRED_RESULT bool addNewGuide(int position, Qt::Orientation orientation);
     Q_REQUIRED_RESULT bool addNewGuides(int horizontalSpacing, int verticalSpacing, AddNewGuidesFlag flag = AddNewGuidesFlag::ExpectAllUnique);
     Q_REQUIRED_RESULT bool addSelectedColoursToTexturedFillSwatch();
 
