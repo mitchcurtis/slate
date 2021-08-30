@@ -21,8 +21,8 @@
 
 #include "canvaspane.h"
 #include "imagecanvas.h"
+#include "imageutils.h"
 #include "panedrawinghelper.h"
-#include "utils.h"
 
 #include <QPainter>
 
@@ -102,5 +102,5 @@ void SelectionItem::paint(QPainter *painter)
     PaneDrawingHelper paneDrawingHelper(mCanvas, painter, mPane, mPaneIndex);
     const QRect zoomedSelectionArea(mCanvas->selectionArea().topLeft() * mPane->integerZoomLevel(),
         mPane->zoomedSize(mCanvas->selectionArea().size()));
-    Utils::strokeRectWithDashes(painter, zoomedSelectionArea);
+    ImageUtils::strokeRectWithDashes(painter, zoomedSelectionArea);
 }

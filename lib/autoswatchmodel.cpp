@@ -22,8 +22,8 @@
 #include <QLoggingCategory>
 
 #include "imagecanvas.h"
+#include "imageutils.h"
 #include "project.h"
-#include "utils.h"
 
 Q_LOGGING_CATEGORY(lcAutoSwatchModel, "app.autoSwatchModel")
 
@@ -47,8 +47,8 @@ void AutoSwatchWorker::findUniqueColours(const QImage &image)
     }
 
     QVector<QColor> uniqueColours;
-    const Utils::FindUniqueColoursResult result = Utils::findUniqueColours(image, maxUniqueColours, uniqueColours);
-    if (result == Utils::MaximumUniqueColoursExceeded) {
+    const ImageUtils::FindUniqueColoursResult result = ImageUtils::findUniqueColours(image, maxUniqueColours, uniqueColours);
+    if (result == ImageUtils::MaximumUniqueColoursExceeded) {
         // There was an actual error that the user should know about.
         emit errorOccurred(tr("Exceeded maximum unique colours (%1) supported by the auto swatch feature.")
             .arg(maxUniqueColours));

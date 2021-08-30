@@ -1,0 +1,109 @@
+{
+    "project": {
+        "creationVersion": "0.10.0",
+        "currentLayerIndex": 0,
+        "guides": [
+            {
+                "orientation": 2,
+                "position": 8
+            },
+            {
+                "orientation": 2,
+                "position": 16
+            },
+            {
+                "orientation": 2,
+                "position": 24
+            },
+            {
+                "orientation": 1,
+                "position": 8
+            },
+            {
+                "orientation": 1,
+                "position": 16
+            },
+            {
+                "orientation": 1,
+                "position": 24
+            },
+            {
+                "orientation": 2,
+                "position": 32
+            },
+            {
+                "orientation": 2,
+                "position": 40
+            },
+            {
+                "orientation": 2,
+                "position": 48
+            },
+            {
+                "orientation": 2,
+                "position": 56
+            },
+            {
+                "orientation": 1,
+                "position": 32
+            },
+            {
+                "orientation": 1,
+                "position": 40
+            },
+            {
+                "orientation": 1,
+                "position": 48
+            },
+            {
+                "orientation": 1,
+                "position": 56
+            }
+        ],
+        "layers": [
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABM0lEQVR4nO2X2xYCIQhFsdX///L0ZItIEBm7rfZ+Ki9wRAWnyUYOkUP/byJtp/3uY6fda9aBXlwkoPfZYMyEZ4Jnx0TtpTUcIofnZCZiNm6H3apv2677r7qzibTIyVkB2k9mnh43Er9ySrz+ewCy9yozbhbIjN3ZsY7sZzT2jbhkBe44oqNdfDdNpOkAPVwB+7uSSLy5OjlWjm52TNbGKyrUkoBPkUn0/0mPzCg6o5IWlTmvL/JR0eHNW5n7kAQzD5Uzx8cmIE9gpiJUfIxsXaJOT9CZBDJbTKWErti3DN8B0WOl4sTOOxtAb/6s0lgdIuYERPSd2VE+qi/FjN3M5uhr8vQxlGEkULd5Vya7sJXnbOS3av+r+WnxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwFm4Z2LvUhHyY9QAAAABJRU5ErkJggg==",
+                "name": "layer-1",
+                "opacity": 1,
+                "visible": true
+            }
+        ],
+        "modificationVersion": "0.10.0",
+        "notes": [
+        ],
+        "swatch": {
+            "colours": [
+            ]
+        },
+        "uiState": {
+            "animationMarkersVisible": true,
+            "colourPanelExpanded": true,
+            "firstPane": {
+                "offsetX": 540,
+                "offsetY": 219,
+                "sceneCentered": false,
+                "size": 1,
+                "zoomLevel": 10
+            },
+            "guidesLocked": true,
+            "guidesVisible": true,
+            "lastFillToolUsed": "FillTool",
+            "layerListViewContentY": 0,
+            "layerPanelExpanded": true,
+            "mainSplitViewState": "gqJlaW5kZXgAbnByZWZlcnJlZFdpZHRo+0CBgAAAAAAAomVpbmRleAFucHJlZmVycmVkV2lkdGj7QG4AAAAAAAA=",
+            "notesVisible": true,
+            "panelSplitViewState": "hKJlaW5kZXgAb3ByZWZlcnJlZEhlaWdodPtAdqrXIAAAAKJlaW5kZXgBb3ByZWZlcnJlZEhlaWdodPtAYTUgAAAAAKJlaW5kZXgDb3ByZWZlcnJlZEhlaWdodPtAc5AAAAAAAKJlaW5kZXgEb3ByZWZlcnJlZEhlaWdodPtAeZkAwAAAAA==",
+            "rulersVisible": true,
+            "secondPane": {
+                "offsetX": -16,
+                "offsetY": 440,
+                "sceneCentered": true,
+                "size": 0,
+                "zoomLevel": 1
+            },
+            "splitScreen": false,
+            "splitterLocked": false,
+            "swatchPanelExpanded": true
+        }
+    }
+}

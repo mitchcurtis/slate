@@ -22,9 +22,9 @@
 #include "canvaspane.h"
 #include "guide.h"
 #include "imagecanvas.h"
+#include "imageutils.h"
 #include "panedrawinghelper.h"
 #include "project.h"
-#include "utils.h"
 
 #include <QPainter>
 

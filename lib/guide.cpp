@@ -53,7 +53,8 @@ void Guide::setOrientation(const Qt::Orientation &orientation)
 
 bool operator==(const Guide &a, const Guide &b)
 {
-    return a.position() == b.position() && a.orientation() == b.orientation();
+    return a.position() == b.position()
+        && a.orientation() == b.orientation();
 }
 
 QDebug operator<<(QDebug debug, const Guide &guide)
@@ -63,4 +64,24 @@ QDebug operator<<(QDebug debug, const Guide &guide)
         << " orientation=" << guide.orientation()
         << ")";
     return debug;
+}
+
+QDebug operator<<(QDebug debug, const QVector<Guide> &guides)
+{
+    QDebugStateSaver saver(debug);
+    debug.nospace() << "QVector(";
+    for (int i = 0; i < guides.size(); ++i) {
+        const auto guide = guides.at(i);
+        const bool horizontal = guide.orientation() == Qt::Horizontal;
+        debug << '(' << guide.position() << ' ' << (horizontal ? 'h' : 'v') << ')';
+        if (i != guides.size() - 1)
+            debug << ", ";
+    }
+    debug << ')';
+    return debug;
+}
+
+uint qHash(const Guide &guide, uint seed) noexcept
+{
+    return qHash(guide.position(), seed) ^ guide.orientation();
 }

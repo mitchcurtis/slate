@@ -13,8 +13,7 @@ ColumnLayout {
     function applyChangesToSettings() {
         settings.loadLastOnStartup = loadLastCheckBox.checked
         settings.gesturesEnabled = enableGesturesCheckBox.checked
-        settings.penToolRightClickBehaviour =
-            penToolRightClickBehaviourComboBox.model[penToolRightClickBehaviourComboBox.currentIndex].value
+        settings.penToolRightClickBehaviour = penToolRightClickBehaviourComboBox.currentValue
         settings.autoSwatchEnabled = enableAutoSwatchCheckBox.checked
 
         for (var i = 0; i < shortcutModel.count; ++i) {
@@ -29,7 +28,7 @@ ColumnLayout {
         loadLastCheckBox.checked = settings.loadLastOnStartup
         enableGesturesCheckBox.checked = settings.gesturesEnabled
         penToolRightClickBehaviourComboBox.currentIndex =
-            penToolRightClickBehaviourComboBox.indexForValue(settings.penToolRightClickBehaviour)
+            penToolRightClickBehaviourComboBox.indexOfValue(settings.penToolRightClickBehaviour)
         enableAutoSwatchCheckBox.checked = settings.autoSwatchEnabled
 
         for (var i = 0; i < shortcutModel.count; ++i) {
@@ -105,8 +104,7 @@ ColumnLayout {
                 objectName: "penToolRightClickBehaviourComboBox"
                 leftPadding: 0
                 textRole: "display"
-                // TODO: use findValue() when QTBUG-73491 is implemented
-                currentIndex: indexForValue(settings.penToolRightClickBehaviour)
+                valueRole: "value"
 
                 // TODO: add icons when QTBUG-73489 is implemented
                 model: [
@@ -126,13 +124,7 @@ ColumnLayout {
 
                 Layout.fillWidth: true
 
-                function indexForValue(value) {
-                    for (var i = 0; i < model.length; ++i) {
-                        if (model[i].value === value)
-                            return i;
-                    }
-                    return -1;
-                }
+                Component.onCompleted: currentIndex = indexOfValue(settings.penToolRightClickBehaviour)
             }
 
             Label {

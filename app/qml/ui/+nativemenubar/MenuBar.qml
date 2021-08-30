@@ -29,6 +29,7 @@ Item {
     property int projectType: project ? project.type : 0
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
 
+    property PasteAcrossLayersDialog pasteAcrossLayersDialog
     property var hueSaturationDialog
     property var opacityDialog
     property var canvasSizePopup
@@ -38,6 +39,7 @@ Item {
     property var aboutDialog
     property SaveChangesDialog saveChangesDialog
     property AddGuidesDialog addGuidesDialog
+    property RearrangeContentsIntoGridDialog rearrangeContentsIntoGridDialog
 
     Platform.MenuBar {
         Platform.Menu {
@@ -74,8 +76,8 @@ Item {
                         })
                     }
 
-                    onObjectAdded: recentFilesSubMenu.insertItem(index, object)
-                    onObjectRemoved: recentFilesSubMenu.removeItem(object)
+                    onObjectAdded: (index, object) => { recentFilesSubMenu.insertItem(index, object) }
+                    onObjectRemoved: (index, object) => { recentFilesSubMenu.removeItem(object) }
                 }
 
                 Platform.MenuSeparator {}
@@ -183,8 +185,8 @@ Item {
             Platform.MenuItem {
                 objectName: "redoMenuItem"
                 text: qsTr("Redo")
-                onTriggered: project.undoStack.redo()
                 enabled: project && project.undoStack.canRedo
+                onTriggered: project.undoStack.redo()
             }
 
             // https://bugreports.qt.io/browse/QTBUG-67310
@@ -193,15 +195,29 @@ Item {
             Platform.MenuItem {
                 objectName: "copyMenuItem"
                 text: qsTr("Copy")
-                onTriggered: canvas.copySelection()
                 enabled: isImageProjectType && canvas && canvas.hasSelection
+                onTriggered: canvas.copySelection()
+            }
+
+            Platform.MenuItem {
+                objectName: "copyAcrossLayersMenuItem"
+                text: qsTr("Copy Across Layers")
+                enabled: projectType === Project.LayeredImageType && canvas && canvas.hasSelection
+                onTriggered: project.copyAcrossLayers(canvas.selectionArea)
             }
 
             Platform.MenuItem {
                 objectName: "pasteMenuItem"
                 text: qsTr("Paste")
-                onTriggered: canvas.paste()
                 enabled: isImageProjectType && canvas
+                onTriggered: canvas.paste()
+            }
+
+            Platform.MenuItem {
+                objectName: "pasteAcrossLayersMenuItem"
+                text: qsTr("Paste Across Layers...")
+                enabled: projectType === Project.LayeredImageType && canvas && Clipboard.copiedLayerCount > 0
+                onTriggered: pasteAcrossLayersDialog.openOrError()
             }
 
             Platform.MenuSeparator {}
@@ -209,8 +225,8 @@ Item {
             Platform.MenuItem {
                 objectName: "selectAllMenuItem"
                 text: qsTr("Select All")
-                onTriggered: canvas.selectAll()
                 enabled: isImageProjectType && canvas
+                onTriggered: canvas.selectAll()
             }
 
             Platform.MenuSeparator {}
@@ -218,20 +234,20 @@ Item {
             Platform.MenuItem {
                 objectName: "addSelectedColoursToTexturedFillSwatchMenuItem"
                 text: qsTr("Add to Textured Fill Swatch...")
+                enabled: isImageProjectType && canvas && canvas.hasSelection
                 onTriggered: {
                     canvas.addSelectedColoursToTexturedFillSwatch()
                     canvas.texturedFillParameters.type = TexturedFillParameters.SwatchFillType
                     texturedFillSettingsDialog.open()
                 }
-                enabled: isImageProjectType && canvas && canvas.hasSelection
             }
 
             Platform.MenuItem {
                 objectName: "texturedFillSettingsMenuItem"
                 //: Opens a dialog that allows the user to change the settings for the Textured Fill tool.
                 text: qsTr("Textured Fill Settings...")
-                onTriggered: texturedFillSettingsDialog.open()
                 enabled: isImageProjectType && canvas
+                onTriggered: texturedFillSettingsDialog.open()
             }
 
             Platform.MenuSeparator {}
@@ -240,30 +256,30 @@ Item {
                 objectName: "rotateClockwiseMenuItem"
                 //: Rotates the image 90 degrees to the right.
                 text: qsTr("Rotate 90° Clockwise")
-                onTriggered: canvas.rotateSelection(90)
                 enabled: isImageProjectType && canvas && canvas.hasSelection
+                onTriggered: canvas.rotateSelection(90)
             }
 
             Platform.MenuItem {
                 objectName: "rotateCounterClockwiseMenuItem"
                 //: Rotates the image 90 degrees to the left.
                 text: qsTr("Rotate 90° Counter Clockwise")
-                onTriggered: canvas.rotateSelection(-90)
                 enabled: isImageProjectType && canvas && canvas.hasSelection
+                onTriggered: canvas.rotateSelection(-90)
             }
 
             Platform.MenuItem {
                 objectName: "flipHorizontallyMenuItem"
                 text: qsTr("Flip Horizontally")
-                onTriggered: canvas.flipSelection(Qt.Horizontal)
                 enabled: isImageProjectType && canvas && canvas.hasSelection
+                onTriggered: canvas.flipSelection(Qt.Horizontal)
             }
 
             Platform.MenuItem {
                 objectName: "flipVerticallyMenuItem"
                 text: qsTr("Flip Vertically")
-                onTriggered: canvas.flipSelection(Qt.Vertical)
                 enabled: isImageProjectType && canvas && canvas.hasSelection
+                onTriggered: canvas.flipSelection(Qt.Vertical)
             }
         }
 
@@ -320,6 +336,13 @@ Item {
                 text: qsTr("Move Contents...")
                 enabled: canvas && projectType === Project.LayeredImageType
                 onTriggered: moveContentsDialog.open()
+            }
+
+            Platform.MenuItem {
+                objectName: "rearrangeContentsIntoGridMenuItem"
+                text: qsTr("Rearrange Contents Into Grid...")
+                enabled: isImageProjectType && canvas
+                onTriggered: rearrangeContentsIntoGridDialog.open()
             }
         }
 

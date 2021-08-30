@@ -25,8 +25,8 @@
 
 #include "animation.h"
 #include "animationplayback.h"
+#include "imageutils.h"
 #include "project.h"
-#include "utils.h"
 
 Q_LOGGING_CATEGORY(lcSpriteImage, "app.spriteImage")
 
@@ -45,7 +45,7 @@ void SpriteImage::paint(QPainter *painter)
     if (exportedImage.isNull())
         return;
 
-    const QImage copy = Utils::imageForAnimationFrame(exportedImage,
+    const QImage copy = ImageUtils::imageForAnimationFrame(exportedImage,
         *mAnimationPlayback, mAnimationPlayback->currentFrameIndex());
     Q_ASSERT(!copy.isNull());
 

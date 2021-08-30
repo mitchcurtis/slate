@@ -38,13 +38,13 @@ ChangeImageSizeCommand::ChangeImageSizeCommand(ImageProject *project, const QIma
 void ChangeImageSizeCommand::undo()
 {
     qCDebug(lcChangeImageSizeCommand) << "undoing" << this;
-    mProject->doSetImageSize(mPreviousImage);
+    mProject->setImage(mPreviousImage);
 }
 
 void ChangeImageSizeCommand::redo()
 {
     qCDebug(lcChangeImageSizeCommand) << "redoing" << this;
-    mProject->doSetImageSize(mNewImage);
+    mProject->setImage(mNewImage);
 }
 
 int ChangeImageSizeCommand::id() const

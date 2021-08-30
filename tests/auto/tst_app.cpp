@@ -36,14 +36,15 @@ extern "C" {
 #include "application.h"
 #include "applypixelpencommand.h"
 #include "imagelayer.h"
+#include "imageutils.h"
 #include "tilecanvas.h"
 #include "probabilityswatch.h"
 #include "project.h"
 #include "projectmanager.h"
+#include "qtutils.h"
 #include "swatch.h"
 #include "testhelper.h"
 #include "tileset.h"
-#include "utils.h"
 
 class tst_App : public TestHelper
 {
@@ -89,6 +90,8 @@ private Q_SLOTS:
     void undoImageCanvasSizeChange();
     void undoImageSizeChange();
     void undoLayeredImageSizeChange();
+    void undoRearrangeContentsIntoGridChange_data();
+    void undoRearrangeContentsIntoGridChange();
     void undoPixelFill();
     void undoTileFill();
     void undoThickSquarePen();
@@ -142,6 +145,7 @@ private Q_SLOTS:
     void rulersAndGuides();
     void rulersSplitScreen();
     void addAndDeleteMultipleGuides();
+    void loadDuplicateGuides();
     void notes_data();
     void notes();
     void dragNoteWithoutMoving();
@@ -171,10 +175,10 @@ private Q_SLOTS:
     void pasteFromExternalSource_data();
     void pasteFromExternalSource();
     void undoAfterMovedPaste();
+    void undoPasteAcrossLayers_data();
+    void undoPasteAcrossLayers();
     void flipPastedImage();
     void flipOnTransparentBackground();
-    void selectionEdgePan_data();
-    void selectionEdgePan();
     void panThenMoveSelection();
     void selectionCursorGuide();
     void rotateSelection_data();
@@ -247,8 +251,7 @@ void tst_App::newProjectWithNewTileset()
     const int expectedHeight = 32 * 5;
     QCOMPARE(tilesetProject->tileset()->image()->width(), expectedWidth);
     QCOMPARE(tilesetProject->tileset()->image()->height(), expectedHeight);
-    QImage expectedTilesetImage(expectedWidth, expectedHeight, tilesetProject->tileset()->image()->format());
-    expectedTilesetImage.fill(Qt::white);
+    QImage expectedTilesetImage(ImageUtils::filledImage(expectedWidth, expectedHeight, Qt::white));
     expectedTilesetImage.setPixelColor(10, 10, tileCanvas->penForegroundColour());
 
     // Draw a tile on.
@@ -262,7 +265,7 @@ void tst_App::newProjectWithNewTileset()
     QVERIFY2(switchMode(TileCanvas::PixelMode), failureMessage);
     setCursorPosInScenePixels(10, 10);
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    QCOMPARE(*tilesetProject->tileset()->image(), expectedTilesetImage);
+    QVERIFY2(compareImages(*tilesetProject->tileset()->image(), expectedTilesetImage), failureMessage);
 
     // Save the project.
     const QUrl saveFileName = QUrl::fromLocalFile(tempProjectDir->path() + "/mytileset.stp");
@@ -271,7 +274,7 @@ void tst_App::newProjectWithNewTileset()
     const QString tilesetPath = tempProjectDir->path() + "/mytileset.png";
     QCOMPARE(tilesetProject->tilesetUrl(), QUrl::fromLocalFile(tilesetPath));
     QVERIFY(QFile::exists(tilesetPath));
-    QCOMPARE(*tilesetProject->tileset()->image(), expectedTilesetImage);
+    QVERIFY2(compareImages(*tilesetProject->tileset()->image(), expectedTilesetImage), failureMessage);
 }
 
 void tst_App::repeatedNewProject_data()
@@ -798,8 +801,7 @@ void tst_App::newProjectSizeFromClipboard_data()
     QTest::addColumn<Project::Type>("projectType");
     QTest::addColumn<QImage>("clipboardImage");
 
-    QImage clipboardImage(100, 200, QImage::Format_ARGB32_Premultiplied);
-    clipboardImage.fill(Qt::red);
+    const QImage clipboardImage = ImageUtils::filledImage(100, 200, Qt::red);
 
     QTest::newRow("ImageType, 100x200") << Project::ImageType << clipboardImage;
     QTest::newRow("ImageType, (none)") << Project::ImageType << QImage();
@@ -1538,6 +1540,8 @@ void tst_App::undoImageSizeChange()
     QCOMPARE(imageProject->image()->pixelColor(QPoint(0, 0)), imageCanvas->penForegroundColour());
     QCOMPARE(imageProject->image()->pixelColor(QPoint(3, 3)), imageCanvas->penForegroundColour());
 
+    const QImage originalContents = project->exportedImage();
+
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
@@ -1545,9 +1549,8 @@ void tst_App::undoImageSizeChange()
     QVERIFY2(changeImageSize(6, 6), failureMessage);
 
     // The contents should have been scaled down by 50%.
-    QCOMPARE(imageProject->image()->pixelColor(QPoint(0, 0)), imageCanvas->penForegroundColour());
-    QCOMPARE(imageProject->image()->pixelColor(QPoint(1, 1)), imageCanvas->penForegroundColour());
-    QCOMPARE(imageProject->image()->pixelColor(QPoint(2, 2)), QColor(Qt::white));
+    const QImage expectedResizedContents = ImageUtils::resizeContents(originalContents, 6, 6);
+    QVERIFY2(compareImages(project->exportedImage(), expectedResizedContents), failureMessage);
 
     // Move the mouse back so the image comparison works.
     setCursorPosInScenePixels(2, 2);
@@ -1561,10 +1564,7 @@ void tst_App::undoImageSizeChange()
 
     // Undo the size change.
     QVERIFY2(clickButton(undoToolButton), failureMessage);
-
-    QCOMPARE(imageProject->image()->size(), QSize(12, 12));
-    QCOMPARE(imageProject->image()->pixelColor(QPoint(0, 0)), imageCanvas->penForegroundColour());
-    QCOMPARE(imageProject->image()->pixelColor(QPoint(3, 3)), imageCanvas->penForegroundColour());
+    QVERIFY2(compareImages(project->exportedImage(), originalContents), failureMessage);
 
     QVERIFY(imageGrabber.requestImage(canvas));
     QTRY_VERIFY(imageGrabber.isReady());
@@ -1588,7 +1588,6 @@ void tst_App::undoLayeredImageSizeChange()
     // Add a new layer.
     QVERIFY2(clickButton(newLayerButton), failureMessage);
     QCOMPARE(layeredImageProject->layerCount(), 2);
-    ImageLayer *layer1 = layeredImageProject->layerAt(1);
     ImageLayer *layer2 = layeredImageProject->layerAt(0);
 
     // Select the new layer.
@@ -1601,6 +1600,8 @@ void tst_App::undoLayeredImageSizeChange()
     QCOMPARE(layer2->image()->pixelColor(4, 0), QColor(Qt::red));
     QCOMPARE(layer2->image()->pixelColor(7, 3), QColor(Qt::red));
 
+    const QImage originalContents = project->exportedImage();
+
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage preSizeChangeCanvasSnapshot = imageGrabber.takeImage();
@@ -1608,13 +1609,8 @@ void tst_App::undoLayeredImageSizeChange()
     QVERIFY2(changeImageSize(6, 6), failureMessage);
 
     // The contents of both layers should have been scaled down by 50%.
-    QCOMPARE(layer1->image()->pixelColor(QPoint(0, 0)), QColor(Qt::black));
-    QCOMPARE(layer1->image()->pixelColor(QPoint(1, 1)), QColor(Qt::black));
-    QCOMPARE(layer1->image()->pixelColor(QPoint(0, 2)), QColor(Qt::white));
-
-    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 0)), QColor(Qt::red));
-    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 1)), QColor(Qt::red));
-    QCOMPARE(layer2->image()->pixelColor(QPoint(2, 2)), QColor(Qt::transparent));
+    const QImage expectedResizedContents = ImageUtils::resizeContents(originalContents, 6, 6);
+    QVERIFY2(compareImages(project->exportedImage(), expectedResizedContents), failureMessage);
 
     // Move the mouse back so the image comparison works.
     setCursorPosInScenePixels(2, 2);
@@ -1628,18 +1624,50 @@ void tst_App::undoLayeredImageSizeChange()
 
     // Undo the size change.
     QVERIFY2(clickButton(undoToolButton), failureMessage);
-
-    QCOMPARE(layer1->image()->size(), QSize(12, 12));
-    QCOMPARE(layer1->image()->pixelColor(0, 0), QColor(Qt::black));
-    QCOMPARE(layer1->image()->pixelColor(3, 3), QColor(Qt::black));
-
-    QCOMPARE(layer2->image()->pixelColor(4, 0), QColor(Qt::red));
-    QCOMPARE(layer2->image()->pixelColor(7, 3), QColor(Qt::red));
+    QVERIFY2(compareImages(project->exportedImage(), originalContents), failureMessage);
 
     QVERIFY(imageGrabber.requestImage(layeredImageCanvas));
     QTRY_VERIFY(imageGrabber.isReady());
     const QImage postUndoSnapshot = imageGrabber.takeImage();
     QCOMPARE(postUndoSnapshot, preSizeChangeCanvasSnapshot);
+}
+
+void tst_App::undoRearrangeContentsIntoGridChange_data()
+{
+    QTest::addColumn<QString>("projectPath");
+    QTest::addColumn<QString>("expectedExportedImagePath");
+    QTest::addColumn<int>("cellWidth");
+    QTest::addColumn<int>("cellHeight");
+    QTest::addColumn<int>("columns");
+    QTest::addColumn<int>("rows");
+
+    QTest::newRow("ImageType, grid-4x4 to 8x8")
+        << "grid-4x4.png" << ":/resources/grid-4x4-to-8x8.png" << 8 << 8 << 8 << 8;
+    QTest::newRow("LayeredImageType, grid-4x4 to 8x8")
+        << "grid-4x4.slp" << ":/resources/grid-4x4-to-8x8.png" << 8 << 8 << 8 << 8;
+}
+
+void tst_App::undoRearrangeContentsIntoGridChange()
+{
+    QFETCH(QString, projectPath);
+    QFETCH(QString, expectedExportedImagePath);
+    QFETCH(int, cellWidth);
+    QFETCH(int, cellHeight);
+    QFETCH(int, columns);
+    QFETCH(int, rows);
+
+    QVERIFY2(setupTempProjectDir(), failureMessage);
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(projectPath), failureMessage);
+
+    const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1Char('/') + projectPath);
+    QVERIFY2(loadProject(projectUrl), failureMessage);
+
+    QVERIFY2(rearrangeContentsIntoGrid(cellWidth, cellHeight, columns, rows), failureMessage);
+
+    const QImage expectedExportedImage(expectedExportedImagePath);
+    QVERIFY2(!expectedExportedImage.isNull(), qPrintable(QString::fromLatin1(
+        "Failed to open expectedExportedImage at %1").arg(expectedExportedImagePath)));
+    QVERIFY2(compareImages(project->exportedImage(), expectedExportedImage), failureMessage);
 }
 
 void tst_App::undoPixelFill()
@@ -2471,7 +2499,7 @@ void tst_App::tilesetSwatchContextMenu()
 //    const QImage originalTileImage = tileCanvas->penTile()->image();
 //    QVERIFY2(clickButton(rotateTileLeftMenuItem), failureMessage);
 //    QVERIFY(!tilesetContextMenu->property("visible").toBool());
-//    QCOMPARE(Utils::rotate(tileCanvas->penTile()->image(), 90), originalTileImage);
+//    QCOMPARE(ImageUtils::rotate(tileCanvas->penTile()->image(), 90), originalTileImage);
 
 //    QVERIFY(imageGrabber.requestImage(tileCanvas));
 //    QTRY_VERIFY(imageGrabber.isReady());
@@ -3210,7 +3238,7 @@ void tst_App::penToolRightClickBehaviour()
     QQuickItem *penToolRightClickBehaviourComboBox = optionsDialog->findChild<QQuickItem*>("penToolRightClickBehaviourComboBox");
     QVERIFY(penToolRightClickBehaviourComboBox);
     mouseEventOnCentre(penToolRightClickBehaviourComboBox, MouseClick);
-    QVERIFY2(penToolRightClickBehaviourComboBox->hasActiveFocus(), qPrintable(QDebug::toString(window->activeFocusItem())));
+    QVERIFY2(penToolRightClickBehaviourComboBox->hasActiveFocus(), qPrintable(QtUtils::toString(window->activeFocusItem())));
     QObject *penToolRightClickBehaviourComboBoxPopup = penToolRightClickBehaviourComboBox->property("popup").value<QObject*>();
     QVERIFY(penToolRightClickBehaviourComboBoxPopup);
     QTRY_COMPARE(penToolRightClickBehaviourComboBoxPopup->property("opened").toBool(), true);
@@ -3453,28 +3481,29 @@ void tst_App::addAndDeleteMultipleGuides()
     QVERIFY2(triggerRulersVisible(), failureMessage);
     QCOMPARE(canvas->areRulersVisible(), true);
 
-    // Open the dialog manually cause native menus.
-    QObject *addGuidesDialog;
-    QVERIFY2(findAndOpenClosedPopupFromObjectName("addGuidesDialog", &addGuidesDialog), failureMessage);
-    QVERIFY2(incrementSpinBox("addGuidesHorizontalSpacingSpinBox", 32), failureMessage);
-    QVERIFY2(incrementSpinBox("addGuidesVerticalSpacingSpinBox", 32), failureMessage);
-    QVERIFY2(incrementSpinBox("addGuidesVerticalSpacingSpinBox", 33), failureMessage);
-    QVERIFY2(acceptDialog(addGuidesDialog, "addGuidesDialogOkButton"), failureMessage);
-    QVector<Guide> expectedGuides;
-    const int horizontalSpacing = 33;
-    const int verticalSpacing = 34;
-    for (int y = verticalSpacing; y < project->heightInPixels(); y += verticalSpacing) {
-        for (int x = horizontalSpacing; x < project->widthInPixels(); x += horizontalSpacing) {
-            expectedGuides.append(Guide(x, Qt::Vertical));
-        }
-        expectedGuides.append(Guide(y, Qt::Horizontal));
-    }
-    // Get a decent failure message instead of just "Compared values are not the same".
-    QCOMPARE(QDebug::toString(project->guides()), QDebug::toString(expectedGuides));
+    QVERIFY2(addNewGuides(63, 65), failureMessage);
 
-    expectedGuides.clear();
+    // Try to add the same guides again; it shouldn't add any duplicates.
+    QVERIFY2(addNewGuides(63, 65, AddNewGuidesFlag::ExpectAllDuplicates), failureMessage);
+
+    // Remove all guides.
     canvas->removeAllGuides();
-    QCOMPARE(QDebug::toString(project->guides()), QDebug::toString(expectedGuides));
+    QVector<Guide> guides;
+    QCOMPARE(QtUtils::toString(project->guides()), QtUtils::toString(guides));
+}
+
+void tst_App::loadDuplicateGuides()
+{
+    QVERIFY2(setupTempProjectDir(), failureMessage);
+    QVERIFY2(copyFileFromResourcesToTempProjectDir("duplicate-guides.slp"), failureMessage);
+
+    QTest::ignoreMessage(QtWarningMsg, "Project contains duplicate guides; they will be removed");
+
+    const QUrl projectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1String("/duplicate-guides.slp"));
+    QVERIFY2(loadProject(projectUrl), failureMessage);
+    const QVector<Guide> actualGuides = project->guides();
+    const QVector<Guide> expectedUniqueGuides = QtUtils::uniqueValues(actualGuides);
+    QVERIFY2(actualGuides == expectedUniqueGuides, "Expected all loaded guides to be unique");
 }
 
 void tst_App::notes_data()
@@ -4021,7 +4050,7 @@ QDebug operator<<(QDebug debug, const SelectionData &data)
 QByteArray selectionAreaFailureMessage(ImageCanvas *canvas, const SelectionData &selectionData, const QRect &expectedArea)
 {
     return qPrintable(QString::fromLatin1("Data: %1 \n      Actual area: %2\n    Expected area: %3")
-        .arg(QDebug::toString(selectionData), QDebug::toString(canvas->selectionArea()), QDebug::toString(expectedArea)));
+        .arg(QtUtils::toString(selectionData), QtUtils::toString(canvas->selectionArea()), QtUtils::toString(expectedArea)));
 }
 
 void tst_App::selectionToolImageCanvas()
@@ -4080,7 +4109,7 @@ void tst_App::selectionToolImageCanvas()
         const QRect expectedPressArea = QRect(boundExpectedPressPos, QSize(0, 0));
         if (debug && canvas->selectionArea() != expectedPressArea) {
             const auto imageGrabPath = QDir().absolutePath() + "/selectionToolImageCanvas-press-"
-                + QDebug::toString(data.expectedSelectionArea) + "-window-grab.png";
+                + QtUtils::toString(data.expectedSelectionArea) + "-window-grab.png";
             qDebug() << "Saving window's image grab to:\n" << imageGrabPath;
             QVERIFY(window->grabWindow().save(imageGrabPath));
         }
@@ -4093,7 +4122,7 @@ void tst_App::selectionToolImageCanvas()
         QTest::mouseMove(window, cursorWindowPos, eventDelay);
         if (debug && canvas->selectionArea() != data.expectedSelectionArea) {
             const auto imageGrabPath = QDir().absolutePath() + "/selectionToolImageCanvas-move-"
-                + QDebug::toString(data.expectedSelectionArea) + "-window-grab.png";
+                + QtUtils::toString(data.expectedSelectionArea) + "-window-grab.png";
             qDebug() << "Saving window's image grab to:\n" << imageGrabPath;
             QVERIFY(window->grabWindow().save(imageGrabPath));
         }
@@ -4456,8 +4485,7 @@ void tst_App::undoCopyPasteWithTransparency()
     // top-left of the canvas. The test used to select {0,9 3x3} and copy it,
     // and then paste it. To ensure the integrity of the test, we manually
     // set the clipboard image so that it's still pasted at the top-left.
-    QImage image(3, 3, QImage::Format_ARGB32_Premultiplied);
-    image.fill(Qt::transparent);
+    QImage image = ImageUtils::filledImage(3, 3);
     image.setPixelColor(1, 1, Qt::black);
     qGuiApp->clipboard()->setImage(image);
 
@@ -4495,8 +4523,7 @@ void tst_App::pasteFromExternalSource()
 
     QCOMPARE(canvas->tool(), ImageCanvas::PenTool);
 
-    QImage image(32, 32, QImage::Format_ARGB32_Premultiplied);
-    image.fill(Qt::blue);
+    QImage image = ImageUtils::filledImage(32, 32, Qt::blue);
     qGuiApp->clipboard()->setImage(image);
 
     QTest::keySequence(window, QKeySequence::Paste);
@@ -4558,6 +4585,69 @@ void tst_App::undoAfterMovedPaste()
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, 1), QColor(Qt::transparent));
 }
 
+void tst_App::undoPasteAcrossLayers_data()
+{
+    QTest::addColumn<QString>("originalProjectFileName");
+    QTest::addColumn<QString>("pastedProjectFileName");
+    QTest::addColumn<QRect>("copyArea");
+    QTest::addColumn<int>("pasteX");
+    QTest::addColumn<int>("pasteY");
+
+    QTest::newRow("undoPasteAcrossLayers-1-original.slp")
+        << QString::fromLatin1("undoPasteAcrossLayers-1-original.slp")
+        << QString::fromLatin1("undoPasteAcrossLayers-1-pasted.slp")
+        << QRect(0, 0, 32, 32) << 32 << 0;
+
+    // Same as the above except with one layer hidden.
+    QTest::newRow("undoPasteAcrossLayers-2-original.slp")
+        << QString::fromLatin1("undoPasteAcrossLayers-2-original.slp")
+        << QString::fromLatin1("undoPasteAcrossLayers-2-pasted.slp")
+        << QRect(0, 0, 32, 32) << 32 << 0;
+}
+
+void tst_App::undoPasteAcrossLayers()
+{
+    QFETCH(QString, originalProjectFileName);
+    QFETCH(QString, pastedProjectFileName);
+    QFETCH(QRect, copyArea);
+    QFETCH(int, pasteX);
+    QFETCH(int, pasteY);
+
+    // Copy the original project to our temp dir, load it, and store the original layer images to compare against later.
+    QVERIFY2(setupTempLayeredImageProjectDir(), failureMessage);
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(originalProjectFileName), failureMessage);
+    const QUrl originalProjectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1Char('/') + originalProjectFileName);
+    QVERIFY2(loadProject(originalProjectUrl), failureMessage);
+    const QVector<QImage> originalLayerImages = layeredImageProject->layerImages();
+
+    // Select the area to copy.
+    QVERIFY2(selectArea(copyArea), failureMessage);
+
+    // Copy it.
+    QVERIFY2(copyAcrossLayers(), failureMessage);
+
+    // Paste.
+    QVERIFY2(pasteAcrossLayers(pasteX, pasteY, true), failureMessage);
+    QVERIFY(!canvas->hasSelection());
+    const QVector<QImage> actualPastedLayerImages = layeredImageProject->layerImages();
+
+    // Undo.
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
+    const QVector<QImage> undoneLayerImages = layeredImageProject->layerImages();
+
+    // Close the original project and load the one that contains the expected pasted result.
+    QVERIFY2(triggerCloseProject(), failureMessage);
+    QVERIFY2(copyFileFromResourcesToTempProjectDir(pastedProjectFileName), failureMessage);
+    const QUrl pastedProjectUrl = QUrl::fromLocalFile(tempProjectDir->path() + QLatin1Char('/') + pastedProjectFileName);
+    QVERIFY2(loadProject(pastedProjectUrl), failureMessage);
+    const QVector<QImage> expectedPastedLayerImages = layeredImageProject->layerImages();
+    QVERIFY2(triggerCloseProject(), failureMessage);
+
+    // Now compare that the results are what we expected.
+    QVERIFY2(compareImages(actualPastedLayerImages, expectedPastedLayerImages), failureMessage);
+    QVERIFY2(compareImages(undoneLayerImages, originalLayerImages), failureMessage);
+}
+
 void tst_App::flipPastedImage()
 {
     QVERIFY2(createNewImageProject(), failureMessage);
@@ -4567,8 +4657,7 @@ void tst_App::flipPastedImage()
     QCOMPARE(flipHorizontallyToolButton->isEnabled(), false);
     QCOMPARE(flipVerticallyToolButton->isEnabled(), false);
 
-    QImage image(32, 32, QImage::Format_ARGB32_Premultiplied);
-    image.fill(Qt::blue);
+    QImage image = ImageUtils::filledImage(32, 32);
 
     QPainter painter(&image);
     painter.fillRect(0, 0, image.width() / 2, 10, QColor(Qt::red));
@@ -4601,8 +4690,7 @@ void tst_App::flipOnTransparentBackground()
     QVERIFY2(panTopLeftTo(10, 10), failureMessage);
 
     // Create the flipped image that we expect to see.
-    QImage image(project->widthInPixels(), project->heightInPixels(), QImage::Format_ARGB32_Premultiplied);
-    image.fill(Qt::transparent);
+    QImage image = ImageUtils::filledImage(project->widthInPixels(), project->heightInPixels());
     image.setPixelColor(0, project->heightInPixels() - 1, Qt::red);
 
     // Draw a red dot.
@@ -4618,87 +4706,6 @@ void tst_App::flipOnTransparentBackground()
     // Flip the image.
     QVERIFY2(triggerFlipVertically(), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, project->heightInPixels() - 1), QColor(Qt::red));
-}
-
-void tst_App::selectionEdgePan_data()
-{
-    QTest::addColumn<QPoint>("selectionStartPos");
-    QTest::addColumn<QPoint>("selectionEndPos");
-    // The direction the panning is happening in. 0 if not going past the edge.
-    QTest::addColumn<QPoint>("panDirection");
-    QTest::addColumn<QRect>("expectedSelectionArea");
-
-    const QPoint startPos(100, 100);
-    const int largeDistance = qMax(window->width(), window->height());
-
-    // "reverse" selections end up with slightly different coordinates.
-    QTest::newRow("top-left") << startPos << QPoint(-largeDistance, -largeDistance) << QPoint(-1, -1) << QRect(0, 0, 100, 100);
-    QTest::newRow("top") << startPos << QPoint(0, -largeDistance) << QPoint(0, -1) << QRect(0, 0, 100, 100);
-    QTest::newRow("top-right") << startPos << QPoint(largeDistance, -largeDistance) << QPoint(1, -1) << QRect(100, 0, 256 - 100, 100);
-    QTest::newRow("right") << startPos << QPoint(largeDistance, 0) << QPoint(1, 0) << QRect(100, 0, 256 - 100, 100);
-    QTest::newRow("bottom-right") << startPos << QPoint(largeDistance, largeDistance) << QPoint(1, 1) << QRect(100, 100, 256 - 100, 256 - 100);
-    QTest::newRow("bottom") << startPos << QPoint(256, largeDistance) << QPoint(0, 1) << QRect(100, 100, 256 - 100, 256 - 100);
-    QTest::newRow("bottom-left") << startPos << QPoint(-largeDistance, largeDistance) << QPoint(-1, 1) << QRect(0, 100, 100, 256 - 100);
-    QTest::newRow("left") << startPos << QPoint(-largeDistance, 0) << QPoint(-1, 0) << QRect(0, 0, 100, 100);
-}
-
-void tst_App::selectionEdgePan()
-{
-    QFETCH(QPoint, selectionStartPos);
-    QFETCH(QPoint, selectionEndPos);
-    QFETCH(QPoint, panDirection);
-    QFETCH(QRect, expectedSelectionArea);
-
-    QVERIFY2(createNewLayeredImageProject(), failureMessage);
-    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
-
-    const QPoint originalOffset = canvas->currentPane()->integerOffset();
-
-    // Test that the canvas is panned when the mouse goes past the edge when creating a selection.
-    QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
-
-    setCursorPosInScenePixels(selectionStartPos.x(), selectionStartPos.y(), false);
-    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-
-    // Add an extra move otherwise the pan isn't started for some reason.
-    QTest::mouseMove(window, cursorWindowPos + QPoint(1, 1));
-
-    setCursorPosInScenePixels(selectionEndPos.x(), selectionEndPos.y(), false);
-    // The current pane shouldn't change at all during this test.
-    QCOMPARE(canvas->currentPane(), canvas->firstPane());
-    // Uncomment when https://bugreports.qt.io/browse/QTBUG-67702 is fixed
-//    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(".*Mouse event at .* occurs outside of target window.*"));
-    QTest::mouseMove(window, cursorWindowPos);
-    QCOMPARE(canvas->currentPane(), canvas->firstPane());
-    QVERIFY(canvas->hasSelection());
-    QCOMPARE(canvas->selectionArea(), expectedSelectionArea);
-
-    if (panDirection.x() != 0) {
-        // We don't want try to know how far it will pan, as we don't
-        // want to rely on implementation details. So, choose a sufficiently
-        // high number as the maximum amount of iterations.
-        QPoint movedOffset = originalOffset - panDirection;
-        for (int i = 0; i < 10000 && movedOffset != canvas->currentPane()->integerOffset(); ++i) {
-            movedOffset -= panDirection;
-        }
-        QCOMPARE(canvas->currentPane()->integerOffset().x(), movedOffset.x());
-    } else {
-        QCOMPARE(canvas->currentPane()->integerOffset().x(), originalOffset.x());
-    }
-
-    if (panDirection.y() != 0) {
-        QPoint movedOffset = originalOffset - panDirection;
-        for (int i = 0; i < 10000 && movedOffset != canvas->currentPane()->integerOffset(); ++i) {
-            movedOffset -= panDirection;
-        }
-        QCOMPARE(canvas->currentPane()->integerOffset().y(), movedOffset.y());
-    } else {
-        QCOMPARE(canvas->currentPane()->integerOffset().y(), originalOffset.y());
-    }
-
-    // Uncomment when https://bugreports.qt.io/browse/QTBUG-67702 is fixed
-//    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(".*Mouse event at .* occurs outside of target window.*"));
-    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 }
 
 // https://github.com/mitchcurtis/slate/issues/50
@@ -6480,8 +6487,7 @@ void tst_App::layerVisibilityAfterMoving()
 void tst_App::selectionConfirmedWhenSwitchingLayers()
 {
     // Copy an image onto the clipboard.
-    QImage clipboardContents(100, 200, QImage::Format_ARGB32_Premultiplied);
-    clipboardContents.fill(Qt::red);
+    const QImage clipboardContents = ImageUtils::filledImage(100, 200, Qt::red);
     qGuiApp->clipboard()->setImage(clipboardContents);
 
     // Create a new layered image project with the dimensions of the clipboard contents.
@@ -6829,7 +6835,7 @@ void tst_App::disableToolsWhenLayerHidden()
         // The cursor should be disabled for each tool.
         QVERIFY2(window->cursor().shape() == Qt::ArrowCursor,
             qPrintable(QString::fromLatin1("Expected Qt::ArrowCursor for tool %1, but got %2")
-                .arg(QDebug::toString(tool)).arg(QDebug::toString(window->cursor().shape()))));
+                .arg(QtUtils::toString(tool)).arg(QtUtils::toString(window->cursor().shape()))));
 
         // Switch tool.
         QVERIFY2(switchTool(tool), failureMessage);
@@ -6840,7 +6846,7 @@ void tst_App::disableToolsWhenLayerHidden()
         // TODO: ForbiddenCursor
         QVERIFY2(window->cursor().shape() == Qt::ForbiddenCursor,
             qPrintable(QString::fromLatin1("Expected Qt::ForbiddenCursor for tool %1, but got %2")
-                .arg(QDebug::toString(tool)).arg(QDebug::toString(window->cursor().shape()))));
+                .arg(QtUtils::toString(tool)).arg(QtUtils::toString(window->cursor().shape()))));
 
         // Make the layer visible again.
         QVERIFY2(clickButton(layer1VisibilityCheckBox), failureMessage);

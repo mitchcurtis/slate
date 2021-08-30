@@ -153,7 +153,9 @@ public:
     enum class LivePreviewModification {
         None,
         Resize,
-        MoveContents
+        MoveContents,
+        RearrangeContentsIntoGrid,
+        PasteAcrossLayers
     };
     // We need Q_ENUM in order to print the enum, and Q_ENUM needs to be public.
     Q_ENUM(LivePreviewModification);
@@ -252,8 +254,8 @@ protected:
     QString mCurrentlyComposingMacroText;
     bool mHadUnsavedChangesBeforeMacroBegan;
 
-    QVector<Guide> mGuides;
-    QVector<Note> mNotes;
+    QList<Guide> mGuides;
+    QList<Note> mNotes;
 
     Swatch mSwatch;
 

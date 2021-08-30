@@ -40,5 +40,14 @@
         <file>resources/animationFrameWidthTooLarge.slp</file>
         <file>resources/simple-colour-animation.slp</file>
         <file>resources/indexed-8-format.png</file>
+        <file>resources/grid-4x4.slp</file>
+        <file>resources/grid-4x4-to-8x8.slp</file>
+        <file>resources/grid-4x4-to-8x8.png</file>
+        <file>resources/grid-4x4.png</file>
+        <file>resources/duplicate-guides.slp</file>
+        <file>resources/undoPasteAcrossLayers-1-original.slp</file>
+        <file>resources/undoPasteAcrossLayers-1-pasted.slp</file>
+        <file>resources/undoPasteAcrossLayers-2-original.slp</file>
+        <file>resources/undoPasteAcrossLayers-2-pasted.slp</file>
     </qresource>
 </RCC>

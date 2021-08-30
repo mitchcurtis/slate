@@ -17,51 +17,30 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef QTUTILS_H
+#define QTUTILS_H
 
 #include <QDebug>
-#include <QImage>
-#include <QRect>
+#include <QList>
+#include <QQuickItem>
 
-#include "imagecanvas.h"
+namespace QtUtils {
+template<typename T>
+   QString enumToString(T enumValue)
+   {
+       QString string;
+       QDebug debug(&string);
+       debug << enumValue;
+       return string;
+   }
 
-class AnimationPlayback;
-
-namespace Utils {
-    QImage paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
-
-    QImage replacePortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
-
-    QImage erasePortionOfImage(const QImage &image, const QRect &portion);
-
-    QImage rotate(const QImage &image, int angle);
-    QImage rotateAreaWithinImage(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea);
-
-    SLATE_EXPORT QImage moveContents(const QImage &image, int xDistance, int yDistance);
-    SLATE_EXPORT QImage resizeContents(const QImage &image, int newWidth, int newHeight);
-
-    void modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness, qreal alpha,
-        ImageCanvas::AlphaAdjustmentFlags alphaAdjustmentFlags);
-
-    void strokeRectWithDashes(QPainter *painter, const QRect &rect);
-
-    SLATE_EXPORT QRect ensureWithinArea(const QRect &rect, const QSize &boundsSize);
-
-    enum FindUniqueColoursResult {
-        ThreadInterrupted,
-        MaximumUniqueColoursExceeded,
-        FindUniqueColoursSucceeded
-    };
-
-    FindUniqueColoursResult findUniqueColours(const QImage &image, int maximumUniqueColours, QVector<QColor> &uniqueColoursFound);
-    FindUniqueColoursResult findUniqueColoursAndProbabilities(const QImage &image, int maximumUniqueColours,
-        QVector<QColor> &uniqueColoursFound, QVector<qreal> &probabilities);
-    QVarLengthArray<unsigned int> findMax256UniqueArgbColours(const QImage &image);
-
-    // relativeFrameIndex is the index of the animation relative to animation.startIndex()
-    QImage imageForAnimationFrame(const QImage &sourceImage, const AnimationPlayback &playback, int relativeFrameIndex);
-    bool exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &playback, QString &errorMessage);
+   template <typename T>
+   QString toString(const T &object) {
+       QString buffer;
+       QDebug stream(&buffer);
+       stream.nospace() << object;
+       return buffer;
+   }
 
     template<typename T>
     inline T divFloor(const T dividend, const T divisor) {
@@ -140,6 +119,20 @@ namespace Utils {
     private:
         std::function<void()> restoreFunc;
     };
+
+    // This was originally added to find unique guides.
+    // QSet changes ordering which makes the comparison fail, so get the unique values manually.
+    // Also, most approaches I've seen are unnecessarily complex: https://stackoverflow.com/questions/1041620.
+    template<typename T>
+    QVector<T> uniqueValues(const QVector<T> &vector)
+    {
+        QVector<T> unique;
+        for (const auto t : vector) {
+            if (!unique.contains(t))
+                unique.append(t);
+        }
+        return unique;
+    }
 }
 
-#endif // UTILS_H
+#endif // QTUTILS_H

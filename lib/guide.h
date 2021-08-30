@@ -21,8 +21,13 @@
 #define GUIDE_H
 
 #include <QDebug>
+#include <QVector>
 
 #include "slate-global.h"
+
+class Guide;
+
+SLATE_EXPORT uint qHash(const Guide &guide, uint seed = 0) noexcept;
 
 class SLATE_EXPORT Guide
 {
@@ -38,6 +43,8 @@ public:
 
 private:
     SLATE_EXPORT friend QDebug operator<<(QDebug debug, const Guide &guide);
+    SLATE_EXPORT friend QDebug operator<<(QDebug debug, const QVector<Guide> &guides);
+    SLATE_EXPORT friend uint qHash(const Guide &guide, uint seed) noexcept;
 
     int mPosition;
     Qt::Orientation mOrientation;

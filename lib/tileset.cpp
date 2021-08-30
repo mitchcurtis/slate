@@ -22,7 +22,7 @@
 #include <QDebug>
 #include <QPainter>
 
-#include "utils.h"
+#include "imageutils.h"
 
 Tileset::Tileset(const QString &fileName, int tilesWide, int tilesHigh, QObject *parent) :
     QObject(parent),
@@ -149,7 +149,7 @@ void Tileset::rotate(const QPoint &tileTopLeft, int angle)
     }
 
     const QImage tileImage = mImage.copy(tileTopLeft.x(), tileTopLeft.y(), tileWidth(), tileHeight());
-    const QImage rotatedImage = Utils::rotate(tileImage, angle);
+    const QImage rotatedImage = ImageUtils::rotate(tileImage, angle);
     QPainter painter(&mImage);
     // Make sure that we clear the previous tile image before painting on the newly rotated one.
     for (int y = 0; y < tileImage.height(); ++y) {

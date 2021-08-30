@@ -23,6 +23,7 @@
 
 #include "fillalgorithms.h"
 #include "imagecanvas.h"
+#include "imageutils.h"
 #include "project.h"
 #include "texturedfillparameters.h"
 
@@ -57,8 +58,7 @@ void TexturedFillPreviewItem::paint(QPainter *painter)
         return;
     }
 
-    mPreviewImage = QImage(w, h, QImage::Format_ARGB32_Premultiplied);
-    mPreviewImage.fill(targetColour);
+    mPreviewImage = ImageUtils::filledImage(w, h, targetColour);
     mPreviewImage = texturedFill(&mPreviewImage, QPoint(0, 0), targetColour, mCanvas->penForegroundColour(), mParameters);
     painter->drawImage(0, 0, mPreviewImage);
 }

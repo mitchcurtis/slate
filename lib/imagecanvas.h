@@ -254,6 +254,10 @@ public:
     QRect selectionArea() const;
     void setSelectionArea(const QRect &selectionArea);
 
+    // Returns true if there is a selection being dragged beyond the bounds of the pane
+    // and hence causing the canvas to pan.
+    bool isSelectionPanning() const;
+
     bool isAdjustingImage() const;
 
     bool hasBlankCursor() const;
@@ -406,6 +410,8 @@ public slots:
     void modifySelectionHsl(qreal hue, qreal saturation, qreal lightness, qreal alpha = 0.0,
         AlphaAdjustmentFlags alphaAdjustmentFlags = DefaultAlphaAdjustment);
     void endModifyingSelectionHsl(AdjustmentAction adjustmentAction);
+
+    void finaliseSelection();
 
     void addNote(const QPoint &newPosition, const QString &newText);
     void modifyNote(int noteIndex, const QPoint &newPosition, const QString &newText);

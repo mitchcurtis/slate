@@ -104,6 +104,9 @@ private Q_SLOTS:
 protected:
     void resetCreationErrorSpy();
 
+    // For readability of calling code.
+    inline int ms(int milliseconds) { return milliseconds; }
+
     enum TestMouseEventType
     {
         MousePress,
@@ -116,12 +119,17 @@ protected:
         Qt::MouseButton button = Qt::LeftButton, Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(), int delay = -1);
     void wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees);
     void keyClicks(const QString &text);
+    inline int lerpSteps(int steps) { return steps; }
     void lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs = 1, int steps = -1);
+    // Same as lerpMouseMove but lets it finish early upon some condition.
+    void lerpMouseMoveUntil(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs = 1, int steps = -1,
+        const std::function<bool(void)> &untilFunc = nullptr);
 
-    Q_REQUIRED_RESULT QByteArray activeFocusFailureMessage(QQuickItem *item);
+    Q_REQUIRED_RESULT QByteArray activeFocusFailureMessage(QQuickItem *item, const QString &when = QString());
     Q_REQUIRED_RESULT bool enterText(QQuickItem *textField, const QString &text,
         EnterTextFlags flags = EnterTextFlag::ClearTextFirst);
     Q_REQUIRED_RESULT bool selectComboBoxItem(const QString &comboBoxObjectName, int index);
+    Q_REQUIRED_RESULT bool enterTextIntoEditableSpinBox(QQuickItem *spinBox, const QString &text);
     Q_REQUIRED_RESULT bool incrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
     Q_REQUIRED_RESULT bool decrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
     Q_REQUIRED_RESULT bool setCheckBoxChecked(const QString &checkBoxObjectName, bool checked);
@@ -277,12 +285,19 @@ protected:
     Q_REQUIRED_RESULT bool panBy(int xDistance, int yDistance);
     Q_REQUIRED_RESULT bool zoomTo(int zoomLevel);
     Q_REQUIRED_RESULT bool zoomTo(int zoomLevel, const QPoint &pos);
+
+    // Helpers involving menus/dialogs.
+    Q_REQUIRED_RESULT QVector<QImage> getLayerImages() const;
+    Q_REQUIRED_RESULT bool copyAcrossLayers();
+    Q_REQUIRED_RESULT bool pasteAcrossLayers(int pasteX, int pasteY, bool onlyPasteIntoVisibleLayers);
     Q_REQUIRED_RESULT bool changeCanvasSize(int width, int height, CloseDialogFlag closeDialog = CloseDialog);
     Q_REQUIRED_RESULT bool changeImageSize(int width, int height, bool preserveAspectRatio = false);
     Q_REQUIRED_RESULT bool changeToolSize(int size);
     Q_REQUIRED_RESULT bool changeToolShape(ImageCanvas::ToolShape toolShape);
     Q_REQUIRED_RESULT bool moveContents(int x, int y, bool onlyVisibleLayers);
+    Q_REQUIRED_RESULT bool rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int columns, int rows);
     int sliderValue(QQuickItem *slider) const;
+
     Q_REQUIRED_RESULT bool moveSliderHandle(QQuickItem *slider, qreal expectedValue);
     Q_REQUIRED_RESULT bool selectColourAtCursorPos();
     Q_REQUIRED_RESULT bool drawPixelAtCursorPos();
@@ -292,6 +307,8 @@ protected:
     Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &actualColour, const QColor &expectedColour, int fuzz = 1);
     Q_REQUIRED_RESULT bool fuzzyImageCompare(const QImage &actualImage, const QImage &expectedImage, int fuzz = 1, const QString &context = QString());
     Q_REQUIRED_RESULT bool compareImages(const QImage &actualImage, const QImage &expectedImage, const QString &context = QString());
+    Q_REQUIRED_RESULT bool compareImages(const QVector<QImage> &actualImages, const QVector<QImage> &expectedImages,
+        const QString &context = QString());
     Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
 
     Q_REQUIRED_RESULT bool compareSwatches(const Swatch &actualSwatch, const Swatch &expectedSwatch);
@@ -301,7 +318,14 @@ protected:
     Q_REQUIRED_RESULT bool addSwatchWithForegroundColour();
     Q_REQUIRED_RESULT bool renameSwatchColour(int index, const QString &name);
     Q_REQUIRED_RESULT bool deleteSwatchColour(int index);
+
+    enum class AddNewGuidesFlag {
+        ExpectAllUnique,
+        ExpectAllDuplicates
+    };
+
     Q_REQUIRED_RESULT bool addNewGuide(Qt::Orientation orientation, int position);
+    Q_REQUIRED_RESULT bool addNewGuides(int horizontalSpacing, int verticalSpacing, AddNewGuidesFlag flag = AddNewGuidesFlag::ExpectAllUnique);
     Q_REQUIRED_RESULT bool addSelectedColoursToTexturedFillSwatch();
 
     Q_REQUIRED_RESULT bool addNewNoteAtCursorPos(const QString &text);

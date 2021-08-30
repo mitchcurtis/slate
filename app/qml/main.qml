@@ -166,11 +166,13 @@ ApplicationWindow {
     menuBar: Ui.MenuBar {
         id: menuBar
         canvas: window.canvas
+        pasteAcrossLayersDialog: pasteAcrossLayersDialog
         hueSaturationDialog: hueSaturationDialog
         opacityDialog: opacityDialog
         canvasSizePopup: canvasSizePopup
         imageSizePopup: imageSizePopup
         moveContentsDialog: moveContentsDialog
+        rearrangeContentsIntoGridDialog: rearrangeContentsIntoGridDialog
         texturedFillSettingsDialog: texturedFillSettingsDialog
         aboutDialog: aboutDialog
         saveChangesDialog: saveChangesDialog
@@ -402,6 +404,14 @@ ApplicationWindow {
         saveAsDialog: window.saveAsDialog
     }
 
+    Ui.PasteAcrossLayersDialog {
+        id: pasteAcrossLayersDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        project: window.isLayeredImageProjectType ? projectManager.project : null
+        canvas: window.canvas
+    }
+
     Ui.HueSaturationDialog {
         id: hueSaturationDialog
         parent: Overlay.overlay
@@ -440,6 +450,14 @@ ApplicationWindow {
         project: window.isLayeredImageProjectType ? projectManager.project : null
     }
 
+    Ui.RearrangeContentsIntoGridDialog {
+        id: rearrangeContentsIntoGridDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        project: projectManager.project
+        canvas: window.canvas
+    }
+
     Ui.TexturedFillSettingsDialog {
         id: texturedFillSettingsDialog
         parent: Overlay.overlay
@@ -463,6 +481,8 @@ ApplicationWindow {
 
     Ui.AddGuidesDialog {
         id: addGuidesDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
         project: projectManager.project
         canvas: window.canvas
     }

@@ -21,8 +21,8 @@
 #define SWATCH_H
 
 #include <QObject>
+#include <QList>
 #include <QQmlEngine>
-#include <QVector>
 
 #include "slate-global.h"
 #include "swatchcolour.h"
@@ -76,7 +76,7 @@ protected:
 
     bool isValidIndex(int index) const;
 
-    QVector<SwatchColour> mColours;
+    QList<SwatchColour> mColours;
 };
 
 #endif // SWATCH_H

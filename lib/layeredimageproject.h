@@ -51,10 +51,12 @@ public:
     ImageLayer *currentLayer();
     int currentLayerIndex() const override;
     void setCurrentLayerIndex(int index, bool force = false);
+    QVector<ImageLayer*> layers();
     ImageLayer *layerAt(int index);
     const ImageLayer *layerAt(int index) const;
     const ImageLayer *layerAt(const QString &name) const;
     int layerCount() const;
+    QVector<QImage> layerImagesBeforeLivePreview() const;
 
     Type type() const override;
     QSize size() const override;
@@ -67,6 +69,7 @@ public:
     QImage flattenedImage(int fromIndex, int toIndex, const std::function<QImage(int)> &layerSubstituteFunction = nullptr) const;
     QHash<QString, QImage> flattenedImages() const;
     QImage exportedImage() const override;
+    QVector<QImage> layerImages() const;
 
     bool isAutoExportEnabled() const;
     void setAutoExportEnabled(bool autoExportEnabled);
@@ -111,6 +114,7 @@ public slots:
     void resize(int width, int height, bool smooth);
     void crop(const QRect &rect);
     void moveContents(int xDistance, int yDistance, bool onlyVisibleContents);
+    void rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int columns, int rows);
 
     void addNewLayer();
     void deleteCurrentLayer();
@@ -122,6 +126,8 @@ public slots:
     void setLayerName(int layerIndex, const QString &name);
     void setLayerVisible(int layerIndex, bool visible);
     void setLayerOpacity(int layerIndex, qreal opacity);
+    void copyAcrossLayers(const QRect &copyArea);
+    void pasteAcrossLayers(int pasteX, int pasteY, bool onlyPasteIntoVisibleLayers);
 
     void addAnimation();
     void duplicateAnimation(int index);
@@ -156,15 +162,20 @@ private:
     friend class MergeLayersCommand;
     friend class DuplicateLayerCommand;
     friend class MoveLayeredImageContentsCommand;
+    friend class RearrangeLayeredImageContentsIntoGridCommand;
+    friend class PasteAcrossLayersCommand;
 
     bool isValidIndex(int index) const;
 
     // This should be called by slots each time a change is made in the relevant dialog.
     void makeLivePreviewModification(LivePreviewModification modification, const QVector<QImage> &newImages);
 
+    void assignNewImagesToLayers(const QVector<QImage> &newImages);
     void doSetCanvasSize(const QVector<QImage> &newImages);
     void doSetImageSize(const QVector<QImage> &newImages);
     void doMoveContents(const QVector<QImage> &newImages);
+    void doRearrangeContentsIntoGrid(const QVector<QImage> &newImages);
+    void doPasteAcrossLayers(const QVector<QImage> &newImages);
 
     void addNewLayer(int imageWidth, int imageHeight, bool transparent, bool undoable = true);
     void addLayerAboveAll(ImageLayer *imageLayer);
@@ -179,7 +190,7 @@ private:
     friend QDebug operator<<(QDebug debug, const LayeredImageProject *project);
 
     // Lowest index == layer with lowest Z order.
-    QVector<ImageLayer*> mLayers;
+    QList<ImageLayer*> mLayers;
     int mCurrentLayerIndex;
     // Give each layer a unique name based on the layers created so far.
     int mLayersCreated;
@@ -188,7 +199,7 @@ private:
     // Only modifications that require dialogs are supported.
     // Modifications that affect anything besides the layer's image (like opacity)
     // are not supported; that would require us to store layers instead.
-    QVector<QImage> mLayerImagesBeforeLivePreview;
+    QList<QImage> mLayerImagesBeforeLivePreview;
 
     bool mAutoExportEnabled;
 

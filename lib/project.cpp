@@ -29,8 +29,10 @@
 #include <QMetaEnum>
 
 #include "applicationsettings.h"
+#include "imageutils.h"
 
 Q_LOGGING_CATEGORY(lcProject, "app.project")
+Q_LOGGING_CATEGORY(lcProjectGuides, "app.project.guides")
 Q_LOGGING_CATEGORY(lcProjectNotes, "app.project.notes")
 Q_LOGGING_CATEGORY(lcProjectLifecycle, "app.project.lifecycle")
 
@@ -340,8 +342,7 @@ QUrl Project::createTemporaryImage(int width, int height, const QColor &colour)
         return QUrl();
     }
 
-    QImage tempImage(width, height, QImage::Format_ARGB32_Premultiplied);
-    tempImage.fill(colour);
+    QImage tempImage = ImageUtils::filledImage(width, height, colour);
 
     const QString dateString = QDateTime::currentDateTime().toString(QLatin1String("hh-mm-ss-zzz"));
     const QString fileName = QString::fromLatin1("%1/tmp-image-%2.png").arg(mTempDir.path(), dateString);
@@ -379,14 +380,23 @@ void Project::readGuides(const QJsonObject &projectJson)
 {
     mGuides.clear();
 
+    bool foundDuplicateGuides = false;
+
     QJsonArray guidesArray = projectJson.value(QLatin1String("guides")).toArray();
     for (int i = 0; i < guidesArray.size(); ++i) {
         QJsonObject guideObject = guidesArray.at(i).toObject();
         const int position = guideObject.value(QLatin1String("position")).toInt();
         const Qt::Orientation orientation = static_cast<Qt::Orientation>(
             guideObject.value(QLatin1String("orientation")).toInt());
-        mGuides.append(Guide(position, orientation));
+        const Guide guide(position, orientation);
+        if (!mGuides.contains(guide))
+            mGuides.append(guide);
+        else
+            foundDuplicateGuides = true;
     }
+
+    if (foundDuplicateGuides)
+        qWarning() << "Project contains duplicate guides; they will be removed";
 }
 
 void Project::writeGuides(QJsonObject &projectJson) const
@@ -545,6 +555,9 @@ QVector<Guide> Project::guides() const
 
 void Project::addGuides(const QVector<Guide> &guides)
 {
+    qCDebug(lcProjectGuides) << "addGuides called with:\n" << guides
+        << "\nexisting guides:\n" << mGuides;
+
     bool addedGuides = false;
     for (const auto guide : guides) {
         if (!mGuides.contains(guide)) {

@@ -17,13 +17,19 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "utils.h"
+#include "imageutils.h"
+
+//#define DEBUG_REARRANGE_IMAGES
 
 #include <QDebug>
+#ifdef DEBUG_REARRANGE_IMAGES
+#include <QDir>
+#endif
 #include <QFile>
 #include <QLoggingCategory>
 #include <QPainter>
 #include <QPainterPath>
+#include <QPainterPathStroker>
 #include <QScopeGuard>
 #include <QThread>
 #include <QTransform>
@@ -38,10 +44,27 @@ extern "C" {
 
 #include "animation.h"
 #include "animationplayback.h"
+#include "clipboard.h"
+#include "imagelayer.h"
 
 Q_LOGGING_CATEGORY(lcUtils, "app.utils")
+Q_LOGGING_CATEGORY(lcUtilsRearrange, "app.utils.rearrangeContentsIntoGrid")
 
-QImage Utils::paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
+QImage ImageUtils::filledImage(uint width, uint height, const QColor &colour)
+{
+    Q_ASSERT(width < std::numeric_limits<int>::max());
+    Q_ASSERT(height < std::numeric_limits<int>::max());
+    return filledImage(QSize(width, height), colour);
+}
+
+QImage ImageUtils::filledImage(const QSize &size, const QColor &colour)
+{
+    QImage image(size, QImage::Format_ARGB32_Premultiplied);
+    image.fill(colour);
+    return image;
+}
+
+QImage ImageUtils::paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
 {
     QImage newImage = image;
     QPainter painter(&newImage);
@@ -49,7 +72,7 @@ QImage Utils::paintImageOntoPortionOfImage(const QImage &image, const QRect &por
     return newImage;
 }
 
-QImage Utils::replacePortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
+QImage ImageUtils::replacePortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage)
 {
     QImage newImage = image;
     QPainter painter(&newImage);
@@ -58,7 +81,7 @@ QImage Utils::replacePortionOfImage(const QImage &image, const QRect &portion, c
     return newImage;
 }
 
-QImage Utils::erasePortionOfImage(const QImage &image, const QRect &portion)
+QImage ImageUtils::erasePortionOfImage(const QImage &image, const QRect &portion)
 {
     QImage newImage = image;
     QPainter painter(&newImage);
@@ -67,7 +90,7 @@ QImage Utils::erasePortionOfImage(const QImage &image, const QRect &portion)
     return newImage;
 }
 
-QImage Utils::rotate(const QImage &image, int angle)
+QImage ImageUtils::rotate(const QImage &image, int angle)
 {
     const QPoint center = image.rect().center();
     QTransform transform;
@@ -85,7 +108,7 @@ QImage Utils::rotate(const QImage &image, int angle)
     6. Returns the final rotated image portion and sets \a inRotatedArea as the area
        representing the newly rotated \a area.
 */
-QImage Utils::rotateAreaWithinImage(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea)
+QImage ImageUtils::rotateAreaWithinImage(const QImage &image, const QRect &area, int angle, QRect &inRotatedArea)
 {
     QImage result = image;
     const QPoint areaCentre = area.center();
@@ -128,10 +151,9 @@ QImage Utils::rotateAreaWithinImage(const QImage &image, const QRect &area, int 
     return rotatedImagePortion;
 }
 
-QImage Utils::moveContents(const QImage &image, int xDistance, int yDistance)
+QImage ImageUtils::moveContents(const QImage &image, int xDistance, int yDistance)
 {
-    QImage translated(image.size(), QImage::Format_ARGB32_Premultiplied);
-    translated.fill(Qt::transparent);
+    QImage translated = filledImage(image.size());
 
     QPainter painter(&translated);
     painter.drawImage(xDistance, yDistance, image);
@@ -140,12 +162,162 @@ QImage Utils::moveContents(const QImage &image, int xDistance, int yDistance)
     return translated;
 }
 
-QImage Utils::resizeContents(const QImage &image, int newWidth, int newHeight)
+QImage ImageUtils::resizeContents(const QImage &image, int newWidth, int newHeight, bool smooth)
 {
-    return image.scaled(QSize(newWidth, newHeight), Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    return resizeContents(image, QSize(newWidth, newHeight), smooth);
 }
 
-void Utils::strokeRectWithDashes(QPainter *painter, const QRect &rect)
+QImage ImageUtils::resizeContents(const QImage &image, const QSize &newSize, bool smooth)
+{
+    return image.scaled(newSize, Qt::IgnoreAspectRatio,
+        smooth ? Qt::SmoothTransformation : Qt::FastTransformation);
+}
+
+QVector<QImage> ImageUtils::rearrangeContentsIntoGrid(const QVector<QImage> &images, uint cellWidth, uint cellHeight,
+    uint columns, uint rows)
+{
+    if (images.isEmpty()) {
+        qWarning() << "rearrangeContentsIntoGrid called with no images";
+        return {};
+    }
+
+    if (cellWidth < 1 || cellHeight < 1 || columns < 1 || rows < 1) {
+        qWarning() << "rearrangeContentsIntoGrid called with invalid cellWidth/Height or columns/rows:"
+            << cellWidth << cellHeight << columns << rows;
+        return {};
+    }
+
+    /*
+        We're going to loop only as much as we need to (smallerCellCount). For
+        example, if we're increasing the number of rows and/or columns from 3x3
+        to 4x4, we only had 9 cells to start with, so we only need to loop 9
+        times, not 16:
+
+        +-------+-------+-------+      +-------+-------+-------+-------+
+        |       |       |       |      |       |       |       |       |
+        |   1   |   2   |   3   |      |   1   |   2   |   3   |   4   |
+        |       |       |       |      |       |       |       |       |
+        +-------+-------+-------+      +-------+-------+-------+-------+
+        |       |       |       |      |       |       |       |       |
+        |   4   |   5   |   6   |   => |   5   |   6   |   7   |   8   |
+        |       |       |       |      |       |       |       |       |
+        +-------+-------+-------+      +-------+-------+-------+-------+
+        |       |       |       |      |       |       |       |       |
+        |   7   |   8   |   9   |      |   9   | EMPTY | EMPTY | EMPTY |
+        |       |       |       |      |       |       |       |       |
+        +-------+-------+-------+      +-------+-------+-------+-------+
+                                       |       |       |       |       |
+                                       | EMPTY | EMPTY | EMPTY | EMPTY |
+                                       |       |       |       |       |
+                                       +-------+-------+-------+-------+
+
+        If we go from 4x4 to 3x3, we're cutting out cells we had:
+
+        +-------+-------+-------+-------+        +-------+-------+-------+
+        |       |       |       |       |        |       |       |       |
+        |   1   |   2   |   3   |   4   |        |   1   |   2   |   3   |
+        |       |       |       |       |        |       |       |       |
+        +-------+-------+-------+-------+        +-------+-------+-------+
+        |       |       |       |       |        |       |       |       |
+        |   5   |   6   |   7   |   8   |   =>   |   4   |   5   |   6   |
+        |       |       |       |       |        |       |       |       |
+        +-------+-------+-------+-------+        +-------+-------+-------+
+        |       |       |       |       |        |       |       |       |
+        |   9   |  CUT  |  CUT  |  CUT  |        |   7   |   8   |   9   |
+        |       |       |       |       |        |       |       |       |
+        +-------+-------+-------+-------+        +-------+-------+-------+
+        |       |       |       |       |
+        |  CUT  |  CUT  |  CUT  |  CUT  |
+        |       |       |       |       |
+        +-------+-------+-------+-------+
+    */
+    const QSize oldImageSize = images.first().size();
+    const int oldColumnCount = oldImageSize.width() / cellWidth;
+    const int oldRowCount = oldImageSize.height() / cellHeight;
+    const int oldCellCount = oldRowCount * oldColumnCount;
+    const int newCellCount = rows * columns;
+    const int smallerCellCount = qMin(oldCellCount, newCellCount);
+
+    const QSize newImageSize(cellWidth * columns, cellHeight * rows);
+
+    qCDebug(lcUtilsRearrange).nospace() << "rearranging " << images.size() << " layer images into "
+        << cellWidth << "px x " << cellHeight << "px cells:"
+        << " old column count " << oldColumnCount << " old row count " << oldRowCount
+        << " new column count " << columns << " new row count " << rows
+        << " rearranging " << smallerCellCount << " cells per layer";
+
+    QVector<QImage> newImages;
+
+    for (int layerIndex = 0; layerIndex < images.size(); ++layerIndex) {
+        const auto oldLayerImage = images.at(layerIndex);
+
+        QImage newLayerImage = ImageUtils::filledImage(newImageSize);
+
+        // Loop through each cell for this layer's image.
+        for (int cellIndex = 0; cellIndex < smallerCellCount; ++cellIndex) {
+            const int oldColumn = cellIndex % oldColumnCount;
+            const int oldRow = cellIndex / oldColumnCount;
+            const int oldImageCellX = oldColumn * cellWidth;
+            const int oldImageCellY = oldRow * cellHeight;
+            const QImage cellImage = oldLayerImage.copy(oldImageCellX, oldImageCellY, cellWidth, cellHeight);
+
+            const int newColumn = cellIndex % columns;
+            const int newRow = cellIndex / columns;
+            const int newImageCellX = newColumn * cellWidth;
+            const int newImageCellY = newRow * cellHeight;
+
+//            qDebug() << "- layer" << layerIndex << "oldColumn" << oldColumn << "oldRow" << oldRow
+//                    << "oldImageCellX" << oldImageCellX << "oldImageCellY" << oldImageCellX
+//                    << "newColumn" << newColumn << "newRow" << newRow
+//                    << "newImageCellX" << newImageCellX << "newImageCellY" << newImageCellY;
+
+#ifdef DEBUG_REARRANGE_IMAGES
+            const QString path = QDir().absolutePath() + QString::fromLatin1("/oldCellImage-layer-%1-%2-%3.png")
+                .arg(layerIndex).arg(oldImageCellX).arg(oldImageCellY);
+            cellImage.save(path);
+            qDebug() << "- layer" << layerIndex << "oldCellImage saved to" << path;
+#endif
+
+            // TODO: there's probably a more efficient way to do this
+            newLayerImage = ImageUtils::replacePortionOfImage(newLayerImage, QRect(newImageCellX, newImageCellY, cellWidth, cellHeight), cellImage);
+        }
+
+        newImages.append(newLayerImage);
+    }
+
+    return newImages;
+}
+
+QVector<QImage> ImageUtils::pasteAcrossLayers(const QVector<ImageLayer *> &layers, const QVector<QImage> &layerImagesBeforeLivePreview,
+    int pasteX, int pasteY, bool onlyPasteIntoVisibleLayers)
+{
+    QVector<QImage> newImages;
+    if (pasteX == 0 && pasteY == 0) {
+        // No change in position means no change in contents.
+        newImages.reserve(layers.size());
+        for (auto layer : layers)
+            newImages.append(*layer->image());
+        return newImages;
+    }
+
+    for (int layerIndex = 0; layerIndex < layers.size(); ++layerIndex) {
+        const auto layer = layers.at(layerIndex);
+        const bool layerVisible = layer->isVisible();
+        const QImage oldImage = layerImagesBeforeLivePreview.at(layerIndex);
+        if (onlyPasteIntoVisibleLayers && !layerVisible) {
+            // This is lazy and inefficient (we could e.g. store a null QImage),
+            // but it avoids adding more code paths elsewhere.
+            newImages.append(oldImage);
+        } else {
+            const auto pasteImage = Clipboard::instance()->copiedLayerImages().at(layerIndex);
+            const QRect pasteRect(pasteX, pasteY, pasteImage.width(), pasteImage.height());
+            newImages.append(ImageUtils::replacePortionOfImage(oldImage, pasteRect, pasteImage));
+        }
+    }
+    return newImages;
+}
+
+void ImageUtils::strokeRectWithDashes(QPainter *painter, const QRect &rect)
 {
     static const QColor greyColour(0, 0, 0, 180);
     static const QColor whiteColour(255, 255, 255, 180);
@@ -178,7 +350,7 @@ void Utils::strokeRectWithDashes(QPainter *painter, const QRect &rect)
     painter->restore();
 }
 
-QRect Utils::ensureWithinArea(const QRect &rect, const QSize &boundsSize)
+QRect ImageUtils::ensureWithinArea(const QRect &rect, const QSize &boundsSize)
 {
     QRect newArea = rect;
 
@@ -195,7 +367,7 @@ QRect Utils::ensureWithinArea(const QRect &rect, const QSize &boundsSize)
     return newArea;
 }
 
-void Utils::modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness, qreal alpha,
+void ImageUtils::modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightness, qreal alpha,
     ImageCanvas::AlphaAdjustmentFlags alphaAdjustmentFlags)
 {
     for (int y = 0; y < image.height(); ++y) {
@@ -235,7 +407,7 @@ void Utils::modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lightnes
     }
 }
 
-bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &playback, QString &errorMessage)
+bool ImageUtils::exportGif(const QImage &gifSourceImage, const QUrl &url, const AnimationPlayback &playback, QString &errorMessage)
 {
     const QString path = url.toLocalFile();
     if (!path.endsWith(QLatin1String(".gif"))) {
@@ -292,7 +464,7 @@ bool Utils::exportGif(const QImage &gifSourceImage, const QUrl &url, const Anima
     return true;
 }
 
-QImage Utils::imageForAnimationFrame(const QImage &sourceImage, const AnimationPlayback &playback, int relativeFrameIndex)
+QImage ImageUtils::imageForAnimationFrame(const QImage &sourceImage, const AnimationPlayback &playback, int relativeFrameIndex)
 {
     const Animation *animation = playback.animation();
     const int frameWidth = animation->frameWidth();
@@ -316,7 +488,7 @@ QImage Utils::imageForAnimationFrame(const QImage &sourceImage, const AnimationP
     return image;
 }
 
-Utils::FindUniqueColoursResult Utils::findUniqueColours(const QImage &image,
+ImageUtils::FindUniqueColoursResult ImageUtils::findUniqueColours(const QImage &image,
     int maximumUniqueColours, QVector<QColor> &uniqueColoursFound)
 {
     for (int y = 0; y < image.height(); ++y) {
@@ -340,7 +512,7 @@ Utils::FindUniqueColoursResult Utils::findUniqueColours(const QImage &image,
     return FindUniqueColoursSucceeded;
 }
 
-Utils::FindUniqueColoursResult Utils::findUniqueColoursAndProbabilities(const QImage &image,
+ImageUtils::FindUniqueColoursResult ImageUtils::findUniqueColoursAndProbabilities(const QImage &image,
     int maximumUniqueColours, QVector<QColor> &uniqueColoursFound, QVector<qreal> &probabilities)
 {
     const int imageWidth = image.width();
@@ -375,7 +547,7 @@ Utils::FindUniqueColoursResult Utils::findUniqueColoursAndProbabilities(const QI
     return FindUniqueColoursSucceeded;
 }
 
-QVarLengthArray<unsigned int> Utils::findMax256UniqueArgbColours(const QImage &image)
+QVarLengthArray<unsigned int> ImageUtils::findMax256UniqueArgbColours(const QImage &image)
 {
     QVarLengthArray<unsigned int> colours;
     for (int y = 0; y < image.height(); ++y) {

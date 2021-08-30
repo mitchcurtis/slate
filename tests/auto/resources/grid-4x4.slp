@@ -1,0 +1,77 @@
+{
+    "project": {
+        "creationVersion": "0.10.0",
+        "currentLayerIndex": 0,
+        "guides": [
+            {
+                "orientation": 2,
+                "position": 8
+            },
+            {
+                "orientation": 2,
+                "position": 16
+            },
+            {
+                "orientation": 2,
+                "position": 24
+            },
+            {
+                "orientation": 1,
+                "position": 8
+            },
+            {
+                "orientation": 1,
+                "position": 16
+            },
+            {
+                "orientation": 1,
+                "position": 24
+            }
+        ],
+        "layers": [
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABH0lEQVRYhe1XSQ6FMAgF4/2v3L8wNZQyPGyNm/8SF5ZBoEwybUQjavKdiXhZiTzvDyKr+Ty5A2EiurzJPHri8W1AI2qZgshAlE/TbgNQ6xG+SiSOnOUC4n3G0+mSjzVRggt0Q7EZBeSqXwWaR+8pUDg9xVaYoh6hzzL5ib4jyVBDJf20GCwrnQyGo+TRbwOijI4MsoBkea8GuA/sgm7pbhJa2FEBXcdnvSCbqN8hmvfWbI/mvUezvjEkYXQvVhlWYe0U0EKihVYSCOoD2cR6GgWrAuA+wES8a5SmDlSGzh+rKM3sKAeyfcKTHdbySNj3YUT2/+Cu5VLBSrJVZc+cZf6A52E/r/SRKQIrtY5OOnlNZgQqa5U0FjV8qZ/sbkY/a72t7Bu4gksAAAAASUVORK5CYII=",
+                "name": "layer-1",
+                "opacity": 1,
+                "visible": true
+            }
+        ],
+        "modificationVersion": "0.10.0",
+        "notes": [
+        ],
+        "swatch": {
+            "colours": [
+            ]
+        },
+        "uiState": {
+            "animationMarkersVisible": true,
+            "colourPanelExpanded": true,
+            "firstPane": {
+                "offsetX": 636,
+                "offsetY": 142,
+                "sceneCentered": false,
+                "size": 1,
+                "zoomLevel": 16
+            },
+            "guidesLocked": true,
+            "guidesVisible": true,
+            "lastFillToolUsed": "FillTool",
+            "layerListViewContentY": 0,
+            "layerPanelExpanded": true,
+            "mainSplitViewState": "gqJlaW5kZXgAbnByZWZlcnJlZFdpZHRo+0CBgAAAAAAAomVpbmRleAFucHJlZmVycmVkV2lkdGj7QG4AAAAAAAA=",
+            "notesVisible": true,
+            "panelSplitViewState": "hKJlaW5kZXgAb3ByZWZlcnJlZEhlaWdodPtAdqrXIAAAAKJlaW5kZXgBb3ByZWZlcnJlZEhlaWdodPtAYTUgAAAAAKJlaW5kZXgDb3ByZWZlcnJlZEhlaWdodPtAc5AAAAAAAKJlaW5kZXgEb3ByZWZlcnJlZEhlaWdodPtAeZkAwAAAAA==",
+            "rulersVisible": true,
+            "secondPane": {
+                "offsetX": -16,
+                "offsetY": 440,
+                "sceneCentered": true,
+                "size": 0,
+                "zoomLevel": 1
+            },
+            "splitScreen": false,
+            "splitterLocked": false,
+            "swatchPanelExpanded": true
+        }
+    }
+}

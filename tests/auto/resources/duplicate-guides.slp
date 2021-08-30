@@ -1,0 +1,69 @@
+{
+    "project": {
+        "creationVersion": "0.10.0",
+        "currentLayerIndex": 0,
+        "guides": [
+            {
+                "orientation": 2,
+                "position": 1
+            },
+            {
+                "orientation": 1,
+                "position": 4
+            },
+            {
+                "orientation": 2,
+                "position": 1
+            },
+            {
+                "orientation": 1,
+                "position": 4
+            }
+        ],
+        "layers": [
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAGElEQVQYlWP8////fwYiABMxikYVUk8hAGmaBBCKjQtoAAAAAElFTkSuQmCC",
+                "name": "Layer 1",
+                "opacity": 1,
+                "visible": true
+            }
+        ],
+        "modificationVersion": "0.10.0",
+        "notes": [
+        ],
+        "swatch": {
+            "colours": [
+            ]
+        },
+        "uiState": {
+            "animationMarkersVisible": true,
+            "colourPanelExpanded": true,
+            "firstPane": {
+                "offsetX": 600,
+                "offsetY": 260,
+                "sceneCentered": false,
+                "size": 1,
+                "zoomLevel": 28
+            },
+            "guidesLocked": false,
+            "guidesVisible": true,
+            "lastFillToolUsed": "FillTool",
+            "layerListViewContentY": 0,
+            "layerPanelExpanded": true,
+            "mainSplitViewState": "gqJlaW5kZXgAbnByZWZlcnJlZFdpZHRo+0CBgAAAAAAAomVpbmRleAFucHJlZmVycmVkV2lkdGj7QG4AAAAAAAA=",
+            "notesVisible": true,
+            "panelSplitViewState": "hKJlaW5kZXgAb3ByZWZlcnJlZEhlaWdodPtAdqrXIAAAAKJlaW5kZXgBb3ByZWZlcnJlZEhlaWdodPtAYTUgAAAAAKJlaW5kZXgDb3ByZWZlcnJlZEhlaWdodPtAc5AAAAAAAKJlaW5kZXgEb3ByZWZlcnJlZEhlaWdodPtAeZkAwAAAAA==",
+            "rulersVisible": true,
+            "secondPane": {
+                "offsetX": -5,
+                "offsetY": 451,
+                "sceneCentered": true,
+                "size": 0,
+                "zoomLevel": 1
+            },
+            "splitScreen": false,
+            "splitterLocked": false,
+            "swatchPanelExpanded": true
+        }
+    }
+}

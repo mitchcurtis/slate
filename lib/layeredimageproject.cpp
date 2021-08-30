@@ -33,19 +33,24 @@
 #include "changelayeropacitycommand.h"
 #include "changelayerordercommand.h"
 #include "changelayervisiblecommand.h"
+#include "clipboard.h"
 #include "deleteanimationcommand.h"
 #include "deletelayercommand.h"
 #include "duplicateanimationcommand.h"
 #include "duplicatelayercommand.h"
 #include "imagelayer.h"
+#include "imageutils.h"
 #include "jsonutils.h"
 #include "mergelayerscommand.h"
 #include "modifyanimationcommand.h"
 #include "movelayeredimagecontentscommand.h"
-#include "utils.h"
+#include "pasteacrosslayerscommand.h"
+#include "rearrangelayeredimagecontentsintogridcommand.h"
 
 Q_LOGGING_CATEGORY(lcLivePreview, "app.layeredimageproject.livepreview")
 Q_LOGGING_CATEGORY(lcMoveContents, "app.layeredimageproject.movecontents")
+Q_LOGGING_CATEGORY(lcRearrangeContentsIntoGrid, "app.layeredimageproject.rearrangecontentsintogrid")
+Q_LOGGING_CATEGORY(lcPasteAcrossLayers, "app.layeredimageproject.pasteacrosslayers")
 
 LayeredImageProject::LayeredImageProject() :
     mCurrentLayerIndex(0),
@@ -85,6 +90,11 @@ void LayeredImageProject::setCurrentLayerIndex(int index, bool force)
     mCurrentLayerIndex = adjustedIndex;
     emit currentLayerIndexChanged();
     emit postCurrentLayerChanged();
+}
+
+QVector<ImageLayer *> LayeredImageProject::layers()
+{
+    return mLayers;
 }
 
 ImageLayer *LayeredImageProject::layerAt(int index)
@@ -139,13 +149,7 @@ void LayeredImageProject::doSetImageSize(const QVector<QImage> &newImages)
 {
     Q_ASSERT(newImages.size() == mLayers.size());
 
-    for (int i = 0; i < newImages.size(); ++i) {
-        const QImage newImage = newImages.at(i);
-        Q_ASSERT(!newImage.isNull());
-
-        ImageLayer *layer = mLayers.at(i);
-        *layer->image() = newImage;
-    }
+    assignNewImagesToLayers(newImages);
 
     emit sizeChanged();
 }
@@ -184,8 +188,7 @@ QImage LayeredImageProject::flattenedImage(int fromIndex, int toIndex, const std
     if (fromIndex != 0 && toIndex != 0)
         Q_ASSERT(fromIndex < toIndex);
 
-    QImage finalImage(size(), QImage::Format_ARGB32_Premultiplied);
-    finalImage.fill(Qt::transparent);
+    QImage finalImage = ImageUtils::filledImage(size());
 
     QPainter painter(&finalImage);
     // Work backwards from the last layer so that it gets drawn at the "bottom".
@@ -284,8 +287,7 @@ QHash<QString, QImage> LayeredImageProject::flattenedImages() const
         qCDebug(lcProject) << "- searching for layers with fileName" << targetFileName;
 
         // The final image that contains all of the matching layers combined.
-        QImage finalImage(size(), QImage::Format_ARGB32_Premultiplied);
-        finalImage.fill(Qt::transparent);
+        QImage finalImage = ImageUtils::filledImage(size());
 
         QPainter painter(&finalImage);
         if (shouldDraw(layer, targetFileName)) {
@@ -344,6 +346,20 @@ QHash<QString, QImage> LayeredImageProject::flattenedImages() const
 QImage LayeredImageProject::exportedImage() const
 {
     return flattenedImage();
+}
+
+QVector<QImage> LayeredImageProject::layerImages() const
+{
+    QVector<QImage> images;
+    images.reserve(mLayers.size());
+    for (const ImageLayer *layer : qAsConst(mLayers))
+        images.append(*layer->image());
+    return images;
+}
+
+QVector<QImage> LayeredImageProject::layerImagesBeforeLivePreview() const
+{
+    return mLayerImagesBeforeLivePreview;
 }
 
 bool LayeredImageProject::isAutoExportEnabled() const
@@ -413,7 +429,7 @@ void LayeredImageProject::exportGif(const QUrl &url)
     }
 
     QString errorMessage;
-    if (!Utils::exportGif(exportedImage(), url, *mAnimationSystem.currentAnimationPlayback(), errorMessage))
+    if (!ImageUtils::exportGif(exportedImage(), url, *mAnimationSystem.currentAnimationPlayback(), errorMessage))
         error(errorMessage);
 }
 
@@ -452,11 +468,7 @@ void LayeredImageProject::beginLivePreview()
     // but it's better to have any delay from copying happen when
     // the dialog opens instead of as the sliders etc. are being interacted with.
 
-    mLayerImagesBeforeLivePreview.reserve(mLayers.size());
-
-    for (const ImageLayer *layer : qAsConst(mLayers)) {
-        mLayerImagesBeforeLivePreview.append(*layer->image());
-    }
+    mLayerImagesBeforeLivePreview = layerImages();
 
     mLivePreviewActive = true;
 
@@ -491,11 +503,7 @@ void LayeredImageProject::endLivePreview(LivePreviewModificationAction modificat
         // bypassing the undo framework until the changes are confirmed.
         // The undo commands still need to know the old and new images, though,
         // so we gather them here.
-        QVector<QImage> newImages;
-        newImages.reserve(mLayers.size());
-        for (const ImageLayer *layer : qAsConst(mLayers)) {
-            newImages.append(*layer->image());
-        }
+        const QVector<QImage> newImages = layerImages();
 
         switch (mCurrentLivePreviewModification) {
         case LivePreviewModification::Resize:
@@ -506,6 +514,16 @@ void LayeredImageProject::endLivePreview(LivePreviewModificationAction modificat
         case LivePreviewModification::MoveContents:
             beginMacro(QLatin1String("MoveLayeredImageContents"));
             addChange(new MoveLayeredImageContentsCommand(this, mLayerImagesBeforeLivePreview, newImages));
+            endMacro();
+            break;
+        case LivePreviewModification::RearrangeContentsIntoGrid:
+            beginMacro(QLatin1String("RearrangeLayeredImageContentsIntoGrid"));
+            addChange(new RearrangeLayeredImageContentsIntoGridCommand(this, mLayerImagesBeforeLivePreview, newImages));
+            endMacro();
+            break;
+        case LivePreviewModification::PasteAcrossLayers:
+            beginMacro(QLatin1String("PasteAcrossLayers"));
+            addChange(new PasteAcrossLayersCommand(this, mLayerImagesBeforeLivePreview, newImages));
             endMacro();
             break;
         case LivePreviewModification::None:
@@ -809,10 +827,23 @@ void LayeredImageProject::moveContents(int xDistance, int yDistance, bool onlyVi
             // but it avoids adding more code paths elsewhere.
             newImages.append(oldImage);
         } else {
-            newImages.append(Utils::moveContents(oldImage, xDistance, yDistance));
+            newImages.append(ImageUtils::moveContents(oldImage, xDistance, yDistance));
         }
     }
 
+    makeLivePreviewModification(LivePreviewModification::MoveContents, newImages);
+}
+
+void LayeredImageProject::rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int columns, int rows)
+{
+    qCDebug(lcRearrangeContentsIntoGrid) << "moveContents called with cellWidth" << cellWidth
+        << "cellHeight" << cellHeight << "columns" << columns << "rows" << rows;
+
+    if (warnIfLivePreviewNotActive(QLatin1String("rearrange contents into grid")))
+        return;
+
+    const QVector<QImage> newImages = ImageUtils::rearrangeContentsIntoGrid(
+        mLayerImagesBeforeLivePreview, cellWidth, cellHeight, columns, rows);
     makeLivePreviewModification(LivePreviewModification::MoveContents, newImages);
 }
 
@@ -820,15 +851,26 @@ void LayeredImageProject::doMoveContents(const QVector<QImage> &newImages)
 {
     Q_ASSERT(newImages.size() == mLayers.size());
 
-    for (int i = 0; i < newImages.size(); ++i) {
-        const QImage newImage = newImages.at(i);
-        Q_ASSERT(!newImage.isNull());
-
-        ImageLayer *layer = mLayers.at(i);
-        *layer->image() = newImage;
-    }
+    assignNewImagesToLayers(newImages);
 
     emit contentsMoved();
+}
+
+void LayeredImageProject::doRearrangeContentsIntoGrid(const QVector<QImage> &newImages)
+{
+    Q_ASSERT(newImages.size() == mLayers.size());
+
+    assignNewImagesToLayers(newImages);
+
+    // This may be necessary for undos.
+    emit contentsModified();
+}
+
+void LayeredImageProject::doPasteAcrossLayers(const QVector<QImage> &newImages)
+{
+    assignNewImagesToLayers(newImages);
+
+    emit contentsModified();
 }
 
 void LayeredImageProject::addNewLayer()
@@ -928,6 +970,32 @@ void LayeredImageProject::setLayerOpacity(int layerIndex, qreal opacity)
     endMacro();
 }
 
+void LayeredImageProject::copyAcrossLayers(const QRect &copyArea)
+{
+    QVector<QImage> copiedImages;
+    const QVector<QImage> imagesToCopy = layerImages();
+    copiedImages.reserve(imagesToCopy.size());
+    for (auto layerImage : imagesToCopy)
+        copiedImages.append(layerImage.copy(copyArea));
+    Clipboard::instance()->setCopiedLayerImages(copiedImages);
+}
+
+void LayeredImageProject::pasteAcrossLayers(int pasteX, int pasteY, bool onlyPasteIntoVisibleLayers)
+{
+    qCDebug(lcPasteAcrossLayers) << "pasteAcrossLayers called with pasteX" << pasteX
+        << "pasteY" << pasteY << "onlyPasteIntoVisibleLayers" << onlyPasteIntoVisibleLayers;
+
+    if (warnIfLivePreviewNotActive(QLatin1String("move contents")))
+        return;
+
+    if (pasteX == 0 && pasteY == 0)
+        return;
+
+    const QVector<QImage> newImages = ImageUtils::pasteAcrossLayers(mLayers, mLayerImagesBeforeLivePreview,
+        pasteX, pasteY, onlyPasteIntoVisibleLayers);
+    makeLivePreviewModification(LivePreviewModification::PasteAcrossLayers, newImages);
+}
+
 void LayeredImageProject::addAnimation()
 {
     mAnimationHelper.addAnimation();
@@ -986,6 +1054,14 @@ void LayeredImageProject::makeLivePreviewModification(LivePreviewModification mo
 
     Q_ASSERT(newImages.size() == mLayers.size());
 
+    assignNewImagesToLayers(newImages);
+
+    // Let the canvas know that it should repaint.
+    emit contentsModified();
+}
+
+void LayeredImageProject::assignNewImagesToLayers(const QVector<QImage> &newImages)
+{
     for (int i = 0; i < newImages.size(); ++i) {
         const QImage newImage = newImages.at(i);
         Q_ASSERT(!newImage.isNull());
@@ -993,9 +1069,6 @@ void LayeredImageProject::makeLivePreviewModification(LivePreviewModification mo
         ImageLayer *layer = mLayers.at(i);
         *layer->image() = newImage;
     }
-
-    // Let the canvas know that it should repaint.
-    emit contentsModified();
 }
 
 Project::Type LayeredImageProject::type() const
@@ -1005,8 +1078,7 @@ Project::Type LayeredImageProject::type() const
 
 void LayeredImageProject::addNewLayer(int imageWidth, int imageHeight, bool transparent, bool undoable)
 {
-    QImage emptyImage(imageWidth, imageHeight, QImage::Format_ARGB32_Premultiplied);
-    emptyImage.fill(transparent ? Qt::transparent : Qt::white);
+    QImage emptyImage = ImageUtils::filledImage(imageWidth, imageHeight, transparent ? Qt::transparent : Qt::white);
 
     QScopedPointer<ImageLayer> imageLayer(new ImageLayer(nullptr, emptyImage));
     imageLayer->setName(QString::fromLatin1("Layer %1").arg(++mLayersCreated));

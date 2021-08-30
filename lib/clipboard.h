@@ -26,6 +26,9 @@
 
 #include "slate-global.h"
 
+class QQmlEngine;
+class QJSEngine;
+
 class SLATE_EXPORT ClipboardImage : public QObject
 {
     Q_OBJECT
@@ -49,16 +52,30 @@ private:
 class SLATE_EXPORT Clipboard : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(int copiedLayerCount READ copiedLayerCount NOTIFY copiedLayersChanged)
     QML_ELEMENT
     QML_SINGLETON
 
 public:
     explicit Clipboard(QObject *parent = nullptr);
 
+    // Returns the image that was copied from an external source or Slate itself.
     Q_INVOKABLE ClipboardImage *image() const;
 
+    // Returns the copied layer images that were copied by Copy Across Layers.
+    QVector<QImage> copiedLayerImages() const;
+    int copiedLayerCount() const;
+    void setCopiedLayerImages(const QVector<QImage> &copiedLayers);
+
+    static Clipboard *instance();
+    static QObject *qmlInstance(QQmlEngine *qmlEngine, QJSEngine *jsEngine);
+
+signals:
+    void copiedLayersChanged();
+
 private:
-    ClipboardImage *mClipboardImage;
+    ClipboardImage *mClipboardImage = nullptr;
+    QVector<QImage> mCopiedLayers;
 };
 
 #endif // CLIPBOARD_H

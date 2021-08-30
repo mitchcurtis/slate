@@ -1,0 +1,69 @@
+{
+    "project": {
+        "creationVersion": "0.10.0",
+        "currentLayerIndex": 1,
+        "guides": [
+            {
+                "orientation": 2,
+                "position": 32
+            },
+            {
+                "orientation": 1,
+                "position": 32
+            }
+        ],
+        "layers": [
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAdklEQVR4nO3QAQ2EABADweO14AIviHsvuMALqCBLwoyBNjvzccvMzHn8r2J83fZ8/1cMv4kA9YGaAPWBmgD1gZoA9YGaAPWBmgD1gZoA9YGaAPWBmgD1gZoA9YGaAPWBmgD1gZoA9YGaAPUBAAAAAAAAAAAedgOaXQg8QHQ/CwAAAABJRU5ErkJggg==",
+                "name": "Layer 1",
+                "opacity": 1,
+                "visible": true
+            },
+            {
+                "imageData": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAeElEQVR4nO3VQQqAIBAAwIqe0AeDnhX0wf5Qp6BLRilKOXMSRFd2XW0aAACgRm3M4nUet2M8TEvUXqXid+mO800SUPoApV32zbm/UnnSp7niV38D+tDkXcWevMJvKpojfjABd0p8fanjV98CAAAAAAAAAAAAAPBTO7z9IkVfXSq/AAAAAElFTkSuQmCC",
+                "name": "fg",
+                "opacity": 1,
+                "visible": true
+            }
+        ],
+        "modificationVersion": "0.10.0",
+        "notes": [
+        ],
+        "swatch": {
+            "colours": [
+            ]
+        },
+        "uiState": {
+            "addGuidesDialogHorizontalSpacing": 32,
+            "addGuidesDialogVerticalSpacing": 32,
+            "animationMarkersVisible": true,
+            "colourPanelExpanded": true,
+            "firstPane": {
+                "offsetX": 631,
+                "offsetY": 192,
+                "sceneCentered": false,
+                "size": 1,
+                "zoomLevel": 8
+            },
+            "guidesLocked": true,
+            "guidesVisible": true,
+            "lastFillToolUsed": "FillTool",
+            "layerListViewContentY": 0,
+            "layerPanelExpanded": true,
+            "mainSplitViewState": "gqJlaW5kZXgAbnByZWZlcnJlZFdpZHRo+0BwYAAAAAAAomVpbmRleAFucHJlZmVycmVkV2lkdGj7QG4AAAAAAAA=",
+            "notesVisible": true,
+            "panelSplitViewState": "hKJlaW5kZXgAb3ByZWZlcnJlZEhlaWdodPtAgS8wAAAAAKJlaW5kZXgBb3ByZWZlcnJlZEhlaWdodPtAbIAAAAAAAKJlaW5kZXgDb3ByZWZlcnJlZEhlaWdodPtAc5AAAAAAAKJlaW5kZXgEb3ByZWZlcnJlZEhlaWdodPtAf1mgAAAAAA==",
+            "rulersVisible": true,
+            "secondPane": {
+                "offsetX": -32,
+                "offsetY": 424,
+                "sceneCentered": true,
+                "size": 0,
+                "zoomLevel": 1
+            },
+            "splitScreen": false,
+            "splitterLocked": false,
+            "swatchPanelExpanded": true
+        }
+    }
+}
