@@ -16,7 +16,10 @@ Product {
 
     cpp.cxxLanguageVersion: "c++17"
     // https://bugreports.qt.io/browse/QBS-1655
-    cpp.driverFlags: ["/Zc:__cplusplus"]
+    Properties {
+        condition: qbs.targetOS.contains("windows")
+        cpp.driverFlags: ["/Zc:__cplusplus"]
+    }
     cpp.includePaths: [
         product.sourceDirectory + "/3rdparty",
         "."
