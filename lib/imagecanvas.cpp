@@ -45,6 +45,7 @@
 #include "flipimagecanvasselectioncommand.h"
 #include "imageproject.h"
 #include "imageutils.h"
+#include "jsonutils.h"
 #include "modifyimagecanvasselectioncommand.h"
 #include "moveguidecommand.h"
 #include "note.h"
@@ -95,6 +96,7 @@ ImageCanvas::ImageCanvas() :
     mPressedRuler(nullptr),
     mGuidesVisible(true),
     mGuidesLocked(false),
+    mSnapSelectionsTo(SnapToNone),
     mNotesVisible(true),
     mAnimationMarkersVisible(true),
     mHighlightedAnimationFrameIndex(-1),
@@ -207,6 +209,11 @@ void ImageCanvas::restoreState()
     setGuidesVisible(uiState->value("guidesVisible", true).toBool());
     setGuidesLocked(uiState->value("guidesLocked", false).toBool());
     setNotesVisible(uiState->value("notesVisible", true).toBool());
+
+    SnapFlags snapFlags;
+    QtUtils::flagsFromString(uiState->value("snapSelectionsTo", QVariant("SnapToNone")).toString(), snapFlags);
+    setSnapSelectionsTo(snapFlags);
+
     setAnimationMarkersVisible(uiState->value("animationMarkersVisible", true).toBool());
     doSetSplitScreen(uiState->value("splitScreen", false).toBool(), DontResetPaneSizes);
     mSplitter.setEnabled(uiState->value("splitterLocked", false).toBool());
@@ -249,6 +256,11 @@ void ImageCanvas::saveState()
     mProject->uiState()->setValue("guidesVisible", mGuidesVisible);
     mProject->uiState()->setValue("guidesLocked", mGuidesLocked);
     mProject->uiState()->setValue("notesVisible", mNotesVisible);
+
+    QString snapToString = "SnapToNone";
+    QtUtils::flagsToString(staticMetaObject, "SnapFlags", mSnapSelectionsTo, snapToString);
+    mProject->uiState()->setValue("snapSelectionsTo", snapToString);
+
     mProject->uiState()->setValue("animationMarkersVisible", mAnimationMarkersVisible);
     mProject->uiState()->setValue("splitScreen", mSplitScreen);
     mProject->uiState()->setValue("splitterLocked", mSplitter.isEnabled());
@@ -361,6 +373,20 @@ void ImageCanvas::setNotesVisible(bool notesVisible)
 
     mNotesVisible = notesVisible;
     emit notesVisibleChanged();
+}
+
+ImageCanvas::SnapFlags ImageCanvas::snapSelectionsTo() const
+{
+    return mSnapSelectionsTo;
+}
+
+void ImageCanvas::setSnapSelectionsTo(SnapFlags snapSelectionsTo)
+{
+    if (snapSelectionsTo == mSnapSelectionsTo)
+        return;
+
+    mSnapSelectionsTo = snapSelectionsTo;
+    emit snapSelectionsToChanged();
 }
 
 bool ImageCanvas::areAnimationMarkersVisible() const
@@ -1292,23 +1318,38 @@ void ImageCanvas::updatePressedGuide()
         mGuidePositionBeforePress = mProject->guides().at(mPressedGuideIndex).position();
 }
 
-int ImageCanvas::guideIndexAtCursorPos()
+int ImageCanvas::guideIndexAtCursorPos() const
 {
+    const GuideIndices closestGuides = guideIndicesClosestToScenePos(QPoint(mCursorSceneFX, mCursorSceneFY), 1);
+    return closestGuides.horizontalIndex != -1 ? closestGuides.horizontalIndex : closestGuides.verticalIndex;
+}
+
+ImageCanvas::GuideIndices ImageCanvas::guideIndicesClosestToScenePos(const QPointF &scenePosF, int threshold) const
+{
+    // TODO: keep a cache of horizontal and vertical guides sorted by their position to speed this up,
+    // and maybe also use a binary search
     const QVector<Guide> guides = mProject->guides();
+
+    int closestHorizontalIndex = -1;
+    int smallestYDistance = std::numeric_limits<int>::max();
+
+    int closestVerticalIndex = -1;
+    int smallestXDistance = std::numeric_limits<int>::max();
+
     for (int i = 0; i < guides.size(); ++i) {
         const Guide guide = guides.at(i);
-        if (guide.orientation() == Qt::Horizontal) {
-            if (mCursorSceneY == guide.position()) {
-                return i;
-            }
-        } else {
-            if (mCursorSceneX == guide.position()) {
-                return i;
-            }
+        if (guide.orientation() == Qt::Horizontal && closestHorizontalIndex == -1) {
+            const int yDistance = qAbs(scenePosF.y() - guide.position());
+            if (yDistance <= threshold && yDistance < smallestYDistance)
+                closestHorizontalIndex = i;
+        } else if (guide.orientation() == Qt::Vertical && closestVerticalIndex == -1) {
+            const int xDistance = qAbs(scenePosF.x() - guide.position());
+            if (xDistance <= threshold && xDistance < smallestXDistance)
+                closestVerticalIndex = i;
         }
     }
 
-    return -1;
+    return { closestHorizontalIndex, closestVerticalIndex };
 }
 
 void ImageCanvas::updatePressedNote()
@@ -1434,8 +1475,9 @@ void ImageCanvas::updateSelectionArea()
         return;
     }
 
-    QRectF newSelectionAreaF(mPressScenePositionF.x(), mPressScenePositionF.y(),
-        mCursorSceneFX - mPressScenePositionF.x(), mCursorSceneFY - mPressScenePositionF.y());
+    const QPointF snappedCursorPos = snappedScenePositionF(QPointF(mCursorSceneFX, mCursorSceneFY));
+    QRectF newSelectionAreaF(mSnappedPressScenePositionF.x(), mSnappedPressScenePositionF.y(),
+        snappedCursorPos.x() - mSnappedPressScenePositionF.x(), snappedCursorPos.y() - mSnappedPressScenePositionF.y());
     qCDebug(lcImageCanvasSelection) << "raw selection area:" << newSelectionAreaF;
 
     newSelectionAreaF = newSelectionAreaF.normalized();
@@ -1774,6 +1816,60 @@ void ImageCanvas::setHasModifiedSelection(bool hasModifiedSelection)
     emit hasModifiedSelectionChanged();
 }
 
+QPointF ImageCanvas::snappedScenePositionF(const QPointF &scenePosition) const
+{
+    static const int viewSnapThreshold = 13;
+    // This ensures that no matter what the zoom level, the snap threshold distance
+    // is the same. The end result is that the further zoomed out you are, the more
+    // aggressive snapping will be, which is generally what you want. When you're
+    // zoomed in further, you don't need to rely on snapping as much.
+    const int sceneSnapThreshold = viewSnapThreshold / mCurrentPane->integerZoomLevel();
+
+    QPointF snappedPosition = scenePosition;
+
+    bool snappedX = false;
+    bool snappedY = false;
+
+    // Prioritise snapping to canvas edges over guides.
+    if (mSnapSelectionsTo.testFlag(SnapToCanvasEdges)) {
+        if (scenePosition.x() <= sceneSnapThreshold) {
+            // Within range of the left edge; snap.
+            snappedPosition.setX(0);
+            snappedX = true;
+        } else if (scenePosition.x() < mProject->size().width() // Events outside the canvas will get clamped regardless.
+                && mProject->size().width() - scenePosition.x() <= sceneSnapThreshold) {
+            // Within range of the right edge; snap.
+            snappedPosition.setX(mProject->size().width());
+            snappedX = true;
+        }
+
+        if (scenePosition.y() <= sceneSnapThreshold) {
+            // Within range of the top edge; snap.
+            snappedPosition.setY(0);
+            snappedY = true;
+        } else if (scenePosition.y() < mProject->size().width() // Events outside the canvas will get clamped regardless.
+                && mProject->size().height() - scenePosition.y() <= sceneSnapThreshold) {
+            // Within range of the bottom edge; snap.
+            snappedPosition.setY(mProject->size().height());
+            snappedY = true;
+        }
+    }
+
+    if (mSnapSelectionsTo.testFlag(SnapToGuides) && (!snappedX || !snappedY)) {
+        const GuideIndices closestGuides = guideIndicesClosestToScenePos(scenePosition, sceneSnapThreshold);
+        if (!snappedY && closestGuides.horizontalIndex != -1) {
+            const Guide closestHorizontalGuide = mProject->guides().at(closestGuides.horizontalIndex);
+            snappedPosition.setY(closestHorizontalGuide.position());
+        }
+        if (!snappedX && closestGuides.verticalIndex != -1) {
+            const Guide closestVerticalGuide = mProject->guides().at(closestGuides.verticalIndex);
+            snappedPosition.setX(closestVerticalGuide.position());
+        }
+    }
+
+    return snappedPosition;
+}
+
 void ImageCanvas::reset()
 {
     mFirstPane.reset();
@@ -1802,6 +1898,7 @@ void ImageCanvas::reset()
     mPressPosition = QPoint(0, 0);
     mPressScenePosition = QPoint(0, 0);
     mPressScenePositionF = QPointF(0.0, 0.0);
+    mSnappedPressScenePositionF = QPointF(0.0, 0.0);
     mCurrentPaneOffsetBeforePress = QPoint(0, 0);
     mFirstPaneVisibleSceneArea = QRect();
     mSecondPaneVisibleSceneArea = QRect();
@@ -2853,6 +2950,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
     mPressPosition = event->pos();
     mPressScenePosition = QPoint(mCursorSceneX, mCursorSceneY);
     mPressScenePositionF = QPointF(mCursorSceneFX, mCursorSceneFY);
+    mSnappedPressScenePositionF = mPressScenePositionF;
     mCurrentPaneOffsetBeforePress = mCurrentPane->integerOffset();
     setContainsMouse(true);
 
@@ -2903,6 +3001,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent *event)
 
         if (!cursorOverSelection()) {
             mPotentiallySelecting = true;
+            mSnappedPressScenePositionF = snappedScenePositionF(mPressScenePositionF);
             updateSelectionArea();
         } else {
             // The user has just clicked the selection. We don't actually
@@ -3084,6 +3183,8 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
 
     mPressPosition = QPoint(0, 0);
     mPressScenePosition = QPoint(0, 0);
+    mPressScenePositionF = QPointF(0.0, 0.0);
+    mSnappedPressScenePositionF = QPointF(0.0, 0.0);
     mCurrentPaneOffsetBeforePress = QPoint(0, 0);
     updateWindowCursorShape();
     mSplitter.setPressed(false);

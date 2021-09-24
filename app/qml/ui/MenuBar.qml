@@ -521,6 +521,48 @@ Controls.MenuBar {
 
         MenuSeparator {}
 
+        Menu {
+            objectName: "snapSelectionsToSubMenu"
+            title: qsTr("Snap Selections To")
+            enabled: canvas
+
+            MenuItem {
+                objectName: "snapSelectionsToGuidesMenuItem"
+                text: qsTr("Guides")
+                checkable: true
+                checked: canvas && canvas.snapSelectionsTo & ImageCanvas.SnapToGuides
+                onTriggered: canvas.snapSelectionsTo ^= ImageCanvas.SnapToGuides
+            }
+
+            MenuItem {
+                objectName: "snapSelectionsToCanvasEdgesMenuItem"
+                text: qsTr("Canvas Edges")
+                checkable: true
+                checked: canvas && canvas.snapSelectionsTo & ImageCanvas.SnapToCanvasEdges
+                onTriggered: canvas.snapSelectionsTo ^= ImageCanvas.SnapToCanvasEdges
+            }
+
+            MenuSeparator {}
+
+            MenuItem {
+                objectName: "snapSelectionsToAllMenuItem"
+                text: qsTr("All")
+                checkable: true
+                enabled: canvas && canvas.snapSelectionsTo !== ImageCanvas.SnapToAll
+                onTriggered: canvas.snapSelectionsTo = ImageCanvas.SnapToAll
+            }
+
+            MenuItem {
+                objectName: "snapSelectionsToNoneMenuItem"
+                text: qsTr("None")
+                checkable: true
+                enabled: canvas && canvas.snapSelectionsTo !== ImageCanvas.SnapToNone
+                onTriggered: canvas.snapSelectionsTo = ImageCanvas.SnapToNone
+            }
+        }
+
+        MenuSeparator {}
+
         MenuItem {
             objectName: "splitScreenMenuItem"
             //: Toggles split screen: two canvas panes are shown instead of one.

@@ -3369,7 +3369,7 @@ void tst_App::rulersAndGuides()
     QCOMPARE(project->undoStack()->canUndo(), false);
 
     // Drop a horizontal guide onto the canvas.
-    QVERIFY2(addNewGuide(Qt::Horizontal, 10), failureMessage);
+    QVERIFY2(addNewGuide(10, Qt::Horizontal), failureMessage);
 
     // Undo.
     QVERIFY2(clickButton(undoToolButton), failureMessage);
@@ -4021,6 +4021,7 @@ struct SelectionData
             const QPoint &paneZoomCentre = QPoint(-1, -1),
             const int paneZoomLevel = 0) :
         pressScenePos(pressScenePos),
+        expectedPressScenePos(pressScenePos),
         releaseScenePos(releaseScenePos),
         expectedSelectionArea(expectedSelectionArea),
         paneZoomCentre(paneZoomCentre),
@@ -4031,26 +4032,99 @@ struct SelectionData
     QString toString() const;
 
     QPoint pressScenePos;
+    // Defaults to pressScenePos, but should be specified when e.g. snapping.
+    QPoint expectedPressScenePos;
     QPoint releaseScenePos;
     QRect expectedSelectionArea;
     QPoint paneZoomCentre;
     int paneZoomLevel;
+    ImageCanvas::SnapFlags snapFlags;
+    QVector<Guide> guides;
 };
 
 QDebug operator<<(QDebug debug, const SelectionData &data)
 {
+    QDebugStateSaver stateSaver(debug);
+    debug.nospace();
     debug << "press=" << data.pressScenePos
           << " release=" << data.releaseScenePos
           << " expected area=" << data.expectedSelectionArea
           << " pane zoom centre=" << data.paneZoomCentre
-          << " pane zoom level=" << data.paneZoomLevel;
+          << " pane zoom level=" << data.paneZoomLevel
+          << " snap flags=" << data.snapFlags
+          << " guides=" << data.guides;
     return debug;
 }
 
-QByteArray selectionAreaFailureMessage(ImageCanvas *canvas, const SelectionData &selectionData, const QRect &expectedArea)
+QVector<SelectionData> selectionToolImageCanvasData()
 {
-    return qPrintable(QString::fromLatin1("Data: %1 \n      Actual area: %2\n    Expected area: %3")
-        .arg(QtUtils::toString(selectionData), QtUtils::toString(canvas->selectionArea()), QtUtils::toString(expectedArea)));
+    // Non-snapping selection data.
+    // SelectionData's params are: press             release         expected sel.    zoom centre     zoom
+    QVector<SelectionData> selectionData;
+    selectionData << SelectionData(QPoint(-10, -10), QPoint(10, 10), QRect(0, 0, 10, 10));
+    selectionData << SelectionData(QPoint(-10, 0), QPoint(10, 10), QRect(0, 0, 10, 10));
+    selectionData << SelectionData(QPoint(0, -10), QPoint(10, 10), QRect(0, 0, 10, 10));
+    selectionData << SelectionData(QPoint(0, 0), QPoint(256, 256), QRect(0, 0, 256, 256));
+    selectionData << SelectionData(QPoint(30, 30), QPoint(0, 0), QRect(0, 0, 30, 30), QPoint(15, 15), 4);
+    selectionData << SelectionData(QPoint(256, 256), QPoint(246, 246), QRect(246, 246, 10, 10));
+
+    // Test data involving snapping.
+    {
+        // Snap press x position to a vertical guide.
+        SelectionData dataRow(QPoint(20, 20), QPoint(50, 50), QRect(10, 20, 40, 30));
+        dataRow.expectedPressScenePos = QPoint(10, 20);
+        dataRow.snapFlags = ImageCanvas::SnapToGuides;
+        dataRow.guides = {{ 10, Qt::Vertical }};
+        selectionData << dataRow;
+    }
+    {
+        // Snap press y position to a horizontal guide.
+        SelectionData dataRow(QPoint(20, 20), QPoint(50, 50), QRect(20, 10, 30, 40));
+        dataRow.expectedPressScenePos = QPoint(20, 10);
+        dataRow.snapFlags = ImageCanvas::SnapToGuides;
+        dataRow.guides = {{ 10, Qt::Horizontal }};
+        selectionData << dataRow;
+    }
+    {
+        // Snap press x and y position to a vertical and horizontal guide.
+        SelectionData dataRow(QPoint(20, 20), QPoint(50, 50), QRect(10, 10, 40, 40));
+        dataRow.expectedPressScenePos = QPoint(10, 10);
+        dataRow.snapFlags = ImageCanvas::SnapToGuides;
+        dataRow.guides = {{ 10, Qt::Vertical }, { 10, Qt::Horizontal }};
+        selectionData << dataRow;
+    }
+    {
+        // Snap release x and y position to a vertical and horizontal guide
+        // (select from bottom-right to top-left).
+        SelectionData dataRow(QPoint(50, 50), QPoint(20, 20), QRect(10, 10, 40, 40));
+        dataRow.expectedPressScenePos = QPoint(50, 50);
+        dataRow.snapFlags = ImageCanvas::SnapToGuides;
+        dataRow.guides = {{ 10, Qt::Vertical }, { 10, Qt::Horizontal }};
+        selectionData << dataRow;
+    }
+    {
+        // Snap press x position to the left edge of the canvas.
+        SelectionData dataRow(QPoint(10, 20), QPoint(50, 50), QRect(0, 20, 50, 30));
+        dataRow.expectedPressScenePos = QPoint(0, 20);
+        dataRow.snapFlags = ImageCanvas::SnapToCanvasEdges;
+        selectionData << dataRow;
+    }
+    {
+        // Snap press y position to the top edge of the canvas.
+        SelectionData dataRow(QPoint(20, 10), QPoint(50, 50), QRect(20, 0, 30, 50));
+        dataRow.expectedPressScenePos = QPoint(20, 0);
+        dataRow.snapFlags = ImageCanvas::SnapToCanvasEdges;
+        selectionData << dataRow;
+    }
+    {
+        // Snap release x and y position to the bottom-right corner of the canvas.
+        // The default canvas size is 256 x 256.
+        SelectionData dataRow(QPoint(216, 216), QPoint(246, 246), QRect(216, 216, 40, 40));
+        dataRow.snapFlags = ImageCanvas::SnapToCanvasEdges;
+        selectionData << dataRow;
+    }
+
+    return selectionData;
 }
 
 void tst_App::selectionToolImageCanvas()
@@ -4060,15 +4134,8 @@ void tst_App::selectionToolImageCanvas()
     QVERIFY2(switchTool(ImageCanvas::SelectionTool), failureMessage);
 
     // We don't want to use a _data() function for this, because we don't need
-    // to create a new project every time.
-    // The arguments are:          press             release         expected            zoom centre      zoom
-    QVector<SelectionData> selectionData;
-    selectionData << SelectionData(QPoint(-10, -10), QPoint(10, 10), QRect(0, 0, 10, 10));
-    selectionData << SelectionData(QPoint(-10, 0), QPoint(10, 10), QRect(0, 0, 10, 10));
-    selectionData << SelectionData(QPoint(0, -10), QPoint(10, 10), QRect(0, 0, 10, 10));
-    selectionData << SelectionData(QPoint(0, 0), QPoint(256, 256), QRect(0, 0, 256, 256));
-    selectionData << SelectionData(QPoint(30, 30), QPoint(0, 0), QRect(0, 0, 30, 30), QPoint(15, 15), 4);
-    selectionData << SelectionData(QPoint(256, 256), QPoint(246, 246), QRect(246, 246, 10, 10));
+    // to create a new project every time and it's much faster this way.
+    const QVector<SelectionData> selectionData = selectionToolImageCanvasData();
 
     // For debugging.
     const bool debug = false;
@@ -4083,6 +4150,36 @@ void tst_App::selectionToolImageCanvas()
     const auto secondPaneDefaultOffset = canvas->secondPane()->offset();
 
     for (const SelectionData &data : qAsConst(selectionData)) {
+        auto selectionDataFailureMessage = [&](const QString &failedAction) -> QByteArray {
+            return qPrintable(QString::fromLatin1("Failed to %1 for data: %2\n      %3")
+                .arg(failedAction, QtUtils::toString(data), failureMessage));
+        };
+
+        // Remove, create, and show/hide guides, if necessary.
+        canvas->removeAllGuides();
+        if (!data.guides.isEmpty()) {
+            if (!canvas->areGuidesVisible())
+                QVERIFY2(triggerGuidesVisible(), failureMessage);
+
+            for (const auto &guide : qAsConst(data.guides)) {
+                QVERIFY2(addNewGuide(guide.position(), guide.orientation()),
+                    selectionDataFailureMessage(QString::fromLatin1("add guide %1").arg(QtUtils::toString(guide))));
+            }
+        } else {
+            if (canvas->areGuidesVisible())
+                QVERIFY2(triggerGuidesVisible(), failureMessage);
+        }
+
+        // Ensure that guides are now locked so we don't accidentally drag them.
+        if (!data.guides.isEmpty() && !canvas->areGuidesLocked()) {
+            QVERIFY2(clickButton(lockGuidesToolButton), failureMessage);
+            QVERIFY(canvas->areGuidesLocked());
+        }
+
+        // Enable/disable snapping.
+        canvas->setSnapSelectionsTo(data.snapFlags);
+
+        // Zoom/pan.
         const bool customPaneZoomLevel = data.paneZoomLevel != 0;
         if (customPaneZoomLevel) {
             setCursorPosInScenePixels(customPaneZoomLevel ? data.paneZoomCentre : defaultPaneZoomCentre);
@@ -4101,11 +4198,21 @@ void tst_App::selectionToolImageCanvas()
             canvas->secondPane()->setZoomLevel(secondPaneDefaultZoom);
         }
 
-        // Pressing outside the canvas should make the selection start at {0, 0}.
+        auto selectionAreaFailureMessage = [&](const QRect &expectedArea, const QString &failedAction) -> QByteArray {
+            return qPrintable(QString::fromLatin1("Selection area is incorrect after %1 for data %2:" \
+                    "\n      Actual area: %3\n    Expected area: %4").arg(
+                failedAction,
+                QtUtils::toString(selectionData),
+                QtUtils::toString(canvas->selectionArea()),
+                QtUtils::toString(expectedArea)));
+        };
+
+        // Press.
         setCursorPosInScenePixels(data.pressScenePos);
+        // Pressing outside the canvas should result in the press position being clamped.
         QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, eventDelay);
-        const QPoint boundExpectedPressPos = QPoint(qBound(0, data.pressScenePos.x(), project->widthInPixels()),
-            qBound(0, data.pressScenePos.y(), project->heightInPixels()));
+        const QPoint boundExpectedPressPos = QPoint(qBound(0, data.expectedPressScenePos.x(), project->widthInPixels()),
+            qBound(0, data.expectedPressScenePos.y(), project->heightInPixels()));
         const QRect expectedPressArea = QRect(boundExpectedPressPos, QSize(0, 0));
         if (debug && canvas->selectionArea() != expectedPressArea) {
             const auto imageGrabPath = QDir().absolutePath() + "/selectionToolImageCanvas-press-"
@@ -4113,11 +4220,13 @@ void tst_App::selectionToolImageCanvas()
             qDebug() << "Saving window's image grab to:\n" << imageGrabPath;
             QVERIFY(window->grabWindow().save(imageGrabPath));
         }
-        QVERIFY2(canvas->selectionArea() == expectedPressArea, selectionAreaFailureMessage(canvas, data, expectedPressArea));
+        QVERIFY2(canvas->selectionArea() == expectedPressArea,
+            selectionAreaFailureMessage(expectedPressArea, "pressing mouse"));
         // The cursor should remain Qt::BlankCursor until the mouse is released,
         // so that the crosshair is visible.
         QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
 
+        // Drag (move).
         setCursorPosInScenePixels(data.releaseScenePos);
         QTest::mouseMove(window, cursorWindowPos, eventDelay);
         if (debug && canvas->selectionArea() != data.expectedSelectionArea) {
@@ -4126,11 +4235,14 @@ void tst_App::selectionToolImageCanvas()
             qDebug() << "Saving window's image grab to:\n" << imageGrabPath;
             QVERIFY(window->grabWindow().save(imageGrabPath));
         }
-        QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
+        QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea,
+            selectionAreaFailureMessage(data.expectedSelectionArea, "moving mouse"));
         QCOMPARE(window->cursor().shape(), Qt::BlankCursor);
 
+        // Release.
         QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos, eventDelay);
-        QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea, selectionAreaFailureMessage(canvas, data, data.expectedSelectionArea));
+        QVERIFY2(canvas->selectionArea() == data.expectedSelectionArea,
+            selectionAreaFailureMessage(data.expectedSelectionArea, "releasing mouse"));
 
         // Cancel the selection so that we can do the next one.
         QVERIFY2(switchTool(ImageCanvas::PenTool), failureMessage);

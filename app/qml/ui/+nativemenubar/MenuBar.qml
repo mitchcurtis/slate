@@ -487,6 +487,48 @@ Item {
 
             Platform.MenuSeparator {}
 
+            Platform.Menu {
+                objectName: "snapSelectionsToSubMenu"
+                title: qsTr("Snap Selections To")
+                enabled: canvas
+
+                Platform.MenuItem {
+                    objectName: "snapSelectionsToGuidesMenuItem"
+                    text: qsTr("Guides")
+                    checkable: true
+                    checked: canvas && canvas.snapSelectionsTo & ImageCanvas.SnapToGuides
+                    onTriggered: canvas.snapSelectionsTo ^= ImageCanvas.SnapToGuides
+                }
+
+                Platform.MenuItem {
+                    objectName: "snapSelectionsToCanvasEdgesMenuItem"
+                    text: qsTr("Canvas Edges")
+                    checkable: true
+                    checked: canvas && canvas.snapSelectionsTo & ImageCanvas.SnapToCanvasEdges
+                    onTriggered: canvas.snapSelectionsTo ^= ImageCanvas.SnapToCanvasEdges
+                }
+
+                Platform.MenuSeparator {}
+
+                Platform.MenuItem {
+                    objectName: "snapSelectionsToAllMenuItem"
+                    text: qsTr("All")
+                    checkable: true
+                    enabled: canvas && canvas.snapSelectionsTo !== ImageCanvas.SnapToAll
+                    onTriggered: canvas.snapSelectionsTo = ImageCanvas.SnapToAll
+                }
+
+                Platform.MenuItem {
+                    objectName: "snapSelectionsToNoneMenuItem"
+                    text: qsTr("None")
+                    checkable: true
+                    enabled: canvas && canvas.snapSelectionsTo !== ImageCanvas.SnapToNone
+                    onTriggered: canvas.snapSelectionsTo = ImageCanvas.SnapToNone
+                }
+            }
+
+            Platform.MenuSeparator {}
+
             Platform.MenuItem {
                 objectName: "splitScreenMenuItem"
                 //: Toggles split screen: two canvas panes are shown instead of one.
