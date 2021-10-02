@@ -13,8 +13,8 @@ on:
     - 'appveyor.yml'
 
 env:
-  QT_VERSION: 5.15.2
-  QTCREATOR_VERSION: 4.15.2
+  QT_VERSION: 6.2.0
+  QTCREATOR_VERSION: 5.0.1
   SENTRY_VERSION: 0.4.11
   SLATE_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
   SLATE_SNAPSHOT: ${{ !startsWith(github.ref, 'refs/tags/v') }}
@@ -58,7 +58,7 @@ jobs:
       run: |
         # Workaround for https://github.com/actions/runner/issues/1212
         set -o pipefail
-        ./dist/install-qt.sh --version ${QT_VERSION} qtbase qtdeclarative qtimageformats qtgraphicaleffects qtquickcontrols2 qttools icu | tee -a $GITHUB_PATH
+        ./dist/install-qt.sh --version ${QT_VERSION} qtbase qtdeclarative qtimageformats qtshadertools qtquickcontrols2 qttools icu | tee -a $GITHUB_PATH
         ./dist/install-qt.sh --version ${QTCREATOR_VERSION} qtcreator | tee -a $GITHUB_PATH
 
     - name: Setup CMake
@@ -120,6 +120,8 @@ jobs:
     name: macOS
     runs-on: macos-latest
     needs: version
+    # https://github.community/t/how-can-i-disable-a-github-action/17049/9
+    if: ${{ false }}
 
     env:
       SLATE_VERSION: ${{ needs.version.outputs.version }}
@@ -133,7 +135,7 @@ jobs:
     - name: Install Qt
       run: |
         set -o pipefail
-        sudo ./dist/install-qt.sh --version ${QT_VERSION} qtbase qtdeclarative qtimageformats qtgraphicaleffects qtquickcontrols2 qttools | tee -a $GITHUB_PATH
+        sudo ./dist/install-qt.sh --version ${QT_VERSION} qtbase qtdeclarative qtimageformats qtshadertools qtquickcontrols2 qttools | tee -a $GITHUB_PATH
         sudo ./dist/install-qt.sh --version ${QTCREATOR_VERSION} qtcreator | tee -a $GITHUB_PATH
 
     - name: Setup Qbs
@@ -163,6 +165,7 @@ jobs:
     name: Windows (${{ matrix.arch }}-bit)
     runs-on: windows-latest
     needs: version
+    if: ${{ false }}
 
     strategy:
       matrix:
@@ -191,7 +194,7 @@ jobs:
 
     - name: Install Qt
       run: |
-        echo "QT_PATH=$(./dist/install-qt.sh --version ${QT_VERSION} --toolchain ${QT_TOOLCHAIN} qtbase qtdeclarative qtimageformats qtgraphicaleffects qtquickcontrols2 qttools qttranslations)" >> $GITHUB_ENV
+        echo "QT_PATH=$(./dist/install-qt.sh --version ${QT_VERSION} --toolchain ${QT_TOOLCHAIN} qtbase qtdeclarative qtimageformats qtshadertools qtquickcontrols2 qttools qttranslations)" >> $GITHUB_ENV
         echo "MINGW_PATH=$(./dist/install-qt.sh --version ${MINGW_VERSION} ${MINGW_COMPONENT})" >> $GITHUB_ENV
         echo "OPENSSL_PATH=$(./dist/install-qt.sh --version ${OPENSSL_VERSION} openssl --arch ${{ matrix.openssl_arch }})" >> $GITHUB_ENV
         ./dist/install-qt.sh --version ${QTCREATOR_VERSION} qtcreator >> $GITHUB_PATH
