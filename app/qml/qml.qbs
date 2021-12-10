@@ -38,6 +38,7 @@ Group {
             "ui/ErrorPopup.qml",
             "ui/FillToolMenu.qml",
             "ui/FpsCounter.qml",
+            "ui/Guide.qml",
             "ui/HexColourRowLayout.qml",
             "ui/HorizontalGradientRectangle.qml",
             "ui/HslSimplePicker.qml",

@@ -33,6 +33,7 @@
         <file>ui/ErrorPopup.qml</file>
         <file>ui/FillToolMenu.qml</file>
         <file>ui/FpsCounter.qml</file>
+        <file>ui/Guide.qml</file>
         <file>ui/HexColourRowLayout.qml</file>
         <file>ui/HorizontalGradientRectangle.qml</file>
         <file>ui/HslSimplePicker.qml</file>

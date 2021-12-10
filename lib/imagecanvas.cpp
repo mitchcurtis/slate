@@ -1008,10 +1008,6 @@ void ImageCanvas::connectSignals()
     connect(mProject, SIGNAL(projectClosed()), this, SLOT(reset()));
     connect(mProject, SIGNAL(sizeChanged()), this, SLOT(requestContentPaint()));
     connect(mProject, SIGNAL(notesChanged()), this, SLOT(onNotesChanged()));
-    // As a convenience for GuidesItem. Our guidesChanged signal is only emitted for changes in pane visibility,
-    // offset, etc., but doesn't account for guides being added or removed. So to ensure that GuidesItem only
-    // has to care about one object (us) and connect to one signal, forward the project's guidesChanged signal to ours.
-    connect(mProject, SIGNAL(guidesChanged()), this, SIGNAL(guidesChanged()));
     connect(mProject, SIGNAL(preProjectSaved()), this, SLOT(saveState()));
     connect(mProject, SIGNAL(aboutToBeginMacro(QString)),
         this, SLOT(onAboutToBeginMacro(QString)));
@@ -1029,7 +1025,6 @@ void ImageCanvas::disconnectSignals()
     mProject->disconnect(SIGNAL(projectClosed()), this, SLOT(reset()));
     mProject->disconnect(SIGNAL(sizeChanged()), this, SLOT(requestContentPaint()));
     mProject->disconnect(SIGNAL(notesChanged()), this, SLOT(onNotesChanged()));
-    mProject->disconnect(SIGNAL(guidesChanged()), this, SIGNAL(guidesChanged()));
     mProject->disconnect(SIGNAL(preProjectSaved()), this, SLOT(saveState()));
     mProject->disconnect(SIGNAL(aboutToBeginMacro(QString)),
         this, SLOT(onAboutToBeginMacro(QString)));
@@ -1231,7 +1226,16 @@ void ImageCanvas::findRulers()
 
 void ImageCanvas::updatePressedRuler()
 {
-    mPressedRuler = !areGuidesLocked() ? rulerAtCursorPos() : nullptr;
+    setPressedRuler(!areGuidesLocked() ? rulerAtCursorPos() : nullptr);
+}
+
+void ImageCanvas::setPressedRuler(Ruler *ruler)
+{
+    if (ruler == mPressedRuler)
+        return;
+
+    mPressedRuler = ruler;
+    emit pressedRulerChanged();
 }
 
 Ruler *ImageCanvas::rulerAtCursorPos()
@@ -1266,8 +1270,6 @@ void ImageCanvas::addNewGuide()
     mProject->beginMacro(QLatin1String("AddGuide"));
     mProject->addChange(new AddGuidesCommand(mProject, uniqueGuides));
     mProject->endMacro();
-
-    // The update for these guide commands happens via Project's guidesChanged signal.
 }
 
 void ImageCanvas::addNewGuides(int horizontalSpacing, int verticalSpacing)
@@ -1879,7 +1881,7 @@ void ImageCanvas::reset()
     mSplitter.setPressed(false);
     mSplitter.setHovered(false);
 
-    mPressedRuler = nullptr;
+    setPressedRuler(nullptr);
     mGuidePositionBeforePress = 0;
     mPressedGuideIndex = -1;
     mNotePositionBeforePress = QPoint();
@@ -2714,25 +2716,16 @@ void ImageCanvas::onZoomLevelChanged()
     updateVisibleSceneArea();
 
     requestContentPaint();
-
-    if (mGuidesVisible)
-        emit guidesChanged();
 }
 
 void ImageCanvas::onPaneIntegerOffsetChanged()
 {
     updateVisibleSceneArea();
-
-    if (mGuidesVisible)
-        emit guidesChanged();
 }
 
 void ImageCanvas::onPaneSizeChanged()
 {
     updateVisibleSceneArea();
-
-    if (mGuidesVisible)
-        emit guidesChanged();
 }
 
 void ImageCanvas::error(const QString &message)
@@ -3032,10 +3025,8 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent *event)
             mSplitter.setPosition(mCursorX / width());
         } else if (mPressedRuler) {
             requestContentPaint();
-            // Ensure that the guide being created is drawn.
-            emit guidesChanged();
         } else if (mPressedGuideIndex != -1) {
-            emit guidesChanged();
+            emit existingGuideDragged(mPressedGuideIndex);
         } else if (mPressedNoteIndex != -1) {
             emit notesChanged();
         } else {
@@ -3145,6 +3136,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent *event)
     if (mPressedRuler && !hoveredRuler) {
         // A ruler was pressed but isn't hovered; create a new guide.
         addNewGuide();
+        setPressedRuler(nullptr);
     } else if (mPressedGuideIndex != -1) {
         // A guide was pressed.
         if (hoveredRuler) {

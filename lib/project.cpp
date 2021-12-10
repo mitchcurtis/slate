@@ -30,6 +30,7 @@
 
 #include "applicationsettings.h"
 #include "imageutils.h"
+#include "qtutils.h"
 
 Q_LOGGING_CATEGORY(lcProject, "app.project")
 Q_LOGGING_CATEGORY(lcProjectGuides, "app.project.guides")
@@ -558,38 +559,36 @@ void Project::addGuides(const QVector<Guide> &guides)
     qCDebug(lcProjectGuides) << "addGuides called with:\n" << guides
         << "\nexisting guides:\n" << mGuides;
 
-    bool addedGuides = false;
-    for (const auto guide : guides) {
-        if (!mGuides.contains(guide)) {
-            mGuides.append(guides);
-            addedGuides = true;
-        }
-    }
+    const int appendIndex = mGuides.size();
+    const auto uniqueGuides = QtUtils::uniqueValues(guides);
+    emit preGuidesAdded(appendIndex, uniqueGuides.size());
 
-    if (addedGuides)
-        emit guidesChanged();
+    mGuides += uniqueGuides;
+
+    if (uniqueGuides.size() > 0)
+        emit postGuidesAdded();
 }
 
 void Project::moveGuide(const Guide &guide, int to)
 {
-    auto it = std::find(mGuides.begin(), mGuides.end(), guide);
-    if (it == mGuides.end())
+    const int guideIndex = mGuides.indexOf(guide);
+    if (guideIndex == -1)
         return;
 
-    it->setPosition(to);
+    mGuides[guideIndex].setPosition(to);
 
-    emit guidesChanged();
+    emit guideMoved(guideIndex);
 }
 
 void Project::removeGuides(const QVector<Guide> &guides)
 {
-    bool removedGuides = false;
-    for (const auto guide : guides) {
-        removedGuides = mGuides.removeOne(guide);
-    }
+    emit postGuidesRemoved();
 
-    if (removedGuides)
-        emit guidesChanged();
+    // TODO: make this more strict so that we can conditionally emit signals
+    for (const auto guide : guides)
+        mGuides.removeOne(guide);
+
+    emit postGuidesRemoved();
 }
 
 bool Project::hasNotes() const

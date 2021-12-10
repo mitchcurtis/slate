@@ -508,8 +508,7 @@ void TileCanvas::updateCursorPos(const QPoint &eventPos)
     const int zoomLevel = mCurrentPane->integerZoomLevel();
     mCursorSceneFX = qreal(mCursorPaneX - mCurrentPane->integerOffset().x()) / mTilesetProject->tileWidth() / zoomLevel * mTilesetProject->tileWidth();
     mCursorSceneFY = qreal(mCursorPaneY - mCurrentPane->integerOffset().y()) / mTilesetProject->tileHeight() / zoomLevel * mTilesetProject->tileHeight();
-    mCursorSceneX = mCursorSceneFX;
-    mCursorSceneY = mCursorSceneFY;
+    setCursorScenePos(QPoint(mCursorSceneFX, mCursorSceneFY));
 
     if (!isCursorWithinProjectBounds()) {
         setCursorTilePixelX(-1);

@@ -61,6 +61,7 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
         NOTIFY animationMarkersVisibleChanged)
     Q_PROPERTY(int highlightedAnimationFrameIndex READ highlightedAnimationFrameIndex
         WRITE setHighlightedAnimationFrameIndex NOTIFY highlightedAnimationFrameIndexChanged)
+    Q_PROPERTY(Ruler *pressedRuler READ pressedRuler NOTIFY pressedRulerChanged)
     Q_PROPERTY(QColor splitColour READ splitColour WRITE setSplitColour NOTIFY splitColourChanged)
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
@@ -361,11 +362,9 @@ signals:
     void checkerColour1Changed();
     void checkerColour2Changed();
     void rulersVisibleChanged();
-    // Emitted whenever guides need to be rendered. Covers events like dragging
-    // guides, which Project's guidesChanged signal doesn't account for, and
-    // and is also connected to Project's guidesChanged signal for convenience
-    // so that GuidesItem doesn't need to connect to it.
-    void guidesChanged();
+    void pressedRulerChanged();
+    /*! If index is \c -1, a guide is being dragged from the ruler. */
+    void existingGuideDragged(int index);
     void guidesVisibleChanged();
     void guidesLockedChanged();
     void notesVisibleChanged();
@@ -534,6 +533,7 @@ protected:
 
     void findRulers();
     void updatePressedRuler();
+    void setPressedRuler(Ruler *ruler);
     Ruler *rulerAtCursorPos();
 
     void addNewGuide();

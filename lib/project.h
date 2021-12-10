@@ -175,7 +175,11 @@ signals:
     void sizeChanged();
     void errorOccurred(const QString &errorMessage);
     void settingsChanged();
-    void guidesChanged();
+    void preGuidesAdded(int index, int count);
+    void postGuidesAdded();
+    void guideMoved(int index);
+    void preGuidesRemoved();
+    void postGuidesRemoved();
     void notesChanged();
     void aboutToBeginMacro(const QString &text);
     /*
