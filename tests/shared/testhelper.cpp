@@ -1620,7 +1620,7 @@ bool TestHelper::addNewGuides(int horizontalSpacing, int verticalSpacing, AddNew
         return false;
     // Get a decent failure message instead of just "Compared values are not the same".
     COMPARE_NON_FLOAT_WITH_MSG(QtUtils::toString(project->guides()), QtUtils::toString(originalGuides + expectedAddedGuides),
-        "Expected no duplicate guides after accepting Add Guides dialog");
+        "Mismatch in actual vs expected guides after accepting Add Guides dialog");
 
     // The canvas should be redrawn after adding guides.
     VERIFY(imageGrabber.requestImage(canvas));

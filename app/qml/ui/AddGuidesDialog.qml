@@ -129,6 +129,11 @@ Dialog {
             id: okButton
             objectName: "addGuidesDialogOkButton"
             text: qsTr("OK")
+            // Ensure that clicks give us focus, because otherwise, entering text into one of the spin boxes
+            // and then clicking OK will result in the value changing _after_ the dialog is accepted (due to
+            // the focus change). By doing this, focus will change immediately and ensure that the value is
+            // correct before accepting.
+            focusPolicy: Qt.StrongFocus
 
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
