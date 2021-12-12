@@ -21,11 +21,9 @@
 #define GUIDE_H
 
 #include <QDebug>
+#include <QVector>
 
 #include "slate-global.h"
-
-template <typename T>
-class QVector;
 
 class Guide;
 

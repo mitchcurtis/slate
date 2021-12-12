@@ -1,9 +1,9 @@
-import QtQuick 2.12
-import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.12
-import QtQuick.Templates 2.12 as T
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Templates as T
 
-import App 1.0
+import App
 
 import "." as Ui
 

@@ -27,6 +27,7 @@
 class SLATE_EXPORT RectangularCursor : public QQuickPaintedItem
 {
     Q_OBJECT
+    QML_ELEMENT
 
 public:
     RectangularCursor();

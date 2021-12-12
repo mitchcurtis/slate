@@ -17,10 +17,10 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick.Controls 2.12
-import App 1.0
+import QtQuick.Controls
+import App
 
-import Qt.labs.platform 1.0 as Platform
+import Qt.labs.platform as Platform
 
 Menu {
     objectName: "swatchSettingsContextMenu"

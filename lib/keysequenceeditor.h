@@ -36,6 +36,7 @@ class SLATE_EXPORT KeySequenceEditor : public QQuickItem
     Q_PROPERTY(QString newSequence READ newSequence NOTIFY newSequenceChanged)
     Q_PROPERTY(QString displaySequence READ displaySequence NOTIFY displaySequenceChanged)
     Q_PROPERTY(bool hasChanged READ hasChanged NOTIFY hasChangedChanged)
+    QML_ELEMENT
 
 public:
     KeySequenceEditor();

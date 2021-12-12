@@ -1,13 +1,13 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.12
+import QtQuick
+import QtQuick.Controls
 
-import App 1.0
+import App
 
 Item {
     id: root
     objectName: "colourSelector"
-    implicitWidth: penForegroundColourToolButton.width * 1.5
-    implicitHeight: penForegroundColourToolButton.height * 1.5
+    implicitWidth: penForegroundColourToolButton.implicitWidth * 1.5
+    implicitHeight: penForegroundColourToolButton.implicitWidth * 1.5
 
     property ImageCanvas canvas
 
@@ -41,6 +41,7 @@ Item {
         width: parent.width / 2
         height: width
         checked: true
+        checkable: true
 
         ToolTip.text: qsTr("Set the foreground colour")
         ToolTip.visible: hovered

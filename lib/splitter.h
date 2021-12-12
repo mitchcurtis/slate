@@ -21,6 +21,7 @@
 #define SPLITTER_H
 
 #include <QObject>
+#include <QQmlEngine>
 
 #include "slate-global.h"
 
@@ -34,6 +35,7 @@ class SLATE_EXPORT Splitter : public QObject
     Q_PROPERTY(int width READ width WRITE setWidth NOTIFY widthChanged)
     Q_PROPERTY(bool pressed READ isPressed WRITE setPressed NOTIFY pressedChanged FINAL)
     Q_PROPERTY(bool hovered READ isHovered WRITE setHovered NOTIFY hoveredChanged FINAL REVISION 1)
+    QML_ANONYMOUS
 
 public:
     explicit Splitter(ImageCanvas *canvas);

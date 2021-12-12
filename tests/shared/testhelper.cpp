@@ -21,6 +21,7 @@
 
 #include <QClipboard>
 #include <QPainter>
+#include <QPair>
 #include <QLoggingCategory>
 #include <QtQuickTest>
 
@@ -67,8 +68,8 @@ void TestHelper::initTestCase()
     // This should not be enabled for tests.
     QVERIFY(!app.settings()->loadLastOnStartup());
 
-    QVERIFY(window->property("overlay").isValid());
-    overlay = window->property("overlay").value<QQuickItem*>();
+    QQmlExpression overlayExpression(qmlContext(window), window, "Overlay.overlay");
+    overlay = overlayExpression.evaluate().value<QQuickItem*>();
     QVERIFY(overlay);
 
     projectManager = app.projectManager();
@@ -262,7 +263,8 @@ void TestHelper::mouseEvent(QQuickItem *item, const QPointF &localPos,
 
 void TestHelper::wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees)
 {
-    QWheelEvent wheelEvent(localPos, item->window()->mapToGlobal(localPos), QPoint(0, 0), QPoint(0, degrees * 8), 0, Qt::Vertical, Qt::NoButton, 0);
+    QWheelEvent wheelEvent(localPos, item->window()->mapToGlobal(localPos), QPoint(0, 0), QPoint(0, degrees * 8),
+        Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
     QSpontaneKeyEvent::setSpontaneous(&wheelEvent);
     if (!qApp->notify(item->window(), &wheelEvent))
         QTest::qWarn("Wheel event not accepted by receiving window");
@@ -672,9 +674,11 @@ bool TestHelper::changeImageSize(int width, int height, bool preserveAspectRatio
     QQuickItem *preserveAspectRatioButton = imageSizePopup->findChild<QQuickItem*>("preserveAspectRatioButton");
     VERIFY(preserveAspectRatioButton);
     if (preserveAspectRatioButton->property("checked").toBool() != preserveAspectRatio) {
+        QTest::qWait(1000);
         if (!clickButton(preserveAspectRatioButton))
             return false;
-        VERIFY(preserveAspectRatioButton->property("checked").toBool() == preserveAspectRatio);
+        QTest::qWait(1000);
+        COMPARE_NON_FLOAT(preserveAspectRatioButton->property("checked").toBool(), preserveAspectRatio);
     }
 
     // Change the values and then cancel.
@@ -1501,13 +1505,23 @@ bool TestHelper::deleteSwatchColour(int index)
     return true;
 }
 
-bool TestHelper::addNewGuide(Qt::Orientation orientation, int position)
+bool TestHelper::addNewGuide(int position, Qt::Orientation orientation)
 {
     if (!canvas->areRulersVisible()) {
         if (!triggerRulersVisible())
             return false;
         VERIFY(canvas->areRulersVisible());
     }
+    if (canvas->areGuidesLocked()) {
+        if (!clickButton(lockGuidesToolButton))
+            return false;
+        VERIFY(!canvas->areGuidesLocked());
+    }
+
+    // Use something that doesn't show the selection guide, as it will affect our grab comparisons.
+    const ImageCanvas::Tool originalTool = canvas->tool();
+    if (originalTool == ImageCanvas::SelectionTool && !switchTool(ImageCanvas::PenTool))
+        return false;
 
     const bool horizontal = orientation == Qt::Horizontal;
     const int originalGuideCount = project->guides().size();
@@ -1547,7 +1561,8 @@ bool TestHelper::addNewGuide(Qt::Orientation orientation, int position)
     VERIFY(imageGrabber.requestImage(canvas));
     TRY_VERIFY(imageGrabber.isReady());
     const QImage grabWithGuide = imageGrabber.takeImage();
-    VERIFY(grabWithGuide.pixelColor(releasePos.x(), releasePos.y()) == QColor(Qt::cyan));
+    COMPARE_NON_FLOAT(grabWithGuide.pixelColor(releasePos.x(), releasePos.y()).name(QColor::HexArgb),
+        QColor(Qt::cyan).name(QColor::HexArgb));
 
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 
@@ -1556,6 +1571,9 @@ bool TestHelper::addNewGuide(Qt::Orientation orientation, int position)
         "Expected %1 guide(s), but got %2").arg(originalGuideCount + 1).arg(project->guides().size())));
     VERIFY(project->guides().at(newGuideIndex).position() == position);
     VERIFY(project->undoStack()->canUndo());
+
+    if (canvas->tool() != originalTool && !switchTool(originalTool))
+        return false;
 
     canvas->currentPane()->setOffset(originalOffset);
     canvas->currentPane()->setZoomLevel(originalZoomLevel);
@@ -1602,7 +1620,7 @@ bool TestHelper::addNewGuides(int horizontalSpacing, int verticalSpacing, AddNew
         return false;
     // Get a decent failure message instead of just "Compared values are not the same".
     COMPARE_NON_FLOAT_WITH_MSG(QtUtils::toString(project->guides()), QtUtils::toString(originalGuides + expectedAddedGuides),
-        "Expected no duplicate guides after accepting Add Guides dialog");
+        "Mismatch in actual vs expected guides after accepting Add Guides dialog");
 
     // The canvas should be redrawn after adding guides.
     VERIFY(imageGrabber.requestImage(canvas));
@@ -2345,7 +2363,7 @@ bool TestHelper::triggerShortcut(const QString &objectName, const QString &seque
     VERIFY(activatedSpy.isValid());
 
     VERIFY(QTest::qWaitForWindowActive(window));
-    const int value = QKeySequence(sequenceAsString)[0];
+    const int value = QKeySequence(sequenceAsString)[0].toCombined();
     Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(value & Qt::KeyboardModifierMask);
     QTest::keyClick(window, value & ~mods, mods);
     VERIFY2(activatedSpy.count() == 1, qPrintable(QString::fromLatin1(
@@ -3766,8 +3784,11 @@ bool TestHelper::panBy(int xDistance, int yDistance)
     if (!canvas->hasSelection()) {
         // Move the mouse away from any guides, etc.
         QTest::mouseMove(window, QPoint(0, 0));
-        VERIFY2(window->cursor().shape() == Qt::BlankCursor, qPrintable(QString::fromLatin1(
-            "Expected Qt::BlankCursor after Qt::Key_Space release, but got %1").arg(window->cursor().shape())));
+        const Qt::CursorShape expectedCursorShape =
+            canvas->guideIndexAtCursorPos() != -1 ? Qt::OpenHandCursor : Qt::BlankCursor;
+        VERIFY2(window->cursor().shape() == expectedCursorShape, qPrintable(QString::fromLatin1(
+            "Expected %1 after Qt::Key_Space release, but got %2").arg(
+                QtUtils::toString(expectedCursorShape), QtUtils::toString(window->cursor().shape()))));
         QTest::mouseMove(window, pressPos + QPoint(xDistance, yDistance));
     }
     VERIFY(canvas->currentPane()->integerOffset() == expectedOffset);

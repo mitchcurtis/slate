@@ -21,12 +21,11 @@
 #define FILLALGORITHMS_H
 
 #include <QString>
+#include <QtContainerFwd>
 
 class QColor;
 class QImage;
 class QPoint;
-template <typename T>
-class QVector;
 
 class TexturedFillParameters;
 class TilesetProject;

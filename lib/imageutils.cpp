@@ -25,10 +25,14 @@
 #ifdef DEBUG_REARRANGE_IMAGES
 #include <QDir>
 #endif
+#include <QFile>
 #include <QLoggingCategory>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPainterPathStroker>
+#include <QScopeGuard>
 #include <QThread>
+#include <QTransform>
 
 // Need this otherwise we get linker errors.
 extern "C" {
@@ -89,10 +93,10 @@ QImage ImageUtils::erasePortionOfImage(const QImage &image, const QRect &portion
 QImage ImageUtils::rotate(const QImage &image, int angle)
 {
     const QPoint center = image.rect().center();
-    QMatrix matrix;
-    matrix.translate(center.x(), center.y());
-    matrix.rotate(angle);
-    return image.transformed(matrix);
+    QTransform transform;
+    transform.translate(center.x(), center.y());
+    transform.rotate(angle);
+    return image.transformed(transform);
 }
 
 /*!
@@ -112,10 +116,10 @@ QImage ImageUtils::rotateAreaWithinImage(const QImage &image, const QRect &area,
     // Create an image from the target area and then rotate it.
     // The resulting image will be big enough to contain the rotation.
     QImage rotatedImagePortion = image.copy(area);
-    QMatrix matrix;
-    matrix.translate(areaCentre.x(), areaCentre.y());
-    matrix.rotate(angle);
-    rotatedImagePortion = rotatedImagePortion.transformed(matrix);
+    QTransform transform;
+    transform.translate(areaCentre.x(), areaCentre.y());
+    transform.rotate(angle);
+    rotatedImagePortion = rotatedImagePortion.transformed(transform);
 
     // Remove what was behind the area and replace it with transparency.
     result = erasePortionOfImage(result, area);
@@ -378,8 +382,8 @@ void ImageUtils::modifyHsl(QImage &image, qreal hue, qreal saturation, qreal lig
             qreal finalAlpha = hsl.alphaF();
             if (!modifyAlpha) {
                 // At least one of the flags was set, so check further if we should modify.
-                const bool isFullyTransparent = qFuzzyCompare(hsl.alphaF(), 0.0);
-                const bool isFullyOpaque = qFuzzyCompare(hsl.alphaF(), 1.0);
+                const bool isFullyTransparent = qFuzzyCompare(hsl.alphaF(), 0.0f);
+                const bool isFullyOpaque = qFuzzyCompare(hsl.alphaF(), 1.0f);
 
                 if (doNotModifyFullyTransparentPixels && doNotModifyFullyOpaquePixels)
                     modifyAlpha = !isFullyTransparent && !isFullyOpaque;

@@ -14,9 +14,15 @@ Product {
     Depends { name: "vcs" }
     Depends { name: "bundle" }
 
-    cpp.cxxLanguageVersion: "c++11"
+    cpp.cxxLanguageVersion: "c++17"
+    // https://bugreports.qt.io/browse/QBS-1655
+    Properties {
+        condition: qbs.targetOS.contains("windows")
+        cpp.driverFlags: ["/Zc:__cplusplus"]
+    }
     cpp.includePaths: [
-        product.sourceDirectory + "/3rdparty"
+        product.sourceDirectory + "/3rdparty",
+        "."
     ]
     // https://bugreports.qt.io/browse/QBS-1434
     cpp.minimumMacosVersion: "10.13"
@@ -39,6 +45,9 @@ Product {
             product.sourceDirectory
         ]
     }
+
+    Qt.qml.importName: "App"
+    Qt.qml.importVersion: "1.0"
 
     Group {
         qbs.install: true
@@ -151,8 +160,8 @@ Product {
         "flipimagecanvasselectioncommand.h",
         "guide.cpp",
         "guide.h",
-        "guidesitem.cpp",
-        "guidesitem.h",
+        "guidemodel.cpp",
+        "guidemodel.h",
         "imagecanvas.cpp",
         "imagecanvas.h",
         "imagelayer.cpp",

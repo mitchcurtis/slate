@@ -17,9 +17,9 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick.Controls 2.12
+import QtQuick.Controls
 
-import App 1.0
+import App
 
 Menu {
     id: root

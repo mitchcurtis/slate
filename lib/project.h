@@ -60,6 +60,9 @@ class SLATE_EXPORT Project : public QObject
     Q_PROPERTY(ApplicationSettings *settings READ settings WRITE setSettings NOTIFY settingsChanged)
     Q_PROPERTY(Swatch *swatch READ swatch CONSTANT)
     Q_PROPERTY(SerialisableState *uiState READ uiState CONSTANT)
+    QML_ELEMENT
+    QML_UNCREATABLE("")
+    Q_MOC_INCLUDE("applicationsettings.h")
 
 public:
     enum Type {
@@ -172,7 +175,11 @@ signals:
     void sizeChanged();
     void errorOccurred(const QString &errorMessage);
     void settingsChanged();
-    void guidesChanged();
+    void preGuidesAdded(int index, int count);
+    void postGuidesAdded();
+    void guideMoved(int index);
+    void preGuidesRemoved();
+    void postGuidesRemoved();
     void notesChanged();
     void aboutToBeginMacro(const QString &text);
     /*
@@ -251,8 +258,8 @@ protected:
     QString mCurrentlyComposingMacroText;
     bool mHadUnsavedChangesBeforeMacroBegan;
 
-    QVector<Guide> mGuides;
-    QVector<Note> mNotes;
+    QList<Guide> mGuides;
+    QList<Note> mNotes;
 
     Swatch mSwatch;
 

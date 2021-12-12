@@ -17,10 +17,10 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.3
+import QtQuick.Controls
+import QtQuick.Layouts
 
-import App 1.0
+import App
 
 RangeSlider {
     id: root
@@ -30,7 +30,7 @@ RangeSlider {
     second.value: parameter.varianceUpperBound
 
     property string displayName
-    property TexturedFillParameter parameter
+    property TexturedFillVarianceParameter parameter
 
     ToolTip.text: qsTr("Adjusts the lower and upper bounds for random %1 variance").arg(displayName)
     ToolTip.visible: hovered

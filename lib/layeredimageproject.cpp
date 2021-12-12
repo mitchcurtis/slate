@@ -763,7 +763,7 @@ bool LayeredImageProject::exportImage(const QUrl &url)
     return true;
 }
 
-void LayeredImageProject::resize(int width, int height)
+void LayeredImageProject::resize(int width, int height, bool smooth)
 {
     if (warnIfLivePreviewNotActive(QLatin1String("resize")))
         return;

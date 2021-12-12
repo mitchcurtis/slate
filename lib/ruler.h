@@ -33,6 +33,7 @@ class SLATE_EXPORT Ruler : public QQuickPaintedItem
     Q_PROPERTY(QColor foregroundColour READ foregroundColour WRITE setForegroundColour NOTIFY foregroundColourChanged)
     Q_PROPERTY(QColor backgroundColour READ backgroundColour WRITE setBackgroundColour NOTIFY backgroundColourChanged)
     Q_PROPERTY(bool drawCorner READ drawCorner WRITE setDrawCorner NOTIFY drawCornerChanged)
+    QML_ELEMENT
 
 public:
     Ruler(QQuickItem *parentItem = nullptr);

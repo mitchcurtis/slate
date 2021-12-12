@@ -33,6 +33,8 @@ class SLATE_EXPORT TexturedFillPreviewItem : public QQuickPaintedItem
     Q_OBJECT
     Q_PROPERTY(ImageCanvas *canvas READ canvas WRITE setCanvas NOTIFY canvasChanged)
     Q_PROPERTY(TexturedFillParameters *parameters READ parameters CONSTANT FINAL)
+    QML_ELEMENT
+    Q_MOC_INCLUDE("imagecanvas.h")
 
 public:
     TexturedFillPreviewItem();

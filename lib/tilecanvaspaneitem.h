@@ -26,6 +26,8 @@
 class SLATE_EXPORT TileCanvasPaneItem : public CanvasPaneItem
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_ADDED_IN_VERSION(1, 0)
 
 public:
     explicit TileCanvasPaneItem(QQuickItem *parent = nullptr);

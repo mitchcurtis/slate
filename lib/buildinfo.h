@@ -21,6 +21,7 @@
 #define BUILDINFO_H
 
 #include <QObject>
+#include <QQmlEngine>
 
 #include "slate-global.h"
 
@@ -28,6 +29,8 @@ class SLATE_EXPORT BuildInfo : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString version READ version CONSTANT FINAL)
+    QML_ELEMENT
+    QML_SINGLETON
 
 public:
     explicit BuildInfo(QObject *parent = nullptr);

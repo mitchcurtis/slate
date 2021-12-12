@@ -21,7 +21,8 @@
 #define SWATCH_H
 
 #include <QObject>
-#include <QVector>
+#include <QList>
+#include <QQmlEngine>
 
 #include "slate-global.h"
 #include "swatchcolour.h"
@@ -31,6 +32,7 @@ class QJsonObject;
 class SLATE_EXPORT Swatch : public QObject
 {
     Q_OBJECT
+    QML_ANONYMOUS
 
 public:
     explicit Swatch(QObject *parent = nullptr);
@@ -74,7 +76,7 @@ protected:
 
     bool isValidIndex(int index) const;
 
-    QVector<SwatchColour> mColours;
+    QList<SwatchColour> mColours;
 };
 
 #endif // SWATCH_H

@@ -17,9 +17,9 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.12
+import QtQuick
 
-import App 1.0
+import App
 
 // Can't use Connections as the root, because onProjectChanged doesn't work there.
 // Can't use QtObject as the root either,

@@ -21,6 +21,7 @@
 #define ANIMATIONMODEL_H
 
 #include <QAbstractListModel>
+#include <QQmlEngine>
 
 #include "slate-global.h"
 
@@ -30,6 +31,8 @@ class SLATE_EXPORT AnimationModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(AnimationSystem *animationSystem READ animationSystem WRITE setAnimationSystem NOTIFY animationSystemChanged)
+    QML_ELEMENT
+    Q_MOC_INCLUDE("animationsystem.h")
 
 public:
     enum {

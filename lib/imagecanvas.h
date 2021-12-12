@@ -55,11 +55,13 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool rulersVisible READ areRulersVisible WRITE setRulersVisible NOTIFY rulersVisibleChanged)
     Q_PROPERTY(bool guidesVisible READ areGuidesVisible WRITE setGuidesVisible NOTIFY guidesVisibleChanged)
     Q_PROPERTY(bool guidesLocked READ areGuidesLocked WRITE setGuidesLocked NOTIFY guidesLockedChanged)
+    Q_PROPERTY(ImageCanvas::SnapFlags snapSelectionsTo READ snapSelectionsTo WRITE setSnapSelectionsTo NOTIFY snapSelectionsToChanged)
     Q_PROPERTY(bool notesVisible READ areNotesVisible WRITE setNotesVisible NOTIFY notesVisibleChanged)
     Q_PROPERTY(bool animationMarkersVisible READ areAnimationMarkersVisible WRITE setAnimationMarkersVisible
         NOTIFY animationMarkersVisibleChanged)
     Q_PROPERTY(int highlightedAnimationFrameIndex READ highlightedAnimationFrameIndex
         WRITE setHighlightedAnimationFrameIndex NOTIFY highlightedAnimationFrameIndexChanged)
+    Q_PROPERTY(Ruler *pressedRuler READ pressedRuler NOTIFY pressedRulerChanged)
     Q_PROPERTY(QColor splitColour READ splitColour WRITE setSplitColour NOTIFY splitColourChanged)
     Q_PROPERTY(QColor checkerColour1 READ checkerColour1 WRITE setCheckerColour1 NOTIFY checkerColour1Changed)
     Q_PROPERTY(QColor checkerColour2 READ checkerColour2 WRITE setCheckerColour2 NOTIFY checkerColour2Changed)
@@ -99,6 +101,8 @@ class SLATE_EXPORT ImageCanvas : public QQuickItem
     Q_PROPERTY(bool lineVisible READ isLineVisible NOTIFY lineVisibleChanged)
     Q_PROPERTY(int lineLength READ lineLength NOTIFY lineChanged)
     Q_PROPERTY(qreal lineAngle READ lineAngle NOTIFY lineChanged)
+    QML_ELEMENT
+    Q_MOC_INCLUDE("project.h")
 
 public:
     // The order of these is important, as the number keys can activate the tools.
@@ -126,6 +130,15 @@ public:
         PenToolRightClickAppliesBackgroundColour
     };
     Q_ENUM(PenToolRightClickBehaviour)
+
+    enum SnapFlag {
+        SnapToNone = 0x00,
+        SnapToGuides = 0x01,
+        SnapToCanvasEdges = 0x02,
+        SnapToAll = SnapToGuides | SnapToCanvasEdges
+    };
+    Q_DECLARE_FLAGS(SnapFlags, SnapFlag)
+    Q_FLAG(SnapFlags)
 
     ImageCanvas();
     ~ImageCanvas() override;
@@ -172,6 +185,9 @@ public:
 
     bool areNotesVisible() const;
     void setNotesVisible(bool areNotesVisible);
+
+    SnapFlags snapSelectionsTo() const;
+    void setSnapSelectionsTo(SnapFlags snapSelectionsTo);
 
     bool areAnimationMarkersVisible() const;
     void setAnimationMarkersVisible(bool animationMarkersVisible);
@@ -346,15 +362,14 @@ signals:
     void checkerColour1Changed();
     void checkerColour2Changed();
     void rulersVisibleChanged();
-    // Emitted whenever guides need to be rendered. Covers events like dragging
-    // guides, which Project's guidesChanged signal doesn't account for, and
-    // and is also connected to Project's guidesChanged signal for convenience
-    // so that GuidesItem doesn't need to connect to it.
-    void guidesChanged();
+    void pressedRulerChanged();
+    /*! If index is \c -1, a guide is being dragged from the ruler. */
+    void existingGuideDragged(int index);
     void guidesVisibleChanged();
     void guidesLockedChanged();
     void notesVisibleChanged();
     void notesChanged();
+    void snapSelectionsToChanged();
     void splitColourChanged();
     void splitScreenChanged();
     void scrollZoomChanged();
@@ -443,7 +458,7 @@ protected slots:
 
 protected:
     void componentComplete() override;
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
+    void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
     virtual void restoreState();
 
@@ -518,20 +533,26 @@ protected:
 
     void findRulers();
     void updatePressedRuler();
+    void setPressedRuler(Ruler *ruler);
     Ruler *rulerAtCursorPos();
 
     void addNewGuide();
     Q_INVOKABLE void addNewGuides(int horizontalSpacing, int verticalSpacing);
     void moveGuide();
     void removeGuide();
-    // Public for testing.
 public:
+    // Public for testing.
+    int guideIndexAtCursorPos() const;
     Q_INVOKABLE void removeAllGuides();
 
 protected:
 
     void updatePressedGuide();
-    int guideIndexAtCursorPos();
+    struct GuideIndices {
+        int horizontalIndex;
+        int verticalIndex;
+    };
+    GuideIndices guideIndicesClosestToScenePos(const QPointF &scenePosF, int threshold) const;
 
     void updatePressedNote();
     void updateNotesVisible();
@@ -565,6 +586,7 @@ protected:
     void panWithSelectionIfAtEdge(SelectionPanReason reason);
     void setLastSelectionModification(SelectionModification selectionModification);
     void setHasModifiedSelection(bool hasModifiedSelection);
+    QPointF snappedScenePositionF(const QPointF &scenePosition) const;
 
     void setAltPressed(bool altPressed);
 
@@ -617,6 +639,7 @@ protected:
     bool mRulersVisible;
     bool mGuidesVisible;
     bool mGuidesLocked;
+    SnapFlags mSnapSelectionsTo;
     bool mNotesVisible;
     bool mAnimationMarkersVisible;
     // The index of the frame of the current animation that should be highlighted.
@@ -653,6 +676,10 @@ protected:
     QPoint mPressPosition;
     QPoint mPressScenePosition;
     QPointF mPressScenePositionF;
+    // The position at which the press would be if snapped (or mPressScenePositionF if
+    // no snapping could be applied). We cache it because it could potentially be expensive
+    // to calculate for every mouse event with a lot of guides.
+    QPointF mSnappedPressScenePositionF;
     // The scene position at which the mouse was pressed before the most-recent press.
     QPoint mCurrentPaneOffsetBeforePress;
     QRect mFirstPaneVisibleSceneArea;
@@ -714,6 +741,10 @@ protected:
     bool mSpacePressed;
     bool mHasBlankCursor;
 };
+
+// For QVariant usage.
+// TODO: see if this is still necessary with Qt 6
+Q_DECLARE_METATYPE(ImageCanvas::SnapFlags);
 
 inline uint qHash(const ImageCanvas::SubImage &key, const uint seed = 0) {
     return qHashBits(&key, sizeof(ImageCanvas::SubImage), seed);

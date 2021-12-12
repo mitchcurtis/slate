@@ -2,15 +2,14 @@ import qbs
 
 Group {
     id: root
-    // The qrc prefix to assign the files.
+    name: "qml-main"
     files: [path + "/main.qml"]
     Qt.core.resourcePrefix: "/qml"
     Qt.core.resourceSourceBase: path
     fileTags: ["qt.qml.qml", "qt.core.resource_data"]
 
     Group {
-        // The directory the files are in; saves writing it for each line.
-        // The qrc prefix to assign the files.
+        name: "qml-ui"
         Qt.core.resourcePrefix: "/qml"
         Qt.core.resourceSourceBase: path
         fileTags: ["qt.qml.qml", "qt.core.resource_data"]
@@ -39,6 +38,7 @@ Group {
             "ui/ErrorPopup.qml",
             "ui/FillToolMenu.qml",
             "ui/FpsCounter.qml",
+            "ui/Guide.qml",
             "ui/HexColourRowLayout.qml",
             "ui/HorizontalGradientRectangle.qml",
             "ui/HslSimplePicker.qml",
@@ -98,20 +98,31 @@ Group {
         ]
 
         Group {
+            name: "qml-ui-fileselectors"
             Qt.core.resourcePrefix: "/qml"
             Qt.core.resourceSourceBase: path
             fileTags: ["qt.qml.qml", "qt.core.resource_data"]
             files: [
-                "ui/+material/DialogButton.qml",
-                "ui/+material/IconRectangle.qml",
-                "ui/+material/SwatchFocusRectangle.qml",
-                "ui/+material/Theme.qml",
-                "ui/+imagine/Theme.qml",
+                "ui/+Material/DialogButton.qml",
+                "ui/+Material/IconRectangle.qml",
+                "ui/+Material/SwatchFocusRectangle.qml",
+                "ui/+Material/Theme.qml",
+                "ui/+Imagine/Theme.qml",
                 "ui/+nativemenubar/MenuBar.qml",
-                "ui/+universal/IconRectangle.qml",
-                "ui/+universal/SwatchFocusRectangle.qml",
-                "ui/+universal/Theme.qml",
-                "ui/+universal/VerticalSeparator.qml"
+                "ui/+Universal/IconRectangle.qml",
+                "ui/+Universal/SwatchFocusRectangle.qml",
+                "ui/+Universal/Theme.qml",
+                "ui/+Universal/VerticalSeparator.qml"
+            ]
+        }
+
+        Group {
+            name: "qml-ui-shaders"
+            Qt.core.resourcePrefix: "/qml"
+            Qt.core.resourceSourceBase: path
+            fileTags: ["qt.core.resource_data"]
+            files: [
+                "ui/shaders/SaturationLightness.frag.qsb"
             ]
         }
     }

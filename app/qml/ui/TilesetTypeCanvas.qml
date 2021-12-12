@@ -1,6 +1,6 @@
-import QtQuick 2.12
+import QtQuick
 
-import App 1.0
+import App
 
 // For access to Theme Singleton
 import "."
@@ -44,6 +44,8 @@ TileCanvas {
             anchors.fill: parent
             visible: index === 0 || canvas.splitScreen
 
+            required property int index
+
             readonly property bool isFirstPane: paneIndex === 0
             readonly property string indexAsWord: isFirstPane ? "first" : "second"
 
@@ -55,13 +57,25 @@ TileCanvas {
                 z: -1
             }
 
-            GuidesItem {
-                id: guidesItem
-                anchors.fill: parent
+            GuideModel {
+                id: guideModel
+                project: tileCanvas.project
                 canvas: tileCanvas
+            }
+
+            Repeater {
+                model: tileCanvas.guidesVisible ? guideModel : null
+                delegate: Guide {
+                    pane: paneItem.pane
+                }
+            }
+
+            // Draws a guide being dragged out from the ruler.
+            Guide {
                 pane: paneItem.pane
-                paneIndex: paneItem.paneIndex
-                visible: tileCanvas.guidesVisible
+                orientation: tileCanvas.pressedRuler?.orientation ?? Qt.Horizontal
+                position: horizontal ? tileCanvas.cursorSceneY : tileCanvas.cursorSceneX
+                visible: tileCanvas.pressedRuler
             }
 
             Ruler {

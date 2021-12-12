@@ -25,22 +25,22 @@
 #include <QQuickItem>
 
 namespace QtUtils {
-    template<typename T>
-    QString enumToString(T enumValue)
-    {
-        QString string;
-        QDebug debug(&string);
-        debug << enumValue;
-        return string;
-    }
+template<typename T>
+   QString enumToString(T enumValue)
+   {
+       QString string;
+       QDebug debug(&string);
+       debug << enumValue;
+       return string;
+   }
 
-    template <typename T>
-    QString toString(const T &object) {
-        QString buffer;
-        QDebug stream(&buffer);
-        stream.nospace() << object;
-        return buffer;
-    }
+   template <typename T>
+   QString toString(const T &object) {
+       QString buffer;
+       QDebug stream(&buffer);
+       stream.nospace() << object;
+       return buffer;
+   }
 
     template<typename T>
     inline T divFloor(const T dividend, const T divisor) {
@@ -132,6 +132,30 @@ namespace QtUtils {
                 unique.append(t);
         }
         return unique;
+    }
+
+    template<typename Flags>
+    bool flagsFromString(const QString &string, Flags &flags) {
+        bool ok = false;
+        Flags theFlags = static_cast<Flags>(QMetaEnum::fromType<Flags>().keysToValue(qPrintable(string), &ok));
+        if (!ok)
+            return false;
+        flags = theFlags;
+        return true;
+    }
+
+    template<typename Flags>
+    bool flagsToString(const QMetaObject &staticMetaObject, const char *enumName, const Flags &flags, QString &string) {
+        const QMetaEnum metaEnum = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator(enumName));
+        if (!metaEnum.isValid())
+            return false;
+
+        const QString enumValues = QString::fromLatin1(metaEnum.valueToKeys(flags));
+        if (enumValues.isEmpty())
+            return false;
+
+        string = enumValues;
+        return true;
     }
 }
 

@@ -26,6 +26,7 @@
 class SLATE_EXPORT ProbabilitySwatchModel : public SwatchModel
 {
     Q_OBJECT
+    QML_ELEMENT
 
 public:
     enum {

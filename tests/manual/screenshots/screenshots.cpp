@@ -358,11 +358,11 @@ void tst_Screenshots::animation()
     }
 
     for (int i = 1; i <= 5; ++i) {
-        QVERIFY2(addNewGuide(Qt::Vertical, i * 36), qPrintable(
+        QVERIFY2(addNewGuide(i * 36, Qt::Vertical), qPrintable(
             QString::fromLatin1("When dragging guide %1: ").arg(i) + QString::fromLatin1(failureMessage)));
     }
 
-    QVERIFY2(addNewGuide(Qt::Horizontal, 25), failureMessage);
+    QVERIFY2(addNewGuide(25, Qt::Horizontal), failureMessage);
 
     screenshotPath = QLatin1String("slate-animation-tutorial-2.2.png");
     QVERIFY(window->grabWindow().save(mOutputDirectory.absoluteFilePath(screenshotPath)));

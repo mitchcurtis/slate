@@ -1,9 +1,9 @@
-import QtQuick 2.12
-import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.12
-import QtQuick.Window 2.12
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Window
 
-import App 1.0
+import App
 
 import "." as Ui
 
@@ -118,8 +118,8 @@ Panel {
             // We use hoveredTile.sourceRect instead of just using cursorPosInImage because we want grid-aligned positions.
             property point hoveredTilePos: hoveredTile ? mapFromItem(tilesetImage, hoveredTile.sourceRect.x, hoveredTile.sourceRect.y) : Qt.point(0, 0)
 
-            onReleased: {
-                if (mouse.button === Qt.RightButton) {
+            onReleased: (mouseEvent) => {
+                if (mouseEvent.button === Qt.RightButton) {
                     if (!contextMenu.rightClickedTile) {
                         contextMenu.rightClickedTile = project.tilesetTileAt(cursorPosInImage.x, cursorPosInImage.y);
                         contextMenu.open();

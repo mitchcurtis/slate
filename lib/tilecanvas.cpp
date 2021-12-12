@@ -508,8 +508,7 @@ void TileCanvas::updateCursorPos(const QPoint &eventPos)
     const int zoomLevel = mCurrentPane->integerZoomLevel();
     mCursorSceneFX = qreal(mCursorPaneX - mCurrentPane->integerOffset().x()) / mTilesetProject->tileWidth() / zoomLevel * mTilesetProject->tileWidth();
     mCursorSceneFY = qreal(mCursorPaneY - mCurrentPane->integerOffset().y()) / mTilesetProject->tileHeight() / zoomLevel * mTilesetProject->tileHeight();
-    mCursorSceneX = mCursorSceneFX;
-    mCursorSceneY = mCursorSceneFY;
+    setCursorScenePos(QPoint(mCursorSceneFX, mCursorSceneFY));
 
     if (!isCursorWithinProjectBounds()) {
         setCursorTilePixelX(-1);
@@ -576,7 +575,7 @@ void TileCanvas::hoverLeaveEvent(QHoverEvent *event)
 {
     ImageCanvas::hoverLeaveEvent(event);
 
-    if (!mTilesetProject->hasLoaded())
+    if (!mTilesetProject || !mTilesetProject->hasLoaded())
         return;
 
     // Don't reset the cursor position here, because it looks jarring.

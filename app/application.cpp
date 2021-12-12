@@ -21,50 +21,27 @@
 
 #include <QApplication>
 #include <QFontDatabase>
+#include <QLibraryInfo>
 #include <QLoggingCategory>
 #include <QQmlFileSelector>
+#include <QTranslator>
 #include <QUndoStack>
 
-#include "animationmodel.h"
-#include "autoswatchmodel.h"
-#include "buildinfo.h"
 #include "canvaspane.h"
 #include "canvaspaneitem.h"
-#include "clipboard.h"
-#include "filevalidator.h"
-#include "guidesitem.h"
 #include "imagecanvas.h"
 #include "imagelayer.h"
 #include "imageproject.h"
-#include "keysequenceeditor.h"
 #include "layeredimagecanvas.h"
-#include "layermodel.h"
 #include "layeredimageproject.h"
-#include "newprojectvalidator.h"
-#include "notesitem.h"
-#include "probabilityswatchmodel.h"
 #include "project.h"
 #include "projectimageprovider.h"
 #include "projectmanager.h"
-#include "rectangularcursor.h"
-#include "ruler.h"
-#include "saturationlightnesspicker.h"
-#include "selectioncursorguide.h"
-#include "selectionitem.h"
-#include "serialisablestate.h"
-#include "splitter.h"
-#include "spriteimage.h"
 #include "spriteimageprovider.h"
-#include "swatchmodel.h"
-#include "texturedfillparameters.h"
-#include "texturedfillpreviewitem.h"
-#include "tile.h"
 #include "tilecanvas.h"
 #include "tilecanvaspaneitem.h"
-#include "tilegrid.h"
 #include "tileset.h"
 #include "tilesetproject.h"
-#include "tilesetswatchimage.h"
 
 Q_LOGGING_CATEGORY(lcApplication, "app.application")
 
@@ -73,7 +50,10 @@ static QGuiApplication *createApplication(int &argc, char **argv, const QString 
     // TODO: move the test rules to test code if possible - e.g. testhelper.cpp
     QLoggingCategory::setFilterRules("app.* = false\ntests.* = false\nui.* = false");
 
+    // High-DPI scaling is always enabled in Qt 6.
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 
     QApplication::setOrganizationName("Mitch Curtis");
     QApplication::setApplicationName(applicationName);
@@ -83,11 +63,6 @@ static QGuiApplication *createApplication(int &argc, char **argv, const QString 
 
     QApplication *app = new QApplication(argc, argv);
     return app;
-}
-
-static QObject *buildInfoSingletonProvider(QQmlEngine *, QJSEngine *)
-{
-    return new BuildInfo;
 }
 
 Application::Application(int &argc, char **argv, const QString &applicationName) :
@@ -161,52 +136,6 @@ ProjectManager *Application::projectManager()
 
 void Application::registerQmlTypes()
 {
-    qmlRegisterType<AnimationModel>("App", 1, 0, "AnimationModel");
-    qmlRegisterType<AnimationPlayback>("App", 1, 0, "AnimationPlayback");
-    qmlRegisterType<AutoSwatchModel>("App", 1, 0, "AutoSwatchModel");
-    qmlRegisterType<FileValidator>("App", 1, 0, "FileValidator");
-    qmlRegisterType<GuidesItem>("App", 1, 0, "GuidesItem");
-    qmlRegisterType<ImageCanvas>();
-    qmlRegisterType<ImageCanvas>("App", 1, 0, "ImageCanvas");
-    qmlRegisterType<CanvasPaneItem>("App", 1, 0, "CanvasPaneItem");
-    qmlRegisterType<TileCanvasPaneItem>("App", 1, 0, "TileCanvasPaneItem");
-    qmlRegisterType<KeySequenceEditor>("App", 1, 0, "KeySequenceEditor");
-    qmlRegisterType<LayeredImageCanvas>("App", 1, 0, "LayeredImageCanvas");
-    qmlRegisterType<LayerModel>("App", 1, 0, "LayerModel");
-    qmlRegisterType<NewProjectValidator>("App", 1, 0, "NewProjectValidator");
-    qmlRegisterType<NotesItem>("App", 1, 0, "NotesItem");
-    qmlRegisterType<ProbabilitySwatch>();
-    qmlRegisterType<ProbabilitySwatchModel>("App", 1, 0, "ProbabilitySwatchModel");
-    qmlRegisterType<ProjectManager>("App", 1, 0, "ProjectManager");
-    qmlRegisterType<RectangularCursor>("App", 1, 0, "RectangularCursor");
-    qmlRegisterType<Ruler>("App", 1, 0, "Ruler");
-    qmlRegisterType<SaturationLightnessPicker>("App", 1, 0, "SaturationLightnessPickerTemplate");
-    qmlRegisterType<SelectionCursorGuide>("App", 1, 0, "SelectionCursorGuide");
-    qmlRegisterType<SelectionItem>("App", 1, 0, "SelectionItem");
-    qmlRegisterType<SerialisableState>();
-    qmlRegisterType<SpriteImage>("App", 1, 0, "SpriteImage");
-    qmlRegisterType<Splitter>();
-    qmlRegisterType<Swatch>();
-    qmlRegisterType<SwatchModel>("App", 1, 0, "SwatchModel");
-    qmlRegisterType<TexturedFillPreviewItem>("App", 1, 0, "TexturedFillPreviewItem");
-    qmlRegisterType<TileCanvas>();
-    qmlRegisterType<TileCanvas>("App", 1, 0, "TileCanvas");
-    qmlRegisterType<TileGrid>("App", 1, 0, "TileGrid");
-    qmlRegisterType<TilesetSwatchImage>("App", 1, 0, "TilesetSwatchImage");
-    qmlRegisterUncreatableType<Animation>("App", 1, 0, "Animation", QLatin1String("Cannot create objects of type Animation"));
-    qmlRegisterUncreatableType<AnimationSystem>("App", 1, 0, "AnimationSystem", QLatin1String("Cannot create objects of type AnimationSystem"));
-    qmlRegisterUncreatableType<CanvasPane>("App", 1, 0, "CanvasPane", "Can't create instances of CanvasPane");
-    qmlRegisterUncreatableType<ClipboardImage>("App", 1, 0, "ClipboardImage",
-        QLatin1String("Cannot create objects of type ClipboardImage"));
-    qmlRegisterUncreatableType<Project>("App", 1, 0, "Project", QLatin1String("Cannot create objects of type Project"));
-    qmlRegisterUncreatableType<LayeredImageProject>("App", 1, 0, "LayeredImageProject",
-        QLatin1String("Cannot create objects of type LayeredImageProject"));
-    qmlRegisterUncreatableType<TexturedFillVarianceParameter>("App", 1, 0, "TexturedFillParameter",
-        QLatin1String("Cannot create objects of type TexturedFillParameter"));
-    qmlRegisterUncreatableType<TexturedFillParameters>("App", 1, 0, "TexturedFillParameters",
-        QLatin1String("Cannot create objects of type TexturedFillParameters"));
-    qmlRegisterSingletonType<BuildInfo>("App", 1, 0, "BuildInfo", buildInfoSingletonProvider);
-    qmlRegisterSingletonType<Clipboard>("App", 1, 0, "Clipboard", &Clipboard::qmlInstance);
     qRegisterMetaType<ApplicationSettings*>();
     qRegisterMetaType<ImageLayer*>();
     qRegisterMetaType<Project::Type>();
@@ -264,7 +193,7 @@ void Application::installTranslators()
         slateTranslator = nullptr;
     }
 
-    const QString qtTranslationsDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+    const QString qtTranslationsDir = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
     QTranslator *qtTranslator = new QTranslator(mApplication.data());
     if (qtTranslator->load(locale, QStringLiteral("qt_"), QString(), qtTranslationsDir)) {
         mApplication->installTranslator(qtTranslator);

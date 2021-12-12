@@ -1,6 +1,6 @@
-import QtQuick 2.12
+import QtQuick
 
-import App 1.0
+import App
 
 Rectangle {
     readonly property color focusColour: "yellow"

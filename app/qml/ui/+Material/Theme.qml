@@ -19,19 +19,20 @@
 
 pragma Singleton
 
-import QtQml 2.12
-import QtQuick.Controls.Universal 2.12
+import QtQml
+import QtQuick.Controls.Material
 
 QtObject {
-    property color focusColour: Universal.accent
+    property color focusColour: Material.accent
 
-    property var toolButtonWidth: 48
-    property var toolButtonHeight: 38
+    property var toolButtonWidth: undefined
+    property var toolButtonHeight: undefined
 
-    property color canvasBackgroundColour: "#222"
-    property color splitColour: "#444"
-    property color rulerForegroundColour: Universal.foreground
-    property color rulerBackgroundColour: "#333"
+    // The light theme's background colour is too white for the crosshair cursor.
+    property color canvasBackgroundColour: Material.theme === Material.Dark ? Material.background : "#ccc"
+    property color splitColour: Qt.lighter(rulerBackgroundColour, 1.2)
+    property color rulerForegroundColour: Qt.darker(Material.foreground, 1.4)
+    property color rulerBackgroundColour: panelColour
 
-    property color panelColour: "#282828"
+    property color panelColour: "#424242"
 }

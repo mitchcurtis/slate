@@ -20,6 +20,7 @@ class SLATE_EXPORT SaturationLightnessPicker : public QQuickItem
     Q_PROPERTY(QQuickItem *background READ background WRITE setBackground NOTIFY backgroundChanged FINAL)
     Q_PROPERTY(QQuickItem *contentItem READ contentItem WRITE setContentItem NOTIFY contentItemChanged FINAL)
     Q_PROPERTY(QQuickItem *handle READ handle WRITE setHandle NOTIFY handleChanged FINAL)
+    QML_NAMED_ELEMENT(SaturationLightnessPickerTemplate)
 
 public:
     explicit SaturationLightnessPicker(QQuickItem *parent = nullptr);
@@ -79,7 +80,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseUngrabEvent() override;
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
+    void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
 private:
     void updateValuesForPos(const QPoint &pos);

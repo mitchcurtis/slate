@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QPoint>
+#include <QQmlEngine>
 #include <QSize>
 
 #include "animation.h"
@@ -38,6 +39,8 @@ class SLATE_EXPORT AnimationSystem : public QObject
     Q_PROPERTY(Animation *currentAnimation READ currentAnimation NOTIFY currentAnimationIndexChanged FINAL)
     Q_PROPERTY(Animation *editAnimation READ editAnimation CONSTANT FINAL)
     Q_PROPERTY(int animationCount READ animationCount NOTIFY animationCountChanged)
+    QML_ELEMENT
+    QML_UNCREATABLE("")
 
 public:
     explicit AnimationSystem(QObject *parent = nullptr);

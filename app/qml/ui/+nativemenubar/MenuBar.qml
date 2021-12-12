@@ -17,11 +17,11 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import Qt.labs.platform 1.0 as Platform
-import QtQml 2.2
-import QtQuick 2.12
+import Qt.labs.platform as Platform
+import QtQml
+import QtQuick
 
-import App 1.0
+import App
 
 Item {
     property ImageCanvas canvas
@@ -76,8 +76,8 @@ Item {
                         })
                     }
 
-                    onObjectAdded: recentFilesSubMenu.insertItem(index, object)
-                    onObjectRemoved: recentFilesSubMenu.removeItem(object)
+                    onObjectAdded: (index, object) => { recentFilesSubMenu.insertItem(index, object) }
+                    onObjectRemoved: (index, object) => { recentFilesSubMenu.removeItem(object) }
                 }
 
                 Platform.MenuSeparator {}
@@ -483,6 +483,48 @@ Item {
                 text: qsTr("Delete All Guides")
                 enabled: canvas
                 onTriggered: canvas.removeAllGuides()
+            }
+
+            Platform.MenuSeparator {}
+
+            Platform.Menu {
+                objectName: "snapSelectionsToSubMenu"
+                title: qsTr("Snap Selections To")
+                enabled: canvas
+
+                Platform.MenuItem {
+                    objectName: "snapSelectionsToGuidesMenuItem"
+                    text: qsTr("Guides")
+                    checkable: true
+                    checked: canvas && canvas.snapSelectionsTo & ImageCanvas.SnapToGuides
+                    onTriggered: canvas.snapSelectionsTo ^= ImageCanvas.SnapToGuides
+                }
+
+                Platform.MenuItem {
+                    objectName: "snapSelectionsToCanvasEdgesMenuItem"
+                    text: qsTr("Canvas Edges")
+                    checkable: true
+                    checked: canvas && canvas.snapSelectionsTo & ImageCanvas.SnapToCanvasEdges
+                    onTriggered: canvas.snapSelectionsTo ^= ImageCanvas.SnapToCanvasEdges
+                }
+
+                Platform.MenuSeparator {}
+
+                Platform.MenuItem {
+                    objectName: "snapSelectionsToAllMenuItem"
+                    text: qsTr("All")
+                    checkable: true
+                    enabled: canvas && canvas.snapSelectionsTo !== ImageCanvas.SnapToAll
+                    onTriggered: canvas.snapSelectionsTo = ImageCanvas.SnapToAll
+                }
+
+                Platform.MenuItem {
+                    objectName: "snapSelectionsToNoneMenuItem"
+                    text: qsTr("None")
+                    checkable: true
+                    enabled: canvas && canvas.snapSelectionsTo !== ImageCanvas.SnapToNone
+                    onTriggered: canvas.snapSelectionsTo = ImageCanvas.SnapToNone
+                }
             }
 
             Platform.MenuSeparator {}

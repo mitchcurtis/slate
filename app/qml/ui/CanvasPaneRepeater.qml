@@ -1,8 +1,8 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.12
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
-import App 1.0
+import App
 
 // For access to Theme Singleton
 import "."
@@ -69,6 +69,8 @@ Repeater {
         visible: isFirstPane || canvas.splitScreen
         clip: true
 
+        required property int index
+
         readonly property bool isFirstPane: paneIndex === 0
         readonly property string indexAsWord: isFirstPane ? "first" : "second"
 
@@ -79,13 +81,25 @@ Repeater {
             z: -1
         }
 
-        GuidesItem {
-            id: guidesItem
-            anchors.fill: parent
+        GuideModel {
+            id: guideModel
+            project: root.canvas.project
             canvas: root.canvas
+        }
+
+        Repeater {
+            model: root.canvas.guidesVisible ? guideModel : null
+            delegate: Guide {
+                pane: paneItem.pane
+            }
+        }
+
+        // Draws a guide being dragged out from the ruler.
+        Guide {
             pane: paneItem.pane
-            paneIndex: paneItem.paneIndex
-            visible: root.canvas.guidesVisible
+            orientation: root.canvas.pressedRuler?.orientation ?? Qt.Horizontal
+            position: horizontal ? root.canvas.cursorSceneY : root.canvas.cursorSceneX
+            visible: root.canvas.pressedRuler
         }
 
         NotesItem {

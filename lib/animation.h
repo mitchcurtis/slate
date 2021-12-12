@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QObject>
 #include <QPoint>
+#include <QQmlEngine>
 #include <QSize>
 
 #include "slate-global.h"
@@ -41,6 +42,8 @@ class SLATE_EXPORT Animation : public QObject
     Q_PROPERTY(int frameWidth READ frameWidth WRITE setFrameWidth NOTIFY frameWidthChanged FINAL)
     Q_PROPERTY(int frameHeight READ frameHeight WRITE setFrameHeight NOTIFY frameHeightChanged FINAL)
     Q_PROPERTY(bool reverse READ isReverse WRITE setReverse NOTIFY reverseChanged)
+    QML_ELEMENT
+    QML_UNCREATABLE("")
 
 public:
     explicit Animation(QObject *parent = nullptr);

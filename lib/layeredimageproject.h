@@ -22,6 +22,7 @@
 
 #include <QDebug>
 #include <QImage>
+#include <QQmlEngine>
 
 #include "animationsystem.h"
 #include "project.h"
@@ -39,6 +40,9 @@ class SLATE_EXPORT LayeredImageProject : public Project
     Q_PROPERTY(bool autoExportEnabled READ isAutoExportEnabled WRITE setAutoExportEnabled NOTIFY autoExportEnabledChanged)
     Q_PROPERTY(bool usingAnimation READ isUsingAnimation WRITE setUsingAnimation NOTIFY usingAnimationChanged)
     Q_PROPERTY(AnimationSystem *animationSystem READ animationSystem CONSTANT FINAL)
+    QML_ELEMENT
+    QML_UNCREATABLE("")
+    Q_MOC_INCLUDE("imagelayer.h")
 
 public:
     LayeredImageProject();
@@ -107,7 +111,7 @@ public slots:
     void endLivePreview(LivePreviewModificationAction modificationAction) override;
 
     bool exportImage(const QUrl &url);
-    void resize(int width, int height);
+    void resize(int width, int height, bool smooth);
     void crop(const QRect &rect);
     void moveContents(int xDistance, int yDistance, bool onlyVisibleContents);
     void rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int columns, int rows);
@@ -186,7 +190,7 @@ private:
     friend QDebug operator<<(QDebug debug, const LayeredImageProject *project);
 
     // Lowest index == layer with lowest Z order.
-    QVector<ImageLayer*> mLayers;
+    QList<ImageLayer*> mLayers;
     int mCurrentLayerIndex;
     // Give each layer a unique name based on the layers created so far.
     int mLayersCreated;
@@ -195,7 +199,7 @@ private:
     // Only modifications that require dialogs are supported.
     // Modifications that affect anything besides the layer's image (like opacity)
     // are not supported; that would require us to store layers instead.
-    QVector<QImage> mLayerImagesBeforeLivePreview;
+    QList<QImage> mLayerImagesBeforeLivePreview;
 
     bool mAutoExportEnabled;
 

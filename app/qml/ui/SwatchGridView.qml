@@ -17,11 +17,11 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
-import App 1.0
+import App
 
 GridView {
     id: root
@@ -91,10 +91,10 @@ GridView {
             anchors.fill: parent
 //            drag.target: parent
 
-            onClicked: {
-                if (mouse.button === Qt.LeftButton) {
+            onClicked: (mouseEvent) => {
+                if (mouseEvent.button === Qt.LeftButton) {
                     canvas.penForegroundColour = model.colour
-                } else if (mouse.button === Qt.RightButton) {
+                } else if (mouseEvent.button === Qt.RightButton) {
                     swatchContextMenu.rightClickedColourIndex = index
                     swatchContextMenu.rightClickedColourName = model.name
                     swatchContextMenu.x = colourDelegate.x

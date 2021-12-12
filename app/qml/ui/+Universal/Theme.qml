@@ -17,9 +17,21 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick.Controls 2.12
-import QtQuick.Controls.Material 2.0
+pragma Singleton
 
-Button {
-    Material.elevation: 0
+import QtQml
+import QtQuick.Controls.Universal
+
+QtObject {
+    property color focusColour: Universal.accent
+
+    property var toolButtonWidth: 48
+    property var toolButtonHeight: 38
+
+    property color canvasBackgroundColour: "#222"
+    property color splitColour: "#444"
+    property color rulerForegroundColour: Universal.foreground
+    property color rulerBackgroundColour: "#333"
+
+    property color panelColour: "#282828"
 }
