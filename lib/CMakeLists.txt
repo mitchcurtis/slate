@@ -4,6 +4,7 @@ qt_add_qml_module(slate
     VERSION 1.0
     URI "App"
     SOURCES
+        # Just for reading GIFs; see animationGifExport().
         3rdparty/bitmap/bmp.h
         3rdparty/bitmap/bmp.c
         3rdparty/bitmap/misc/gif.h
@@ -102,8 +103,8 @@ qt_add_qml_module(slate
         flipimagecanvasselectioncommand.h
         guide.cpp
         guide.h
-        guidesitem.cpp
-        guidesitem.h
+        guidemodel.cpp
+        guidemodel.h
         imagecanvas.cpp
         imagecanvas.h
         imagelayer.cpp
