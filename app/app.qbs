@@ -33,7 +33,12 @@ QtGuiApplication {
     // https://bugreports.qt.io/browse/QBS-1655
     Properties {
         condition: qbs.targetOS.contains("windows")
-        cpp.driverFlags: ["/Zc:__cplusplus"]
+        cpp.driverFlags: [
+            "/Zc:__cplusplus",
+            // We can remove this when building with C++20
+            // https://codereview.qt-project.org/c/qt/qtbase/+/351686/7//COMMIT_MSG#37
+            "/permissive-"
+        ]
     }
     // https://bugreports.qt.io/browse/QBS-1434
     cpp.minimumMacosVersion: "10.13"
