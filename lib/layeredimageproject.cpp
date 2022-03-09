@@ -81,7 +81,7 @@ int LayeredImageProject::currentLayerIndex() const
 
 void LayeredImageProject::setCurrentLayerIndex(int index, bool force)
 {
-    const int adjustedIndex = qBound(0, index, mLayers.size() - 1);
+    const int adjustedIndex = qBound(0, index, qMax(mLayers.size() - 1, 0));
     if (!force && adjustedIndex == mCurrentLayerIndex)
         return;
 
