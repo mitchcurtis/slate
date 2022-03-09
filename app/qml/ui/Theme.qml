@@ -1,6 +1,6 @@
 pragma Singleton
 
-import QtQml
+import QtQuick
 
 QtObject {
     property color focusColour: "red"

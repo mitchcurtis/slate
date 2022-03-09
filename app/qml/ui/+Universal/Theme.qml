@@ -19,7 +19,7 @@
 
 pragma Singleton
 
-import QtQml
+import QtQuick
 import QtQuick.Controls.Universal
 
 QtObject {
