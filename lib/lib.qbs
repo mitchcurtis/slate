@@ -30,7 +30,7 @@ Product {
         "."
     ]
     // https://bugreports.qt.io/browse/QBS-1434
-    cpp.minimumMacosVersion: "10.13"
+    cpp.minimumMacosVersion: "10.14"
     cpp.visibility: "minimal"
     cpp.defines: [
         "SLATE_LIBRARY"
