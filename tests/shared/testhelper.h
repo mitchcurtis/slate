@@ -61,12 +61,20 @@ class ImageGrabber
 {
 public:
     bool requestImage(QQuickItem *item) {
+        ready = false;
+        if (connection)
+            QObject::disconnect(connection);
+
         result = item->grabToImage();
-        return !result.isNull();
+        if (result.isNull())
+            return false;
+
+        connection = QObject::connect(result.data(), &QQuickItemGrabResult::ready, [this](){ ready = true; });
+        return true;
     }
 
     bool isReady() const {
-        return result && !result->image().isNull();
+        return ready;
     }
 
     QImage takeImage() {
@@ -80,6 +88,8 @@ public:
     }
 
     QSharedPointer<QQuickItemGrabResult> result;
+    QMetaObject::Connection connection;
+    bool ready = false;
 };
 
 class TestHelper : public QObject
