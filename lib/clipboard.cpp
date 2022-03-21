@@ -86,7 +86,7 @@ Clipboard *Clipboard::instance()
     return clipboardInstance();
 }
 
-QObject *Clipboard::qmlInstance(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
+QObject *Clipboard::qmlInstance(QQmlEngine *, QJSEngine *)
 {
     return Clipboard::instance();
 }

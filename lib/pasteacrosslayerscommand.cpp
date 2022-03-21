@@ -58,7 +58,7 @@ bool PasteAcrossLayersCommand::modifiesContents() const
     return true;
 }
 
-QDebug operator<<(QDebug debug, const PasteAcrossLayersCommand *command)
+QDebug operator<<(QDebug debug, const PasteAcrossLayersCommand *)
 {
     debug.nospace() << "(PasteAcrossLayersCommand)";
     return debug.space();

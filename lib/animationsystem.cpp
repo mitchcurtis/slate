@@ -19,6 +19,8 @@
 
 #include "animationsystem.h"
 
+#include <memory>
+
 #include <QDebug>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -255,7 +257,7 @@ void AnimationSystem::read(const QJsonObject &json)
     // Pre-0.10.0 projects don't support multiple animations, so we
     // create an animation for them (and then later save it using the new format).
     if (json.contains("fps")) {
-        QScopedPointer<Animation> animation(new Animation);
+        std::unique_ptr<Animation> animation(new Animation);
         animation->setName(takeNextGeneratedName());
         animation->setFps(json.value(QLatin1String("fps")).toInt());
         animation->setFrameCount(json.value(QLatin1String("frameCount")).toInt());
@@ -264,7 +266,7 @@ void AnimationSystem::read(const QJsonObject &json)
         animation->setFrameWidth(json.value(QLatin1String("frameWidth")).toInt());
         animation->setFrameHeight(json.value(QLatin1String("frameHeight")).toInt());
 
-        addAnimation(animation.take(), 0);
+        addAnimation(animation.release(), 0);
 
         mCurrentAnimationPlayback.setScale(json.value(QLatin1String("scale")).toDouble());
         mCurrentAnimationPlayback.setLoop(json.value(QLatin1String("loop")).toBool());
@@ -273,9 +275,9 @@ void AnimationSystem::read(const QJsonObject &json)
         QJsonArray animationArray = json.value("animations").toArray();
         for (int i = 0; i < animationArray.size(); ++i) {
             QJsonObject layerObject = animationArray.at(i).toObject();
-            QScopedPointer<Animation> animation(new Animation(this));
+            std::unique_ptr<Animation> animation(new Animation(this));
             animation->read(layerObject);
-            mAnimations.append(animation.take());
+            mAnimations.append(animation.release());
         }
 
         mCurrentAnimationPlayback.read(json.value("currentAnimationPlayback").toObject());

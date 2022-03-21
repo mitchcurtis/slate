@@ -20,8 +20,9 @@
 #ifndef DELETEANIMATIONCOMMAND_H
 #define DELETEANIMATIONCOMMAND_H
 
+#include <memory>
+
 #include <QDebug>
-#include <QScopedPointer>
 #include <QSize>
 
 #include "slate-global.h"
@@ -45,7 +46,7 @@ private:
 
     AnimationSystem *mAnimationSystem = nullptr;
     int mIndex = -1;
-    QScopedPointer<Animation> mAnimationGuard;
+    std::unique_ptr<Animation> mAnimationGuard;
 };
 
 

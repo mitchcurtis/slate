@@ -37,7 +37,7 @@ DeleteAnimationCommand::DeleteAnimationCommand(AnimationSystem *animationSystem,
 void DeleteAnimationCommand::undo()
 {
     qCDebug(lcDeleteAnimationCommand) << "undoing" << this;
-    mAnimationSystem->addAnimation(mAnimationGuard.take(), mIndex);
+    mAnimationSystem->addAnimation(mAnimationGuard.release(), mIndex);
 }
 
 void DeleteAnimationCommand::redo()
@@ -59,6 +59,6 @@ QDebug operator<<(QDebug debug, const DeleteAnimationCommand *command)
 
     debug.nospace() << "(DeleteAnimationCommand index=" << command->mIndex
         << " index= " << command->mIndex
-        << " animation=" << command->mAnimationGuard.data() << ")";
+        << " animation=" << command->mAnimationGuard.get() << ")";
     return debug;
 }
