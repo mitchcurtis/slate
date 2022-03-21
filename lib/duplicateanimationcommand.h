@@ -20,6 +20,8 @@
 #ifndef DUPLICATEANIMATIONCOMMAND_H
 #define DUPLICATEANIMATIONCOMMAND_H
 
+#include <memory>
+
 #include <QDebug>
 #include <QSize>
 #include <QUndoCommand>
@@ -50,7 +52,7 @@ private:
     int mTargetIndex = -1;
     // The index we want the duplicate to have.
     int mDuplicateIndex = -1;
-    QScopedPointer<Animation> mAnimationGuard;
+    std::unique_ptr<Animation> mAnimationGuard;
 };
 
 

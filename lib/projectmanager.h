@@ -20,8 +20,9 @@
 #ifndef PROJECTMANAGER_H
 #define PROJECTMANAGER_H
 
+#include <memory>
+
 #include <QObject>
-#include <QScopedPointer>
 
 #include "project.h"
 #include "slate-global.h"
@@ -74,9 +75,9 @@ private slots:
 private:
     Q_DISABLE_COPY(ProjectManager)
 
-    QScopedPointer<Project> mProject;
+    std::unique_ptr<Project> mProject;
 
-    QScopedPointer<Project> mTemporaryProject;
+    std::unique_ptr<Project> mTemporaryProject;
     bool mProjectCreationFailed;
 
     ApplicationSettings *mSettings;

@@ -76,9 +76,7 @@ template<typename T>
 
         for (QQuickItem *child : childItems) {
             auto childAsT = qobject_cast<T>(child);
-            bool found = false;
             if (childAsT && (objectName.isEmpty() || child->objectName() == objectName)) {
-                found = true;
                 childItemsFound.append(childAsT);
             }
 

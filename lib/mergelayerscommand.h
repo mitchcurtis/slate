@@ -20,9 +20,10 @@
 #ifndef MERGELAYERSCOMMAND_H
 #define MERGELAYERSCOMMAND_H
 
+#include <memory>
+
 #include <QDebug>
 #include <QImage>
-#include <QScopedPointer>
 
 #include "slate-global.h"
 #include "undocommand.h"
@@ -50,7 +51,7 @@ private:
     LayeredImageProject *mProject;
     int mSourceIndex;
     ImageLayer *mSourceLayer;
-    QScopedPointer<ImageLayer> mSourceLayerGuard;
+    std::unique_ptr<ImageLayer> mSourceLayerGuard;
     int mTargetIndex;
     ImageLayer *mTargetLayer;
     QImage mPreviousTargetLayerImage;

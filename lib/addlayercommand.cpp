@@ -42,14 +42,14 @@ void AddLayerCommand::undo()
     mProject->takeLayer(mIndex);
 
     // Prevent leaks.
-    Q_ASSERT(mLayerGuard.isNull());
+    Q_ASSERT(!mLayerGuard.get());
     mLayerGuard.reset(mLayer);
 }
 
 void AddLayerCommand::redo()
 {
     qCDebug(lcAddLayerCommand) << "redoing" << this;
-    mProject->addLayer(mLayerGuard.take(), mIndex);
+    mProject->addLayer(mLayerGuard.release(), mIndex);
 }
 
 int AddLayerCommand::id() const

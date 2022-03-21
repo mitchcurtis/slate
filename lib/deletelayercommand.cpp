@@ -38,7 +38,7 @@ DeleteLayerCommand::DeleteLayerCommand(LayeredImageProject *project, int index, 
 void DeleteLayerCommand::undo()
 {
     qCDebug(lcDeleteLayerCommand) << "undoing" << this;
-    mProject->addLayer(mLayerGuard.take(), mIndex);
+    mProject->addLayer(mLayerGuard.release(), mIndex);
     // If it was deleted, it was also current, as layers can't be deleted without being current.
     mProject->setCurrentLayerIndex(mIndex);
 }

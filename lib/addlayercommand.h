@@ -20,8 +20,9 @@
 #ifndef ADDLAYERCOMMAND_H
 #define ADDLAYERCOMMAND_H
 
+#include <memory>
+
 #include <QDebug>
-#include <QScopedPointer>
 
 #include "slate-global.h"
 #include "undocommand.h"
@@ -47,7 +48,7 @@ private:
     LayeredImageProject *mProject;
     int mIndex;
     ImageLayer *mLayer;
-    QScopedPointer<ImageLayer> mLayerGuard;
+    std::unique_ptr<ImageLayer> mLayerGuard;
 };
 
 

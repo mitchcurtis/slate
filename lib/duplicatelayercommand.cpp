@@ -49,7 +49,7 @@ void DuplicateLayerCommand::undo()
 void DuplicateLayerCommand::redo()
 {
     qCDebug(lcDuplicateLayerCommand) << "redoing" << this;
-    mProject->addLayer(mLayerGuard.take(), mLayerIndex);
+    mProject->addLayer(mLayerGuard.release(), mLayerIndex);
     mProject->setCurrentLayerIndex(mLayerIndex);
 }
 

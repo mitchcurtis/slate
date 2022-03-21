@@ -20,9 +20,10 @@
 #ifndef DUPLICATELAYERCOMMAND_H
 #define DUPLICATELAYERCOMMAND_H
 
+#include <memory>
+
 #include <QDebug>
 #include <QImage>
-#include <QScopedPointer>
 
 #include "slate-global.h"
 #include "undocommand.h"
@@ -49,7 +50,7 @@ private:
     LayeredImageProject *mProject;
     int mLayerIndex;
     ImageLayer *mLayer;
-    QScopedPointer<ImageLayer> mLayerGuard;
+    std::unique_ptr<ImageLayer> mLayerGuard;
     int mPreviousCurrentLayerIndex;
 };
 

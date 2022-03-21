@@ -58,7 +58,7 @@ void DuplicateAnimationCommand::redo()
 {
     qCDebug(lcDuplicateAnimationCommand) << "redoing" << this;
 
-    mAnimationSystem->addAnimation(mAnimationGuard.take(), mDuplicateIndex);
+    mAnimationSystem->addAnimation(mAnimationGuard.release(), mDuplicateIndex);
 }
 
 int DuplicateAnimationCommand::id() const

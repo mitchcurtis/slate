@@ -1246,7 +1246,7 @@ Ruler *ImageCanvas::rulerAtCursorPos()
     QPointF cursorPos = QPointF(mCursorX, mCursorY);
     Ruler *rulerAtCursor = nullptr;
 
-    for (const auto ruler : qAsConst(mRulers)) {
+    for (const auto &ruler : qAsConst(mRulers)) {
         if (ruler->contains(mapToItem(ruler, cursorPos))) {
             rulerAtCursor = ruler;
             break;
@@ -2572,8 +2572,6 @@ void ImageCanvas::updateCursorPos(const QPoint &eventPos)
     mCursorSceneFX = qreal(mCursorPaneX - mCurrentPane->integerOffset().x()) / mCurrentPane->integerZoomLevel();
     mCursorSceneFY = qreal(mCursorPaneY - mCurrentPane->integerOffset().y()) / mCurrentPane->integerZoomLevel();
 
-    const int oldCursorSceneX = mCursorSceneX;
-    const int oldCursorSceneY = mCursorSceneY;
     setCursorScenePos(QPoint(mCursorSceneFX, mCursorSceneFY));
 
     if (!isCursorWithinProjectBounds()

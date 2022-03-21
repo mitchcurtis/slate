@@ -267,7 +267,7 @@ void TestHelper::wheelEvent(QQuickItem *item, const QPoint &localPos, const int 
         Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
     QSpontaneKeyEvent::setSpontaneous(&wheelEvent);
     if (!qApp->notify(item->window(), &wheelEvent))
-        QTest::qWarn("Wheel event not accepted by receiving window");
+        qWarning("Wheel event not accepted by receiving window");
 }
 
 void TestHelper::keyClicks(const QString &text)

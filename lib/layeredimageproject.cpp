@@ -19,6 +19,8 @@
 
 #include "layeredimageproject.h"
 
+#include <memory>
+
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QPainter>
@@ -776,7 +778,7 @@ void LayeredImageProject::resize(int width, int height, bool smooth)
     newImages.reserve(mLayers.size());
 
     for (const QImage &originalLayerImage : qAsConst(mLayerImagesBeforeLivePreview)) {
-        const QImage resized = originalLayerImage.scaled(newSize, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+        const QImage resized = ImageUtils::resizeContents(originalLayerImage, newSize, smooth);
         newImages.append(resized);
     }
 
@@ -1080,20 +1082,20 @@ void LayeredImageProject::addNewLayer(int imageWidth, int imageHeight, bool tran
 {
     QImage emptyImage = ImageUtils::filledImage(imageWidth, imageHeight, transparent ? Qt::transparent : Qt::white);
 
-    QScopedPointer<ImageLayer> imageLayer(new ImageLayer(nullptr, emptyImage));
+    std::unique_ptr<ImageLayer> imageLayer(new ImageLayer(nullptr, emptyImage));
     imageLayer->setName(QString::fromLatin1("Layer %1").arg(++mLayersCreated));
 
     const int layerIndex = mCurrentLayerIndex;
 
     if (undoable) {
         beginMacro(QLatin1String("AddLayerCommand"));
-        addChange(new AddLayerCommand(this, imageLayer.data(), layerIndex));
+        addChange(new AddLayerCommand(this, imageLayer.get(), layerIndex));
         endMacro();
     } else {
-        addLayer(imageLayer.data(), layerIndex);
+        addLayer(imageLayer.get(), layerIndex);
     }
 
-    imageLayer.take();
+    imageLayer.release();
 }
 
 void LayeredImageProject::addLayerAboveAll(ImageLayer *imageLayer)

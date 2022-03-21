@@ -45,12 +45,12 @@ ProjectManager::~ProjectManager()
 
 Project *ProjectManager::project() const
 {
-    return mProject.data();
+    return mProject.get();
 }
 
 Project *ProjectManager::temporaryProject() const
 {
-    return mTemporaryProject.data();
+    return mTemporaryProject.get();
 }
 
 ApplicationSettings *ProjectManager::applicationSettings() const
@@ -103,9 +103,9 @@ void ProjectManager::beginCreation(Project::Type projectType)
         mTemporaryProject.reset(new LayeredImageProject);
     }
 
-    qCDebug(lcProjectManager) << "beginning creation of" << mTemporaryProject->typeString() << "project (" << mTemporaryProject.data() << ")";
+    qCDebug(lcProjectManager) << "beginning creation of" << mTemporaryProject->typeString() << "project (" << mTemporaryProject.get() << ")";
 
-    connect(mTemporaryProject.data(), &Project::errorOccurred, this, &ProjectManager::onCreationFailed);
+    connect(mTemporaryProject.get(), &Project::errorOccurred, this, &ProjectManager::onCreationFailed);
 
     emit temporaryProjectChanged();
 }
@@ -123,7 +123,7 @@ bool ProjectManager::completeCreation()
     }
 
     if (mProject) {
-        disconnect(mProject.data(), &Project::urlChanged, this, &ProjectManager::projectUrlChanged);
+        disconnect(mProject.get(), &Project::urlChanged, this, &ProjectManager::projectUrlChanged);
     }
 
     QUrl oldProjectUrl;
@@ -133,7 +133,7 @@ bool ProjectManager::completeCreation()
 
         oldProjectUrl = mProject->url();
 
-        QScopedPointer<Project> connectionGuard;
+        std::unique_ptr<Project> connectionGuard;
         mProject.swap(connectionGuard);
 
         // By emitting readyChanged here, we prevent some QML
@@ -172,7 +172,7 @@ bool ProjectManager::completeCreation()
         // logical place than ImageCanvas, which does need it (for events). For that reason, it's OK to set it so late.
         mProject->setSettings(mSettings);
 
-        connect(mProject.data(), &Project::urlChanged, this, &ProjectManager::projectUrlChanged);
+        connect(mProject.get(), &Project::urlChanged, this, &ProjectManager::projectUrlChanged);
 
         if (mProject->url() != oldProjectUrl)
             projectUrlChanged();
