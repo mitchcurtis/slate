@@ -47,7 +47,7 @@ Product {
         }
 
         cpp.includePaths: [
-            product.sourceDirectory
+            exportingProduct.sourceDirectory
         ]
     }
 
