@@ -41,7 +41,11 @@ Group {
             "ui/Guide.qml",
             "ui/HexColourRowLayout.qml",
             "ui/HorizontalGradientRectangle.qml",
+            "ui/HslHueSlider.qml",
+            "ui/HslLightnessSlider.qml",
+            "ui/HslSaturationSlider.qml",
             "ui/HslSimplePicker.qml",
+            "ui/HslSlider.qml",
             "ui/HueGradient.qml",
             "ui/HueSaturationDialog.qml",
             "ui/HueSlider.qml",
@@ -104,6 +108,9 @@ Group {
             fileTags: ["qt.qml.qml", "qt.core.resource_data"]
             files: [
                 "ui/+Material/DialogButton.qml",
+                "ui/+Material/HslHueSlider.qml",
+                "ui/+Material/HslLightnessSlider.qml",
+                "ui/+Material/HslSaturationSlider.qml",
                 "ui/+Material/IconRectangle.qml",
                 "ui/+Material/SwatchFocusRectangle.qml",
                 "ui/+Material/Theme.qml",

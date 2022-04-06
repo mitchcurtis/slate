@@ -113,41 +113,19 @@ Dialog {
             // selection only on user interaction instead feels nicer.
             onValueModified: modifySelectionHsl()
         }
-        Slider {
+        HslHueSlider {
             id: hueSlider
             objectName: root.objectName + "HueSlider"
-            from: -1
-            to: 1
             value: hslHue
             stepSize: sliderStepSize
-            leftPadding: 0
-            rightPadding: 0
-
-            Layout.columnSpan: 2
-            Layout.topMargin: -bottomPadding
 
             ToolTip.text: qsTr("Changes the hue of the image")
-            ToolTip.visible: hovered
-            ToolTip.delay: UiConstants.toolTipDelay
-            ToolTip.timeout: UiConstants.toolTipTimeout
 
             Keys.onReturnPressed: root.accept()
 
             onMoved: {
                 hslHue = value
                 modifySelectionHsl()
-            }
-
-            background: Item {
-                // Default Material values.
-                implicitWidth: 200
-                implicitHeight: 48
-
-                HorizontalGradientRectangle {
-                    width: parent.width
-                    gradient: HueGradient {}
-                    anchors.verticalCenter: parent.verticalCenter
-                }
             }
         }
 
@@ -169,50 +147,19 @@ Dialog {
 
             onValueModified: modifySelectionHsl()
         }
-        Slider {
+        HslSaturationSlider {
             id: saturationSlider
             objectName: root.objectName + "SaturationSlider"
-            from: -1
-            to: 1
             value: hslSaturation
             stepSize: sliderStepSize
-            leftPadding: 0
-            rightPadding: 0
-
-            Layout.columnSpan: 2
-            Layout.topMargin: -bottomPadding
 
             ToolTip.text: qsTr("Changes the saturation of the image")
-            ToolTip.visible: hovered
-            ToolTip.delay: UiConstants.toolTipDelay
-            ToolTip.timeout: UiConstants.toolTipTimeout
 
             Keys.onReturnPressed: root.accept()
 
             onMoved: {
                 hslSaturation = value
                 modifySelectionHsl()
-            }
-
-            background: Item {
-                // Default Material values.
-                implicitWidth: 200
-                implicitHeight: 48
-
-                HorizontalGradientRectangle {
-                    width: parent.width
-                    gradient: Gradient {
-                        GradientStop {
-                            position: 0
-                            color: "grey"
-                        }
-                        GradientStop {
-                            position: 1
-                            color: "red"
-                        }
-                    }
-                    anchors.verticalCenter: parent.verticalCenter
-                }
             }
         }
 
@@ -234,50 +181,19 @@ Dialog {
 
             onValueModified: modifySelectionHsl()
         }
-        Slider {
+        HslLightnessSlider {
             id: lightnessSlider
             objectName: root.objectName + "LightnessSlider"
-            from: -1
-            to: 1
             value: hslLightness
             stepSize: sliderStepSize
-            leftPadding: 0
-            rightPadding: 0
-
-            Layout.columnSpan: 2
-            Layout.topMargin: -bottomPadding
 
             ToolTip.text: qsTr("Changes the lightness of the image")
-            ToolTip.visible: hovered
-            ToolTip.delay: UiConstants.toolTipDelay
-            ToolTip.timeout: UiConstants.toolTipTimeout
 
             Keys.onReturnPressed: root.accept()
 
             onMoved: {
                 hslLightness = value
                 modifySelectionHsl()
-            }
-
-            background: Item {
-                // Default Material values.
-                implicitWidth: 200
-                implicitHeight: 48
-
-                HorizontalGradientRectangle {
-                    width: parent.width
-                    gradient: Gradient {
-                        GradientStop {
-                            position: 0
-                            color: "black"
-                        }
-                        GradientStop {
-                            position: 1
-                            color: "white"
-                        }
-                    }
-                    anchors.verticalCenter: parent.verticalCenter
-                }
             }
         }
     }
