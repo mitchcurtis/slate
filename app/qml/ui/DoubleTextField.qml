@@ -26,8 +26,6 @@ TextField {
         bottom: -1.0
         top: 1.0
     }
-    // https://bugreports.qt.io/browse/QTBUG-71907
-    background.width: width
 
     property QtObject propertySource
     property string propertyName
