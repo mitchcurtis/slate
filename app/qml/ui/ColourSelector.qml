@@ -38,6 +38,8 @@ Item {
         id: penForegroundColourToolButton
         objectName: "penForegroundColourButton"
         color: canvas ? canvas.penForegroundColour : "black"
+        // Account for the SwatchFocusRectangle being beyond the colourPanel Flickable's clipping boundary.
+        x: 1
         width: parent.width / 2
         height: width
         checked: true
