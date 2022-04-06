@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-Button {
+AbstractButton {
     id: control
     checkable: true
     hoverEnabled: true
