@@ -8,6 +8,10 @@ Popup {
     modal: true
     dim: false
     focus: true
+    // Some styles have quite a small slider by default, which makes it harder
+    // to be precise when selecting a value (which also affects tests,
+    // specifically TestHelper::changeToolSize).
+    width: 240
 
     property ImageCanvas canvas
 
@@ -25,8 +29,6 @@ Popup {
             property: "value"
             value: canvas ? canvas.toolSize : 1
             when: canvas
-            // TODO: remove in Qt 6
-            restoreMode: Binding.RestoreBindingOrValue
         }
 
         ToolTip {

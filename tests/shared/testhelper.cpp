@@ -799,7 +799,7 @@ bool TestHelper::changeToolSize(int size)
     --sliderHandlePos.rx();
     QTest::mouseRelease(toolSizeSlider->window(), Qt::LeftButton, Qt::NoModifier, sliderHandlePos);
     VERIFY(toolSizeSlider->property("pressed").toBool() == false);
-    VERIFY(sliderValue(toolSizeSlider) == size);
+    COMPARE_NON_FLOAT(sliderValue(toolSizeSlider), size);
 
     // Close the popup.
     QTest::keyClick(window, Qt::Key_Escape);
