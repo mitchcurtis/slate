@@ -38,8 +38,6 @@ Dialog {
 
     property real hslAlpha
 
-    readonly property real sliderStepSize: 0.001
-
     TextMetrics {
         id: valueTextMetrics
         font: opacityTextField.font
@@ -85,15 +83,13 @@ Dialog {
 
             Layout.fillWidth: true
         }
-        Slider {
+        OpacitySlider {
             id: opacitySlider
             objectName: root.objectName + "OpacitySlider"
             from: -1
-            to: 1
             value: hslAlpha
-            stepSize: sliderStepSize
-            leftPadding: 0
-            rightPadding: 0
+            to: 1
+            stepSize: 0.001
 
             ToolTip.text: qsTr("Changes the opacity of the image")
             ToolTip.visible: hovered
@@ -105,27 +101,6 @@ Dialog {
             onMoved: {
                 hslAlpha = value
                 modifySelectionHsl()
-            }
-
-            background: Item {
-                // Default Material values.
-                implicitWidth: 200
-                implicitHeight: 48
-
-                HorizontalGradientRectangle {
-                    width: parent.width
-                    gradient: Gradient {
-                        GradientStop {
-                            position: 0
-                            color: "transparent"
-                        }
-                        GradientStop {
-                            position: 1
-                            color: Ui.Theme.focusColour
-                        }
-                    }
-                    anchors.verticalCenter: parent.verticalCenter
-                }
             }
         }
         DoubleTextField {

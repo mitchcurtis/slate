@@ -27,15 +27,34 @@ import App
 import "." as Ui
 
 ItemDelegate {
+    id: root
     objectName: model.layer.name
     checkable: true
     checked: project && project.currentLayerIndex === index
-    implicitHeight: Math.max(implicitBackgroundHeight,
-        Math.max(visibilityCheckBox.implicitHeight, layerNameTextField.implicitHeight) + topPadding + bottomPadding)
     leftPadding: visibilityCheckBox.width + 18
-    topPadding: 0
-    bottomPadding: 0
     focusPolicy: Qt.NoFocus
+
+    Binding {
+        target: root
+        property: "topPadding"
+        value: 0
+        when: Ui.Theme.styleName === "Material"
+    }
+
+    Binding {
+        target: root
+        property: "bottomPadding"
+        value: 0
+        when: Ui.Theme.styleName === "Material"
+    }
+
+    Binding {
+        target: root
+        property: "implicitHeight"
+        value: Math.max(implicitBackgroundHeight,
+            Math.max(visibilityCheckBox.implicitHeight, layerNameTextField.implicitHeight) + topPadding + bottomPadding)
+        when: Ui.Theme.styleName === "Material"
+    }
 
     onClicked: project.currentLayerIndex = index
     onDoubleClicked: layerNameTextField.forceActiveFocus()
@@ -67,7 +86,7 @@ ItemDelegate {
         anchors.right: parent.right
         anchors.rightMargin: parent.rightPadding
         anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: 6
+        anchors.verticalCenterOffset: Ui.Theme.styleName === "Material" ? 6 : 0
         background.visible: false
         font.pixelSize: 12
         visible: false

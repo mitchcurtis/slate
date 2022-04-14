@@ -23,6 +23,8 @@ import QtQuick
 import QtQuick.Controls.Material
 
 QtObject {
+    property string styleName: "Material"
+
     property color focusColour: Material.accent
 
     property var toolButtonWidth: undefined

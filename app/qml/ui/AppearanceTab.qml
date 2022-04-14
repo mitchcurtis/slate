@@ -4,6 +4,8 @@ import QtQuick.Controls 2.12
 // TODO: remove in Qt 6
 import QtQml 2.15
 
+import "." as Ui
+
 ColumnLayout {
     function applyChangesToSettings() {
         settings.language = languageComboBox.currentValue
@@ -48,7 +50,6 @@ ColumnLayout {
             ComboBox {
                 id: languageComboBox
                 objectName: "languageComboBox"
-                leftPadding: 0
                 textRole: "display"
                 valueRole: "value"
 
@@ -115,8 +116,6 @@ ColumnLayout {
             RowLayout {
                 spacing: 8
 
-                Layout.alignment: Qt.AlignHCenter
-
                 TextMetrics {
                     id: colourInputFontMetrics
                     // '.' is never part of the text, but it gives us some wiggle room.
@@ -172,8 +171,8 @@ ColumnLayout {
             }
             CheckBox {
                 id: showFpsCheckBox
-                leftPadding: 0
                 checked: settings.fpsVisible
+                leftPadding: 0
             }
 
             Label {

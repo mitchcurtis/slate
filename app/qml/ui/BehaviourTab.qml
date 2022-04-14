@@ -102,7 +102,6 @@ ColumnLayout {
             ComboBox {
                 id: penToolRightClickBehaviourComboBox
                 objectName: "penToolRightClickBehaviourComboBox"
-                leftPadding: 0
                 textRole: "display"
                 valueRole: "value"
 

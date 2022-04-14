@@ -1,5 +1,5 @@
 /*
-    Copyright 2020, Mitch Curtis
+    Copyright 2022, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,25 +17,6 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-pragma Singleton
+import QtQuick.Controls
 
-import QtQml
-import QtQuick.Controls.Material
-
-QtObject {
-    property string styleName: "Imagine"
-
-    property color focusColour: "white"
-
-    property var toolButtonWidth: undefined
-    property var toolButtonHeight: undefined
-
-    property color canvasBackgroundColour: "#ddd"
-    property color splitColour: "#4fc1e9"
-    property color rulerForegroundColour: "white"
-    property color rulerBackgroundColour: Qt.darker(_imagineColour, 1.12)
-
-    property color panelColour: Qt.darker(_imagineColour, 1.12)
-
-    property color _imagineColour: "#4fc1e9"
-}
+Slider {}

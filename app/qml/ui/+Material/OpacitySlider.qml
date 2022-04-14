@@ -1,5 +1,5 @@
 /*
-    Copyright 2020, Mitch Curtis
+    Copyright 2022, Mitch Curtis
 
     This file is part of Slate.
 
@@ -17,23 +17,31 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
-pragma Singleton
-
 import QtQuick
-import QtQuick.Controls.Universal
+import QtQuick.Controls
 
-QtObject {
-    property string styleName: "Universal"
+Slider {
+    id: root
 
-    property color focusColour: Universal.accent
+    background: Item {
+        objectName: root.objectName + "Background"
+        // Default Material values.
+        implicitWidth: 200
+        implicitHeight: 48
 
-    property var toolButtonWidth: 48
-    property var toolButtonHeight: 38
-
-    property color canvasBackgroundColour: "#222"
-    property color splitColour: "#444"
-    property color rulerForegroundColour: Universal.foreground
-    property color rulerBackgroundColour: "#333"
-
-    property color panelColour: "#282828"
+        HorizontalGradientRectangle {
+            width: parent.width
+            gradient: Gradient {
+                GradientStop {
+                    position: 0
+                    color: "transparent"
+                }
+                GradientStop {
+                    position: 1
+                    color: Theme.focusColour
+                }
+            }
+            anchors.verticalCenter: parent.verticalCenter
+        }
+    }
 }

@@ -55,7 +55,7 @@ Page {
             font.family: "FontAwesome"
             focusPolicy: Qt.NoFocus
 
-            Layout.leftMargin: -8
+            Layout.leftMargin: Ui.Theme.styleName === "Material" ? -8 : undefined
             Layout.preferredWidth: implicitHeight
 
             onClicked: expanded = !expanded
