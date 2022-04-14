@@ -8,6 +8,7 @@ QtGuiApplication {
     Depends { name: "Qt.core" }
     Depends { name: "Qt.qmltest" }
     Depends { name: "Qt.quick" }
+    Depends { name: "Qt.quickcontrols2" }
     Depends { name: "Qt.test" }
     Depends { name: "Qt.widgets" }
     Depends { name: "lib" }

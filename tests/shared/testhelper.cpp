@@ -23,6 +23,7 @@
 #include <QPainter>
 #include <QPair>
 #include <QLoggingCategory>
+#include <QQuickStyle>
 #include <QtQuickTest>
 
 #include "clipboard.h"
@@ -35,6 +36,8 @@
 Q_LOGGING_CATEGORY(lcTestHelper, "tests.testHelper")
 Q_LOGGING_CATEGORY(lcFindListViewChild, "tests.testHelper.findListViewChild")
 Q_LOGGING_CATEGORY(lcFindPopupFromTypeName, "tests.testHelper.findPopupFromTypeName")
+
+static const char *macOSStyleName = "macOS";
 
 TestHelper::TestHelper(int &argc, char **argv) :
     app(argc, argv, QStringLiteral("Slate Test Suite")),
@@ -399,8 +402,11 @@ bool TestHelper::incrementSpinBox(const QString &spinBoxObjectName, int expected
     VERIFY2(oldValue == expectedInitialValue, qPrintable(QString::fromLatin1(
         "Expected initial value to be %1, but it's %2").arg(expectedInitialValue).arg(oldValue)));
 
-    mouseEvent(spinBox, QPoint(spinBox->width() - 10, spinBox->height() / 2), MouseClick);
-    VERIFY(spinBox->property("value").toInt() == expectedInitialValue + 1);
+    if (QQuickStyle::name() == macOSStyleName)
+        mouseEvent(spinBox, QPoint(spinBox->width() - 10, 4), MouseClick);
+    else
+        mouseEvent(spinBox, QPoint(spinBox->width() - 10, spinBox->height() / 2), MouseClick);
+    COMPARE_NON_FLOAT(spinBox->property("value").toInt(), expectedInitialValue + 1);
     return true;
 }
 
@@ -414,7 +420,10 @@ bool TestHelper::decrementSpinBox(const QString &spinBoxObjectName, int expected
     VERIFY2(oldValue == expectedInitialValue, qPrintable(QString::fromLatin1(
         "Expected initial value to be %1, but it's %2").arg(expectedInitialValue).arg(oldValue)));
 
-    mouseEvent(spinBox, QPoint(10, spinBox->height() / 2), MouseClick);
+    if (QQuickStyle::name() == macOSStyleName)
+        mouseEvent(spinBox, QPoint(spinBox->width() - 10, spinBox->height() - 4), MouseClick);
+    else
+        mouseEvent(spinBox, QPoint(10, spinBox->height() / 2), MouseClick);
     VERIFY(spinBox->property("value").toInt() == expectedInitialValue - 1);
     return true;
 }
