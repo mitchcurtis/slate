@@ -131,11 +131,13 @@ Pane {
             implicitWidth: 16
             implicitHeight: 1
             visible: canvas && canvas.lineVisible
+            color: lineLengthLabel.color
 
             Rectangle {
                 y: -1
                 width: 1
                 height: 3
+                color: lineLengthLabel.color
             }
 
             Rectangle {
@@ -143,6 +145,7 @@ Pane {
                 width: 1
                 height: 3
                 anchors.right: parent.right
+                color: lineLengthLabel.color
             }
         }
         Label {
