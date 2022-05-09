@@ -93,5 +93,10 @@
         <file>ui/ZoomIndicator.qml</file>
         <file>ui/qmldir</file>
         <file>ui/shaders/SaturationLightness.frag.qsb</file>
+        <file>ui/HslSlider.qml</file>
+        <file>ui/HslLightnessSlider.qml</file>
+        <file>ui/HslHueSlider.qml</file>
+        <file>ui/HslSaturationSlider.qml</file>
+        <file>ui/OpacitySlider.qml</file>
     </qresource>
 </RCC>

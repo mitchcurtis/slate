@@ -26,6 +26,7 @@ find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Gui)
 find_package(Qt6 COMPONENTS Qml)
 find_package(Qt6 COMPONENTS Quick)
+find_package(Qt6 COMPONENTS QuickControls2)
 find_package(Qt6 COMPONENTS QuickTest)
 
 target_link_libraries(
@@ -35,6 +36,7 @@ target_link_libraries(
     projectWarning
     Qt::Core
     Qt::Quick
+    Qt::QuickControls2
     Qt::QuickTest
     Qt::Test
     Qt::Widgets
