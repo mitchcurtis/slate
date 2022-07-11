@@ -86,10 +86,4 @@ do { \
 
 #define TRY_VERIFY2(expr, messageExpression) TRY_VERIFY2_WITH_TIMEOUT((expr), (messageExpression), 1000)
 
-#define ENSURE_ACTIVE_FOCUS(object) \
-if (!object->property("activeFocus").toBool()) { \
-    failureMessage = qPrintable(QString::fromLatin1("Expected %1 to have active focus, but %2 has it") \
-        .arg(object->objectName()).arg(window->activeFocusItem()->objectName())); \
-}
-
 #endif // TESTUTILS_H

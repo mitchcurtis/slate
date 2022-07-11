@@ -125,41 +125,41 @@ protected:
         MouseDoubleClick
     };
     void mouseEventOnCentre(QQuickItem *item, TestMouseEventType eventType, Qt::MouseButton button = Qt::LeftButton);
-    void mouseEvent(QQuickItem *item, const QPointF &localPos, TestMouseEventType eventType,
-        Qt::MouseButton button = Qt::LeftButton, Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(), int delay = -1);
-    void wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees);
-    void keyClicks(const QString &text);
+//    void mouseEvent(QQuickItem *item, const QPointF &localPos, TestMouseEventType eventType,
+//        Qt::MouseButton button = Qt::LeftButton, Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(), int delay = -1);
+//    void wheelEvent(QQuickItem *item, const QPoint &localPos, const int degrees);
+//    void keyClicks(const QString &text);
     inline int lerpSteps(int steps) { return steps; }
-    void lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs = 1, int steps = -1);
-    // Same as lerpMouseMove but lets it finish early upon some condition.
-    void lerpMouseMoveUntil(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs = 1, int steps = -1,
-        const std::function<bool(void)> &untilFunc = nullptr);
+//    void lerpMouseMove(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs = 1, int steps = -1);
+//    // Same as lerpMouseMove but lets it finish early upon some condition.
+//    void lerpMouseMoveUntil(const QPoint &fromScenePos, const QPoint &toScenePos, int delayInMs = 1, int steps = -1,
+//        const std::function<bool(void)> &untilFunc = nullptr);
 
-    Q_REQUIRED_RESULT QByteArray activeFocusFailureMessage(QQuickItem *item, const QString &when = QString());
-    Q_REQUIRED_RESULT bool enterText(QQuickItem *textField, const QString &text,
-        EnterTextFlags flags = EnterTextFlag::ClearTextFirst);
-    Q_REQUIRED_RESULT bool selectComboBoxItem(const QString &comboBoxObjectName, int index);
-    Q_REQUIRED_RESULT bool enterTextIntoEditableSpinBox(QQuickItem *spinBox, const QString &text);
-    Q_REQUIRED_RESULT bool incrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
-    Q_REQUIRED_RESULT bool decrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
-    Q_REQUIRED_RESULT bool setCheckBoxChecked(const QString &checkBoxObjectName, bool checked);
-    Q_REQUIRED_RESULT bool clickDialogFooterButton(const QObject *dialog, const QString &buttonText);
+    Q_REQUIRED_RESULT QByteArray activeFocusFailureMessage(const QObject *object, const QString &when = QString());
+//    Q_REQUIRED_RESULT bool enterText(QQuickItem *textField, const QString &text,
+//        EnterTextFlags flags = EnterTextFlag::ClearTextFirst);
+//    Q_REQUIRED_RESULT bool selectComboBoxItem(const QString &comboBoxObjectName, int index);
+//    Q_REQUIRED_RESULT bool enterTextIntoEditableSpinBox(QQuickItem *spinBox, const QString &text);
+//    Q_REQUIRED_RESULT bool incrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
+//    Q_REQUIRED_RESULT bool decrementSpinBox(const QString &spinBoxObjectName, int expectedInitialValue);
+//    Q_REQUIRED_RESULT bool setCheckBoxChecked(const QString &checkBoxObjectName, bool checked);
+//    Q_REQUIRED_RESULT bool clickDialogFooterButton(const QObject *dialog, const QString &buttonText);
 
-    static QString detailedObjectName(QObject *object);
+    static QString detailedObjectName(const QObject *object);
 
-    Q_REQUIRED_RESULT bool findAndOpenClosedPopupFromObjectName(const QString &objectName, QObject **dialog = nullptr);
+//    Q_REQUIRED_RESULT bool findAndOpenClosedPopupFromObjectName(const QString &objectName, QObject **dialog = nullptr);
     QObject *findOpenPopupFromTypeName(const QString &typeName) const;
-    QQuickItem *findDialogButtonFromText(const QObject *dialog, const QString &text);
+//    QQuickItem *findDialogButtonFromText(const QObject *dialog, const QString &text);
     QQuickItem *findDialogButtonFromObjectName(const QObject *dialog, const QString &objectName);
-    Q_REQUIRED_RESULT bool acceptDialog(QObject *dialog, const QString &acceptButtonObjectName);
-    Q_REQUIRED_RESULT bool rejectDialog(QObject *dialog, const QString &rejectButtonObjectName);
-    QQuickItem *findListViewChild(QQuickItem *listView, const QString &childObjectName) const;
-    QQuickItem *findListViewChild(const QString &listViewObjectName, const QString &childObjectName) const;
-    static QQuickItem *findChildWithText(QQuickItem *item, const QString &text);
-    QQuickItem *findViewDelegateAtIndex(QQuickItem *view, int index);
-    QQuickItem* findSplitViewHandle(const QString &splitViewObjectName, int handleIndex) const;
-    // Useful for cases where an item is a QQuickItem child but not a QObject child, as is the case with e.g. Repeater.
-    static QQuickItem *findChildItem(QQuickItem *parentItem, const QString &objectName);
+//    Q_REQUIRED_RESULT bool acceptDialog(QObject *dialog, const QString &acceptButtonObjectName);
+//    Q_REQUIRED_RESULT bool rejectDialog(QObject *dialog, const QString &rejectButtonObjectName);
+//    QQuickItem *findListViewChild(QQuickItem *listView, const QString &childObjectName) const;
+//    QQuickItem *findListViewChild(const QString &listViewObjectName, const QString &childObjectName) const;
+//    static QQuickItem *findChildWithText(QQuickItem *item, const QString &text);
+//    QQuickItem *findViewDelegateAtIndex(QQuickItem *view, int index);
+//    QQuickItem* findSplitViewHandle(const QString &splitViewObjectName, int handleIndex) const;
+//    // Useful for cases where an item is a QQuickItem child but not a QObject child, as is the case with e.g. Repeater.
+//    static QQuickItem *findChildItem(QQuickItem *parentItem, const QString &objectName);
 
     enum EnsureVisibleFlag {
         CheckVisible = 0x00,
@@ -171,192 +171,192 @@ protected:
     };
     Q_DECLARE_FLAGS(EnsureVisibleFlags, EnsureVisibleFlag)
 
-    Q_REQUIRED_RESULT bool clickButton(QQuickItem *button, Qt::MouseButton mouseButton = Qt::LeftButton);
-    Q_REQUIRED_RESULT bool ensureItemVisible(QQuickItem *item,
+    void clickButton(QQuickItem *button, Qt::MouseButton mouseButton = Qt::LeftButton);
+    void verifyItemVisible(QQuickItem *item,
         EnsureVisibleFlags flags = EnsureVisibleFlags(CheckVisible | CheckEnabled | CheckWidth | CheckHeight));
-    Q_REQUIRED_RESULT bool ensureScrollViewChildVisible(const QString &scrollViewObjectName, const QString &childObjectName);
-    Q_REQUIRED_RESULT bool ensureFlickableChildVisible(QQuickItem *flickable, QQuickItem *child);
-    Q_REQUIRED_RESULT bool ensureRepeaterChildrenVisible(QQuickItem *repeater, int expectedCount);
+//    Q_REQUIRED_RESULT bool ensureScrollViewChildVisible(const QString &scrollViewObjectName, const QString &childObjectName);
+//    Q_REQUIRED_RESULT bool ensureFlickableChildVisible(QQuickItem *flickable, QQuickItem *child);
+//    Q_REQUIRED_RESULT bool ensureRepeaterChildrenVisible(QQuickItem *repeater, int expectedCount);
 
-    // Returns the position of the cursor in a tile's local coordinates.
-    QPoint mapToTile(const QPoint &cursorPos) const;
+//    // Returns the position of the cursor in a tile's local coordinates.
+//    QPoint mapToTile(const QPoint &cursorPos) const;
     QPoint tileSceneCentre(int xPosInTiles, int yPosInTiles) const;
     QPoint tileCanvasCentre(int xPosInTiles, int yPosInTiles) const;
-    QPointF canvasCentre() const;
-    QPoint canvasSceneCentre() const;
-    QPoint firstPaneSceneCentre() const;
+//    QPointF canvasCentre() const;
+//    QPoint canvasSceneCentre() const;
+//    QPoint firstPaneSceneCentre() const;
     void setCursorPosInPixels(const QPoint &posInPixels);
     void setCursorPosInTiles(int xPosInTiles, int yPosInTiles);
     void setCursorPosInScenePixels(int xPosInScenePixels, int yPosInScenePixels, bool assertWithinWindow = true);
     void setCursorPosInScenePixels(const QPoint &posInScenePixels, bool assertWithinWindow = true);
-    QPoint tilesetTileCentre(int xPosInTiles, int yPosInTiles) const;
-    QPoint tilesetTileSceneCentre(int xPosInTiles, int yPosInTiles) const;
-    int digits(int number);
-    int digitAt(int number, int index);
+//    QPoint tilesetTileCentre(int xPosInTiles, int yPosInTiles) const;
+//    QPoint tilesetTileSceneCentre(int xPosInTiles, int yPosInTiles) const;
+//    int digits(int number);
+//    int digitAt(int number, int index);
 
-    bool isUsingAnimation() const;
-    AnimationPlayback *animationPlayback();
+//    bool isUsingAnimation() const;
+//    AnimationPlayback *animationPlayback();
 
-    enum InputType {
-        MouseInputType,
-        KeyboardInputType
-    };
+//    enum InputType {
+//        MouseInputType,
+//        KeyboardInputType
+//    };
 
-    enum CloseDialogFlag {
-        CloseDialog,
-        DoNotCloseDialog
-    };
+//    enum CloseDialogFlag {
+//        CloseDialog,
+//        DoNotCloseDialog
+//    };
 
-    // Platform-dependent actions
-    Q_REQUIRED_RESULT bool triggerShortcut(const QString &objectName, const QString &sequenceAsString);
-    Q_REQUIRED_RESULT bool triggerNewProject();
-    Q_REQUIRED_RESULT bool triggerCloseProject();
-    Q_REQUIRED_RESULT bool triggerSaveProject();
-    Q_REQUIRED_RESULT bool triggerSaveProjectAs();
-    Q_REQUIRED_RESULT bool triggerOpenProject();
-    Q_REQUIRED_RESULT bool triggerRevert();
+//    // Platform-dependent actions
+    void triggerShortcut(const QString &objectName, const QString &sequenceAsString);
+    void triggerNewProject();
+//    Q_REQUIRED_RESULT bool triggerCloseProject();
+//    Q_REQUIRED_RESULT bool triggerSaveProject();
+//    Q_REQUIRED_RESULT bool triggerSaveProjectAs();
+//    Q_REQUIRED_RESULT bool triggerOpenProject();
+//    Q_REQUIRED_RESULT bool triggerRevert();
 
-    Q_REQUIRED_RESULT bool triggerCopy();
-    Q_REQUIRED_RESULT bool triggerPaste();
-    Q_REQUIRED_RESULT bool triggerSelectAll();
-    Q_REQUIRED_RESULT bool triggerDelete();
+//    Q_REQUIRED_RESULT bool triggerCopy();
+//    Q_REQUIRED_RESULT bool triggerPaste();
+//    Q_REQUIRED_RESULT bool triggerSelectAll();
+//    Q_REQUIRED_RESULT bool triggerDelete();
 
-    Q_REQUIRED_RESULT bool triggerFlipHorizontally();
-    Q_REQUIRED_RESULT bool triggerFlipVertically();
+//    Q_REQUIRED_RESULT bool triggerFlipHorizontally();
+//    Q_REQUIRED_RESULT bool triggerFlipVertically();
 
-    Q_REQUIRED_RESULT bool triggerCentre();
-    Q_REQUIRED_RESULT bool triggerGridVisible();
-    Q_REQUIRED_RESULT bool triggerRulersVisible();
-    Q_REQUIRED_RESULT bool triggerGuidesVisible();
-    Q_REQUIRED_RESULT bool triggerSplitScreen();
-    Q_REQUIRED_RESULT bool triggerSplitterLocked();
-    Q_REQUIRED_RESULT bool setSplitScreen(bool splitScreen);
-    Q_REQUIRED_RESULT bool setSplitterLocked(bool splitterLocked);
-    Q_REQUIRED_RESULT bool triggerAnimationPlayback();
-    Q_REQUIRED_RESULT bool setAnimationPlayback(bool usingAnimation);
+//    Q_REQUIRED_RESULT bool triggerCentre();
+//    Q_REQUIRED_RESULT bool triggerGridVisible();
+//    Q_REQUIRED_RESULT bool triggerRulersVisible();
+//    Q_REQUIRED_RESULT bool triggerGuidesVisible();
+//    Q_REQUIRED_RESULT bool triggerSplitScreen();
+//    Q_REQUIRED_RESULT bool triggerSplitterLocked();
+//    Q_REQUIRED_RESULT bool setSplitScreen(bool splitScreen);
+//    Q_REQUIRED_RESULT bool setSplitterLocked(bool splitterLocked);
+//    Q_REQUIRED_RESULT bool triggerAnimationPlayback();
+//    Q_REQUIRED_RESULT bool setAnimationPlayback(bool usingAnimation);
 
-    Q_REQUIRED_RESULT bool triggerOptions();
+//    Q_REQUIRED_RESULT bool triggerOptions();
 
-    Q_REQUIRED_RESULT bool triggerSelectNextLayerUp();
-    Q_REQUIRED_RESULT bool triggerSelectNextLayerDown();
+//    Q_REQUIRED_RESULT bool triggerSelectNextLayerUp();
+//    Q_REQUIRED_RESULT bool triggerSelectNextLayerDown();
 
-    // Layer helpers.
-    Q_REQUIRED_RESULT bool selectLayer(const QString &layerName, int layerIndex);
-    Q_REQUIRED_RESULT bool verifyCurrentLayer(const QString &layerName, int layerIndex);
-    // Finds \a layerName in the layer list view, verifies that it exists and that its name is \a layerName,
-    // and sets layerDelegate to it.
-    Q_REQUIRED_RESULT bool verifyLayerName(const QString &layerName, QQuickItem **layerDelegate = nullptr);
-    Q_REQUIRED_RESULT bool addNewLayer(const QString &expectedGeneratedLayerName, int expectedIndex);
-    Q_REQUIRED_RESULT bool makeCurrentAndRenameLayer(const QString &from, const QString &to);
-    Q_REQUIRED_RESULT bool changeLayerVisiblity(const QString &layerName, bool visible);
+//    // Layer helpers.
+//    Q_REQUIRED_RESULT bool selectLayer(const QString &layerName, int layerIndex);
+//    Q_REQUIRED_RESULT bool verifyCurrentLayer(const QString &layerName, int layerIndex);
+//    // Finds \a layerName in the layer list view, verifies that it exists and that its name is \a layerName,
+//    // and sets layerDelegate to it.
+//    Q_REQUIRED_RESULT bool verifyLayerName(const QString &layerName, QQuickItem **layerDelegate = nullptr);
+//    Q_REQUIRED_RESULT bool addNewLayer(const QString &expectedGeneratedLayerName, int expectedIndex);
+//    Q_REQUIRED_RESULT bool makeCurrentAndRenameLayer(const QString &from, const QString &to);
+//    Q_REQUIRED_RESULT bool changeLayerVisiblity(const QString &layerName, bool visible);
 
-    void addAllProjectTypes();
-    void addImageProjectTypes();
-    void addActualProjectTypes();
+//    void addAllProjectTypes();
+//    void addImageProjectTypes();
+//    void addActualProjectTypes();
 
-    Q_REQUIRED_RESULT bool createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
-    Q_REQUIRED_RESULT bool createNewTilesetProject(int tileWidth = 25, int tileHeight = 25,
+    void createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
+    void createNewTilesetProject(int tileWidth = 25, int tileHeight = 25,
         int tilesetTilesWide = -1, int tilesetTilesHigh = -1, bool transparentTilesetBackground = false);
-    Q_REQUIRED_RESULT bool createNewImageProject(int imageWidth = 256, int imageHeight = 256,
-        bool transparentImageBackground = false);
-    Q_REQUIRED_RESULT bool createNewLayeredImageProject(int imageWidth = 256, int imageHeight = 256,
-        bool transparentImageBackground = false);
-    Q_REQUIRED_RESULT bool ensureNewImageProjectPopupVisible(Project::Type projectType, QObject **popup = nullptr);
-    Q_REQUIRED_RESULT bool loadProject(const QUrl &url,
-        const QRegularExpression &expectedFailureMessage = QRegularExpression());
-    Q_REQUIRED_RESULT bool updateVariables(bool isNewProject, Project::Type newProjectType);
-    Q_REQUIRED_RESULT bool saveChanges(const QString &expectedErrorMessage = QString());
-    Q_REQUIRED_RESULT bool discardChanges();
-    Q_REQUIRED_RESULT bool verifyErrorAndDismiss(const QString &expectedErrorMessage);
-    Q_REQUIRED_RESULT bool verifyNoErrorOrDismiss();
+//    Q_REQUIRED_RESULT bool createNewImageProject(int imageWidth = 256, int imageHeight = 256,
+//        bool transparentImageBackground = false);
+//    Q_REQUIRED_RESULT bool createNewLayeredImageProject(int imageWidth = 256, int imageHeight = 256,
+//        bool transparentImageBackground = false);
+    void ensureNewImageProjectPopupVisible(Project::Type projectType, QObject **popup = nullptr);
+//    Q_REQUIRED_RESULT bool loadProject(const QUrl &url,
+//        const QRegularExpression &expectedFailureMessage = QRegularExpression());
+    void updateVariables(bool isNewProject, Project::Type newProjectType);
+    void saveChanges(const QString &expectedErrorMessage = QString());
+    void discardChanges();
+    void verifyErrorAndDismiss(const QString &expectedErrorMessage);
+//    Q_REQUIRED_RESULT bool verifyNoErrorOrDismiss();
 
-    Q_REQUIRED_RESULT bool copyFileFromResourcesToTempProjectDir(const QString &baseName);
-    Q_REQUIRED_RESULT bool setupTempTilesetProjectDir();
-    Q_REQUIRED_RESULT bool setupTempLayeredImageProjectDir();
-    Q_REQUIRED_RESULT bool setupTempProjectDir(const QStringList &resourceFilesToCopy = QStringList(),
+    void copyFileFromResourcesToTempProjectDir(const QString &baseName);
+    void setupTempTilesetProjectDir();
+    void setupTempLayeredImageProjectDir();
+    void setupTempProjectDir(const QStringList &resourceFilesToCopy = QStringList(),
         QStringList *filesCopied = nullptr);
 
-    Q_REQUIRED_RESULT bool openOptionsTab(const QString &tabButtonObjectName, QObject **optionsDialog = nullptr);
+//    Q_REQUIRED_RESULT bool openOptionsTab(const QString &tabButtonObjectName, QObject **optionsDialog = nullptr);
 
-    Q_REQUIRED_RESULT bool collapseAllPanels();
-    Q_REQUIRED_RESULT bool isPanelExpanded(const QString &panelObjectName);
-    Q_REQUIRED_RESULT bool togglePanel(const QString &panelObjectName, bool expanded);
-    Q_REQUIRED_RESULT bool togglePanels(const QStringList &panelObjectNames, bool expanded);
-    Q_REQUIRED_RESULT bool expandAndResizePanel(const QString &panelObjectName);
-    Q_REQUIRED_RESULT bool ensurePanelPolished(QQuickItem *panel);
+    void collapseAllPanels();
+//    Q_REQUIRED_RESULT bool isPanelExpanded(const QString &panelObjectName);
+    void togglePanel(const QString &panelObjectName, bool expanded);
+//    Q_REQUIRED_RESULT bool togglePanels(const QStringList &panelObjectNames, bool expanded);
+//    Q_REQUIRED_RESULT bool expandAndResizePanel(const QString &panelObjectName);
+    void ensurePanelPolished(QQuickItem *panel);
 
-    Q_REQUIRED_RESULT bool dragSplitViewHandle(const QString &splitViewObjectName, int index,
-        const QPoint &newHandleCentreRelativeToSplitView, QPoint *oldHandleCentreRelativeToSplitView = nullptr);
+//    Q_REQUIRED_RESULT bool dragSplitViewHandle(const QString &splitViewObjectName, int index,
+//        const QPoint &newHandleCentreRelativeToSplitView, QPoint *oldHandleCentreRelativeToSplitView = nullptr);
 
-    Q_REQUIRED_RESULT bool switchMode(TileCanvas::Mode mode);
-    Q_REQUIRED_RESULT bool switchTool(ImageCanvas::Tool tool, InputType inputType = MouseInputType);
-    Q_REQUIRED_RESULT bool setPenForegroundColour(QString argbString);
-    Q_REQUIRED_RESULT bool panTopLeftTo(int x, int y);
-    Q_REQUIRED_RESULT bool panBy(int xDistance, int yDistance);
-    Q_REQUIRED_RESULT bool zoomTo(int zoomLevel);
-    Q_REQUIRED_RESULT bool zoomTo(int zoomLevel, const QPoint &pos);
+    void switchMode(TileCanvas::Mode mode);
+//    Q_REQUIRED_RESULT bool switchTool(ImageCanvas::Tool tool, InputType inputType = MouseInputType);
+//    Q_REQUIRED_RESULT bool setPenForegroundColour(QString argbString);
+//    Q_REQUIRED_RESULT bool panTopLeftTo(int x, int y);
+//    Q_REQUIRED_RESULT bool panBy(int xDistance, int yDistance);
+//    Q_REQUIRED_RESULT bool zoomTo(int zoomLevel);
+//    Q_REQUIRED_RESULT bool zoomTo(int zoomLevel, const QPoint &pos);
 
-    // Helpers involving menus/dialogs.
-    Q_REQUIRED_RESULT QVector<QImage> getLayerImages() const;
-    Q_REQUIRED_RESULT bool copyAcrossLayers();
-    Q_REQUIRED_RESULT bool pasteAcrossLayers(int pasteX, int pasteY, bool onlyPasteIntoVisibleLayers);
-    Q_REQUIRED_RESULT bool changeCanvasSize(int width, int height, CloseDialogFlag closeDialog = CloseDialog);
-    Q_REQUIRED_RESULT bool changeImageSize(int width, int height, bool preserveAspectRatio = false);
-    Q_REQUIRED_RESULT bool changeToolSize(int size);
-    Q_REQUIRED_RESULT bool changeToolShape(ImageCanvas::ToolShape toolShape);
-    Q_REQUIRED_RESULT bool moveContents(int x, int y, bool onlyVisibleLayers);
-    Q_REQUIRED_RESULT bool rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int columns, int rows);
-    int sliderValue(QQuickItem *slider) const;
+//    // Helpers involving menus/dialogs.
+//    Q_REQUIRED_RESULT QVector<QImage> getLayerImages() const;
+//    Q_REQUIRED_RESULT bool copyAcrossLayers();
+//    Q_REQUIRED_RESULT bool pasteAcrossLayers(int pasteX, int pasteY, bool onlyPasteIntoVisibleLayers);
+//    Q_REQUIRED_RESULT bool changeCanvasSize(int width, int height, CloseDialogFlag closeDialog = CloseDialog);
+//    Q_REQUIRED_RESULT bool changeImageSize(int width, int height, bool preserveAspectRatio = false);
+//    Q_REQUIRED_RESULT bool changeToolSize(int size);
+//    Q_REQUIRED_RESULT bool changeToolShape(ImageCanvas::ToolShape toolShape);
+//    Q_REQUIRED_RESULT bool moveContents(int x, int y, bool onlyVisibleLayers);
+//    Q_REQUIRED_RESULT bool rearrangeContentsIntoGrid(int cellWidth, int cellHeight, int columns, int rows);
+//    int sliderValue(QQuickItem *slider) const;
 
-    Q_REQUIRED_RESULT bool moveSliderHandle(QQuickItem *slider, qreal expectedValue);
-    Q_REQUIRED_RESULT bool selectColourAtCursorPos();
-    Q_REQUIRED_RESULT bool drawPixelAtCursorPos();
-    Q_REQUIRED_RESULT bool drawTileAtCursorPos();
-    Q_REQUIRED_RESULT bool selectArea(const QRect &area);
-    Q_REQUIRED_RESULT bool dragSelection(const QPoint &newTopLeft);
-    Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &actualColour, const QColor &expectedColour, int fuzz = 1);
-    Q_REQUIRED_RESULT bool fuzzyImageCompare(const QImage &actualImage, const QImage &expectedImage, int fuzz = 1, const QString &context = QString());
-    Q_REQUIRED_RESULT bool compareImages(const QImage &actualImage, const QImage &expectedImage, const QString &context = QString());
-    Q_REQUIRED_RESULT bool compareImages(const QVector<QImage> &actualImages, const QVector<QImage> &expectedImages,
-        const QString &context = QString());
-    Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
+//    Q_REQUIRED_RESULT bool moveSliderHandle(QQuickItem *slider, qreal expectedValue);
+//    Q_REQUIRED_RESULT bool selectColourAtCursorPos();
+//    Q_REQUIRED_RESULT bool drawPixelAtCursorPos();
+//    Q_REQUIRED_RESULT bool drawTileAtCursorPos();
+//    Q_REQUIRED_RESULT bool selectArea(const QRect &area);
+//    Q_REQUIRED_RESULT bool dragSelection(const QPoint &newTopLeft);
+    Q_REQUIRED_RESULT bool fuzzyColourCompare(const QColor &actualColour, const QColor &expectedColour, int fuzz, QString &failureMessage);
+    void fuzzyImageCompare(const QImage &actualImage, const QImage &expectedImage, int fuzz = 1, const QString &context = QString());
+    void compareImages(const QImage &actualImage, const QImage &expectedImage, const QString &context = QString());
+//    Q_REQUIRED_RESULT bool compareImages(const QVector<QImage> &actualImages, const QVector<QImage> &expectedImages,
+//        const QString &context = QString());
+//    Q_REQUIRED_RESULT bool everyPixelIs(const QImage &image, const QColor &colour);
 
-    Q_REQUIRED_RESULT bool compareSwatches(const Swatch &actualSwatch, const Swatch &expectedSwatch);
-    Q_REQUIRED_RESULT bool enableAutoSwatch();
-    Q_REQUIRED_RESULT bool swatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour);
-    QQuickItem *findSwatchViewDelegateAtIndex(int index);
-    Q_REQUIRED_RESULT bool addSwatchWithForegroundColour();
-    Q_REQUIRED_RESULT bool renameSwatchColour(int index, const QString &name);
-    Q_REQUIRED_RESULT bool deleteSwatchColour(int index);
+//    Q_REQUIRED_RESULT bool compareSwatches(const Swatch &actualSwatch, const Swatch &expectedSwatch);
+//    Q_REQUIRED_RESULT bool enableAutoSwatch();
+//    Q_REQUIRED_RESULT bool swatchViewDelegateExists(const QQuickItem *viewContentItem, const QColor &colour);
+//    QQuickItem *findSwatchViewDelegateAtIndex(int index);
+//    Q_REQUIRED_RESULT bool addSwatchWithForegroundColour();
+//    Q_REQUIRED_RESULT bool renameSwatchColour(int index, const QString &name);
+//    Q_REQUIRED_RESULT bool deleteSwatchColour(int index);
 
-    enum class AddNewGuidesFlag {
-        ExpectAllUnique,
-        ExpectAllDuplicates
-    };
+//    enum class AddNewGuidesFlag {
+//        ExpectAllUnique,
+//        ExpectAllDuplicates
+//    };
 
-    Q_REQUIRED_RESULT bool addNewGuide(int position, Qt::Orientation orientation);
-    Q_REQUIRED_RESULT bool addNewGuides(int horizontalSpacing, int verticalSpacing, AddNewGuidesFlag flag = AddNewGuidesFlag::ExpectAllUnique);
-    Q_REQUIRED_RESULT bool addSelectedColoursToTexturedFillSwatch();
+//    Q_REQUIRED_RESULT bool addNewGuide(int position, Qt::Orientation orientation);
+//    Q_REQUIRED_RESULT bool addNewGuides(int horizontalSpacing, int verticalSpacing, AddNewGuidesFlag flag = AddNewGuidesFlag::ExpectAllUnique);
+//    Q_REQUIRED_RESULT bool addSelectedColoursToTexturedFillSwatch();
 
-    Q_REQUIRED_RESULT bool addNewNoteAtCursorPos(const QString &text);
-    // Finds the note at \a noteIndex and attempts to drag it to \a newPosition
-    // (by dragging from its centre). If \c newPosition is out of bounds, the function
-    // tests that it was pushed back in.
-    Q_REQUIRED_RESULT bool dragNoteAtIndex(int noteIndex, const QPoint &newPosition);
+//    Q_REQUIRED_RESULT bool addNewNoteAtCursorPos(const QString &text);
+//    // Finds the note at \a noteIndex and attempts to drag it to \a newPosition
+//    // (by dragging from its centre). If \c newPosition is out of bounds, the function
+//    // tests that it was pushed back in.
+//    Q_REQUIRED_RESULT bool dragNoteAtIndex(int noteIndex, const QPoint &newPosition);
 
-    // Animation helpers.
-    AnimationSystem *getAnimationSystem() const;
-    // Finds \a animationName in the layer list view, verifies that it exists and that its name is \a animationName,
-    // and sets animationDelegate to it.
-    Q_REQUIRED_RESULT bool verifyAnimationName(const QString &animationName, QQuickItem **animationDelegate = nullptr);
-    Q_REQUIRED_RESULT bool addNewAnimation(const QString &expectedGeneratedAnimationName, int expectedIndex);
-    Q_REQUIRED_RESULT bool makeCurrentAnimation(const QString &animationName, int index);
-    Q_REQUIRED_RESULT bool duplicateCurrentAnimation(const QString &expectedGeneratedAnimationName, int expectedDuplicateIndex);
-    Q_REQUIRED_RESULT bool makeCurrentAndRenameAnimation(const QString &from, const QString &to);
-    Q_REQUIRED_RESULT bool openAnimationSettingsPopupForCurrentAnimation(QObject **popup);
-    Q_REQUIRED_RESULT bool grabFramesOfCurrentAnimation(QVector<QImage> &frames);
+//    // Animation helpers.
+//    AnimationSystem *getAnimationSystem() const;
+//    // Finds \a animationName in the layer list view, verifies that it exists and that its name is \a animationName,
+//    // and sets animationDelegate to it.
+//    Q_REQUIRED_RESULT bool verifyAnimationName(const QString &animationName, QQuickItem **animationDelegate = nullptr);
+//    Q_REQUIRED_RESULT bool addNewAnimation(const QString &expectedGeneratedAnimationName, int expectedIndex);
+//    Q_REQUIRED_RESULT bool makeCurrentAnimation(const QString &animationName, int index);
+//    Q_REQUIRED_RESULT bool duplicateCurrentAnimation(const QString &expectedGeneratedAnimationName, int expectedDuplicateIndex);
+//    Q_REQUIRED_RESULT bool makeCurrentAndRenameAnimation(const QString &from, const QString &to);
+//    Q_REQUIRED_RESULT bool openAnimationSettingsPopupForCurrentAnimation(QObject **popup);
+//    Q_REQUIRED_RESULT bool grabFramesOfCurrentAnimation(QVector<QImage> &frames);
 
-    QByteArray failureMessage;
+//    QByteArray failureMessage;
 
     QVector<Project::Type> allProjectTypes;
     QVector<ImageCanvas::PenToolRightClickBehaviour> allRightClickBehaviours;
