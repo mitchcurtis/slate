@@ -5,7 +5,7 @@ if(WIN32)
         WIN32
     )
 else()
-    add_executable(
+    qt_add_executable(
         app
     )
 endif()
