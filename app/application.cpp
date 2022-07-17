@@ -59,7 +59,7 @@ static QGuiApplication *createApplication(int &argc, char **argv, const QString 
     QApplication::setApplicationName(applicationName);
     QApplication::setOrganizationDomain("mitchcurtis");
     QApplication::setApplicationDisplayName("Slate - Pixel Art Editor");
-    QApplication::setApplicationVersion("0.10.0");
+    QApplication::setApplicationVersion(APP_VERSION);
 
     QApplication *app = new QApplication(argc, argv);
     return app;

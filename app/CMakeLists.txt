@@ -14,9 +14,15 @@ qt_add_executable(app WIN32 MACOSX_BUNDLE
     qml/qml.qrc
 )
 
+target_compile_definitions(app
+    PRIVATE
+        APP_VERSION="${PROJECT_VERSION}"
+)
+
 target_link_libraries(app
     PRIVATE
         slate
+        projectWarning
         Qt::Core
         Qt::Gui
         Qt::Qml
