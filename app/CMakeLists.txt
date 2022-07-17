@@ -1,18 +1,8 @@
 # app/CMakeLists.txt
-if(WIN32)
-    add_executable(
-        app
-        WIN32
-    )
-else()
-    qt_add_executable(
-        app
-    )
-endif()
 
-target_sources(
-    app
-    PRIVATE
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick Widgets)
+
+qt_add_executable(app WIN32 MACOSX_BUNDLE
     application.h
     application.cpp
     main.cpp
@@ -24,20 +14,14 @@ target_sources(
     qml/qml.qrc
 )
 
-find_package(Qt6 COMPONENTS Core)
-find_package(Qt6 COMPONENTS Gui)
-find_package(Qt6 COMPONENTS Qml)
-find_package(Qt6 COMPONENTS Quick)
-find_package(Qt6 COMPONENTS Widgets)
-
-target_link_libraries(
-    app
+target_link_libraries(app
     PRIVATE
-    slate
-    projectWarning
-    Qt::Core
-    Qt::Quick
-    Qt::Widgets
+        slate
+        Qt::Core
+        Qt::Gui
+        Qt::Qml
+        Qt::Quick
+        Qt::Widgets
 )
 
 set_target_properties(
