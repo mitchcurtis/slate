@@ -99,13 +99,13 @@ Initialise the submodules after cloning:
 
 ### Building ###
 
-Slate uses Qbs as the primary build system, with experimental CMake support added by the community. The sections below document the process of building Slate with Qbs.
+Slate can be built with Qbs or CMake.
 
 #### Qt Creator ####
 
 It's recommended to build using Qt Creator for convenience.
 
-Open [slate.qbs](https://github.com/mitchcurtis/slate/blob/release/slate.qbs) in Qt Creator, configure the project using a kit with a Qt version that meets the requirement listed in the [Dependencies](#dependencies) section, and then build it.
+Open [slate.qbs](https://github.com/mitchcurtis/slate/blob/release/slate.qbs) or [CMakeLists.txt](https://github.com/mitchcurtis/slate/blob/master/CMakeLists.txt) in Qt Creator, configure the project using a kit with a Qt version that meets the requirement listed in the [Dependencies](#dependencies) section, and then build it.
 
 #### Command Line ####
 
