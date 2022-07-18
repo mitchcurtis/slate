@@ -1,6 +1,6 @@
 import QtQuick
 
-import App
+import Slate
 
 Rectangle {
     x: horizontal ? 0 : (pane.integerZoomLevel * position) + pane.integerOffset.x

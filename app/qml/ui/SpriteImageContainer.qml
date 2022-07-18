@@ -19,7 +19,7 @@
 
 import QtQuick 2.12
 
-import App 1.0
+import Slate 1.0
 
 /*!
     An item whose implicit size is equal to the natural size of each frame in the animation,

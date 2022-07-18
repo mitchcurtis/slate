@@ -21,7 +21,7 @@ import Qt.labs.platform as Platform
 import QtQml
 import QtQuick
 
-import App
+import Slate
 
 Item {
     property ImageCanvas canvas

@@ -23,7 +23,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import QtQuick.Controls as Controls
 
-import App
+import Slate
 
 Controls.MenuBar {
     spacing: 10

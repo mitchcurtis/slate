@@ -20,7 +20,7 @@
 import QtQuick
 import QtQuick.Controls
 
-import App
+import Slate
 
 Menu {
     objectName: "fillToolMenu"

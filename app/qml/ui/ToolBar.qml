@@ -22,7 +22,7 @@ import QtQuick.Controls
 import QtQuick.Templates as T
 import QtQuick.Window
 
-import App
+import Slate
 
 import "." as Ui
 

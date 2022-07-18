@@ -1,6 +1,6 @@
 import QtQuick
 
-import App
+import Slate
 
 Item {
     objectName: "shortcuts"

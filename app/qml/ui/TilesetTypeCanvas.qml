@@ -1,6 +1,6 @@
 import QtQuick
 
-import App
+import Slate
 
 // For access to Theme Singleton
 import "."

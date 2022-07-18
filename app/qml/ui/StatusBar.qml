@@ -22,7 +22,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
 
-import App
+import Slate
 
 Pane {
     id: statusBarPane

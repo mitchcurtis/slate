@@ -4,7 +4,7 @@ import QtQuick.Controls
 import QtQuick.Templates as T
 import Qt.labs.platform as Platform
 
-import App
+import Slate
 
 Dialog {
     id: popup

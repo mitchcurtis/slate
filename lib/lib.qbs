@@ -51,7 +51,7 @@ Product {
         ]
     }
 
-    Qt.qml.importName: "App"
+    Qt.qml.importName: "Slate"
     Qt.qml.importVersion: "1.0"
 
     Group {

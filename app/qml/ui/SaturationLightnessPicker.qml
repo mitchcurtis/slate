@@ -1,5 +1,5 @@
 import QtQuick
-import App
+import Slate
 
 SaturationLightnessPickerTemplate {
     id: control

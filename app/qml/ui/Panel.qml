@@ -3,7 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import QtQuick.Templates as T
 
-import App
+import Slate
 
 import "." as Ui
 

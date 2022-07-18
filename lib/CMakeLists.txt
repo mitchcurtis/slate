@@ -2,7 +2,7 @@
 
 qt_add_qml_module(slate
     VERSION 1.0
-    URI "App"
+    URI "Slate"
     SOURCES
         # Just for reading GIFs; see animationGifExport().
         3rdparty/bitmap/bmp.h

@@ -19,7 +19,7 @@
 
 import QtQuick
 
-import App
+import Slate
 
 // Can't use Connections as the root, because onProjectChanged doesn't work there.
 // Can't use QtObject as the root either,

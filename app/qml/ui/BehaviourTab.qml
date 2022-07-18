@@ -5,7 +5,7 @@ import QtQuick.Controls 2.12
 // TODO: remove in Qt 6
 import QtQml 2.15
 
-import App 1.0
+import Slate 1.0
 
 ColumnLayout {
     id: behaviourTab

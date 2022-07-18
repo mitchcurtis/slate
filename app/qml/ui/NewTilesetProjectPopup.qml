@@ -3,7 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Qt.labs.platform as Platform
 
-import App
+import Slate
 
 Dialog {
     id: root

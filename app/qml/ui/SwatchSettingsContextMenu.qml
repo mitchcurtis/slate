@@ -18,7 +18,7 @@
 */
 
 import QtQuick.Controls
-import App
+import Slate
 
 import Qt.labs.platform as Platform
 

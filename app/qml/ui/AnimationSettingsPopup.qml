@@ -21,7 +21,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-import App
+import Slate
 
 Dialog {
     id: root

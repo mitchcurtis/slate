@@ -1,6 +1,6 @@
 import QtQuick
 
-import App
+import Slate
 
 Rectangle {
     readonly property color focusColour: "yellow"

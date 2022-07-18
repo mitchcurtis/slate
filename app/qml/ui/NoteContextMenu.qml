@@ -19,7 +19,7 @@
 
 import QtQuick.Controls
 
-import App
+import Slate
 
 Menu {
     id: root

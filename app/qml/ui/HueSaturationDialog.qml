@@ -21,7 +21,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 
-import App
+import Slate
 
 import "." as Ui
 

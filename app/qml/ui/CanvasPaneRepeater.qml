@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-import App
+import Slate
 
 // For access to Theme Singleton
 import "."

@@ -25,7 +25,7 @@ import QtQuick.Controls
 import Qt.labs.settings
 import Qt.labs.platform as Platform
 
-import App
+import Slate
 
 import "ui" as Ui
 

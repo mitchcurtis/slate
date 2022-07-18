@@ -20,7 +20,7 @@
 import QtQuick.Controls
 import QtQuick.Layouts
 
-import App
+import Slate
 
 RangeSlider {
     id: root

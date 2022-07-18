@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 
-import App
+import Slate
 
 Popup {
     objectName: "toolSizePopup"
