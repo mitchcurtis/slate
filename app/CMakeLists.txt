@@ -14,6 +14,11 @@ qt_add_executable(app
     qml/qml.qrc
 )
 
+# Ensure that Creator's QML code model can find the Slate QML module.
+file(REAL_PATH "../qml" LIB_PATH BASE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+list(APPEND QML_IMPORT_PATHS "${LIB_PATH}")
+set(QML_IMPORT_PATH "${QML_IMPORT_PATHS}" CACHE STRING "Qt Creator QML import paths")
+
 set_target_properties(app PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER mitchcurtis
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}

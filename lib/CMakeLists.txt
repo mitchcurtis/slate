@@ -1,8 +1,16 @@
 # lib/CMakeLists.txt
 
+# The recommended directory structure [1] for QML modules would see our "lib" folder
+# being renamed to "Slate", but "lib" is more familiar and easily understood, and I
+# prefer lowercase names for directories. So, we need to set OUTPUT_DIRECTORY to
+# get our custom naming.
+# [1] https://doc.qt.io/qt-6/qt-add-qml-module.html#output-directory
+file(REAL_PATH "../qml/Slate" QML_OUTPUT_DIR BASE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
 qt_add_qml_module(slate
     VERSION 1.0
     URI "Slate"
+    OUTPUT_DIRECTORY ${QML_OUTPUT_DIR}
     SOURCES
         # Just for reading GIFs; see animationGifExport().
         3rdparty/bitmap/bmp.h
