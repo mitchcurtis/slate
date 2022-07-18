@@ -128,8 +128,6 @@ For more information about building Qbs applications, see [this page](http://doc
 
 ##### CMake
 
-The CMake build is experimental and may not be up-to-date. Contributions are welcome.
-
 In-source builds:
 
     cd /path/to/slate-source-dir
@@ -140,7 +138,7 @@ Shadow builds:
 
     mkdir slate-build
     cd slate-build
-    cmake /path/to/slate-source-dir/slate.qbs
+    cmake /path/to/slate-source-dir
     cmake --build .
 
 To run all test cases:
