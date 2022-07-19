@@ -2680,7 +2680,7 @@ bool TestHelper::changeLayerVisiblity(const QString &layerName, bool visible)
 
     // Sanity check that the check box's state matches the layer's state.
     const bool oldLayerVisibilityCheckBoxValue = layerVisibilityCheckBox->property("checked").toBool();
-    VERIFY(oldLayerVisibilityCheckBoxValue == !layer->isVisible());
+    VERIFY(oldLayerVisibilityCheckBoxValue == layer->isVisible());
 
     // If the layer's visibility already matches the target visibility, we have nothing to do.
     if (oldLayerVisibilityCheckBoxValue == !visible)
@@ -2690,7 +2690,7 @@ bool TestHelper::changeLayerVisiblity(const QString &layerName, bool visible)
     if (!clickButton(layerVisibilityCheckBox))
         return false;
     VERIFY(layer->isVisible() == visible);
-    VERIFY(layerVisibilityCheckBox->property("checked").toBool() == !visible);
+    VERIFY(layerVisibilityCheckBox->property("checked").toBool() == visible);
 
     return true;
 }

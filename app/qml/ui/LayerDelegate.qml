@@ -63,16 +63,18 @@ ItemDelegate {
         id: visibilityCheckBox
         objectName: "layerVisibilityCheckBox"
         x: 14
+        anchors.verticalCenter: parent.verticalCenter
         leftPadding: 10
         rightPadding: 10
         focusPolicy: Qt.NoFocus
-        anchors.verticalCenter: parent.verticalCenter
+        checkable: true
+        checked: model.layer.visible
         contentItem: Label {
-            text: model.layer.visible ? "\uf06e" : "\uf070"
+            text: visibilityCheckBox.checked ? "\uf06e" : "\uf070"
             font.family: "FontAwesome"
         }
 
-        onClicked: project.setLayerVisible(index, !model.layer.visible)
+        onClicked: project.setLayerVisible(index, checked)
     }
 
     TextField {
