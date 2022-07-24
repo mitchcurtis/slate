@@ -32,7 +32,7 @@ Slate supports editing bitmap images directly. This project type has no layer su
 
 ![Layered Image Project icon](https://github.com/mitchcurtis/slate/blob/release/app/images/layered-image-project.svg)
 
-A layered image project can contain several images, each of which is stored as a layer. The highest layer in the list is drawn on top of the layers below it. This type of project can be exported as one or more images.
+A layered image project consists of an .slp project file and one or more images, each of which is saved directly in the .slp file as a layer. The highest layer in the list is drawn on top of the layers below it. This type of project can be exported as one or more images.
 
 - [Getting Started with Layered Image Projects](https://github.com/mitchcurtis/slate/blob/release/doc/getting-started-layered.md)
 
@@ -40,7 +40,7 @@ A layered image project can contain several images, each of which is stored as a
 
 ![Tileset Project icon](https://github.com/mitchcurtis/slate/blob/release/app/images/tileset-project.svg)
 
-Tileset projects have a tileset bitmap image that can be edited by first painting tiles onto the grid, and then editing those tiles. An accompanying project file is created to save the contents of the grid. The tileset image is edited directly (i.e overwritten when the project is saved).
+A tileset project consists of an .stp project file and a source tileset image. The tileset image can be stored anywhere on disk. If creating a new tileset image, Slate will place it next to the .stp file. The source tileset image is edited by first painting tiles onto the grid, and then editing those tiles. The tileset image is edited directly (i.e overwritten when the project is saved).
 
 - [Getting Started with Tilesets](https://github.com/mitchcurtis/slate/blob/release/doc/getting-started-tileset.md)
 
