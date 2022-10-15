@@ -50,10 +50,10 @@ extern "C" {
 Q_LOGGING_CATEGORY(lcUtils, "app.utils")
 Q_LOGGING_CATEGORY(lcUtilsRearrange, "app.utils.rearrangeContentsIntoGrid")
 
-QImage ImageUtils::filledImage(uint width, uint height, const QColor &colour)
+QImage ImageUtils::filledImage(int width, int height, const QColor &colour)
 {
-    Q_ASSERT(width < std::numeric_limits<int>::max());
-    Q_ASSERT(height < std::numeric_limits<int>::max());
+    Q_ASSERT(width > 0);
+    Q_ASSERT(height > 0);
     return filledImage(QSize(width, height), colour);
 }
 

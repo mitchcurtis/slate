@@ -510,7 +510,7 @@ QVector<QImage> TestHelper::getLayerImages() const
     else
         images = layeredImageProject->layerImages();
     return images;
-};
+}
 
 Q_REQUIRED_RESULT bool TestHelper::copyAcrossLayers()
 {

@@ -744,7 +744,7 @@ protected:
 
 // For QVariant usage.
 // TODO: see if this is still necessary with Qt 6
-Q_DECLARE_METATYPE(ImageCanvas::SnapFlags);
+Q_DECLARE_METATYPE(ImageCanvas::SnapFlags)
 
 inline uint qHash(const ImageCanvas::SubImage &key, const uint seed = 0) {
     return qHashBits(&key, sizeof(ImageCanvas::SubImage), seed);

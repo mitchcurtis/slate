@@ -5550,9 +5550,9 @@ void tst_App::playNonLoopingAnimationTwice()
 
 void tst_App::animationGifExport()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    QSKIP("heap-buff-overflow with Qt 6: https://github.com/wernsey/bitmap/issues/8");
-#endif
+//#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+//    QSKIP("heap-buff-overflow with Qt 6: https://github.com/wernsey/bitmap/issues/8");
+//#endif
 
     QVERIFY2(createNewLayeredImageProject(), failureMessage);
 
@@ -5620,6 +5620,8 @@ void tst_App::animationGifExport()
                 const int expectedAlpha = scaledFrameSourceImageBits[byteIndex * 4 + 3];
                 const QColor actualColour = QColor(actualRed, actualGreen, actualBlue, actualAlpha);
                 const QColor expectedColour = QColor(expectedRed, expectedGreen, expectedBlue, expectedAlpha);
+                if (x == 0 && y == 0)
+                    qDebug() << actualColour << expectedColour;
                 QVERIFY2(actualColour == expectedColour,
                     qPrintable(QString::fromLatin1("Expected pixel at x=%1 y=%2 of frame %3 to be %4 but it's %5")
                         .arg(x).arg(y).arg(frameIndex).arg(actualColour.name(QColor::HexArgb)).arg(expectedColour.name(QColor::HexArgb))));

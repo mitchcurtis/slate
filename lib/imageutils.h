@@ -30,7 +30,7 @@ class AnimationPlayback;
 class ImageLayer;
 
 namespace ImageUtils {
-    SLATE_EXPORT QImage filledImage(uint width, uint height, const QColor &colour = Qt::transparent);
+    SLATE_EXPORT QImage filledImage(int width, int height, const QColor &colour = Qt::transparent);
     SLATE_EXPORT QImage filledImage(const QSize &size, const QColor &colour = Qt::transparent);
 
     QImage paintImageOntoPortionOfImage(const QImage &image, const QRect &portion, const QImage &replacementImage);
