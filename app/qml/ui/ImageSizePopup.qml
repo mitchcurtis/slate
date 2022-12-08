@@ -232,13 +232,13 @@ Dialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        DialogButton {
             objectName: "imageSizePopupOkButton"
             text: qsTr("OK")
 
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
-        Button {
+        DialogButton {
             objectName: "imageSizePopupCancelButton"
             text: qsTr("Cancel")
 

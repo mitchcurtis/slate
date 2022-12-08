@@ -281,7 +281,7 @@ Dialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        DialogButton {
             objectName: "texturedFillSettingsDialogOkButton"
             text: qsTr("OK")
 
@@ -290,7 +290,7 @@ Dialog {
                 dialog.visible = false
             }
         }
-        Button {
+        DialogButton {
             objectName: "texturedFillSettingsCancelButton"
             text: qsTr("Cancel")
 

@@ -133,13 +133,13 @@ Dialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        DialogButton {
             objectName: "noteDialogOkButton"
             text: currentAction === NoteDialog.NoteAction.Create ? qsTr("Create") : qsTr("Modify")
 
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
-        Button {
+        DialogButton {
             objectName: "noteDialogCancelButton"
             text: qsTr("Cancel")
 

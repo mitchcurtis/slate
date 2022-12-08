@@ -108,14 +108,14 @@ Dialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        DialogButton {
             id: okButton
             objectName: "canvasSizePopupOkButton"
             text: qsTr("OK")
 
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
-        Button {
+        DialogButton {
             objectName: "canvasSizePopupCancelButton"
             text: qsTr("Cancel")
 

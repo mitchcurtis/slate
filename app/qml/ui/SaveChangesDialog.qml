@@ -128,17 +128,17 @@ Dialog {
     // Using a DialogButtonBox allows us to assign objectNames to the buttons,
     // which makes it possible to test them.
     footer: DialogButtonBox {
-        Button {
+        DialogButton {
             objectName: "cancelDialogButton"
             text: qsTr("Cancel")
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
         }
-        Button {
+        DialogButton {
             objectName: "saveChangesDialogButton"
             text: qsTr("Save")
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
-        Button {
+        DialogButton {
             objectName: "discardChangesDialogButton"
             text: qsTr("Don't save")
             DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole

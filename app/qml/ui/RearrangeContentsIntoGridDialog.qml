@@ -183,13 +183,13 @@ Dialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        DialogButton {
             objectName: root.objectName + "OkButton"
             text: qsTr("OK")
 
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
-        Button {
+        DialogButton {
             objectName: root.objectName + "CancelButton"
             text: qsTr("Cancel")
 

@@ -303,7 +303,7 @@ Dialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        DialogButton {
             id: okButton
             objectName: "newTilesetProjectOkButton"
             text: qsTr("OK")
@@ -311,7 +311,7 @@ Dialog {
 
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
-        Button {
+        DialogButton {
             objectName: "newTilesetProjectCancelButton"
             text: qsTr("Cancel")
 

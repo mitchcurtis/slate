@@ -21,5 +21,5 @@ import QtQuick.Controls
 import QtQuick.Controls.Material
 
 Button {
-    Material.elevation: 0
+    flat: true
 }
