@@ -6,6 +6,7 @@
         <file>ui/+Material/IconRectangle.qml</file>
         <file>ui/+Material/SwatchFocusRectangle.qml</file>
         <file>ui/+Material/Theme.qml</file>
+        <file>ui/+Material/ToolBarBase.qml</file>
         <file>ui/+Universal/IconRectangle.qml</file>
         <file>ui/+Universal/SwatchFocusRectangle.qml</file>
         <file>ui/+Universal/Theme.qml</file>
@@ -83,6 +84,7 @@
         <file>ui/TilesetSwatchPanel.qml</file>
         <file>ui/TilesetTypeCanvas.qml</file>
         <file>ui/ToolBar.qml</file>
+        <file>ui/ToolBarBase.qml</file>
         <file>ui/ToolButton.qml</file>
         <file>ui/ToolButtonMenuIndicator.qml</file>
         <file>ui/ToolSizePopup.qml</file>

@@ -19,6 +19,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.Material
 import QtQuick.Templates as T
 import QtQuick.Window
 
@@ -26,7 +27,7 @@ import Slate
 
 import "." as Ui
 
-ToolBar {
+ToolBarBase {
     id: root
     objectName: "toolBar"
 
