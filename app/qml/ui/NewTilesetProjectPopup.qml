@@ -5,6 +5,8 @@ import Qt.labs.platform as Platform
 
 import Slate
 
+import "." as Ui
+
 Dialog {
     id: root
     title: qsTr("New Tileset Project")
@@ -97,7 +99,7 @@ Dialog {
         RowLayout {
             enabled: useExistingTilesetCheckBox.checked
 
-            TextField {
+            Ui.TextField {
                 id: tilesetPathTextField
                 objectName: "tilesetPathTextField"
 

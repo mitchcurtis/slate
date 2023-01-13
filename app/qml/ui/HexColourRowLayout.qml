@@ -4,6 +4,8 @@ import QtQuick.Layouts
 
 import Slate
 
+import "." as Ui
+
 RowLayout {
     id: root
     objectName: "HexColourRowLayout"
@@ -23,7 +25,7 @@ RowLayout {
         text: qsTr("#")
     }
 
-    TextField {
+    Ui.TextField {
         id: hexTextField
         objectName: "hexTextField"
         text: currentColour.toString().substr(1)

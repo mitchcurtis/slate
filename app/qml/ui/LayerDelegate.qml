@@ -26,108 +26,39 @@ import Slate
 
 import "." as Ui
 
-ItemDelegate {
+EditableDelegate {
     id: root
     objectName: model.layer.name
-    checkable: true
     checked: project && project.currentLayerIndex === index
-    leftPadding: visibilityCheckBox.width + 18
-    focusPolicy: Qt.NoFocus
 
-    Binding {
-        target: root
-        property: "topPadding"
-        value: 0
-        when: Ui.Theme.styleName === "Material"
+    textField.objectName: "layerNameTextField"
+    textField.text: model.layer.name
+    textField.onAccepted: {
+        project.setLayerName(index, textField.text)
+        layeredImageCanvas.forceActiveFocus()
     }
-
-    Binding {
-        target: root
-        property: "bottomPadding"
-        value: 0
-        when: Ui.Theme.styleName === "Material"
-    }
-
-    Binding {
-        target: root
-        property: "implicitHeight"
-        value: Math.max(implicitBackgroundHeight,
-            Math.max(visibilityCheckBox.implicitHeight, layerNameTextField.implicitHeight) + topPadding + bottomPadding)
-        when: Ui.Theme.styleName === "Material"
+    textField.Keys.onEscapePressed: {
+        textField.text = model.layer.name
+        layeredImageCanvas.forceActiveFocus()
     }
 
     onClicked: project.currentLayerIndex = index
-    onDoubleClicked: layerNameTextField.forceActiveFocus()
 
     AbstractButton {
         id: visibilityCheckBox
         objectName: "layerVisibilityCheckBox"
-        x: 14
-        anchors.verticalCenter: parent.verticalCenter
-        leftPadding: 10
-        rightPadding: 10
+        leftPadding: 16
+        padding: 10
+        rightPadding: 4
         focusPolicy: Qt.NoFocus
         checkable: true
         checked: model.layer.visible
+        parent: root.leftSectionLayout
         contentItem: Label {
             text: visibilityCheckBox.checked ? "\uf06e" : "\uf070"
             font.family: "FontAwesome"
         }
 
         onClicked: project.setLayerVisible(index, checked)
-    }
-
-    TextField {
-        id: layerNameTextField
-        objectName: "layerNameTextField"
-        text: model.layer.name
-        font.family: "FontAwesome"
-        activeFocusOnPress: false
-        anchors.left: visibilityCheckBox.right
-        anchors.leftMargin: 4
-        anchors.right: parent.right
-        anchors.rightMargin: parent.rightPadding
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: Ui.Theme.styleName === "Material" ? 6 : 0
-        background.visible: false
-        font.pixelSize: 12
-        visible: false
-
-        onAccepted: {
-            project.setLayerName(index, text)
-            layeredImageCanvas.forceActiveFocus()
-        }
-
-        Keys.onEscapePressed: {
-            text = model.layer.name;
-            layeredImageCanvas.forceActiveFocus()
-        }
-    }
-
-    // We don't want TextField's editable cursor to be visible,
-    // so we set visible: false to disable the cursor, and instead
-    // render it via this.
-    ShaderEffectSource {
-        sourceItem: layerNameTextField
-        anchors.fill: layerNameTextField
-    }
-
-    // Apparently the one above only works for the top level control item,
-    // so we also need one for the background.
-    ShaderEffectSource {
-        sourceItem: layerNameTextField.background
-        x: layerNameTextField.x + layerNameTextField.background.x
-        y: layerNameTextField.y + layerNameTextField.background.y
-        width: layerNameTextField.background.width
-        height: layerNameTextField.background.height
-        visible: layerNameTextField.activeFocus
-    }
-
-    Rectangle {
-        id: focusRect
-        width: 2
-        height: parent.height
-        color: Ui.Theme.focusColour
-        visible: parent.checked
     }
 }

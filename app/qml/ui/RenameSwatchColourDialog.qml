@@ -46,7 +46,7 @@ Dialog {
     }
     onAccepted: project.swatch.renameColour(colourIndex, nameTextField.text)
 
-    TextField {
+    Ui.TextField {
         id: nameTextField
         objectName: "swatchNameTextField"
         width: parent.width

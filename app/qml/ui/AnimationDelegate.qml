@@ -26,17 +26,13 @@ import Slate 1.0
 
 import "." as Ui
 
-ItemDelegate {
+EditableDelegate {
     id: root
     objectName: model.animation.name + "_Delegate"
-    checkable: true
     checked: animationSystem && animationSystem.currentAnimationIndex === index
-    implicitHeight: Math.max(implicitBackgroundHeight,
-        Math.max(animationNameTextField.implicitHeight, settingsPopupToolButton.implicitHeight) + topPadding + bottomPadding)
-    leftPadding: thumbnailPreview.width + 18
-    topPadding: 0
-    bottomPadding: 0
-    focusPolicy: Qt.NoFocus
+
+    textField.objectName: "animationNameTextField"
+    textField.text: model.animation.name
 
     property var project
     property ImageCanvas canvas
@@ -48,11 +44,27 @@ ItemDelegate {
     signal settingsRequested(int animationIndex, var animation)
 
     onClicked: project.animationSystem.currentAnimationIndex = index
-    onDoubleClicked: animationNameTextField.forceActiveFocus()
+
+    textField.onAccepted: {
+        animationSystem.editAnimation.name = textField.text
+        project.renameAnimation(index)
+        // We need to handle the accepted and rejected (escape pressed) signals separately,
+        // and also take care of relieving ourselves of focus (which is done by the calling
+        // code via the renamed signal), otherwise we'd just respond to editingFinished in
+        // order to emit this. (editingFinished is only emitted after we lose focus)
+        renamed()
+    }
+    textField.Keys.onEscapePressed: {
+        textField.text = model.animation.name
+
+        renamed()
+    }
 
     SpriteImageContainer {
         id: thumbnailPreview
         objectName: root.objectName + "ThumbnailPreview"
+        x: 3
+        parent: root.leftSectionLayout
         project: root.project
         animationPlayback: AnimationPlayback {
             objectName: root.objectName + "AnimationPlayback"
@@ -60,44 +72,9 @@ ItemDelegate {
             // Fit us in the thumbnail.
             scale: Math.min(thumbnailPreview.width / animation.frameWidth, thumbnailPreview.height / animation.frameHeight)
         }
-        x: 3
-        width: height
-        height: parent.height
-    }
 
-    // TODO: try to move this whole delegate into EditableDelegate.qml
-    // so LayerDelegate and AnimationDelegate can reuse the code
-    TextField {
-        id: animationNameTextField
-        objectName: "animationNameTextField"
-        text: model.animation.name
-        font.family: "FontAwesome"
-        activeFocusOnPress: false
-        font.pixelSize: 12
-        visible: false
-        anchors.left: thumbnailPreview.right
-        anchors.leftMargin: 4
-        anchors.right: settingsPopupToolButton.left
-        anchors.rightMargin: 4
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: 6
-        background.visible: false
-
-        onAccepted: {
-            animationSystem.editAnimation.name = text
-            project.renameAnimation(index)
-            // We need to handle the accepted and rejected (escape pressed) signals separately,
-            // and also take care of relieving ourselves of focus (which is done by the calling
-            // code via the renamed signal), otherwise we'd just respond to editingFinished in
-            // order to emit this. (editingFinished is only emitted after we lose focus)
-            root.renamed()
-        }
-
-        Keys.onEscapePressed: {
-            text = model.animation.name
-
-            root.renamed()
-        }
+        Layout.preferredWidth: height
+        Layout.fillHeight: true
     }
 
     ToolButton {
@@ -106,9 +83,7 @@ ItemDelegate {
         text: "\uf1de"
         font.family: "FontAwesome"
         focusPolicy: Qt.NoFocus
-        width: implicitHeight
-        anchors.right: parent.right
-        anchors.verticalCenter: parent.verticalCenter
+        parent: root.rightSectionLayout
 
         ToolTip.text: qsTr("Configure this animation")
         ToolTip.visible: hovered
@@ -116,32 +91,5 @@ ItemDelegate {
         ToolTip.timeout: UiConstants.toolTipTimeout
 
         onClicked: root.settingsRequested(index, model.animation)
-    }
-
-    // We don't want TextField's editable cursor to be visible,
-    // so we set visible: false to disable the cursor, and instead
-    // render it via this.
-    ShaderEffectSource {
-        sourceItem: animationNameTextField
-        anchors.fill: animationNameTextField
-    }
-
-    // Apparently the one above only works for the top level control item,
-    // so we also need one for the background.
-    ShaderEffectSource {
-        sourceItem: animationNameTextField.background
-        x: animationNameTextField.x + animationNameTextField.background.x
-        y: animationNameTextField.y + animationNameTextField.background.y
-        width: animationNameTextField.background.width
-        height: animationNameTextField.background.height
-        visible: animationNameTextField.activeFocus
-    }
-
-    Rectangle {
-        id: focusRect
-        width: 2
-        height: parent.height
-        color: Ui.Theme.focusColour
-        visible: parent.checked
     }
 }

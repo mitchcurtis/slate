@@ -5,6 +5,7 @@
         <file>ui/+Material/DialogButton.qml</file>
         <file>ui/+Material/IconRectangle.qml</file>
         <file>ui/+Material/SwatchFocusRectangle.qml</file>
+        <file>ui/+Material/TextField.qml</file>
         <file>ui/+Material/Theme.qml</file>
         <file>ui/+Material/ToolBarBase.qml</file>
         <file>ui/+Universal/IconRectangle.qml</file>
@@ -30,6 +31,7 @@
         <file>ui/CrosshairCursor.qml</file>
         <file>ui/DialogButton.qml</file>
         <file>ui/DoubleTextField.qml</file>
+        <file>ui/EditableDelegate.qml</file>
         <file>ui/ErrorLabel.qml</file>
         <file>ui/ErrorPopup.qml</file>
         <file>ui/FillToolMenu.qml</file>
@@ -37,7 +39,11 @@
         <file>ui/Guide.qml</file>
         <file>ui/HexColourRowLayout.qml</file>
         <file>ui/HorizontalGradientRectangle.qml</file>
+        <file>ui/HslHueSlider.qml</file>
+        <file>ui/HslLightnessSlider.qml</file>
+        <file>ui/HslSaturationSlider.qml</file>
         <file>ui/HslSimplePicker.qml</file>
+        <file>ui/HslSlider.qml</file>
         <file>ui/HueGradient.qml</file>
         <file>ui/HueSaturationDialog.qml</file>
         <file>ui/HueSlider.qml</file>
@@ -57,6 +63,7 @@
         <file>ui/NoteContextMenu.qml</file>
         <file>ui/NoteDialog.qml</file>
         <file>ui/OpacityDialog.qml</file>
+        <file>ui/OpacitySlider.qml</file>
         <file>ui/OptionalToolSeparator.qml</file>
         <file>ui/OptionsDialog.qml</file>
         <file>ui/Panel.qml</file>
@@ -77,6 +84,7 @@
         <file>ui/SwatchGridView.qml</file>
         <file>ui/SwatchPanel.qml</file>
         <file>ui/SwatchSettingsContextMenu.qml</file>
+        <file>ui/TextField.qml</file>
         <file>ui/TexturedFillSettingsDialog.qml</file>
         <file>ui/TexturedFillSwatchDelegate.qml</file>
         <file>ui/TexturedFillVarianceRangedSlider.qml</file>
@@ -95,10 +103,5 @@
         <file>ui/ZoomIndicator.qml</file>
         <file>ui/qmldir</file>
         <file>ui/shaders/SaturationLightness.frag.qsb</file>
-        <file>ui/HslSlider.qml</file>
-        <file>ui/HslLightnessSlider.qml</file>
-        <file>ui/HslHueSlider.qml</file>
-        <file>ui/HslSaturationSlider.qml</file>
-        <file>ui/OpacitySlider.qml</file>
     </qresource>
 </RCC>

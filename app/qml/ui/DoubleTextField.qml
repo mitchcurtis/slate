@@ -20,7 +20,9 @@
 import QtQuick
 import QtQuick.Controls
 
-TextField {
+import "." as Ui
+
+Ui.TextField {
     text: propertySource[propertyName]
     validator: DoubleValidator {
         bottom: -1.0

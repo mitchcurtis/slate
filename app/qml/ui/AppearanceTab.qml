@@ -1,6 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
 // TODO: remove in Qt 6
 import QtQml 2.15
 
@@ -144,25 +145,29 @@ ColumnLayout {
                         }
                     }
                 }
-                TextField {
+                Ui.TextField {
                     id: checkerColour1TextField
                     objectName: "checkerColour1TextField"
-                    implicitWidth: colourInputFontMetrics.width
                     text: settings.checkerColour1
                     inputMask: "hhhhhh"
                     selectByMouse: true
 
                     readonly property color colour: "#" + text
+
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: colourInputFontMetrics.width + 16
                 }
-                TextField {
+                Ui.TextField {
                     id: checkerColour2TextField
                     objectName: "checkerColour2TextField"
                     text: settings.checkerColour2
-                    implicitWidth: colourInputFontMetrics.width
                     inputMask: "hhhhhh"
                     selectByMouse: true
 
                     readonly property color colour: "#" + text
+
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: colourInputFontMetrics.width + 16
                 }
             }
 

@@ -75,7 +75,7 @@ Dialog {
 
     contentItem: GridLayout {
         columns: 2
-        rowSpacing: 0
+        rowSpacing: 4
 
         Label {
             text: qsTr("Text")
@@ -83,7 +83,7 @@ Dialog {
             Layout.column: 0
             Layout.fillWidth: true
         }
-        TextField {
+        Ui.TextField {
             id: noteTextField
             objectName: root.objectName + "TextField"
             maximumLength: 256
@@ -98,7 +98,7 @@ Dialog {
 
             Layout.fillWidth: true
         }
-        TextField {
+        Ui.TextField {
             id: xTextField
             objectName: root.objectName + "XTextField"
             selectByMouse: true
@@ -117,7 +117,7 @@ Dialog {
 
             Layout.fillWidth: true
         }
-        TextField {
+        Ui.TextField {
             id: yTextField
             objectName: root.objectName + "YTextField"
             selectByMouse: true
