@@ -89,7 +89,7 @@ You can also say thank you by donating via [PayPal](https://www.paypal.com/cgi-b
 
 * Qt 6.5
 
-Note that the dependencies above are for the current branch that you are viewing, and GitHub shows the master branch by default. If you want to build the latest stable release, see check https://github.com/mitchcurtis/slate/tree/release#dependencies.
+Note that the dependencies above are for the current branch that you are viewing, and GitHub shows the master branch by default. If you want to build the latest stable release, see https://github.com/mitchcurtis/slate/tree/release#dependencies.
 
 ### Cloning ###
 
