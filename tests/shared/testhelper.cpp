@@ -2376,7 +2376,7 @@ bool TestHelper::triggerShortcut(const QString &objectName, const QString &seque
     Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(value & Qt::KeyboardModifierMask);
     QTest::keyClick(window, value & ~mods, mods);
     VERIFY2(activatedSpy.count() == 1, qPrintable(QString::fromLatin1(
-        "The activated() signal was not emitted for %1 with sequence %2").arg(objectName).arg(sequenceAsString)));
+        "The activated() signal was not emitted for %1 with sequence %2").arg(objectName, sequenceAsString)));
 
     return true;
 }
