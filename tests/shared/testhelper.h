@@ -149,6 +149,7 @@ protected:
 
     Q_REQUIRED_RESULT bool findAndOpenClosedPopupFromObjectName(const QString &objectName, QObject **dialog = nullptr);
     QObject *findOpenPopupFromTypeName(const QString &typeName) const;
+    bool ensureAllPopupsClosedExcept(const QStringList &exceptTheseTypeNames = {});
     QQuickItem *findDialogButtonFromText(const QObject *dialog, const QString &text);
     QQuickItem *findDialogButtonFromObjectName(const QObject *dialog, const QString &objectName);
     Q_REQUIRED_RESULT bool acceptDialog(QObject *dialog, const QString &acceptButtonObjectName);

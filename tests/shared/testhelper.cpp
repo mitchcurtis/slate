@@ -213,6 +213,13 @@ void TestHelper::cleanup()
         }
         QVERIFY(canvas->hasActiveFocus());
     }
+
+    // The above is not enough if a popup is still open but doesn't have focus,
+    // such as a menu that's closing. That could cause shortcuts not to get delivered
+    // because they are blocked by the popup.
+    QVERIFY2(ensureAllPopupsClosedExcept(), failureMessage);
+
+    failureMessage.clear();
 }
 
 void TestHelper::resetCreationErrorSpy()
@@ -1985,6 +1992,36 @@ QObject *TestHelper::findOpenPopupFromTypeName(const QString &typeName) const
         }
     }
     return popup;
+}
+
+bool TestHelper::ensureAllPopupsClosedExcept(const QStringList &exceptTheseTypeNames)
+{
+    auto overlayChildItems = overlay->childItems();
+    for (QQuickItem *child : qAsConst(overlayChildItems)) {
+        if (QString::fromLatin1(child->metaObject()->className()) == "QQuickPopupItem") {
+            QPointer<QObject> popup = child->parent();
+            const bool visible = popup->property("visible").toBool();
+            if (!visible)
+                continue;
+
+            const QString className = QString::fromLatin1(child->parent()->metaObject()->className());
+            bool isExcepted = false;
+            for (const auto &exceptedTypeName : exceptTheseTypeNames) {
+                if (className.contains(exceptedTypeName)) {
+                    isExcepted = true;
+                    break;
+                }
+            }
+            if (isExcepted)
+                continue;
+
+            // If the popup gets destroyed while we're waiting, we're fine with that.
+            // Otherwise, we wait for it to be hidden.
+            TRY_VERIFY2(!popup || !popup->property("visible").toBool(), qPrintable(QString::fromLatin1(
+                "Expected popup %1 to be closed").arg(className)));
+        }
+    }
+    return true;
 }
 
 QQuickItem *TestHelper::findDialogButtonFromText(const QObject *dialog, const QString &text)
