@@ -2036,7 +2036,7 @@ bool TestHelper::rejectDialog(QObject *dialog, const QString &rejectButtonObject
 QQuickItem *TestHelper::findListViewChild(QQuickItem *listView, const QString &childObjectName) const
 {
     if (QQuickTest::qIsPolishScheduled(listView))
-        if (!QQuickTest::qWaitForItemPolished(listView))
+        if (!QQuickTest::qWaitForPolish(listView))
             return nullptr;
 
     QQuickItem *listViewContentItem = listView->property("contentItem").value<QQuickItem*>();
@@ -2067,7 +2067,7 @@ QQuickItem *TestHelper::findListViewChild(const QString &listViewObjectName, con
 QQuickItem *TestHelper::findChildWithText(QQuickItem *item, const QString &text)
 {
     if (QQuickTest::qIsPolishScheduled(item))
-        if (!QQuickTest::qWaitForItemPolished(item))
+        if (!QQuickTest::qWaitForPolish(item))
             return nullptr;
 
     foreach (QQuickItem *child, item->childItems()) {
@@ -3598,7 +3598,7 @@ bool TestHelper::ensurePanelPolished(QQuickItem *panel)
     auto panelContentItem = panel->property("contentItem").value<QQuickItem*>();
     VERIFY(panelContentItem);
     if (QQuickTest::qIsPolishScheduled(panelContentItem))
-        VERIFY(QQuickTest::qWaitForItemPolished(panelContentItem));
+        VERIFY(QQuickTest::qWaitForPolish(panelContentItem));
 
     return true;
 }

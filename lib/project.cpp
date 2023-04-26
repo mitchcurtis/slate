@@ -492,7 +492,7 @@ bool Project::readPaintNetSwatch(QFile &file)
             continue;
 
         const QString colourString = QLatin1Char('#') + line;
-        if (!QColor::isValidColor(colourString)) {
+        if (!QColor::isValidColorName(colourString)) {
             error(QString::fromLatin1("Invalid colour %1 at line %2 of paint.net swatch file %3")
                 .arg(line).arg(lineNumber).arg(file.fileName()));
             return false;
