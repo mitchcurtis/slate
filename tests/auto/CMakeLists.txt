@@ -48,7 +48,7 @@ target_include_directories(test-app
 set_target_properties(test-app
     PROPERTIES
     CXX_EXTENSIONS FALSE
-    CXX_STANDARD 11
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED TRUE
     AUTOMOC TRUE
 )
