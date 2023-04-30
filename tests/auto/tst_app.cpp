@@ -2968,6 +2968,7 @@ void tst_App::texturedFillSwatch()
     QVERIFY(texturedFillSwatchListView);
     QCOMPARE(texturedFillSwatchListView->property("count").toInt(), 2);
     QQuickItem *swatchDelegate = nullptr;
+    QVERIFY(swatchDelegate);
     QVERIFY(QMetaObject::invokeMethod(texturedFillSwatchListView, "itemAtIndex", Qt::DirectConnection,
         Q_RETURN_ARG(QQuickItem*, swatchDelegate), Q_ARG(int, 0)));
     QQuickItem *probabilitySlider = swatchDelegate->findChild<QQuickItem*>("texturedFillSwatchColourProbabilitySlider");
