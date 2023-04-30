@@ -139,6 +139,7 @@ private Q_SLOTS:
     void penToolRightClickBehaviour();
     void splitScreenRendering();
     void formatNotModifiable();
+    void models();
 
     // Rulers, guides, notes, etc.
     void rulersAndGuides_data();
@@ -3331,6 +3332,15 @@ void tst_App::formatNotModifiable()
     QVERIFY(toolsForbiddenReasonLabel->isVisible());
     QCOMPARE(toolsForbiddenReasonLabel->property("text").toString(),
         "Image cannot be edited because its format is indexed 8-bit, which does not support modification.");
+}
+
+void tst_App::models()
+{
+    auto models = window->findChildren<QAbstractItemModel*>();
+    for (const auto model : models) {
+        //qDebug() << "testing model" << model << model->hasChildren();
+        QAbstractItemModelTester modelTester(model);
+    }
 }
 
 void tst_App::rulersAndGuides_data()

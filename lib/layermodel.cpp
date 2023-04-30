@@ -86,11 +86,6 @@ int LayerModel::rowCount(const QModelIndex &) const
     return mLayeredImageProject->layerCount();
 }
 
-int LayerModel::columnCount(const QModelIndex &) const
-{
-    return 1;
-}
-
 QHash<int, QByteArray> LayerModel::roleNames() const
 {
     QHash<int, QByteArray> names;
