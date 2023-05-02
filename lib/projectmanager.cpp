@@ -152,7 +152,8 @@ bool ProjectManager::completeCreation()
         // be alive until the end of this block.
         setReady(false);
 
-        qCDebug(lcProjectManager) << "nullified ProjectManager::project; about to emit projectChanged()";
+        qCDebug(lcProjectManager).nospace() << "nullified old project " << connectionGuard.get()
+            << "; about to emit projectChanged()";
         emit projectChanged();
     }
 

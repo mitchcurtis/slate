@@ -41,6 +41,7 @@ public:
     };
 
     explicit LayerModel(QObject *parent = nullptr);
+    ~LayerModel() override;
 
     LayeredImageProject *layeredImageProject() const;
     void setLayeredImageProject(LayeredImageProject *layeredImageProject);

@@ -66,7 +66,7 @@ Panel {
             objectName: "layerListView"
             boundsBehavior: ListView.StopAtBounds
             // TODO: shouldn't need to null-check at all in this file
-            visible: project && project.loaded
+            visible: root.project && root.project.loaded
             clip: true
 
             Layout.fillWidth: true
@@ -75,7 +75,7 @@ Panel {
             ScrollBar.vertical: ScrollBar {}
 
             model: LayerModel {
-                layeredImageProject: project
+                layeredImageProject: root.project
             }
 
             delegate: LayerDelegate {

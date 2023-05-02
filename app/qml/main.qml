@@ -260,11 +260,18 @@ ApplicationWindow {
 
             Loader {
                 objectName: "layersLoader"
-                active: window.isLayeredImageProjectType && window.canvas
+                // We specifically don't use isLayeredImageProjectType here, because that uses
+                // projectManager.ready. For the same reason mentioned in CanvasContainer.qml's
+                // args project binding, we want the bindings in the Loader's item to be evaluated
+                // before the Loader's active binding, otherwise the project will never be set
+                // to false and there will be a heap-use-after-free when LayerModel::rowCount is
+                // called by delayed view delegate creation and LayerModel tries to access the old
+                // (deleted) project.
+                active: window.project && window.project.type === Project.LayeredImageType && window.canvas
                 visible: active
                 sourceComponent: Ui.LayerPanel {
                     layeredImageCanvas: window.canvas
-                    project: window.project
+                    project: projectManager.ready ? window.project : null
                     z: canvasContainer.z - 1
                 }
 

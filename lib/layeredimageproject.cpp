@@ -1218,9 +1218,12 @@ void LayeredImageProject::setLayerImage(int index, const QImage &image)
 
 QDebug operator<<(QDebug debug, const LayeredImageProject *project)
 {
-    debug.nospace() << "LayeredImageProject currentLayerIndex=" << project->mCurrentLayerIndex
-                    << ", layers:";
-    foreach (ImageLayer *layer, project->mLayers) {
+    if (!project)
+        return debug << "LayeredImageProject(0x0)";
+
+    debug.nospace() << "LayeredImageProject " << (const void *)project
+        << " currentLayerIndex=" << project->mCurrentLayerIndex << ", layers:";
+    for (ImageLayer *layer : qAsConst(project->mLayers)) {
         debug << "\n    name=" << layer->name()
               << " visible=" << layer->isVisible()
               << " opacity=" << layer->opacity()

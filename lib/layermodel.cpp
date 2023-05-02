@@ -30,6 +30,12 @@ LayerModel::LayerModel(QObject *parent) :
     QAbstractListModel(parent),
     mLayeredImageProject(nullptr)
 {
+    qCDebug(lcLayerModel) << "constructing" << this;
+}
+
+LayerModel::~LayerModel()
+{
+    qCDebug(lcLayerModel) << "destroying" << this;
 }
 
 LayeredImageProject *LayerModel::layeredImageProject() const
@@ -39,6 +45,7 @@ LayeredImageProject *LayerModel::layeredImageProject() const
 
 void LayerModel::setLayeredImageProject(LayeredImageProject *layeredImageProject)
 {
+    qCDebug(lcLayerModel) << "setLayeredImageProject called on" << this << "with" << layeredImageProject;
     if (layeredImageProject == mLayeredImageProject)
         return;
 
