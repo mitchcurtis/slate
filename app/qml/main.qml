@@ -17,12 +17,12 @@
     along with Slate. If not, see <http://www.gnu.org/licenses/>.
 */
 
+import QtCore
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Window
 import QtQuick.Controls
 
-import Qt.labs.settings
 import Qt.labs.platform as Platform
 
 import Slate
