@@ -15,6 +15,8 @@ find_package(Qt6 COMPONENTS Quick)
 find_package(Qt6 COMPONENTS Widgets)
 find_package(Qt6 COMPONENTS Test)
 
+qt_policy(SET QTP0001 NEW)
+
 add_library(projectWarning INTERFACE)
 
 target_compile_options(projectWarning INTERFACE
