@@ -282,7 +282,7 @@ void TestHelper::wheelEvent(QQuickItem *item, const QPoint &localPos, const int 
 
 void TestHelper::keyClicks(const QString &text)
 {
-    for (const auto ch : qAsConst(text))
+    for (const auto ch : std::as_const(text))
         QTest::keySequence(window, QKeySequence(ch));
 }
 
@@ -1451,7 +1451,7 @@ bool TestHelper::addSwatchWithForegroundColour()
     // findChild() doesn't work here for some reason.
     const auto childItems = viewContentItem->childItems();
     QQuickItem *swatchDelegate = nullptr;
-    for (const auto childItem : qAsConst(childItems)) {
+    for (const auto childItem : std::as_const(childItems)) {
         if (childItem->objectName() == expectedDelegateObjectName) {
             swatchDelegate = childItem;
             break;
@@ -1997,7 +1997,7 @@ QObject *TestHelper::findOpenPopupFromTypeName(const QString &typeName) const
 bool TestHelper::ensureAllPopupsClosedExcept(const QStringList &exceptTheseTypeNames)
 {
     auto overlayChildItems = overlay->childItems();
-    for (QQuickItem *child : qAsConst(overlayChildItems)) {
+    for (QQuickItem *child : std::as_const(overlayChildItems)) {
         if (QString::fromLatin1(child->metaObject()->className()) == "QQuickPopupItem") {
             QPointer<QObject> popup = child->parent();
             const bool visible = popup->property("visible").toBool();
@@ -3592,7 +3592,7 @@ bool TestHelper::dragSplitViewHandle(const QString &splitViewObjectName, int ind
 
 bool TestHelper::togglePanels(const QStringList &panelObjectNames, bool expanded)
 {
-    for (const QString &panelObjectName : qAsConst(panelObjectNames)) {
+    for (const QString &panelObjectName : std::as_const(panelObjectNames)) {
         if (!togglePanel(panelObjectName, expanded))
             return false;
     }

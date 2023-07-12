@@ -354,7 +354,7 @@ QVector<QImage> LayeredImageProject::layerImages() const
 {
     QVector<QImage> images;
     images.reserve(mLayers.size());
-    for (const ImageLayer *layer : qAsConst(mLayers))
+    for (const ImageLayer *layer : std::as_const(mLayers))
         images.append(*layer->image());
     return images;
 }
@@ -777,7 +777,7 @@ void LayeredImageProject::resize(int width, int height, bool smooth)
     QVector<QImage> newImages;
     newImages.reserve(mLayers.size());
 
-    for (const QImage &originalLayerImage : qAsConst(mLayerImagesBeforeLivePreview)) {
+    for (const QImage &originalLayerImage : std::as_const(mLayerImagesBeforeLivePreview)) {
         const QImage resized = ImageUtils::resizeContents(originalLayerImage, newSize, smooth);
         newImages.append(resized);
     }
@@ -797,7 +797,7 @@ void LayeredImageProject::crop(const QRect &rect)
     QVector<QImage> newImages;
     newImages.reserve(mLayers.size());
 
-    for (const ImageLayer *layer : qAsConst(mLayers)) {
+    for (const ImageLayer *layer : std::as_const(mLayers)) {
         previousImages.append(*layer->image());
 
         const QImage cropped = layer->image()->copy(rect);
@@ -1223,7 +1223,7 @@ QDebug operator<<(QDebug debug, const LayeredImageProject *project)
 
     debug.nospace() << "LayeredImageProject " << (const void *)project
         << " currentLayerIndex=" << project->mCurrentLayerIndex << ", layers:";
-    for (ImageLayer *layer : qAsConst(project->mLayers)) {
+    for (ImageLayer *layer : std::as_const(project->mLayers)) {
         debug << "\n    name=" << layer->name()
               << " visible=" << layer->isVisible()
               << " opacity=" << layer->opacity()

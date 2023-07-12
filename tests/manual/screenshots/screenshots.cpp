@@ -252,7 +252,7 @@ void tst_Screenshots::toolBarIcons()
 
     auto grabToolButtonImages = [=, &toolButtonsGrabbed](){
         const auto toolButtons = toolBar->findChildren<QQuickItem*>(toolButtonRegex);
-        for (QQuickItem *toolButton : qAsConst(toolButtons)) {
+        for (QQuickItem *toolButton : std::as_const(toolButtons)) {
             if (toolButtonsGrabbed.contains(toolButton) || !toolButton->isVisible())
                 continue;
 

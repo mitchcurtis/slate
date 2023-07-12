@@ -1246,7 +1246,7 @@ Ruler *ImageCanvas::rulerAtCursorPos()
     QPointF cursorPos = QPointF(mCursorX, mCursorY);
     Ruler *rulerAtCursor = nullptr;
 
-    for (const auto &ruler : qAsConst(mRulers)) {
+    for (const auto &ruler : std::as_const(mRulers)) {
         if (ruler->contains(mapToItem(ruler, cursorPos))) {
             rulerAtCursor = ruler;
             break;

@@ -196,7 +196,7 @@ void ProbabilitySwatch::doWrite(QJsonObject &json) const
 void ProbabilitySwatch::calculateProbabilitySum()
 {
     mProbabilitySum = 0;
-    for (const qreal probability : qAsConst(mProbabilities))
+    for (const qreal probability : std::as_const(mProbabilities))
         mProbabilitySum += probability;
     emit nonZeroProbabilitySumChanged();
 }

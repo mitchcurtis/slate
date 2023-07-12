@@ -160,7 +160,7 @@ bool Swatch::doRead(const QJsonObject &json, QString &errorMessage)
 void Swatch::doWrite(QJsonObject &json) const
 {
     QJsonArray colourArray;
-    for (const SwatchColour &swatchColour : qAsConst(mColours)) {
+    for (const SwatchColour &swatchColour : std::as_const(mColours)) {
         QJsonObject colourObject;
         swatchColour.write(colourObject);
         colourArray.append(colourObject);

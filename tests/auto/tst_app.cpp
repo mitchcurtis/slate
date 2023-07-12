@@ -2021,7 +2021,7 @@ void tst_App::penSubpixelPositionWithThickBrush()
     const QImage expectedImage(expectedImagePath);
     QVERIFY(!expectedImage.isNull());
 
-    for (const QPoint &mousePosition : qAsConst(mousePositions)) {
+    for (const QPoint &mousePosition : std::as_const(mousePositions)) {
         cursorWindowPos = mousePosition;
         QTest::mouseMove(window, cursorWindowPos);
         QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
@@ -3204,10 +3204,10 @@ void tst_App::penToolRightClickBehaviour_data()
     QTest::addColumn<Project::Type>("projectType");
     QTest::addColumn<ImageCanvas::PenToolRightClickBehaviour>("penToolRightClickBehaviour");
 
-    for (const auto projectType : qAsConst(allProjectTypes)) {
+    for (const auto projectType : std::as_const(allProjectTypes)) {
         const QString typeString = Project::typeToString(projectType);
 
-        for (const auto behaviour : qAsConst(allRightClickBehaviours)) {
+        for (const auto behaviour : std::as_const(allRightClickBehaviours)) {
             const QMetaEnum behaviourMetaEnum = QMetaEnum::fromType<ImageCanvas::PenToolRightClickBehaviour>();
             const QString behaviourString = behaviourMetaEnum.valueToKey(behaviour);
 
@@ -4160,7 +4160,7 @@ void tst_App::selectionToolImageCanvas()
     const auto secondPaneDefaultZoom = canvas->secondPane()->zoomLevel();
     const auto secondPaneDefaultOffset = canvas->secondPane()->offset();
 
-    for (const SelectionData &data : qAsConst(selectionData)) {
+    for (const SelectionData &data : std::as_const(selectionData)) {
         auto selectionDataFailureMessage = [&](const QString &failedAction) -> QByteArray {
             return qPrintable(QString::fromLatin1("Failed to %1 for data: %2\n      %3")
                 .arg(failedAction, QtUtils::toString(data), failureMessage));
@@ -4172,7 +4172,7 @@ void tst_App::selectionToolImageCanvas()
             if (!canvas->areGuidesVisible())
                 QVERIFY2(triggerGuidesVisible(), failureMessage);
 
-            for (const auto &guide : qAsConst(data.guides)) {
+            for (const auto &guide : std::as_const(data.guides)) {
                 QVERIFY2(addNewGuide(guide.position(), guide.orientation()),
                     selectionDataFailureMessage(QString::fromLatin1("add guide %1").arg(QtUtils::toString(guide))));
             }

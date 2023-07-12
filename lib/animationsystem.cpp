@@ -293,7 +293,7 @@ void AnimationSystem::write(QJsonObject &json) const
     json["currentAnimationPlayback"] = playbackJson;
 
     QJsonArray animationsArray;
-    for (Animation *animation : qAsConst(mAnimations)) {
+    for (Animation *animation : std::as_const(mAnimations)) {
         QJsonObject animationObject;
         animation->write(animationObject);
         animationsArray.append(animationObject);
