@@ -43,6 +43,8 @@ ApplicationWindow {
 //    onActiveFocusItemChanged: print("active focus: " + activeFocusItem + ", parent: "
 //        + (activeFocusItem ? activeFocusItem.parent : null))
 
+    required property ProjectManager projectManager
+
     property Project project: projectManager.project
     readonly property int projectType: project && projectManager.ready ? project.type : 0
     readonly property bool isImageProjectType: projectType === Project.ImageType || projectType === Project.LayeredImageType
@@ -157,6 +159,7 @@ ApplicationWindow {
     }
 
     Ui.Shortcuts {
+        projectManager: window.projectManager
         window: window
         canvasContainer: canvasContainer
         canvas: window.canvas
@@ -165,6 +168,7 @@ ApplicationWindow {
 
     menuBar: Ui.MenuBar {
         id: menuBar
+        projectManager: window.projectManager
         canvas: window.canvas
         pasteAcrossLayersDialog: pasteAcrossLayersDialog
         hueSaturationDialog: hueSaturationDialog
@@ -201,6 +205,8 @@ ApplicationWindow {
         Ui.CanvasContainer {
             id: canvasContainer
             focus: true
+
+            projectManager: window.projectManager
 
             checkedToolButton: toolBar.toolButtonGroup.checkedButton
 

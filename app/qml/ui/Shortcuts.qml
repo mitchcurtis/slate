@@ -5,6 +5,8 @@ import Slate
 Item {
     objectName: "shortcuts"
 
+    required property ProjectManager projectManager
+
     property var window
     property Project project: projectManager.project
     property int projectType: project ? project.type : 0

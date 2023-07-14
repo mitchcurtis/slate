@@ -88,11 +88,13 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     mEngine->addImageProvider("sprite", new SpriteImageProvider);
     mEngine->addImageProvider("project", new ProjectImageProvider(&mProjectManager));
 
-    mEngine->rootContext()->setContextProperty("projectManager", &mProjectManager);
     mEngine->rootContext()->setContextProperty("settings", mSettings.data());
     mEngine->rootContext()->setContextProperty("qtVersion", QT_VERSION_STR);
 
     qCDebug(lcApplication) << "Loading main.qml...";
+    mEngine->setInitialProperties({
+        { "projectManager", QVariant::fromValue(&mProjectManager) }
+    });
     mEngine->load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
     if (!mEngine->rootObjects().isEmpty())
         qCDebug(lcApplication) << "... loaded main.qml";

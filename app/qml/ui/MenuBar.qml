@@ -28,6 +28,8 @@ import Slate
 Controls.MenuBar {
     spacing: 10
 
+    required property ProjectManager projectManager
+
     property ImageCanvas canvas
     property Project project: projectManager.project
     property int projectType: project ? project.type : 0
