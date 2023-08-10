@@ -1415,7 +1415,7 @@ QQuickItem *TestHelper::findSwatchViewDelegateAtIndex(int index)
     if (!swatchGridView)
         return nullptr;
 
-    return findViewDelegateAtIndex(swatchGridView, index);
+    return viewItemAtIndex(swatchGridView, index);
 }
 
 bool TestHelper::addSwatchWithForegroundColour()
@@ -2119,23 +2119,22 @@ QQuickItem *TestHelper::findChildWithText(QQuickItem *item, const QString &text)
     return nullptr;
 }
 
-QQuickItem *TestHelper::findViewDelegateAtIndex(QQuickItem *view, int index)
+QQuickItem *TestHelper::viewItemAtIndex(QQuickItem *listView, int index)
 {
-    QQuickItem *viewContentItem = view->property("contentItem").value<QQuickItem*>();
-    if (!viewContentItem)
+    if (QQuickTest::qIsPolishScheduled(listView))
+        QQuickTest::qWaitForPolish(listView);
+
+    QQuickItem *listViewContentItem = listView->property("contentItem").value<QQuickItem*>();
+    if (!listViewContentItem)
         return nullptr;
 
-    const auto childItems = viewContentItem->childItems();
-    for (QQuickItem *child : childItems) {
-        QQmlContext *context = qmlContext(child);
-        if (!context)
-            continue;
-
-        QVariant indexProperty = context->contextProperty("index");
-        if (indexProperty.toInt() == index)
-            return child;
+    QQuickItem *item = nullptr;
+    if (!QMetaObject::invokeMethod(listView, "itemAtIndex", Qt::DirectConnection,
+            Q_RETURN_ARG(QQuickItem*, item), Q_ARG(int, index))) {
+        return nullptr;
     }
-    return nullptr;
+
+    return item;
 }
 
 QQuickItem *TestHelper::findSplitViewHandle(const QString &splitViewObjectName, int handleIndex) const

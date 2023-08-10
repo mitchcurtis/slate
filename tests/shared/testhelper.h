@@ -157,7 +157,7 @@ protected:
     QQuickItem *findListViewChild(QQuickItem *listView, const QString &childObjectName) const;
     QQuickItem *findListViewChild(const QString &listViewObjectName, const QString &childObjectName) const;
     static QQuickItem *findChildWithText(QQuickItem *item, const QString &text);
-    QQuickItem *findViewDelegateAtIndex(QQuickItem *view, int index);
+    QQuickItem *viewItemAtIndex(QQuickItem *listView, int index);
     QQuickItem* findSplitViewHandle(const QString &splitViewObjectName, int handleIndex) const;
     // Useful for cases where an item is a QQuickItem child but not a QObject child, as is the case with e.g. Repeater.
     static QQuickItem *findChildItem(QQuickItem *parentItem, const QString &objectName);

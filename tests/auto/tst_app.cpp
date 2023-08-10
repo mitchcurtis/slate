@@ -26,6 +26,7 @@
 #include <QtTest>
 #include <QQuickItemGrabResult>
 #include <QQuickWindow>
+#include <QtQuickTest>
 
 // Need this otherwise we get linker errors.
 extern "C" {
@@ -2967,11 +2968,11 @@ void tst_App::texturedFillSwatch()
     QVERIFY(settingsDialog);
     QQuickItem *texturedFillSwatchListView = settingsDialog->findChild<QQuickItem*>("texturedFillSwatchListView");
     QVERIFY(texturedFillSwatchListView);
-    QCOMPARE(texturedFillSwatchListView->property("count").toInt(), 2);
-    QQuickItem *swatchDelegate = nullptr;
+    QQuickItem *swatchDelegate = viewItemAtIndex(texturedFillSwatchListView, 0);
     QVERIFY(swatchDelegate);
-    QVERIFY(QMetaObject::invokeMethod(texturedFillSwatchListView, "itemAtIndex", Qt::DirectConnection,
-        Q_RETURN_ARG(QQuickItem*, swatchDelegate), Q_ARG(int, 0)));
+    QCOMPARE(texturedFillSwatchListView->property("count").toInt(), 2);
+
+    QVERIFY(swatchDelegate);
     QQuickItem *probabilitySlider = swatchDelegate->findChild<QQuickItem*>("texturedFillSwatchColourProbabilitySlider");
     QVERIFY(probabilitySlider);
     mouseEvent(probabilitySlider, QPoint(probabilitySlider->width() * 0.25, probabilitySlider->height() / 2), MouseClick);
