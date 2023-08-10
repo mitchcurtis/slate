@@ -47,11 +47,11 @@ AbstractButton {
 
         Rectangle {
             id: focusRect
-            width: 2
             color: Ui.Theme.focusColour
             // We want it to take up space when it's not checked
             opacity: root.checked ? 1 : 0
 
+            Layout.preferredWidth: 2
             Layout.fillHeight: true
         }
 
