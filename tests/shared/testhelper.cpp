@@ -1526,12 +1526,12 @@ bool TestHelper::addNewGuide(int position, Qt::Orientation orientation)
     if (!canvas->areRulersVisible()) {
         if (!triggerRulersVisible())
             return false;
-        VERIFY(canvas->areRulersVisible());
+        QVERIFY(canvas->areRulersVisible());
     }
     if (canvas->areGuidesLocked()) {
         if (!clickButton(lockGuidesToolButton))
             return false;
-        VERIFY(!canvas->areGuidesLocked());
+        QVERIFY(!canvas->areGuidesLocked());
     }
 
     // Use something that doesn't show the selection guide, as it will affect our grab comparisons.
@@ -1546,7 +1546,7 @@ bool TestHelper::addNewGuide(int position, Qt::Orientation orientation)
     const qreal originalZoomLevel = canvas->currentPane()->zoomLevel();
 
     QQuickItem *ruler = findChildItem(canvas, horizontal ? "firstHorizontalRuler" : "firstVerticalRuler");
-    VERIFY(ruler);
+    QVERIFY(ruler);
     const qreal rulerThickness = horizontal ? ruler->height() : ruler->width();
 
     // Pan so that the top left of the canvas is at the rulers' corners.
@@ -1561,10 +1561,10 @@ bool TestHelper::addNewGuide(int position, Qt::Orientation orientation)
         horizontal ? rulerThickness / 2 : 50);
     setCursorPosInPixels(pressPos);
     QTest::mouseMove(window, cursorWindowPos);
-    VERIFY(!canvas->pressedRuler());
+    QVERIFY(!canvas->pressedRuler());
 
     QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
-    VERIFY(canvas->pressedRuler());
+    QVERIFY(canvas->pressedRuler());
 
     // Do the actual moving onto the canvas.
     const QPoint releasePos(
@@ -1574,19 +1574,19 @@ bool TestHelper::addNewGuide(int position, Qt::Orientation orientation)
     QTest::mouseMove(window, cursorWindowPos);
 
     // Now it should be visible on the canvas.
-    VERIFY(imageGrabber.requestImage(canvas));
-    TRY_VERIFY(imageGrabber.isReady());
+    QVERIFY(imageGrabber.requestImage(canvas));
+    QTRY_VERIFY(imageGrabber.isReady());
     const QImage grabWithGuide = imageGrabber.takeImage();
-    COMPARE_NON_FLOAT(grabWithGuide.pixelColor(releasePos.x(), releasePos.y()).name(QColor::HexArgb),
+    QCOMPARE(grabWithGuide.pixelColor(releasePos.x(), releasePos.y()).name(QColor::HexArgb),
         QColor(Qt::cyan).name(QColor::HexArgb));
 
     QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cursorWindowPos);
 
-    VERIFY(!canvas->pressedRuler());
-    VERIFY2(project->guides().size() == originalGuideCount + 1, qPrintable(QString::fromLatin1(
+    QVERIFY(!canvas->pressedRuler());
+    QVERIFY2(project->guides().size() == originalGuideCount + 1, qPrintable(QString::fromLatin1(
         "Expected %1 guide(s), but got %2").arg(originalGuideCount + 1).arg(project->guides().size())));
-    VERIFY(project->guides().at(newGuideIndex).position() == position);
-    VERIFY(project->undoStack()->canUndo());
+    QVERIFY(project->guides().at(newGuideIndex).position() == position);
+    QVERIFY(project->undoStack()->canUndo());
 
     if (canvas->tool() != originalTool && !switchTool(originalTool))
         return false;
@@ -2419,6 +2419,7 @@ bool TestHelper::triggerShortcut(const QString &objectName, const QString &seque
 
 bool TestHelper::triggerNewProject()
 {
+    QVERIFY(false);
     return triggerShortcut("newShortcut", app.settings()->newShortcut());
 }
 
@@ -2785,8 +2786,7 @@ bool TestHelper::createNewProject(Project::Type projectType, const QVariantMap &
         projectCreationFailedSpy->clear();
 
     qCDebug(lcTestHelper) << "Triggering new project shortcut";
-    if (!triggerNewProject())
-        return false;
+    QCATCH(triggerNewProject());
 
     // Check that we get prompted to discard any changes.
     if (project && project->hasUnsavedChanges()) {
@@ -3021,7 +3021,8 @@ bool TestHelper::createNewTilesetProject(int tileWidth, int tileHeight, int tile
     args.insert("tilesetTilesWide", tilesetTilesWide);
     args.insert("tilesetTilesHigh", tilesetTilesHigh);
     args.insert("transparentTilesetBackground", transparentTilesetBackground);
-    return createNewProject(Project::TilesetType, args);
+    QCATCH(createNewProject(Project::TilesetType, args));
+    return true;
 }
 
 bool TestHelper::createNewImageProject(int imageWidth, int imageHeight, bool transparentImageBackground)

@@ -255,7 +255,7 @@ protected:
     void addImageProjectTypes();
     void addActualProjectTypes();
 
-    Q_REQUIRED_RESULT bool createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
+    bool createNewProject(Project::Type projectType, const QVariantMap &args = QVariantMap());
     Q_REQUIRED_RESULT bool createNewTilesetProject(int tileWidth = 25, int tileHeight = 25,
         int tilesetTilesWide = -1, int tilesetTilesHigh = -1, bool transparentTilesetBackground = false);
     Q_REQUIRED_RESULT bool createNewImageProject(int imageWidth = 256, int imageHeight = 256,

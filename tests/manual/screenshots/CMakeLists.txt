@@ -17,6 +17,8 @@ target_sources(screenshots
 target_compile_definitions(screenshots
     PRIVATE
         APP_VERSION="${PROJECT_VERSION}"
+        QTEST_THROW_ON_FAILURE
+        QTEST_THROW_ON_SKIP
 )
 
 find_package(Qt6 COMPONENTS Core Gui Qml Quick QuickControls2 QuickTest)

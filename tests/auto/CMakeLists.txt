@@ -55,7 +55,9 @@ set_target_properties(test-app
 
 target_compile_definitions(test-app
     PRIVATE
-    QT_DEPRECATED_WARNINGS
+        QT_DEPRECATED_WARNINGS
+        QTEST_THROW_ON_FAILURE
+        QTEST_THROW_ON_SKIP
 )
 
 add_test(

@@ -47,7 +47,9 @@ set_target_properties(memory-usage
 
 target_compile_definitions(memory-usage
     PRIVATE
-    QT_DEPRECATED_WARNINGS
+        QT_DEPRECATED_WARNINGS
+        QTEST_THROW_ON_FAILURE
+        QTEST_THROW_ON_SKIP
 )
 
 add_test(
