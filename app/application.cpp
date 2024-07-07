@@ -182,27 +182,27 @@ void Application::installTranslators()
 #else
     slateTranslationsDir.cd(QStringLiteral("translations"));
 #endif
+    const QStringList tsFiles = QString::fromLatin1(TS_FILES).split(' ');
     qCDebug(lcApplication) << "looking for translation for"
-        << locale.name() << "locale in" << slateTranslationsDir.absolutePath();
+        << locale.name() << "locale in" << slateTranslationsDir.absolutePath()
+        << "with the following known translations:" << tsFiles;
 
     QTranslator *slateTranslator = new QTranslator(mApplication.data());
     if (slateTranslator->load(locale, QStringLiteral("slate_"), QString(), slateTranslationsDir.absolutePath())) {
         mApplication->installTranslator(slateTranslator);
     } else {
-        qWarning() << "Failed to load slate_* translation for locale"
-            << locale.name() << "from" << slateTranslationsDir.absolutePath();
-        delete slateTranslator;
-        slateTranslator = nullptr;
+        const auto tsFileIt = std::find_if(tsFiles.constBegin(), tsFiles.constEnd(), [locale](const QString &tsFile) {
+            return tsFile.contains(locale.name());
+        });
+        if (tsFileIt != tsFiles.constEnd()) {
+            // We have a translation for this locale, so it should have loaded.
+            qWarning() << "Failed to load slate_* translation for locale"
+                << locale.name() << "from" << slateTranslationsDir.absolutePath();
+        }
     }
 
     const QString qtTranslationsDir = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
-    QTranslator *qtTranslator = new QTranslator(mApplication.data());
-    if (qtTranslator->load(locale, QStringLiteral("qt_"), QString(), qtTranslationsDir)) {
-        mApplication->installTranslator(qtTranslator);
-    } else {
-        qWarning() << "Failed to load qt_* translation for locale"
-            << locale.name() << "from" << qtTranslationsDir;
-        delete qtTranslator;
-        qtTranslator = nullptr;
-    }
+    std::unique_ptr<QTranslator> qtTranslator(new QTranslator(mApplication.data()));
+    if (qtTranslator->load(locale, QStringLiteral("qt_"), QString(), qtTranslationsDir))
+        mApplication->installTranslator(qtTranslator.get());
 }

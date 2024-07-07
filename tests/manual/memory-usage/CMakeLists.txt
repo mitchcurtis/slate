@@ -1,6 +1,8 @@
 # tests/manual/memory-usage/CMakeLists.txt
 add_executable(memory-usage)
 
+find_package(Qt6 COMPONENTS Core Gui Qml Quick QuickControls2 QuickTest)
+
 target_sources(memory-usage
     PRIVATE
         ${CMAKE_SOURCE_DIR}/app/application.h
@@ -18,7 +20,25 @@ target_compile_definitions(memory-usage
         APP_VERSION="${PROJECT_VERSION}"
 )
 
-find_package(Qt6 COMPONENTS Core Gui Qml Quick QuickControls2 QuickTest)
+target_compile_definitions(memory-usage
+    PRIVATE
+    QT_DEPRECATED_WARNINGS
+)
+
+# Avoid each file being passed as a separate macro
+# to the compiler, rather than one macro that contains a list of files.
+set(ts_files_cpp ${ts_files})
+string(REPLACE ";" " " ts_files_cpp "${ts_files_cpp}")
+target_compile_definitions(memory-usage
+    PRIVATE
+        TS_FILES="${ts_files_cpp}"
+)
+
+target_include_directories(memory-usage
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/app
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../shared
+)
 
 target_link_libraries(memory-usage
     PRIVATE
@@ -32,22 +52,11 @@ target_link_libraries(memory-usage
         Qt::Widgets
 )
 
-target_include_directories(memory-usage
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/app
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../shared
-)
-
 set_target_properties(memory-usage
     PROPERTIES
     CXX_EXTENSIONS FALSE
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED TRUE
-)
-
-target_compile_definitions(memory-usage
-    PRIVATE
-    QT_DEPRECATED_WARNINGS
 )
 
 add_test(
