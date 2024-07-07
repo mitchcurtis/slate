@@ -1,6 +1,8 @@
 # tests/auto/CMakeLists.txt
 add_executable(test-app)
 
+find_package(Qt6 COMPONENTS Core Gui Qml Quick QuickControls2 QuickTest)
+
 target_sources(test-app
     PRIVATE
         ${CMAKE_SOURCE_DIR}/app/application.h
@@ -24,7 +26,21 @@ target_compile_definitions(test-app
         APP_VERSION="${PROJECT_VERSION}"
 )
 
-find_package(Qt6 COMPONENTS Core Gui Qml Quick QuickControls2 QuickTest)
+# Avoid each file being passed as a separate macro
+# to the compiler, rather than one macro that contains a list of files.
+set(ts_files_cpp ${ts_files})
+string(REPLACE ";" " " ts_files_cpp "${ts_files_cpp}")
+target_compile_definitions(test-app
+    PRIVATE
+        TS_FILES="${ts_files_cpp}"
+)
+
+target_include_directories(test-app
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/app
+        ${CMAKE_CURRENT_SOURCE_DIR}/../shared
+        ${CMAKE_SOURCE_DIR}/lib/3rdparty
+)
 
 target_link_libraries(test-app
     PRIVATE
@@ -36,13 +52,6 @@ target_link_libraries(test-app
         Qt::QuickTest
         Qt::Test
         Qt::Widgets
-)
-
-target_include_directories(test-app
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/app
-        ${CMAKE_CURRENT_SOURCE_DIR}/../shared
-        ${CMAKE_SOURCE_DIR}/lib/3rdparty
 )
 
 set_target_properties(test-app

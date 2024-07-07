@@ -8,12 +8,7 @@ set(CMAKE_AUTOMOC ON)
 
 option(ENABLE_TESTING "" ON)
 
-find_package(Qt6 COMPONENTS Core)
-find_package(Qt6 COMPONENTS Gui)
-find_package(Qt6 COMPONENTS Qml)
-find_package(Qt6 COMPONENTS Quick)
-find_package(Qt6 COMPONENTS Widgets)
-find_package(Qt6 COMPONENTS Test)
+find_package(Qt6 COMPONENTS Core Gui Qml Quick Widgets Test LinguistTools)
 
 qt_policy(SET QTP0001 NEW)
 
@@ -25,11 +20,30 @@ target_compile_options(projectWarning INTERFACE
     $<$<CXX_COMPILER_ID:MSVC>:/W0>
 )
 
+set(ts_files
+    translations/slate_ar_EG.ts
+    translations/slate_nb_NO.ts
+    translations/slate_zh_CN.ts
+)
+set_source_files_properties(${ts_files}
+    PROPERTIES OUTPUT_LOCATION
+        "${CMAKE_CURRENT_BINARY_DIR}/app/translations"
+)
+qt_add_translations(slate
+    TS_FILES
+        ${ts_files}
+    SOURCES
+        app/qml/qml.qrc
+)
+
 add_subdirectory(lib)
 add_subdirectory(app)
+
 if(ENABLE_TESTING)
     enable_testing()
 
     add_subdirectory(tests)
 endif()
+
+set_property(DIRECTORY tests PROPERTY QT_EXCLUDE_FROM_TRANSLATION ON)
 

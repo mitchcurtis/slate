@@ -1,6 +1,8 @@
 # tests/manual/screenshots/CMakeLists.txt
 add_executable(screenshots)
 
+find_package(Qt6 COMPONENTS Core Gui Qml Quick QuickControls2 QuickTest)
+
 target_sources(screenshots
     PRIVATE
         ${CMAKE_SOURCE_DIR}/app/application.h
@@ -19,7 +21,25 @@ target_compile_definitions(screenshots
         APP_VERSION="${PROJECT_VERSION}"
 )
 
-find_package(Qt6 COMPONENTS Core Gui Qml Quick QuickControls2 QuickTest)
+target_compile_definitions(screenshots
+    PRIVATE
+    QT_DEPRECATED_WARNINGS
+)
+
+# Avoid each file being passed as a separate macro
+# to the compiler, rather than one macro that contains a list of files.
+set(ts_files_cpp ${ts_files})
+string(REPLACE ";" " " ts_files_cpp "${ts_files_cpp}")
+target_compile_definitions(screenshots
+    PRIVATE
+        TS_FILES="${ts_files_cpp}"
+)
+
+target_include_directories(screenshots
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/app
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../shared
+)
 
 target_link_libraries(screenshots
     PRIVATE
@@ -33,22 +53,11 @@ target_link_libraries(screenshots
         Qt::Widgets
 )
 
-target_include_directories(screenshots
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/app
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../shared
-)
-
 set_target_properties(screenshots
     PROPERTIES
     CXX_EXTENSIONS FALSE
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED TRUE
-)
-
-target_compile_definitions(screenshots
-    PRIVATE
-    QT_DEPRECATED_WARNINGS
 )
 
 add_test(

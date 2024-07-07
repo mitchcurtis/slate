@@ -33,7 +33,17 @@ target_compile_definitions(app
 )
 
 target_compile_definitions(app
-    PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
+    PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>
+)
+
+# Avoid each file being passed as a separate macro
+# to the compiler, rather than one macro that contains a list of files.
+set(ts_files_cpp ${ts_files})
+string(REPLACE ";" " " ts_files_cpp "${ts_files_cpp}")
+target_compile_definitions(app
+    PRIVATE
+        TS_FILES="${ts_files_cpp}"
+)
 
 target_link_libraries(app
     PRIVATE
