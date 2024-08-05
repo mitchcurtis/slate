@@ -23,7 +23,6 @@
 #include <QFontDatabase>
 #include <QLibraryInfo>
 #include <QLoggingCategory>
-#include <QQmlFileSelector>
 #include <QTranslator>
 #include <QUndoStack>
 
@@ -77,11 +76,6 @@ Application::Application(int &argc, char **argv, const QString &applicationName)
     addFonts();
 
     installTranslators();
-
-#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
-    QQmlFileSelector fileSelector(mEngine.data());
-    fileSelector.setExtraSelectors(QStringList() << QLatin1String("nativemenubar"));
-#endif
 
     mProjectManager.setApplicationSettings(mSettings.data());
 

@@ -12,7 +12,6 @@
         <file>ui/+Universal/SwatchFocusRectangle.qml</file>
         <file>ui/+Universal/Theme.qml</file>
         <file>ui/+Universal/VerticalSeparator.qml</file>
-        <file>ui/+nativemenubar/MenuBar.qml</file>
         <file>ui/AboutDialog.qml</file>
         <file>ui/AddGuidesDialog.qml</file>
         <file>ui/AnimationDelegate.qml</file>

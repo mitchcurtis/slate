@@ -22,8 +22,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Window
 import QtQuick.Controls
-
-import Qt.labs.platform as Platform
+import QtQuick.Dialogs
 
 import Slate
 
@@ -309,28 +308,28 @@ ApplicationWindow {
             : tilesetFilters;
     }
 
-    Platform.FileDialog {
+    FileDialog {
         id: openProjectDialog
         objectName: "openProjectDialog"
         nameFilters: ["All files (*)", "PNG files (*.png)", "BMP files (*.bmp)", "SLP files (*.slp)", "STP files (*.stp)"]
         defaultSuffix: projectManager.projectExtensionForType(Project.ImageType)
+        currentFolder: (project && project.loaded) ? project.dirUrl : ""
         onAccepted: loadProject(file)
-        folder: (project && project.loaded) ? project.dirUrl : ""
     }
 
-    Platform.FileDialog {
+    FileDialog {
         id: saveAsDialog
         objectName: "saveAsDialog"
-        fileMode: Platform.FileDialog.SaveFile
+        fileMode: FileDialog.SaveFile
         nameFilters: nameFiltersForProjectType(projectType)
         defaultSuffix: projectManager.projectExtensionForType(projectType)
         onAccepted: project.saveAs(file)
     }
 
-    Platform.FileDialog {
+    FileDialog {
         id: exportDialog
         objectName: "exportAsDialog"
-        fileMode: Platform.FileDialog.SaveFile
+        fileMode: FileDialog.SaveFile
         nameFilters: imageFilters
         defaultSuffix: projectManager.projectExtensionForType(Project.ImageType)
         onAccepted: project.exportImage(file)
