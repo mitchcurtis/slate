@@ -29,15 +29,16 @@ set_source_files_properties(${ts_files}
     PROPERTIES OUTPUT_LOCATION
         "${CMAKE_CURRENT_BINARY_DIR}/app/translations"
 )
-qt_add_translations(slate
+
+add_subdirectory(lib)
+add_subdirectory(app)
+
+qt_add_translations(app
     TS_FILES
         ${ts_files}
     SOURCES
         app/qml/qml.qrc
 )
-
-add_subdirectory(lib)
-add_subdirectory(app)
 
 if(ENABLE_TESTING)
     enable_testing()
