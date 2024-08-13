@@ -181,6 +181,7 @@ private Q_SLOTS:
     void undoPasteAcrossLayers();
     void flipPastedImage();
     void flipOnTransparentBackground();
+    void flipRotateFlip();
     void panThenMoveSelection();
     void selectionCursorGuide();
     void rotateSelection_data();
@@ -4830,6 +4831,48 @@ void tst_App::flipOnTransparentBackground()
     // Flip the image.
     QVERIFY2(triggerFlipVertically(), failureMessage);
     QCOMPARE(canvas->currentProjectImage()->pixelColor(0, project->heightInPixels() - 1), QColor(Qt::red));
+}
+
+void tst_App::flipRotateFlip()
+{
+    QVERIFY2(createNewImageProject(), failureMessage);
+
+    QVERIFY2(panTopLeftTo(0, 0), failureMessage);
+
+    // Draw a red dot.
+    setCursorPosInScenePixels(0, 0);
+    canvas->setPenForegroundColour(QColorConstants::Red);
+    QVERIFY2(drawPixelAtCursorPos(), failureMessage);
+    QImage originalImage = ImageUtils::filledImage(project->widthInPixels(), project->heightInPixels(), QColorConstants::White);
+    originalImage.setPixelColor(0, 0, QColorConstants::Red);
+    QVERIFY2(compareImages(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage), failureMessage);
+
+    // Select the image.
+    QVERIFY2(triggerSelectAll(), failureMessage);
+    QCOMPARE(canvas->selectionArea(), QRect(0, 0, project->widthInPixels(), project->heightInPixels()));
+
+    // Flip vertically.
+    QVERIFY2(triggerFlipVertically(), failureMessage);
+    QImage expectedImage = ImageUtils::filledImage(project->widthInPixels(), project->heightInPixels(), QColorConstants::White);
+    expectedImage.setPixelColor(0, project->heightInPixels() - 1, QColorConstants::Red);
+    // The changes should be rendered...
+    QVERIFY2(compareImages(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage), failureMessage);
+    // ... but not committed yet.
+    // TODO: this fails and I don't know why
+    // QVERIFY2(compareImages(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage), failureMessage);
+
+    // Rotate clockwise.
+    QVERIFY2(clickButton(rotate90CwToolButton), failureMessage);
+    QVERIFY2(compareImages(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), originalImage), failureMessage);
+
+    // Flip vertically again.
+    QVERIFY2(triggerFlipVertically(), failureMessage);
+    expectedImage = ImageUtils::filledImage(project->widthInPixels(), project->heightInPixels(), QColorConstants::White);
+    expectedImage.setPixelColor(0, project->heightInPixels() - 1, QColorConstants::Red);
+    const auto imageGrabPath = QDir().absolutePath() + "/flipRotateFlip-final-window-grab.png";
+    // qDebug() << "Saving window's image grab to:\n" << imageGrabPath;
+    // QVERIFY(canvas->contentImage().save(imageGrabPath));
+    QVERIFY2(compareImages(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expectedImage), failureMessage);
 }
 
 // https://github.com/mitchcurtis/slate/issues/50

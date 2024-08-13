@@ -214,6 +214,10 @@ void TestHelper::cleanup()
         QVERIFY(canvas->hasActiveFocus());
     }
 
+    // Avoid hovering over a button, which could cause a tooltip to be shown.
+    setCursorPosInScenePixels(0, 0);
+    QTest::mouseMove(window, cursorWindowPos);
+
     // The above is not enough if a popup is still open but doesn't have focus,
     // such as a menu that's closing. That could cause shortcuts not to get delivered
     // because they are blocked by the popup.
