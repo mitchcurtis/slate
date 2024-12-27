@@ -6967,9 +6967,8 @@ void tst_App::disableToolsWhenLayerHidden()
         QVERIFY2(switchTool(tool), failureMessage);
 
         // Move onto the canvas. The cursor should be disabled for each tool.
-        setCursorPosInScenePixels(0, 0);
         QTest::mouseMove(window, cursorWindowPos);
-        // TODO: ForbiddenCursor
+
         QVERIFY2(window->cursor().shape() == Qt::ForbiddenCursor,
             qPrintable(QString::fromLatin1("Expected Qt::ForbiddenCursor for tool %1, but got %2")
                 .arg(QtUtils::toString(tool)).arg(QtUtils::toString(window->cursor().shape()))));

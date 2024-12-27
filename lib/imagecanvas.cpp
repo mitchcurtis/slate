@@ -2704,9 +2704,7 @@ void ImageCanvas::updateWindowCursorShape()
             << "\n............ cursor shape " << QtUtils::toString(cursorShape);
     }
 
-    if (window()) {
-        window()->setCursor(QCursor(cursorShape));
-    }
+    setCursor(QCursor(cursorShape));
 }
 
 void ImageCanvas::onZoomLevelChanged()
