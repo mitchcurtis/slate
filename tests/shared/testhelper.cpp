@@ -2573,6 +2573,13 @@ bool TestHelper::setAnimationPlayback(bool usingAnimation)
         deleteAnimationButton = nullptr;
     }
 
+    // animationPlayback was failing when run after versionCheck on macOS.
+    // It seems that animationPanelSettingsToolButton was visible, had a non-zero size, etc,
+    // but since the item tree it was in needed a polish (perhaps the panel itself didn't
+    // have a valid size), it didn't get events.
+    if (QQuickTest::qIsPolishScheduled(window))
+        VERIFY(QQuickTest::qWaitForPolish(window));
+
     return true;
 }
 

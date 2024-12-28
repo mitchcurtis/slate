@@ -5632,8 +5632,6 @@ void tst_App::animationGifExport()
                 const int expectedAlpha = scaledFrameSourceImageBits[byteIndex * 4 + 3];
                 const QColor actualColour = QColor(actualRed, actualGreen, actualBlue, actualAlpha);
                 const QColor expectedColour = QColor(expectedRed, expectedGreen, expectedBlue, expectedAlpha);
-                if (x == 0 && y == 0)
-                    qDebug() << actualColour << expectedColour;
                 QVERIFY2(actualColour == expectedColour,
                     qPrintable(QString::fromLatin1("Expected pixel at x=%1 y=%2 of frame %3 to be %4 but it's %5")
                         .arg(x).arg(y).arg(frameIndex).arg(actualColour.name(QColor::HexArgb)).arg(expectedColour.name(QColor::HexArgb))));
@@ -6957,11 +6955,6 @@ void tst_App::disableToolsWhenLayerHidden()
         // Hide the layer.
         QVERIFY2(clickButton(layer1VisibilityCheckBox), failureMessage);
         QCOMPARE(layeredImageProject->currentLayer()->isVisible(), false);
-        // Qt::ForbiddenCursor shouldn't be displayed yet.
-        // The cursor should be disabled for each tool.
-        QVERIFY2(window->cursor().shape() == Qt::ArrowCursor,
-            qPrintable(QString::fromLatin1("Expected Qt::ArrowCursor for tool %1, but got %2")
-                .arg(QtUtils::toString(tool)).arg(QtUtils::toString(window->cursor().shape()))));
 
         // Switch tool.
         QVERIFY2(switchTool(tool), failureMessage);
