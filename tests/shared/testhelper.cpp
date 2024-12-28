@@ -211,7 +211,7 @@ void TestHelper::cleanup()
             QTest::qWait(20);
             QTest::keyClick(window, Qt::Key_Escape);
         }
-        QVERIFY(canvas->hasActiveFocus());
+        QVERIFY2(canvas->hasActiveFocus(), activeFocusFailureMessage(canvas));
     }
 
     // The above is not enough if a popup is still open but doesn't have focus,
@@ -330,7 +330,7 @@ void TestHelper::lerpMouseMoveUntil(const QPoint &fromScenePos, const QPoint &to
 QByteArray TestHelper::activeFocusFailureMessage(QQuickItem *item, const QString &when)
 {
     const QString whenText = !when.isEmpty() ? ' ' + when : QString();
-    return QString::fromLatin1("Expected text input %1 to have focus%2, but %3 has it instead")
+    return QString::fromLatin1("Expected %1 to have focus%2, but %3 has it instead")
         .arg(detailedObjectName(item)).arg(whenText).arg(detailedObjectName(window->activeFocusItem())).toLatin1();
 }
 
