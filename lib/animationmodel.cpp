@@ -83,11 +83,6 @@ int AnimationModel::rowCount(const QModelIndex &) const
     return mAnimationSystem->animationCount();
 }
 
-int AnimationModel::columnCount(const QModelIndex &) const
-{
-    return 1;
-}
-
 QHash<int, QByteArray> AnimationModel::roleNames() const
 {
     QHash<int, QByteArray> names;

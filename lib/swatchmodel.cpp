@@ -85,11 +85,6 @@ int SwatchModel::rowCount(const QModelIndex &) const
     return mSwatch->colours().size();
 }
 
-int SwatchModel::columnCount(const QModelIndex &) const
-{
-    return 1;
-}
-
 QHash<int, QByteArray> SwatchModel::roleNames() const
 {
     QHash<int, QByteArray> names;

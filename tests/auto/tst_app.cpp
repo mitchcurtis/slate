@@ -20,6 +20,7 @@
 #include <QClipboard>
 #include <QCursor>
 #include <QGuiApplication>
+#include <QLoggingCategory>
 #include <QPainter>
 #include <QQmlEngine>
 #include <QSharedPointer>
@@ -46,6 +47,8 @@ extern "C" {
 #include "swatch.h"
 #include "testhelper.h"
 #include "tileset.h"
+
+Q_LOGGING_CATEGORY(lcModels, "tests.models")
 
 class tst_App : public TestHelper
 {
@@ -3335,11 +3338,12 @@ void tst_App::formatNotModifiable()
         "Image cannot be edited because its format is indexed 8-bit, which does not support modification.");
 }
 
+// Hint: enable the tests.models and qt.modeltest logging categories when debugging failures here.
 void tst_App::models()
 {
     auto models = window->findChildren<QAbstractItemModel*>();
     for (const auto model : models) {
-        //qDebug() << "testing model" << model << model->hasChildren();
+        qCDebug(lcModels) << "testing model" << model << model->hasChildren();
         QAbstractItemModelTester modelTester(model);
     }
 }
