@@ -199,10 +199,13 @@ void Application::installTranslators()
             qWarning() << "Failed to load slate_* translation for locale"
                 << locale.name() << "from" << slateTranslationsDir.absolutePath();
         }
+        delete slateTranslator;
     }
 
     const QString qtTranslationsDir = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
-    std::unique_ptr<QTranslator> qtTranslator(new QTranslator(mApplication.data()));
+    QTranslator *qtTranslator = new QTranslator(mApplication.data());
     if (qtTranslator->load(locale, QStringLiteral("qt_"), QString(), qtTranslationsDir))
-        mApplication->installTranslator(qtTranslator.get());
+        mApplication->installTranslator(qtTranslator);
+    else
+        delete qtTranslator;
 }
