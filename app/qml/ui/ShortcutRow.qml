@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-import Slate
+import Slate as Slate
 
 RowLayout {
     objectName: shortcutName + "Row"
@@ -26,7 +26,7 @@ RowLayout {
         Layout.fillWidth: true
     }
 
-    KeySequenceEditor {
+    Slate.KeySequenceEditor {
         id: editor
         objectName: shortcutName + "Editor"
         enabled: shortcutName.length > 0
