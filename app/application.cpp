@@ -163,7 +163,7 @@ void Application::addFonts()
     };
     for (const QString &fontPath : fontsToLoad) {
         if (QFontDatabase::addApplicationFont(fontPath) == -1) {
-            qWarning() << "Failed to load font:" << fontPath;
+            qCWarning(lcApplication) << "Failed to load font:" << fontPath;
         }
     }
 }
