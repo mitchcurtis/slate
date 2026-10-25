@@ -26,6 +26,7 @@
 #include <QQmlFileSelector>
 #include <QTranslator>
 #include <QUndoStack>
+#include <QWindow>
 
 #include "canvaspane.h"
 #include "canvaspaneitem.h"
@@ -141,6 +142,7 @@ void Application::registerQmlTypes()
     qRegisterMetaType<ApplicationSettings*>();
     qRegisterMetaType<ImageLayer*>();
     qRegisterMetaType<Project::Type>();
+    qRegisterMetaType<QWindow::Visibility>();
 
     // For some reason, only when debugging, I get
     // QMetaProperty::read: Unable to handle unregistered datatype 'QUndoStack*' for property 'Project_QML_108::undoStack'
