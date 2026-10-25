@@ -163,7 +163,7 @@ void Application::addFonts()
     };
     for (const QString &fontPath : fontsToLoad) {
         if (QFontDatabase::addApplicationFont(fontPath) == -1) {
-            qWarning() << "Failed to load font:" << fontPath;
+            qCWarning(lcApplication) << "Failed to load font:" << fontPath;
         }
     }
 }
@@ -196,8 +196,9 @@ void Application::installTranslators()
         });
         if (tsFileIt != tsFiles.constEnd()) {
             // We have a translation for this locale, so it should have loaded.
-            qWarning() << "Failed to load slate_* translation for locale"
-                << locale.name() << "from" << slateTranslationsDir.absolutePath();
+            qCWarning(lcApplication)
+                << "Failed to load slate_* translation for locale" << locale.name() << "from"
+                << slateTranslationsDir.absolutePath();
         }
         delete slateTranslator;
     }
