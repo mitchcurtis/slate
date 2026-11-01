@@ -36,8 +36,6 @@ Dialog {
     standardButtons: Dialog.Ok
     width: Math.max(implicitWidth, 340)
 
-    property Project project
-
     ColumnLayout {
         spacing: 12
 
