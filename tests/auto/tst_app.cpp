@@ -188,6 +188,8 @@ private Q_SLOTS:
     void selectionCursorGuide();
     void rotateSelection_data();
     void rotateSelection();
+    void flipRotatedSelection_data();
+    void flipRotatedSelection();
     void rotateSelectionAtEdge_data();
     void rotateSelectionAtEdge();
     void rotateSelectionTransparentBackground_data();
@@ -5018,6 +5020,77 @@ void tst_App::rotateSelection()
     QCOMPARE(canvas->hasSelection(), false);
     actualImage = canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32);
     QCOMPARE(actualImage, originalImage);
+}
+
+void tst_App::flipRotatedSelection_data()
+{
+    addImageProjectTypes();
+}
+
+void tst_App::flipRotatedSelection()
+{
+    QFETCH(Project::Type, projectType);
+    QVariantMap args;
+    args.insert("imageWidth", QVariant(10));
+    args.insert("imageHeight", QVariant(10));
+    QVERIFY2(createNewProject(projectType, args), failureMessage);
+
+    const QImage originalImage(":/resources/rotateSelection-original.png");
+    qGuiApp->clipboard()->setImage(originalImage);
+    QVERIFY2(triggerPaste(), failureMessage);
+    QTest::keyClick(window, Qt::Key_Escape);
+    if (projectType == Project::ImageType)
+        QVERIFY2(setupTempProjectDir(), failureMessage);
+    const QUrl saveUrl = QUrl::fromLocalFile(tempProjectDir->path()
+        + "/" + Project::typeToString(projectType)
+        + "." + app.projectManager()->projectExtensionForType(projectType));
+    QVERIFY(project->saveAs(saveUrl));
+    QVERIFY2(loadProject(saveUrl), failureMessage);
+
+    QVERIFY2(selectArea(QRect(3, 2, 4, 5)), failureMessage);
+    canvas->rotateSelection(90);
+    QImage expected = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    const QRect area = canvas->selectionArea();
+    for (const auto orientation : {Qt::Horizontal, Qt::Vertical}) {
+        const QImage before = expected;
+        const QImage flipped = expected.copy(area).mirrored(
+            orientation == Qt::Horizontal, orientation == Qt::Vertical);
+        QPainter painter(&expected);
+        painter.setCompositionMode(QPainter::CompositionMode_Source);
+        painter.drawImage(area.topLeft(), flipped);
+        painter.end();
+        QVERIFY(expected != before);
+        canvas->flipSelection(orientation);
+        QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expected);
+    }
+
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), expected);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
+    QVERIFY2(clickButton(redoToolButton), failureMessage);
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), expected);
+
+    // Flipping another pending modification should also update its preview.
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
+    QVERIFY2(selectArea(QRect(3, 2, 4, 5)), failureMessage);
+    QTest::keyClick(window, Qt::Key_Right);
+    QCOMPARE(canvas->hasModifiedSelection(), true);
+    expected = canvas->contentImage().convertToFormat(QImage::Format_ARGB32);
+    const QRect movedArea = canvas->selectionArea();
+    const QImage flipped = expected.copy(movedArea).mirrored(true, false);
+    QPainter painter(&expected);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.drawImage(movedArea.topLeft(), flipped);
+    painter.end();
+    canvas->flipSelection(Qt::Horizontal);
+    QCOMPARE(canvas->contentImage().convertToFormat(QImage::Format_ARGB32), expected);
+    QTest::keyClick(window, Qt::Key_Escape);
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), expected);
+    QVERIFY2(clickButton(undoToolButton), failureMessage);
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), originalImage);
+    QVERIFY2(clickButton(redoToolButton), failureMessage);
+    QCOMPARE(canvas->currentProjectImage()->convertToFormat(QImage::Format_ARGB32), expected);
 }
 
 void tst_App::rotateSelectionAtEdge_data()

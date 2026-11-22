@@ -2052,13 +2052,15 @@ void ImageCanvas::flipSelection(Qt::Orientation orientation)
 
     // Just like mspaint, flipping a pasted selection has no effect on the undo stack -
     // undoing will simply remove the pasted selection and its contents.
-    if (!mIsSelectionFromPaste) {
+    if (!mIsSelectionFromPaste && !mHasModifiedSelection) {
         // TODO: need to prevent the selection from being cleared here
         mProject->beginMacro(QLatin1String("FlipSelection"));
         mProject->addChange(new FlipImageCanvasSelectionCommand(this, mSelectionArea, orientation));
         mProject->endMacro();
     } else {
         mSelectionContents = mSelectionContents.mirrored(orientation == Qt::Horizontal, orientation == Qt::Vertical);
+        if (!mIsSelectionFromPaste)
+            setLastSelectionModification(SelectionFlip);
         updateSelectionPreviewImage(SelectionFlip);
         requestContentPaint();
     }
